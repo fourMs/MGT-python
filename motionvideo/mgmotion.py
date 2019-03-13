@@ -52,24 +52,49 @@ class InputError(Error):
         self.message = message
 
 
-def mg_videoreader(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.1, starttime = 0, endtime = 0):
+def mg_videoreader(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.1, starttime = 0, endtime = 0, skip = 0):
 
-    #cut out relevant bit of video using starttime and endtime
+    # Cut out relevant bit of video using starttime and endtime
     if starttime != 0 or endtime != 0:
-        cropvideo = ffmpeg_extract_subclip(filename, starttime, endtime, targetname="cut.avi")
-        video = cv2.VideoCapture("cut.avi")
-    #or just use whole video
-    else:
-        video = cv2.VideoCapture(filename)
+        trimvideo = ffmpeg_extract_subclip(filename, starttime, endtime, targetname="trim.avi")
+        vidcap = cv2.VideoCapture("trim.avi")
 
-    length = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
-    fps = int(video.get(cv2.CAP_PROP_FPS))
+    # Or just use whole video
+    else:
+        vidcap = cv2.VideoCapture(filename)
+
+    fps = int(vidcap.get(cv2.CAP_PROP_FPS))
+    width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    
+    # To skip ahead a few frames before the next sample set skip to a value above 0
+    count = 0;
+    if skip != 0:
+        fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+        out = cv2.VideoWriter('skip.avi',fourcc, int(fps/skip), (width,height))
+        success,image = vidcap.read()
+        while success: 
+            success,image = vidcap.read()
+            if not success:
+                break
+            # on every frame we wish to use
+            if (count % skip ==0):
+              out.write(image.astype(np.uint8))  
+            
+            count += 1
+        out.release()
+        vidcap = cv2.VideoCapture("skip.avi")
+
+    length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
+    fps = int(vidcap.get(cv2.CAP_PROP_FPS))
+    width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
     #overwrite the inputvalue for endtime to not cut the video at 0...
     if endtime == 0:
         endtime = length/fps
 
-    return video, length, fps, endtime
+    return vidcap, length, width, height, fps, endtime
 
 
 def mg_centroid(image, width, height, colorflag):
@@ -88,7 +113,7 @@ def mg_centroid(image, width, height, colorflag):
 
     return com, qom
 
-def mg_motion(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.1, starttime = 0, endtime = 0):
+def mg_motion(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.01, starttime = 0, endtime = 0, blur = 'Average', skip = 5):
     #spatial blur før terskling, dilate,. thresh = neg og over 1. velge hoppstørrelse: antall frames øvre grense.
     ii = 0
     filenametest = 'true'
@@ -107,8 +132,12 @@ def mg_motion(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.1, s
             msg = 'Please specify a filter type as str: Regular or Binary'
             raise InputError(msg)
 
+        if blur != 'Average' and filtertype != 'None':
+            msg = 'Please specify a blur type as str: Average or None'
+            raise InputError(msg)
+
         if not isinstance(thresh,float) and not isinstance(thresh, int):
-            msg = 'Please specify a threshold as a float.'
+            msg = 'Please specify a threshold as a float between 0 and 1.'
             raise InputError(msg)
 
         if not isinstance(starttime,float) and not isinstance(starttime,int):
@@ -119,16 +148,18 @@ def mg_motion(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.1, s
             msg = 'Please specify a endtime as a float.'
             raise InputError(msg)
 
+        if not isinstance(skip,int):
+            msg = 'Please specify a skip as an integer of frames you wish to skip (Max = N frames).'
+            raise InputError(msg)        
+
     else:
         msg = 'Minimum input for this function: filename as a str.'
         raise InputError(msg)
 
 
 
-    cap, length, fps, endtime = mg_videoreader(filename, method, filtertype, thresh, starttime, endtime)
+    cap, length, width, height, fps, endtime = mg_videoreader(filename, method, filtertype, thresh, starttime, endtime)
 
-    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     frame = np.zeros([height,width])
     of = os.path.splitext(filename)[0] 
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
@@ -163,6 +194,11 @@ def mg_motion(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.1, s
             """
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             frame = frame.astype(np.int16)
+            if blur == 'Average':
+                frame = cv2.blur(frame,(10,10)) #The higher these numbers the more blur you get
+            else:
+                pass
+            plt.imshow(frame)
             if method == 'Diff':
                 motion_frame = ((np.abs(frame-prev_frame)>(thresh*255))*frame).astype(np.uint8)
                 motion_frame = medfilt2d(motion_frame, kernel_size=5)
@@ -204,5 +240,5 @@ def mg_motion(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.1, s
     out.release()
     cv2.destroyAllWindows()
 
-mg_motion("dance.avi", endtime = 5)
+mg_motion("dance.avi", endtime = 10, skip = 4)
     
