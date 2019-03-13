@@ -2,3 +2,5 @@ __pycache__/
 
 *.avi
 *.csv
+*.eps
+*.tiff

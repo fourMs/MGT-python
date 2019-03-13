@@ -28,6 +28,7 @@
 # mg = mginitstruct
 
 import numpy as np
+from libtiff import TIFF
 import os
 import csv
 import cv2
@@ -52,7 +53,7 @@ class InputError(Error):
         self.message = message
 
 
-def mg_videoreader(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.1, starttime = 0, endtime = 0, skip = 0):
+def mg_videoreader(filename, starttime, endtime, skip):
 
     # Cut out relevant bit of video using starttime and endtime
     if starttime != 0 or endtime != 0:
@@ -181,7 +182,7 @@ def mg_motion(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.01, 
 
 
 
-    cap, length, width, height, fps, endtime = mg_videoreader(filename, method, filtertype, thresh, starttime, endtime)
+    cap, length, width, height, fps, endtime = mg_videoreader(filename, starttime, endtime, skip)
 
     frame = np.zeros([height,width])
     of = os.path.splitext(filename)[0] 
@@ -230,11 +231,12 @@ def mg_motion(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.01, 
                 #Optical Flow not implemented yet!!!
                 motion_frame = ((np.abs(frame-prev_frame)>(thresh*255))*frame).astype(np.uint8) 
 
-            gramx = np.append(gramx,np.mean(motion_frame,axis=0))
-            gramy = np.append(gramy,np.mean(motion_frame,axis=1))   
+            gramy = np.append(gramx,np.mean(motion_frame,axis=0))
+            gramx = np.append(gramy,np.mean(motion_frame,axis=1))   
             motion_frame = cv2.cvtColor(motion_frame, cv2.COLOR_GRAY2BGR)
             out.write(motion_frame)
             combite, qombite = mg_centroid(motion_frame,width,height,colorflag)
+
             if ii == 0:
                 com = combite.reshape(1,2)
                 qom = qombite
@@ -242,11 +244,26 @@ def mg_motion(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.01, 
             else:
                 com=np.append(com,combite.reshape(1,2),axis =0)
                 qom=np.append(qom,qombite)
+
         else:
             break
         ii+=1
         print('Processing %s%%' %(int(ii/length*100)), end='\r')
-        
+
+
+    #Write motiongrams to files
+    #np.savetxt(of + '_mgx.txt', gramx, delimiter = ',')
+    #np.savetxt(of + '_mgy.txt', gramy, delimiter = ',')
+
+    #plt.hist(gramy, bins='auto')
+    #plt.show()
+    
+    """
+    tiff = TIFF.open(of + 'mgx.tiff', mode = 'w')
+    tiff.write_image(gramx)
+    tiff.close()
+    """
+
     qom = qom.reshape(len(qom),1)
     plot_motion_metrics(of,com,qom,width,height)
     np.savetxt('%s_data.csv'%of,np.append(qom,com,axis=1),delimiter = ',')
@@ -255,5 +272,5 @@ def mg_motion(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.01, 
     cv2.destroyAllWindows()
 
 
-mg_motion("dance.avi", endtime = 10, skip = 4)
+mg_motion("dance.avi", endtime = 10, skip = 5)
     
