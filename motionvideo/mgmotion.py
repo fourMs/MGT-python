@@ -117,6 +117,25 @@ def mg_centroid(image, width, height, colorflag):
 
     return com, qom
 
+def plot_motion_metrics(of,com,qom,width,height):
+    plt.rc('text',usetex = True)
+    plt.rc('font',family='serif')
+    fig = plt.figure(figsize = (12,6))
+    ax = fig.add_subplot(1,2,1) 
+    ax.scatter(com[:,0]/width,com[:,1]/height,s=2)
+    ax.set_xlim((0,1))
+    ax.set_ylim((0,1))
+    ax.set_xlabel('Pixels normalized')
+    ax.set_ylabel('Pixels normalized')
+    ax.set_title('Centroid of motion')
+    ax = fig.add_subplot(1,2,2)
+    ax.set_xlabel('Time[frames]')
+    ax.set_ylabel('Pixels normalized')
+    ax.set_title('Quantity of motion')
+    ax.bar(np.arange(len(qom)-1),qom[1:,0]/(width*height))
+    #ax.plot(qom[1:-1])
+    plt.savefig('%s__motion_com_qom.eps'%of,format='eps')
+
 def mg_motion(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.01, starttime = 0, endtime = 0, blur = 'Average', skip = 5):
     #spatial blur før terskling, dilate,. thresh = neg og over 1. velge hoppstørrelse: antall frames øvre grense.
     ii = 0
@@ -202,7 +221,7 @@ def mg_motion(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.01, 
                 frame = cv2.blur(frame,(10,10)) #The higher these numbers the more blur you get
             else:
                 pass
-            plt.imshow(frame)
+            
             if method == 'Diff':
                 motion_frame = np.abs(frame-prev_frame)
                 motion_frame = ((motion_frame>(thresh*255))*frame).astype(np.uint8)
@@ -216,8 +235,6 @@ def mg_motion(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.01, 
             motion_frame = cv2.cvtColor(motion_frame, cv2.COLOR_GRAY2BGR)
             out.write(motion_frame)
             combite, qombite = mg_centroid(motion_frame,width,height,colorflag)
-            #plt.scatter(combite[0],combite[1])
-            print(combite.shape)
             if ii == 0:
                 com = combite.reshape(1,2)
                 qom = qombite
@@ -225,17 +242,13 @@ def mg_motion(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.01, 
             else:
                 com=np.append(com,combite.reshape(1,2),axis =0)
                 qom=np.append(qom,qombite)
-            print(qombite)
-            #com.append(combite)
-            #cv2.imshow('frame',motion_frame)
-            #if cv2.waitKey(1) & 0xFF == ord('q'):
-            #   break
         else:
             break
         ii+=1
         print('Processing %s%%' %(int(ii/length*100)), end='\r')
         
     qom = qom.reshape(len(qom),1)
+    plot_motion_metrics(of,com,qom,width,height)
     np.savetxt('%s_data.csv'%of,np.append(qom,com,axis=1),delimiter = ',')
     cap.release()
     out.release()
