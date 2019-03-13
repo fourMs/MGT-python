@@ -1,4 +1,4 @@
-#MGMOTION - Calculate various motion features from a video file
+ #MGMOTION - Calculate various motion features from a video file
 # mgmotion computes a motion video, motiongram, quantity of motion, centroid of
 # motion, width of motion, and height of motion from the video file or musical
 # gestures data structure. The default method is to use plain frame differencing
@@ -99,17 +99,21 @@ def mg_videoreader(filename, method = 'Diff', filtertype = 'Regular', thresh = 0
 
 def mg_centroid(image, width, height, colorflag):
     #mgcentroid computes the centroid of an image/frame.
-
     if colorflag == 'true':
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    x = np.linspace(1,width,width); y = np.linspace(1,height,height)
-    qom = cv2.sumElems(image) #deles på width*height
+    #x = np.linspace(1,width,width); y = np.linspace(1,height,height)
+    x = np.arange(width)
+    y = np.arange(height)
+    qom = cv2.sumElems(image)[0] #deles på width*height
     mx = np.mean(image,axis=0)
     my = np.mean(image,axis=1)
-    comx = x*mx/sum(mx)
-    comy = y*my/sum(my)
-    com = [comx,comy]
+    comx = x.reshape(1,width)@mx.reshape(width,1)/np.sum(mx)
+    comy = y.reshape(1,height)@my.reshape(height,1)/np.sum(my)
+  
+    com = np.zeros(2)
+    com[0]=comx
+    com[1]=comy
 
     return com, qom
 
@@ -169,8 +173,8 @@ def mg_motion(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.01, 
 
     gramx = np.array([1,1])
     gramy = np.array([1,1])
-    qom = [] #quantity of motion
-    com = [] #centroid of motion
+    qom = np.array([]) #quantity of motion
+    com = np.array([]) #centroid of motion
     #aom = [] #area of motion
     #wom = [] #width of motion
     #hom = [] #height of motion
@@ -200,7 +204,8 @@ def mg_motion(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.01, 
                 pass
             plt.imshow(frame)
             if method == 'Diff':
-                motion_frame = ((np.abs(frame-prev_frame)>(thresh*255))*frame).astype(np.uint8)
+                motion_frame = np.abs(frame-prev_frame)
+                motion_frame = ((motion_frame>(thresh*255))*frame).astype(np.uint8)
                 motion_frame = medfilt2d(motion_frame, kernel_size=5)
             elif method == 'OpticalFlow':
                 #Optical Flow not implemented yet!!!
@@ -211,9 +216,17 @@ def mg_motion(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.01, 
             motion_frame = cv2.cvtColor(motion_frame, cv2.COLOR_GRAY2BGR)
             out.write(motion_frame)
             combite, qombite = mg_centroid(motion_frame,width,height,colorflag)
-            com.append(combite)
-            qom.append(qombite)
+            #plt.scatter(combite[0],combite[1])
+            print(combite.shape)
+            if ii == 0:
+                com = combite.reshape(1,2)
+                qom = qombite
 
+            else:
+                com=np.append(com,combite.reshape(1,2),axis =0)
+                qom=np.append(qom,qombite)
+            print(qombite)
+            #com.append(combite)
             #cv2.imshow('frame',motion_frame)
             #if cv2.waitKey(1) & 0xFF == ord('q'):
             #   break
@@ -222,23 +235,12 @@ def mg_motion(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.01, 
         ii+=1
         print('Processing %s%%' %(int(ii/length*100)), end='\r')
         
-    
-    # Gotta write a write and plotting function!
-    csvdata = [qom, com]
-    newfile = of +'_data.csv'
-    #csvwrite(newfile, csvdata) # Need to write header info as well
-    
-    #mgmotionplot(cap)
-
-    # Write Quantity of Motion and Centroid of Motion to file
-    with open(newfile, mode='w') as f_:
-        f = csv.writer(f_, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        f.writerow(qom)
-        f.writerow(com)
-
+    qom = qom.reshape(len(qom),1)
+    np.savetxt('%s_data.csv'%of,np.append(qom,com,axis=1),delimiter = ',')
     cap.release()
     out.release()
     cv2.destroyAllWindows()
+
 
 mg_motion("dance.avi", endtime = 10, skip = 4)
     
