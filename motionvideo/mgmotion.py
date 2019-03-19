@@ -52,7 +52,27 @@ class InputError(Error):
     def __init__(self, message):
         self.message = message
 
+"""
+class mg:
+    
+    def __init__(self, filename, method, filtertype, tresh, starttime, endtime, blur, skip):
+        self.filename = filename
+        self.method = method
+        self.starttime = starttime
+        self.endtime = endtime
+        self.skip = skip
+        self.filtertype = filtertype
+        self.thresh = thresh
+        self.blur = blur
 
+    def test_input():
+
+    def get_video():
+        self.video, self.length, self.width, self.height, self.fps, self.endtime = mg_videoreader(self.filename, self.method, self.filtertype, self.tresh, self.starttime, self.endtime, self.blur, self.skip)
+
+    def get_com_qom():
+        self.com, self.qom = mg_centroid(self.image, width, height, colorflag)
+"""
 def mg_videoreader(filename, starttime, endtime, skip):
 
     # Cut out relevant bit of video using starttime and endtime
@@ -137,10 +157,11 @@ def plot_motion_metrics(of,com,qom,width,height):
     #ax.plot(qom[1:-1])
     plt.savefig('%s__motion_com_qom.eps'%of,format='eps')
 
-def mg_motion(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.01, starttime = 0, endtime = 0, blur = 'Average', skip = 5):
-    #spatial blur før terskling, dilate,. thresh = neg og over 1. velge hoppstørrelse: antall frames øvre grense.
-    ii = 0
+def input_test(filename,method,filtertype,thresh,starttime,endtime,blur,skip):
+    #thresh = neg og over 1. velge hoppstørrelse: antall frames øvre grense.
+
     filenametest = 'true'
+
     for c in filename:
         if c.isalpha() == True or c.isnumeric() == True or c == '.':
             pass
@@ -180,8 +201,9 @@ def mg_motion(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.01, 
         msg = 'Minimum input for this function: filename as a str.'
         raise InputError(msg)
 
+def mg_motion(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.01, starttime = 0, endtime = 0, blur = 'Average', skip = 5):
 
-
+    input_test(filename,method,filtertype,thresh,starttime,endtime,blur,skip)
     cap, length, width, height, fps, endtime = mg_videoreader(filename, starttime, endtime, skip)
 
     frame = np.zeros([height,width])
