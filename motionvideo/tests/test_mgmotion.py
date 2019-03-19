@@ -1,12 +1,15 @@
 import sys
 sys.path.append('../..')
-from motionvideo.mgmotion import mg_motion
+from motionvideo.mgmotion import MgObject
 import cv2
 import numpy as np
 
 
+mg = MgObject('pianist.avi',filtertype = 'Regular',endtime = 5)
+mg.motionvideo()
 
-mg_motion('pianist.avi',endtime = 10)
+
+#mg_motion('pianist.avi',endtime = 10)
 """cap = cv2.VideoCapture('pianist.avi');
  
 fps = int(cap.get(cv2.CAP_PROP_FPS))
