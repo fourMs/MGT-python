@@ -53,10 +53,9 @@ class InputError(Error):
         self.message = message
 
 
-
 class MgObject:
     
-    def __init__(self, filename, method = 'Diff', filtertype = 'Regular', thresh = 0.01, starttime = 0, endtime = 0, blur = 'Average', skip = 0):
+    def __init__(self, filename, method = 'Diff', filtertype = 'Regular', thresh = 0.0001, starttime = 0, endtime = 0, blur = 'Average', skip = 0):
         self.filename = filename
         self.method = method
         self.starttime = starttime
@@ -77,7 +76,8 @@ class MgObject:
     #def get_com_qom():
         #self.com, self.qom = mg_centroid(self.image, width, height, colorflag)
     def motionvideo(self, kernel_size = 5):
-        frame = np.zeros([self.height,self.width])
+        ret, frame = self.video.read()
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         of = os.path.splitext(self.filename)[0] 
         fourcc = cv2.VideoWriter_fourcc(*'MJPG')
         out = cv2.VideoWriter(of + '_motion.avi',fourcc, self.fps, (self.width,self.height))
@@ -110,8 +110,17 @@ class MgObject:
                 
                 if self.method == 'Diff':
                     motion_frame = np.abs(frame-prev_frame)
-                    motion_frame = ((motion_frame>(self.thresh*255))*frame).astype(np.uint8)
-                    motion_frame = medfilt2d(motion_frame, kernel_size)
+                    motion_frame = motion_frame.astype(np.uint8)
+                    #motion_frame = ((motion_frame>(self.thresh*255))*frame).astype(np.uint8)
+                    if self.filtertype == 'Regular':
+                        motion_frame = (motion_frame>self.thresh*255)*motion_frame
+                        motion_frame = medfilt2d(motion_frame, kernel_size)
+                    elif self.filtertype == 'Binary':
+                        motion_frame = (motion_frame>self.thresh*255)*255
+                        motion_frame = medfilt2d(motion_frame, kernel_size)
+                    elif self.filtertype == 'Blob':
+                        motion_frame = cv2.erode(motion_frame,np.ones([kernel_size,kernel_size]),iterations=1)
+                    
                 elif self.method == 'OpticalFlow':
                     #Optical Flow not implemented yet!!!
                     motion_frame = ((np.abs(frame-prev_frame)>(self.thresh*255))*frame).astype(np.uint8) 
@@ -133,7 +142,7 @@ class MgObject:
             else:
                 break
             ii+=1
-            print('Processing %s%%' %(int(ii/self.length*100)), end='\r')
+            print('Processing %s%%' %(int(ii/(self.length-1)*100)), end='\r')
 
 
         #Write motiongrams to files
@@ -259,7 +268,7 @@ def input_test(filename,method,filtertype,thresh,starttime,endtime,blur,skip):
             msg = 'Please specify a method for motion estimation as str: Diff or OpticalFlow.'
             raise InputError(msg) 
 
-        if filtertype != 'Regular' and filtertype != 'Binary':
+        if filtertype != 'Regular' and filtertype != 'Binary' and filtertype != 'Blob':
             msg = 'Please specify a filter type as str: Regular or Binary'
             raise InputError(msg)
 
