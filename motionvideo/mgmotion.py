@@ -52,8 +52,8 @@ class InputError(Error):
     def __init__(self, message):
         self.message = message
 
-"""
-class mg:
+
+class MgObject:
     
     def __init__(self, filename, method, filtertype, tresh, starttime, endtime, blur, skip):
         self.filename = filename
@@ -65,14 +65,18 @@ class mg:
         self.thresh = thresh
         self.blur = blur
 
-    def test_input():
+    def test_input(self,self.filename, self.method, self.filtertype, self.tresh, self.starttime, self.endtime, self.blur, self.skip):
+        input_test(self.filename, self.method, self.filtertype, self.tresh, self.starttime, self.endtime, self.blur, self.skip):
 
     def get_video():
         self.video, self.length, self.width, self.height, self.fps, self.endtime = mg_videoreader(self.filename, self.method, self.filtertype, self.tresh, self.starttime, self.endtime, self.blur, self.skip)
 
-    def get_com_qom():
-        self.com, self.qom = mg_centroid(self.image, width, height, colorflag)
-"""
+    #def get_com_qom():
+        #self.com, self.qom = mg_centroid(self.image, width, height, colorflag)
+
+class MgFrame:
+
+
 def mg_videoreader(filename, starttime, endtime, skip):
 
     # Cut out relevant bit of video using starttime and endtime
@@ -203,15 +207,15 @@ def input_test(filename,method,filtertype,thresh,starttime,endtime,blur,skip):
 
 def mg_motion(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.01, starttime = 0, endtime = 0, blur = 'Average', skip = 5):
 
-    input_test(filename,method,filtertype,thresh,starttime,endtime,blur,skip)
-    cap, length, width, height, fps, endtime = mg_videoreader(filename, starttime, endtime, skip)
+    mg = MgObject(filename,method,filtertype,thresh,starttime,endtime,blur,skip)
+    mg.test_input()
+    mg.cap, mg.length, mg.width, mg.height, mg.fps, mg.endtime = mg.get_video()
+    #cap, length, width, height, fps, endtime = mg_videoreader(filename, starttime, endtime, skip)
 
-    frame = np.zeros([height,width])
+    frame = np.zeros([mg.height,mg.width])
     of = os.path.splitext(filename)[0] 
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
     out = cv2.VideoWriter(of + '_motion.avi',fourcc, fps, (width,height))
-    #f = cap
-
 
     gramx = np.array([1,1])
     gramy = np.array([1,1])
