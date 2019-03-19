@@ -28,7 +28,7 @@
 # mg = mginitstruct
 
 import numpy as np
-from libtiff import TIFF
+#from libtiff import TIFF
 import os
 import csv
 import cv2
@@ -53,9 +53,10 @@ class InputError(Error):
         self.message = message
 
 
+
 class MgObject:
     
-    def __init__(self, filename, method, filtertype, tresh, starttime, endtime, blur, skip):
+    def __init__(self, filename, method = 'Diff', filtertype = 'Regular', thresh = 0.01, starttime = 0, endtime = 0, blur = 'Average', skip = 0):
         self.filename = filename
         self.method = method
         self.starttime = starttime
@@ -64,17 +65,98 @@ class MgObject:
         self.filtertype = filtertype
         self.thresh = thresh
         self.blur = blur
+        self.test_input()
+        self.get_video()
 
-    def test_input(self,self.filename, self.method, self.filtertype, self.tresh, self.starttime, self.endtime, self.blur, self.skip):
-        input_test(self.filename, self.method, self.filtertype, self.tresh, self.starttime, self.endtime, self.blur, self.skip):
+    def test_input(self):
+        input_test(self.filename, self.method, self.filtertype, self.thresh, self.starttime, self.endtime, self.blur, self.skip)
 
-    def get_video():
-        self.video, self.length, self.width, self.height, self.fps, self.endtime = mg_videoreader(self.filename, self.method, self.filtertype, self.tresh, self.starttime, self.endtime, self.blur, self.skip)
+    def get_video(self):
+        self.video, self.length, self.width, self.height, self.fps, self.endtime = mg_videoreader(self.filename, self.starttime, self.endtime, self.skip)
 
     #def get_com_qom():
         #self.com, self.qom = mg_centroid(self.image, width, height, colorflag)
+    def motionvideo(self, kernel_size = 5):
+        frame = np.zeros([self.height,self.width])
+        of = os.path.splitext(self.filename)[0] 
+        fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+        out = cv2.VideoWriter(of + '_motion.avi',fourcc, self.fps, (self.width,self.height))
 
-class MgFrame:
+        gramx = np.array([1,1])
+        gramy = np.array([1,1])
+        qom = np.array([]) #quantity of motion
+        com = np.array([]) #centroid of motion
+        ii = 0
+        while(self.video.isOpened()):
+
+            prev_frame=frame
+            ret, frame = self.video.read()
+
+            if ret==True:
+                # colorflag right here does not work yet
+                #utgangspunktet argb
+                """ 
+                if colorflag == 'true':
+                    frame = frame
+                else:
+                    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                """
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                frame = frame.astype(np.int16)
+                if self.blur == 'Average':
+                    frame = cv2.blur(frame,(10,10)) #The higher these numbers the more blur you get
+                else:
+                    pass
+                
+                if self.method == 'Diff':
+                    motion_frame = np.abs(frame-prev_frame)
+                    motion_frame = ((motion_frame>(self.thresh*255))*frame).astype(np.uint8)
+                    motion_frame = medfilt2d(motion_frame, kernel_size)
+                elif self.method == 'OpticalFlow':
+                    #Optical Flow not implemented yet!!!
+                    motion_frame = ((np.abs(frame-prev_frame)>(self.thresh*255))*frame).astype(np.uint8) 
+
+                gramy = np.append(gramx,np.mean(motion_frame,axis=0))
+                gramx = np.append(gramy,np.mean(motion_frame,axis=1))   
+                motion_frame = cv2.cvtColor(motion_frame, cv2.COLOR_GRAY2BGR)
+                out.write(motion_frame)
+                combite, qombite = mg_centroid(motion_frame,self.width,self.height,colorflag)
+
+                if ii == 0:
+                    com = combite.reshape(1,2)
+                    qom = qombite
+
+                else:
+                    com=np.append(com,combite.reshape(1,2),axis =0)
+                    qom=np.append(qom,qombite)
+
+            else:
+                break
+            ii+=1
+            print('Processing %s%%' %(int(ii/self.length*100)), end='\r')
+
+
+        #Write motiongrams to files
+        #np.savetxt(of + '_mgx.txt', gramx, delimiter = ',')
+        #np.savetxt(of + '_mgy.txt', gramy, delimiter = ',')
+
+        #plt.hist(gramy, bins='auto')
+        #plt.show()
+        
+        """
+        tiff = TIFF.open(of + 'mgx.tiff', mode = 'w')
+        tiff.write_image(gramx)
+        tiff.close()
+        """
+
+        qom = qom.reshape(len(qom),1)
+        #plot_motiongram(gramx,gramy)
+        plot_motion_metrics(of,com,qom,self.width,self.height)
+        np.savetxt('%s_data.csv'%of,np.append(qom,com,axis=1),delimiter = ',')
+        self.video.release()
+        out.release()
+        cv2.destroyAllWindows()
+
 
 
 def mg_videoreader(filename, starttime, endtime, skip):
@@ -298,5 +380,5 @@ def mg_motion(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.01, 
     cv2.destroyAllWindows()
 
 
-mg_motion("dance.avi", endtime = 10, skip = 5)
+#mg_motion("dance.avi", endtime = 10, skip = 5)
     
