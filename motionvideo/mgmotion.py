@@ -36,8 +36,6 @@ from scipy.signal import medfilt2d
 from matplotlib import pyplot as plt
 from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 
-colorflag = 'true'
-
 
 class Error(Exception):
     """Base class for exceptions in this module."""
@@ -55,8 +53,9 @@ class InputError(Error):
 
 class MgObject:
     
-    def __init__(self, filename, method = 'Diff', filtertype = 'Regular', thresh = 0.0001, starttime = 0, endtime = 0, blur = 'Average', skip = 0):
+    def __init__(self, filename, method = 'Diff', filtertype = 'Regular', thresh = 0.0001, starttime = 0, endtime = 0, blur = 'Average', skip = 0, color = True):
         self.filename = filename
+        self.color = color
         self.method = method
         self.starttime = starttime
         self.endtime = endtime
@@ -77,7 +76,7 @@ class MgObject:
         #self.com, self.qom = mg_centroid(self.image, width, height, colorflag)
     def motionvideo(self, kernel_size = 5):
         ret, frame = self.video.read()
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         of = os.path.splitext(self.filename)[0] 
         fourcc = cv2.VideoWriter_fourcc(*'MJPG')
         out = cv2.VideoWriter(of + '_motion.avi',fourcc, self.fps, (self.width,self.height))
@@ -89,47 +88,77 @@ class MgObject:
         ii = 0
         while(self.video.isOpened()):
 
-            prev_frame=frame
+            
             ret, frame = self.video.read()
 
             if ret==True:
                 # colorflag right here does not work yet
                 #utgangspunktet argb
-                """ 
-                if colorflag == 'true':
+                
+                if self.color == True:
                     frame = frame
+                    prev_frame=frame
                 else:
                     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                """
-                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                frame = frame.astype(np.int16)
+                    prev_frame=frame
+                #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                frame = np.array(frame)
+                frame = frame.astype(np.int32)
                 if self.blur == 'Average':
                     frame = cv2.blur(frame,(10,10)) #The higher these numbers the more blur you get
                 else:
                     pass
-                
+
                 if self.method == 'Diff':
-                    motion_frame = np.abs(frame-prev_frame)
-                    motion_frame = motion_frame.astype(np.uint8)
-                    #motion_frame = ((motion_frame>(self.thresh*255))*frame).astype(np.uint8)
-                    if self.filtertype == 'Regular':
-                        motion_frame = (motion_frame>self.thresh*255)*motion_frame
-                        motion_frame = medfilt2d(motion_frame, kernel_size)
-                    elif self.filtertype == 'Binary':
-                        motion_frame = (motion_frame>self.thresh*255)*255
-                        motion_frame = medfilt2d(motion_frame, kernel_size)
-                    elif self.filtertype == 'Blob':
-                        motion_frame = cv2.erode(motion_frame,np.ones([kernel_size,kernel_size]),iterations=1)
-                    
+
+                    if self.color == True:
+                        motion_frame_rgb = np.zeros([self.height,self.width,3])
+    
+                        for i in range(frame.shape[2]):
+                            motion_frame = np.abs(frame[:,:,i]-prev_frame[:,:,i])
+                            motion_frame = motion_frame.astype(np.uint8)
+                            #motion_frame = ((motion_frame>(self.thresh*255))*frame).astype(np.uint8)
+                            if self.filtertype == 'Regular':
+                                motion_frame = (motion_frame>self.thresh*255)*motion_frame
+                                motion_frame = medfilt2d(motion_frame, kernel_size)
+                            elif self.filtertype == 'Binary':
+                                motion_frame = (motion_frame>self.thresh*255)*255
+                                motion_frame = medfilt2d(motion_frame, kernel_size)
+                            elif self.filtertype == 'Blob':
+                                motion_frame = cv2.erode(motion_frame,np.ones([kernel_size,kernel_size]),iterations=1)
+                            
+                            motion_frame_rgb[:,:,i] = motion_frame
+                        gramy = np.append(gramx,np.mean(motion_frame_rgb,axis=0))
+                        gramx = np.append(gramy,np.mean(motion_frame_rgb,axis=1))
+                       
+                    else:
+                        motion_frame = np.abs(frame-prev_frame)
+                        motion_frame = motion_frame.astype(np.uint8)
+                        #motion_frame = ((motion_frame>(self.thresh*255))*frame).astype(np.uint8)
+                        if self.filtertype == 'Regular':
+                            motion_frame = (motion_frame>self.thresh*255)*motion_frame
+                            motion_frame = medfilt2d(motion_frame, kernel_size)
+                        elif self.filtertype == 'Binary':
+                            motion_frame = (motion_frame>self.thresh*255)*255
+                            motion_frame = medfilt2d(motion_frame, kernel_size)
+                        elif self.filtertype == 'Blob':
+                            motion_frame = cv2.erode(motion_frame,np.ones([kernel_size,kernel_size]),iterations=1)
+                        gramy = np.append(gramx,np.mean(motion_frame,axis=0))
+                        gramx = np.append(gramy,np.mean(motion_frame,axis=1))  
+
+
                 elif self.method == 'OpticalFlow':
                     #Optical Flow not implemented yet!!!
                     motion_frame = ((np.abs(frame-prev_frame)>(self.thresh*255))*frame).astype(np.uint8) 
 
-                gramy = np.append(gramx,np.mean(motion_frame,axis=0))
-                gramx = np.append(gramy,np.mean(motion_frame,axis=1))   
-                motion_frame = cv2.cvtColor(motion_frame, cv2.COLOR_GRAY2BGR)
-                out.write(motion_frame)
-                combite, qombite = mg_centroid(motion_frame,self.width,self.height,colorflag)
+                #gramy = np.append(gramx,np.mean(motion_frame_rgb,axis=0))
+                #gramx = np.append(gramy,np.mean(motion_frame_rgb,axis=1))  
+                if self.color == False: 
+                    motion_frame = cv2.cvtColor(motion_frame, cv2.COLOR_GRAY2BGR)
+                    motion_frame_rgb = motion_frame
+
+                out.write(motion_frame_rgb.astype(np.uint8))
+                combite, qombite = mg_centroid(motion_frame_rgb.astype(np.uint8),self.width,self.height,self.color)
 
                 if ii == 0:
                     com = combite.reshape(1,2)
@@ -213,9 +242,9 @@ def mg_videoreader(filename, starttime, endtime, skip):
     return vidcap, length, width, height, fps, endtime
 
 
-def mg_centroid(image, width, height, colorflag):
+def mg_centroid(image, width, height, color):
     #mgcentroid computes the centroid of an image/frame.
-    if colorflag == 'true':
+    if color == True:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     #x = np.linspace(1,width,width); y = np.linspace(1,height,height)
@@ -296,98 +325,14 @@ def input_test(filename,method,filtertype,thresh,starttime,endtime,blur,skip):
         msg = 'Minimum input for this function: filename as a str.'
         raise InputError(msg)
 
-def mg_motion(filename, method = 'Diff', filtertype = 'Regular', thresh = 0.01, starttime = 0, endtime = 0, blur = 'Average', skip = 5):
-
-    mg = MgObject(filename,method,filtertype,thresh,starttime,endtime,blur,skip)
-    mg.test_input()
-    mg.cap, mg.length, mg.width, mg.height, mg.fps, mg.endtime = mg.get_video()
-    #cap, length, width, height, fps, endtime = mg_videoreader(filename, starttime, endtime, skip)
-
-    frame = np.zeros([mg.height,mg.width])
-    of = os.path.splitext(filename)[0] 
-    fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-    out = cv2.VideoWriter(of + '_motion.avi',fourcc, fps, (width,height))
-
-    gramx = np.array([1,1])
-    gramy = np.array([1,1])
-    qom = np.array([]) #quantity of motion
-    com = np.array([]) #centroid of motion
-    #aom = [] #area of motion
-    #wom = [] #width of motion
-    #hom = [] #height of motion
-
-
-    ii = 0
-    while(cap.isOpened()):
-
-        prev_frame=frame
-        ret, frame = cap.read()
-
-        
-        if ret==True:
-            # colorflag right here does not work yet
-            #utgangspunktet argb
-            """ 
-            if colorflag == 'true':
-                frame = frame
-            else:
-                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            """
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            frame = frame.astype(np.int16)
-            if blur == 'Average':
-                frame = cv2.blur(frame,(10,10)) #The higher these numbers the more blur you get
-            else:
-                pass
-            
-            if method == 'Diff':
-                motion_frame = np.abs(frame-prev_frame)
-                motion_frame = ((motion_frame>(thresh*255))*frame).astype(np.uint8)
-                motion_frame = medfilt2d(motion_frame, kernel_size=5)
-            elif method == 'OpticalFlow':
-                #Optical Flow not implemented yet!!!
-                motion_frame = ((np.abs(frame-prev_frame)>(thresh*255))*frame).astype(np.uint8) 
-
-            gramy = np.append(gramx,np.mean(motion_frame,axis=0))
-            gramx = np.append(gramy,np.mean(motion_frame,axis=1))   
-            motion_frame = cv2.cvtColor(motion_frame, cv2.COLOR_GRAY2BGR)
-            out.write(motion_frame)
-            combite, qombite = mg_centroid(motion_frame,width,height,colorflag)
-
-            if ii == 0:
-                com = combite.reshape(1,2)
-                qom = qombite
-
-            else:
-                com=np.append(com,combite.reshape(1,2),axis =0)
-                qom=np.append(qom,qombite)
-
-        else:
-            break
-        ii+=1
-        print('Processing %s%%' %(int(ii/length*100)), end='\r')
-
-
-    #Write motiongrams to files
-    #np.savetxt(of + '_mgx.txt', gramx, delimiter = ',')
-    #np.savetxt(of + '_mgy.txt', gramy, delimiter = ',')
-
-    #plt.hist(gramy, bins='auto')
-    #plt.show()
-    
     """
-    tiff = TIFF.open(of + 'mgx.tiff', mode = 'w')
-    tiff.write_image(gramx)
-    tiff.close()
-    """
-
     qom = qom.reshape(len(qom),1)
     plot_motion_metrics(of,com,qom,width,height)
     np.savetxt('%s_data.csv'%of,np.append(qom,com,axis=1),delimiter = ',')
     cap.release()
     out.release()
     cv2.destroyAllWindows()
-
+    """
 
 #mg_motion("dance.avi", endtime = 10, skip = 5)
     
