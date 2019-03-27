@@ -17,6 +17,7 @@ class MgObject:
         self.get_video()
     
     from ._motionvideo import motionvideo, plot_motion_metrics
+    from ._cropvideo import cropvideo
 
     def test_input(self):
         input_test(self.filename, self.method, self.filtertype, self.thresh, self.starttime, self.endtime, self.blur, self.skip)
