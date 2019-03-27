@@ -1,11 +1,13 @@
 import sys
 sys.path.append('../..')
-from motionvideo.mgmotion import MgObject
+
+#from mgmodule import MgObject
+import mgmodule
 import cv2
 import numpy as np
 
 
-mg = MgObject('pianist.avi',filtertype = 'Regular',endtime = 5)
+mg = mgmodule.MgObject('dance.avi',filtertype = 'Regular', color = True)
 mg.motionvideo()
 
 
