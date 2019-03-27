@@ -2,6 +2,7 @@ import cv2
 import os
 import numpy as np
 from scipy.signal import medfilt2d
+from ._centroid import mg_centroid
 
 def motionvideo(self, kernel_size = 5):
     ret, frame = self.video.read()

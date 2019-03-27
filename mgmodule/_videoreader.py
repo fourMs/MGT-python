@@ -1,5 +1,6 @@
 import cv2
 import os
+from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 
 def mg_videoreader(filename, starttime, endtime, skip):
 

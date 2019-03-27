@@ -1,3 +1,5 @@
+import cv2
+import numpy as np
 def mg_centroid(image, width, height, color):
     #mgcentroid computes the centroid of an image/frame.
     if color == True:
