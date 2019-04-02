@@ -32,7 +32,7 @@ def input_test(filename,method,filtertype,thresh,starttime,endtime,blur,skip):
             msg = 'Please specify a filter type as str: Regular or Binary'
             raise InputError(msg)
 
-        if blur != 'Average' and filtertype != 'None':
+        if blur != 'Average' and blur != 'None':
             msg = 'Please specify a blur type as str: Average or None'
             raise InputError(msg)
 
