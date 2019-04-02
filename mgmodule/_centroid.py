@@ -2,8 +2,8 @@ import cv2
 import numpy as np
 def mg_centroid(image, width, height, color):
     #mgcentroid computes the centroid of an image/frame.
-    if color == True:
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    #if color == True:
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     #x = np.linspace(1,width,width); y = np.linspace(1,height,height)
     x = np.arange(width)
