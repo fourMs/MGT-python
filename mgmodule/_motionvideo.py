@@ -15,26 +15,32 @@ def motionvideo(self, kernel_size = 5):
     qom = np.array([]) #quantity of motion
     com = np.array([]) #centroid of motion
     ii = 0
+    if self.color == False:
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
     while(self.video.isOpened()):
-        
+        #May need to do this, not sure
+        if self.blur == 'Average':
+            prev_frame = cv2.blur(frame,(10,10))
+        else:
+            prev_frame = frame
+
         ret, frame = self.video.read()
         if ret==True:
-            # colorflag right here does not work yet
-            #utgangspunktet argb
-            
+            if self.blur == 'Average':
+                frame = cv2.blur(frame,(10,10)) #The higher these numbers the more blur you get
+                    
             if self.color == True:
                 frame = frame
-                prev_frame=frame
             else:
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                prev_frame=frame
+                #prev_frame = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
             #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             frame = np.array(frame)
             frame = frame.astype(np.int32)
-            if self.blur == 'Average':
-                frame = cv2.blur(frame,(10,10)) #The higher these numbers the more blur you get
-            else:
-                pass
+
+            #else:
+                #pass
             if self.method == 'Diff':
                 if self.color == True:
                     motion_frame_rgb = np.zeros([self.height,self.width,3])
