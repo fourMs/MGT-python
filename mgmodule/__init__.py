@@ -1,6 +1,6 @@
 from ._input_test import input_test
 from ._videoreader import mg_videoreader
-
+from ._constrainNumber import constrainNumber
 class MgObject:
 
     def __init__(self, filename, method = 'Diff', filtertype = 'Regular', thresh = 0.0001, starttime = 0, endtime = 0, blur = 'Average', skip = 0, color = True):
@@ -17,7 +17,7 @@ class MgObject:
         self.get_video()
     
     from ._motionvideo import motionvideo, plot_motion_metrics
-    from ._cropvideo import cropvideo
+    from ._cropvideo import cropvideo, find_motion_box
     from ._motionhistory import motionhistory
 
     def test_input(self):
