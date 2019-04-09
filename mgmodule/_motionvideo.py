@@ -4,33 +4,43 @@ import numpy as np
 from scipy.signal import medfilt2d
 from ._centroid import mg_centroid
 from ._filter import motionfilter
+import matplotlib.pyplot as plt
 
-def motionvideo(self, kernel_size = 5):
+def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.03, blur = 'None', kernel_size = 5):
+    self.blur = blur
+    self.method = method
+    self.thresh = thresh
+    self.filtertype = filtertype
+
     ret, frame = self.video.read()
     #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     of = os.path.splitext(self.filename)[0] 
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
     out = cv2.VideoWriter(of + '_motion.avi',fourcc, self.fps, (self.width,self.height))
-    gramx = np.array([1,1])
-    gramy = np.array([1,1])
+    gramx = np.zeros([1,self.width,3])
+    gramy = np.zeros([self.height,1,3])
     qom = np.array([]) #quantity of motion
     com = np.array([]) #centroid of motion
     ii = 0
     if self.color == False:
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        gramx = np.zeros([1,self.width])
+        gramy = np.zeros([self.height,1])
 
     while(self.video.isOpened()):
         #May need to do this, not sure
         if self.blur == 'Average':
             prev_frame = cv2.blur(frame,(10,10))
-        else:
-            prev_frame = frame
+        elif self.blur == 'None':
+            prev_frame = frame                 
 
         ret, frame = self.video.read()
         if ret==True:
             if self.blur == 'Average':
                 frame = cv2.blur(frame,(10,10)) #The higher these numbers the more blur you get
-                    
+            elif self.blur == 'None':
+                frame = frame                   #No blurring, then frame equals frame 
+
             if self.color == True:
                 frame = frame
             else:
@@ -48,15 +58,19 @@ def motionvideo(self, kernel_size = 5):
                         motion_frame = motionfilter(motion_frame,self.filtertype,self.thresh,kernel_size)
                         motion_frame_rgb[:,:,i] = motion_frame
 
-                    gramy = np.append(gramx,np.mean(motion_frame_rgb,axis=0))
-                    gramx = np.append(gramy,np.mean(motion_frame_rgb,axis=1))
+                    movement_y = np.mean(motion_frame_rgb,axis=1).reshape(self.height,1,3)
+                    movement_x = np.mean(motion_frame_rgb,axis=0).reshape(1,self.width,3)
+                    gramy = np.append(gramy,movement_y,axis=1)
+                    gramx = np.append(gramx,movement_x,axis=0)
                    
                 else:
                     motion_frame = (np.abs(frame-prev_frame)).astype(np.uint8)
                     motion_frame = motionfilter(motion_frame,self.filtertype,self.thresh,kernel_size)
 
-                    gramy = np.append(gramx,np.mean(motion_frame,axis=0))
-                    gramx = np.append(gramy,np.mean(motion_frame,axis=1)) 
+                    movement_y = np.mean(motion_frame,axis=1).reshape(self.height,1)
+                    movement_x = np.mean(motion_frame,axis=0).reshape(1,self.width)
+                    gramy = np.append(gramy,movement_y,axis=1)
+                    gramx = np.append(gramx,movement_x,axis=0)
 
             elif self.method == 'OpticalFlow':
                 print('Optical Flow not implemented yet!')
@@ -76,7 +90,13 @@ def motionvideo(self, kernel_size = 5):
             break
         ii+=1
         print('Processing %s%%' %(int(ii/(self.length-1)*100)), end='\r')
+    if self.color == False:
+        gramx = cv2.cvtColor(gramx.astype(np.uint8), cv2.COLOR_GRAY2BGR)
+        gramy = cv2.cvtColor(gramy.astype(np.uint8), cv2.COLOR_GRAY2BGR)
 
+
+    cv2.imwrite('gramx.bmp',gramx.astype(np.uint8))
+    cv2.imwrite('gramy.bmp',gramy.astype(np.uint8))
 
 def plot_motion_metrics(of,com,qom,width,height):
     plt.rc('text',usetex = True)
@@ -96,3 +116,8 @@ def plot_motion_metrics(of,com,qom,width,height):
     ax.bar(np.arange(len(qom)-1),qom[1:,0]/(width*height))
     #ax.plot(qom[1:-1])
     plt.savefig('%s__motion_com_qom.eps'%of,format='eps')
+
+
+
+
+
