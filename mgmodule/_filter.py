@@ -8,7 +8,7 @@ def motionfilter(motion_frame, filtertype,thresh,kernel_size):
         motion_frame = medfilt2d(motion_frame, kernel_size)
     elif filtertype == 'Binary':
         motion_frame = (motion_frame>thresh*255)*255
-        motion_frame = medfilt2d(motion_frame, kernel_size)
+        motion_frame = medfilt2d(motion_frame.astype(np.uint8), kernel_size)
     elif filtertype == 'Blob':
         motion_frame = cv2.erode(motion_frame,np.ones([kernel_size,kernel_size]),iterations=1)
     return motion_frame
