@@ -18,7 +18,7 @@ def input_test(filename,method,filtertype,thresh,starttime,endtime,blur,skip):
     filenametest = 'true'
 
     for c in filename:
-        if c.isalpha() == True or c.isnumeric() == True or c == '.':
+        if c.isalpha() == True or c.isnumeric() == True or c == '.' or c == '_':
             pass
         else: 
             filenametest = 'false'
