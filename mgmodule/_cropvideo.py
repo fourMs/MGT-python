@@ -51,6 +51,7 @@ def cropvideo(self):
 			break
 		ii+=1
 		print('Processing %s%%' %(int(ii/(self.length-1)*100)), end='\r')
+
 	vid2crop.release()
 	out.release()
 	cv2.destroyAllWindows()

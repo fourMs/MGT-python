@@ -3,7 +3,7 @@ from ._videoreader import mg_videoreader
 from ._constrainNumber import constrainNumber
 class MgObject:
 
-    def __init__(self, filename, method = 'Diff', filtertype = 'Regular', thresh = 0.0001, starttime = 0, endtime = 0, blur = 'Average', skip = 0, color = True):
+    def __init__(self, filename, method = 'Diff', filtertype = 'Regular', thresh = 0.0001, starttime = 0, endtime = 0, blur = 'None', skip = 0, color = True):
         self.filename = filename
         self.color = color
         self.method = method
