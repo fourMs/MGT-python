@@ -3,6 +3,7 @@ import os
 import numpy as np
 from scipy.signal import medfilt2d
 from ._centroid import mg_centroid
+from ._filter import motionfilter
 
 def motionvideo(self, kernel_size = 5):
     ret, frame = self.video.read()
@@ -34,53 +35,32 @@ def motionvideo(self, kernel_size = 5):
                 frame = frame
             else:
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                #prev_frame = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
-            #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
             frame = np.array(frame)
             frame = frame.astype(np.int32)
 
-            #else:
-                #pass
             if self.method == 'Diff':
                 if self.color == True:
                     motion_frame_rgb = np.zeros([self.height,self.width,3])
 
                     for i in range(frame.shape[2]):
-                        motion_frame = np.abs(frame[:,:,i]-prev_frame[:,:,i])
-                        motion_frame = motion_frame.astype(np.uint8)
-                        #motion_frame = ((motion_frame>(self.thresh*255))*frame).astype(np.uint8)
-                        if self.filtertype == 'Regular':
-                            motion_frame = (motion_frame>self.thresh*255)*motion_frame
-                            motion_frame = medfilt2d(motion_frame, kernel_size)
-                        elif self.filtertype == 'Binary':
-                            motion_frame = (motion_frame>self.thresh*255)*255
-                            motion_frame = medfilt2d(motion_frame, kernel_size)
-                        elif self.filtertype == 'Blob':
-                            motion_frame = cv2.erode(motion_frame,np.ones([kernel_size,kernel_size]),iterations=1)
-                        
+                        motion_frame = (np.abs(frame[:,:,i]-prev_frame[:,:,i])).astype(np.uint8)
+                        motion_frame = motionfilter(motion_frame,self.filtertype,self.thresh,kernel_size)
                         motion_frame_rgb[:,:,i] = motion_frame
+
                     gramy = np.append(gramx,np.mean(motion_frame_rgb,axis=0))
                     gramx = np.append(gramy,np.mean(motion_frame_rgb,axis=1))
                    
                 else:
-                    motion_frame = np.abs(frame-prev_frame)
-                    motion_frame = motion_frame.astype(np.uint8)
-                    #motion_frame = ((motion_frame>(self.thresh*255))*frame).astype(np.uint8)
-                    if self.filtertype == 'Regular':
-                        motion_frame = (motion_frame>self.thresh*255)*motion_frame
-                        motion_frame = medfilt2d(motion_frame, kernel_size)
-                    elif self.filtertype == 'Binary':
-                        motion_frame = (motion_frame>self.thresh*255)*255
-                        motion_frame = medfilt2d(motion_frame, kernel_size)
-                    elif self.filtertype == 'Blob':
-                        motion_frame = cv2.erode(motion_frame,np.ones([kernel_size,kernel_size]),iterations=1)
+                    motion_frame = (np.abs(frame-prev_frame)).astype(np.uint8)
+                    motion_frame = motionfilter(motion_frame,self.filtertype,self.thresh,kernel_size)
+
                     gramy = np.append(gramx,np.mean(motion_frame,axis=0))
-                    gramx = np.append(gramy,np.mean(motion_frame,axis=1))  
+                    gramx = np.append(gramy,np.mean(motion_frame,axis=1)) 
+
             elif self.method == 'OpticalFlow':
-                #Optical Flow not implemented yet!!!
-                motion_frame = ((np.abs(frame-prev_frame)>(self.thresh*255))*frame).astype(np.uint8) 
-            #gramy = np.append(gramx,np.mean(motion_frame_rgb,axis=0))
-            #gramx = np.append(gramy,np.mean(motion_frame_rgb,axis=1))  
+                print('Optical Flow not implemented yet!')
+
             if self.color == False: 
                 motion_frame = cv2.cvtColor(motion_frame, cv2.COLOR_GRAY2BGR)
                 motion_frame_rgb = motion_frame
