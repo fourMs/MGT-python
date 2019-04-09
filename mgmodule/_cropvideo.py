@@ -1,8 +1,10 @@
 import cv2
 import os
 import numpy as np
+import time
 from ._videoreader import mg_videoreader
 from ._constrainNumber import constrainNumber
+from ._filter import motionfilter
 
 def cropvideo(self):
 	global frame_mask,drawing,g_val,x_start,x_stop,y_start,y_stop
@@ -56,6 +58,11 @@ def cropvideo(self):
 	out.release()
 	cv2.destroyAllWindows()
 
+	# Change self.of to the cropped version. self.height and self.width are also changed
+	self.of = self.of + '_cropped'
+	self.filename = self.of+'.avi'
+	self.video, self.length, self.width, self.height, self.fps, self.endtime = mg_videoreader(self.filename, self.starttime, self.endtime, self.skip)
+
 def draw_rectangle(event,x,y,flags,param):
 	global x_start,y_start,x_stop,y_stop,drawing,frame_mask
 	if event == cv2.EVENT_LBUTTONDOWN:
@@ -81,6 +88,8 @@ def find_motion_box(self,grayimage,margin=0):
 
 	the_box = np.zeros([self.height,self.width])
 	#----Finding left and right edges
+	le = int(self.width/2)
+	re = int(self.width/2)
 	for i in range(self.height):
 		row=grayimage[i,:]
 		inds = np.where(row>0)[0]
@@ -98,6 +107,8 @@ def find_motion_box(self,grayimage,margin=0):
 	# ---- Finding top and bottom edges
 	prev_Start = self.height
 	prev_Stop = 0 
+	te = int(self.height/2)
+	be = int(self.height/2)
 	for j in range(self.width):
 		col=grayimage[:,j]
 		inds = np.where(col>0)[0]
@@ -117,6 +128,28 @@ def find_motion_box(self,grayimage,margin=0):
 	the_box[constrainNumber(be+margin,0,self.height-1),constrainNumber(le-margin,0,self.width-1):constrainNumber(re+margin,0,self.width-1)]=1
 	the_box[constrainNumber(te-margin,0,self.height-1):constrainNumber(be+margin,0,self.height-1),constrainNumber(re+margin,0,self.width-1)]=1
 	self.motion_box = the_box
+
+def find_total_motion_box(self,margin=0):
+	self.get_video()
+	ret, frame = self.video.read()
+	frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+	total_box = np.zeros([self.height,self.width])
+	while(self.video.isOpened()):
+		prev_frame = frame.astype(np.int32)
+		ret, frame = self.video.read()
+		if ret==True:
+			frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+			frame = frame.astype(np.int32)
+
+			motion_frame = (np.abs(frame-prev_frame)).astype(np.uint8)
+			motion_frame = motionfilter(motion_frame,'Regular',thresh = 0.1,kernel_size = 3)
+
+			self.find_motion_box(motion_frame)
+			total_box = total_box*(self.motion_box==0)+self.motion_box
+		else:
+			cv2.imshow('',total_box)
+			cv2.waitKey(0)
+			break
 
 
 

@@ -6,17 +6,16 @@ from ._centroid import mg_centroid
 from ._filter import motionfilter
 import matplotlib.pyplot as plt
 
-def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.03, blur = 'None', kernel_size = 5):
+def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.03, blur = 'None', kernel_size = 3):
     self.blur = blur
     self.method = method
     self.thresh = thresh
     self.filtertype = filtertype
 
     ret, frame = self.video.read()
-    #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    of = os.path.splitext(self.filename)[0] 
+    #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) 
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-    out = cv2.VideoWriter(of + '_motion.avi',fourcc, self.fps, (self.width,self.height))
+    out = cv2.VideoWriter(self.of + '_motion.avi',fourcc, self.fps, (self.width,self.height))
     gramx = np.zeros([1,self.width,3])
     gramy = np.zeros([self.height,1,3])
     qom = np.array([]) #quantity of motion
@@ -94,9 +93,11 @@ def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.03, bl
         gramx = cv2.cvtColor(gramx.astype(np.uint8), cv2.COLOR_GRAY2BGR)
         gramy = cv2.cvtColor(gramy.astype(np.uint8), cv2.COLOR_GRAY2BGR)
 
-
-    cv2.imwrite('gramx.bmp',gramx.astype(np.uint8))
-    cv2.imwrite('gramy.bmp',gramy.astype(np.uint8))
+    gramx = gramx/gramx.max()*255
+    gramy = gramy/gramy.max()*255
+    cv2.imwrite(self.of+'_mgx.bmp',gramx.astype(np.uint8))
+    cv2.imwrite(self.of+'_mgy.bmp',gramy.astype(np.uint8))
+    plot_motion_metrics(self.of,com,qom,self.width,self.height)
 
 def plot_motion_metrics(of,com,qom,width,height):
     plt.rc('text',usetex = True)
@@ -113,9 +114,9 @@ def plot_motion_metrics(of,com,qom,width,height):
     ax.set_xlabel('Time[frames]')
     ax.set_ylabel('Pixels normalized')
     ax.set_title('Quantity of motion')
-    ax.bar(np.arange(len(qom)-1),qom[1:,0]/(width*height))
+    ax.bar(np.arange(len(qom)-1),qom[1:]/(width*height))
     #ax.plot(qom[1:-1])
-    plt.savefig('%s__motion_com_qom.eps'%of,format='eps')
+    plt.savefig('%s_motion_com_qom.eps'%of,format='eps')
 
 
 
