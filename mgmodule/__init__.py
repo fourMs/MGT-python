@@ -3,7 +3,7 @@ from ._videoreader import mg_videoreader
 from ._constrainNumber import constrainNumber
 class MgObject:
 
-    def __init__(self, filename, method = 'Diff', filtertype = 'Regular', thresh = 0.0001, starttime = 0, endtime = 0, blur = 'None', skip = 0, color = True):
+    def __init__(self, filename, method = 'Diff', filtertype = 'Regular', thresh = 0.0001, starttime = 0, endtime = 0, blur = 'None', skip = 0, color = True, contrast = 0, brightness = 0):
         self.filename = filename
         self.color = color
         self.method = method
@@ -13,6 +13,8 @@ class MgObject:
         self.filtertype = filtertype
         self.thresh = thresh
         self.blur = blur
+        self.contrast = contrast
+        self.brightness = brightness
         self.test_input()
         self.get_video()
     
@@ -24,4 +26,4 @@ class MgObject:
         input_test(self.filename, self.method, self.filtertype, self.thresh, self.starttime, self.endtime, self.blur, self.skip)
 
     def get_video(self):
-        self.video, self.length, self.width, self.height, self.fps, self.endtime = mg_videoreader(self.filename, self.starttime, self.endtime, self.skip)
+        self.video, self.length, self.width, self.height, self.fps, self.endtime = mg_videoreader(self.filename, self.starttime, self.endtime, self.skip, self.contrast, self.brightness)
