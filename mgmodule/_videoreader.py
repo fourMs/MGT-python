@@ -18,9 +18,11 @@ def mg_videoreader(filename, starttime, endtime, skip, contrast = 0, brightness 
     fps = int(vidcap.get(cv2.CAP_PROP_FPS))
     width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
     
     # To skip ahead a few frames before the next sample set skip to a value above 0
-    vidcap, length, fps, width, height = skip_frames(of, vidcap, skip, fps, width, height)
+    if skip != 0:
+        vidcap, length, fps, width, height = skip_frames(of, vidcap, skip, fps, width, height)
 
     #overwrite the inputvalue for endtime to not cut the video at 0...
     if endtime == 0:

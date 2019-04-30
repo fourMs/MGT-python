@@ -23,6 +23,7 @@ class MgObject:
     from ._motionvideo import motionvideo, plot_motion_metrics
     from ._cropvideo import cropvideo, find_motion_box, find_total_motion_box
     from ._motionhistory import motionhistory
+    from ._motionaverage import motionaverage
 
     def test_input(self):
         input_test(self.filename, self.method, self.filtertype, self.thresh, self.starttime, self.endtime, self.blur, self.skip)

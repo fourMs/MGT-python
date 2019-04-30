@@ -26,7 +26,7 @@ def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.03, bl
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         gramx = np.zeros([1,self.width])
         gramy = np.zeros([self.height,1])
-
+    #average = frame.astype(np.float)/self.length
     while(self.video.isOpened()):
         #May need to do this, not sure
         if self.blur == 'Average':
@@ -47,9 +47,10 @@ def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.03, bl
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
             frame = np.array(frame)
-            frame = frame.astype(np.int32)
-
+            frame = frame.astype(np.float)
+            #average += frame/self.length
             if self.method == 'Diff':
+            
                 if self.color == True:
                     motion_frame_rgb = np.zeros([self.height,self.width,3])
 
@@ -98,6 +99,7 @@ def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.03, bl
     gramy = gramy/gramy.max()*255
     cv2.imwrite(self.of+'_mgx.bmp',gramx.astype(np.uint8))
     cv2.imwrite(self.of+'_mgy.bmp',gramy.astype(np.uint8))
+    #cv2.imwrite(self.of+'_average.bmp',average.astype(np.uint8))
     plot_motion_metrics(self.of,com,qom,self.width,self.height)
 
 def plot_motion_metrics(of,com,qom,width,height):
