@@ -4,7 +4,7 @@ from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 import numpy as np
 from ._videoadjust import contrast_brightness, skip_frames
 
-def mg_videoreader(filename, starttime, endtime, skip, contrast, brightness):
+def mg_videoreader(filename, starttime, endtime, skip, contrast = 0, brightness = 0):
     of = os.path.splitext(filename)[0]
     # Cut out relevant bit of video using starttime and endtime
     if starttime != 0 or endtime != 0:

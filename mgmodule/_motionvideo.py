@@ -7,6 +7,7 @@ from ._filter import motionfilter
 import matplotlib.pyplot as plt
 
 def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.03, blur = 'None', kernel_size = 3):
+    self.get_video()
     self.blur = blur
     self.method = method
     self.thresh = thresh

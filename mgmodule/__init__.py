@@ -18,7 +18,7 @@ class MgObject:
         self.contrast = contrast
         self.brightness = brightness
         self.test_input()
-        self.get_video()
+
     
     from ._motionvideo import motionvideo, plot_motion_metrics
     from ._cropvideo import cropvideo, find_motion_box, find_total_motion_box
