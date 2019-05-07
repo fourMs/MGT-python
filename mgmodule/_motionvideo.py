@@ -22,7 +22,7 @@ def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, b
     Returns:
     None
     """
-    #self.get_video()
+
     self.blur = blur
     self.method = method
     self.thresh = thresh
@@ -40,6 +40,7 @@ def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, b
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         gramx = np.zeros([1,self.width])
         gramy = np.zeros([self.height,1])
+
     while(self.video.isOpened()):
         if self.blur == 'Average':
             prev_frame = cv2.blur(frame,(10,10))
@@ -59,9 +60,9 @@ def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, b
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
             frame = np.array(frame)
-            frame = frame.astype(np.float)
+            frame = frame.astype(np.int32)
+
             if self.method == 'Diff':
-            
                 if self.color == True:
                     motion_frame_rgb = np.zeros([self.height,self.width,3])
 
