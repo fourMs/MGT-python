@@ -40,7 +40,7 @@ def skip_frames(of, vidcap, skip, fps, width, height):
     fps, width, height are simply info about vidcap
     skip (int): When proceeding to analyze next frame of video, this many frames are skipped.
     
-    returns:
+    return:
         cv2 video capture of edited video file
         length, fps, width, height from this video capture
     """

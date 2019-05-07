@@ -92,7 +92,7 @@ def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, b
                 motion_frame = cv2.cvtColor(motion_frame, cv2.COLOR_GRAY2BGR)
                 motion_frame_rgb = motion_frame
             out.write(motion_frame_rgb.astype(np.uint8))
-            combite, qombite = mg_centroid(motion_frame_rgb.astype(np.uint8),self.width,self.height,self.color)
+            combite, qombite = mg_centroid(motion_frame_rgb.astype(np.uint8),self.width,self.height)
             if ii == 0:
                 com = combite.reshape(1,2)
                 qom = qombite

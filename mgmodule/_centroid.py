@@ -1,7 +1,17 @@
 import cv2
 import numpy as np
-def mg_centroid(image, width, height, color):
-    """ Computes the centroid of an image/frame. """
+def mg_centroid(image, width, height):
+    """
+    Computes the centroid of an image/frame.
+    
+    Parameters
+    - image (uint8)
+    - width/height of image
+    
+    Returns:
+    - Centroid of motion: Where was the maximum change in pixel value
+    - Quantity of motion: How large was the change in pixel value
+    """
 
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 

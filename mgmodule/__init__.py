@@ -18,8 +18,7 @@ class MgObject:
     color (bool): True does the analysis in RGB, False in grayscale. 
     contrast (float): apply +/- 100 contrast to video
     brightness (float): apply +/- 100 brightness to video
-    crop (str): 'none', ''
-
+    crop (str): 'none', 'manual', 'auto' to select cropping of relevant video frame size
     """
 
     def __init__(self, filename, method = 'Diff', filtertype = 'Regular', thresh = 0.0001, starttime = 0, endtime = 0, blur = 'None', skip = 0, color = True, contrast = 0, brightness = 0, crop = 'none'):
