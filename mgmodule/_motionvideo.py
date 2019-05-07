@@ -6,15 +6,29 @@ from ._centroid import mg_centroid
 from ._filter import motionfilter
 import matplotlib.pyplot as plt
 
+def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel_size = 5):
+    """
+    Finds the difference in pixel value from one frame to the next in an input video, and saves the frames into a new video.
+    Describes the motion in the recording.    
+    Outputs a video called filename + '_motion.avi'.
 
-def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel_size = 3):
+    Parameters:
+    kernel_size (int): Size of structuring element.
+    method (str): Currently 'Diff' is the only implemented method. 
+    filtertype (str): 'Regular', 'Binary', 'Blob' (see function motionfilter) 
+    thresh (float): a number in [0,1]. Eliminates pixel values less than given threshold.
+    blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
+    
+    Returns:
+    None
+    """
+
     self.blur = blur
     self.method = method
     self.thresh = thresh
     self.filtertype = filtertype
 
     ret, frame = self.video.read()
-    #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) 
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
     out = cv2.VideoWriter(self.of + '_motion.avi',fourcc, self.fps, (self.width,self.height))
     gramx = np.zeros([1,self.width,3])
@@ -28,7 +42,6 @@ def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, b
         gramy = np.zeros([self.height,1])
 
     while(self.video.isOpened()):
-        #May need to do this, not sure
         if self.blur == 'Average':
             prev_frame = cv2.blur(frame,(10,10))
         elif self.blur == 'None':
@@ -39,7 +52,7 @@ def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, b
             if self.blur == 'Average':
                 frame = cv2.blur(frame,(10,10)) #The higher these numbers the more blur you get
             elif self.blur == 'None':
-                frame = frame                   #No blurring, then frame equals frame 
+                frame = frame                   #No blur
 
             if self.color == True:
                 frame = frame
@@ -98,6 +111,7 @@ def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, b
     gramy = gramy/gramy.max()*255
     cv2.imwrite(self.of+'_mgx.bmp',gramx.astype(np.uint8))
     cv2.imwrite(self.of+'_mgy.bmp',gramy.astype(np.uint8))
+
     plot_motion_metrics(self.of,com,qom,self.width,self.height)
 
 def plot_motion_metrics(of,com,qom,width,height):

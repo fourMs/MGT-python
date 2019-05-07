@@ -7,6 +7,7 @@ from ._cropvideo import *
 
 
 def mg_videoreader(filename, starttime = 0, endtime = 0, skip = 0, contrast = 0, brightness = 0, crop = 'none'):
+
     """
         filename (str): Name of input parameter video file.
         starttime (float): cut the video from this start time (min) to analyze what is relevant.
@@ -42,6 +43,7 @@ def mg_videoreader(filename, starttime = 0, endtime = 0, skip = 0, contrast = 0,
         endtime = length/fps
 
     #To apply contrast/brightness before the motion analysis
+
     if contrast != 0 or brightness != 0:
         vidcap = contrast_brightness(of,vidcap,fps,width,height,contrast,brightness)
         of = of + '_cb'
@@ -49,6 +51,7 @@ def mg_videoreader(filename, starttime = 0, endtime = 0, skip = 0, contrast = 0,
     if crop != 'none':
         [vidcap,width,height] = cropvideo(fps, width, height, length, of, crop, motion_box_thresh = 0.1, motion_box_margin = 1)
         of = of + '_crop'
+
 
     return vidcap, length, width, height, fps, endtime, of
 
