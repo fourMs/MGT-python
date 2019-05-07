@@ -4,7 +4,7 @@ from ._videoreader import mg_videoreader
 from ._constrainNumber import constrainNumber
 class MgObject:
 
-    def __init__(self, filename, method = 'Diff', filtertype = 'Regular', thresh = 0.0001, starttime = 0, endtime = 0, blur = 'None', skip = 0, color = True, contrast = 0, brightness = 0):
+    def __init__(self, filename, method = 'Diff', filtertype = 'Regular', thresh = 0.0001, starttime = 0, endtime = 0, blur = 'None', skip = 0, color = True, contrast = 0, brightness = 0, crop = 'none'):
         self.filename = filename
         self.of = os.path.splitext(self.filename)[0] 
         self.color = color
@@ -17,16 +17,17 @@ class MgObject:
         self.blur = blur
         self.contrast = contrast
         self.brightness = brightness
+        self.crop = crop
         self.test_input()
-
+        self.get_video()
     
     from ._motionvideo import motionvideo, plot_motion_metrics
     from ._cropvideo import cropvideo, find_motion_box, find_total_motion_box
     from ._motionhistory import motionhistory
-    from ._motionaverage import motionaverage
+    #from ._motionaverage import motionaverage
 
     def test_input(self):
         input_test(self.filename, self.method, self.filtertype, self.thresh, self.starttime, self.endtime, self.blur, self.skip)
 
     def get_video(self):
-        self.video, self.length, self.width, self.height, self.fps, self.endtime = mg_videoreader(self.filename, self.starttime, self.endtime, self.skip, self.contrast, self.brightness)
+        self.video, self.length, self.width, self.height, self.fps, self.endtime, self.of = mg_videoreader(self.filename, self.starttime, self.endtime, self.skip, self.contrast, self.brightness, self.crop)
