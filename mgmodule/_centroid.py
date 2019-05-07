@@ -1,14 +1,13 @@
 import cv2
 import numpy as np
 def mg_centroid(image, width, height, color):
-    #mgcentroid computes the centroid of an image/frame.
-    #if color == True:
+    """ Computes the centroid of an image/frame. """
+
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    #x = np.linspace(1,width,width); y = np.linspace(1,height,height)
     x = np.arange(width)
     y = np.arange(height)
-    qom = cv2.sumElems(image)[0] #deles på width*height
+    qom = cv2.sumElems(image)[0]
     mx = np.mean(image,axis=0)
     my = np.mean(image,axis=1)
 

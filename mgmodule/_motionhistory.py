@@ -5,7 +5,23 @@ from scipy.signal import medfilt2d
 from ._centroid import mg_centroid
 from ._filter import motionfilter
 
-def motionhistory(self, history_length = 20, kernel_size = 5, method = 'Diff', filtertype = 'Regular', thresh = 0.0001, blur = 'Average'):
+def motionhistory(self, history_length = 20, kernel_size = 5, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None'):
+    """
+    Finds the difference in pixel value from one frame to the next in an input video, and saves the difference frame to a history tail. 
+    The history frames are summed up and normalized, and added to the current difference frame to show the history of motion. 
+    Outputs a video called filename + '_motionhistory.avi'.
+
+    Parameters:
+    history_length (int): How many frames will be saved to the history tail.
+    kernel_size (int): Size of structuring element.
+    method (str): Currently 'Diff' is the only implemented method. 
+    filtertype (str): 'Regular', 'Binary', 'Blob' (see function motionfilter) 
+	thresh (float): a number in [0,1]. Eliminates pixel values less than given threshold.
+    blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
+	
+    Returns:
+    None
+    """
     self.method = method
     self.filtertype = filtertype
     self.thresh = thresh
@@ -77,15 +93,4 @@ def motionhistory(self, history_length = 20, kernel_size = 5, method = 'Diff', f
             break
         ii+=1
         print('Processing %s%%' %(int(ii/(self.length-1)*100)), end='\r')
-"""
-def findhistory(motion_frame, history, history_length):
-    motion_history = motion_frame/history_length
-    for newframe in history:
-            motion_history += newframe
-    if len(history) > history_length: # or however long history you would like
-        history.pop(0)# pop first frame
-    
-    history.append(motion_frame)
-    motion_history = 0.5*history_length*motion_history.astype(np.uint64)
-    return motion_history
-"""
+
