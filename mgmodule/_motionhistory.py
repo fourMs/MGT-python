@@ -67,7 +67,7 @@ def motionhistory(self, history_length = 20, kernel_size = 5, method = 'Diff', f
                     if len(history) > history_length: # or however long history you would like
                         history.pop(0)# pop first frame
                     history.append(motion_frame_rgb)
-                    motion_history = 0.5*history_length*motion_history.astype(np.uint64) #0.5 to not overload it poor thing
+                    motion_history = motion_history.astype(np.uint64) #0.5 to not overload it poor thing
 
                 else:
                     motion_frame = (np.abs(frame-prev_frame)).astype(np.float64)
@@ -80,7 +80,7 @@ def motionhistory(self, history_length = 20, kernel_size = 5, method = 'Diff', f
                         history.pop(0)# pop first frame
                     
                     history.append(motion_frame)
-                    motion_history = 0.5*history_length*motion_history.astype(np.uint64)
+                    motion_history = motion_history.astype(np.uint64)
 
             if self.color == False: 
                 motion_history_rgb = cv2.cvtColor(motion_history.astype(np.uint8), cv2.COLOR_GRAY2BGR)
