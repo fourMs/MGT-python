@@ -9,6 +9,8 @@ from ._cropvideo import *
 def mg_videoreader(filename, starttime = 0, endtime = 0, skip = 0, contrast = 0, brightness = 0, crop = 'none'):
 
     """
+        Reads in a video file, and by input parameters user decide if it: trims the length, skips frames, applies contrast/brightness adjustments and/or crops image width/height.
+        
         filename (str): Name of input parameter video file.
         starttime (float): cut the video from this start time (min) to analyze what is relevant.
         endtime (float): cut the video at this end time (min) to analyze what is relevant.
@@ -16,6 +18,11 @@ def mg_videoreader(filename, starttime = 0, endtime = 0, skip = 0, contrast = 0,
         contrast (float): apply +/- 100 contrast to video
         brightness (float): apply +/- 100 brightness to video
         crop (str): 'None', 'Auto' or 'Manual' to crop video.
+        
+        return:
+        - vidcap: cv2 video capture of edited video file
+        - length, fps, width, height from vidcap
+        - of: filename gets updated with what procedures it went through
     """
     of = os.path.splitext(filename)[0]
     # Cut out relevant bit of video using starttime and endtime
