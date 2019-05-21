@@ -3,11 +3,11 @@ import numpy as np
 import os
 
 def motionaverage(filename):
-    """
+	"""
 	Post-processing tool. Finds average image of entire video.
-    from _motionaverage import motionaverage
-    motionaverage('filename.avi')
-    """
+	from _motionaverage import motionaverage
+	motionaverage('filename.avi')
+	"""
 	of = os.path.splitext(filename)[0] 
 	video = cv2.VideoCapture(filename)
 	ret, frame = video.read()
