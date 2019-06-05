@@ -109,8 +109,8 @@ def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, b
 
     gramx = gramx/gramx.max()*255
     gramy = gramy/gramy.max()*255
-    cv2.imwrite(self.of+'_mgx.bmp',gramx.astype(np.uint8))
-    cv2.imwrite(self.of+'_mgy.bmp',gramy.astype(np.uint8))
+    cv2.imwrite(self.of+'_mgx.png',gramx.astype(np.uint8))
+    cv2.imwrite(self.of+'_mgy.png',gramy.astype(np.uint8))
 
     plot_motion_metrics(self.of,com,qom,self.width,self.height)
 
@@ -131,7 +131,7 @@ def plot_motion_metrics(of,com,qom,width,height):
     ax.set_title('Quantity of motion')
     ax.bar(np.arange(len(qom)-1),qom[1:]/(width*height))
     #ax.plot(qom[1:-1])
-    plt.savefig('%s_motion_com_qom.eps'%of,format='eps')
+    plt.savefig('%s_motion_com_qom.png'%of,format='png')
 
 
 
