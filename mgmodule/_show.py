@@ -5,7 +5,6 @@ import numpy as np
 # If the input is the camera, pass 0 instead of the video file name
 def show(self, input):
   cap = cv2.VideoCapture(input)
-   
   # Check if camera opened successfully
   if (cap.isOpened()== False): 
     print("Error opening video stream or file")
@@ -20,7 +19,7 @@ def show(self, input):
       cv2.imshow('Frame',frame)
    
       # Press Q on keyboard to  exit
-      if cv2.waitKey(25) & 0xFF == ord('q'):
+      if cv2.waitKey(25*self.skip) & 0xFF == ord('q'):
         break
    
     # Break the loop
