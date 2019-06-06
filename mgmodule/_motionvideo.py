@@ -6,7 +6,7 @@ from ._centroid import mg_centroid
 from ._filter import motionfilter
 import matplotlib.pyplot as plt
 
-def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel_size = 5):
+def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel_size = 5, inverted_motiongram = True):
     """
     Finds the difference in pixel value from one frame to the next in an input video, and saves the frames into a new video.
     Describes the motion in the recording.    
@@ -100,18 +100,22 @@ def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, b
                 com=np.append(com,combite.reshape(1,2),axis =0)
                 qom=np.append(qom,qombite)
         else:
+            print('Rendering motionvideo 100%')
             break
         ii+=1
-        print('Processing %s%%' %(int(ii/(self.length-1)*100)), end='\r')
+        print('Rendering motionvideo %s%%' %(int(ii/(self.length-1)*100)), end='\r')
     if self.color == False:
         gramx = cv2.cvtColor(gramx.astype(np.uint8), cv2.COLOR_GRAY2BGR)
         gramy = cv2.cvtColor(gramy.astype(np.uint8), cv2.COLOR_GRAY2BGR)
 
     gramx = gramx/gramx.max()*255
     gramy = gramy/gramy.max()*255
-    cv2.imwrite(self.of+'_mgx.png',gramx.astype(np.uint8))
-    cv2.imwrite(self.of+'_mgy.png',gramy.astype(np.uint8))
-
+    if inverted_motiongram:
+        cv2.imwrite(self.of+'_mgx.png',cv2.bitwise_not(gramx.astype(np.uint8)))
+        cv2.imwrite(self.of+'_mgy.png',cv2.bitwise_not(gramy.astype(np.uint8)))
+    else:
+        cv2.imwrite(self.of+'_mgx.png',gramx.astype(np.uint8))
+        cv2.imwrite(self.of+'_mgy.png',gramy.astype(np.uint8))
     plot_motion_metrics(self.of,com,qom,self.width,self.height)
 
 def plot_motion_metrics(of,com,qom,width,height):
