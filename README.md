@@ -28,4 +28,4 @@ Step 2: Install Python 3 either by installing Anaconda 3 (Python distribution) o
 
 Step 3: Install OpenCV, moviepy, and FFmpeg
 # Usage
-In this repository is documentation file "MGT-doc.pdf" which describes all functionalities, and a Jupyter notebook "MotionGesturesToolbox.ipynb" with examples of usage. 
+The documentation folder in this repo holds the main documentation file "MGT-doc.pdf" which describes all functionalities. In addition, a Jupyter notebook "MotionGesturesToolbox.ipynb" is also made, with examples of usage. 
