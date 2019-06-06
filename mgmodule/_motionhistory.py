@@ -5,7 +5,7 @@ from scipy.signal import medfilt2d
 from ._centroid import mg_centroid
 from ._filter import motionfilter
 
-def motionhistory(self, history_length = 20, kernel_size = 5, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None'):
+def motionhistory(self, history_length = 10, kernel_size = 5, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None'):
     """
     Finds the difference in pixel value from one frame to the next in an input video, and saves the difference frame to a history tail. 
     The history frames are summed up and normalized, and added to the current difference frame to show the history of motion. 
@@ -61,9 +61,13 @@ def motionhistory(self, history_length = 20, kernel_size = 5, method = 'Diff', f
                         motion_frame = motionfilter(motion_frame,self.filtertype,self.thresh,kernel_size)
                         motion_frame_rgb[:,:,i] = motion_frame
 
-                    motion_history = motion_frame_rgb/history_length
+                    if len(history)>0:
+                        motion_history = frame/(len(history)+1)  
+                    else:
+                        motion_history = frame
+
                     for newframe in history:
-                            motion_history += newframe/history_length
+                            motion_history += newframe/(len(history)+1)  
                     if len(history) > history_length: # or however long history you would like
                         history.pop(0)# pop first frame
                     history.append(motion_frame_rgb)
@@ -72,9 +76,13 @@ def motionhistory(self, history_length = 20, kernel_size = 5, method = 'Diff', f
                 else:
                     motion_frame = (np.abs(frame-prev_frame)).astype(np.float64)
                     motion_frame = motionfilter(motion_frame,self.filtertype,self.thresh,kernel_size)
-                    motion_history = motion_frame/history_length
+                    if len(history)>0:
+                        motion_history = frame/(len(history)+1)  
+                    else:
+                        motion_history = frame
+
                     for newframe in history:
-                            motion_history += newframe/history_length
+                            motion_history += newframe/(len(history)+1)  
 
                     if len(history) > history_length: # or however long history you would like
                         history.pop(0)# pop first frame
@@ -87,7 +95,7 @@ def motionhistory(self, history_length = 20, kernel_size = 5, method = 'Diff', f
             else: 
                 motion_history_rgb = motion_history
             
-            out.write(motion_history_rgb.astype(np.uint8))
+            out.write(3*motion_history_rgb.astype(np.uint8))
 
         else:
             break

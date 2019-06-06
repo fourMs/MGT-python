@@ -19,9 +19,13 @@ def show(self, input):
       cv2.imshow('Frame',frame)
    
       # Press Q on keyboard to  exit
-      if cv2.waitKey(25*self.skip) & 0xFF == ord('q'):
-        break
-   
+      if self.skip != 0:
+        if cv2.waitKey(25*self.skip) & 0xFF == ord('q'):
+            break
+      else:
+        if cv2.waitKey(25) & 0xFF == ord('q'):
+          break
+      
     # Break the loop
     else: 
       break
