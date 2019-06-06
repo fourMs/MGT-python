@@ -2,10 +2,11 @@ import cv2
 import os
 import numpy as np
 import time
+from ._videoreader import mg_videoreader
 from ._constrainNumber import constrainNumber
 from ._filter import motionfilter
 
-def cropvideo(fps,width,height, length, of, crop_movement = 'auto', motion_box_thresh = 0.1, motion_box_margin = 1):
+def cropvideo(vidcap,fps,width,height, length, of, crop_movement = 'auto', motion_box_thresh = 0.1,motion_box_margin = 0):
 	"""
 	Crops the video.
 
@@ -33,9 +34,8 @@ def cropvideo(fps,width,height, length, of, crop_movement = 'auto', motion_box_t
 	drawing = False
 
 
-	vid2crop = cv2.VideoCapture(of + '.avi')
-	vid2findbox = cv2.VideoCapture(of + '.avi')
-
+	vid2crop = vidcap
+	vid2findbox = vidcap
 	ret, frame = vid2crop.read()
 
 	if crop_movement == 'manual':
@@ -61,11 +61,11 @@ def cropvideo(fps,width,height, length, of, crop_movement = 'auto', motion_box_t
 			y_start=y_stop
 			y_stop = temp
 	elif crop_movement == 'auto':
-		[x_start,x_stop,y_start,y_stop] = find_total_motion_box(vid2findbox,width,height,motion_box_thresh,motion_box_margin)
-		print(x_start,x_stop,y_start,y_stop)
+		[x_start,x_stop,y_start,y_stop] = find_total_motion_box(vid2findbox,motion_box_thresh,)
+
 
 	fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-	out = cv2.VideoWriter(of + '_crop.avi',fourcc, fps, (int(x_stop-x_start),(int(y_stop-y_start))))
+	out = cv2.VideoWriter(of + '_cropped.avi',fourcc, fps, (int(x_stop-x_start),(int(y_stop-y_start))))
 	ii = 0 
 	while (vid2crop.isOpened()):
 		if ret:
@@ -81,10 +81,17 @@ def cropvideo(fps,width,height, length, of, crop_movement = 'auto', motion_box_t
 	out.release()
 	cv2.destroyAllWindows()
 
-	vidcap = cv2.VideoCapture(of + '_crop.avi')
+	vidcap = cv2.VideoCapture(of + '_cropped.avi')
 	width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
 	height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 	return vidcap,width,height
+
+	# Change self.of to the cropped version. self.height and self.width are also changed
+	#self.of = self.of + '_cropped'
+	#self.filename = self.of+'.avi'
+	#self.video, self.length, self.width, self.height, self.fps, self.endtime = mg_videoreader(self.filename)
+	#self.starttime = 0 # Because this action also trims the video.
+
 
 def draw_rectangle(event,x,y,flags,param):
 	global x_start,y_start,x_stop,y_stop,drawing,frame_mask
@@ -163,7 +170,6 @@ def find_motion_box(grayimage, width, height, motion_box_margin):
 def find_total_motion_box(vid2findbox,width,height,motion_box_thresh,motion_box_margin):
 	total_box = np.zeros([height,width])
 	ret, frame = vid2findbox.read()
-	frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 	while(vid2findbox.isOpened()):
 		prev_frame = frame.astype(np.int32)
 		ret, frame = vid2findbox.read()
@@ -179,7 +185,6 @@ def find_total_motion_box(vid2findbox,width,height,motion_box_thresh,motion_box_
 		else:
 			[total_motion_box,x_start,x_stop,y_start,y_stop] = find_motion_box(total_box,width,height,motion_box_margin)
 			break
-
 	return x_start,x_stop,y_start,y_stop
 
 

@@ -50,11 +50,11 @@ def mg_videoreader(filename, starttime = 0, endtime = 0, skip = 0, contrast = 0,
         endtime = length/fps
 
     #To apply contrast/brightness before the motion analysis
-
     if contrast != 0 or brightness != 0:
         vidcap = contrast_brightness(of,vidcap,fps,width,height,contrast,brightness)
         of = of + '_cb'
 
+    # Crops video either manually or automatically 
     if crop != 'none':
         [vidcap,width,height] = cropvideo(fps, width, height, length, of, crop, motion_box_thresh = 0.1, motion_box_margin = 1)
         of = of + '_crop'
