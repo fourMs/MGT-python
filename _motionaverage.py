@@ -4,7 +4,9 @@ import os
 
 def motionaverage(filename):
     """
-	Post-processing tool. Finds average image of entire video.
+	Post-processing tool. Finds and saves an average image of entire video.
+    
+    Usage:
     from _motionaverage import motionaverage
     motionaverage('filename.avi')
     """
