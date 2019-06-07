@@ -25,15 +25,16 @@ def mg_videoreader(filename, starttime = 0, endtime = 0, skip = 0, contrast = 0,
         - of: filename gets updated with what procedures it went through
     """
     of = os.path.splitext(filename)[0]
+    fex = os.path.splitext(filename)[1]
     # Cut out relevant bit of video using starttime and endtime
     if starttime != 0 or endtime != 0:
-        trimvideo = ffmpeg_extract_subclip(filename, starttime, endtime, targetname= of +'_trim.avi')
+        trimvideo = ffmpeg_extract_subclip(filename, starttime, endtime, targetname= of +'_trim' + fex)
         of = of + '_trim'
-        vidcap = cv2.VideoCapture(of+'.avi')
+        vidcap = cv2.VideoCapture(of+fx)
 
     # Or just use whole video
     else:
-        vidcap = cv2.VideoCapture(of + '.avi')
+        vidcap = cv2.VideoCapture(of + fex)
 
     fps = int(vidcap.get(cv2.CAP_PROP_FPS))
     width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
