@@ -8,6 +8,8 @@ def show(self, input):
   # Check if camera opened successfully
   if (cap.isOpened()== False): 
     print("Error opening video stream or file")
+  i = int(np.round((1/self.fps)*1000))
+  print(i)
    
   # Read until video is completed
   while(cap.isOpened()):
@@ -19,12 +21,8 @@ def show(self, input):
       cv2.imshow('Frame',frame)
    
       # Press Q on keyboard to  exit
-      if self.skip != 0:
-        if cv2.waitKey(25*self.skip) & 0xFF == ord('q'):
-            break
-      else:
-        if cv2.waitKey(25) & 0xFF == ord('q'):
-          break
+      if cv2.waitKey(int(i)) & 0xFF == ord('q'):
+        break
       
     # Break the loop
     else: 
