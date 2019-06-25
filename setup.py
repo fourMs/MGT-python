@@ -1,5 +1,5 @@
 # This script is still under construction and is not necessary to install the package
-
+"""
 from setuptools import setup
 import os
 import sys
@@ -37,3 +37,4 @@ setup(
     classifiers=[
         'Programming Language :: Python :: 3.6'],
     )
+"""
