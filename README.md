@@ -21,11 +21,13 @@ MGT can generate both dynamic and static visualizations, as well as some quantit
 - area of motion
 
 # Installation
+
 ## Windows, macOS and Linux
 Step 1: Clone git-repository
 
-Step 2: Install Python 3 either by installing Anaconda 3 (Python distribution) or directly at python.org
+Step 2: Install Python 3 either by installing [Anaconda 3](https://www.anaconda.com/distribution/) (Python distribution) or directly at [python.org](http://www.python.org).
 
-Step 3: Install OpenCV, moviepy, and FFmpeg
+Step 3: Install [OpenCV](https://opencv.org/releases/), [moviepy](https://zulko.github.io/moviepy/install.html), and [FFmpeg](https://ffmpeg.org/download.html)
+
 # Usage
 The documentation folder in this repo holds the main documentation file "MGT-doc.pdf" which describes all functionalities. In addition, a Jupyter notebook "MotionGesturesToolbox.ipynb" is also made, with examples of usage. 
