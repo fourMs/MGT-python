@@ -13,8 +13,7 @@ class InputError(Error):
 
 
 def input_test(filename,method,filtertype,thresh,starttime,endtime,blur,skip):
-    #thresh = neg og over 1. velge hoppstørrelse: antall frames øvre grense.
-
+    """ Gives feedback to user if initialization from input went wrong. """
     filenametest = 'true'
 
     for c in filename:

@@ -2,6 +2,17 @@ import numpy as np
 import cv2
 
 def contrast_brightness(of,vidcap,fps,width,height,contrast,brightness):
+    """
+    Edit contrast and brightness of the video.
+    
+    of (str): filename without extension
+    vidcap: cv2 capture of video file, with all frames ready to read with vidcap.read().
+    fps, width, height are simply info about vidcap
+    contrast (float): apply +/- 100 contrast to video
+    brightness (float): apply +/- 100 brightness to video
+    
+    return: cv2 video capture of edited video file
+    """
     count = 0;
     if brightness != 0 or contrast != 0:
         fourcc = cv2.VideoWriter_fourcc(*'MJPG')
@@ -21,6 +32,18 @@ def contrast_brightness(of,vidcap,fps,width,height,contrast,brightness):
     return vidcap
 
 def skip_frames(of, vidcap, skip, fps, width, height):
+    """
+    Frame skip, convenient for saving time/space in an analysis of less detail looking at big picture movement. Skips the given number of frames, making a compressed version of the input video file.
+    
+    of (str): filename without extension
+    vidcap: cv2 capture of video file, with all frames ready to read with vidcap.read().
+    fps, width, height are simply info about vidcap
+    skip (int): When proceeding to analyze next frame of video, this many frames are skipped.
+    
+    return:
+        cv2 video capture of edited video file
+        length, fps, width, height from this video capture
+    """
     count = 0;
     if skip != 0:
         fourcc = cv2.VideoWriter_fourcc(*'MJPG')

@@ -6,14 +6,29 @@ from ._centroid import mg_centroid
 from ._filter import motionfilter
 import matplotlib.pyplot as plt
 
-def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.03, blur = 'None', kernel_size = 3):
+def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel_size = 5, inverted_motiongram = True):
+    """
+    Finds the difference in pixel value from one frame to the next in an input video, and saves the frames into a new video.
+    Describes the motion in the recording.    
+    Outputs a video called filename + '_motion.avi'.
+
+    Parameters:
+    kernel_size (int): Size of structuring element.
+    method (str): Currently 'Diff' is the only implemented method. 
+    filtertype (str): 'Regular', 'Binary', 'Blob' (see function motionfilter) 
+    thresh (float): a number in [0,1]. Eliminates pixel values less than given threshold.
+    blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
+    
+    Returns:
+    None
+    """
+
     self.blur = blur
     self.method = method
     self.thresh = thresh
     self.filtertype = filtertype
 
     ret, frame = self.video.read()
-    #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) 
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
     out = cv2.VideoWriter(self.of + '_motion.avi',fourcc, self.fps, (self.width,self.height))
     gramx = np.zeros([1,self.width,3])
@@ -27,7 +42,6 @@ def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.03, bl
         gramy = np.zeros([self.height,1])
 
     while(self.video.isOpened()):
-        #May need to do this, not sure
         if self.blur == 'Average':
             prev_frame = cv2.blur(frame,(10,10))
         elif self.blur == 'None':
@@ -38,7 +52,7 @@ def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.03, bl
             if self.blur == 'Average':
                 frame = cv2.blur(frame,(10,10)) #The higher these numbers the more blur you get
             elif self.blur == 'None':
-                frame = frame                   #No blurring, then frame equals frame 
+                frame = frame                   #No blur
 
             if self.color == True:
                 frame = frame
@@ -78,7 +92,7 @@ def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.03, bl
                 motion_frame = cv2.cvtColor(motion_frame, cv2.COLOR_GRAY2BGR)
                 motion_frame_rgb = motion_frame
             out.write(motion_frame_rgb.astype(np.uint8))
-            combite, qombite = mg_centroid(motion_frame_rgb.astype(np.uint8),self.width,self.height,self.color)
+            combite, qombite = mg_centroid(motion_frame_rgb.astype(np.uint8),self.width,self.height)
             if ii == 0:
                 com = combite.reshape(1,2)
                 qom = qombite
@@ -86,17 +100,22 @@ def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.03, bl
                 com=np.append(com,combite.reshape(1,2),axis =0)
                 qom=np.append(qom,qombite)
         else:
+            print('Rendering motionvideo 100%')
             break
         ii+=1
-        print('Processing %s%%' %(int(ii/(self.length-1)*100)), end='\r')
+        print('Rendering motionvideo %s%%' %(int(ii/(self.length-1)*100)), end='\r')
     if self.color == False:
         gramx = cv2.cvtColor(gramx.astype(np.uint8), cv2.COLOR_GRAY2BGR)
         gramy = cv2.cvtColor(gramy.astype(np.uint8), cv2.COLOR_GRAY2BGR)
 
     gramx = gramx/gramx.max()*255
     gramy = gramy/gramy.max()*255
-    cv2.imwrite(self.of+'_mgx.bmp',gramx.astype(np.uint8))
-    cv2.imwrite(self.of+'_mgy.bmp',gramy.astype(np.uint8))
+    if inverted_motiongram:
+        cv2.imwrite(self.of+'_mgx.png',cv2.bitwise_not(gramx.astype(np.uint8)))
+        cv2.imwrite(self.of+'_mgy.png',cv2.bitwise_not(gramy.astype(np.uint8)))
+    else:
+        cv2.imwrite(self.of+'_mgx.png',gramx.astype(np.uint8))
+        cv2.imwrite(self.of+'_mgy.png',gramy.astype(np.uint8))
     plot_motion_metrics(self.of,com,qom,self.width,self.height)
 
 def plot_motion_metrics(of,com,qom,width,height):
@@ -116,7 +135,7 @@ def plot_motion_metrics(of,com,qom,width,height):
     ax.set_title('Quantity of motion')
     ax.bar(np.arange(len(qom)-1),qom[1:]/(width*height))
     #ax.plot(qom[1:-1])
-    plt.savefig('%s_motion_com_qom.eps'%of,format='eps')
+    plt.savefig('%s_motion_com_qom.png'%of,format='png')
 
 
 
