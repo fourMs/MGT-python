@@ -1,33 +1,47 @@
 # MGT-python
-Musical Gestures Toolbox for Python
 
-This toolbox is a port and further development of the [Musical Gestures Toolbox for Matlab](https://github.com/fourMs/MGT).
+The Musical Gestures Toolbox for Python is a collection of tools for video visualization and video analysis.
 
-# About
+This toolbox is a port and further development of the [Musical Gestures Toolbox for Matlab](https://github.com/fourMs/MGT-matlab), which again was a port of Musical Gestures Toolbox for Max.
+
+
+## About
+
 Videos can be used to develop new visualisations to be used for analysis. The aim of creating such alternate displays from video recordings is to uncover features, structures and similarities within the material itself, and in relation to, for example, score material. Three useful visualisation techniques here are motion images, motion history images and motiongrams.
 
 MGT can generate both dynamic and static visualizations, as well as some quantitative data:
 
 - dynamic visualisations (video files)
-- motion video
-- motion history video
+    - motion video
+    - motion history video
 - static visualisations (images)
-- motion average image
-- motiongrams
-- videograms
+    - motion average image
+    - motiongrams
+    - videograms
 - motion data (csv files)
-- quantity of motion
-- centroid of motion
-- area of motion
+    - quantity of motion
+    - centroid of motion
+    - area of motion
 
-# Installation
+## Installation
 
-## Windows, macOS and Linux
+
+### Windows, macOS and Linux
+
 Step 1: Clone git-repository
 
 Step 2: Install Python 3 either by installing [Anaconda 3](https://www.anaconda.com/distribution/) (Python distribution) or directly at [python.org](http://www.python.org).
 
-Step 3: Install [OpenCV](https://opencv.org/releases/), [moviepy](https://zulko.github.io/moviepy/install.html), and [FFmpeg](https://ffmpeg.org/download.html)
+Step 3: Install the necessary packages: [OpenCV](https://opencv.org/releases/), [moviepy](https://zulko.github.io/moviepy/install.html), and [FFmpeg](https://ffmpeg.org/download.html). Some of these packages have many dependencies, so remember to check that everything installs correctly.
 
-# Usage
-The documentation folder in this repo holds the main documentation file "MGT-doc.pdf" which describes all functionalities. In addition, a Jupyter notebook "MotionGesturesToolbox.ipynb" is also made, with examples of usage. 
+## Usage
+
+The documentation folder in this repository holds the main documentation file "MGT-doc.pdf" which describes all functionalities. In addition, a Jupyter notebook "MotionGesturesToolbox.ipynb" is also made, with examples of usage.
+
+## Credits
+
+Main developers: [Frida Furmyr](https://github.com/fridafu), [Marcus Widmer](https://github.com/marcuswidmer), [Alexander Refsum Jensenius](https://github.com/alexarje/)
+
+## License
+
+This toolbox is using the [GNU General Public License 3.0 license](https://www.gnu.org/licenses/gpl-3.0.en.html). 
