@@ -30,7 +30,7 @@ def mg_videoreader(filename, starttime = 0, endtime = 0, skip = 0, contrast = 0,
     if starttime != 0 or endtime != 0:
         trimvideo = ffmpeg_extract_subclip(filename, starttime, endtime, targetname= of +'_trim' + fex)
         of = of + '_trim'
-        vidcap = cv2.VideoCapture(of+fx)
+        vidcap = cv2.VideoCapture(of+fex)
 
     # Or just use whole video
     else:
