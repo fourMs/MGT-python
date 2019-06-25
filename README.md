@@ -44,4 +44,4 @@ Main developers: [Frida Furmyr](https://github.com/fridafu), [Marcus Widmer](htt
 
 ## License
 
-This toolbox is using the [GNU General Public License 3.0 license](https://www.gnu.org/licenses/gpl-3.0.en.html). 
+This toolbox is using the [GNU General Public License 3.0 license](https://www.gnu.org/licenses/gpl-3.0.en.html).
