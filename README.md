@@ -30,6 +30,8 @@ MGT can generate both dynamic and static visualizations, as well as some quantit
 
 Step 1: Clone git-repository
 
+    git clone https://github.com/fourMs/MGT-python.git
+
 Step 2: Install Python 3 either by installing [Anaconda 3](https://www.anaconda.com/distribution/) (Python distribution) or directly at [python.org](http://www.python.org).
 
 Step 3: Install the necessary packages: [OpenCV](https://opencv.org/releases/), [moviepy](https://zulko.github.io/moviepy/install.html), and [FFmpeg](https://ffmpeg.org/download.html). Some of these packages have many dependencies, so remember to check that everything installs correctly. With pip you can run:
