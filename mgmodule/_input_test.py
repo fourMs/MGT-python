@@ -49,7 +49,7 @@ def mg_input_test(filename,method,filtertype,thresh,starttime,endtime,blur,skip)
 
         if not isinstance(skip,int):
             msg = 'Please specify a skip as an integer of frames you wish to skip (Max = N frames).'
-            raise InputError(msg)        
+            raise InputError(msg)    
 
     else:
         msg = 'Minimum input for this function: filename as a str.'

@@ -2,7 +2,8 @@ import cv2
 import os
 import numpy as np
 from scipy.signal import medfilt2d
-from ._centroid import mg_centroid
+from ._centroid import centroid
+
 from ._filter import filter_frame
 import matplotlib.pyplot as plt
 
@@ -15,7 +16,7 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001
     Parameters:
     kernel_size (int): Size of structuring element.
     method (str): Currently 'Diff' is the only implemented method. 
-    filtertype (str): 'Regular', 'Binary', 'Blob' (see function motionfilter) 
+    filtertype (str): 'Regular', 'Binary', 'Blob' (see function filter_frame) 
     thresh (float): a number in [0,1]. Eliminates pixel values less than given threshold.
     blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
     
@@ -27,10 +28,10 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001
     self.method = method
     self.thresh = thresh
     self.filtertype = filtertype
-
+    fex = os.path.splitext(self.filename)[1]
     ret, frame = self.video.read()
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-    out = cv2.VideoWriter(self.of + '_motion.avi',fourcc, self.fps, (self.width,self.height))
+    out = cv2.VideoWriter(self.of + '_motion' + fex,fourcc, self.fps, (self.width,self.height))
     gramx = np.zeros([1,self.width,3])
     gramy = np.zeros([self.height,1,3])
     qom = np.array([]) #quantity of motion
@@ -92,7 +93,7 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001
                 motion_frame = cv2.cvtColor(motion_frame, cv2.COLOR_GRAY2BGR)
                 motion_frame_rgb = motion_frame
             out.write(motion_frame_rgb.astype(np.uint8))
-            combite, qombite = mg_centroid(motion_frame_rgb.astype(np.uint8),self.width,self.height)
+            combite, qombite = centroid(motion_frame_rgb.astype(np.uint8),self.width,self.height)
             if ii == 0:
                 com = combite.reshape(1,2)
                 qom = qombite

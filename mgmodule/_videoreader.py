@@ -43,7 +43,7 @@ def mg_videoreader(filename, starttime = 0, endtime = 0, skip = 0, contrast = 0,
     
     # To skip ahead a few frames before the next sample set skip to a value above 0
     if skip != 0:
-        vidcap, length, fps, width, height = mg_skip_frames(of, vidcap, skip, fps, width, height)
+        vidcap, length, fps, width, height = skip_frames(of, fex, vidcap, skip, fps, width, height)
         of = of + '_skip'
 
     #overwrite the inputvalue for endtime to not cut the video at 0...
@@ -52,12 +52,12 @@ def mg_videoreader(filename, starttime = 0, endtime = 0, skip = 0, contrast = 0,
 
     #To apply contrast/brightness before the motion analysis
     if contrast != 0 or brightness != 0:
-        vidcap = mg_contrast_brightness(of,vidcap,fps,width,height,contrast,brightness)
+        vidcap = contrast_brightness(of, fex, vidcap,fps,width,height,contrast,brightness)
         of = of + '_cb'
 
     # Crops video either manually or automatically 
     if crop != 'none':
-        [vidcap,width,height] = mg_cropvideo(fps, width, height, length, of, crop, motion_box_thresh = 0.1, motion_box_margin = 1)
+        [vidcap,width,height] = cropvideo(fps, width, height, length, of, fex, crop, motion_box_thresh = 0.1, motion_box_margin = 1)
         of = of + '_crop'
 
 

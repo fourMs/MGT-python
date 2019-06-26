@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-import time
+
 
 def mg_show(self, filename = None):
 	"""
