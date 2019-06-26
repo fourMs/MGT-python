@@ -3,7 +3,7 @@ import os
 import numpy as np
 import time
 from ._constrainNumber import constrainNumber
-from ._filter import motionfilter
+from ._filter import filter_frame
 
 def cropvideo(fps,width,height, length, of, fex, crop_movement = 'auto', motion_box_thresh = 0.1, motion_box_margin = 1):
 	"""
@@ -176,7 +176,7 @@ def find_total_motion_box(vid2findbox,width,height,length,motion_box_thresh,moti
 			frame = frame.astype(np.int32)
 
 			motion_frame = (np.abs(frame-prev_frame)).astype(np.uint8)
-			motion_frame = motionfilter(motion_frame,'Regular',thresh = motion_box_thresh, kernel_size=5)
+			motion_frame = filter_frame(motion_frame,'Regular',thresh = motion_box_thresh, kernel_size=5)
 
 			[the_box,x_start,x_stop,y_start,y_stop]=find_motion_box(motion_frame,width,height,motion_box_margin)
 			total_box = total_box*(the_box==0)+the_box

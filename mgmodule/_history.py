@@ -12,7 +12,7 @@ def history(filename,history_length = 10):
     history_length (int): How many frames will be saved to the history tail.
     kernel_size (int): Size of structuring element.
     method (str): Currently 'Diff' is the only implemented method. 
-    filtertype (str): 'Regular', 'Binary', 'Blob' (see function motionfilter) 
+    filtertype (str): 'Regular', 'Binary', 'Blob' (see function filter_frame) 
 	thresh (float): a number in [0,1]. Eliminates pixel values less than given threshold.
     blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
 	

@@ -9,7 +9,7 @@ class MgObject:
     Parameters:
     filename (str): Name of input parameter video file.
     method (str): Currently 'Diff' is the only implemented method. 
-    filtertype (str): 'Regular', 'Binary', 'Blob' (see function motionfilter).
+    filtertype (str): 'Regular', 'Binary', 'Blob' (see function filterframe).
     thresh (float): a number in [0,1]. Eliminates pixel values less than given threshold.
     starttime (float): cut the video from this start time (min) to analyze what is relevant.
     endtime (float): cut the video at this end time (min) to analyze what is relevant.

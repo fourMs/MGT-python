@@ -2,7 +2,7 @@ from scipy.signal import medfilt2d
 import cv2
 import numpy as np
 
-def motionfilter(motion_frame, filtertype,thresh,kernel_size):
+def filter_frame(motion_frame, filtertype,thresh,kernel_size):
     """
         Apply a filter to a picture/videoframe
         

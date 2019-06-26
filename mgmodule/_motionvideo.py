@@ -2,8 +2,8 @@ import cv2
 import os
 import numpy as np
 from scipy.signal import medfilt2d
-from ._centroid import mg_centroid
-from ._filter import motionfilter
+from ._centroid import centroid
+from ._filter import filter_frame
 import matplotlib.pyplot as plt
 
 def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel_size = 5, inverted_motiongram = True):
@@ -15,7 +15,7 @@ def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, b
     Parameters:
     kernel_size (int): Size of structuring element.
     method (str): Currently 'Diff' is the only implemented method. 
-    filtertype (str): 'Regular', 'Binary', 'Blob' (see function motionfilter) 
+    filtertype (str): 'Regular', 'Binary', 'Blob' (see function filter_frame) 
     thresh (float): a number in [0,1]. Eliminates pixel values less than given threshold.
     blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
     
@@ -68,7 +68,7 @@ def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, b
 
                     for i in range(frame.shape[2]):
                         motion_frame = (np.abs(frame[:,:,i]-prev_frame[:,:,i])).astype(np.uint8)
-                        motion_frame = motionfilter(motion_frame,self.filtertype,self.thresh,kernel_size)
+                        motion_frame = filter_frame(motion_frame,self.filtertype,self.thresh,kernel_size)
                         motion_frame_rgb[:,:,i] = motion_frame
 
                     movement_y = np.mean(motion_frame_rgb,axis=1).reshape(self.height,1,3)
@@ -78,7 +78,7 @@ def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, b
                    
                 else:
                     motion_frame = (np.abs(frame-prev_frame)).astype(np.uint8)
-                    motion_frame = motionfilter(motion_frame,self.filtertype,self.thresh,kernel_size)
+                    motion_frame = filter_frame(motion_frame,self.filtertype,self.thresh,kernel_size)
 
                     movement_y = np.mean(motion_frame,axis=1).reshape(self.height,1)
                     movement_x = np.mean(motion_frame,axis=0).reshape(1,self.width)
@@ -92,7 +92,7 @@ def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, b
                 motion_frame = cv2.cvtColor(motion_frame, cv2.COLOR_GRAY2BGR)
                 motion_frame_rgb = motion_frame
             out.write(motion_frame_rgb.astype(np.uint8))
-            combite, qombite = mg_centroid(motion_frame_rgb.astype(np.uint8),self.width,self.height)
+            combite, qombite = centroid(motion_frame_rgb.astype(np.uint8),self.width,self.height)
             if ii == 0:
                 com = combite.reshape(1,2)
                 qom = qombite

@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-def mg_centroid(image, width, height):
+def centroid(image, width, height):
     """
     Computes the centroid of an image/frame.
     
