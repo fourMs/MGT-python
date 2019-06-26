@@ -3,10 +3,11 @@ import os
 import numpy as np
 from scipy.signal import medfilt2d
 from ._centroid import centroid
+
 from ._filter import filter_frame
 import matplotlib.pyplot as plt
 
-def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel_size = 5, inverted_motiongram = True):
+def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel_size = 5, inverted_motiongram = True):
     """
     Finds the difference in pixel value from one frame to the next in an input video, and saves the frames into a new video.
     Describes the motion in the recording.    

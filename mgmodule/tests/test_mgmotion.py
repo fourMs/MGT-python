@@ -11,7 +11,7 @@ from _constrainNumber import constrainNumber
 
 
 
-mg = mgmodule.MgObject('dance.avi', starttime = 5, endtime = 10, color = True, brightness = 90, contrast = 90, skip = 1)
-print(constrainNumber(3,4,7))
-#mgc = mgmodule.MgObject('dance_cropped.avi')
+mg = mgmodule.MgObject('dance.avi', starttime = 2, endtime = 7, color = True, brightness = 90, contrast = 90, skip = 0, crop='manual')
+mg.mg_motionvideo()
+
 

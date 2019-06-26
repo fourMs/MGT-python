@@ -12,7 +12,7 @@ class InputError(Error):
         self.message = message
 
 
-def input_test(filename,method,filtertype,thresh,starttime,endtime,blur,skip):
+def mg_input_test(filename,method,filtertype,thresh,starttime,endtime,blur,skip):
     """ Gives feedback to user if initialization from input went wrong. """
     filenametest = 'true'
 

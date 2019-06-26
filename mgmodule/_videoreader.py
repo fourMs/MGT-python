@@ -2,7 +2,7 @@ import cv2
 import os
 from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 import numpy as np
-from ._videoadjust import contrast_brightness, skip_frames
+from ._videoadjust import mg_contrast_brightness, mg_skip_frames
 from ._cropvideo import *
 
 

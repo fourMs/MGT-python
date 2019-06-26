@@ -4,17 +4,13 @@ import numpy as np
 
 def history(filename,history_length = 10):
     """
-    Finds the difference in pixel value from one frame to the next in an input video, and saves the difference frame to a history tail. 
-    The history frames are summed up and normalized, and added to the current difference frame to show the history of motion. 
-    Outputs a video called filename + '_motionhistory.avi'.
+    This function  creates a video where each frame is the average of the n previous frames, where n is determined
+    from the history_length parameter.
+    The history frames are summed up and normalized, and added to the current frame to show the history. 
+    Outputs a video called filename + '_history.avi'.
 
     Parameters:
     history_length (int): How many frames will be saved to the history tail.
-    kernel_size (int): Size of structuring element.
-    method (str): Currently 'Diff' is the only implemented method. 
-    filtertype (str): 'Regular', 'Binary', 'Blob' (see function filter_frame) 
-	thresh (float): a number in [0,1]. Eliminates pixel values less than given threshold.
-    blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
 	
     Returns:
     None
