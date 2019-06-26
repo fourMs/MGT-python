@@ -19,7 +19,8 @@ def history(filename,history_length = 10):
     Returns:
     None
     """
-    of = os.path.splitext(filename)[0] 
+    of = os.path.splitext(filename)[0]
+    fex = os.path.splitext(filename)[1] 
     video = cv2.VideoCapture(filename)
     ret, frame = video.read()
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
@@ -29,7 +30,7 @@ def history(filename,history_length = 10):
     height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
     length = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
 
-    out = cv2.VideoWriter(of + '_history.avi',fourcc, fps, (width,height))
+    out = cv2.VideoWriter(of + '_history' + fex ,fourcc, fps, (width,height))
 
     ii = 0
     history = []

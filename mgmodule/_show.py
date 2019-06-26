@@ -9,7 +9,6 @@ def show(self, input):
   if (cap.isOpened()== False): 
     print("Error opening video stream or file")
   i = int(np.round((1/self.fps)*1000))
-  print(i)
    
   # Read until video is completed
   while(cap.isOpened()):

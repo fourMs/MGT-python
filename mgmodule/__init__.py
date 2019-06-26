@@ -25,6 +25,7 @@ class MgObject:
 
         self.filename = filename
         self.of = os.path.splitext(self.filename)[0] 
+        self.fex = os.path.splitext(self.filename)[1] 
         self.color = color
         self.method = method
         self.starttime = starttime

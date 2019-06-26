@@ -22,15 +22,17 @@ def motionhistory(self, history_length = 10, kernel_size = 5, method = 'Diff', f
     Returns:
     None
     """
+    enhancement = 1 #This can be adjusted to higher number to make motion more visible. Use with caution to not make it overflow.
     self.method = method
     self.filtertype = filtertype
     self.thresh = thresh
     self.blur = blur
 
     ret, frame = self.video.read()
-    of = os.path.splitext(self.filename)[0] 
+    of = os.path.splitext(self.filename)[0]
+    fex = os.path.splitext(filename)[1] 
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-    out = cv2.VideoWriter(of + '_motionhistory.avi',fourcc, self.fps, (self.width,self.height))
+    out = cv2.VideoWriter(of + '_motionhistory' + fex,fourcc, self.fps, (self.width,self.height))
     
     ii = 0
     history = []
@@ -68,7 +70,7 @@ def motionhistory(self, history_length = 10, kernel_size = 5, method = 'Diff', f
 
                     for newframe in history:
                             motion_history += newframe/(len(history)+1)  
-                    if len(history) > history_length: # or however long history you would like
+                    if len(history) > history_length or len(history) == history_length: # or however long history you would like
                         history.pop(0)# pop first frame
                     history.append(motion_frame_rgb)
                     motion_history = motion_history.astype(np.uint64) #0.5 to not overload it poor thing
@@ -84,7 +86,7 @@ def motionhistory(self, history_length = 10, kernel_size = 5, method = 'Diff', f
                     for newframe in history:
                             motion_history += newframe/(len(history)+1)  
 
-                    if len(history) > history_length: # or however long history you would like
+                    if len(history) > history_length or len(history) == history_length: # or however long history you would like
                         history.pop(0)# pop first frame
                     
                     history.append(motion_frame)
@@ -95,7 +97,7 @@ def motionhistory(self, history_length = 10, kernel_size = 5, method = 'Diff', f
             else: 
                 motion_history_rgb = motion_history
             
-            out.write(3*motion_history_rgb.astype(np.uint8))
+            out.write(enhancement*motion_history_rgb.astype(np.uint8))
 
         else:
             break

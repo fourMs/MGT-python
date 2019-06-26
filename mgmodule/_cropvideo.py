@@ -5,7 +5,7 @@ import time
 from ._constrainNumber import constrainNumber
 from ._filter import motionfilter
 
-def cropvideo(fps,width,height, length, of, crop_movement = 'auto', motion_box_thresh = 0.1, motion_box_margin = 1):
+def cropvideo(fps,width,height, length, of, fex, crop_movement = 'auto', motion_box_thresh = 0.1, motion_box_margin = 1):
 	"""
 	Crops the video.
 
@@ -33,8 +33,8 @@ def cropvideo(fps,width,height, length, of, crop_movement = 'auto', motion_box_t
 	drawing = False
 
 
-	vid2crop = cv2.VideoCapture(of + '.avi')
-	vid2findbox = cv2.VideoCapture(of + '.avi')
+	vid2crop = cv2.VideoCapture(of + fex)
+	vid2findbox = cv2.VideoCapture(of + fex)
 
 	ret, frame = vid2crop.read()
 
@@ -64,7 +64,7 @@ def cropvideo(fps,width,height, length, of, crop_movement = 'auto', motion_box_t
 		[x_start,x_stop,y_start,y_stop] = find_total_motion_box(vid2findbox,width,height,length,motion_box_thresh,motion_box_margin)
 
 	fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-	out = cv2.VideoWriter(of + '_crop.avi',fourcc, fps, (int(x_stop-x_start),(int(y_stop-y_start))))
+	out = cv2.VideoWriter(of + '_crop' + fex,fourcc, fps, (int(x_stop-x_start),(int(y_stop-y_start))))
 	ii = 0 
 	while (vid2crop.isOpened()):
 		if ret:
@@ -82,7 +82,7 @@ def cropvideo(fps,width,height, length, of, crop_movement = 'auto', motion_box_t
 	out.release()
 	cv2.destroyAllWindows()
 
-	vidcap = cv2.VideoCapture(of + '_crop.avi')
+	vidcap = cv2.VideoCapture(of + '_crop'+ fex)
 	width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
 	height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 	return vidcap,width,height
