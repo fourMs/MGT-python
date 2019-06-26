@@ -4,3 +4,4 @@ __pycache__/
 *.csv
 *.eps
 *.tiff
+*.DS_Store
