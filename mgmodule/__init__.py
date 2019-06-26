@@ -1,5 +1,5 @@
 import os
-from ._input_test import input_test
+from ._input_test import mg_input_test
 from ._videoreader import mg_videoreader
 from ._constrainNumber import constrainNumber
 class MgObject:
@@ -25,6 +25,7 @@ class MgObject:
 
         self.filename = filename
         self.of = os.path.splitext(self.filename)[0] 
+        self.fex = os.path.splitext(self.filename)[1] 
         self.color = color
         self.method = method
         self.starttime = starttime
@@ -40,14 +41,14 @@ class MgObject:
         self.get_video()
 
     
-    from ._motionvideo import motionvideo, plot_motion_metrics
-    from ._cropvideo import cropvideo, find_motion_box, find_total_motion_box
+    from ._motionvideo import mg_motionvideo, plot_motion_metrics
+    from ._cropvideo import mg_cropvideo, find_motion_box, find_total_motion_box
     from ._motionhistory import motionhistory
-    from ._show import show
+    from ._show import mg_show
 
     def test_input(self):
         """ Gives feedback to user if initialization from input went wrong. """
-        input_test(self.filename, self.method, self.filtertype, self.thresh, self.starttime, self.endtime, self.blur, self.skip)
+        mg_input_test(self.filename, self.method, self.filtertype, self.thresh, self.starttime, self.endtime, self.blur, self.skip)
 
     def get_video(self):
         """ Creates a video attribute to the Musical Gestures object with the given correct settings. """

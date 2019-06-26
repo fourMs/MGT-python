@@ -3,9 +3,9 @@ import os
 import numpy as np
 import time
 from ._constrainNumber import constrainNumber
-from ._filter import motionfilter
+from ._filter import filter_frame
 
-def cropvideo(fps,width,height, length, of, crop_movement = 'auto', motion_box_thresh = 0.1, motion_box_margin = 1):
+def mg_cropvideo(fps,width,height, length, of, crop_movement = 'auto', motion_box_thresh = 0.1, motion_box_margin = 1):
 	"""
 	Crops the video.
 

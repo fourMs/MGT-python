@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 
-def contrast_brightness(of,vidcap,fps,width,height,contrast,brightness):
+def mg_contrast_brightness(of,vidcap,fps,width,height,contrast,brightness):
     """
     Edit contrast and brightness of the video.
     
@@ -31,7 +31,7 @@ def contrast_brightness(of,vidcap,fps,width,height,contrast,brightness):
 
     return vidcap
 
-def skip_frames(of, vidcap, skip, fps, width, height):
+def mg_skip_frames(of, vidcap, skip, fps, width, height):
     """
     Frame skip, convenient for saving time/space in an analysis of less detail looking at big picture movement. Skips the given number of frames, making a compressed version of the input video file.
     

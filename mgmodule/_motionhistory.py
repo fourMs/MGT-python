@@ -3,7 +3,7 @@ import os
 import numpy as np
 from scipy.signal import medfilt2d
 from ._centroid import mg_centroid
-from ._filter import motionfilter
+from ._filter import filter_frame
 
 def motionhistory(self, history_length = 10, kernel_size = 5, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None'):
     """

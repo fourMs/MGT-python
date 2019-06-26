@@ -12,201 +12,255 @@
 
 \begin{document}
 \maketitle
-\section*{\texttt{motionfilter}}
-\section*{\texttt{mg\_videoreader}}
-\hspace{20pt}\texttt{mg\_videoreader(filename, starttime = 0, endtime = 0, skip = 0, contrast = 0, brightness = 0, crop = 'none')}
 
-\section*{Class MgObject}
-    \begin{verbatim}
-    Initializes Musical Gestures data structure from a given parameter video file.
+\tableofcontents
 
-    Parameters:
-    filename (str): Name of input parameter video file.
-    method (str): Currently 'Diff' is the only implemented method. 
-    filtertype (str): 'Regular', 'Binary', 'Blob' (see function motionfilter).
-    thresh (float): a number in [0,1]. Eliminates pixel values less than given threshold.
-    starttime (float): cut the video from this start time (min) to analyze what is relevant.
-    endtime (float): cut the video at this end time (min) to analyze what is relevant.
-    blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
-    skip (int): When proceeding to analyze next frame of video, this many frames are skipped.
-    color (bool): True does the analysis in RGB, False in grayscale. 
-    contrast (float): apply +/- 100 contrast to video
-    brightness (float): apply +/- 100 brightness to video
-    crop (str): 'none', 'manual', 'auto' to select cropping of relevant video frame size
-    \end{verbatim}
-    
-\section*{mg\_videoreader}
-    \begin{verbatim}
-    mg_videoreader(filename, starttime = 0, endtime = 0, skip = 0, contrast = 0, brightness = 0, crop = 'none'):
-    
+\section{Class MgObject}
+    Initializes Musical Gestures data structure from a given parameter video file.\\
+
+    \noindent Parameters:
+    \begin{itemize}
+   \item [] filename (str): Name of input parameter video file.
+   \item [] method (str): Currently 'Diff' is the only implemented method. 
+   \item [] filtertype (str): 'Regular', 'Binary', 'Blob' (see function motionfilter).
+    \item [] thresh (float): a number in [0,1]. Eliminates pixel values less than given threshold.
+   \item [] starttime (float): cut the video from this start time (min) to analyze what is relevant.
+   \item [] endtime (float): cut the video at this end time (min) to analyze what is relevant.
+   \item []  blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
+   \item[] skip (int): When proceeding to analyze next frame of video, this many frames are skipped. NB: skip cannot exceed number of frames per second (fps). 
+    \item [] color (bool): True does the analysis in RGB, False in grayscale. 
+    \item [] contrast (float): apply +/- 100 contrast to video
+   \item []  brightness (float): apply +/- 100 brightness to video
+    \item [] crop (str): 'none', 'manual', 'auto' to select cropping of relevant video frame size
+    \end{itemize}
+\section{MgObject methods}
+
+\subsection{mg\_videoreader}
+    mg\_videoreader(filename, starttime = 0, endtime = 0, skip = 0, contrast = 0, brightness = 0, crop = 'none'):
+    \\\\
     Reads in a video file, and by input parameters user decide if it: trims the length, skips frames, applies contrast/brightness adjustments and/or crops image width/height.
-    
-    filename (str): Name of input parameter video file.
-    starttime (float): cut the video from this start time (min) to analyze what is relevant.
-    endtime (float): cut the video at this end time (min) to analyze what is relevant.
-    skip (int): When proceeding to analyze next frame of video, this many frames are skipped.
-    contrast (float): apply +/- 100 contrast to video
-    brightness (float): apply +/- 100 brightness to video
-    crop (str): 'None', 'Auto' or 'Manual' to crop video.
-    
-    return:
-    - vidcap: cv2 video capture of editevideo file
-    - length, fps, width, height from vidcap
-    - of: filename gets updated with whaprocedures it went through
-    \end{verbatim}
+    \\\\
+    Parameters:
+    \begin{itemize}
+     \item [] filename (str): Name of input parameter video file.
+     \item [] starttime (float): cut the video from this start time (min) to analyze what is relevant.
+     \item [] endtime (float): cut the video at this end time (min) to analyze what is relevant.
+     \item [] skip (int): When proceeding to analyze next frame of video, this many frames are skipped.
+     \item [] contrast (float): apply +/- 100 contrast to video
+     \item [] brightness (float): apply +/- 100 brightness to video
+     \item [] crop (str): 'None', 'Auto' or 'Manual' to crop video.
+    \end{itemize}
+    Returns:
+    \begin{itemize}
+    \item [] vidcap (VideoCapture object): cv2 video capture of editevideo file
+    \item [] length (int), fps(int), width(int), height(int): video attributes
+     \item [] of (str): only-filename - filename gets updated with what procedures it went through.
+ \end{itemize}
 
-\section*{motionvideo}    
-    \begin{verbatim}
-    motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel_size = 5):
-    
+\subsection{mg\_motionvideo}    
+    mg\_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel\_size = 5):
+    \\\\
     Finds the difference in pixel value from one frame to the next in an input video, and saves the frames into a new video.
     Describes the motion in the recording.    
-    Outputs a video called filename +'_motion.avi'.
-    
+    Outputs a video called filename +'\_motion.avi'.
+    \\\\
     Parameters:
-    kernel_size (int): Size of structuring element.
-    method (str): Currently 'Diff' is the only implemented method. 
-    filtertype (str): 'Regular', 'Binary', 'Blob'(see function motionfilter) 
-    thresh (float): a number in [0,1]. Eliminate spixel values less than given threshold.
-    blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
     
+    \begin{itemize}
+    \item [] kernel\_size (int): Size of structuring element.
+   \item [] method (str): Currently 'Diff' is the only implemented method. 
+    \item [] filtertype (str): 'Regular', 'Binary', 'Blob'(see function motionfilter) 
+    \item [] thresh (float): a number in [0,1]. Eliminate spixel values less than given threshold.
+    \item [] blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
+    \end{itemize}
     Returns:
-    None
-    \end{verbatim}
-
-\section*{motionfilter}
-    \begin{verbatim}
-    motionfilter(motion_frame, filtertype,thresh,kernel_size)
-    
-    Apply a filter to a picture/videoframe
-    
-    motion_frame (array(uint8)): input motion image
-    filtertype (str):
-                ’Regular’, turns all values below thresh to 0,
-                ’Binary’ turns all values below thresh to 0, above thresh to 1,
-                ’Blob’ removes individual pixels with erosion method.
-    thresh (float): for ’Regular’ and ’Binary’ option, thresh is a value of threshold [0,1];
-    kernel_size(int): Size of structuring element
-    
-    return: filtered frame (array(uint8))
-    \end{verbatim}
-
-\section*{mg\_centroid}
-    \begin{verbatim}
-    mg_centroid(image, width, height):
-
-    Computes the centroid of an image/frame.
-    
-    Parameters
-    - image (uint8)
-    - width/height of image
-    
-    Returns:
-    - Centroid of motion: Where was the maximum change in pixel value
-    - Quantity of motion: How large was the change in pixel value
-    \end{verbatim}
-    
-\section*{constrainNumber}
-    \begin{verbatim}
-    constrainNumber(n, minn, maxn)
-    Constrains number to having a value between minn and maxn
-    
-    Parameters:
-    - n (number)
-    - minn (lower limit n can be)
-    - maxn (lower limit n can be)
-    
-    return:
-    Constrained number
-    \end{verbatim}
+    \begin{itemize}
+    \item [] None
+    \end{itemize}
 
 
-\section*{cropvideo}
-    \begin{verbatim}
-    cropvideo(fps,width,height, length, of, crop_movement = 'auto', motion_box_thresh = 0.1, motion_box_margin = 1)
-	Crops the video.
+\subsection{mg\_cropvideo}
 
-	Parameters:
-		- crop_movement: {'auto','manual'}
-			'Auto' finds the bounding box that contains the total motion in the video.
-			Motion threshold is given by motion_box_thresh.
-			'manual' opens up a simple GUI that is used to crop the video manually 
-			by looking at the first frame
+    mg\_cropvideo(fps,width,height, length, of, crop\_movement = 'auto', motion\_box\_thresh = 0.1, motion\_box\_margin = 1)
+    \\\\
+	Crops the video.\\\\
+Parameters:
+        \begin{itemize}
+		\item [] crop\_movement(str): 'auto' finds the bounding box that contains the total motion in the video. 'manual' opens up a simple GUI that is used to crop the video manually by looking at the first frame.
 
-		- motion_box_thresh: float
-			Only meaningful is crop_movement = 'auto'. Takes floats between 0 and 1, 
-			where 0 includes all the motion and 1 includes none
+		\item [] motion\_box\_thresh (float): Only meaningful is crop\_movement = 'auto'. Takes floats between 0 and 1, where 0 includes all the motion and 1 includes none.
 		
-		- motion_box_margin: int
-			Only meaningful is crop_movement = 'auto'. Add margin to the bounding box.
+		\item [] motion\_box\_margin (int): Only meaningful is crop\_movement = 'auto'. Add margin to the bounding box.
+        \end{itemize}
 	Returns:
-		- None
-    \end{verbatim}
+    \begin{itemize}
+	   \item [] None
+    \end{itemize}
 
-\section*{input_test}
-    \begin{verbatim}
-    input_test(filename,method,filtertype,thresh,starttime,endtime,blur,skip):
-    """ Gives feedback to user if initialization from input went wrong. """
+
+\subsection{mg\_input\_test}
+    mg\_input\_test(filename,method,filtertype,thresh,starttime,endtime,blur,skip): 
+    \\\\
+    Gives feedback to user if initialization from input went wrong.
     Ex: raise InputError(msg)
     msg = 'Please specify a filter type as str: Regular or Binary'
-    \end{verbatim}
 
-\section*{motionhistory} 
-    \begin{verbatim}
-    motionhistory(self, history_length = 20, kernel_size = 5, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None'):
 
+\subsection{mg\_motionhistory} 
+    mg\_motionhistory(self, history\_length = 20, kernel\_size = 5, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None'):
+    \\\\
     Finds the difference in pixel value from one frame to the next in an input video, and saves the difference frame to a history tail. 
-    The history frames are summed up and normalized, and added to the current difference frame to show the history of motion. 
-    Outputs a video called filename + '_motionhistory.avi'.
-
+    The history frames are summed up and normalized, and added to the current difference frame to show the history of motion. \\
+    Outputs a video called filename + '\_motionhistory.avi'.
+\\\\
     Parameters:
-    history_length (int): How many frames will be saved to the history tail.
-    kernel_size (int): Size of structuring element.
-    method (str): Currently 'Diff' is the only implemented method. 
-    filtertype (str): 'Regular', 'Binary', 'Blob' (see function motionfilter) 
-	thresh (float): a number in [0,1]. Eliminates pixel values less than given threshold.
-    blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
-
+    \begin{itemize}
+    \item []history\_length (int): How many frames will be saved to the history tail.
+    \item []kernel\_size (int): Size of structuring element.
+    \item []method (str): Currently 'Diff' is the only implemented method. 
+    \item []filtertype (str): 'Regular', 'Binary', 'Blob' (see function motionfilter) 
+	\item []thresh (float): a number in [0,1]. Eliminates pixel values less than given threshold.
+    \item []blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
+    \end{itemize}
     Returns:
-    None
-    \end{verbatim}
+    \begin{itemize}
+    \item [] None
+\end{itemize}
 
-\section*{contrast\_brightness}
-\begin{verbatim}
-    contrast_brightness(of,vidcap,fps,width,height,contrast,brightness):
-    Edit contrast and brightness of the video.
-    
-    of (str): filename without extension
-    vidcap: cv2 capture of video file, with all frames ready to read with vidcap.read().
-    fps, width, height are simply info about vidcap
-    contrast (float): apply +/- 100 contrast to video
-    brightness (float): apply +/- 100 brightness to video
-    
-    return: cv2 video capture of edited video file
-\end{verbatim}
+\subsection{mg\_contrast\_brightness}
+    mg\_contrast\_brightness(of,vidcap,fps,width,height,contrast,brightness):\\\\
+    Edit contrast and brightness of the video.\\\\
+    Parameters:
+    \begin{itemize}
+    \item []of (str): filename without extension
+    \item [] vidcap (VideoCapture object): cv2 capture of video file, with all frames ready to read with vidcap.read().
+    \item [] fps (int), width (int), height (int) are simply info about vidcap
+    \item [] contrast (float): apply +/- 100 contrast to video
+    \item [] brightness (float): apply +/- 100 brightness to video
+    \end{itemize}
+    Returns:
+    \begin{itemize}
+    \item [] vidcap (VideoCapture object): cv2 video capture of edited video file
+    \end{itemize}
 
-\section*{skip\_frames}
-\begin{verbatim}
-    skip_frames(of, vidcap, skip, fps, width, height)
-    
+
+\subsection{mg\_skip\_frames}
+    mg\_skip\_frames(of, vidcap, skip, fps, width, height):
+    \\\\
     Frame skip, convenient for saving time/space in an analysis of less detail looking at big picture movement. Skips the given number of frames, making a compressed version of the input video file.
-    
-    of (str): filename without extension
-    vidcap: cv2 capture of video file, with all frames ready to read with vidcap.read().
-    fps, width, height are simply info about vidcap
-    skip (int): When proceeding to analyze next frame of video, this many frames are skipped.
-    
-    return:
-        cv2 video capture of edited video file
-        length, fps, width, height from this video capture
-\end{verbatim}
-\section*{motionaverage}
-    \begin{verbatim}
-	Post-processing tool. Finds and saves an average image of entire video.
-    
-    Usage:
-    from _motionaverage import motionaverage
-    motionaverage('filename.avi')
-    \end{verbatim}
+    \\\\
+    Parameters:
+    \begin{itemize}
+    \item []of (str): filename without extension
+    \item []vidcap (VideoCapture object): cv2 capture of video file, with all frames ready to read with vidcap.read().
+    \item []fps (int), width (int), height (int) are simply info about vidcap
+    \item []skip (int): When proceeding to analyze next frame of video, this many frames are skipped.
+    \end{itemize}
+    Returns:
+    \begin{itemize}
+       \item [] vidcap (VideoCapture object): cv2 video capture of edited video file.
+       \item [] length (int), fps (int), width (int), height(int): new video attributes.
+   \end{itemize}
+
+
+\subsection{mg\_show}
+mg\_show(self, filename = None):
+\\\\
+This function simply plays the current vidcap VideoObject. The speed of the video playback 
+might not match the true fps due to non-optimized code. 
+\\\\
+Parameters:
+\begin{itemize}
+\item[] filename(str): If left empty, the current vidcap object is played. If filename is given,
+this file is played instead.
+\end{itemize}
+Returns:
+\begin{itemize}
+    \item[] None
+\end{itemize}
+
+
+
+\section{Functions}
+\subsection{average\_image}
+    average\_image(filename):
+    \\\\
+    Post-processing tool. Finds and saves an average image of entire video. \\\\Usage:\\
+    from \_motionaverage import motionaverage
+    \\motionaverage('filename.avi')
+    \\\\
+    Parameters:
+    \begin{itemize}
+        \item [] filename (str): name of video 
+    \end{itemize}
+    Returns:
+    \begin{itemize}
+        \item [] None
+    \end{itemize}
+
+\subsection{history}
+history(filename,history\_length = 10):\\\\
+This function  creates a video where each frame is the average of the $n$ previous frames, where $n$ is determined
+from history\_length.
+The history frames are summed up and normalized, and added to the current frame to show the history. \\
+Outputs a video called filename + '\_history.avi'.
+\\\\
+Parameters:
+\begin{itemize}
+\item[] history\_length (int): How many frames will be saved to the history tail.
+\end{itemize}
+Returns:
+\begin{itemize}
+\item[] None
+\end{itemize}
+
+\subsection{centroid}
+    centroid(image, width, height):
+    \\\\
+    Computes the centroid of motion and quantity of motion of an image/frame.
+    \\\\
+    Parameters:
+    \begin{itemize}
+    \item [] image (numpy array(uint8))
+    \item [] width (int)
+    \item [] height (int)
+    \end{itemize}
+    Returns:
+    \begin{itemize}
+    \item [] Centroid of motion ([X(int),Y(int)]): X,Y(origo in bottom left corner) coordinate of the maximum change in pixel value
+    \item [] Quantity of motion (int): How large was the change in pixel value
+    \end{itemize}
+
+\subsection{constrainNumber}
+    constrainNumber(n, minn, maxn)\\\\
+    Constrains number to having a value between minn and maxn
+    \\\\
+    Parameters:
+    \begin{itemize}
+    \item [] n (int, float): number to constrain
+    \item [] minn (int, float): lower limit n can be
+    \item [] maxn (int, float): lower limit n can be
+    \end{itemize}
+    Returns:
+    \begin{itemize}
+    \item [] Constrained number(int, float)
+\end{itemize}
+
+\subsection{filter\_frame}
+    filter\_frame(motion\_frame, filtertype,thresh,kernel\_size)
+    \\\\
+    Apply a filter to a picture/videoframe
+    \\\\
+    Parameters:
+    \begin{itemize}
+    \item [] motion\_frame (array(uint8)): input motion image
+    \item [] filtertype (str): ’Regular’, turns all values below thresh to 0, ’Binary’ turns all values below thresh to 0, above thresh to 1, ’Blob’ removes individual pixels with erosion method.
+    \item [] thresh (float): for ’Regular’ and ’Binary’ option, thresh is a value of threshold [0,1];
+    \item [] kernel\_size(int): Size of structuring element
+    \end{itemize}
+    Returns: 
+    \begin{itemize}
+    \item [] filtered frame (array(uint8))
+    \end{itemize}
 
 \end{document}

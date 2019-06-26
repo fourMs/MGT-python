@@ -3,10 +3,10 @@ import os
 import numpy as np
 from scipy.signal import medfilt2d
 from ._centroid import mg_centroid
-from ._filter import motionfilter
+from ._filter import filter_frame
 import matplotlib.pyplot as plt
 
-def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel_size = 5, inverted_motiongram = True):
+def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel_size = 5, inverted_motiongram = True):
     """
     Finds the difference in pixel value from one frame to the next in an input video, and saves the frames into a new video.
     Describes the motion in the recording.    
@@ -68,7 +68,7 @@ def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, b
 
                     for i in range(frame.shape[2]):
                         motion_frame = (np.abs(frame[:,:,i]-prev_frame[:,:,i])).astype(np.uint8)
-                        motion_frame = motionfilter(motion_frame,self.filtertype,self.thresh,kernel_size)
+                        motion_frame = filter_frame(motion_frame,self.filtertype,self.thresh,kernel_size)
                         motion_frame_rgb[:,:,i] = motion_frame
 
                     movement_y = np.mean(motion_frame_rgb,axis=1).reshape(self.height,1,3)
@@ -78,7 +78,7 @@ def motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, b
                    
                 else:
                     motion_frame = (np.abs(frame-prev_frame)).astype(np.uint8)
-                    motion_frame = motionfilter(motion_frame,self.filtertype,self.thresh,kernel_size)
+                    motion_frame = filter_frame(motion_frame,self.filtertype,self.thresh,kernel_size)
 
                     movement_y = np.mean(motion_frame,axis=1).reshape(self.height,1)
                     movement_x = np.mean(motion_frame,axis=0).reshape(1,self.width)
