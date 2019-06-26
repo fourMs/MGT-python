@@ -2,8 +2,8 @@ import cv2
 import os
 import numpy as np
 from scipy.signal import medfilt2d
-from ._centroid import mg_centroid
-from ._filter import motionfilter
+from ._centroid import centroid
+from ._filter import filter_frame
 
 def motionhistory(self, history_length = 10, kernel_size = 5, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None'):
     """
@@ -15,7 +15,7 @@ def motionhistory(self, history_length = 10, kernel_size = 5, method = 'Diff', f
     history_length (int): How many frames will be saved to the history tail.
     kernel_size (int): Size of structuring element.
     method (str): Currently 'Diff' is the only implemented method. 
-    filtertype (str): 'Regular', 'Binary', 'Blob' (see function motionfilter) 
+    filtertype (str): 'Regular', 'Binary', 'Blob' (see function filterframe) 
 	thresh (float): a number in [0,1]. Eliminates pixel values less than given threshold.
     blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
 	
@@ -60,7 +60,7 @@ def motionhistory(self, history_length = 10, kernel_size = 5, method = 'Diff', f
                     motion_frame_rgb = np.zeros([self.height,self.width,3])
                     for i in range(frame.shape[2]):
                         motion_frame = (np.abs(frame[:,:,i]-prev_frame[:,:,i])).astype(np.float64)
-                        motion_frame = motionfilter(motion_frame,self.filtertype,self.thresh,kernel_size)
+                        motion_frame = filter_frame(motion_frame,self.filtertype,self.thresh,kernel_size)
                         motion_frame_rgb[:,:,i] = motion_frame
 
                     if len(history)>0:
@@ -77,7 +77,7 @@ def motionhistory(self, history_length = 10, kernel_size = 5, method = 'Diff', f
 
                 else:
                     motion_frame = (np.abs(frame-prev_frame)).astype(np.float64)
-                    motion_frame = motionfilter(motion_frame,self.filtertype,self.thresh,kernel_size)
+                    motion_frame = filter_frame(motion_frame,self.filtertype,self.thresh,kernel_size)
                     if len(history)>0:
                         motion_history = frame/(len(history)+1)  
                     else:

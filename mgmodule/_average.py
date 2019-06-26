@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import os
 
-def motionaverage(filename):
+def average_image(filename):
 
 	"""
 	Post-processing tool. Finds and saves an average image of entire video.
