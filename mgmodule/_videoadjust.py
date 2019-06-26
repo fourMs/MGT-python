@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 
-def contrast_brightness(of,vidcap,fps,width,height,contrast,brightness):
+def contrast_brightness(of, fex, vidcap,fps,width,height,contrast,brightness):
     """
     Edit contrast and brightness of the video.
     
@@ -16,7 +16,7 @@ def contrast_brightness(of,vidcap,fps,width,height,contrast,brightness):
     count = 0;
     if brightness != 0 or contrast != 0:
         fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-        out = cv2.VideoWriter(of + '_cb.avi',fourcc, fps, (width,height))
+        out = cv2.VideoWriter(of + '_cb' + fex,fourcc, fps, (width,height))
         success,image = vidcap.read()
         while success: 
             success,image = vidcap.read()
@@ -27,11 +27,11 @@ def contrast_brightness(of,vidcap,fps,width,height,contrast,brightness):
             out.write(image.astype(np.uint8))  
             count += 1
         out.release()
-        vidcap = cv2.VideoCapture(of + '_cb.avi')
+        vidcap = cv2.VideoCapture(of + '_cb' + fex)
 
     return vidcap
 
-def skip_frames(of, vidcap, skip, fps, width, height):
+def skip_frames(of, fex, vidcap, skip, fps, width, height):
     """
     Frame skip, convenient for saving time/space in an analysis of less detail looking at big picture movement. Skips the given number of frames, making a compressed version of the input video file.
     
@@ -47,7 +47,7 @@ def skip_frames(of, vidcap, skip, fps, width, height):
     count = 0;
     if skip != 0:
         fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-        out = cv2.VideoWriter(of + '_skip.avi',fourcc, int(fps/skip), (width,height))
+        out = cv2.VideoWriter(of + '_skip' + fex,fourcc, int(fps/skip), (width,height))
         success,image = vidcap.read()
         while success: 
             success,image = vidcap.read()
@@ -59,7 +59,7 @@ def skip_frames(of, vidcap, skip, fps, width, height):
             
             count += 1
         out.release()
-        vidcap = cv2.VideoCapture(of + '_skip.avi')
+        vidcap = cv2.VideoCapture(of + '_skip' + fex)
 
         length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
         fps = int(vidcap.get(cv2.CAP_PROP_FPS))
