@@ -5,7 +5,7 @@ from scipy.signal import medfilt2d
 from ._centroid import centroid
 from ._filter import filter_frame
 
-def motionhistory(self, history_length = 10, kernel_size = 5, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None'):
+def mg_motionhistory(self, history_length = 10, kernel_size = 5, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None'):
     """
     Finds the difference in pixel value from one frame to the next in an input video, and saves the difference frame to a history tail. 
     The history frames are summed up and normalized, and added to the current difference frame to show the history of motion. 
@@ -30,7 +30,7 @@ def motionhistory(self, history_length = 10, kernel_size = 5, method = 'Diff', f
 
     ret, frame = self.video.read()
     of = os.path.splitext(self.filename)[0]
-    fex = os.path.splitext(filename)[1] 
+    fex = os.path.splitext(self.filename)[1] 
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
     out = cv2.VideoWriter(of + '_motionhistory' + fex,fourcc, self.fps, (self.width,self.height))
     

@@ -43,7 +43,7 @@ class MgObject:
     
     from ._motionvideo import mg_motionvideo, plot_motion_metrics
     from ._cropvideo import mg_cropvideo, find_motion_box, find_total_motion_box
-    from ._motionhistory import motionhistory
+    from ._motionhistory import mg_motionhistory
     from ._show import mg_show
 
     def test_input(self):
