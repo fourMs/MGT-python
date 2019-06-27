@@ -1,6 +1,6 @@
 import sys
 import os
-sys.path.append('../..')
+sys.path.append('../mgmodule')
 sys.path.append('..')
 import mgmodule
 import cv2
