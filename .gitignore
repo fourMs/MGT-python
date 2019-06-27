@@ -4,6 +4,8 @@ __pycache__/
 *.csv
 *.eps
 *.tiff
+*.png
+*.bmp
 *.DS_Store
 *.aux
 *.fdb_latexmk
