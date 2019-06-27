@@ -6,7 +6,7 @@ def average_image(filename):
 
 	"""
 	Post-processing tool. Finds and saves an average image of entire video.
-	
+
 	Usage:
 	from _motionaverage import motionaverage
 	motionaverage('filename.avi')
@@ -22,11 +22,11 @@ def average_image(filename):
 		ret, frame = video.read()
 		if ret==True:
 			frame = np.array(frame)
-			frame = frame.astype(np.float)    
-			average += frame/length    
+			frame = frame.astype(np.float)
+			average += frame/length
 		else:
 			break
 		ii+=1
-		print('Processing %s%%' %(int(ii/(length-1)*100)), end='\r')
+		print('Rendering average image %s%%' %(int(ii/(length-1)*100)), end='\r')
 
-	cv2.imwrite(of+'_average.bmp',average.astype(np.uint8))  
+	cv2.imwrite(of+'_average.bmp',average.astype(np.uint8))
