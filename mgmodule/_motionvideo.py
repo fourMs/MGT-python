@@ -120,7 +120,7 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001
     plot_motion_metrics(self.of,com,qom,self.width,self.height)
 
 def plot_motion_metrics(of,com,qom,width,height):
-    plt.rc('text',usetex = True)
+    plt.rc('text',usetex = False)
     plt.rc('font',family='serif')
     fig = plt.figure(figsize = (12,6))
     ax = fig.add_subplot(1,2,1) 
