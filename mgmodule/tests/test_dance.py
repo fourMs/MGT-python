@@ -14,3 +14,4 @@ mg = mgmodule.MgObject('dance.avi', starttime = 2, endtime = 7, color = True, br
 mg.mg_motionvideo()
 #USE NON-MODULE FUNCTION, this one can find an average image of any video, here using the mb objects filename
 average_image(mg.filename)
+average_image('dance_motion.avi')
