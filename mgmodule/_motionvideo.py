@@ -10,16 +10,16 @@ import matplotlib.pyplot as plt
 def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel_size = 5, inverted_motiongram = True):
     """
     Finds the difference in pixel value from one frame to the next in an input video, and saves the frames into a new video.
-    Describes the motion in the recording.    
+    Describes the motion in the recording.
     Outputs a video called filename + '_motion.avi'.
 
     Parameters:
     kernel_size (int): Size of structuring element.
-    method (str): Currently 'Diff' is the only implemented method. 
-    filtertype (str): 'Regular', 'Binary', 'Blob' (see function filter_frame) 
+    method (str): Currently 'Diff' is the only implemented method.
+    filtertype (str): 'Regular', 'Binary', 'Blob' (see function filter_frame)
     thresh (float): a number in [0,1]. Eliminates pixel values less than given threshold.
     blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
-    
+
     Returns:
     None
     """
@@ -46,7 +46,7 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001
         if self.blur == 'Average':
             prev_frame = cv2.blur(frame,(10,10))
         elif self.blur == 'None':
-            prev_frame = frame                 
+            prev_frame = frame
 
         ret, frame = self.video.read()
         if ret==True:
@@ -76,7 +76,7 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001
                     movement_x = np.mean(motion_frame_rgb,axis=0).reshape(1,self.width,3)
                     gramy = np.append(gramy,movement_y,axis=1)
                     gramx = np.append(gramx,movement_x,axis=0)
-                   
+
                 else:
                     motion_frame = (np.abs(frame-prev_frame)).astype(np.uint8)
                     motion_frame = filter_frame(motion_frame,self.filtertype,self.thresh,kernel_size)
@@ -89,7 +89,7 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001
             elif self.method == 'OpticalFlow':
                 print('Optical Flow not implemented yet!')
 
-            if self.color == False: 
+            if self.color == False:
                 motion_frame = cv2.cvtColor(motion_frame, cv2.COLOR_GRAY2BGR)
                 motion_frame_rgb = motion_frame
             out.write(motion_frame_rgb.astype(np.uint8))
@@ -101,10 +101,10 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001
                 com=np.append(com,combite.reshape(1,2),axis =0)
                 qom=np.append(qom,qombite)
         else:
-            print('Rendering motionvideo 100%')
+            print('Rendering motion video 100%')
             break
         ii+=1
-        print('Rendering motionvideo %s%%' %(int(ii/(self.length-1)*100)), end='\r')
+        print('Rendering motion video %s%%' %(int(ii/(self.length-1)*100)), end='\r')
     if self.color == False:
         gramx = cv2.cvtColor(gramx.astype(np.uint8), cv2.COLOR_GRAY2BGR)
         gramy = cv2.cvtColor(gramy.astype(np.uint8), cv2.COLOR_GRAY2BGR)
@@ -123,7 +123,7 @@ def plot_motion_metrics(of,com,qom,width,height):
     plt.rc('text',usetex = True)
     plt.rc('font',family='serif')
     fig = plt.figure(figsize = (12,6))
-    ax = fig.add_subplot(1,2,1) 
+    ax = fig.add_subplot(1,2,1)
     ax.scatter(com[:,0]/width,com[:,1]/height,s=2)
     ax.set_xlim((0,1))
     ax.set_ylim((0,1))
@@ -137,8 +137,3 @@ def plot_motion_metrics(of,com,qom,width,height):
     ax.bar(np.arange(len(qom)-1),qom[1:]/(width*height))
     #ax.plot(qom[1:-1])
     plt.savefig('%s_motion_com_qom.png'%of,format='png')
-
-
-
-
-
