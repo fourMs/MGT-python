@@ -39,10 +39,13 @@ Step 3: Install the necessary packages: [OpenCV](https://opencv.org/releases/), 
     pip3 install opencv-python moviepy ffmpeg ffmpeg-python scipy
 
 
-
 ## Usage
 
-The documentation folder in this repository holds the main documentation file "MGT-doc.pdf" which describes all functionalities. In addition, a Jupyter notebook "MotionGesturesToolbox.ipynb" is also made, with examples of usage. One example file of how it can be run is mgmodule/tests/test_mg.py where any .avi-video can be input as filename. To run in terminal (in correct directory): python test_mg.py
+The documentation folder in this repository holds the main documentation file [MGT-doc.pdf](Module_documentation/MGT_doc.pdf), which describes all functionalities.
+
+The Jupyter notebook "MotionGesturesToolbox.ipynb" shows examples of the usage of the toolbox.
+
+For terminal usage, try the two examples in the One example file of how it can be run is mgmodule/tests/test_mg.py where any .avi-video can be input as filename. To run in terminal (in correct directory): python test_mg.py
 
 ## Credits
 
