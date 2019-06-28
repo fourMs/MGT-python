@@ -6,24 +6,24 @@ from ._constrainNumber import constrainNumber
 from ._filter import filter_frame
 
 
-def mg_cropvideo(fps,width,height, length, of, fex, crop_movement = 'auto', motion_box_thresh = 0.1, motion_box_margin = 1):
+def mg_cropvideo(fps,width,height, length, of, fex, crop_movement = 'Auto', motion_box_thresh = 0.1, motion_box_margin = 1):
 
 	"""
 	Crops the video.
 
 	Parameters:
-		- crop_movement: {'auto','manual'}
+		- crop_movement: {'Auto','Manual'}
 			'Auto' finds the bounding box that contains the total motion in the video.
 			Motion threshold is given by motion_box_thresh.
-			'manual' opens up a simple GUI that is used to crop the video manually 
+			'Manual' opens up a simple GUI that is used to crop the video manually 
 			by looking at the first frame
 
 		- motion_box_thresh: float
-			Only meaningful is crop_movement = 'auto'. Takes floats between 0 and 1, 
+			Only meaningful is crop_movement = 'Auto'. Takes floats between 0 and 1, 
 			where 0 includes all the motion and 1 includes none
 		
 		- motion_box_margin: int
-			Only meaningful is crop_movement = 'auto'. Add margin to the bounding box.
+			Only meaningful is crop_movement = 'Auto'. Add margin to the bounding box.
 	Returns:
 		- None
 	"""
@@ -40,7 +40,7 @@ def mg_cropvideo(fps,width,height, length, of, fex, crop_movement = 'auto', moti
 
 	ret, frame = vid2crop.read()
 
-	if crop_movement == 'manual':
+	if crop_movement == 'Manual':
 		frame_mask = np.zeros(frame.shape)
 		name_str = 'Draw rectangle and press "C" to crop'
 		cv2.namedWindow(name_str)
@@ -62,7 +62,7 @@ def mg_cropvideo(fps,width,height, length, of, fex, crop_movement = 'auto', moti
 			temp=y_start
 			y_start=y_stop
 			y_stop = temp
-	elif crop_movement == 'auto':
+	elif crop_movement == 'Auto':
 		[x_start,x_stop,y_start,y_stop] = find_total_motion_box(vid2findbox,width,height,length,motion_box_thresh,motion_box_margin)
 
 	fourcc = cv2.VideoWriter_fourcc(*'MJPG')
