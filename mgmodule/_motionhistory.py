@@ -29,10 +29,10 @@ def mg_motionhistory(self, history_length = 10, kernel_size = 5, method = 'Diff'
     self.blur = blur
 
     ret, frame = self.video.read()
-    of = os.path.splitext(self.filename)[0]
+    #of = os.path.splitext(self.filename)[0]
     fex = os.path.splitext(self.filename)[1] 
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-    out = cv2.VideoWriter(of + '_motionhistory' + fex,fourcc, self.fps, (self.width,self.height))
+    out = cv2.VideoWriter(self.of + '_motionhistory' + fex,fourcc, self.fps, (self.width,self.height))
     
     ii = 0
     history = []

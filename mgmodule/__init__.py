@@ -21,7 +21,7 @@ class MgObject:
     crop (str): 'none', 'manual', 'auto' to select cropping of relevant video frame size
     """
 
-    def __init__(self, filename, method = 'Diff', filtertype = 'Regular', thresh = 0.0001, starttime = 0, endtime = 0, blur = 'None', skip = 0, color = True, contrast = 0, brightness = 0, crop = 'none'):
+    def __init__(self, filename, method = 'Diff', filtertype = 'Regular', thresh = 0.0001, starttime = 0, endtime = 0, blur = 'None', skip = 0, color = True, contrast = 0, brightness = 0, crop = 'None'):
 
         self.filename = filename
         self.of = os.path.splitext(self.filename)[0] 
