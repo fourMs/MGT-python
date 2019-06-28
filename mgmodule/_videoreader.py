@@ -6,7 +6,7 @@ from ._videoadjust import mg_contrast_brightness, mg_skip_frames
 from ._cropvideo import *
 
 
-def mg_videoreader(filename, starttime = 0, endtime = 0, skip = 0, contrast = 0, brightness = 0, crop = 'none'):
+def mg_videoreader(filename, starttime = 0, endtime = 0, skip = 0, contrast = 0, brightness = 0, crop = 'None'):
 
     """
         Reads in a video file, and by input parameters user decide if it: trims the length, skips frames, applies contrast/brightness adjustments and/or crops image width/height.
@@ -56,7 +56,7 @@ def mg_videoreader(filename, starttime = 0, endtime = 0, skip = 0, contrast = 0,
         of = of + '_cb'
 
     # Crops video either manually or automatically 
-    if crop != 'none':
+    if crop != 'None':
         [vidcap,width,height] = mg_cropvideo(fps, width, height, length, of, fex, crop, motion_box_thresh = 0.1, motion_box_margin = 1)
         of = of + '_crop'
 
