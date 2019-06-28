@@ -25,6 +25,7 @@ def average_image(filename):
 			frame = frame.astype(np.float)
 			average += frame/length
 		else:
+			print('Rendering average image 100%%')
 			break
 		ii+=1
 		print('Rendering average image %s%%' %(int(ii/(length-1)*100)), end='\r')
