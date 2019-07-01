@@ -58,7 +58,7 @@
  \end{itemize}
 
 \subsection{mg\_motionvideo}    
-    mg\_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel\_size = 5):
+    mg\_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel\_size = 5, inverted\_motionvideo = False, inverted\_motiongram = True):
     \\\\
     Finds the difference in pixel value from one frame to the next in an input video, and saves the frames into a new video.
     Describes the motion in the recording.    
@@ -72,6 +72,8 @@
     \item [] filtertype (str): 'Regular', 'Binary', 'Blob'(see function motionfilter) 
     \item [] thresh (float): a number in [0,1]. Eliminate spixel values less than given threshold.
     \item [] blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
+    \item [] inverted\_motionvideo (bool): Inverts colors of motionvideo
+    \item [] inverted\_motiongram (bool): Inverts colors of motiongram
     \end{itemize}
     Returns:
     \begin{itemize}
