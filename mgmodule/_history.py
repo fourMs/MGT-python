@@ -49,6 +49,7 @@ def history(filename,history_length = 10):
             out.write(total.astype(np.uint8))
 
         else:
+            print('Rendering history 100%')
             break
         ii+=1
-        print('Processing %s%%' %(int(ii/(length-1)*100)), end='\r')
+        print('Rendering history %s%%' %(int(ii/(length-1)*100)), end='\r')

@@ -28,10 +28,12 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001
     self.method = method
     self.thresh = thresh
     self.filtertype = filtertype
-    fex = os.path.splitext(self.filename)[1]
-    ret, frame = self.video.read()
+
+    vidcap = cv2.VideoCapture(self.of+self.fex)
+    ret, frame = vidcap.read()
+
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-    out = cv2.VideoWriter(self.of + '_motion' + fex,fourcc, self.fps, (self.width,self.height))
+    out = cv2.VideoWriter(self.of + '_motion' + self.fex,fourcc, self.fps, (self.width,self.height))
     gramx = np.zeros([1,self.width,3])
     gramy = np.zeros([self.height,1,3])
     qom = np.array([]) #quantity of motion
@@ -42,13 +44,13 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001
         gramx = np.zeros([1,self.width])
         gramy = np.zeros([self.height,1])
 
-    while(self.video.isOpened()):
+    while(vidcap.isOpened()):
         if self.blur == 'Average':
             prev_frame = cv2.blur(frame,(10,10))
         elif self.blur == 'None':
             prev_frame = frame
 
-        ret, frame = self.video.read()
+        ret, frame = vidcap.read()
         if ret==True:
             if self.blur == 'Average':
                 frame = cv2.blur(frame,(10,10)) #The higher these numbers the more blur you get
