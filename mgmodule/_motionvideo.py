@@ -7,7 +7,7 @@ from ._centroid import centroid
 from ._filter import filter_frame
 import matplotlib.pyplot as plt
 
-def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel_size = 5, inverted_motiongram = True):
+def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel_size = 5,inverted_motionvideo = False, inverted_motiongram = True):
     """
     Finds the difference in pixel value from one frame to the next in an input video, and saves the frames into a new video.
     Describes the motion in the recording.
@@ -19,6 +19,8 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001
     filtertype (str): 'Regular', 'Binary', 'Blob' (see function filter_frame)
     thresh (float): a number in [0,1]. Eliminates pixel values less than given threshold.
     blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
+    inverted_motiongram (bool): Invert colors of motionvideo
+    inverted_motiongram (bool): Invert colors of motiongram
 
     Returns:
     None
@@ -94,7 +96,11 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001
             if self.color == False:
                 motion_frame = cv2.cvtColor(motion_frame, cv2.COLOR_GRAY2BGR)
                 motion_frame_rgb = motion_frame
-            out.write(motion_frame_rgb.astype(np.uint8))
+            if inverted_motionvideo:
+                out.write(cv2.bitwise_not(motion_frame_rgb.astype(np.uint8)))
+            else:
+                out.write(motion_frame_rgb.astype(np.uint8))
+
             combite, qombite = centroid(motion_frame_rgb.astype(np.uint8),self.width,self.height)
             if ii == 0:
                 com = combite.reshape(1,2)

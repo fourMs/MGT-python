@@ -5,7 +5,7 @@ from scipy.signal import medfilt2d
 from ._centroid import centroid
 from ._filter import filter_frame
 
-def mg_motionhistory(self, history_length = 10, kernel_size = 5, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None'):
+def mg_motionhistory(self, history_length = 10, kernel_size = 5, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None',inverted_motionhistory = True):
     """
     Finds the difference in pixel value from one frame to the next in an input video, and saves the difference frame to a history tail. 
     The history frames are summed up and normalized, and added to the current difference frame to show the history of motion. 
@@ -18,6 +18,7 @@ def mg_motionhistory(self, history_length = 10, kernel_size = 5, method = 'Diff'
     filtertype (str): 'Regular', 'Binary', 'Blob' (see function filterframe) 
 	thresh (float): a number in [0,1]. Eliminates pixel values less than given threshold.
     blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
+    inverted_motionhistory (bool): Invert colors of motionhistory video.
 	
     Returns:
     None
@@ -97,9 +98,10 @@ def mg_motionhistory(self, history_length = 10, kernel_size = 5, method = 'Diff'
                 motion_history_rgb = cv2.cvtColor(motion_history.astype(np.uint8), cv2.COLOR_GRAY2BGR)
             else: 
                 motion_history_rgb = motion_history
-            
-            out.write(enhancement*motion_history_rgb.astype(np.uint8))
-
+            if inverted_motionhistory:
+                out.write(cv2.bitwise_not(enhancement*motion_history_rgb.astype(np.uint8)))
+            else:
+                out.write(enhancement*motion_history_rgb.astype(np.uint8))
         else:
             print('Rendering motionhistory 100%%')
             break
