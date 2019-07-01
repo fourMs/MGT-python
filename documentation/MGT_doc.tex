@@ -109,7 +109,7 @@ Parameters:
 
 
 \subsection{mg\_motionhistory} 
-    mg\_motionhistory(self, history\_length = 20, kernel\_size = 5, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None'):
+    mg\_motionhistory(self, history\_length = 20, kernel\_size = 5, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', inverted\_motionhistory = False):
     \\\\
     Finds the difference in pixel value from one frame to the next in an input video, and saves the difference frame to a history tail. 
     The history frames are summed up and normalized, and added to the current difference frame to show the history of motion. \\
@@ -123,6 +123,7 @@ Parameters:
     \item []filtertype (str): 'Regular', 'Binary', 'Blob' (see function motionfilter) 
 	\item []thresh (float): a number in [0,1]. Eliminates pixel values less than given threshold.
     \item []blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
+    \item [] inverted\_motionhistory (bool): Inverts the colors of motionhistory video
     \end{itemize}
     Returns:
     \begin{itemize}
