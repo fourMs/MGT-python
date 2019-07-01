@@ -100,7 +100,8 @@ def mg_motionhistory(self, history_length = 10, kernel_size = 5, method = 'Diff'
             out.write(enhancement*motion_history_rgb.astype(np.uint8))
 
         else:
+            print('Rendering motionhistory 100%%')
             break
         ii+=1
-        print('Processing %s%%' %(int(ii/(self.length-1)*100)), end='\r')
+        print('Rendering motionhistory %s%%' %(int(ii/(self.length-1)*100)), end='\r')
 
