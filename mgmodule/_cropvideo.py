@@ -62,9 +62,8 @@ def mg_cropvideo(fps,width,height, length, of, fex, crop_movement = 'Auto', moti
 			temp=y_start
 			y_start=y_stop
 			y_stop = temp
-	elif crop_movement == 'Auto':
+	elif crop_movement == 'Auto' or 'auto':
 		[x_start,x_stop,y_start,y_stop] = find_total_motion_box(vid2findbox,width,height,length,motion_box_thresh,motion_box_margin)
-
 	fourcc = cv2.VideoWriter_fourcc(*'MJPG')
 	out = cv2.VideoWriter(of + '_crop' + fex,fourcc, fps, (int(x_stop-x_start),(int(y_stop-y_start))))
 	ii = 0 
@@ -84,7 +83,7 @@ def mg_cropvideo(fps,width,height, length, of, fex, crop_movement = 'Auto', moti
 	out.release()
 	cv2.destroyAllWindows()
 
-	vidcap = cv2.VideoCapture(of + '_crop'+ fex)
+	vidcap = cv2.VideoCapture(of + '_crop' + fex)
 	width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
 	height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 	return vidcap,width,height

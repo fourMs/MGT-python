@@ -24,8 +24,8 @@ class MgObject:
     def __init__(self, filename, method = 'Diff', filtertype = 'Regular', thresh = 0.0001, starttime = 0, endtime = 0, blur = 'None', skip = 0, color = True, contrast = 0, brightness = 0, crop = 'None'):
 
         self.filename = filename
-        self.of = os.path.splitext(self.filename)[0] 
-        self.fex = os.path.splitext(self.filename)[1] 
+        self.of = os.path.splitext(self.filename)[0]   #name of file without extension (only-filename)
+        self.fex = os.path.splitext(self.filename)[1]  #file extension
         self.color = color
         self.method = method
         self.starttime = starttime

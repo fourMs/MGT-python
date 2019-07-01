@@ -28,7 +28,8 @@ def mg_motionhistory(self, history_length = 10, kernel_size = 5, method = 'Diff'
     self.thresh = thresh
     self.blur = blur
 
-    ret, frame = self.video.read()
+    vidcap = cv2.VideoCapture(self.of+self.fex)
+    ret, frame = vidcap.read()
     #of = os.path.splitext(self.filename)[0]
     fex = os.path.splitext(self.filename)[1] 
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
@@ -40,9 +41,9 @@ def mg_motionhistory(self, history_length = 10, kernel_size = 5, method = 'Diff'
     if self.color == False:
     	frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-    while(self.video.isOpened()):
+    while(vidcap.isOpened()):
         prev_frame = frame
-        ret, frame = self.video.read()
+        ret, frame = vidcap.read()
 
         if ret==True:
             if self.blur == 'Average':
