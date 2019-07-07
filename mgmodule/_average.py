@@ -30,4 +30,4 @@ def average_image(filename):
 		ii+=1
 		print('Rendering average image %s%%' %(int(ii/(length-1)*100)), end='\r')
 
-	cv2.imwrite(of+'_average.bmp',average.astype(np.uint8))
+	cv2.imwrite(of+'_average.png',average.astype(np.uint8))
