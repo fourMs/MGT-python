@@ -7,7 +7,7 @@ from ._centroid import centroid
 from ._filter import filter_frame
 import matplotlib.pyplot as plt
 
-def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel_size = 5,inverted_motionvideo = False, inverted_motiongram = True):
+def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel_size = 5,inverted_motionvideo = False, inverted_motiongram = True, unit = 'seconds'):
     """
     Finds the difference in pixel value from one frame to the next in an input video, and saves the frames into a new video.
     Describes the motion in the recording.
@@ -21,6 +21,7 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001
     blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
     inverted_motiongram (bool): Invert colors of motionvideo
     inverted_motiongram (bool): Invert colors of motiongram
+    unit (str) = Unit in QoM plot. 'seconds' or 'samples'
 
     Returns:
     None
@@ -125,9 +126,9 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001
     else:
         cv2.imwrite(self.of+'_mgx.png',gramx.astype(np.uint8))
         cv2.imwrite(self.of+'_mgy.png',gramy.astype(np.uint8))
-    plot_motion_metrics(self.of,self.fps,com,qom,self.width,self.height)
+    plot_motion_metrics(self.of,self.fps,com,qom,self.width,self.height,unit)
 
-def plot_motion_metrics(of,fps,com,qom,width,height):
+def plot_motion_metrics(of,fps,com,qom,width,height, unit):
     plt.rc('text',usetex = False)
     plt.rc('font',family='serif')
     np.savetxt(of+'_motion.tsv',np.append(np.append(qom.reshape(qom.shape[0],1),(com[:,0]/width).reshape(com.shape[0],1),axis=1),(com[:,1]/height).reshape(com.shape[0],1),axis=1))
@@ -140,9 +141,13 @@ def plot_motion_metrics(of,fps,com,qom,width,height):
     ax.set_ylabel('Pixels normalized')
     ax.set_title('Centroid of motion')
     ax = fig.add_subplot(1,2,2)
-    ax.set_xlabel('Time[sec]')
+    if unit == 'seconds':
+        ax.set_xlabel('Time[seconds]')
+    else:
+        ax.set_xlabel('Time[samples]')
+        fps = 1
     ax.set_ylabel('Pixels normalized')
     ax.set_title('Quantity of motion')
-    ax.bar(np.arange(len(qom)-1)/fps,qom[1:]/(width*height),width = 0.05)
+    ax.bar(np.arange(len(qom)-1)/fps,qom[1:]/(width*height))
     #ax.plot(qom[1:-1])
     plt.savefig('%s_motion_com_qom.png'%of,format='png')
