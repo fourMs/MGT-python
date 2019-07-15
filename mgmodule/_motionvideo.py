@@ -125,11 +125,12 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001
     else:
         cv2.imwrite(self.of+'_mgx.png',gramx.astype(np.uint8))
         cv2.imwrite(self.of+'_mgy.png',gramy.astype(np.uint8))
-    plot_motion_metrics(self.of,com,qom,self.width,self.height)
+    plot_motion_metrics(self.of,self.fps,com,qom,self.width,self.height)
 
-def plot_motion_metrics(of,com,qom,width,height):
+def plot_motion_metrics(of,fps,com,qom,width,height):
     plt.rc('text',usetex = False)
     plt.rc('font',family='serif')
+    np.savetxt(of+'_motion.tsv',np.append(np.append(qom.reshape(qom.shape[0],1),(com[:,0]/width).reshape(com.shape[0],1),axis=1),(com[:,1]/height).reshape(com.shape[0],1),axis=1))
     fig = plt.figure(figsize = (12,6))
     ax = fig.add_subplot(1,2,1)
     ax.scatter(com[:,0]/width,com[:,1]/height,s=2)
@@ -139,9 +140,9 @@ def plot_motion_metrics(of,com,qom,width,height):
     ax.set_ylabel('Pixels normalized')
     ax.set_title('Centroid of motion')
     ax = fig.add_subplot(1,2,2)
-    ax.set_xlabel('Time[frames]')
+    ax.set_xlabel('Time[sec]')
     ax.set_ylabel('Pixels normalized')
     ax.set_title('Quantity of motion')
-    ax.bar(np.arange(len(qom)-1),qom[1:]/(width*height))
+    ax.bar(np.arange(len(qom)-1)/fps,qom[1:]/(width*height),width = 0.05)
     #ax.plot(qom[1:-1])
     plt.savefig('%s_motion_com_qom.png'%of,format='png')
