@@ -186,15 +186,16 @@ Returns:
 
 \section{Functions}
 \subsection{average\_image}
-    average\_image(filename):
+    average\_image(filename, enhance = 0):
     \\\\
     Post-processing tool. Finds and saves an average image of entire video. \\\\Usage:\\
     from \_motionaverage import motionaverage
-    \\motionaverage('filename.avi')
+    \\motionaverage('filename.avi', enhance = 0.5)
     \\\\
     Parameters:
     \begin{itemize}
         \item [] filename (str): name of video 
+        \item [] enhance (float): takes values between '0' and '1', where '0' is no enhancement and '1' scales the pixel values such that the brightest pixel gets the value 255. 
     \end{itemize}
     Returns:
     \begin{itemize}
