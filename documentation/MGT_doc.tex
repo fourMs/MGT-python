@@ -58,7 +58,7 @@
  \end{itemize}
 
 \subsection{mg\_motionvideo}    
-    mg\_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel\_size = 5, inverted\_motionvideo = False, inverted\_motiongram = True):
+    mg\_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel\_size = 5, inverted\_motionvideo = False, inverted\_motiongram = True, unit = 'seconds'):
     \\\\
     Finds the difference in pixel value from one frame to the next in an input video, and saves the frames into a new video.
     Describes the motion in the recording.    
@@ -74,6 +74,7 @@
     \item [] blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
     \item [] inverted\_motionvideo (bool): Inverts colors of motionvideo
     \item [] inverted\_motiongram (bool): Inverts colors of motiongram
+    \item [] unit (str): Unit in QoM plot. 'seconds' or 'samples'
     \end{itemize}
     Returns:
     \begin{itemize}
