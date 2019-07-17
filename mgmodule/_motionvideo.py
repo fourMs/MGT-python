@@ -131,7 +131,7 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001
 def plot_motion_metrics(of,fps,com,qom,width,height, unit):
     plt.rc('text',usetex = False)
     plt.rc('font',family='serif')
-    np.savetxt(of+'_motion.tsv',np.append(np.append(qom.reshape(qom.shape[0],1),(com[:,0]/width).reshape(com.shape[0],1),axis=1),(com[:,1]/height).reshape(com.shape[0],1),axis=1))
+    np.savetxt(of+'_motion.tsv',np.append(np.append(qom.reshape(qom.shape[0],1),(com[:,0]/width).reshape(com.shape[0],1),axis=1),(com[:,1]/height).reshape(com.shape[0],1),axis=1), delimiter = '\t')
     fig = plt.figure(figsize = (12,6))
     ax = fig.add_subplot(1,2,1)
     ax.scatter(com[:,0]/width,com[:,1]/height,s=2)
