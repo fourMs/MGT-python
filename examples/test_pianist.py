@@ -12,7 +12,7 @@ from _history import history
 #CREATE MODULE OBJECT: Here is an example call to create an mg Object, using loads of parameters
 mg = mgmodule.MgObject('pianist.avi', color=False, crop='auto', skip = 3)
 #USE MODULE METHOD: To run the motionvideo analysis, run the function using your object
-mg.mg_motionvideo(inverted_motionvideo = True, inverted_motiongram = True, thresh=0.1)
+mg.mg_motionvideo(inverted_motionvideo = True, inverted_motiongram = True, thresh=0.1, blur='Average', normalize=False)
 #This runs the motion history on the motion video
 mg.mg_motionhistory(history_length=25, thresh=0.1, inverted_motionhistory = True, blur='Average')
 
