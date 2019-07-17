@@ -7,7 +7,7 @@ from ._centroid import centroid
 from ._filter import filter_frame
 import matplotlib.pyplot as plt
 
-def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel_size = 5,inverted_motionvideo = False, inverted_motiongram = True, unit = 'seconds'):
+def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel_size = 5,inverted_motionvideo = False, inverted_motiongram = True, unit = 'seconds',equalize_motiongram = True):
     """
     Finds the difference in pixel value from one frame to the next in an input video, and saves the frames into a new video.
     Describes the motion in the recording.
@@ -22,7 +22,7 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001
     inverted_motiongram (bool): Invert colors of motionvideo
     inverted_motiongram (bool): Invert colors of motiongram
     unit (str) = Unit in QoM plot. 'seconds' or 'samples'
-
+    equalize_motiongram (bool): Converts the motiongram to hsv-color space and flattens the value channel (v).
     Returns:
     None
     """
@@ -115,11 +115,25 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001
         ii+=1
         print('Rendering motion video %s%%' %(int(ii/(self.length-1)*100)), end='\r')
     if self.color == False:
+        gramx = gramx/gramx.max()*255 #Normalize before converting to uint8 to keep precision
+        gramy = gramy/gramy.max()*255
         gramx = cv2.cvtColor(gramx.astype(np.uint8), cv2.COLOR_GRAY2BGR)
         gramy = cv2.cvtColor(gramy.astype(np.uint8), cv2.COLOR_GRAY2BGR)
 
-    gramx = gramx/gramx.max()*255
-    gramy = gramy/gramy.max()*255
+    gramx = (gramx-gramx.min())/(gramx.max()-gramx.min())*255.0
+    gramy = (gramy-gramy.min())/(gramy.max()-gramy.min())*255.0
+
+    if equalize_motiongram:
+        gramx = gramx.astype(np.uint8)
+        gramx_hsv = cv2.cvtColor(gramx, cv2.COLOR_BGR2HSV)
+        gramx_hsv[:,:,2] = cv2.equalizeHist(gramx_hsv[:,:,2])
+        gramx = cv2.cvtColor(gramx_hsv, cv2.COLOR_HSV2BGR)
+ 
+        gramy = gramy.astype(np.uint8)
+        gramy_hsv = cv2.cvtColor(gramy, cv2.COLOR_BGR2HSV)
+        gramy_hsv[:,:,2] = cv2.equalizeHist(gramy_hsv[:,:,2])
+        gramy = cv2.cvtColor(gramy_hsv, cv2.COLOR_HSV2BGR)
+
     if inverted_motiongram:
         cv2.imwrite(self.of+'_mgx.png',cv2.bitwise_not(gramx.astype(np.uint8)))
         cv2.imwrite(self.of+'_mgy.png',cv2.bitwise_not(gramy.astype(np.uint8)))
