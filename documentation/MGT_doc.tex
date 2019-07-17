@@ -58,7 +58,7 @@
  \end{itemize}
 
 \subsection{mg\_motionvideo}    
-    mg\_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel\_size = 5, inverted\_motionvideo = False, inverted\_motiongram = True, unit = 'seconds', enhance = 1):
+    mg\_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel\_size = 5, inverted\_motionvideo = False, inverted\_motiongram = True, unit = 'seconds', equalize\_motiongram = True):
     \\\\
     Finds the difference in pixel value from one frame to the next in an input video, and saves the frames into a new video.
     Describes the motion in the recording.    
@@ -188,16 +188,16 @@ Returns:
 
 \section{Functions}
 \subsection{average\_image}
-    average\_image(filename, enhance = 0):
+    average\_image(filename, normalize = True):
     \\\\
     Post-processing tool. Finds and saves an average image of entire video. \\\\Usage:\\
     from \_motionaverage import motionaverage
-    \\motionaverage('filename.avi', enhance = 0.5)
+    \\motionaverage('filename.avi')
     \\\\
     Parameters:
     \begin{itemize}
         \item [] filename (str): name of video 
-        \item [] enhance (float): takes values between '0' and '1', where '0' is no enhancement and '1' scales the pixel values such that the brightest pixel gets the value 255. 
+        \item [] normalize (bool): Scales pixel values to lie between 0 and 255. Additionally the pixel value (in HSV color space) histogram is flattened.  
     \end{itemize}
     Returns:
     \begin{itemize}

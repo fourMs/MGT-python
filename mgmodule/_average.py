@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import os
 
-def average_image(filename, enhance = 0):
+def average_image(filename, normalize = True):
 
 	"""
 	Post-processing tool. Finds and saves an average image of entire video.
@@ -33,5 +33,11 @@ def average_image(filename, enhance = 0):
 		ii+=1
 		print('Rendering average image %s%%' %(int(ii/(length-1)*100)), end='\r')
 
-	average = average*(1+enhance*(255/np.max(average)-1))
+	if normalize:
+		average = average/np.max(average)*255
+		average = average.astype(np.uint8)
+		average_hsv = cv2.cvtColor(average, cv2.COLOR_BGR2HSV)
+		average_hsv[:,:,2] = cv2.equalizeHist(average_hsv[:,:,2])
+		average = cv2.cvtColor(average_hsv, cv2.COLOR_HSV2BGR)
+		
 	cv2.imwrite(of+'_average.png',average.astype(np.uint8))
