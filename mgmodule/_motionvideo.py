@@ -113,7 +113,7 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001
             print('Rendering motion video 100%')
             break
         ii+=1
-        print('Rendering motion video %s%%' %(int(ii/(self.length-1)*100)), end='\r')
+        print('\rRendering motion video %s%%' %(int(ii/(self.length-1)*100)), end=" ")
     if self.color == False:
         gramx = gramx/gramx.max()*255 #Normalize before converting to uint8 to keep precision
         gramy = gramy/gramy.max()*255

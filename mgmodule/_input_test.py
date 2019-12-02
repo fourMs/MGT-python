@@ -16,11 +16,16 @@ def mg_input_test(filename,method,filtertype,thresh,starttime,endtime,blur,skip)
     """ Gives feedback to user if initialization from input went wrong. """
     filenametest = 'true'
 
-    for c in filename:
-        if c.isalpha() == True or c.isnumeric() == True or c == '.' or c == '_':
-            pass
-        else: 
-            filenametest = 'false'
+    # for c in filename:
+    #     if c.isalpha() == True or c.isnumeric() == True or c == '.' or c == '_':
+    #         pass
+    #     else: 
+    #         filenametest = 'false'
+
+    if type(filename) == str:
+        pass
+    else:
+        filenametest = 'false'
 
     if filenametest == 'true':
         if method != 'Diff' and method != 'OpticalFlow':
