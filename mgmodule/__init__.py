@@ -8,20 +8,20 @@ class MgObject:
     """ 
     Initializes Musical Gestures data structure from a given parameter video file.
 
-    Parameters:\n
-    -----------\n
-    filename (str): Name of input parameter video file.\n
-    method (str): Currently 'Diff' is the only implemented method.\n 
-    filtertype (str): 'Regular', 'Binary', 'Blob' (see function filterframe).\n
-    thresh (float): A number in [0,1]. Eliminates pixel values less than given threshold.\n
-    starttime (float): Cut the video from this start time (min) to analyze what is relevant.\n
-    endtime (float): Cut the video at this end time (min) to analyze what is relevant.\n
-    blur (str): 'Average' to apply a blurring filter, 'None' otherwise.\n
-    skip (int): When proceeding to analyze next frame of video, this many frames are skipped.\n
-    color (bool): True does the analysis in RGB, False in grayscale.\n
-    contrast (float): Apply +/- 100 contrast to video.\n
-    brightness (float): Apply +/- 100 brightness to video.\n
-    crop (str): 'none', 'manual', 'auto' to select cropping of relevant video frame size.
+    Parameters:
+    -----------
+    - filename (str): Name of input parameter video file.
+    - method (str): Currently 'Diff' is the only implemented method.
+    - filtertype (str): 'Regular', 'Binary', 'Blob' (see function filterframe).
+    - thresh (float): A number in [0,1]. Eliminates pixel values less than given threshold.
+    - starttime (float): Cut the video from this start time (min) to analyze what is relevant.
+    - endtime (float): Cut the video at this end time (min) to analyze what is relevant.
+    - blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
+    - skip (int): When proceeding to analyze next frame of video, this many frames are skipped.
+    - color (bool): True does the analysis in RGB, False in grayscale.
+    - contrast (float): Apply +/- 100 contrast to video.
+    - brightness (float): Apply +/- 100 brightness to video.
+    - crop (str): 'none', 'manual', 'auto' to select cropping of relevant video frame size.
     """
 
     def __init__(self, filename, method='Diff', filtertype='Regular', thresh=0.0001, starttime=0, endtime=0, blur='None', skip=0, color=True, contrast=0, brightness=0, crop='None'):
