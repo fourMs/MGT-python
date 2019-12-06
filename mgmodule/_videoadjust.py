@@ -8,15 +8,16 @@ def mg_contrast_brightness(of, fex, vidcap, fps, length, width, height, contrast
 
     Arguments:
     ----------
-    - of (str): filename without extension
-    - vidcap: cv2 capture of video file, with all frames ready to read with vidcap.read().
-    - fps, width, height are simply info about vidcap
-    - contrast (float): apply +/- 100 contrast to video
-    - brightness (float): apply +/- 100 brightness to video
+    - of (str): 'Only filename' without extension.
+    - fex (str): File extension.
+    - vidcap: cv2 capture of video file, with all frames ready to be read with vidcap.read().
+    - fps, width, height (int): Properties of vidcap, passed by parent function.
+    - contrast (float): Apply +/- 100 contrast to video.
+    - brightness (float): Apply +/- 100 brightness to video.
 
     Returns:
     --------
-    - cv2 video capture of edited video file
+    - cv2 video capture of edited video file.
     """
     count = 0
     if brightness != 0 or contrast != 0:
@@ -46,15 +47,16 @@ def mg_skip_frames(of, fex, vidcap, skip, fps, width, height):
 
     Arguments:
     ----------
-    - of (str): filename without extension
-    - vidcap: cv2 capture of video file, with all frames ready to read with vidcap.read().
-    - fps, width, height are simply info about vidcap
+    - of (str): 'Only filename' without extension.
+    - fex (str): File extension.
+    - vidcap: cv2 capture of video file, with all frames ready to be read with vidcap.read().
     - skip (int): When proceeding to analyze next frame of video, this many frames are skipped.
+    - fps, width, height (int): Properties of vidcap, passed by parent function.
 
     Returns:
     --------
-    - cv2 video capture of edited video file
-    - length, fps, width, height from this video capture
+    - cv2 video capture of edited video file.
+    - length, fps, width, height from this video capture.
     """
     count = 0
     if skip != 0:

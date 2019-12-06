@@ -26,8 +26,10 @@ def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightn
         - length, fps, width, height from vidcap
         - of: filename gets updated with what procedures it went through
     """
+    # Separate filename from file extension
     of = os.path.splitext(filename)[0]
     fex = os.path.splitext(filename)[1]
+
     # Cut out relevant bit of video using starttime and endtime
     if starttime != 0 or endtime != 0:
         trimvideo = ffmpeg_extract_subclip(
@@ -39,6 +41,7 @@ def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightn
     else:
         vidcap = cv2.VideoCapture(of + fex)
 
+    # Get props from vidcap
     fps = int(vidcap.get(cv2.CAP_PROP_FPS))
     width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -50,11 +53,11 @@ def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightn
             of, fex, vidcap, skip, fps, width, height)
         of = of + '_skip'
 
-    # overwrite the inputvalue for endtime to not cut the video at 0...
+    # Overwrite the inputvalue for endtime not to cut the video at 0...
     if endtime == 0:
         endtime = length/fps
 
-    # To apply contrast/brightness before the motion analysis
+    # Apply contrast/brightness before the motion analysis
     if contrast != 0 or brightness != 0:
         vidcap = mg_contrast_brightness(
             of, fex, vidcap, fps, length, width, height, contrast, brightness)

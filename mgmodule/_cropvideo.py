@@ -7,24 +7,23 @@ from ._filter import filter_frame
 
 
 def mg_cropvideo(fps,width,height, length, of, fex, crop_movement = 'Auto', motion_box_thresh = 0.1, motion_box_margin = 1):
-
 	"""
-	Crops the video.
+		Crops the video.
 
-	Parameters:
-		- crop_movement: {'Auto','Manual'}
+		Arguments:
+		----------
+		- crop_movement : {'Auto','Manual'}
 			'Auto' finds the bounding box that contains the total motion in the video.
-			Motion threshold is given by motion_box_thresh.
-			'Manual' opens up a simple GUI that is used to crop the video manually 
-			by looking at the first frame
-
-		- motion_box_thresh: float
-			Only meaningful is crop_movement = 'Auto'. Takes floats between 0 and 1, 
-			where 0 includes all the motion and 1 includes none
-		
-		- motion_box_margin: int
+			Motion threshold is given by motion_box_thresh. 'Manual' opens up a simple 
+			GUI that is used to crop the video manually by looking at the first frame.
+		- motion_box_thresh : float 
+			Only meaningful is crop_movement = 'Auto'. Takes floats between 0 and 1,
+			where 0 includes all the motion and 1 includes none.
+		- motion_box_margin : int 
 			Only meaningful is crop_movement = 'Auto'. Add margin to the bounding box.
-	Returns:
+	
+		Returns:
+		--------
 		- None
 	"""
 
