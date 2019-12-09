@@ -49,7 +49,8 @@ class MgObject:
     from ._motionvideo import plot_motion_metrics
     from ._cropvideo import mg_cropvideo, find_motion_box, find_total_motion_box
     from ._motionhistory import mg_motionhistory
-    from ._show import mg_show
+    from ._show import mg_show as show
+    from ._history import history
 
     def test_input(self):
         """ Gives feedback to user if initialization from input went wrong. """
