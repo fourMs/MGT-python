@@ -5,7 +5,7 @@ from ._utils import mg_progressbar
 
 
 # added self, because this function is now called from an MgObject
-def history(self, filename, history_length=10):
+def history(self, filename='', history_length=10):
     """
     This function  creates a video where each frame is the average of the n previous frames, where n is determined
     from the history_length parameter.
@@ -21,6 +21,10 @@ def history(self, filename, history_length=10):
     -------
     - None
     """
+
+    if filename == '':
+        filename = self.filename
+
     of = os.path.splitext(filename)[0]
     fex = os.path.splitext(filename)[1]
     video = cv2.VideoCapture(filename)
@@ -64,4 +68,4 @@ def history(self, filename, history_length=10):
             break
         ii += 1
         #print('Rendering history %s%%' % (int(ii/(length-1)*100)), end='\r')
-        mg_progressbar(ii, length, 'Rendering history video:', 'Complete')
+        mg_progressbar(ii, length+1, 'Rendering history video:', 'Complete')

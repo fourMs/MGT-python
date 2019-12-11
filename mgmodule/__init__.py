@@ -51,6 +51,7 @@ class MgObject:
     from ._motionhistory import mg_motionhistory as motionhistory
     from ._show import mg_show as show
     from ._history import history
+    from ._average import mg_average_image as average_image
 
     def test_input(self):
         """ Gives feedback to user if initialization from input went wrong. """
