@@ -7,7 +7,7 @@ from ._utils import mg_progressbar
 from ._filter import filter_frame
 import matplotlib.pyplot as plt
 
-def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel_size = 5,inverted_motionvideo = False, inverted_motiongram = False, unit = 'seconds',equalize_motiongram = True):
+def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.05, blur = 'None', kernel_size = 5,inverted_motionvideo = False, inverted_motiongram = False, unit = 'seconds',equalize_motiongram = True):
     """
     Finds the difference in pixel value from one frame to the next in an input video, and saves the frames into a new video.
     Describes the motion in the recording.
