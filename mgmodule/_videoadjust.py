@@ -6,8 +6,8 @@ def mg_contrast_brightness(of, fex, vidcap, fps, length, width, height, contrast
     """
     Edit contrast and brightness of the video.
 
-    Arguments:
-    ----------
+    Arguments
+    ---------
     - of (str): 'Only filename' without extension.
     - fex (str): File extension.
     - vidcap: cv2 capture of video file, with all frames ready to be read with vidcap.read().
@@ -15,8 +15,8 @@ def mg_contrast_brightness(of, fex, vidcap, fps, length, width, height, contrast
     - contrast (float): Apply +/- 100 contrast to video.
     - brightness (float): Apply +/- 100 brightness to video.
 
-    Returns:
-    --------
+    Returns
+    -------
     - cv2 video capture of edited video file.
     """
     count = 0
@@ -45,16 +45,16 @@ def mg_skip_frames(of, fex, vidcap, skip, fps, width, height):
     """
     Frame skip, convenient for saving time/space in an analysis of less detail looking at big picture movement. Skips the given number of frames, making a compressed version of the input video file.
 
-    Arguments:
-    ----------
+    Arguments
+    ---------
     - of (str): 'Only filename' without extension.
     - fex (str): File extension.
     - vidcap: cv2 capture of video file, with all frames ready to be read with vidcap.read().
     - skip (int): When proceeding to analyze next frame of video, this many frames are skipped.
     - fps, width, height (int): Properties of vidcap, passed by parent function.
 
-    Returns:
-    --------
+    Returns
+    -------
     - cv2 video capture of edited video file.
     - length, fps, width, height from this video capture.
     """
@@ -62,14 +62,14 @@ def mg_skip_frames(of, fex, vidcap, skip, fps, width, height):
     if skip != 0:
         fourcc = cv2.VideoWriter_fourcc(*'MJPG')
         out = cv2.VideoWriter(of + '_skip' + fex, fourcc,
-                              int(fps/skip), (width, height))
+                              int(fps), (width, height))  # don't change fps, with higher skip values we want shorter videos
         success, image = vidcap.read()
         while success:
             success, image = vidcap.read()
             if not success:
                 break
             # on every frame we wish to use
-            if (count % skip == 0):
+            if (count % (skip+1) == 0):  # NB if skip=1, we should keep every other frame
                 out.write(image.astype(np.uint8))
 
             count += 1

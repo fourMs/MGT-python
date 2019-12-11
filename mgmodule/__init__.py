@@ -24,7 +24,7 @@ class MgObject:
     - crop (str): 'none', 'manual', 'auto' to select cropping of relevant video frame size.
     """
 
-    def __init__(self, filename, method='Diff', filtertype='Regular', thresh=0.0001, starttime=0, endtime=0, blur='None', skip=0, color=True, contrast=0, brightness=0, crop='None'):
+    def __init__(self, filename, method='Diff', filtertype='Regular', thresh=0.05, starttime=0, endtime=0, blur='None', skip=0, color=True, contrast=0, brightness=0, crop='None'):
 
         self.filename = filename
         # name of file without extension (only-filename)
