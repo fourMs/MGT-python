@@ -2,7 +2,7 @@ import cv2
 import os
 import numpy as np
 import time
-from ._constrainNumber import constrainNumber
+from ._utils import mg_progressbar
 from ._filter import filter_frame
 
 
@@ -10,8 +10,8 @@ def mg_cropvideo(fps,width,height, length, of, fex, crop_movement = 'Auto', moti
 	"""
 		Crops the video.
 
-		Arguments:
-		----------
+		Arguments
+		---------
 		- crop_movement : {'Auto','Manual'}
 			'Auto' finds the bounding box that contains the total motion in the video.
 			Motion threshold is given by motion_box_thresh. 'Manual' opens up a simple 
@@ -22,8 +22,8 @@ def mg_cropvideo(fps,width,height, length, of, fex, crop_movement = 'Auto', moti
 		- motion_box_margin : int 
 			Only meaningful is crop_movement = 'Auto'. Add margin to the bounding box.
 	
-		Returns:
-		--------
+		Returns
+		-------
 		- None
 	"""
 
@@ -72,11 +72,14 @@ def mg_cropvideo(fps,width,height, length, of, fex, crop_movement = 'Auto', moti
 			out.write(frame_temp)
 			ret, frame = vid2crop.read()
 		else:
-			print('Cropping video 100%')
+			#print('Cropping video 100%')
+			mg_progressbar(length, length, 'Rendering cropped video:', 'Complete')
+			print()
 			break
 			
 		ii+=1
-		print('Cropping video %s%%' %(int(ii/(length-1)*100)), end='\r')
+		#print('Cropping video %s%%' %(int(ii/(length-1)*100)), end='\r')
+		mg_progressbar(ii, length+1, 'Rendering cropped video:', 'Complete')
 
 	vid2crop.release()
 	out.release()
@@ -149,15 +152,15 @@ def find_motion_box(grayimage, width, height, motion_box_margin):
 
 	margin = motion_box_margin
 
-	x_start = constrainNumber(le-margin,0,width-1)
-	x_stop = constrainNumber(re+margin,0,width-1)
-	y_start = constrainNumber(te-margin,0,height-1)
-	y_stop = constrainNumber(be+margin,0,height-1)
+	x_start = np.clip(le-margin,0,width-1)
+	x_stop = np.clip(re+margin,0,width-1)
+	y_start = np.clip(te-margin,0,height-1)
+	y_stop = np.clip(be+margin,0,height-1)
 
-	the_box[constrainNumber(te-margin,0,height-1),constrainNumber(le-margin,0,width-1):constrainNumber(re+margin,0,width-1)]=1
-	the_box[constrainNumber(te-margin,0,height-1):constrainNumber(be+margin,0,height-1),constrainNumber(le-margin,0,width-1)]=1
-	the_box[constrainNumber(be+margin,0,height-1),constrainNumber(le-margin,0,width-1):constrainNumber(re+margin,0,width-1)]=1
-	the_box[constrainNumber(te-margin,0,height-1):constrainNumber(be+margin,0,height-1),constrainNumber(re+margin,0,width-1)]=1
+	the_box[np.clip(te-margin,0,height-1),np.clip(le-margin,0,width-1):np.clip(re+margin,0,width-1)]=1
+	the_box[np.clip(te-margin,0,height-1):np.clip(be+margin,0,height-1),np.clip(le-margin,0,width-1)]=1
+	the_box[np.clip(be+margin,0,height-1),np.clip(le-margin,0,width-1):np.clip(re+margin,0,width-1)]=1
+	the_box[np.clip(te-margin,0,height-1):np.clip(be+margin,0,height-1),np.clip(re+margin,0,width-1)]=1
 
 	return the_box,x_start,x_stop,y_start,y_stop
 
@@ -171,7 +174,8 @@ def find_total_motion_box(vid2findbox,width,height,length,motion_box_thresh,moti
 		ret, frame = vid2findbox.read()
 		if ret==True:
 			ii+=1
-			print('Finding area of motion %s%%' %(int(ii/(length-1)*100)), end='\r')
+			#print('Finding area of motion %s%%' %(int(ii/(length-1)*100)), end='\r')
+			mg_progressbar(ii, length, 'Finding area of motion:', 'Complete')
 			frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 			frame = frame.astype(np.int32)
 
@@ -182,7 +186,9 @@ def find_total_motion_box(vid2findbox,width,height,length,motion_box_thresh,moti
 			total_box = total_box*(the_box==0)+the_box
 		else:
 			[total_motion_box,x_start,x_stop,y_start,y_stop] = find_motion_box(total_box,width,height,motion_box_margin)
-			print('Finding area of motion 100%')
+			#print('Finding area of motion 100%')
+			mg_progressbar(length, length, 'Rendering history video:', 'Complete')
+			print()
 			break
 
 	return x_start,x_stop,y_start,y_stop
