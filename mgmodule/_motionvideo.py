@@ -13,8 +13,8 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.05,
     Describes the motion in the recording.
     Outputs a video called filename + '_motion.avi'.
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     - kernel_size (int): Size of structuring element.
     - method (str): Currently 'Diff' is the only implemented method.
     - filtertype (str): 'Regular', 'Binary', 'Blob' (see function filter_frame)
@@ -25,8 +25,8 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.05,
     - unit (str) = Unit in QoM plot. 'seconds' or 'samples'
     - equalize_motiongram (bool): Converts the motiongram to hsv-color space and flattens the value channel (v).
 
-    Returns:
-    --------
+    Returns
+    -------
     - None
     """
 

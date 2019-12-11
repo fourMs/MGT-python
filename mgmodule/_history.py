@@ -1,6 +1,7 @@
 import cv2
 import os
 import numpy as np
+from ._utils import mg_progressbar
 
 
 # added self, because this function is now called from an MgObject
@@ -11,13 +12,13 @@ def history(self, filename, history_length=10):
     The history frames are summed up and normalized, and added to the current frame to show the history. 
     Outputs a video called filename + '_history.avi'.
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     - filename (str): The video file to process.
     - history_length (int): How many frames will be saved to the history tail.
 
-    Returns:
-    --------
+    Returns
+    -------
     - None
     """
     of = os.path.splitext(filename)[0]
@@ -56,7 +57,11 @@ def history(self, filename, history_length=10):
             out.write(total.astype(np.uint8))
 
         else:
-            print('Rendering history 100%')
+            #print('Rendering history 100%')
+            mg_progressbar(
+                length, length, 'Rendering history video:', 'Complete')
+            print()
             break
         ii += 1
-        print('Rendering history %s%%' % (int(ii/(length-1)*100)), end='\r')
+        #print('Rendering history %s%%' % (int(ii/(length-1)*100)), end='\r')
+        mg_progressbar(ii, length, 'Rendering history video:', 'Complete')
