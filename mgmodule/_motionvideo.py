@@ -1,8 +1,8 @@
-import cv2
-import os
+import cv2, os
 import numpy as np
 from scipy.signal import medfilt2d
 from ._centroid import centroid
+from ._utils import mg_progressbar
 
 from ._filter import filter_frame
 import matplotlib.pyplot as plt
@@ -14,17 +14,20 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001
     Outputs a video called filename + '_motion.avi'.
 
     Parameters:
-    kernel_size (int): Size of structuring element.
-    method (str): Currently 'Diff' is the only implemented method.
-    filtertype (str): 'Regular', 'Binary', 'Blob' (see function filter_frame)
-    thresh (float): a number in [0,1]. Eliminates pixel values less than given threshold.
-    blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
-    inverted_motiongram (bool): Invert colors of motionvideo
-    inverted_motiongram (bool): Invert colors of motiongram
-    unit (str) = Unit in QoM plot. 'seconds' or 'samples'
-    equalize_motiongram (bool): Converts the motiongram to hsv-color space and flattens the value channel (v).
+    -----------
+    - kernel_size (int): Size of structuring element.
+    - method (str): Currently 'Diff' is the only implemented method.
+    - filtertype (str): 'Regular', 'Binary', 'Blob' (see function filter_frame)
+    - thresh (float): a number in [0,1]. Eliminates pixel values less than given threshold.
+    - blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
+    - inverted_motiongram (bool): Invert colors of motionvideo
+    - inverted_motiongram (bool): Invert colors of motiongram
+    - unit (str) = Unit in QoM plot. 'seconds' or 'samples'
+    - equalize_motiongram (bool): Converts the motiongram to hsv-color space and flattens the value channel (v).
+
     Returns:
-    None
+    --------
+    - None
     """
 
     self.blur = blur
@@ -110,10 +113,13 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001
                 com=np.append(com,combite.reshape(1,2),axis =0)
                 qom=np.append(qom,qombite)
         else:
-            print('Rendering motion video 100%')
+            #print('Rendering motion video 100%')
+            mg_progressbar(self.length, self.length, 'Rendering motion video:', 'Complete')
+            print()
             break
         ii+=1
-        print('\rRendering motion video %s%%' %(int(ii/(self.length-1)*100)), end=" ")
+        #print('\rRendering motion video %s%%' %(int(ii/(self.length-1)*100)), end=" ")
+        mg_progressbar(ii, self.length, 'Rendering motion video:', 'Complete')
     if self.color == False:
         gramx = gramx/gramx.max()*255 #Normalize before converting to uint8 to keep precision
         gramy = gramy/gramy.max()*255
