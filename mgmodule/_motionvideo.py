@@ -115,7 +115,6 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.05,
         else:
             #print('Rendering motion video 100%')
             mg_progressbar(self.length, self.length, 'Rendering motion video:', 'Complete')
-            print()
             break
         ii+=1
         #print('\rRendering motion video %s%%' %(int(ii/(self.length-1)*100)), end=" ")

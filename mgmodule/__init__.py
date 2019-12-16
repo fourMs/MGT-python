@@ -24,7 +24,7 @@ class MgObject:
     - crop (str): 'none', 'manual', 'auto' to select cropping of relevant video frame size.
     """
 
-    def __init__(self, filename, method='Diff', filtertype='Regular', thresh=0.05, starttime=0, endtime=0, blur='None', skip=0, color=True, contrast=0, brightness=0, crop='None'):
+    def __init__(self, filename, method='Diff', filtertype='Regular', thresh=0.05, starttime=0, endtime=0, blur='None', skip=0, color=True, contrast=0, brightness=0, crop='None', keep_all=False):
 
         self.filename = filename
         # name of file without extension (only-filename)
@@ -42,16 +42,17 @@ class MgObject:
         self.contrast = contrast
         self.brightness = brightness
         self.crop = crop
+        self.keep_all = keep_all
         self.test_input()
         self.get_video()
 
-    from ._motionvideo import mg_motionvideo as motionvideo
+    from ._motionvideo import mg_motionvideo as motion
     from ._motionvideo import plot_motion_metrics
     from ._cropvideo import mg_cropvideo, find_motion_box, find_total_motion_box
     from ._motionhistory import mg_motionhistory as motionhistory
     from ._show import mg_show as show
     from ._history import history
-    from ._average import mg_average_image as average_image
+    from ._average import mg_average_image as average
 
     def test_input(self):
         """ Gives feedback to user if initialization from input went wrong. """
@@ -61,4 +62,7 @@ class MgObject:
     def get_video(self):
         """ Creates a video attribute to the Musical Gestures object with the given correct settings. """
         self.video, self.length, self.width, self.height, self.fps, self.endtime, self.of = mg_videoreader(
-            self.filename, self.starttime, self.endtime, self.skip, self.contrast, self.brightness, self.crop)
+            self.filename, self.starttime, self.endtime, self.skip, self.contrast, self.brightness, self.crop, keep_all=self.keep_all)
+
+        # update filename after the processes
+        self.filename = self.of + self.fex

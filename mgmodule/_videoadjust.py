@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+from ._utils import mg_progressbar
 
 
 def mg_contrast_brightness(of, fex, vidcap, fps, length, width, height, contrast, brightness):
@@ -27,14 +28,18 @@ def mg_contrast_brightness(of, fex, vidcap, fps, length, width, height, contrast
         while success:
             success, image = vidcap.read()
             if not success:
-                print('Adjusting contrast/brightness 100%%')
+                #print('Adjusting contrast/brightness 100%%')
+                mg_progressbar(
+                    length, length, 'Adjusting contrast and brightness:', 'Complete')
                 break
             image = np.int16(image) * (contrast/127+1) - contrast + brightness
             image = np.clip(image, 0, 255)
             out.write(image.astype(np.uint8))
             count += 1
-            print('Adjusting contrast/brightness %s%%' %
-                  (int(count/(length-1)*100)), end='\r')
+            # print('Adjusting contrast/brightness %s%%' %
+            #       (int(count/(length-1)*100)), end='\r')
+            mg_progressbar(
+                count, length, 'Adjusting contrast and brightness:', 'Complete')
         out.release()
         vidcap = cv2.VideoCapture(of + '_cb' + fex)
 

@@ -64,7 +64,6 @@ def history(self, filename='', history_length=10):
             #print('Rendering history 100%')
             mg_progressbar(
                 length, length, 'Rendering history video:', 'Complete')
-            print()
             break
         ii += 1
         #print('Rendering history %s%%' % (int(ii/(length-1)*100)), end='\r')

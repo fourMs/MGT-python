@@ -108,7 +108,6 @@ def mg_motionhistory(self, history_length = 10, kernel_size = 5, method = 'Diff'
         else:
             #print('Rendering motion history video 100%%')
             mg_progressbar(self.length, self.length, 'Rendering motion history video:', 'Complete')
-            print()
             break
         ii+=1
         #print('Rendering motion history video %s%%' %(int(ii/(self.length-1)*100)), end='\r')

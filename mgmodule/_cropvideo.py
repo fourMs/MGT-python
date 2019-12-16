@@ -74,7 +74,6 @@ def mg_cropvideo(fps,width,height, length, of, fex, crop_movement = 'Auto', moti
 		else:
 			#print('Cropping video 100%')
 			mg_progressbar(length, length, 'Rendering cropped video:', 'Complete')
-			print()
 			break
 			
 		ii+=1
@@ -187,8 +186,7 @@ def find_total_motion_box(vid2findbox,width,height,length,motion_box_thresh,moti
 		else:
 			[total_motion_box,x_start,x_stop,y_start,y_stop] = find_motion_box(total_box,width,height,motion_box_margin)
 			#print('Finding area of motion 100%')
-			mg_progressbar(length, length, 'Rendering history video:', 'Complete')
-			print()
+			mg_progressbar(length, length, 'Finding area of motion:', 'Complete')
 			break
 
 	return x_start,x_stop,y_start,y_stop
