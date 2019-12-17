@@ -39,7 +39,7 @@ def mg_cropvideo(fps,width,height, length, of, fex, crop_movement = 'Auto', moti
 
 	ret, frame = vid2crop.read()
 
-	if crop_movement == 'Manual':
+	if crop_movement.lower() == 'manual':
 		frame_mask = np.zeros(frame.shape)
 		name_str = 'Draw rectangle and press "C" to crop'
 		cv2.namedWindow(name_str)
@@ -61,7 +61,7 @@ def mg_cropvideo(fps,width,height, length, of, fex, crop_movement = 'Auto', moti
 			temp=y_start
 			y_start=y_stop
 			y_stop = temp
-	elif crop_movement == 'Auto' or 'auto':
+	elif crop_movement.lower() == 'auto':
 		[x_start,x_stop,y_start,y_stop] = find_total_motion_box(vid2findbox,width,height,length,motion_box_thresh,motion_box_margin)
 	fourcc = cv2.VideoWriter_fourcc(*'MJPG')
 	out = cv2.VideoWriter(of + '_crop' + fex,fourcc, fps, (int(x_stop-x_start),(int(y_stop-y_start))))

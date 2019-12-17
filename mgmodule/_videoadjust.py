@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from ._utils import mg_progressbar
+from ._utils import mg_progressbar, scale_num, scale_array
 
 
 def mg_contrast_brightness(of, fex, vidcap, fps, length, width, height, contrast, brightness):
@@ -20,8 +20,16 @@ def mg_contrast_brightness(of, fex, vidcap, fps, length, width, height, contrast
     -------
     - cv2 video capture of edited video file.
     """
+
     count = 0
     if brightness != 0 or contrast != 0:
+        # keeping values in sensible range
+        contrast = np.clip(contrast, -100.0, 100.0)
+        brightness = np.clip(brightness, -100.0, 100.0)
+
+        contrast *= 1.27
+        brightness *= 2.55
+
         fourcc = cv2.VideoWriter_fourcc(*'MJPG')
         out = cv2.VideoWriter(of + '_cb' + fex, fourcc, fps, (width, height))
         success, image = vidcap.read()
