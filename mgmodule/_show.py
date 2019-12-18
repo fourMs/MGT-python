@@ -68,6 +68,10 @@ def mg_show(self, filename=None, key=None):
                   "Showing video from the MgObject.")
             filename = self.of+self.fex
 
+    if self.fex == '.png':
+        video_mode = False
+        show_image('.png')
+
     if video_mode and (filename != None):
         vidcap = cv2.VideoCapture(filename)
         fps = float(vidcap.get(cv2.CAP_PROP_FPS))

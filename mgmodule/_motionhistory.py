@@ -5,6 +5,7 @@ from scipy.signal import medfilt2d
 from ._centroid import centroid
 from ._filter import filter_frame
 from ._utils import mg_progressbar
+import mgmodule
 
 def mg_motionhistory(self, history_length = 10, kernel_size = 5, method = 'Diff', filtertype = 'Regular', thresh = 0.05, blur = 'None',inverted_motionhistory = False):
     """
@@ -24,7 +25,7 @@ def mg_motionhistory(self, history_length = 10, kernel_size = 5, method = 'Diff'
 
     Returns
     -------
-    - None
+    - An MgObject loaded with the resulting _motionhistory video.
     """
     enhancement = 1 #This can be adjusted to higher number to make motion more visible. Use with caution to not make it overflow.
     self.method = method
@@ -112,3 +113,5 @@ def mg_motionhistory(self, history_length = 10, kernel_size = 5, method = 'Diff'
         ii+=1
         #print('Rendering motion history video %s%%' %(int(ii/(self.length-1)*100)), end='\r')
         mg_progressbar(ii, self.length, 'Rendering motion history video:', 'Complete')
+
+    return mgmodule.MgObject(self.of + '_motionhistory' + fex)

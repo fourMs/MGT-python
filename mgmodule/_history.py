@@ -2,6 +2,7 @@ import cv2
 import os
 import numpy as np
 from ._utils import mg_progressbar
+import mgmodule
 
 
 # added self, because this function is now called from an MgObject
@@ -19,7 +20,7 @@ def history(self, filename='', history_length=10):
 
     Returns
     -------
-    - None
+    - An MgObject loaded with the resulting _history video.
     """
 
     if filename == '':
@@ -68,3 +69,5 @@ def history(self, filename='', history_length=10):
         ii += 1
         #print('Rendering history %s%%' % (int(ii/(length-1)*100)), end='\r')
         mg_progressbar(ii, length+1, 'Rendering history video:', 'Complete')
+
+    return mgmodule.MgObject(of + '_history' + fex)

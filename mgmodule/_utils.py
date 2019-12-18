@@ -33,8 +33,17 @@ def scale_num(val, in_low, in_high, out_low, out_high):
 
 
 def scale_array(array, new_min, new_max):
-    """Scale an arrary linearly."""
+    """Scale an array linearly."""
     minimum, maximum = np.min(array), np.max(array)
     m = (new_max - new_min) / (maximum - minimum)
     b = new_min - m * minimum
     return m * array + b
+
+
+class MgImage():
+    def __init__(self, filename):
+        self.filename = filename
+        import os
+        self.of = os.path.splitext(self.filename)[0]
+        self.fex = os.path.splitext(self.filename)[1]
+    from ._show import mg_show as show

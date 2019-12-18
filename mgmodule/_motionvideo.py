@@ -3,9 +3,10 @@ import numpy as np
 from scipy.signal import medfilt2d
 from ._centroid import centroid
 from ._utils import mg_progressbar
-
 from ._filter import filter_frame
 import matplotlib.pyplot as plt
+
+import mgmodule
 
 def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.05, blur = 'None', kernel_size = 5,inverted_motionvideo = False, inverted_motiongram = False, unit = 'seconds',equalize_motiongram = True):
     """
@@ -27,7 +28,7 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.05,
 
     Returns
     -------
-    - None
+    - An MgObject loaded with the resulting _motion video.
     """
 
     self.blur = blur
@@ -146,6 +147,8 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.05,
         cv2.imwrite(self.of+'_mgx.png',gramx.astype(np.uint8))
         cv2.imwrite(self.of+'_mgy.png',gramy.astype(np.uint8))
     plot_motion_metrics(self.of,self.fps,com,qom,self.width,self.height,unit)
+
+    return mgmodule.MgObject(self.of + '_motion' + self.fex)
 
 def plot_motion_metrics(of,fps,com,qom,width,height, unit):
     plt.rc('text',usetex = False)

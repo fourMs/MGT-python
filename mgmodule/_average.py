@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import os
-from ._utils import mg_progressbar
+from ._utils import mg_progressbar, MgImage
 
 
 def mg_average_image(self, filename='', normalize=True):
@@ -53,3 +53,5 @@ def mg_average_image(self, filename='', normalize=True):
         average = cv2.cvtColor(average_hsv, cv2.COLOR_HSV2BGR)
 
     cv2.imwrite(of+'_average.png', average.astype(np.uint8))
+
+    return MgImage(of+'_average.png')
