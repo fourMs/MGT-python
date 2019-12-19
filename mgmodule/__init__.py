@@ -2,6 +2,7 @@ import os
 from ._input_test import mg_input_test
 from ._videoreader import mg_videoreader
 from ._constrainNumber import constrainNumber
+from ._flow import Flow
 
 
 class MgObject:
@@ -45,6 +46,7 @@ class MgObject:
         self.keep_all = keep_all
         self.test_input()
         self.get_video()
+        self.flow = Flow(self.filename)
 
     from ._motionvideo import mg_motionvideo as motion
     from ._motionvideo import plot_motion_metrics
