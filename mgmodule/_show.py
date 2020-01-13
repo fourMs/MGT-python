@@ -14,8 +14,8 @@ def mg_show(self, filename=None, key=None):
 
     - filename (str) : If left empty, the current vidcap object is played. If filename is given,
     this file is played instead. 
-    - key (str) : {'mgx', 'mgy', 'average', 'plot', 'motion', 'history', 'motionhistory'} If either 
-    of the shorthands 'motion', 'history', or 'motionhistory' is used the method attempts to show 
+    - key (str) : {'mgx', 'mgy', 'average', 'plot', 'motion', 'history', 'motionhistory', 'sparse', 'dense'} If either 
+    of the shorthands 'motion', 'history', 'motionhistory', 'sparse', or 'dense' is used the method attempts to show 
     the (previously rendered) video file corresponding to the one in the MgObject.
 
     """
@@ -61,10 +61,22 @@ def mg_show(self, filename=None, key=None):
             else:
                 print("No motion history video found corresponding to",
                       self.of+self.fex, ". Try making one with .motionhistory()")
+        elif key == 'sparse':
+            if os.path.exists(self.of + '_flow_sparse' + self.fex):
+                filename = self.of + '_flow_sparse' + self.fex
+            else:
+                print("No sparse optical flow video found corresponding to",
+                      self.of+self.fex, ". Try making one with .flow.sparse()")
+        elif key == 'dense':
+            if os.path.exists(self.of + '_flow_dense' + self.fex):
+                filename = self.of + '_flow_dense' + self.fex
+            else:
+                print("No dense optical flow video found corresponding to",
+                      self.of+self.fex, ". Try making one with .flow.dense()")
         else:
             print("Unknown shorthand.\n",
                   "For images, try 'mgx', 'mgy', 'average' or 'plot'.\n",
-                  "For videos try 'motion', 'history', or 'motionhistory'.\n",
+                  "For videos try 'motion', 'history', 'motionhistory', 'sparse' or 'dense'.\n",
                   "Showing video from the MgObject.")
             filename = self.of+self.fex
 

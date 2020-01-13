@@ -68,3 +68,6 @@ class MgObject:
 
         # update filename after the processes
         self.filename = self.of + self.fex
+
+    def __repr__(self):
+        return f"MgObject('{self.filename}')"
