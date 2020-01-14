@@ -4,6 +4,7 @@ from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 import numpy as np
 from ._videoadjust import mg_contrast_brightness, mg_skip_frames
 from ._cropvideo import *
+from ._utils import convert_to_avi
 
 
 def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightness=0, crop='None', keep_all=False):
@@ -35,6 +36,12 @@ def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightn
     skipping = False
     cbing = False
     cropping = False
+
+    if fex != '.avi':
+        print("Converting from", fex, "to .avi...")
+        convert_to_avi(filename)
+        fex = '.avi'
+        filename = of + fex
 
     # Cut out relevant bit of video using starttime and endtime
     if starttime != 0 or endtime != 0:
@@ -84,4 +91,4 @@ def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightn
             os.remove(of + fex)
         of = of + '_crop'
 
-    return vidcap, length, width, height, fps, endtime, of
+    return vidcap, length, width, height, fps, endtime, of, fex
