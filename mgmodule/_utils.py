@@ -48,6 +48,9 @@ class MgImage():
         self.fex = os.path.splitext(self.filename)[1]
     from ._show import mg_show as show
 
+    def __repr__(self):
+        f"MgImage('{self.filename}')"
+
 
 def convert_to_avi(filename):
     """Convert any video to one with .avi extension using ffmpeg"""
