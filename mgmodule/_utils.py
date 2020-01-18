@@ -49,7 +49,7 @@ class MgImage():
     from ._show import mg_show as show
 
     def __repr__(self):
-        f"MgImage('{self.filename}')"
+        return f"MgImage('{self.filename}')"
 
 
 def convert_to_avi(filename):
