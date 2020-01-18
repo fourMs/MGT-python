@@ -1,30 +1,34 @@
-import cv2
-import os
+import cv2, os
 import numpy as np
 from scipy.signal import medfilt2d
 from ._centroid import centroid
-
+from ._utils import mg_progressbar
 from ._filter import filter_frame
 import matplotlib.pyplot as plt
 
-def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel_size = 5,inverted_motionvideo = False, inverted_motiongram = False, unit = 'seconds',equalize_motiongram = True):
+import mgmodule
+
+def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.05, blur = 'None', kernel_size = 5,inverted_motionvideo = False, inverted_motiongram = False, unit = 'seconds',equalize_motiongram = True):
     """
     Finds the difference in pixel value from one frame to the next in an input video, and saves the frames into a new video.
     Describes the motion in the recording.
     Outputs a video called filename + '_motion.avi'.
 
-    Parameters:
-    kernel_size (int): Size of structuring element.
-    method (str): Currently 'Diff' is the only implemented method.
-    filtertype (str): 'Regular', 'Binary', 'Blob' (see function filter_frame)
-    thresh (float): a number in [0,1]. Eliminates pixel values less than given threshold.
-    blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
-    inverted_motiongram (bool): Invert colors of motionvideo
-    inverted_motiongram (bool): Invert colors of motiongram
-    unit (str) = Unit in QoM plot. 'seconds' or 'samples'
-    equalize_motiongram (bool): Converts the motiongram to hsv-color space and flattens the value channel (v).
-    Returns:
-    None
+    Parameters
+    ----------
+    - kernel_size (int): Size of structuring element.
+    - method (str): Currently 'Diff' is the only implemented method.
+    - filtertype (str): 'Regular', 'Binary', 'Blob' (see function filter_frame)
+    - thresh (float): a number in [0,1]. Eliminates pixel values less than given threshold.
+    - blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
+    - inverted_motiongram (bool): Invert colors of motionvideo
+    - inverted_motiongram (bool): Invert colors of motiongram
+    - unit (str) = Unit in QoM plot. 'seconds' or 'samples'
+    - equalize_motiongram (bool): Converts the motiongram to hsv-color space and flattens the value channel (v).
+
+    Returns
+    -------
+    - An MgObject loaded with the resulting _motion video.
     """
 
     self.blur = blur
@@ -110,10 +114,12 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001
                 com=np.append(com,combite.reshape(1,2),axis =0)
                 qom=np.append(qom,qombite)
         else:
-            print('Rendering motion video 100%')
+            #print('Rendering motion video 100%')
+            mg_progressbar(self.length, self.length, 'Rendering motion video:', 'Complete')
             break
         ii+=1
-        print('Rendering motion video %s%%' %(int(ii/(self.length-1)*100)), end='\r')
+        #print('\rRendering motion video %s%%' %(int(ii/(self.length-1)*100)), end=" ")
+        mg_progressbar(ii, self.length, 'Rendering motion video:', 'Complete')
     if self.color == False:
         gramx = gramx/gramx.max()*255 #Normalize before converting to uint8 to keep precision
         gramy = gramy/gramy.max()*255
@@ -141,6 +147,8 @@ def mg_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001
         cv2.imwrite(self.of+'_mgx.png',gramx.astype(np.uint8))
         cv2.imwrite(self.of+'_mgy.png',gramy.astype(np.uint8))
     plot_motion_metrics(self.of,self.fps,com,qom,self.width,self.height,unit)
+
+    return mgmodule.MgObject(self.of + '_motion' + self.fex)
 
 def plot_motion_metrics(of,fps,com,qom,width,height, unit):
     plt.rc('text',usetex = False)

@@ -47,6 +47,19 @@ The Jupyter notebook "MotionGesturesToolbox.ipynb" shows examples of the usage o
 
 For terminal usage, try the two examples in the One example file of how it can be run is mgmodule/tests/test_mg.py where any .avi-video can be input as filename. To run in terminal (in correct directory): python test_mg.py
 
+## History
+
+This toolbox builds on the [Musical Gestures Toolbox for Matlab](https://github.com/fourMs/MGT-matlab/), which again builds on the [Musical Gestures Toolbox for Max](http://www.uio.no/english/research/groups/fourms/downloads/software/musicalgesturestoolbox/).
+
+The software is currently maintained by the [fourMs lab](https://github.com/fourMs) at [RITMO Centre for Interdisciplinary Studies in Rhythm, Time and Motion](https://www.uio.no/ritmo/english/) at the University of Oslo.
+
+## Reference
+
+If you use this toolbox for research purposes, please reference this publication: 
+
+- Jensenius, Alexander Refsum (2018). [The Musical Gestures Toolbox for Matlab](http://hdl.handle.net/10852/65559). Proceedings of the 19th International Society for Music Information Retrieval Conference, Late Breaking Demos Session.
+
+
 ## Credits
 
 Main developers: [Frida Furmyr](https://github.com/fridafu), [Marcus Widmer](https://github.com/marcuswidmer), [Alexander Refsum Jensenius](https://github.com/alexarje/)
