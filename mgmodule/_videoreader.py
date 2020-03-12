@@ -6,6 +6,10 @@ from ._videoadjust import mg_contrast_brightness, mg_skip_frames
 from ._cropvideo import *
 from ._utils import convert_to_avi
 
+class ReadError(Exception):
+   """Base class for other exceptions"""
+   pass
+
 
 def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightness=0, crop='None', keep_all=False):
     """
@@ -26,7 +30,7 @@ def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightn
         --------
         - vidcap: cv2 video capture of edited video file
         - length, fps, width, height from vidcap
-        - of: filename gets updated with what procedures it went through
+        - of: filename gets updated with the procedures it went through
     """
     # Separate filename from file extension
     of = os.path.splitext(filename)[0]
@@ -60,6 +64,9 @@ def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightn
     width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    if fps == 0:
+        raise ReadError(f"Could not open {filename}.")
 
     # To skip ahead a few frames before the next sample set skip to a value above 0
     if skip != 0:
