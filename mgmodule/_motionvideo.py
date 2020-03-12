@@ -32,18 +32,23 @@ def mg_motionvideo(
 
     Parameters
     ----------
-    - kernel_size (int): Size of structuring element.
-    - filtertype (str): 'Regular', 'Binary', 'Blob' (see function filter_frame)
-    - thresh (float): a number in [0,1]. Eliminates pixel values less than given threshold.
-    - blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
-    - inverted_motiongram (bool): Invert colors of motionvideo
-    - inverted_motiongram (bool): Invert colors of motiongram
-    - unit (str) = Unit in QoM plot. 'seconds' or 'samples'
-    - equalize_motiongram (bool): Converts the motiongram to hsv-color space and flattens the value channel (v).
+    - filtertype (str, default: 'Regular'): 'Regular', 'Binary', 'Blob' (see function filter_frame)
+    - thresh (float, default: 0.05): a number in [0,1]. Eliminates pixel values less than given threshold.
+    - blur (str, default: 'None'): 'Average' to apply a blurring filter, 'None' otherwise.
+    - kernel_size (int, default: 5): Size of structuring element.
+    - inverted_motionvideo (bool, default: False): Invert colors of motionvideo
+    - inverted_motiongram (bool, default: False): Invert colors of motiongram
+    - unit (str, default: 'seconds') = Unit in QoM plot. 'seconds' or 'samples'
+    - equalize_motiongram (bool, default: True): Converts the motiongram to hsv-color space and flattens the value channel (v).
+    - save_plot (bool, default: True): Saving motion-plots.
+    - save_data (bool, default: True): Saving motion-data.
+    - data_format (str, default: 'csv'): Specify format of motion-data. Currently implemented otions are 'csv', 'tsv' and 'txt'.
+    - save_motiongrams (bool, default: True): Saving motiongrams.
+    - save_video (bool, default: True): Saving the motion video.
 
     Returns
     -------
-    - An MgObject loaded with the resulting _motion video.
+    - An MgObject loaded with the resulting _motion video. If save_video=False it returns an MgObject loaded with the input video.
     """
 
     if save_plot | save_data | save_motiongrams | save_video:
@@ -237,6 +242,7 @@ def plot_motion_metrics(of, fps, com, qom, width, height, unit):
 
 def save_txt(of, com, qom, width, height, data_format):
     def save_single_file(of, com, qom, width, height, data_format):
+        data_format = data_format.lower()
         if data_format == "tsv":
             np.savetxt(of+'_motion.tsv', np.append(np.append(qom.reshape(qom.shape[0], 1), (com[:, 0]/width).reshape(
                 com.shape[0], 1), axis=1), (com[:, 1]/height).reshape(com.shape[0], 1), axis=1), delimiter='\t')
@@ -254,7 +260,7 @@ def save_txt(of, com, qom, width, height, data_format):
         save_single_file(of, com, qom, width, height, data_format)
 
     elif type(data_format) == list:
-        if all([item in ["csv", "tsv", "txt"] for item in data_format]):
+        if all([item.lower() in ["csv", "tsv", "txt"] for item in data_format]):
             data_format = list(set(data_format))
             [save_single_file(of, com, qom, width, height, item)
              for item in data_format]
