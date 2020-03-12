@@ -91,4 +91,5 @@ def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightn
             os.remove(of + fex)
         of = of + '_crop'
 
-    return vidcap, length, width, height, fps, endtime, of, fex
+    # return vidcap, length, width, height, fps, endtime, of, fex
+    return length, width, height, fps, endtime, of, fex

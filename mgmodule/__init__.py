@@ -1,7 +1,6 @@
 import os
 from ._input_test import mg_input_test
 from ._videoreader import mg_videoreader
-from ._constrainNumber import constrainNumber
 from ._flow import Flow
 
 
@@ -63,7 +62,7 @@ class MgObject:
 
     def get_video(self):
         """ Creates a video attribute to the Musical Gestures object with the given correct settings. """
-        self.video, self.length, self.width, self.height, self.fps, self.endtime, self.of, self.fex = mg_videoreader(
+        self.length, self.width, self.height, self.fps, self.endtime, self.of, self.fex = mg_videoreader(
             self.filename, self.starttime, self.endtime, self.skip, self.contrast, self.brightness, self.crop, keep_all=self.keep_all)
 
         # update filename after the processes
