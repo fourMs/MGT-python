@@ -59,15 +59,21 @@ def mg_motionvideo(
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
     out = cv2.VideoWriter(self.of + '_motion' + self.fex,
                           fourcc, self.fps, (self.width, self.height))
-    gramx = np.zeros([1, self.width, 3])
-    gramy = np.zeros([self.height, 1, 3])
-    qom = np.array([])  # quantity of motion
-    com = np.array([])  # centroid of motion
+
+    if save_motiongrams:
+        gramx = np.zeros([1, self.width, 3])
+        gramy = np.zeros([self.height, 1, 3])
+    if save_data | save_plot:
+        qom = np.array([])  # quantity of motion
+        com = np.array([])  # centroid of motion
+
     ii = 0
+
     if self.color == False:
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        gramx = np.zeros([1, self.width])
-        gramy = np.zeros([self.height, 1])
+        if save_motiongrams:
+            gramx = np.zeros([1, self.width])
+            gramy = np.zeros([self.height, 1])
 
     while(vidcap.isOpened()):
         if self.blur == 'Average':
@@ -102,24 +108,26 @@ def mg_motionvideo(
                             motion_frame, self.filtertype, self.thresh, kernel_size)
                         motion_frame_rgb[:, :, i] = motion_frame
 
-                    movement_y = np.mean(motion_frame_rgb, axis=1).reshape(
-                        self.height, 1, 3)
-                    movement_x = np.mean(
-                        motion_frame_rgb, axis=0).reshape(1, self.width, 3)
-                    gramy = np.append(gramy, movement_y, axis=1)
-                    gramx = np.append(gramx, movement_x, axis=0)
+                    if save_motiongrams:
+                        movement_y = np.mean(motion_frame_rgb, axis=1).reshape(
+                            self.height, 1, 3)
+                        movement_x = np.mean(
+                            motion_frame_rgb, axis=0).reshape(1, self.width, 3)
+                        gramy = np.append(gramy, movement_y, axis=1)
+                        gramx = np.append(gramx, movement_x, axis=0)
 
                 else:
                     motion_frame = (np.abs(frame-prev_frame)).astype(np.uint8)
                     motion_frame = filter_frame(
                         motion_frame, self.filtertype, self.thresh, kernel_size)
 
-                    movement_y = np.mean(
-                        motion_frame, axis=1).reshape(self.height, 1)
-                    movement_x = np.mean(
-                        motion_frame, axis=0).reshape(1, self.width)
-                    gramy = np.append(gramy, movement_y, axis=1)
-                    gramx = np.append(gramx, movement_x, axis=0)
+                    if save_motiongrams:
+                        movement_y = np.mean(
+                            motion_frame, axis=1).reshape(self.height, 1)
+                        movement_x = np.mean(
+                            motion_frame, axis=0).reshape(1, self.width)
+                        gramy = np.append(gramy, movement_y, axis=1)
+                        gramx = np.append(gramx, movement_x, axis=0)
 
             elif self.method == 'OpticalFlow':
                 print('Optical Flow not implemented yet!')
@@ -148,35 +156,37 @@ def mg_motionvideo(
             break
         ii += 1
         mg_progressbar(ii, self.length, 'Rendering motion video:', 'Complete')
-    if self.color == False:
-        # Normalize before converting to uint8 to keep precision
-        gramx = gramx/gramx.max()*255
-        gramy = gramy/gramy.max()*255
-        gramx = cv2.cvtColor(gramx.astype(np.uint8), cv2.COLOR_GRAY2BGR)
-        gramy = cv2.cvtColor(gramy.astype(np.uint8), cv2.COLOR_GRAY2BGR)
 
-    gramx = (gramx-gramx.min())/(gramx.max()-gramx.min())*255.0
-    gramy = (gramy-gramy.min())/(gramy.max()-gramy.min())*255.0
+    if save_motiongrams:
+        if self.color == False:
+            # Normalize before converting to uint8 to keep precision
+            gramx = gramx/gramx.max()*255
+            gramy = gramy/gramy.max()*255
+            gramx = cv2.cvtColor(gramx.astype(np.uint8), cv2.COLOR_GRAY2BGR)
+            gramy = cv2.cvtColor(gramy.astype(np.uint8), cv2.COLOR_GRAY2BGR)
 
-    if equalize_motiongram:
-        gramx = gramx.astype(np.uint8)
-        gramx_hsv = cv2.cvtColor(gramx, cv2.COLOR_BGR2HSV)
-        gramx_hsv[:, :, 2] = cv2.equalizeHist(gramx_hsv[:, :, 2])
-        gramx = cv2.cvtColor(gramx_hsv, cv2.COLOR_HSV2BGR)
+        gramx = (gramx-gramx.min())/(gramx.max()-gramx.min())*255.0
+        gramy = (gramy-gramy.min())/(gramy.max()-gramy.min())*255.0
 
-        gramy = gramy.astype(np.uint8)
-        gramy_hsv = cv2.cvtColor(gramy, cv2.COLOR_BGR2HSV)
-        gramy_hsv[:, :, 2] = cv2.equalizeHist(gramy_hsv[:, :, 2])
-        gramy = cv2.cvtColor(gramy_hsv, cv2.COLOR_HSV2BGR)
+        if equalize_motiongram:
+            gramx = gramx.astype(np.uint8)
+            gramx_hsv = cv2.cvtColor(gramx, cv2.COLOR_BGR2HSV)
+            gramx_hsv[:, :, 2] = cv2.equalizeHist(gramx_hsv[:, :, 2])
+            gramx = cv2.cvtColor(gramx_hsv, cv2.COLOR_HSV2BGR)
 
-    if inverted_motiongram:
-        cv2.imwrite(self.of+'_mgx.png',
-                    cv2.bitwise_not(gramx.astype(np.uint8)))
-        cv2.imwrite(self.of+'_mgy.png',
-                    cv2.bitwise_not(gramy.astype(np.uint8)))
-    else:
-        cv2.imwrite(self.of+'_mgx.png', gramx.astype(np.uint8))
-        cv2.imwrite(self.of+'_mgy.png', gramy.astype(np.uint8))
+            gramy = gramy.astype(np.uint8)
+            gramy_hsv = cv2.cvtColor(gramy, cv2.COLOR_BGR2HSV)
+            gramy_hsv[:, :, 2] = cv2.equalizeHist(gramy_hsv[:, :, 2])
+            gramy = cv2.cvtColor(gramy_hsv, cv2.COLOR_HSV2BGR)
+
+        if inverted_motiongram:
+            cv2.imwrite(self.of+'_mgx.png',
+                        cv2.bitwise_not(gramx.astype(np.uint8)))
+            cv2.imwrite(self.of+'_mgy.png',
+                        cv2.bitwise_not(gramy.astype(np.uint8)))
+        else:
+            cv2.imwrite(self.of+'_mgx.png', gramx.astype(np.uint8))
+            cv2.imwrite(self.of+'_mgy.png', gramy.astype(np.uint8))
 
     if save_plot:
         plot_motion_metrics(self.of, self.fps, com, qom,
