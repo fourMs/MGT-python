@@ -12,7 +12,6 @@ import mgmodule
 
 def mg_motionvideo(
         self,
-        method='Diff',
         filtertype='Regular',
         thresh=0.05,
         blur='None',
@@ -34,7 +33,6 @@ def mg_motionvideo(
     Parameters
     ----------
     - kernel_size (int): Size of structuring element.
-    - method (str): Currently 'Diff' is the only implemented method.
     - filtertype (str): 'Regular', 'Binary', 'Blob' (see function filter_frame)
     - thresh (float): a number in [0,1]. Eliminates pixel values less than given threshold.
     - blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
@@ -51,7 +49,6 @@ def mg_motionvideo(
     if save_plot | save_data | save_motiongrams | save_video:
 
         self.blur = blur
-        self.method = method
         self.thresh = thresh
         self.filtertype = filtertype
 
@@ -100,42 +97,38 @@ def mg_motionvideo(
                 frame = np.array(frame)
                 frame = frame.astype(np.int32)
 
-                if self.method == 'Diff':
-                    if self.color == True:
-                        motion_frame_rgb = np.zeros(
-                            [self.height, self.width, 3])
+                if self.color == True:
+                    motion_frame_rgb = np.zeros(
+                        [self.height, self.width, 3])
 
-                        for i in range(frame.shape[2]):
-                            motion_frame = (
-                                np.abs(frame[:, :, i]-prev_frame[:, :, i])).astype(np.uint8)
-                            motion_frame = filter_frame(
-                                motion_frame, self.filtertype, self.thresh, kernel_size)
-                            motion_frame_rgb[:, :, i] = motion_frame
-
-                        if save_motiongrams:
-                            movement_y = np.mean(motion_frame_rgb, axis=1).reshape(
-                                self.height, 1, 3)
-                            movement_x = np.mean(
-                                motion_frame_rgb, axis=0).reshape(1, self.width, 3)
-                            gramy = np.append(gramy, movement_y, axis=1)
-                            gramx = np.append(gramx, movement_x, axis=0)
-
-                    else:
+                    for i in range(frame.shape[2]):
                         motion_frame = (
-                            np.abs(frame-prev_frame)).astype(np.uint8)
+                            np.abs(frame[:, :, i]-prev_frame[:, :, i])).astype(np.uint8)
                         motion_frame = filter_frame(
                             motion_frame, self.filtertype, self.thresh, kernel_size)
+                        motion_frame_rgb[:, :, i] = motion_frame
 
-                        if save_motiongrams:
-                            movement_y = np.mean(
-                                motion_frame, axis=1).reshape(self.height, 1)
-                            movement_x = np.mean(
-                                motion_frame, axis=0).reshape(1, self.width)
-                            gramy = np.append(gramy, movement_y, axis=1)
-                            gramx = np.append(gramx, movement_x, axis=0)
+                    if save_motiongrams:
+                        movement_y = np.mean(motion_frame_rgb, axis=1).reshape(
+                            self.height, 1, 3)
+                        movement_x = np.mean(
+                            motion_frame_rgb, axis=0).reshape(1, self.width, 3)
+                        gramy = np.append(gramy, movement_y, axis=1)
+                        gramx = np.append(gramx, movement_x, axis=0)
 
-                elif self.method == 'OpticalFlow':
-                    print('Optical Flow not implemented yet!')
+                else:
+                    motion_frame = (
+                        np.abs(frame-prev_frame)).astype(np.uint8)
+                    motion_frame = filter_frame(
+                        motion_frame, self.filtertype, self.thresh, kernel_size)
+
+                    if save_motiongrams:
+                        movement_y = np.mean(
+                            motion_frame, axis=1).reshape(self.height, 1)
+                        movement_x = np.mean(
+                            motion_frame, axis=0).reshape(1, self.width)
+                        gramy = np.append(gramy, movement_y, axis=1)
+                        gramx = np.append(gramx, movement_x, axis=0)
 
                 if self.color == False:
                     motion_frame = cv2.cvtColor(

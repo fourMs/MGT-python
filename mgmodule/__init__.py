@@ -11,7 +11,6 @@ class MgObject:
     Parameters:
     -----------
     - filename (str): Name of input parameter video file.
-    - method (str): Currently 'Diff' is the only implemented method.
     - filtertype (str): 'Regular', 'Binary', 'Blob' (see function filterframe).
     - thresh (float): A number in [0,1]. Eliminates pixel values less than given threshold.
     - starttime (float): Cut the video from this start time (min) to analyze what is relevant.
@@ -24,7 +23,7 @@ class MgObject:
     - crop (str): 'none', 'manual', 'auto' to select cropping of relevant video frame size.
     """
 
-    def __init__(self, filename, method='Diff', filtertype='Regular', thresh=0.05, starttime=0, endtime=0, blur='None', skip=0, color=True, contrast=0, brightness=0, crop='None', keep_all=False):
+    def __init__(self, filename, filtertype='Regular', thresh=0.05, starttime=0, endtime=0, blur='None', skip=0, color=True, contrast=0, brightness=0, crop='None', keep_all=False):
 
         self.filename = filename
         # name of file without extension (only-filename)
@@ -32,7 +31,6 @@ class MgObject:
         # file extension
         self.fex = os.path.splitext(self.filename)[1]
         self.color = color
-        self.method = method
         self.starttime = starttime
         self.endtime = endtime
         self.skip = skip
@@ -57,7 +55,7 @@ class MgObject:
 
     def test_input(self):
         """ Gives feedback to user if initialization from input went wrong. """
-        mg_input_test(self.filename, self.method, self.filtertype,
+        mg_input_test(self.filename, self.filtertype,
                       self.thresh, self.starttime, self.endtime, self.blur, self.skip)
 
     def get_video(self):

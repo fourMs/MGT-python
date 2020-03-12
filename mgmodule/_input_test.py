@@ -14,16 +14,12 @@ class InputError(Error):
         self.message = message
 
 
-def mg_input_test(filename, method, filtertype, thresh, starttime, endtime, blur, skip):
+def mg_input_test(filename, filtertype, thresh, starttime, endtime, blur, skip):
     """ Gives feedback to user if initialization from input went wrong. """
 
     filenametest = type(filename) == str
 
     if filenametest:
-        if method not in ['Diff', 'OpticalFlow']:
-            msg = 'Please specify a method for motion estimation as str: Diff or OpticalFlow.'
-            raise InputError(msg)
-
         if filtertype not in ['Regular', 'Binary', 'Blob']:
             msg = 'Please specify a filter type as str: Regular or Binary'
             raise InputError(msg)
