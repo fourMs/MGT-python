@@ -60,6 +60,7 @@ def convert_to_avi(filename):
     cmds = ' '.join(['ffmpeg', '-i', filename, "-c:v",
                      "mjpeg", "-q:v", "3", of + '.avi'])
     os.system(cmds)
+    return of + '.avi'
 
 
 def extract_wav(filename):
@@ -70,3 +71,49 @@ def extract_wav(filename):
     cmds = ' '.join(['ffmpeg', '-i', filename, "-acodec",
                      "pcm_s16le", of + '.wav'])
     os.system(cmds)
+    return of + '.wav'
+
+
+def get_length(filename):
+    import subprocess
+    result = subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of',
+                             'default=noprint_wrappers=1:nokey=1', filename], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    return float(result.stdout)
+
+
+def audio_dilate(filename, dilation_ratio):
+    import os
+    of = os.path.splitext(filename)[0]
+    fex = os.path.splitext(filename)[1]
+    cmds = ' '.join(['ffmpeg', '-i', filename, '-codec:a', 'pcm_s16le',
+                     '-filter:a', 'atempo=' + str(dilation_ratio), of + '_dilated' + fex])
+    os.system(cmds)
+    return of + '_dilated' + fex
+
+
+def embed_audio_in_video(source_audio, destination_video, dilation_ratio):
+    import os
+    of = os.path.splitext(destination_video)[0]
+    fex = os.path.splitext(destination_video)[1]
+
+    # dilate audio file if necessary (ie. when skipping)
+    if dilation_ratio != 1:
+        audio_to_embed = audio_dilate(
+            source_audio, dilation_ratio)  # creates '_dilated.wav'
+        dilated = True
+    else:
+        audio_to_embed = source_audio
+        dilated = False
+
+    # embed audio in video
+    cmds = ' '.join(['ffmpeg', '-i', destination_video, '-i', audio_to_embed, '-c:v',
+                     'copy', '-map', '0:v:0', '-map', '1:a:0', '-shortest', of + '_w_audio' + fex])
+    os.system(cmds)  # creates '_w_audio.avi'
+
+    # cleanup:
+    # if we needed to create an additional (dilated) audio file, delete it
+    if dilated:
+        os.remove(audio_to_embed)
+    # replace (silent) destination_video with the one with the embedded audio
+    os.remove(destination_video)
+    os.rename(of + '_w_audio' + fex, destination_video)

@@ -4,11 +4,12 @@ from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 import numpy as np
 from ._videoadjust import mg_contrast_brightness, mg_skip_frames
 from ._cropvideo import *
-from ._utils import convert_to_avi
+from ._utils import convert_to_avi, extract_wav, audio_dilate, embed_audio_in_video
+
 
 class ReadError(Exception):
-   """Base class for other exceptions"""
-   pass
+    """Base class for other exceptions"""
+    pass
 
 
 def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightness=0, crop='None', keep_all=False):
@@ -68,6 +69,16 @@ def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightn
     if fps == 0:
         raise ReadError(f"Could not open {filename}.")
 
+    source_length_s = length / fps
+    source_name = of + fex
+    new_length_s = source_length_s
+    dilation_ratio = 1
+    need_to_embed_audio = False
+
+    if skip != 0 or contrast != 0 or brightness != 0 or crop != 'None':
+        source_audio = extract_wav(source_name)
+        need_to_embed_audio = True
+
     # To skip ahead a few frames before the next sample set skip to a value above 0
     if skip != 0:
         vidcap, length, fps, width, height = mg_skip_frames(
@@ -76,6 +87,11 @@ def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightn
             os.remove(of + fex)
         of = of + '_skip'
         skipping = True
+        new_length_s = length / fps
+        dilation_ratio = source_length_s / new_length_s
+        if keep_all:
+            vidcap.release()
+            embed_audio_in_video(source_audio, of + fex, dilation_ratio)
 
     # Overwrite the inputvalue for endtime not to cut the video at 0...
     if endtime == 0:
@@ -83,19 +99,31 @@ def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightn
 
     # Apply contrast/brightness before the motion analysis
     if contrast != 0 or brightness != 0:
+        if keep_all:
+            vidcap = cv2.VideoCapture(of + fex)
         vidcap = mg_contrast_brightness(
             of, fex, vidcap, fps, length, width, height, contrast, brightness)
         if not keep_all and (skipping or trimming):
             os.remove(of + fex)
         of = of + '_cb'
         cbing = True
+        if keep_all:
+            vidcap.release()
+            embed_audio_in_video(source_audio, of + fex, dilation_ratio)
 
     # Crops video either manually or automatically
     if crop != 'None':
+        if keep_all:
+            vidcap = cv2.VideoCapture(of + fex)
         [vidcap, width, height] = mg_cropvideo(
             fps, width, height, length, of, fex, crop, motion_box_thresh=0.1, motion_box_margin=1)
         if not keep_all and (cbing or skipping or trimming):
             os.remove(of + fex)
         of = of + '_crop'
+
+    if need_to_embed_audio:
+        vidcap.release()
+        embed_audio_in_video(source_audio, of + fex, dilation_ratio)
+        os.remove(source_audio)
 
     return length, width, height, fps, endtime, of, fex
