@@ -57,5 +57,16 @@ def convert_to_avi(filename):
     import os
     of = os.path.splitext(filename)[0]
     fex = os.path.splitext(filename)[1]
-    cmds = ' '.join(['ffmpeg', '-i', filename, of + '.avi'])
+    cmds = ' '.join(['ffmpeg', '-i', filename, "-c:v",
+                     "mjpeg", "-q:v", "3", of + '.avi'])
+    os.system(cmds)
+
+
+def extract_wav(filename):
+    """Extract audio from video into a .wav file via ffmpeg"""
+    import os
+    of = os.path.splitext(filename)[0]
+    fex = os.path.splitext(filename)[1]
+    cmds = ' '.join(['ffmpeg', '-i', filename, "-acodec",
+                     "pcm_s16le", of + '.wav'])
     os.system(cmds)
