@@ -1,13 +1,12 @@
+import mgmodule
+import matplotlib.pyplot as plt
 import cv2
 import os
 import numpy as np
 from scipy.signal import medfilt2d
 from ._centroid import centroid
-from ._utils import mg_progressbar
+from ._utils import mg_progressbar, extract_wav, embed_audio_in_video
 from ._filter import filter_frame
-import matplotlib.pyplot as plt
-
-import mgmodule
 
 
 def mg_motionvideo(
@@ -163,7 +162,7 @@ def mg_motionvideo(
                 break
             ii += 1
             pgbar_text = 'Rendering motion' + ", ".join(np.array(["-video", "-grams", "-plots", "-data"])[
-                np.array([save_video, save_motiongrams, save_plot, save_data])])
+                np.array([save_video, save_motiongrams, save_plot, save_data])]) + ":"
             mg_progressbar(ii, self.length,
                            pgbar_text, 'Complete')
 
@@ -200,15 +199,20 @@ def mg_motionvideo(
                 cv2.imwrite(self.of+'_mgx.png', gramx.astype(np.uint8))
                 cv2.imwrite(self.of+'_mgy.png', gramy.astype(np.uint8))
 
+        if save_data:
+            save_txt(self.of, com, qom, self.width, self.height, data_format)
+
         if save_plot:
             plot_motion_metrics(self.of, self.fps, com, qom,
                                 self.width, self.height, unit)
 
-        if save_data:
-            save_txt(self.of, com, qom, self.width, self.height, data_format)
-
         if save_video:
-            return mgmodule.MgObject(self.of + '_motion' + self.fex)
+            out.release()
+            source_audio = extract_wav(self.of + self.fex)
+            destination_video = self.of + '_motion' + self.fex
+            embed_audio_in_video(source_audio, destination_video)
+            os.remove(source_audio)
+            return mgmodule.MgObject(destination_video)
         else:
             return mgmodule.MgObject(self.of + self.fex)
 

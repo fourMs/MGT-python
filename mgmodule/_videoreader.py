@@ -4,7 +4,7 @@ from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 import numpy as np
 from ._videoadjust import mg_contrast_brightness, mg_skip_frames
 from ._cropvideo import *
-from ._utils import convert_to_avi, extract_wav, audio_dilate, embed_audio_in_video
+from ._utils import convert_to_avi, extract_wav, embed_audio_in_video
 
 
 class ReadError(Exception):
@@ -121,8 +121,8 @@ def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightn
             os.remove(of + fex)
         of = of + '_crop'
 
+    vidcap.release()
     if need_to_embed_audio:
-        vidcap.release()
         embed_audio_in_video(source_audio, of + fex, dilation_ratio)
         os.remove(source_audio)
 

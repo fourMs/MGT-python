@@ -1,7 +1,7 @@
 import cv2
 import os
 import numpy as np
-from ._utils import mg_progressbar
+from ._utils import mg_progressbar, extract_wav, embed_audio_in_video
 import mgmodule
 
 
@@ -52,10 +52,13 @@ class Flow:
                 if skip_empty:
                     if np.sum(rgb) > 0:
                         out.write(rgb.astype(np.uint8))
+                    else:
+                        out.write(prev_rgb.astype(np.uint8))
                 else:
                     out.write(rgb.astype(np.uint8))
 
                 prev_frame = next_frame
+                prev_rgb = rgb
 
             else:
                 mg_progressbar(
@@ -67,7 +70,13 @@ class Flow:
             mg_progressbar(
                 ii, length+1, 'Rendering dense optical flow video:', 'Complete')
 
-        return mgmodule.MgObject(of + '_flow_dense' + fex)
+        out.release()
+        source_audio = extract_wav(of + fex)
+        destination_video = of + '_flow_dense' + fex
+        embed_audio_in_video(source_audio, destination_video)
+        os.remove(source_audio)
+
+        return mgmodule.MgObject(destination_video)
 
     def sparse(self, filename='', corner_max_corners=100, corner_quality_level=0.3, corner_min_distance=7, corner_block_size=7, of_win_size=(15, 15), of_max_level=2, of_criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03)):
 
@@ -148,5 +157,11 @@ class Flow:
 
             mg_progressbar(
                 ii, length+1, 'Rendering sparse optical flow video:', 'Complete')
+
+        out.release()
+        source_audio = extract_wav(of + fex)
+        destination_video = of + '_flow_sparse' + fex
+        embed_audio_in_video(source_audio, destination_video)
+        os.remove(source_audio)
 
         return mgmodule.MgObject(of + '_flow_sparse' + fex)

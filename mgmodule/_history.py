@@ -1,7 +1,7 @@
 import cv2
 import os
 import numpy as np
-from ._utils import mg_progressbar
+from ._utils import mg_progressbar, extract_wav, embed_audio_in_video
 import mgmodule
 
 
@@ -70,4 +70,10 @@ def history(self, filename='', history_length=10):
         #print('Rendering history %s%%' % (int(ii/(length-1)*100)), end='\r')
         mg_progressbar(ii, length+1, 'Rendering history video:', 'Complete')
 
-    return mgmodule.MgObject(of + '_history' + fex)
+    out.release()
+    source_audio = extract_wav(self.of + self.fex)
+    destination_video = self.of + '_history' + self.fex
+    embed_audio_in_video(source_audio, destination_video)
+    os.remove(source_audio)
+
+    return mgmodule.MgObject(destination_video)

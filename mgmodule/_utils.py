@@ -81,7 +81,7 @@ def get_length(filename):
     return float(result.stdout)
 
 
-def audio_dilate(filename, dilation_ratio):
+def audio_dilate(filename, dilation_ratio=1):
     import os
     of = os.path.splitext(filename)[0]
     fex = os.path.splitext(filename)[1]
@@ -91,7 +91,7 @@ def audio_dilate(filename, dilation_ratio):
     return of + '_dilated' + fex
 
 
-def embed_audio_in_video(source_audio, destination_video, dilation_ratio):
+def embed_audio_in_video(source_audio, destination_video, dilation_ratio=1):
     import os
     of = os.path.splitext(destination_video)[0]
     fex = os.path.splitext(destination_video)[1]
