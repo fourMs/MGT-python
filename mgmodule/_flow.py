@@ -7,8 +7,9 @@ import mgmodule
 
 class Flow:
 
-    def __init__(self, filename):
+    def __init__(self, filename, color):
         self.filename = filename
+        self.color = color
 
     def dense(self, filename='', pyr_scale=0.5, levels=3, winsize=15, iterations=3, poly_n=5, poly_sigma=1.2, flags=0, skip_empty=False):
 
@@ -76,7 +77,7 @@ class Flow:
         embed_audio_in_video(source_audio, destination_video)
         os.remove(source_audio)
 
-        return mgmodule.MgObject(destination_video)
+        return mgmodule.MgObject(destination_video, color=self.color, returned_by_process=True)
 
     def sparse(self, filename='', corner_max_corners=100, corner_quality_level=0.3, corner_min_distance=7, corner_block_size=7, of_win_size=(15, 15), of_max_level=2, of_criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03)):
 
@@ -139,7 +140,13 @@ class Flow:
                     a, b = new.ravel()
                     c, d = old.ravel()
                     mask = cv2.line(mask, (a, b), (c, d), color[i].tolist(), 2)
-                    frame = cv2.circle(frame, (a, b), 5, color[i].tolist(), -1)
+
+                    if self.color == False:
+                        frame = cv2.cvtColor(frame_gray, cv2.COLOR_GRAY2BGR)
+
+                    frame = cv2.circle(
+                        frame, (a, b), 5, color[i].tolist(), -1)
+
                 img = cv2.add(frame, mask)
 
                 out.write(img.astype(np.uint8))
@@ -164,4 +171,4 @@ class Flow:
         embed_audio_in_video(source_audio, destination_video)
         os.remove(source_audio)
 
-        return mgmodule.MgObject(of + '_flow_sparse' + fex)
+        return mgmodule.MgObject(destination_video, color=self.color, returned_by_process=True)

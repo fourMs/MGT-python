@@ -8,7 +8,7 @@ from ._utils import mg_progressbar, extract_wav, embed_audio_in_video
 import mgmodule
 
 
-def mg_motionhistory(self, history_length=10, kernel_size=5, method='Diff', filtertype='Regular', thresh=0.05, blur='None', inverted_motionhistory=False):
+def mg_motionhistory(self, history_length=10, kernel_size=5, filtertype='Regular', thresh=0.05, blur='None', inverted_motionhistory=False):
     """
     Finds the difference in pixel value from one frame to the next in an input video, and saves the difference frame to a history tail.
     The history frames are summed up and normalized, and added to the current difference frame to show the history of motion.
@@ -29,7 +29,6 @@ def mg_motionhistory(self, history_length=10, kernel_size=5, method='Diff', filt
     - An MgObject loaded with the resulting _motionhistory video.
     """
     enhancement = 1  # This can be adjusted to higher number to make motion more visible. Use with caution to not make it overflow.
-    self.method = method
     self.filtertype = filtertype
     self.thresh = thresh
     self.blur = blur
@@ -49,7 +48,11 @@ def mg_motionhistory(self, history_length=10, kernel_size=5, method='Diff', filt
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     while(vidcap.isOpened()):
-        prev_frame = frame
+        if self.blur == 'Average':
+            prev_frame = cv2.blur(frame, (10, 10))
+        elif self.blur == 'None':
+            prev_frame = frame
+
         ret, frame = vidcap.read()
 
         if ret == True:
@@ -57,56 +60,53 @@ def mg_motionhistory(self, history_length=10, kernel_size=5, method='Diff', filt
                 # The higher these numbers the more blur you get
                 frame = cv2.blur(frame, (10, 10))
 
-            if self.color == True:
-                frame = frame
-            else:
+            if self.color == False:
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
             frame = (np.array(frame)).astype(np.float64)
 
-            if self.method == 'Diff':
-                if self.color == True:
-                    motion_frame_rgb = np.zeros([self.height, self.width, 3])
-                    for i in range(frame.shape[2]):
-                        motion_frame = (
-                            np.abs(frame[:, :, i]-prev_frame[:, :, i])).astype(np.float64)
-                        motion_frame = filter_frame(
-                            motion_frame, self.filtertype, self.thresh, kernel_size)
-                        motion_frame_rgb[:, :, i] = motion_frame
-
-                    if len(history) > 0:
-                        motion_history = frame/(len(history)+1)
-                    else:
-                        motion_history = frame
-
-                    for newframe in history:
-                        motion_history += newframe/(len(history)+1)
-                    # or however long history you would like
-                    if len(history) > history_length or len(history) == history_length:
-                        history.pop(0)  # pop first frame
-                    history.append(motion_frame_rgb)
-                    motion_history = motion_history.astype(
-                        np.uint64)  # 0.5 to not overload it poor thing
-
-                else:
-                    motion_frame = (np.abs(frame-prev_frame)
-                                    ).astype(np.float64)
+            if self.color == True:
+                motion_frame_rgb = np.zeros([self.height, self.width, 3])
+                for i in range(frame.shape[2]):
+                    motion_frame = (
+                        np.abs(frame[:, :, i]-prev_frame[:, :, i])).astype(np.float64)
                     motion_frame = filter_frame(
                         motion_frame, self.filtertype, self.thresh, kernel_size)
-                    if len(history) > 0:
-                        motion_history = frame/(len(history)+1)
-                    else:
-                        motion_history = frame
+                    motion_frame_rgb[:, :, i] = motion_frame
 
-                    for newframe in history:
-                        motion_history += newframe/(len(history)+1)
+                if len(history) > 0:
+                    motion_history = motion_frame_rgb/(len(history)+1)
+                else:
+                    motion_history = motion_frame_rgb
 
-                    # or however long history you would like
-                    if len(history) > history_length or len(history) == history_length:
-                        history.pop(0)  # pop first frame
+                for newframe in history:
+                    motion_history += newframe/(len(history)+1)
+                # or however long history you would like
+                if len(history) > history_length or len(history) == history_length:
+                    history.pop(0)  # pop first frame
+                history.append(motion_frame_rgb)
+                motion_history = motion_history.astype(
+                    np.uint64)  # 0.5 to not overload it poor thing
 
-                    history.append(motion_frame)
-                    motion_history = motion_history.astype(np.uint64)
+            else:  # self.color = False
+                motion_frame = (np.abs(frame-prev_frame)
+                                ).astype(np.float64)
+                motion_frame = filter_frame(
+                    motion_frame, self.filtertype, self.thresh, kernel_size)
+                if len(history) > 0:
+                    motion_history = motion_frame/(len(history)+1)
+                else:
+                    motion_history = motion_frame
+
+                for newframe in history:
+                    motion_history += newframe/(len(history)+1)
+
+                # or however long history you would like
+                if len(history) > history_length or len(history) == history_length:
+                    history.pop(0)  # pop first frame
+
+                history.append(motion_frame)
+                motion_history = motion_history.astype(np.uint64)
 
             if self.color == False:
                 motion_history_rgb = cv2.cvtColor(
@@ -134,4 +134,4 @@ def mg_motionhistory(self, history_length=10, kernel_size=5, method='Diff', filt
     embed_audio_in_video(source_audio, destination_video)
     os.remove(source_audio)
 
-    return mgmodule.MgObject(destination_video)
+    return mgmodule.MgObject(destination_video, color=self.color, returned_by_process=True)

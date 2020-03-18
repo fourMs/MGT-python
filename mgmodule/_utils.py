@@ -28,19 +28,48 @@ def mg_progressbar(iteration, total, prefix='', suffix='', decimals=1, length=40
 
 
 def scale_num(val, in_low, in_high, out_low, out_high):
-    """Scale a number linearly."""
+    """Scale a number linearly.
+
+    Parameters:
+    -----------
+    - val       - Required  : the value to be scaled
+    - in_low    - Required  : minimum of input range
+    - in_high   - Required  : maximum of input range
+    - out_low   - Required  : minimum of output range
+    - out_high  - Required  : maximum of output range
+    """
     return ((val - in_low) * (out_high - out_low)) / (in_high - in_low) + out_low
 
 
-def scale_array(array, new_min, new_max):
-    """Scale an array linearly."""
+def scale_array(array, out_low, out_high):
+    """Scale an array linearly.
+
+    Parameters:
+    -----------
+    - array     - Required  : the array to be scaled
+    - out_low   - Required  : minimum of output range
+    - out_high  - Required  : maximum of output range
+    """
     minimum, maximum = np.min(array), np.max(array)
-    m = (new_max - new_min) / (maximum - minimum)
-    b = new_min - m * minimum
+    m = (out_high - out_low) / (maximum - minimum)
+    b = out_low - m * minimum
     return m * array + b
 
 
+def get_frame_planecount(frame):
+    """Return the planecount of a video frame
+
+    Parameters:
+    -----------
+    - frame     - Required  : a frame extracted by cv2.VideoCapture().read()
+    """
+    import numpy as np
+    return 3 if len(np.array(frame).shape) == 3 else 1
+
+
 class MgImage():
+    """Class for handling images"""
+
     def __init__(self, filename):
         self.filename = filename
         import os
@@ -63,6 +92,17 @@ def convert_to_avi(filename):
     return of + '.avi'
 
 
+def convert_to_grayscale(filename):
+    """Convert a video to grayscale using ffmpeg"""
+    import os
+    of = os.path.splitext(filename)[0]
+    fex = os.path.splitext(filename)[1]
+    cmds = ' '.join(['ffmpeg', '-i', filename, "-c:v", "mjpeg", "-q:v", "3", '-vf',
+                     'hue=s=0', of + '_grayscale' + fex])
+    os.system(cmds)
+    return of + '_grayscale', fex
+
+
 def extract_wav(filename):
     """Extract audio from video into a .wav file via ffmpeg"""
     import os
@@ -75,6 +115,7 @@ def extract_wav(filename):
 
 
 def get_length(filename):
+    """Return the length (s) of a video using ffprobe"""
     import subprocess
     result = subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of',
                              'default=noprint_wrappers=1:nokey=1', filename], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -82,6 +123,7 @@ def get_length(filename):
 
 
 def audio_dilate(filename, dilation_ratio=1):
+    """Time-stretch or -shrink an audio file using ffmpeg"""
     import os
     of = os.path.splitext(filename)[0]
     fex = os.path.splitext(filename)[1]
@@ -92,6 +134,7 @@ def audio_dilate(filename, dilation_ratio=1):
 
 
 def embed_audio_in_video(source_audio, destination_video, dilation_ratio=1):
+    """Embed an audio file as the audio channel of a video file."""
     import os
     of = os.path.splitext(destination_video)[0]
     fex = os.path.splitext(destination_video)[1]

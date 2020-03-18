@@ -4,7 +4,7 @@ from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 import numpy as np
 from ._videoadjust import mg_contrast_brightness, mg_skip_frames
 from ._cropvideo import *
-from ._utils import convert_to_avi, extract_wav, embed_audio_in_video
+from ._utils import convert_to_avi, extract_wav, embed_audio_in_video, convert_to_grayscale
 
 
 class ReadError(Exception):
@@ -12,7 +12,7 @@ class ReadError(Exception):
     pass
 
 
-def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightness=0, crop='None', keep_all=False):
+def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightness=0, crop='None', color=True, returned_by_process=False, keep_all=False):
     """
         Reads in a video file, and by input parameters user decide if it: trims the length, skips frames, applies contrast/brightness adjustments and/or crops image width/height.
 
@@ -120,8 +120,23 @@ def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightn
         if not keep_all and (cbing or skipping or trimming):
             os.remove(of + fex)
         of = of + '_crop'
+        cropping = True
+        if keep_all:
+            vidcap.release()
+            embed_audio_in_video(source_audio, of + fex, dilation_ratio)
 
-    vidcap.release()
+    if color == False and returned_by_process == False:
+        vidcap.release()
+        print("Converting to grayscale!")
+        of_gray, fex = convert_to_grayscale(of + fex)
+        print("Now it's grayscale.")
+        if not keep_all and (cbing or skipping or trimming or cropping):
+            os.remove(of + fex)
+        of = of_gray
+
+    if color == True or returned_by_process == True:
+        vidcap.release()
+
     if need_to_embed_audio:
         embed_audio_in_video(source_audio, of + fex, dilation_ratio)
         os.remove(source_audio)

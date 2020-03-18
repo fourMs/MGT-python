@@ -90,12 +90,8 @@ def mg_motionvideo(
                 if self.blur == 'Average':
                     # The higher these numbers the more blur you get
                     frame = cv2.blur(frame, (10, 10))
-                elif self.blur == 'None':
-                    frame = frame  # No blur
 
-                if self.color == True:
-                    frame = frame
-                else:
+                if self.color == False:
                     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
                 frame = np.array(frame)
@@ -212,13 +208,13 @@ def mg_motionvideo(
             destination_video = self.of + '_motion' + self.fex
             embed_audio_in_video(source_audio, destination_video)
             os.remove(source_audio)
-            return mgmodule.MgObject(destination_video)
+            return mgmodule.MgObject(destination_video, color=self.color, returned_by_process=True)
         else:
-            return mgmodule.MgObject(self.of + self.fex)
+            return mgmodule.MgObject(self.of + self.fex, color=self.color, returned_by_process=True)
 
     else:
         print("Nothing to render. Exiting...")
-        return mgmodule.MgObject(self.of + self.fex)
+        return mgmodule.MgObject(self.of + self.fex, returned_by_process=True)
 
 
 def plot_motion_metrics(of, fps, com, qom, width, height, unit):

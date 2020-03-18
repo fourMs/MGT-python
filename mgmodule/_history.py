@@ -43,9 +43,13 @@ def history(self, filename='', history_length=10):
     history = []
 
     while(video.isOpened()):
+        ret, frame = video.read()
         if ret == True:
-            ret, frame = video.read()
+            if self.color == False:
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
             frame = (np.array(frame)).astype(np.float64)
+
             if len(history) > 0:
                 history_total = frame/(len(history)+1)
             else:
@@ -59,7 +63,12 @@ def history(self, filename='', history_length=10):
             # 0.5 to not overload it poor thing
             total = history_total.astype(np.uint64)
 
-            out.write(total.astype(np.uint8))
+            if self.color == False:
+                total = cv2.cvtColor(total.astype(
+                    np.uint8), cv2.COLOR_GRAY2BGR)
+                out.write(total)
+            else:
+                out.write(total.astype(np.uint8))
 
         else:
             #print('Rendering history 100%')
@@ -76,4 +85,4 @@ def history(self, filename='', history_length=10):
     embed_audio_in_video(source_audio, destination_video)
     os.remove(source_audio)
 
-    return mgmodule.MgObject(destination_video)
+    return mgmodule.MgObject(destination_video, color=self.color, returned_by_process=True)

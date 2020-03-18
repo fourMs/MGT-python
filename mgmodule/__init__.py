@@ -23,7 +23,7 @@ class MgObject:
     - crop (str): 'none', 'manual', 'auto' to select cropping of relevant video frame size.
     """
 
-    def __init__(self, filename, filtertype='Regular', thresh=0.05, starttime=0, endtime=0, blur='None', skip=0, color=True, contrast=0, brightness=0, crop='None', keep_all=False):
+    def __init__(self, filename, filtertype='Regular', thresh=0.05, starttime=0, endtime=0, blur='None', skip=0, color=True, contrast=0, brightness=0, crop='None', returned_by_process=False, keep_all=False):
 
         self.filename = filename
         # name of file without extension (only-filename)
@@ -41,9 +41,10 @@ class MgObject:
         self.brightness = brightness
         self.crop = crop
         self.keep_all = keep_all
+        self.returned_by_process = returned_by_process
         self.test_input()
         self.get_video()
-        self.flow = Flow(self.filename)
+        self.flow = Flow(self.filename, self.color)
 
     from ._motionvideo import mg_motionvideo as motion
     from ._motionvideo import plot_motion_metrics
@@ -61,7 +62,7 @@ class MgObject:
     def get_video(self):
         """ Creates a video attribute to the Musical Gestures object with the given correct settings. """
         self.length, self.width, self.height, self.fps, self.endtime, self.of, self.fex = mg_videoreader(
-            self.filename, self.starttime, self.endtime, self.skip, self.contrast, self.brightness, self.crop, keep_all=self.keep_all)
+            self.filename, self.starttime, self.endtime, self.skip, self.contrast, self.brightness, self.crop, self.color, self.returned_by_process, keep_all=self.keep_all)
 
         # update filename after the processes
         self.filename = self.of + self.fex
