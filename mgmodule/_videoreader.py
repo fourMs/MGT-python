@@ -50,8 +50,10 @@ def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightn
 
     # Cut out relevant bit of video using starttime and endtime
     if starttime != 0 or endtime != 0:
+        print("Trimming...")
         trimvideo = ffmpeg_extract_subclip(
             filename, starttime, endtime, targetname=of + '_trim' + fex)
+        print("Trimming done.")
         of = of + '_trim'
         trimming = True
         vidcap = cv2.VideoCapture(of+fex)
@@ -82,7 +84,7 @@ def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightn
     # To skip ahead a few frames before the next sample set skip to a value above 0
     if skip != 0:
         vidcap, length, fps, width, height = mg_skip_frames(
-            of, fex, vidcap, skip, fps, width, height)
+            of, fex, vidcap, skip, fps, length, width, height)
         if not keep_all and trimming:
             os.remove(of + fex)
         of = of + '_skip'
@@ -127,9 +129,9 @@ def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightn
 
     if color == False and returned_by_process == False:
         vidcap.release()
-        print("Converting to grayscale!")
+        print("Converting to grayscale...", end='')
         of_gray, fex = convert_to_grayscale(of + fex)
-        print("Now it's grayscale.")
+        print(" done.")
         if not keep_all and (cbing or skipping or trimming or cropping):
             os.remove(of + fex)
         of = of_gray

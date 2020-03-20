@@ -36,7 +36,6 @@ def mg_contrast_brightness(of, fex, vidcap, fps, length, width, height, contrast
         while success:
             success, image = vidcap.read()
             if not success:
-                #print('Adjusting contrast/brightness 100%%')
                 mg_progressbar(
                     length, length, 'Adjusting contrast and brightness:', 'Complete')
                 break
@@ -44,8 +43,6 @@ def mg_contrast_brightness(of, fex, vidcap, fps, length, width, height, contrast
             image = np.clip(image, 0, 255)
             out.write(image.astype(np.uint8))
             count += 1
-            # print('Adjusting contrast/brightness %s%%' %
-            #       (int(count/(length-1)*100)), end='\r')
             mg_progressbar(
                 count, length, 'Adjusting contrast and brightness:', 'Complete')
         out.release()
@@ -54,7 +51,7 @@ def mg_contrast_brightness(of, fex, vidcap, fps, length, width, height, contrast
     return vidcap
 
 
-def mg_skip_frames(of, fex, vidcap, skip, fps, width, height):
+def mg_skip_frames(of, fex, vidcap, skip, fps, length, width, height):
     """
     Frame skip, convenient for saving time/space in an analysis of less detail looking at big picture movement. Skips the given number of frames, making a compressed version of the input video file.
 
@@ -80,12 +77,15 @@ def mg_skip_frames(of, fex, vidcap, skip, fps, width, height):
         while success:
             success, image = vidcap.read()
             if not success:
+                mg_progressbar(
+                    length, length, 'Skipping frames:', 'Complete')
                 break
             # on every frame we wish to use
             if (count % (skip+1) == 0):  # NB if skip=1, we should keep every other frame
                 out.write(image.astype(np.uint8))
-
             count += 1
+            mg_progressbar(
+                count, length, 'Skipping frames:', 'Complete')
         out.release()
         vidcap = cv2.VideoCapture(of + '_skip' + fex)
 
