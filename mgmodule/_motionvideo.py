@@ -80,14 +80,14 @@ def mg_motionvideo(
                 gramy = np.zeros([self.height, 1])
 
         while(vidcap.isOpened()):
-            if self.blur == 'Average':
+            if self.blur.lower() == 'average':
                 prev_frame = cv2.blur(frame, (10, 10))
-            elif self.blur == 'None':
+            elif self.blur.lower() == 'none':
                 prev_frame = frame
 
             ret, frame = vidcap.read()
             if ret == True:
-                if self.blur == 'Average':
+                if self.blur.lower() == 'average':
                     # The higher these numbers the more blur you get
                     frame = cv2.blur(frame, (10, 10))
 

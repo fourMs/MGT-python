@@ -20,12 +20,12 @@ def mg_input_test(filename, filtertype, thresh, starttime, endtime, blur, skip):
     filenametest = type(filename) == str
 
     if filenametest:
-        if filtertype not in ['Regular', 'Binary', 'Blob']:
-            msg = 'Please specify a filter type as str: Regular or Binary'
+        if filtertype.lower() not in ['regular', 'binary', 'blob']:
+            msg = 'Please specify a filter type as str: "Regular", "Binary" or "Blob"'
             raise InputError(msg)
 
-        if blur not in ['Average', 'None']:
-            msg = 'Please specify a blur type as str: Average or None'
+        if blur.lower() not in ['average', 'none']:
+            msg = 'Please specify a blur type as str: "Average" or "None"'
             raise InputError(msg)
 
         if not isinstance(thresh, (float, int)):

@@ -21,13 +21,13 @@ def filter_frame(motion_frame, filtertype, thresh, kernel_size):
     -------
     - filtered frame (array(uint8))
     """
-    if filtertype == 'Regular':
+    if filtertype.lower() == 'regular':
         motion_frame = (motion_frame > thresh*255)*motion_frame
         motion_frame = medfilt2d(motion_frame, kernel_size)
-    elif filtertype == 'Binary':
+    elif filtertype.lower() == 'binary':
         motion_frame = (motion_frame > thresh*255)*255
         motion_frame = medfilt2d(motion_frame.astype(np.uint8), kernel_size)
-    elif filtertype == 'Blob':
+    elif filtertype.lower() == 'blob':
         motion_frame = cv2.erode(motion_frame, np.ones(
             [kernel_size, kernel_size]), iterations=1)
     return motion_frame

@@ -77,7 +77,7 @@ def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightn
     dilation_ratio = 1
     need_to_embed_audio = False
 
-    if skip != 0 or contrast != 0 or brightness != 0 or crop != 'None':
+    if skip != 0 or contrast != 0 or brightness != 0 or crop.lower() != 'none':
         source_audio = extract_wav(source_name)
         need_to_embed_audio = True
 
@@ -114,7 +114,7 @@ def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightn
             embed_audio_in_video(source_audio, of + fex, dilation_ratio)
 
     # Crops video either manually or automatically
-    if crop != 'None':
+    if crop.lower() != 'none':
         if keep_all:
             vidcap = cv2.VideoCapture(of + fex)
         [vidcap, width, height] = mg_cropvideo(

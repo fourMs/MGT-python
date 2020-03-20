@@ -48,15 +48,15 @@ def mg_motionhistory(self, history_length=10, kernel_size=5, filtertype='Regular
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     while(vidcap.isOpened()):
-        if self.blur == 'Average':
+        if self.blur.lower() == 'average':
             prev_frame = cv2.blur(frame, (10, 10))
-        elif self.blur == 'None':
+        elif self.blur.lower() == 'none':
             prev_frame = frame
 
         ret, frame = vidcap.read()
 
         if ret == True:
-            if self.blur == 'Average':
+            if self.blur.lower() == 'average':
                 # The higher these numbers the more blur you get
                 frame = cv2.blur(frame, (10, 10))
 
