@@ -92,6 +92,20 @@ def convert_to_avi(filename):
     return of + '.avi'
 
 
+def rotate_video(filename, angle):
+    """Rotate a video by an angle via ffmpeg"""
+    import os
+    import math
+    of = os.path.splitext(filename)[0]
+    fex = os.path.splitext(filename)[1]
+    if os.path.isfile(of + '_rot.avi'):
+        os.remove(of + '_rot.avi')
+    cmds = ' '.join(['ffmpeg', '-i', filename, "-c:v",
+                     "mjpeg", "-q:v", "3", "-vf", f"rotate={math.radians(angle)}", of + '_rot.avi'])
+    os.system(cmds)
+    return of + '_rot', fex
+
+
 def convert_to_grayscale(filename):
     """Convert a video to grayscale using ffmpeg"""
     import os

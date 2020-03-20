@@ -4,7 +4,7 @@ from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 import numpy as np
 from ._videoadjust import mg_contrast_brightness, mg_skip_frames
 from ._cropvideo import *
-from ._utils import convert_to_avi, extract_wav, embed_audio_in_video, convert_to_grayscale
+from ._utils import convert_to_avi, rotate_video, extract_wav, embed_audio_in_video, convert_to_grayscale
 
 
 class ReadError(Exception):
@@ -12,7 +12,7 @@ class ReadError(Exception):
     pass
 
 
-def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightness=0, crop='None', color=True, returned_by_process=False, keep_all=False):
+def mg_videoreader(filename, starttime=0, endtime=0, skip=0, rotate=0, contrast=0, brightness=0, crop='None', color=True, returned_by_process=False, keep_all=False):
     """
         Reads in a video file, and by input parameters user decide if it: trims the length, skips frames, applies contrast/brightness adjustments and/or crops image width/height.
 
@@ -39,6 +39,7 @@ def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightn
 
     trimming = False
     skipping = False
+    rotating = False
     cbing = False
     cropping = False
 
@@ -99,13 +100,25 @@ def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightn
     if endtime == 0:
         endtime = length/fps
 
+    if rotate != 0:
+        vidcap.release()
+        print(f"Rotating video by {rotate} degrees...", end='')
+        rotate_video(of + fex, rotate)
+        print(" done.")
+        if not keep_all and (skipping or trimming):
+            os.remove(of + fex)
+        of = of + '_rot'
+        rotating = True
+        if keep_all:
+            embed_audio_in_video(source_audio, of + fex, dilation_ratio)
+
     # Apply contrast/brightness before the motion analysis
     if contrast != 0 or brightness != 0:
-        if keep_all:
+        if keep_all or rotating:
             vidcap = cv2.VideoCapture(of + fex)
         vidcap = mg_contrast_brightness(
             of, fex, vidcap, fps, length, width, height, contrast, brightness)
-        if not keep_all and (skipping or trimming):
+        if not keep_all and (rotating or skipping or trimming):
             os.remove(of + fex)
         of = of + '_cb'
         cbing = True
@@ -119,7 +132,7 @@ def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightn
             vidcap = cv2.VideoCapture(of + fex)
         [vidcap, width, height] = mg_cropvideo(
             fps, width, height, length, of, fex, crop, motion_box_thresh=0.1, motion_box_margin=1)
-        if not keep_all and (cbing or skipping or trimming):
+        if not keep_all and (cbing or rotating or skipping or trimming):
             os.remove(of + fex)
         of = of + '_crop'
         cropping = True
@@ -132,7 +145,7 @@ def mg_videoreader(filename, starttime=0, endtime=0, skip=0, contrast=0, brightn
         print("Converting to grayscale...", end='')
         of_gray, fex = convert_to_grayscale(of + fex)
         print(" done.")
-        if not keep_all and (cbing or skipping or trimming or cropping):
+        if not keep_all and (cropping or cbing or rotating or skipping or trimming):
             os.remove(of + fex)
         of = of_gray
 
