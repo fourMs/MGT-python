@@ -3,10 +3,15 @@ import matplotlib.pyplot as plt
 import cv2
 import os
 import numpy as np
+import pandas as pd
 from scipy.signal import medfilt2d
 from ._centroid import centroid
 from ._utils import mg_progressbar, extract_wav, embed_audio_in_video
 from ._filter import filter_frame
+
+
+def frame2ms(frame, fps):
+    return round(frame / fps * 1000)
 
 
 def mg_motionvideo(
@@ -68,6 +73,7 @@ def mg_motionvideo(
             gramx = np.zeros([1, self.width, 3])
             gramy = np.zeros([self.height, 1, 3])
         if save_data | save_plot:
+            time = np.array([])  # time in ms
             qom = np.array([])  # quantity of motion
             com = np.array([])  # centroid of motion
 
@@ -146,9 +152,11 @@ def mg_motionvideo(
                     combite, qombite = centroid(motion_frame_rgb.astype(
                         np.uint8), self.width, self.height)
                     if ii == 0:
+                        time = frame2ms(ii, self.fps)
                         com = combite.reshape(1, 2)
                         qom = qombite
                     else:
+                        time = np.append(time, frame2ms(ii, self.fps))
                         com = np.append(com, combite.reshape(1, 2), axis=0)
                         qom = np.append(qom, qombite)
             else:
@@ -196,7 +204,8 @@ def mg_motionvideo(
                 cv2.imwrite(self.of+'_mgy.png', gramy.astype(np.uint8))
 
         if save_data:
-            save_txt(self.of, com, qom, self.width, self.height, data_format)
+            save_txt(self.of, time, com, qom, self.width,
+                     self.height, data_format)
 
         if save_plot:
             plot_motion_metrics(self.of, self.fps, com, qom,
@@ -240,31 +249,36 @@ def plot_motion_metrics(of, fps, com, qom, width, height, unit):
     plt.savefig('%s_motion_com_qom.png' % of, format='png')
 
 
-def save_txt(of, com, qom, width, height, data_format):
-    def save_single_file(of, com, qom, width, height, data_format):
+def save_txt(of, time, com, qom, width, height, data_format):
+    def save_single_file(of, time, com, qom, width, height, data_format):
         data_format = data_format.lower()
+        df = pd.DataFrame({'Time': time, 'Qom': qom, 'ComX': com.transpose()[
+                          0]/width, 'ComY': com.transpose()[1]/height})
         if data_format == "tsv":
-            np.savetxt(of+'_motion.tsv', np.append(np.append(qom.reshape(qom.shape[0], 1), (com[:, 0]/width).reshape(
-                com.shape[0], 1), axis=1), (com[:, 1]/height).reshape(com.shape[0], 1), axis=1), delimiter='\t')
+            with open(of+'_motion.tsv', 'wb') as f:
+                f.write(b'Time\tQom\tComX\tComY\n')
+                np.savetxt(f, df.values, delimiter='\t',
+                           fmt=['%d', '%d', '%.15f', '%.15f'])
         elif data_format == "csv":
-            np.savetxt(of+'_motion.csv', np.append(np.append(qom.reshape(qom.shape[0], 1), (com[:, 0]/width).reshape(
-                com.shape[0], 1), axis=1), (com[:, 1]/height).reshape(com.shape[0], 1), axis=1), delimiter=',', fmt='%.15f')
+            df.to_csv(of+'_motion.csv', index=None)
         elif data_format == "txt":
-            np.savetxt(of+'_motion.txt', np.append(np.append(qom.reshape(qom.shape[0], 1), (com[:, 0]/width).reshape(
-                com.shape[0], 1), axis=1), (com[:, 1]/height).reshape(com.shape[0], 1), axis=1), delimiter=' ', fmt=['%d', '%.15f', '%.15f'])
+            with open(of+'_motion.txt', 'wb') as f:
+                f.write(b'Time Qom ComX ComY\n')
+                np.savetxt(f, df.values, delimiter=' ',
+                           fmt=['%d', '%d', '%.15f', '%.15f'])
         elif data_format not in ["tsv", "csv", "txt"]:
             print(
                 f"Invalid data format: '{data_format}'.\nFalling back to '.csv'.")
 
     if type(data_format) == str:
-        save_single_file(of, com, qom, width, height, data_format)
+        save_single_file(of, time, com, qom, width, height, data_format)
 
     elif type(data_format) == list:
         if all([item.lower() in ["csv", "tsv", "txt"] for item in data_format]):
             data_format = list(set(data_format))
-            [save_single_file(of, com, qom, width, height, item)
+            [save_single_file(of, time, com, qom, width, height, item)
              for item in data_format]
         else:
             print(
                 f"Unsupported formats in {data_format}.\nFalling back to '.csv'.")
-            save_single_file(of, com, qom, width, height, "csv")
+            save_single_file(of, time, com, qom, width, height, "csv")
