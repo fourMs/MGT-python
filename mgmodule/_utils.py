@@ -112,9 +112,9 @@ def convert_to_grayscale(filename):
     of = os.path.splitext(filename)[0]
     fex = os.path.splitext(filename)[1]
     cmds = ' '.join(['ffmpeg', '-i', filename, "-c:v", "mjpeg", "-q:v", "3", '-vf',
-                     'hue=s=0', of + '_grayscale' + fex])
+                     'hue=s=0', of + '_gray' + fex])
     os.system(cmds)
-    return of + '_grayscale', fex
+    return of + '_gray', fex
 
 
 def extract_wav(filename):
