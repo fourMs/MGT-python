@@ -8,30 +8,103 @@ from ._utils import convert_to_avi, rotate_video, extract_wav, embed_audio_in_vi
 
 
 class ReadError(Exception):
-    """Base class for other exceptions"""
+    """Base class for file read errors."""
     pass
 
 
-def mg_videoreader(filename, starttime=0, endtime=0, skip=0, rotate=0, contrast=0, brightness=0, crop='None', color=True, returned_by_process=False, keep_all=False):
+def mg_videoreader(
+        filename,
+        starttime=0,
+        endtime=0,
+        skip=0,
+        rotate=0,
+        contrast=0,
+        brightness=0,
+        crop='None',
+        color=True,
+        keep_all=False,
+        returned_by_process=False):
     """
-        Reads in a video file, and by input parameters user decide if it: trims the length, skips frames, applies contrast/brightness adjustments and/or crops image width/height.
+    Reads in a video file, and optionally apply several different processes on it. These include:
+    - trimming,
+    - skipping,
+    - rotating,
+    - applying brightness and contrast,
+    - cropping,
+    - converting to grayscale.
 
-        Arguments:
-        ----------
-        - filename (str): Name of input parameter video file.
-        - starttime (float): Cut the video from this start time (min) to analyze what is relevant.
-        - endtime (float): Cut the video at this end time (min) to analyze what is relevant.
-        - skip (int): When proceeding to analyze next frame of video, this many frames are skipped.
-        - contrast (float): Apply +/- 100 contrast to video
-        - brightness (float): Apply +/- 100 brightness to video
-        - crop (str): 'None', 'Auto' or 'Manual' to crop video.
-        - keep_all (bool): If False, only the result of the final process in the chain is kept, if True all results are kept.
+    Parameters
+    ----------
+    - filename : str
 
-        Returns:
-        --------
-        - vidcap: cv2 video capture of edited video file
-        - length, fps, width, height from vidcap
-        - of: filename gets updated with the procedures it went through
+        Path to the input video file.
+    - starttime : int or float, optional
+
+        Trims the video from this start time (s).
+
+    - endtime : int or float, optional
+
+        Trims the video until this end time (s).
+
+    - skip : int, optional
+
+        Time-shrinks the video by skipping (discarding) every n frames determined by `skip`.
+    - rotate : int or float, optional
+
+        Rotates the video by a `rotate` degrees.
+
+    - contrast : int or float, optional
+
+        Applies +/- 100 contrast to video.
+    - brightness : int or float, optional
+
+        Applies +/- 100 brightness to video.
+
+    - crop : {'none', 'manual', 'auto'}, optional
+
+        If `manual`, opens a window displaying the first frame of the input video file,
+        where the user can draw a rectangle to which cropping is applied.
+        If `auto` the cropping function attempts to determine the area of significant motion 
+        and applies the cropping to that area.
+
+    - color : bool, optional
+
+        Default is `True`. If `False`, converts the video to grayscale and sets every method in grayscale mode.
+    - keep_all : bool, optional
+
+        Default is `False`. If `True`, preserves an output video file after each used preprocessing stage.
+
+    Outputs
+    -------
+    - A video file with the applied processes. The name of the file will be `filename` + a suffix for each process.
+
+    Returns
+    -------
+    - length : int
+
+        The number of frames in the output video file.
+
+    - width : int
+
+        The pixel width of the output video file. 
+    - height : int
+
+        The pixel height of the output video file. 
+    - fps : int
+
+        The FPS (frames per second) of the output video file.
+    - endtime : float
+
+        The length of the output video file in seconds.
+
+    - of: str
+
+        The path to the output video file without its extension.
+        The file name gets a suffix for each used process.
+    - fex : str
+
+        The file extension of the output video file.
+        Currently it is always 'avi'.
     """
     # Separate filename from file extension
     of = os.path.splitext(filename)[0]

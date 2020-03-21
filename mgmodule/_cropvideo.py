@@ -6,25 +6,51 @@ from ._utils import mg_progressbar
 from ._filter import filter_frame
 
 
-def mg_cropvideo(fps, width, height, length, of, fex, crop_movement='Auto', motion_box_thresh=0.1, motion_box_margin=1):
+def mg_cropvideo(
+        fps,
+        width,
+        height,
+        length,
+        of,
+        fex,
+        crop_movement='Auto',
+        motion_box_thresh=0.1,
+        motion_box_margin=1):
     """
-            Crops the video.
+    Crops the video.
 
-            Arguments
-            ---------
-            - crop_movement : {'Auto','Manual'}
-                    'Auto' finds the bounding box that contains the total motion in the video.
-                    Motion threshold is given by motion_box_thresh. 'Manual' opens up a simple 
-                    GUI that is used to crop the video manually by looking at the first frame.
-            - motion_box_thresh : float 
-                    Only meaningful is crop_movement = 'Auto'. Takes floats between 0 and 1,
-                    where 0 includes all the motion and 1 includes none.
-            - motion_box_margin : int 
-                    Only meaningful is crop_movement = 'Auto'. Add margin to the bounding box.
+    Parameters
+    ----------
+    - fps : int
 
-            Returns
-            -------
-            - None
+        The FPS (frames per second) of the input video capture.
+    - width : int
+
+        The pixel width of the input video capture. 
+    - height : int
+
+        The pixel height of the input video capture. 
+    - length : int
+
+        The number of frames in the input video capture.
+    - of : str
+
+        'Only filename' without extension (but with path to the file).
+    - fex : str
+
+        File extension.
+    - crop_movement : {'Auto','Manual'}, optional
+
+        'Auto' finds the bounding box that contains the total motion in the video.
+        Motion threshold is given by motion_box_thresh. 'Manual' opens up a simple 
+        GUI that is used to crop the video manually by looking at the first frame.
+    - motion_box_thresh : float, optional
+
+        Only meaningful if `crop_movement='Auto'`. Takes floats between 0 and 1,
+        where 0 includes all the motion and 1 includes none.
+    - motion_box_margin : int, optional
+
+        Only meaningful if `crop_movement='Auto'`. Adds margin to the bounding box.
     """
 
     global frame_mask, drawing, g_val, x_start, x_stop, y_start, y_stop
@@ -180,7 +206,6 @@ def find_total_motion_box(vid2findbox, width, height, length, motion_box_thresh,
         ret, frame = vid2findbox.read()
         if ret == True:
             ii += 1
-            #print('Finding area of motion %s%%' %(int(ii/(length-1)*100)), end='\r')
             mg_progressbar(ii, length, 'Finding area of motion:', 'Complete')
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             frame = frame.astype(np.int32)
@@ -195,7 +220,6 @@ def find_total_motion_box(vid2findbox, width, height, length, motion_box_thresh,
         else:
             [total_motion_box, x_start, x_stop, y_start, y_stop] = find_motion_box(
                 total_box, width, height, motion_box_margin)
-            #print('Finding area of motion 100%')
             mg_progressbar(
                 length, length, 'Finding area of motion:', 'Complete')
             break

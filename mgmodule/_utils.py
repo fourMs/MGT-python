@@ -1,17 +1,43 @@
-def mg_progressbar(iteration, total, prefix='', suffix='', decimals=1, length=40, fill='█', printEnd="\r"):
-    """
-    Call in a loop to create terminal progress bar.
 
-    Parameters:
-    -----------
-    - iteration   - Required  : current iteration (Int)
-    - total       - Required  : total iterations (Int)
-    - prefix      - Optional  : prefix string (Str)
-    - suffix      - Optional  : suffix string (Str)
-    - decimals    - Optional  : positive number of decimals in percent complete (Int)
-    - length      - Optional  : character length of bar (Int)
-    - fill        - Optional  : bar fill character (Str)
-    - printEnd    - Optional  : end character (e.g. "\\r", "\\r\\n") (Str)
+
+def mg_progressbar(
+        iteration,
+        total,
+        prefix='',
+        suffix='',
+        decimals=1,
+        length=40,
+        fill='█',
+        printEnd="\r"):
+    """
+    Calls in a loop to create terminal progress bar.
+
+    Parameters
+    ----------
+    - iteration : int
+
+        Current iteration.
+    - total : int
+
+        Total iterations.
+    - prefix : str, optional
+
+        Prefix string.
+    - suffix : str, optional
+
+        Suffix string.
+    - decimals : int, optional
+
+        Default is 1. Positive number of decimals in percent complete.
+    - length : int, optional
+
+        Default is 40. Character length of bar.
+    - fill : str, optional
+
+        Default is '█'. Bar fill character.
+    - printEnd : str, optional.
+
+        Default is '\\r'. End of line character.
     """
     import sys
 
@@ -28,27 +54,57 @@ def mg_progressbar(iteration, total, prefix='', suffix='', decimals=1, length=40
 
 
 def scale_num(val, in_low, in_high, out_low, out_high):
-    """Scale a number linearly.
+    """
+    Scales a number linearly.
 
-    Parameters:
-    -----------
-    - val       - Required  : the value to be scaled
-    - in_low    - Required  : minimum of input range
-    - in_high   - Required  : maximum of input range
-    - out_low   - Required  : minimum of output range
-    - out_high  - Required  : maximum of output range
+    Parameters
+    ----------
+    - val : int or float
+
+        The value to be scaled.
+    - in_low : int or float
+
+        Minimum of input range.
+    - in_high : int or float
+
+        Maximum of input range.
+    - out_low : int or float
+
+        Minimum of output range.
+    - out_high : int or float
+
+        Maximum of output range.
+
+    Returns
+    -------
+    int or float
+
+        The scaled number.
     """
     return ((val - in_low) * (out_high - out_low)) / (in_high - in_low) + out_low
 
 
 def scale_array(array, out_low, out_high):
-    """Scale an array linearly.
+    """
+    Scales an array linearly.
 
-    Parameters:
-    -----------
-    - array     - Required  : the array to be scaled
-    - out_low   - Required  : minimum of output range
-    - out_high  - Required  : maximum of output range
+    Parameters
+    ----------
+    - array : arraylike
+
+        The array to be scaled.
+    - out_low : int or float
+
+        Minimum of output range.
+    - out_high : int or float
+
+        Maximum of output range.
+
+    Returns
+    -------
+    - arraylike
+
+        The scaled array.
     """
     minimum, maximum = np.min(array), np.max(array)
     m = (out_high - out_low) / (maximum - minimum)
@@ -57,18 +113,57 @@ def scale_array(array, out_low, out_high):
 
 
 def get_frame_planecount(frame):
-    """Return the planecount of a video frame
+    """
+    Gets the planecount (color channel count) of a video frame.
 
-    Parameters:
-    -----------
-    - frame     - Required  : a frame extracted by cv2.VideoCapture().read()
+    Parameters
+    ----------
+    - frame : numpy array
+
+        A frame extracted by `cv2.VideoCapture().read()`.
+
+    Returns
+    -------
+    - {3, 1}
+
+        The planecount of the input frame.
     """
     import numpy as np
     return 3 if len(np.array(frame).shape) == 3 else 1
 
 
+def frame2ms(frame, fps):
+    """
+    Converts frames to milliseconds.
+
+    Parameters
+    ----------
+    - frame : int
+
+        The index of the frame to be converted to milliseconds.
+    - fps : int
+
+        Frames per second.
+
+    Returns
+    -------
+    - int
+
+        The rounded millisecond value of the input frame index.
+    """
+    return round(frame / fps * 1000)
+
+
 class MgImage():
-    """Class for handling images"""
+    """
+    Class for handling images in the Motion Gestures Toolbox.
+
+    Attributes
+    ----------
+    - filename : str
+
+        The path to the image file to be loaded.
+    """
 
     def __init__(self, filename):
         self.filename = filename
@@ -82,7 +177,27 @@ class MgImage():
 
 
 def convert_to_avi(filename):
-    """Convert any video to one with .avi extension using ffmpeg"""
+    """
+    Converts a video to one with .avi extension using ffmpeg.
+
+    Parameters
+    ----------
+    - filename : str
+
+        Path to the input video file.
+
+    Outputs
+    -------
+    - `filename`.avi
+
+        The converted video file.
+
+    Returns
+    -------
+    - str
+
+        The path to the output '.avi' file.
+    """
     import os
     of = os.path.splitext(filename)[0]
     fex = os.path.splitext(filename)[1]
@@ -93,7 +208,30 @@ def convert_to_avi(filename):
 
 
 def rotate_video(filename, angle):
-    """Rotate a video by an angle via ffmpeg"""
+    """
+    Rotates a video by an `angle` using ffmpeg.
+
+    Parameters
+    ----------
+    - filename : str
+
+        The path to the input video.
+    - angle : int or float
+
+        The angle (in degrees) specifying the amount of rotation. Positive values rotate clockwise.
+
+    Outputs
+    -------
+    - `filename`_rot.avi
+
+        The rotated video file.
+
+    Returns
+    -------
+    - str
+
+        The path to the output (rotated) video file.
+    """
     import os
     import math
     of = os.path.splitext(filename)[0]
@@ -107,7 +245,25 @@ def rotate_video(filename, angle):
 
 
 def convert_to_grayscale(filename):
-    """Convert a video to grayscale using ffmpeg"""
+    """
+    Converts a video to grayscale using ffmpeg.
+
+    Parameters
+    ----------
+    - filename : str
+
+        Path to the video file to be converted to grayscale.
+
+    Outputs
+    -------
+    - `filename`_gray.avi
+
+    Returns
+    -------
+    - str
+
+        The path to the output (grayscale) video file.
+    """
     import os
     of = os.path.splitext(filename)[0]
     fex = os.path.splitext(filename)[1]
@@ -118,7 +274,25 @@ def convert_to_grayscale(filename):
 
 
 def extract_wav(filename):
-    """Extract audio from video into a .wav file via ffmpeg"""
+    """
+    Extracts audio from video into a .wav file via ffmpeg.
+
+    Parameters
+    ----------
+    - filename : str
+
+        Path to the video file from which the audio track shall be extracted.
+
+    Outputs
+    -------
+    - `filename`.wav
+
+    Returns
+    -------
+    - str
+
+        The path to the output audio file.
+    """
     import os
     of = os.path.splitext(filename)[0]
     fex = os.path.splitext(filename)[1]
@@ -129,7 +303,21 @@ def extract_wav(filename):
 
 
 def get_length(filename):
-    """Return the length (s) of a video using ffprobe"""
+    """
+    Gets the length (s) of a video using ffprobe.
+
+    Parameters
+    ----------
+    - filename : str
+
+        Path to the video file to be measured.
+
+    Returns
+    -------
+    - float
+
+        The length of the input video file in seconds.
+    """
     import subprocess
     result = subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of',
                              'default=noprint_wrappers=1:nokey=1', filename], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -137,7 +325,28 @@ def get_length(filename):
 
 
 def audio_dilate(filename, dilation_ratio=1):
-    """Time-stretch or -shrink an audio file using ffmpeg"""
+    """
+    Time-stretches or -shrinks (dilates) an audio file using ffmpeg.
+
+    Parameters
+    ----------
+    - filename : str
+
+        Path to the audio file to be dilated.
+    - dilation_ratio : int or float, optional
+
+        Default is 1. The source file's length divided by the resulting file's length.
+
+    Outputs
+    -------
+    - `filename`_dilated.wav
+
+    Returns
+    -------
+    - str
+
+        The path to the output audio file.
+    """
     import os
     of = os.path.splitext(filename)[0]
     fex = os.path.splitext(filename)[1]
@@ -148,7 +357,23 @@ def audio_dilate(filename, dilation_ratio=1):
 
 
 def embed_audio_in_video(source_audio, destination_video, dilation_ratio=1):
-    """Embed an audio file as the audio channel of a video file."""
+    """
+    Embeds an audio file as the audio channel of a video file using ffmpeg.
+
+    Parameters
+    ----------
+    - source_audio : str
+
+        Path to the audio file to be embedded.
+
+    - destination_video : str
+
+        Path to the video file to embed the audio file in.
+
+    Outputs
+    -------
+    - `destination_video` with the embedded audio file.
+    """
     import os
     of = os.path.splitext(destination_video)[0]
     fex = os.path.splitext(destination_video)[1]

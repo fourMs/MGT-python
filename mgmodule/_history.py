@@ -5,22 +5,30 @@ from ._utils import mg_progressbar, extract_wav, embed_audio_in_video
 import mgmodule
 
 
-# added self, because this function is now called from an MgObject
 def history(self, filename='', history_length=10):
     """
-    This function  creates a video where each frame is the average of the n previous frames, where n is determined
-    from the history_length parameter.
-    The history frames are summed up and normalized, and added to the current frame to show the history. 
-    Outputs a video called filename + '_history.avi'.
+    This function  creates a video where each frame is the average of the 
+    n previous frames, where n is determined by `history_length`.
+    The history frames are summed up and normalized, and added to the 
+    current frame to show the history. 
 
     Parameters
     ----------
-    - filename (str): The video file to process.
-    - history_length (int): How many frames will be saved to the history tail.
+    - filename : str, optional
+
+        Path to the input video file. If not specified the video file pointed to by the MgObject is used.
+    - history_length : int, optional
+
+        Default is 10. Number of frames to be saved in the history tail.
+
+    Outputs
+    -------
+    - `filename`_history.avi
 
     Returns
     -------
-    - An MgObject loaded with the resulting _history video.
+    - MgObject 
+        A new MgObject pointing to the output '_history' video file.
     """
 
     if filename == '':
@@ -71,12 +79,10 @@ def history(self, filename='', history_length=10):
                 out.write(total.astype(np.uint8))
 
         else:
-            #print('Rendering history 100%')
             mg_progressbar(
                 length, length, 'Rendering history video:', 'Complete')
             break
         ii += 1
-        #print('Rendering history %s%%' % (int(ii/(length-1)*100)), end='\r')
         mg_progressbar(ii, length+1, 'Rendering history video:', 'Complete')
 
     out.release()

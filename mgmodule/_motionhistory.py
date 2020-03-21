@@ -8,25 +8,53 @@ from ._utils import mg_progressbar, extract_wav, embed_audio_in_video
 import mgmodule
 
 
-def mg_motionhistory(self, history_length=10, kernel_size=5, filtertype='Regular', thresh=0.05, blur='None', inverted_motionhistory=False):
+def mg_motionhistory(
+        self,
+        history_length=10,
+        kernel_size=5,
+        filtertype='Regular',
+        thresh=0.05,
+        blur='None',
+        inverted_motionhistory=False):
     """
-    Finds the difference in pixel value from one frame to the next in an input video, and saves the difference frame to a history tail.
-    The history frames are summed up and normalized, and added to the current difference frame to show the history of motion.
-    Outputs a video called filename + '_motionhistory.avi'.
+    Finds the difference in pixel value from one frame to the next in an input video, 
+    and saves the difference frame to a history tail. The history frames are summed up 
+    and normalized, and added to the current difference frame to show the history of 
+    motion. 
 
     Parameters
     ----------
-    - history_length (int): How many frames will be saved to the history tail.
-    - kernel_size (int)  Size of structuring element.
-    - method (str): Currently 'Diff' is the only implemented method.
-    - filtertype (str): 'Regular', 'Binary', 'Blob' (see function filterframe).
-        - thresh (float): a number in [0,1]. Eliminates pixel values less than given threshold.
-    - blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
-    - inverted_motionhistory (bool): Invert colors of motionhistory video.
+    - history_length : int, optional
+
+        Default is 10. Number of frames to be saved in the history tail.
+    - kernel_size : int, optional
+
+        Default is 5. Size of structuring element.
+    - filtertype : {'Regular', 'Binary', 'Blob'}, optional
+
+        `Regular` turns all values below `thresh` to 0.
+        `Binary` turns all values below `thresh` to 0, above `thresh` to 1.
+        `Blob` removes individual pixels with erosion method.
+    - thresh : float, optional
+
+        A number in the range of 0 to 1. Default is 0.05.
+        Eliminates pixel values less than given threshold.
+    - blur : {'None', 'Average'}, optional
+
+        `Average` to apply a 10px * 10px blurring filter, `None` otherwise.
+    - inverted_motionhistory : bool, optional
+
+        Default is `False`. If `True`, inverts colors of the motionhistory video.
+
+    Outputs
+    -------
+    - `filename`_motionhistory.avi
 
     Returns
     -------
-    - An MgObject loaded with the resulting _motionhistory video.
+    - MgObject
+
+        A new MgObject pointing to the output '_motionhistory' video file.
     """
     enhancement = 1  # This can be adjusted to higher number to make motion more visible. Use with caution to not make it overflow.
     self.filtertype = filtertype
@@ -119,12 +147,10 @@ def mg_motionhistory(self, history_length=10, kernel_size=5, filtertype='Regular
             else:
                 out.write(enhancement*motion_history_rgb.astype(np.uint8))
         else:
-            #print('Rendering motion history video 100%%')
             mg_progressbar(self.length, self.length,
                            'Rendering motion history video:', 'Complete')
             break
         ii += 1
-        #print('Rendering motion history video %s%%' %(int(ii/(self.length-1)*100)), end='\r')
         mg_progressbar(ii, self.length,
                        'Rendering motion history video:', 'Complete')
 

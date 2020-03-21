@@ -6,12 +6,8 @@ import numpy as np
 import pandas as pd
 from scipy.signal import medfilt2d
 from ._centroid import centroid
-from ._utils import mg_progressbar, extract_wav, embed_audio_in_video
+from ._utils import mg_progressbar, extract_wav, embed_audio_in_video, frame2ms
 from ._filter import filter_frame
-
-
-def frame2ms(frame, fps):
-    return round(frame / fps * 1000)
 
 
 def mg_motionvideo(
@@ -30,29 +26,80 @@ def mg_motionvideo(
         save_motiongrams=True,
         save_video=True):
     """
-    Finds the difference in pixel value from one frame to the next in an input video, and saves the frames into a new video.
-    Describes the motion in the recording.
-    Outputs a video called filename + '_motion.avi'.
+    Finds the difference in pixel value from one frame to the next in an input video, 
+    and saves the frames into a new video. Describes the motion in the recording.
 
     Parameters
     ----------
-    - filtertype (str, default: 'Regular'): 'Regular', 'Binary', 'Blob' (see function filter_frame)
-    - thresh (float, default: 0.05): a number in [0,1]. Eliminates pixel values less than given threshold.
-    - blur (str, default: 'None'): 'Average' to apply a blurring filter, 'None' otherwise.
-    - kernel_size (int, default: 5): Size of structuring element.
-    - inverted_motionvideo (bool, default: False): Invert colors of motionvideo
-    - inverted_motiongram (bool, default: False): Invert colors of motiongram
-    - unit (str, default: 'seconds') = Unit in QoM plot. 'seconds' or 'samples'
-    - equalize_motiongram (bool, default: True): Converts the motiongram to hsv-color space and flattens the value channel (v).
-    - save_plot (bool, default: True): Saving motion-plots.
-    - save_data (bool, default: True): Saving motion-data.
-    - data_format (str, default: 'csv'): Specify format of motion-data. Currently implemented otions are 'csv', 'tsv' and 'txt'.
-    - save_motiongrams (bool, default: True): Saving motiongrams.
-    - save_video (bool, default: True): Saving the motion video.
+    - filtertype : {'Regular', 'Binary', 'Blob'}, optional
+
+        `Regular` turns all values below `thresh` to 0.
+        `Binary` turns all values below `thresh` to 0, above `thresh` to 1.
+        `Blob` removes individual pixels with erosion method.
+    - thresh : float, optional
+
+        A number in the range of 0 to 1. Default is 0.05.
+        Eliminates pixel values less than given threshold.
+    - blur : {'None', 'Average'}, optional
+
+        `Average` to apply a 10px * 10px blurring filter, `None` otherwise.
+    - kernel_size : int, optional
+
+        Default is 5. Size of structuring element.
+    - inverted_motionvideo : bool, optional
+
+        Default is `False`. If `True`, inverts colors of the motion video.
+    - inverted_motiongram : bool, optional
+
+        Default is `False`. If `True`, inverts colors of the motiongrams.
+    - unit : {'seconds', 'samples'}, optional
+
+        Unit in QoM plot.
+    - equalize_motiongram : bool, optional
+
+        Default is `True`. If `True`, converts the motiongrams to hsv-color 
+        space and flattens the value channel (v).
+    - save_plot : bool, optional
+
+        Default is `True`. If `True`, outputs motion-plot.
+    - save_data : bool, optional
+
+        Default is `True`. If `True`, outputs motion-data.
+    - data_format : {'csv', 'tsv', 'txt'}, optional
+
+        Specifies format of motion-data.
+    - save_motiongrams : bool, optional
+
+        Default is `True`. If `True`, outputs motiongrams.
+    - save_video : bool, optional
+
+        Default is `True`. If `True`, outputs the motion video.
+
+    Outputs
+    -------
+    - `filename`_motion.avi
+
+        A video of the absolute difference between consecutive frames in the source video. 
+    - `filename`_motion_com_qom.png
+
+        A plot describing the centroid of motion and the quantity of motion in the source video.
+    - `filename`_mgx.png
+
+        A horizontal motiongram of the source video.
+    - `filename`_mgy.png
+
+        A vertical motiongram of the source video.
+    - `filename`_motion.csv
+
+        A text file containing the quantity of motion and the centroid of motion for each frame 
+        in the source video with timecodes in milliseconds. Available formats: csv, tsv, txt.
 
     Returns
     -------
-    - An MgObject loaded with the resulting _motion video. If save_video=False it returns an MgObject loaded with the input video.
+    - MgObject 
+
+        A new MgObject pointing to the output '_motion' video file. If `save_video=False`, it 
+        returns an MgObject pointing to the input video file.
     """
 
     if save_plot | save_data | save_motiongrams | save_video:
@@ -238,7 +285,7 @@ def plot_motion_metrics(of, fps, com, qom, width, height, unit):
     ax.set_ylabel('Pixels normalized')
     ax.set_title('Centroid of motion')
     ax = fig.add_subplot(1, 2, 2)
-    if unit == 'seconds':
+    if unit.lower() == 'seconds':
         ax.set_xlabel('Time[seconds]')
     else:
         ax.set_xlabel('Time[samples]')

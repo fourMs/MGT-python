@@ -5,21 +5,31 @@ import numpy as np
 
 def filter_frame(motion_frame, filtertype, thresh, kernel_size):
     """
-    Apply a filter to a picture/videoframe.
+    Applies a filter to an image or videoframe.
 
     Parameters
     ----------
-    - motion_frame (array(uint8)): input motion image
-    - filtertype (str):
-                    ’Regular’, turns all values below thresh to 0,
-                    ’Binary’ truns all values below thres to 0, above thres to 1,
-                    ’Blob’ removes individual pixels with erosion method.
-    - thresh (float): for ’Regular’ and ’Binary’ option, thresh is a value of threshold [0,1];
-    - kernel_size(int): Size of structuring element
+    - motion_frame : np.array(uint8) 
+
+        Input motion image.
+    - filtertype : {'Regular', 'Binary', 'Blob'}
+
+        `Regular` turns all values below `thresh` to 0.
+        `Binary` turns all values below `thresh` to 0, above `thresh` to 1.
+        `Blob` removes individual pixels with erosion method.
+    - thresh : float
+
+        A number in the range of 0 to 1.
+        Eliminates pixel values less than given threshold.
+    - kernel_size : int
+
+        Size of structuring element.
 
     Returns
     -------
-    - filtered frame (array(uint8))
+    - np.array(uint8)
+
+        Filtered frame.
     """
     if filtertype.lower() == 'regular':
         motion_frame = (motion_frame > thresh*255)*motion_frame

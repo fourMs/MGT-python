@@ -6,12 +6,87 @@ import mgmodule
 
 
 class Flow:
+    """
+    Class container for the sparse and dense optical flow processes.
+
+    Attributes
+    ----------
+    - filename : str
+
+        Path to the input video file. Passed by parent MgObject.
+    - color : bool
+
+        Set class methods in color or grayscale mode. Passed by parent MgObject.
+
+    Methods
+    -------
+    - dense()
+
+        Renders a dense optical flow video of the input video file.
+    - sparse()
+
+        Renders a sparse optical flow video of the input video file.
+    """
 
     def __init__(self, filename, color):
         self.filename = filename
         self.color = color
 
-    def dense(self, filename='', pyr_scale=0.5, levels=3, winsize=15, iterations=3, poly_n=5, poly_sigma=1.2, flags=0, skip_empty=False):
+    def dense(
+            self,
+            filename='',
+            pyr_scale=0.5,
+            levels=3,
+            winsize=15,
+            iterations=3,
+            poly_n=5,
+            poly_sigma=1.2,
+            flags=0,
+            skip_empty=False):
+        """
+        Renders a dense optical flow video of the input video file using `cv2.calcOpticalFlowFarneback()`.
+        For more details about the parameters consult the cv2 documentation.
+
+        Parameters
+        ----------
+        - filename : str, optional
+
+            Path to the input video file. If not specified the video file pointed to by the MgObject is used.
+        - pyr_scale : float, optional
+
+            Default is 0.5.
+        - levels : int, optional
+
+            Default is 3.
+        - winsize : int, optional
+
+            Default is 15.
+        - iterations : int, optional
+
+            Default is 3.
+        - poly_n : int, optional
+
+            Default is 5.
+        - poly_sigma : float, optional
+
+            Default is 1.2.
+        - flags : int, optional
+
+            Default is 0.
+        - skip_empty : bool, optional
+
+            Default is `False`. If `True`, repeats previous frame in the output when encounters an empty frame.
+
+        Outputs
+        -------
+        - `filename`_flow_dense.avi
+
+        Returns
+        -------
+        - MgObject
+
+            A new MgObject pointing to the output '_flow_dense' video file.
+        """
 
         if filename == '':
             filename = self.filename
@@ -79,7 +154,58 @@ class Flow:
 
         return mgmodule.MgObject(destination_video, color=self.color, returned_by_process=True)
 
-    def sparse(self, filename='', corner_max_corners=100, corner_quality_level=0.3, corner_min_distance=7, corner_block_size=7, of_win_size=(15, 15), of_max_level=2, of_criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03)):
+    def sparse(
+            self,
+            filename='',
+            corner_max_corners=100,
+            corner_quality_level=0.3,
+            corner_min_distance=7,
+            corner_block_size=7,
+            of_win_size=(15, 15),
+            of_max_level=2,
+            of_criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03)):
+        """
+        Renders a sparse optical flow video of the input video file using `cv2.calcOpticalFlowPyrLK()`.
+        `cv2.goodFeaturesToTrack()` is used for the corner estimation.
+        For more details about the parameters consult the cv2 documentation.
+
+        Parameters
+        ----------
+        - filename : str, optional
+
+            Path to the input video file. If not specified the video file pointed to by the MgObject is used.
+        - corner_max_corners : int, optional
+
+            Default is 100.
+        - corner_quality_level : float, optional
+
+            Default is 0.3.
+        - corner_min_distance : int, optional
+
+            Default is 7.
+        - corner_block_size : int, optional
+
+            Default is 7.
+        - of_win_size : tuple (int, int), optional
+
+            Default is (15, 15).
+        - of_max_level : int, optional
+
+            Default is 2.
+        - of_criteria : optional
+
+            Default is `(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03)`.
+
+        Outputs
+        -------
+        - `filename`_flow_sparse.avi
+
+        Returns
+        -------
+        - MgObject
+
+            A new MgObject pointing to the output '_flow_sparse' video file.
+        """
 
         if filename == '':
             filename = self.filename

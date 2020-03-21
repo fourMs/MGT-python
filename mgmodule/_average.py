@@ -6,19 +6,26 @@ from ._utils import mg_progressbar, MgImage
 
 def mg_average_image(self, filename='', normalize=True):
     """
-    Post-processing tool. Finds and saves an average image of entire video.
-
-        THIS DOC STRING IS COMPLETELY WRONG. WILL FIX IT LATER.
+    Finds and saves an average image of an input video file.
 
     Parameters
     ----------
-    - enhance (float): Takes values between '0' and '1'. Where '0' is no enhancement and '1' scales the pixel 
-            values such that the brightest pixel gets the value 255. 
+    - filename : str, optional
 
-    Usage
-    -----
-    from _motionaverage import motionaverage
-    motionaverage('filename.avi', enhance = 0.5)
+        Path to the input video file. If not specified the video file pointed to by the MgObject is used.
+    - normalize : bool, optional
+
+        Default is `True`. If `True`, normalizes pixel values in the output image.
+
+    Outputs
+    -------
+    - `filename`_average.png
+
+    Returns
+    -------
+    - MgImage
+
+        A new MgImage pointing to the output '_average' image file.
     """
 
     if filename == '':

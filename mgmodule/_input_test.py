@@ -6,8 +6,11 @@ class Error(Exception):
 class InputError(Error):
     """Exception raised for errors in the input.
 
-    Attributes:
-        message -- explanation of the error
+    Attributes
+    ----------
+    - message : str
+
+        Explanation of the error.
     """
 
     def __init__(self, message):
@@ -15,7 +18,37 @@ class InputError(Error):
 
 
 def mg_input_test(filename, filtertype, thresh, starttime, endtime, blur, skip):
-    """ Gives feedback to user if initialization from input went wrong. """
+    """
+    Gives feedback to user if initialization from input went wrong.
+
+    Parameters
+    ----------
+    - filename : str
+
+        Path to the input video file.
+    - filtertype : {'Regular', 'Binary', 'Blob'}
+
+        `Regular` turns all values below `thresh` to 0.
+        `Binary` turns all values below `thresh` to 0, above `thresh` to 1.
+        `Blob` removes individual pixels with erosion method.
+    - thresh : float
+
+        A number in the range of 0 to 1. Default is 0.05.
+        Eliminates pixel values less than given threshold.
+    - starttime : int or float
+
+        Trims the video from this start time (s).
+
+    - endtime : int or float
+
+        Trims the video until this end time (s).
+    - blur : {'None', 'Average'}
+
+        `Average` to apply a 10px * 10px blurring filter, `None` otherwise.
+    - skip : int
+
+        Every n frames to discard. `skip=0` keeps all frames, `skip=1` skips every other frame.
+    """
 
     filenametest = type(filename) == str
 

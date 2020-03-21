@@ -5,20 +5,45 @@ from ._utils import mg_progressbar, scale_num, scale_array
 
 def mg_contrast_brightness(of, fex, vidcap, fps, length, width, height, contrast, brightness):
     """
-    Edit contrast and brightness of the video.
+    Applies contrast and brightness to a video.
 
-    Arguments
-    ---------
-    - of (str): 'Only filename' without extension.
-    - fex (str): File extension.
-    - vidcap: cv2 capture of video file, with all frames ready to be read with vidcap.read().
-    - fps, width, height (int): Properties of vidcap, passed by parent function.
-    - contrast (float): Apply +/- 100 contrast to video.
-    - brightness (float): Apply +/- 100 brightness to video.
+    Parameters
+    ----------
+    - of : str
+
+        'Only filename' without extension (but with path to the file).
+    - fex : str
+
+        File extension.
+    - vidcap : 
+
+        cv2 capture of video file, with all frames ready to be read with `vidcap.read()`.
+    - fps : int
+
+        The FPS (frames per second) of the input video capture.
+    - length : int
+
+        The number of frames in the input video capture.
+    - width : int
+
+        The pixel width of the input video capture. 
+    - height : int
+
+        The pixel height of the input video capture. 
+    - contrast : int or float, optional
+
+        Applies +/- 100 contrast to video.
+    - brightness : int or float, optional
+
+        Applies +/- 100 brightness to video.
+
+    Outputs
+    -------
+    - A video file with the name `of` + '_cb' + `fex`.
 
     Returns
     -------
-    - cv2 video capture of edited video file.
+    - cv2 video capture of output video file.
     """
 
     count = 0
@@ -53,20 +78,56 @@ def mg_contrast_brightness(of, fex, vidcap, fps, length, width, height, contrast
 
 def mg_skip_frames(of, fex, vidcap, skip, fps, length, width, height):
     """
-    Frame skip, convenient for saving time/space in an analysis of less detail looking at big picture movement. Skips the given number of frames, making a compressed version of the input video file.
+    Time-shrinks the video by skipping (discarding) every n frames determined by `skip`.
 
-    Arguments
-    ---------
-    - of (str): 'Only filename' without extension.
-    - fex (str): File extension.
-    - vidcap: cv2 capture of video file, with all frames ready to be read with vidcap.read().
-    - skip (int): When proceeding to analyze next frame of video, this many frames are skipped.
-    - fps, width, height (int): Properties of vidcap, passed by parent function.
+    Parameters
+    ----------
+    - of : str
+
+        'Only filename' without extension (but with path to the file).
+    - fex : str
+
+        File extension.
+    - vidcap : 
+
+        cv2 capture of video file, with all frames ready to be read with `vidcap.read()`.
+    - skip : int
+
+        Every n frames to discard. `skip=0` keeps all frames, `skip=1` skips every other frame.
+    - fps : int
+
+        The FPS (frames per second) of the input video capture.
+    - length : int
+
+        The number of frames in the input video capture.
+    - width : int
+
+        The pixel width of the input video capture. 
+    - height : int
+
+        The pixel height of the input video capture.
+
+    Outputs
+    -------
+    - A video file with the name `of` + '_skip' + `fex`.
 
     Returns
     -------
-    - cv2 video capture of edited video file.
-    - length, fps, width, height from this video capture.
+    - videcap :
+
+        cv2 video capture of output video file.
+    - length : int
+
+        The number of frames in the output video file.
+    - fps : int
+
+        The FPS (frames per second) of the output video file.
+    - width : int
+
+        The pixel width of the output video file. 
+    - height : int
+
+        The pixel height of the output video file. 
     """
     count = 0
     if skip != 0:
