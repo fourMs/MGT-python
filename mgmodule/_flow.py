@@ -1,16 +1,92 @@
 import cv2
 import os
 import numpy as np
-from ._utils import mg_progressbar
+from ._utils import mg_progressbar, extract_wav, embed_audio_in_video
 import mgmodule
 
 
 class Flow:
+    """
+    Class container for the sparse and dense optical flow processes.
 
-    def __init__(self, filename):
+    Attributes
+    ----------
+    - filename : str
+
+        Path to the input video file. Passed by parent MgObject.
+    - color : bool
+
+        Set class methods in color or grayscale mode. Passed by parent MgObject.
+
+    Methods
+    -------
+    - dense()
+
+        Renders a dense optical flow video of the input video file.
+    - sparse()
+
+        Renders a sparse optical flow video of the input video file.
+    """
+
+    def __init__(self, filename, color):
         self.filename = filename
+        self.color = color
 
-    def dense(self, filename='', pyr_scale=0.5, levels=3, winsize=15, iterations=3, poly_n=5, poly_sigma=1.2, flags=0, skip_empty=False):
+    def dense(
+            self,
+            filename='',
+            pyr_scale=0.5,
+            levels=3,
+            winsize=15,
+            iterations=3,
+            poly_n=5,
+            poly_sigma=1.2,
+            flags=0,
+            skip_empty=False):
+        """
+        Renders a dense optical flow video of the input video file using `cv2.calcOpticalFlowFarneback()`.
+        For more details about the parameters consult the cv2 documentation.
+
+        Parameters
+        ----------
+        - filename : str, optional
+
+            Path to the input video file. If not specified the video file pointed to by the MgObject is used.
+        - pyr_scale : float, optional
+
+            Default is 0.5.
+        - levels : int, optional
+
+            Default is 3.
+        - winsize : int, optional
+
+            Default is 15.
+        - iterations : int, optional
+
+            Default is 3.
+        - poly_n : int, optional
+
+            Default is 5.
+        - poly_sigma : float, optional
+
+            Default is 1.2.
+        - flags : int, optional
+
+            Default is 0.
+        - skip_empty : bool, optional
+
+            Default is `False`. If `True`, repeats previous frame in the output when encounters an empty frame.
+
+        Outputs
+        -------
+        - `filename`_flow_dense.avi
+
+        Returns
+        -------
+        - MgObject
+
+            A new MgObject pointing to the output '_flow_dense' video file.
+        """
 
         if filename == '':
             filename = self.filename
@@ -52,10 +128,13 @@ class Flow:
                 if skip_empty:
                     if np.sum(rgb) > 0:
                         out.write(rgb.astype(np.uint8))
+                    else:
+                        out.write(prev_rgb.astype(np.uint8))
                 else:
                     out.write(rgb.astype(np.uint8))
 
                 prev_frame = next_frame
+                prev_rgb = rgb
 
             else:
                 mg_progressbar(
@@ -67,9 +146,66 @@ class Flow:
             mg_progressbar(
                 ii, length+1, 'Rendering dense optical flow video:', 'Complete')
 
-        return mgmodule.MgObject(of + '_flow_dense' + fex)
+        out.release()
+        source_audio = extract_wav(of + fex)
+        destination_video = of + '_flow_dense' + fex
+        embed_audio_in_video(source_audio, destination_video)
+        os.remove(source_audio)
 
-    def sparse(self, filename='', corner_max_corners=100, corner_quality_level=0.3, corner_min_distance=7, corner_block_size=7, of_win_size=(15, 15), of_max_level=2, of_criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03)):
+        return mgmodule.MgObject(destination_video, color=self.color, returned_by_process=True)
+
+    def sparse(
+            self,
+            filename='',
+            corner_max_corners=100,
+            corner_quality_level=0.3,
+            corner_min_distance=7,
+            corner_block_size=7,
+            of_win_size=(15, 15),
+            of_max_level=2,
+            of_criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03)):
+        """
+        Renders a sparse optical flow video of the input video file using `cv2.calcOpticalFlowPyrLK()`.
+        `cv2.goodFeaturesToTrack()` is used for the corner estimation.
+        For more details about the parameters consult the cv2 documentation.
+
+        Parameters
+        ----------
+        - filename : str, optional
+
+            Path to the input video file. If not specified the video file pointed to by the MgObject is used.
+        - corner_max_corners : int, optional
+
+            Default is 100.
+        - corner_quality_level : float, optional
+
+            Default is 0.3.
+        - corner_min_distance : int, optional
+
+            Default is 7.
+        - corner_block_size : int, optional
+
+            Default is 7.
+        - of_win_size : tuple (int, int), optional
+
+            Default is (15, 15).
+        - of_max_level : int, optional
+
+            Default is 2.
+        - of_criteria : optional
+
+            Default is `(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03)`.
+
+        Outputs
+        -------
+        - `filename`_flow_sparse.avi
+
+        Returns
+        -------
+        - MgObject
+
+            A new MgObject pointing to the output '_flow_sparse' video file.
+        """
 
         if filename == '':
             filename = self.filename
@@ -130,7 +266,13 @@ class Flow:
                     a, b = new.ravel()
                     c, d = old.ravel()
                     mask = cv2.line(mask, (a, b), (c, d), color[i].tolist(), 2)
-                    frame = cv2.circle(frame, (a, b), 5, color[i].tolist(), -1)
+
+                    if self.color == False:
+                        frame = cv2.cvtColor(frame_gray, cv2.COLOR_GRAY2BGR)
+
+                    frame = cv2.circle(
+                        frame, (a, b), 5, color[i].tolist(), -1)
+
                 img = cv2.add(frame, mask)
 
                 out.write(img.astype(np.uint8))
@@ -149,4 +291,10 @@ class Flow:
             mg_progressbar(
                 ii, length+1, 'Rendering sparse optical flow video:', 'Complete')
 
-        return mgmodule.MgObject(of + '_flow_sparse' + fex)
+        out.release()
+        source_audio = extract_wav(of + fex)
+        destination_video = of + '_flow_sparse' + fex
+        embed_audio_in_video(source_audio, destination_video)
+        os.remove(source_audio)
+
+        return mgmodule.MgObject(destination_video, color=self.color, returned_by_process=True)

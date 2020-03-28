@@ -6,19 +6,26 @@ from ._utils import mg_progressbar, MgImage
 
 def mg_average_image(self, filename='', normalize=True):
     """
-    Post-processing tool. Finds and saves an average image of entire video.
-
-        THIS DOC STRING IS COMPLETELY WRONG. WILL FIX IT LATER.
+    Finds and saves an average image of an input video file.
 
     Parameters
     ----------
-    - enhance (float): Takes values between '0' and '1'. Where '0' is no enhancement and '1' scales the pixel 
-            values such that the brightest pixel gets the value 255. 
+    - filename : str, optional
 
-    Usage
-    -----
-    from _motionaverage import motionaverage
-    motionaverage('filename.avi', enhance = 0.5)
+        Path to the input video file. If not specified the video file pointed to by the MgObject is used.
+    - normalize : bool, optional
+
+        Default is `True`. If `True`, normalizes pixel values in the output image.
+
+    Outputs
+    -------
+    - `filename`_average.png
+
+    Returns
+    -------
+    - MgImage
+
+        A new MgImage pointing to the output '_average' image file.
     """
 
     if filename == '':
@@ -28,22 +35,27 @@ def mg_average_image(self, filename='', normalize=True):
     video = cv2.VideoCapture(filename)
     ret, frame = video.read()
     length = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
+    if self.color == False:
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     average = frame.astype(np.float)/length
     ii = 0
     while(video.isOpened()):
         ret, frame = video.read()
         if ret == True:
+            if self.color == False:
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             frame = np.array(frame)
             frame = frame.astype(np.float)
             average += frame/length
         else:
-            #print('Rendering average image 100%%')
             mg_progressbar(
                 length, length, 'Rendering average image:', 'Complete')
             break
         ii += 1
-        #print('Rendering average image %s%%' %(int(ii/(length-1)*100)), end='\r')
         mg_progressbar(ii, length, 'Rendering average image:', 'Complete')
+
+    if self.color == False:
+        average = cv2.cvtColor(average.astype(np.uint8), cv2.COLOR_GRAY2BGR)
 
     if normalize:
         average = average/np.max(average)*255

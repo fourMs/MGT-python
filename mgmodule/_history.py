@@ -1,26 +1,34 @@
 import cv2
 import os
 import numpy as np
-from ._utils import mg_progressbar
+from ._utils import mg_progressbar, extract_wav, embed_audio_in_video
 import mgmodule
 
 
-# added self, because this function is now called from an MgObject
 def history(self, filename='', history_length=10):
     """
-    This function  creates a video where each frame is the average of the n previous frames, where n is determined
-    from the history_length parameter.
-    The history frames are summed up and normalized, and added to the current frame to show the history. 
-    Outputs a video called filename + '_history.avi'.
+    This function  creates a video where each frame is the average of the 
+    n previous frames, where n is determined by `history_length`.
+    The history frames are summed up and normalized, and added to the 
+    current frame to show the history. 
 
     Parameters
     ----------
-    - filename (str): The video file to process.
-    - history_length (int): How many frames will be saved to the history tail.
+    - filename : str, optional
+
+        Path to the input video file. If not specified the video file pointed to by the MgObject is used.
+    - history_length : int, optional
+
+        Default is 10. Number of frames to be saved in the history tail.
+
+    Outputs
+    -------
+    - `filename`_history.avi
 
     Returns
     -------
-    - An MgObject loaded with the resulting _history video.
+    - MgObject 
+        A new MgObject pointing to the output '_history' video file.
     """
 
     if filename == '':
@@ -43,9 +51,13 @@ def history(self, filename='', history_length=10):
     history = []
 
     while(video.isOpened()):
+        ret, frame = video.read()
         if ret == True:
-            ret, frame = video.read()
+            if self.color == False:
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
             frame = (np.array(frame)).astype(np.float64)
+
             if len(history) > 0:
                 history_total = frame/(len(history)+1)
             else:
@@ -59,15 +71,24 @@ def history(self, filename='', history_length=10):
             # 0.5 to not overload it poor thing
             total = history_total.astype(np.uint64)
 
-            out.write(total.astype(np.uint8))
+            if self.color == False:
+                total = cv2.cvtColor(total.astype(
+                    np.uint8), cv2.COLOR_GRAY2BGR)
+                out.write(total)
+            else:
+                out.write(total.astype(np.uint8))
 
         else:
-            #print('Rendering history 100%')
             mg_progressbar(
                 length, length, 'Rendering history video:', 'Complete')
             break
         ii += 1
-        #print('Rendering history %s%%' % (int(ii/(length-1)*100)), end='\r')
         mg_progressbar(ii, length+1, 'Rendering history video:', 'Complete')
 
-    return mgmodule.MgObject(of + '_history' + fex)
+    out.release()
+    source_audio = extract_wav(self.of + self.fex)
+    destination_video = self.of + '_history' + self.fex
+    embed_audio_in_video(source_audio, destination_video)
+    os.remove(source_audio)
+
+    return mgmodule.MgObject(destination_video, color=self.color, returned_by_process=True)

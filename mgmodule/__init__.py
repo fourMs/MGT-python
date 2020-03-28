@@ -1,31 +1,83 @@
 import os
 from ._input_test import mg_input_test
 from ._videoreader import mg_videoreader
-from ._constrainNumber import constrainNumber
 from ._flow import Flow
 
 
 class MgObject:
     """ 
-    Initializes Musical Gestures data structure from a given parameter video file.
+    Initializes Musical Gestures data structure from a video file.
 
-    Parameters:
-    -----------
-    - filename (str): Name of input parameter video file.
-    - method (str): Currently 'Diff' is the only implemented method.
-    - filtertype (str): 'Regular', 'Binary', 'Blob' (see function filterframe).
-    - thresh (float): A number in [0,1]. Eliminates pixel values less than given threshold.
-    - starttime (float): Cut the video from this start time (min) to analyze what is relevant.
-    - endtime (float): Cut the video at this end time (min) to analyze what is relevant.
-    - blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
-    - skip (int): When proceeding to analyze next frame of video, this many frames are skipped.
-    - color (bool): True does the analysis in RGB, False in grayscale.
-    - contrast (float): Apply +/- 100 contrast to video.
-    - brightness (float): Apply +/- 100 brightness to video.
-    - crop (str): 'none', 'manual', 'auto' to select cropping of relevant video frame size.
+    Attributes
+    ----------
+    - filename : str
+
+        Path to the video file.
+    - filtertype : {'Regular', 'Binary', 'Blob'}, optional
+
+        The `filtertype` parameter for the `motion()` method.
+        `Regular` turns all values below `thresh` to 0.
+        `Binary` turns all values below `thresh` to 0, above `thresh` to 1.
+        `Blob` removes individual pixels with erosion method.
+
+    - thresh : float, optional
+
+        The `thresh` parameter for the `motion()` method.
+        A number in the range of 0 to 1. Default is 0.05.
+        Eliminates pixel values less than given threshold.
+    - starttime : int or float, optional
+
+        Trims the video from this start time (s).
+    - endtime : int or float, optional
+
+        Trims the video until this end time (s).
+    - blur : {'None', 'Average'}, optional
+
+        The `blur` parameter for the `motion()` method.
+        `Average` to apply a 10px * 10px blurring filter, `None` otherwise.
+    - skip : int, optional
+
+        Time-shrinks the video by skipping (discarding) every n frames determined by `skip`.
+    - rotate : int or float, optional
+
+        Rotates the video by a `rotate` degrees.
+    - color : bool, optional
+
+        Default is `True`. If `False`, converts the video to grayscale and sets every method in grayscale mode.
+    - contrast : int or float, optional
+
+        Applies +/- 100 contrast to video.
+    - brightness : int or float, optional
+
+        Applies +/- 100 brightness to video.
+    - crop : {'none', 'manual', 'auto'}, optional
+
+        If `manual`, opens a window displaying the first frame of the input video file,
+        where the user can draw a rectangle to which cropping is applied.
+        If `auto` the cropping function attempts to determine the area of significant motion 
+        and applies the cropping to that area.
+
+    - keep_all : bool, optional
+
+        Default is `False`. If `True`, preserves an output video file after each used preprocessing stage.
     """
 
-    def __init__(self, filename, method='Diff', filtertype='Regular', thresh=0.05, starttime=0, endtime=0, blur='None', skip=0, color=True, contrast=0, brightness=0, crop='None', keep_all=False):
+    def __init__(
+            self,
+            filename,
+            filtertype='Regular',
+            thresh=0.05,
+            starttime=0,
+            endtime=0,
+            blur='None',
+            skip=0,
+            rotate=0,
+            color=True,
+            contrast=0,
+            brightness=0,
+            crop='None',
+            keep_all=False,
+            returned_by_process=False):
 
         self.filename = filename
         # name of file without extension (only-filename)
@@ -33,7 +85,6 @@ class MgObject:
         # file extension
         self.fex = os.path.splitext(self.filename)[1]
         self.color = color
-        self.method = method
         self.starttime = starttime
         self.endtime = endtime
         self.skip = skip
@@ -43,10 +94,12 @@ class MgObject:
         self.contrast = contrast
         self.brightness = brightness
         self.crop = crop
+        self.rotate = rotate
         self.keep_all = keep_all
+        self.returned_by_process = returned_by_process
         self.test_input()
         self.get_video()
-        self.flow = Flow(self.filename)
+        self.flow = Flow(self.filename, self.color)
 
     from ._motionvideo import mg_motionvideo as motion
     from ._motionvideo import plot_motion_metrics
@@ -58,13 +111,13 @@ class MgObject:
 
     def test_input(self):
         """ Gives feedback to user if initialization from input went wrong. """
-        mg_input_test(self.filename, self.method, self.filtertype,
+        mg_input_test(self.filename, self.filtertype,
                       self.thresh, self.starttime, self.endtime, self.blur, self.skip)
 
     def get_video(self):
         """ Creates a video attribute to the Musical Gestures object with the given correct settings. """
-        self.video, self.length, self.width, self.height, self.fps, self.endtime, self.of, self.fex = mg_videoreader(
-            self.filename, self.starttime, self.endtime, self.skip, self.contrast, self.brightness, self.crop, keep_all=self.keep_all)
+        self.length, self.width, self.height, self.fps, self.endtime, self.of, self.fex = mg_videoreader(
+            self.filename, self.starttime, self.endtime, self.skip, self.rotate, self.contrast, self.brightness, self.crop, self.color, self.returned_by_process, keep_all=self.keep_all)
 
         # update filename after the processes
         self.filename = self.of + self.fex

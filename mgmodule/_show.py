@@ -6,18 +6,19 @@ from matplotlib import pyplot as plt
 
 def mg_show(self, filename=None, key=None):
     """
-
     This function simply plays the current vidcap VideoObject. The speed of the video playback 
     might not match the true fps due to non-optimized code. 
 
-    Parameters:
+    Parameters
+    ----------
+    - filename : str, optional
 
-    - filename (str) : If left empty, the current vidcap object is played. If filename is given,
-    this file is played instead. 
-    - key (str) : {'mgx', 'mgy', 'average', 'plot', 'motion', 'history', 'motionhistory', 'sparse', 'dense'} If either 
-    of the shorthands 'motion', 'history', 'motionhistory', 'sparse', or 'dense' is used the method attempts to show 
-    the (previously rendered) video file corresponding to the one in the MgObject.
+        Default is `None`. If `None`, the current video to which the MgObject points is played.
+        If filename is given, this file is played instead. 
+    - key : {None, 'mgx', 'mgy', 'average', 'plot', 'motion', 'history', 'motionhistory', 'sparse', 'dense'}, optional
 
+        If either of these shorthands is used the method attempts to show the 
+        (previously rendered) video file corresponding to the one in the MgObject.
     """
 
     video_mode = True
@@ -33,41 +34,41 @@ def mg_show(self, filename=None, key=None):
 
         if key == None:
             filename = self.of+self.fex
-        elif key == 'mgx':
+        elif key.lower() == 'mgx':
             show_image('_mgx.png', 'Horizontal Motiongram')
-        elif key == 'mgy':
+        elif key.lower() == 'mgy':
             show_image('_mgy.png', 'Vertical Motiongram')
-        elif key == 'average':
+        elif key.lower() == 'average':
             show_image('_average.png', 'Average')
-        elif key == 'plot':
+        elif key.lower() == 'plot':
             show_image('_motion_com_qom.png',
                        'Centroid and Quantity of Motion')
 
-        elif key == 'motion':
+        elif key.lower() == 'motion':
             if os.path.exists(self.of + '_motion' + self.fex):
                 filename = self.of + '_motion' + self.fex
             else:
                 print("No motion video found corresponding to",
                       self.of+self.fex, ". Try making one with .motion()")
-        elif key == 'history':
+        elif key.lower() == 'history':
             if os.path.exists(self.of + '_history' + self.fex):
                 filename = self.of + '_history' + self.fex
             else:
                 print("No history video found corresponding to",
                       self.of+self.fex, ". Try making one with .history()")
-        elif key == 'motionhistory':
+        elif key.lower() == 'motionhistory':
             if os.path.exists(self.of + '_motionhistory' + self.fex):
                 filename = self.of + '_motionhistory' + self.fex
             else:
                 print("No motion history video found corresponding to",
                       self.of+self.fex, ". Try making one with .motionhistory()")
-        elif key == 'sparse':
+        elif key.lower() == 'sparse':
             if os.path.exists(self.of + '_flow_sparse' + self.fex):
                 filename = self.of + '_flow_sparse' + self.fex
             else:
                 print("No sparse optical flow video found corresponding to",
                       self.of+self.fex, ". Try making one with .flow.sparse()")
-        elif key == 'dense':
+        elif key.lower() == 'dense':
             if os.path.exists(self.of + '_flow_dense' + self.fex):
                 filename = self.of + '_flow_dense' + self.fex
             else:
