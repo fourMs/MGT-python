@@ -15,4 +15,6 @@ __pycache__/
 *.txt
 *.tff
 *.tsv
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
 fix_notebook.py
