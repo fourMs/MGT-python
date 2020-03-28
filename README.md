@@ -2,6 +2,8 @@
 
 The Musical Gestures Toolbox for Python is a collection of tools for video visualization and video analysis.
 
+![MGT python](documentation/figures/mgt-python_640.jpg)
+
 
 ## About
 
