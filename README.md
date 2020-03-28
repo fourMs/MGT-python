@@ -2,8 +2,6 @@
 
 The Musical Gestures Toolbox for Python is a collection of tools for video visualization and video analysis.
 
-This toolbox is a port and further development of the [Musical Gestures Toolbox for Matlab](https://github.com/fourMs/MGT-matlab), which again was a port of Musical Gestures Toolbox for Max.
-
 
 ## About
 
@@ -12,16 +10,17 @@ Videos can be used to develop new visualisations to be used for analysis. The ai
 MGT can generate both dynamic and static visualizations, as well as some quantitative data:
 
 - dynamic visualisations (video files)
-    - motion video
-    - motion history video
+    - motion videos
+    - motion history videos
 - static visualisations (images)
-    - motion average image
+    - motion average images
     - motiongrams
     - videograms
 - motion data (csv files)
     - quantity of motion
     - centroid of motion
     - area of motion
+
 
 ## Installation
 
@@ -55,14 +54,14 @@ The software is currently maintained by the [fourMs lab](https://github.com/four
 
 ## Reference
 
-If you use this toolbox for research purposes, please reference this publication: 
+There is no publication mentioning this toolbox yet. But you could reference this publication describing the similar Matlab toolbox:
 
 - Jensenius, Alexander Refsum (2018). [The Musical Gestures Toolbox for Matlab](http://hdl.handle.net/10852/65559). Proceedings of the 19th International Society for Music Information Retrieval Conference, Late Breaking Demos Session.
 
 
 ## Credits
 
-Main developers: [Frida Furmyr](https://github.com/fridafu), [Marcus Widmer](https://github.com/marcuswidmer), [Alexander Refsum Jensenius](https://github.com/alexarje/)
+Developers: [Frida Furmyr](https://github.com/fridafu), [Marcus Widmer](https://github.com/marcuswidmer), [Bálint Laczkó](https://github.com/balintlaczko), [Alexander Refsum Jensenius](https://github.com/alexarje/)
 
 ## License
 
