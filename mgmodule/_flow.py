@@ -129,7 +129,10 @@ class Flow:
                     if np.sum(rgb) > 0:
                         out.write(rgb.astype(np.uint8))
                     else:
-                        out.write(prev_rgb.astype(np.uint8))
+                        if ii == 0:
+                            out.write(rgb.astype(np.uint8))
+                        else:
+                            out.write(prev_rgb.astype(np.uint8))
                 else:
                     out.write(rgb.astype(np.uint8))
 
