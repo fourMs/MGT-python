@@ -117,7 +117,17 @@ class MgObject:
     def get_video(self):
         """ Creates a video attribute to the Musical Gestures object with the given correct settings. """
         self.length, self.width, self.height, self.fps, self.endtime, self.of, self.fex = mg_videoreader(
-            self.filename, self.starttime, self.endtime, self.skip, self.rotate, self.contrast, self.brightness, self.crop, self.color, self.returned_by_process, keep_all=self.keep_all)
+            filename=self.filename,
+            starttime=self.starttime,
+            endtime=self.endtime,
+            skip=self.skip,
+            rotate=self.rotate,
+            contrast=self.contrast,
+            brightness=self.brightness,
+            crop=self.crop,
+            color=self.color,
+            returned_by_process=self.returned_by_process,
+            keep_all=self.keep_all)
 
         # update filename after the processes
         self.filename = self.of + self.fex
