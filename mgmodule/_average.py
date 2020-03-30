@@ -35,7 +35,9 @@ def mg_average_image(self, filename='', normalize=True):
     video = cv2.VideoCapture(filename)
     ret, frame = video.read()
     length = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
+    print("Color:", self.color)
     if self.color == False:
+        print("here!")
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     average = frame.astype(np.float)/length
     ii = 0
@@ -55,15 +57,21 @@ def mg_average_image(self, filename='', normalize=True):
         mg_progressbar(ii, length, 'Rendering average image:', 'Complete')
 
     if self.color == False:
+        print("here!")
         average = cv2.cvtColor(average.astype(np.uint8), cv2.COLOR_GRAY2BGR)
 
     if normalize:
-        average = average/np.max(average)*255
+        # average = average/np.max(average)*255
         average = average.astype(np.uint8)
-        average_hsv = cv2.cvtColor(average, cv2.COLOR_BGR2HSV)
-        average_hsv[:, :, 2] = cv2.equalizeHist(average_hsv[:, :, 2])
-        average = cv2.cvtColor(average_hsv, cv2.COLOR_HSV2BGR)
+        # average_hsv = cv2.cvtColor(average, cv2.COLOR_BGR2HSV)
+        # average_hsv[:, :, 2] = cv2.equalizeHist(average_hsv[:, :, 2])
+        # average = cv2.cvtColor(average_hsv, cv2.COLOR_HSV2BGR)
+        norm_average = np.zeros_like(average)
+        norm_average = cv2.normalize(
+            average,  norm_average, 0, 255, cv2.NORM_MINMAX)
+        cv2.imwrite(of+'_average.png', norm_average.astype(np.uint8))
 
-    cv2.imwrite(of+'_average.png', average.astype(np.uint8))
+    else:
+        cv2.imwrite(of+'_average.png', average.astype(np.uint8))
 
     return MgImage(of+'_average.png')
