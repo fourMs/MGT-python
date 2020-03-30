@@ -137,7 +137,12 @@ class Flow:
                     out.write(rgb.astype(np.uint8))
 
                 prev_frame = next_frame
-                prev_rgb = rgb
+
+                if skip_empty:
+                    if np.sum(rgb) > 0:
+                        prev_rgb = rgb
+                else:
+                    prev_rgb = rgb
 
             else:
                 mg_progressbar(
