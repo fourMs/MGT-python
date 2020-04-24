@@ -170,7 +170,7 @@ class MgImage():
         import os
         self.of = os.path.splitext(self.filename)[0]
         self.fex = os.path.splitext(self.filename)[1]
-    from ._show import mg_show as show
+    from mgmodule._show import mg_show as show
 
     def __repr__(self):
         return f"MgImage('{self.filename}')"

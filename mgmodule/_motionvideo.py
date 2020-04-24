@@ -5,9 +5,9 @@ import os
 import numpy as np
 import pandas as pd
 from scipy.signal import medfilt2d
-from ._centroid import centroid
-from ._utils import mg_progressbar, extract_wav, embed_audio_in_video, frame2ms
-from ._filter import filter_frame
+from mgmodule._centroid import centroid
+from mgmodule._utils import mg_progressbar, extract_wav, embed_audio_in_video, frame2ms
+from mgmodule._filter import filter_frame
 
 
 def mg_motionvideo(
@@ -126,6 +126,9 @@ def mg_motionvideo(
 
         ii = 0
 
+        pgbar_text = 'Rendering motion' + ", ".join(np.array(["-video", "-grams", "-plots", "-data"])[
+            np.array([save_video, save_motiongrams, save_plot, save_data])]) + ":"
+
         if self.color == False:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             if save_motiongrams:
@@ -212,8 +215,6 @@ def mg_motionvideo(
                                pgbar_text, 'Complete')
                 break
             ii += 1
-            pgbar_text = 'Rendering motion' + ", ".join(np.array(["-video", "-grams", "-plots", "-data"])[
-                np.array([save_video, save_motiongrams, save_plot, save_data])]) + ":"
             mg_progressbar(ii, self.length,
                            pgbar_text, 'Complete')
 

@@ -1,7 +1,7 @@
 import cv2
 import os
 import numpy as np
-from ._utils import mg_progressbar, extract_wav, embed_audio_in_video
+from mgmodule._utils import mg_progressbar, extract_wav, embed_audio_in_video
 import mgmodule
 
 

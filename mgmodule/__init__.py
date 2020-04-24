@@ -1,7 +1,7 @@
 import os
-from ._input_test import mg_input_test
-from ._videoreader import mg_videoreader
-from ._flow import Flow
+from mgmodule._input_test import mg_input_test
+from mgmodule._videoreader import mg_videoreader
+from mgmodule._flow import Flow
 
 
 class MgObject:
@@ -101,13 +101,13 @@ class MgObject:
         self.get_video()
         self.flow = Flow(self.filename, self.color)
 
-    from ._motionvideo import mg_motionvideo as motion
-    from ._motionvideo import plot_motion_metrics
-    from ._cropvideo import mg_cropvideo, find_motion_box, find_total_motion_box
-    from ._motionhistory import mg_motionhistory as motionhistory
-    from ._show import mg_show as show
-    from ._history import history
-    from ._average import mg_average_image as average
+    from mgmodule._motionvideo import mg_motionvideo as motion
+    from mgmodule._motionvideo import plot_motion_metrics
+    from mgmodule._cropvideo import mg_cropvideo, find_motion_box, find_total_motion_box
+    from mgmodule._motionhistory import mg_motionhistory as motionhistory
+    from mgmodule._show import mg_show as show
+    from mgmodule._history import history
+    from mgmodule._average import mg_average_image as average
 
     def test_input(self):
         """ Gives feedback to user if initialization from input went wrong. """

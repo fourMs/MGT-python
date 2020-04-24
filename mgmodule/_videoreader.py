@@ -2,9 +2,9 @@ import cv2
 import os
 from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 import numpy as np
-from ._videoadjust import mg_contrast_brightness, mg_skip_frames
-from ._cropvideo import *
-from ._utils import convert_to_avi, rotate_video, extract_wav, embed_audio_in_video, convert_to_grayscale
+from mgmodule._videoadjust import mg_contrast_brightness, mg_skip_frames
+from mgmodule._cropvideo import *
+from mgmodule._utils import convert_to_avi, rotate_video, extract_wav, embed_audio_in_video, convert_to_grayscale
 
 
 class ReadError(Exception):

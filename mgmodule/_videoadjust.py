@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from ._utils import mg_progressbar, scale_num, scale_array
+from mgmodule._utils import mg_progressbar, scale_num, scale_array
 
 
 def mg_contrast_brightness(of, fex, vidcap, fps, length, width, height, contrast, brightness):

@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import os
-from ._utils import mg_progressbar, MgImage
+from mgmodule._utils import mg_progressbar, MgImage
 
 
 def mg_average_image(self, filename='', normalize=True):

@@ -2,8 +2,8 @@ import cv2
 import os
 import numpy as np
 import time
-from ._utils import mg_progressbar
-from ._filter import filter_frame
+from mgmodule._utils import mg_progressbar
+from mgmodule._filter import filter_frame
 
 
 def mg_cropvideo(
