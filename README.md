@@ -37,9 +37,7 @@ Standard installation via pip: paste and execute the following code in the Termi
 
 The documentation folder in this repository holds the main documentation file [MGT-doc.pdf](https://github.com/fourMs/MGT-python/blob/master/documentation/MGT_doc.pdf), which describes all functionalities.
 
-The Jupyter notebook "MotionGesturesToolbox.ipynb" shows examples of the usage of the toolbox.
-
-For terminal usage, try the two examples in the One example file of how it can be run is mgmodule/tests/test_mg.py where any .avi-video can be input as filename. To run in terminal (in correct directory): python test_mg.py
+The Jupyter notebook [MotionGesturesToolbox.ipynb](https://github.com/fourMs/MGT-python/blob/master/MotionGesturesToolbox.ipynb) shows examples of the usage of the toolbox.
 
 ## History
 
