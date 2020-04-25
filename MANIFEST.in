@@ -1,1 +1,7 @@
 include README.md
+include setup.cfg
+include MotionGesturesToolbox.ipynb
+include dance.avi
+include LICENSE
+graft documentation
+graft examples
