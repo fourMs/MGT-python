@@ -7,266 +7,939 @@
 \usepackage{authblk}
 \usepackage{enumitem}
 
+\def\code#1{\texttt{#1}}
+
 \title{Musical Gestures Toolbox\\ \large{Documentation}}
-\author{Frida Furmyr \& Marcus Widmer}
+\author{Balint Laczko}
 
 \begin{document}
 \maketitle
 
 \tableofcontents
 
-\section{Class MgObject}
-    Initializes Musical Gestures data structure from a given parameter video file.\\
 
-    \noindent Parameters:
-    \begin{itemize}
-   \item [] filename (str): Name of input parameter video file.
-   \item [] method (str): Currently 'Diff' is the only implemented method. 
-   \item [] filtertype (str): 'Regular', 'Binary', 'Blob' (see function motionfilter).
-    \item [] thresh (float): a number in [0,1]. Eliminates pixel values less than given threshold.
-   \item [] starttime (float): cut the video from this start time (min) to analyze what is relevant.
-   \item [] endtime (float): cut the video at this end time (min) to analyze what is relevant.
-   \item []  blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
-   \item[] skip (int): When proceeding to analyze next frame of video, this many frames are skipped. NB: skip cannot exceed number of frames per second (fps). 
-    \item [] color (bool): True does the analysis in RGB, False in grayscale. 
-    \item [] contrast (float): apply +/- 100 contrast to video
-   \item []  brightness (float): apply +/- 100 brightness to video
-    \item [] crop (str): 'none', 'manual', 'auto' to select cropping of relevant video frame size
-    \end{itemize}
+\section{Class MgObject}
+Initializes Musical Gestures data structure from a video file.\\
+
+\noindent Attributes
+
+\begin{itemize}
+
+\item filename : str\\
+Path to the video file.
+
+\item filtertype : \{'Regular', 'Binary', 'Blob'\}, optional\\
+The \code{filtertype} parameter for the \code{motion()} method. 
+\code{Regular} turns all values below \code{thresh} to 0. 
+\code{Binary} turns all values below \code{thresh} to 0, 
+above \code{thresh} to 1. \code{Blob} removes individual pixels 
+with erosion method.
+
+\item thresh : float, optional\\
+The \code{thresh} parameter for the \code{motion()} method. 
+A number in the range of 0 to 1. Default is 0.05. Eliminates pixel 
+values less than given threshold.
+
+\item starttime : int or float, optional\\
+Trims the video from this start time (s).
+
+\item endtime : int or float, optional\\
+Trims the video until this end time (s).
+
+\item blur : \{'None', 'Average'\}, optional\\
+The \code{blur} parameter for the \code{motion()} method.
+\code{Average} to apply a 10px * 10px blurring filter, \code{None} 
+otherwise.
+
+\item skip : int, optional\\
+Time-shrinks the video by skipping (discarding) 
+every n frames determined by \code{skip}.
+
+\item rotate : int or float, optional\\
+Rotates the video by a \code{rotate} degrees.
+
+\item color : bool, optional\\
+Default is \code{True}. If \code{False}, converts the video to grayscale 
+and sets every method in grayscale mode.
+
+\item contrast : int or float, optional\\
+Applies +/- 100 contrast to video.
+
+\item brightness : int or float, optional\\
+Applies +/- 100 brightness to video.
+
+\item crop : \{'none', 'manual', 'auto'\}, optional\\
+If \code{manual}, opens a window displaying the first frame of the 
+input video file, where the user can draw a rectangle to which 
+cropping is applied. If \code{auto} the cropping function attempts to 
+determine the area of significant motion and applies the cropping 
+to that area.
+
+\item keep\_all : bool, optional\\
+Default is \code{False}. If \code{True}, preserves an output video file 
+after each used preprocessing stage.
+
+\end{itemize}
+
+
 \section{MgObject methods}
 
-\subsection{mg\_videoreader}
-    mg\_videoreader(filename, starttime = 0, endtime = 0, skip = 0, contrast = 0, brightness = 0, crop = 'none'):
-    \\\\
-    Reads in a video file, and by input parameters user decide if it: trims the length, skips frames, applies contrast/brightness adjustments and/or crops image width/height.
-    \\\\
-    Parameters:
-    \begin{itemize}
-     \item [] filename (str): Name of input parameter video file.
-     \item [] starttime (float): cut the video from this start time (min) to analyze what is relevant.
-     \item [] endtime (float): cut the video at this end time (min) to analyze what is relevant.
-     \item [] skip (int): When proceeding to analyze next frame of video, this many frames are skipped.
-     \item [] contrast (float): apply +/- 100 contrast to video
-     \item [] brightness (float): apply +/- 100 brightness to video
-     \item [] crop (str): 'None', 'Auto' or 'Manual' to crop video.
-    \end{itemize}
-    Returns:
-    \begin{itemize}
-    \item [] vidcap (VideoCapture object): cv2 video capture of editevideo file
-    \item [] length (int), fps(int), width(int), height(int): video attributes
-     \item [] of (str): only-filename - filename gets updated with what procedures it went through.
- \end{itemize}
 
-\subsection{mg\_motionvideo}    
-    mg\_motionvideo(self, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', kernel\_size = 5, inverted\_motionvideo = False, inverted\_motiongram = True, unit = 'seconds', equalize\_motiongram = True):
-    \\\\
-    Finds the difference in pixel value from one frame to the next in an input video, and saves the frames into a new video.
-    Describes the motion in the recording.    
-    Outputs a video called filename +'\_motion.avi'.
-    \\\\
-    Parameters:
-    
-    \begin{itemize}
-    \item [] kernel\_size (int): Size of structuring element.
-   \item [] method (str): Currently 'Diff' is the only implemented method. 
-    \item [] filtertype (str): 'Regular', 'Binary', 'Blob'(see function motionfilter) 
-    \item [] thresh (float): a number in [0,1]. Eliminate spixel values less than given threshold.
-    \item [] blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
-    \item [] inverted\_motionvideo (bool): Inverts colors of motionvideo
-    \item [] inverted\_motiongram (bool): Inverts colors of motiongram
-    \item [] unit (str): Unit in QoM plot. 'seconds' or 'samples'
-    \item [] equalize\_motiongram (bool): Converts the motiongram to hsv-color space and flattens the value channel (v).
-    \end{itemize}
-    Returns:
-    \begin{itemize}
-    \item [] None
-    \end{itemize}
+\subsection{show}
+
+\code{show(
+    self, 
+    filename=None, 
+    key=None):}
+\\\\
+This function simply plays the current vidcap VideoObject. 
+The speed of the video playback might not match the true fps 
+due to non-optimized code. 
+\\\\
+
+\noindent Parameters
+\begin{itemize}
+\item filename : str, optional
+
+Default is \code{None}. If \code{None}, the current video to which 
+the MgObject points is played. If filename is given, this file is 
+played instead. 
+\item key : \{None, 'mgx', 'mgy', 'average', 'plot', 'motion', 'history', 'motionhistory', 'sparse', 'dense'\}, optional
+
+If either of these shorthands is used the method attempts to show the 
+(previously rendered) video file corresponding to the one in the MgObject.
+\end{itemize}
+
+
+\subsection{motion}
+
+\code{motion(
+    self, 
+    filtertype='Regular', 
+    thresh=0.05, 
+    blur='None',
+    kernel\_size=5, 
+    inverted\_motionvideo=False, 
+    inverted\_motiongram=False,
+    unit='seconds', 
+    equalize\_motiongram=True, 
+    save\_plot=True, 
+    save\_data=True, 
+    data\_format="csv", 
+    save\_motiongrams=True, 
+    save\_video=True):}
+\\\\
+Finds the difference in pixel value from one frame to the next in an 
+input video, and saves the frames into a new video. Describes the 
+motion in the recording.
+\\\\
+
+\noindent Parameters
+
+\begin{itemize}
+
+\item filtertype : \{'Regular', 'Binary', 'Blob'\}, optional
+
+\code{Regular} turns all values below \code{thresh} to 0.
+\code{Binary} turns all values below \code{thresh} to 0, 
+above \code{thresh} to 1. \code{Blob} removes individual pixels 
+with erosion method.
+
+\item thresh : float, optional
+
+A number in the range of 0 to 1. Default is 0.05.
+Eliminates pixel values less than given threshold.
+
+\item blur : \{'None', 'Average'\}, optional
+
+\code{Average} to apply a 10px * 10px blurring filter, \code{None}
+otherwise.
+
+\item kernel\_size : int, optional
+
+Default is 5. Size of structuring element.
+
+\item inverted\_motionvideo : bool, optional
+
+Default is \code{False}. If \code{True}, inverts colors 
+of the motion video.
+
+\item inverted\_motiongram : bool, optional
+
+Default is \code{False}. If \code{True}, inverts colors 
+of the motiongrams.
+
+\item unit : \{'seconds', 'samples'\}, optional
+
+Unit in QoM plot.
+
+\item equalize\_motiongram : bool, optional
+
+Default is \code{True}. If \code{True}, converts the 
+motiongrams to hsv-color space and flattens the value 
+channel (v).
+
+\item save\_plot : bool, optional
+
+Default is \code{True}. If \code{True}, outputs motion-plot.
+
+\item save\_data : bool, optional
+
+Default is \code{True}. If \code{True}, outputs motion-data.
+
+\item data\_format : \{'csv', 'tsv', 'txt'\}, optional
+
+Specifies format of motion-data.
+
+\item save\_motiongrams : bool, optional
+
+Default is \code{True}. If \code{True}, outputs motiongrams.
+
+\item save\_video : bool, optional
+
+Default is \code{True}. If \code{True}, outputs the motion video.
+
+\end{itemize}
+
+
+\noindent Outputs
+
+\begin{itemize}
+
+\item \code{filename}\_motion.avi
+
+A video of the absolute difference between consecutive frames 
+in the source video. 
+
+\item \code{filename}\_motion\_com\_qom.png
+
+A plot describing the centroid of motion and the quantity of 
+motion in the source video.
+
+\item \code{filename}\_mgx.png
+
+A horizontal motiongram of the source video.
+
+\item \code{filename}\_mgy.png
+
+A vertical motiongram of the source video.
+
+\item \code{filename}\_motion.csv
+
+A text file containing the quantity of motion and the centroid 
+of motion for each frame in the source video with timecodes in 
+milliseconds. Available formats: csv, tsv, txt.
+
+\end{itemize}
+
+\noindent Returns
+
+\begin{itemize}
+\item MgObject 
+
+A new MgObject pointing to the output '\_motion' video file. 
+If \code{save\_video=False}, it returns an MgObject 
+pointing to the input video file.
+\end{itemize}
+
+
+\subsection{history}
+
+\code{history(
+    self, 
+    filename='', 
+    history\_length=10):}
+\\\\
+This function  creates a video where each frame is the average of the 
+n previous frames, where n is determined by \code{history\_length}.
+The history frames are summed up and normalized, and added to the 
+current frame to show the history.
+\\\\
+
+\noindent Parameters
+\begin{itemize}
+\item filename : str, optional
+
+Path to the input video file. If not specified the video file 
+pointed to by the MgObject is used.
+
+\item history\_length : int, optional
+
+Default is 10. Number of frames to be saved in the history tail.
+\end{itemize}
+
+\noindent Outputs
+\begin{itemize}
+\item \code{filename}\_history.avi
+\end{itemize}
+
+\noindent Returns
+\begin{itemize}
+\item MgObject 
+A new MgObject pointing to the output '\_history' video file.
+\end{itemize}
+
+
+\subsection{motionhistory}
+
+\code{motionhistory(
+    self,
+    history\_length=10,
+    kernel\_size=5,
+    filtertype='Regular',
+    thresh=0.05,
+    blur='None',
+    inverted\_motionhistory=False):}
+\\\\
+Finds the difference in pixel value from one frame to the next in an input video, 
+and saves the difference frame to a history tail. The history frames are summed up 
+and normalized, and added to the current difference frame to show the history of 
+motion. 
+\\\\
+
+\noindent Parameters
+\begin{itemize}
+\item history\_length : int, optional
+
+Default is 10. Number of frames to be saved in the history tail.
+
+\item kernel\_size : int, optional
+
+Default is 5. Size of structuring element.
+
+\item filtertype : \{'Regular', 'Binary', 'Blob'\}, optional
+
+\code{Regular} turns all values below \code{thresh} to 0.
+\code{Binary} turns all values below \code{thresh} to 0, 
+above \code{thresh} to 1. \code{Blob} removes individual pixels 
+with erosion method.
+
+\item thresh : float, optional
+
+A number in the range of 0 to 1. Default is 0.05.
+Eliminates pixel values less than given threshold.
+
+\item blur : \{'None', 'Average'\}, optional
+
+\code{Average} to apply a 10px * 10px blurring filter, 
+\code{None} otherwise.
+
+\item inverted\_motionhistory : bool, optional
+
+Default is \code{False}. If \code{True}, inverts colors 
+of the motionhistory video.
+\end{itemize}
+
+\noindent Outputs
+\begin{itemize}
+\item \code{filename}\_motionhistory.avi
+\end{itemize}
+
+\noindent Returns
+\begin{itemize}
+\item MgObject
+
+A new MgObject pointing to the output '\_motionhistory' video file.
+\end{itemize}
+
+
+\subsection{average}
+
+\code{average(
+    self, 
+    filename='', 
+    normalize=True):}
+\\\\
+Finds and saves an average image of an input video file.
+\\\\
+
+\noindent Parameters
+\begin{itemize}
+\item filename : str, optional
+
+Path to the input video file. If not specified the video 
+file pointed to by the MgObject is used.
+
+\item normalize : bool, optional
+
+Default is \code{True}. If \code{True}, normalizes pixel values in 
+the output image.
+
+\end{itemize}
+
+\noindent Outputs
+\begin{itemize}
+\item \code{filename}\_average.png
+\end{itemize}
+
+\noindent Returns
+\begin{itemize}
+\item MgImage
+
+A new MgImage pointing to the output '\_average' image file.
+\end{itemize}
+
+
+\subsection{flow.sparse}
+
+\code{sparse(
+    self,
+    filename='',
+    corner\_max\_corners=100,
+    corner\_quality\_level=0.3,
+    corner\_min\_distance=7,
+    corner\_block\_size=7,
+    of\_win\_size=(15, 15),
+    of\_max\_level=2,
+    of\_criteria=(cv2.TERM\_CRITERIA\_EPS | cv2.TERM\_CRITERIA\_COUNT, 10, 0.03)):}
+\\\\
+Renders a sparse optical flow video of the input video file 
+using \code{cv2.calcOpticalFlowPyrLK()}. \code{cv2.goodFeaturesToTrack()} 
+is used for the corner estimation. For more details about the parameters 
+consult the cv2 documentation.
+\\\\
+
+\noindent Parameters
+\begin{itemize}
+\item filename : str, optional
+
+Path to the input video file. If not specified the video 
+file pointed to by the MgObject is used.
+
+\item corner\_max\_corners : int, optional
+
+Default is 100.
+
+\item corner\_quality\_level : float, optional
+
+Default is 0.3.
+
+\item corner\_min\_distance : int, optional
+
+Default is 7.
+
+\item corner\_block\_size : int, optional
+
+Default is 7.
+
+\item of\_win\_size : tuple (int, int), optional
+
+Default is (15, 15).
+
+\item of\_max\_level : int, optional
+
+Default is 2.
+
+\item of\_criteria : optional
+
+Default is \code{(cv2.TERM\_CRITERIA\_EPS | cv2.TERM\_CRITERIA\_COUNT, 10, 0.03)}.
+\end{itemize}
+
+\noindent Outputs
+\begin{itemize}
+\item \code{filename}\_flow\_sparse.avi
+\end{itemize}
+
+\noindent Returns
+\begin{itemize}
+\item MgObject
+
+A new MgObject pointing to the output '\_flow\_sparse' video file.
+\end{itemize}
+
+
+\subsection{flow.dense}
+
+\code{dense(
+    self,
+    filename='',
+    pyr\_scale=0.5,
+    levels=3,
+    winsize=15,
+    iterations=3,
+    poly\_n=5,
+    poly\_sigma=1.2,
+    flags=0,
+    skip\_empty=False):}
+\\\\
+Renders a dense optical flow video of the input video file 
+using \code{cv2.calcOpticalFlowFarneback()}.
+For more details about the parameters consult the cv2 documentation.
+\\\\
+
+\noindent Parameters
+\begin{itemize}
+\item filename : str, optional
+
+Path to the input video file. If not specified the video file 
+pointed to by the MgObject is used.
+
+\item pyr\_scale : float, optional
+
+Default is 0.5.
+
+\item levels : int, optional
+
+Default is 3.
+
+\item winsize : int, optional
+
+Default is 15.
+
+\item iterations : int, optional
+
+Default is 3.
+
+\item poly\_n : int, optional
+
+Default is 5.
+
+\item poly\_sigma : float, optional
+
+Default is 1.2.
+
+\item flags : int, optional
+
+Default is 0.
+
+\item skip\_empty : bool, optional
+
+Default is \code{False}. If \code{True}, repeats previous frame 
+in the output when encounters an empty frame.
+\end{itemize}
+
+\noindent Outputs
+\begin{itemize}
+\item \code{filename}\_flow\_dense.avi
+\end{itemize}
+
+\noindent Returns
+\begin{itemize}
+\item MgObject
+
+A new MgObject pointing to the output '\_flow\_dense' video file.
+\end{itemize}
+
+
+
+\section{Utility Functions}
+
+
+\subsection{centroid}
+
+\code{centroid(
+    image, 
+    width, 
+    height):}
+\\\\
+Defined in \textit{\_centroid.py}.\\
+Computes the centroid of an image or frame.
+\\\\
+\noindent Parameters
+\begin{itemize}
+\item image : np.array(uint8)
+
+The input image matrix for the centroid estimation function. 
+
+\item width : int
+
+The pixel width of the input video capture. 
+
+\item height : int
+
+The pixel height of the input video capture. 
+\end{itemize}
+
+\noindent Returns
+\begin{itemize}
+\item np.array(2)
+
+X and Y coordinates of the centroid of motion.
+
+\item int
+
+Quantity of motion: How large the change was in pixels.
+\end{itemize}
 
 
 \subsection{mg\_cropvideo}
 
-    mg\_cropvideo(fps,width,height, length, of, crop\_movement = 'auto', motion\_box\_thresh = 0.1, motion\_box\_margin = 1)
-    \\\\
-	Crops the video.\\\\
-Parameters:
-        \begin{itemize}
-		\item [] crop\_movement(str): 'auto' finds the bounding box that contains the total motion in the video. 'manual' opens up a simple GUI that is used to crop the video manually by looking at the first frame.
-
-		\item [] motion\_box\_thresh (float): Only meaningful is crop\_movement = 'auto'. Takes floats between 0 and 1, where 0 includes all the motion and 1 includes none.
-		
-		\item [] motion\_box\_margin (int): Only meaningful is crop\_movement = 'auto'. Add margin to the bounding box.
-        \end{itemize}
-	Returns:
-    \begin{itemize}
-	   \item [] None
-    \end{itemize}
-
-
-\subsection{mg\_input\_test}
-    mg\_input\_test(filename,method,filtertype,thresh,starttime,endtime,blur,skip): 
-    \\\\
-    Gives feedback to user if initialization from input went wrong.
-    Ex: raise InputError(msg)
-    msg = 'Please specify a filter type as str: Regular or Binary'
-
-
-\subsection{mg\_motionhistory} 
-    mg\_motionhistory(self, history\_length = 20, kernel\_size = 5, method = 'Diff', filtertype = 'Regular', thresh = 0.001, blur = 'None', inverted\_motionhistory = False):
-    \\\\
-    Finds the difference in pixel value from one frame to the next in an input video, and saves the difference frame to a history tail. 
-    The history frames are summed up and normalized, and added to the current difference frame to show the history of motion. \\
-    Outputs a video called filename + '\_motionhistory.avi'.
+\code{mg\_cropvideo(
+    fps,
+    width,
+    height,
+    length,
+    of,
+    fex,
+    crop\_movement='Auto',
+    motion\_box\_thresh=0.1,
+    motion\_box\_margin=1):}
 \\\\
-    Parameters:
-    \begin{itemize}
-    \item []history\_length (int): How many frames will be saved to the history tail.
-    \item []kernel\_size (int): Size of structuring element.
-    \item []method (str): Currently 'Diff' is the only implemented method. 
-    \item []filtertype (str): 'Regular', 'Binary', 'Blob' (see function motionfilter) 
-	\item []thresh (float): a number in [0,1]. Eliminates pixel values less than given threshold.
-    \item []blur (str): 'Average' to apply a blurring filter, 'None' otherwise.
-    \item [] inverted\_motionhistory (bool): Inverts the colors of motionhistory video
-    \end{itemize}
-    Returns:
-    \begin{itemize}
-    \item [] None
+Defined in \textit{\_cropvideo.py}.\\
+Crops the video.
+\\\\
+
+\noindent Parameters
+\begin{itemize}
+\item fps : int
+
+The FPS (frames per second) of the input video capture.
+
+\item width : int
+
+The pixel width of the input video capture. 
+
+\item height : int
+
+The pixel height of the input video capture. 
+
+\item length : int
+
+The number of frames in the input video capture.
+
+\item of : str
+
+'Only filename' without extension (but with path to the file).
+
+\item fex : str
+
+File extension.
+
+\item crop\_movement : \{'Auto','Manual'\}, optional
+
+\code{Auto} finds the bounding box that contains the total motion in 
+the video. Motion threshold is given by motion\_box\_thresh. \code{Manual} 
+opens up a simple GUI that is used to crop the video manually by 
+looking at the first frame.
+
+\item motion\_box\_thresh : float, optional
+
+Only meaningful if \code{crop\_movement='Auto'}. Takes floats between 
+0 and 1, where 0 includes all the motion and 1 includes none.
+
+\item motion\_box\_margin : int, optional
+
+Only meaningful if \code{crop\_movement='Auto'}. Adds margin to 
+the bounding box.
 \end{itemize}
 
+
+\subsection{filter\_frame}
+
+\code{filter\_frame(
+    motion\_frame, 
+    filtertype, 
+    thresh, 
+    kernel\_size):}
+\\\\
+Defined in \textit{\_filter.py}.\\
+Applies a filter to an image or videoframe.
+\\\\
+
+\noindent Parameters
+\begin{itemize}
+\item motion\_frame : np.array(uint8) 
+
+    Input motion image.
+\item filtertype : \{'Regular', 'Binary', 'Blob'\}
+
+\code{Regular} turns all values below \code{thresh} to 0.
+\code{Binary} turns all values below \code{thresh} to 0, 
+above \code{thresh} to 1. \code{Blob} removes individual pixels 
+with erosion method.
+
+\item thresh : float
+
+A number in the range of 0 to 1.
+Eliminates pixel values less than given threshold.
+
+\item kernel\_size : int
+
+Size of structuring element.
+\end{itemize}
+
+\noindent Returns
+\begin{itemize}
+\item np.array(uint8)
+
+Filtered frame.
+\end{itemize}
+
+
 \subsection{mg\_contrast\_brightness}
-    mg\_contrast\_brightness(of,vidcap,fps,width,height,contrast,brightness):\\\\
-    Edit contrast and brightness of the video.\\\\
-    Parameters:
-    \begin{itemize}
-    \item []of (str): filename without extension
-    \item [] vidcap (VideoCapture object): cv2 capture of video file, with all frames ready to read with vidcap.read().
-    \item [] fps (int), width (int), height (int) are simply info about vidcap
-    \item [] contrast (float): apply +/- 100 contrast to video
-    \item [] brightness (float): apply +/- 100 brightness to video
-    \end{itemize}
-    Returns:
-    \begin{itemize}
-    \item [] vidcap (VideoCapture object): cv2 video capture of edited video file
-    \end{itemize}
+
+\code{mg\_contrast\_brightness(
+    of, 
+    fex, 
+    vidcap, 
+    fps, 
+    length, 
+    width, 
+    height, 
+    contrast, 
+    brightness):}
+\\\\
+Defined in \textit{\_videoadjust.py}.\\
+Applies contrast and brightness to a video.
+\\\\
+
+\noindent Parameters
+\begin{itemize}
+\item of : str
+
+'Only filename' without extension (but with path to the file).
+
+\item fex : str
+
+File extension.
+
+\item vidcap : 
+
+cv2 capture of video file, with all frames ready to be 
+read with \code{vidcap.read()}.
+
+\item fps : int
+
+The FPS (frames per second) of the input video capture.
+
+\item length : int
+
+The number of frames in the input video capture.
+
+\item width : int
+
+The pixel width of the input video capture. 
+
+\item height : int
+
+The pixel height of the input video capture. 
+
+\item contrast : int or float, optional
+
+Applies +/- 100 contrast to video.
+
+\item brightness : int or float, optional
+
+Applies +/- 100 brightness to video.
+\end{itemize}
+
+\noindent Outputs
+\begin{itemize}
+\item A video file with the name \code{of} + 'cb' + \code{fex}.
+\end{itemize}
+
+\noindent Returns
+\begin{itemize}
+\item cv2 video capture of output video file.
+\end{itemize}
 
 
 \subsection{mg\_skip\_frames}
-    mg\_skip\_frames(of, vidcap, skip, fps, width, height):
-    \\\\
-    Frame skip, convenient for saving time/space in an analysis of less detail looking at big picture movement. Skips the given number of frames, making a compressed version of the input video file.
-    \\\\
-    Parameters:
-    \begin{itemize}
-    \item []of (str): filename without extension
-    \item []vidcap (VideoCapture object): cv2 capture of video file, with all frames ready to read with vidcap.read().
-    \item []fps (int), width (int), height (int) are simply info about vidcap
-    \item []skip (int): When proceeding to analyze next frame of video, this many frames are skipped.
-    \end{itemize}
-    Returns:
-    \begin{itemize}
-       \item [] vidcap (VideoCapture object): cv2 video capture of edited video file.
-       \item [] length (int), fps (int), width (int), height(int): new video attributes.
-   \end{itemize}
 
-
-\subsection{mg\_show}
-mg\_show(self, filename = None):
+\code{mg\_skip\_frames(
+    of, 
+    fex, 
+    vidcap, 
+    skip, 
+    fps, 
+    length, 
+    width, 
+    height):}
 \\\\
-This function simply plays the current vidcap VideoObject. The speed of the video playback 
-might not match the true fps due to non-optimized code. 
+Defined in \textit{\_videoadjust.py}.\\
+Time-shrinks the video by skipping (discarding) every n frames 
+determined by \code{skip}.
 \\\\
-Parameters:
+
+\noindent Parameters
 \begin{itemize}
-\item[] filename(str): If left empty, the current vidcap object is played. If filename is given,
-this file is played instead.
+\item of : str
+
+'Only filename' without extension (but with path to the file).
+
+\item fex : str
+
+File extension.
+
+\item vidcap : 
+
+cv2 capture of video file, with all frames ready to be 
+read with \code{vidcap.read()}.
+\item skip : int
+
+Every n frames to discard. \code{skip=0} keeps all frames, 
+\code{skip=1} skips every other frame.
+
+\item fps : int
+
+The FPS (frames per second) of the input video capture.
+
+\item length : int
+
+The number of frames in the input video capture.
+
+\item width : int
+
+The pixel width of the input video capture. 
+\item height : int
+
+The pixel height of the input video capture.
 \end{itemize}
-Returns:
+
+\noindent Outputs
 \begin{itemize}
-    \item[] None
+\item A video file with the name \code{of} + '\_skip' + \code{fex}.
+\end{itemize}
+
+\noindent Returns
+\begin{itemize}
+\item videcap :
+
+cv2 video capture of output video file.
+
+\item length : int
+
+The number of frames in the output video file.
+
+\item fps : int
+
+The FPS (frames per second) of the output video file.
+
+\item width : int
+
+The pixel width of the output video file. 
+
+\item height : int
+
+The pixel height of the output video file. 
 \end{itemize}
 
 
 
-\section{Functions}
-\subsection{average\_image}
-    average\_image(filename, normalize = True):
-    \\\\
-    Post-processing tool. Finds and saves an average image of entire video. \\\\Usage:\\
-    from \_motionaverage import motionaverage
-    \\motionaverage('filename.avi')
-    \\\\
-    Parameters:
-    \begin{itemize}
-        \item [] filename (str): name of video 
-        \item [] normalize (bool): Scales pixel values to lie between 0 and 255. Additionally the pixel value (in HSV color space) histogram is flattened.  
-    \end{itemize}
-    Returns:
-    \begin{itemize}
-        \item [] None
-    \end{itemize}
+\subsection{mg\_videoreader}
 
-\subsection{history}
-history(filename,history\_length = 10):\\\\
-This function  creates a video where each frame is the average of the $n$ previous frames, where $n$ is determined
-from history\_length.
-The history frames are summed up and normalized, and added to the current frame to show the history. \\
-Outputs a video called filename + '\_history.avi'.
+\code{mg\_videoreader(
+    filename,
+    starttime=0,
+    endtime=0,
+    skip=0,
+    rotate=0,
+    contrast=0,
+    brightness=0,
+    crop='None',
+    color=True,
+    keep\_all=False,
+    returned\_by\_process=False):}
 \\\\
-Parameters:
+Defined in \textit{\_videoreader.py}.\\
+Reads in a video file, and optionally apply several different 
+processes on it. These include:
 \begin{itemize}
-\item[] history\_length (int): How many frames will be saved to the history tail.
+\item trimming,
+\item skipping,
+\item rotating,
+\item applying brightness and contrast,
+\item cropping,
+\item converting to grayscale.
 \end{itemize}
-Returns:
+
+\noindent Parameters
 \begin{itemize}
-\item[] None
+\item filename : str
+
+Path to the input video file.
+
+\item starttime : int or float, optional
+
+Trims the video from this start time (s).
+
+\item endtime : int or float, optional
+
+Trims the video until this end time (s).
+
+\item skip : int, optional
+
+Time-shrinks the video by skipping (discarding) every n 
+frames determined by \code{skip}.
+
+\item rotate : int or float, optional
+
+Rotates the video by a \code{rotate} degrees.
+
+\item contrast : int or float, optional
+
+Applies +/- 100 contrast to video.
+
+\item brightness : int or float, optional
+
+Applies +/- 100 brightness to video.
+
+\item crop : \{'none', 'manual', 'auto'\}, optional
+
+If \code{manual}, opens a window displaying the first frame of the 
+input video file, where the user can draw a rectangle to which 
+cropping is applied. If \code{auto} the cropping function attempts to 
+determine the area of significant motion and applies the cropping 
+to that area.
+
+\item color : bool, optional
+
+Default is \code{True}. If \code{False}, converts the video to 
+grayscale and sets every method in grayscale mode.
+
+\item keep\_all : bool, optional
+
+Default is \code{False}. If \code{True}, preserves an output 
+video file after each used preprocessing stage.
 \end{itemize}
 
-\subsection{centroid}
-    centroid(image, width, height):
-    \\\\
-    Computes the centroid of motion and quantity of motion of an image/frame.
-    \\\\
-    Parameters:
-    \begin{itemize}
-    \item [] image (numpy array(uint8))
-    \item [] width (int)
-    \item [] height (int)
-    \end{itemize}
-    Returns:
-    \begin{itemize}
-    \item [] Centroid of motion ([X(int),Y(int)]): X,Y(origo in bottom left corner) coordinate of the maximum change in pixel value
-    \item [] Quantity of motion (int): How large was the change in pixel value
-    \end{itemize}
-
-\subsection{constrainNumber}
-    constrainNumber(n, minn, maxn)\\\\
-    Constrains number to having a value between minn and maxn
-    \\\\
-    Parameters:
-    \begin{itemize}
-    \item [] n (int, float): number to constrain
-    \item [] minn (int, float): lower limit n can be
-    \item [] maxn (int, float): lower limit n can be
-    \end{itemize}
-    Returns:
-    \begin{itemize}
-    \item [] Constrained number(int, float)
+\noindent Outputs
+\begin{itemize}
+\item A video file with the applied processes. The name of the file 
+will be \code{filename} + a suffix for each process.
 \end{itemize}
 
-\subsection{filter\_frame}
-    filter\_frame(motion\_frame, filtertype,thresh,kernel\_size)
-    \\\\
-    Apply a filter to a picture/videoframe
-    \\\\
-    Parameters:
-    \begin{itemize}
-    \item [] motion\_frame (array(uint8)): input motion image
-    \item [] filtertype (str): ’Regular’, turns all values below thresh to 0, ’Binary’ turns all values below thresh to 0, above thresh to 1, ’Blob’ removes individual pixels with erosion method.
-    \item [] thresh (float): for ’Regular’ and ’Binary’ option, thresh is a value of threshold [0,1];
-    \item [] kernel\_size(int): Size of structuring element
-    \end{itemize}
-    Returns: 
-    \begin{itemize}
-    \item [] filtered frame (array(uint8))
-    \end{itemize}
+\indent Returns
+\begin{itemize}
+\item length : int
+
+The number of frames in the output video file.
+
+\item width : int
+
+The pixel width of the output video file. 
+
+\item height : int
+
+The pixel height of the output video file. 
+
+\item fps : int
+
+The FPS (frames per second) of the output video file.
+
+\item endtime : float
+
+The length of the output video file in seconds.
+
+\item of: str
+
+The path to the output video file without its extension.
+The file name gets a suffix for each used process.
+
+\item fex : str
+
+The file extension of the output video file.
+Currently it is always 'avi'.
+\end{itemize}
+
+
+
+
+
+
+
+
+
+
 
 \end{document}
