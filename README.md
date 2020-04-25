@@ -2,7 +2,7 @@
 
 The Musical Gestures Toolbox for Python is a collection of tools for video visualization and video analysis.
 
-![MGT python](documentation/figures/mgt-python_640.jpg)
+![MGT python](https://github.com/fourMs/MGT-python/blob/master/documentation/figures/mgt-python_640.jpg)
 
 
 ## About
@@ -29,16 +29,9 @@ MGT can generate both dynamic and static visualizations, as well as some quantit
 
 ### Windows, macOS and Linux
 
-Step 1: Clone the git repository:
+Standard installation via pip: paste and execute the following code in the Terminal (macOS, Linux) or the PowerShell (Windows): 
 
-    git clone https://github.com/fourMs/MGT-python.git
-
-Step 2 (if Python 3 is not installed): Install Python 3 either by installing [Anaconda 3](https://www.anaconda.com/distribution/) (Python distribution) or directly at [python.org](http://www.python.org).
-
-Step 3: Install the necessary packages: [OpenCV](https://opencv.org/releases/), [moviepy](https://zulko.github.io/moviepy/install.html),[dvipng](https://ctan.org/pkg/dvipng?lang=en) and [FFmpeg](https://ffmpeg.org/download.html). Some of these packages have many dependencies, so remember to check that everything installs correctly. With pip you can run:
-
-    pip3 install opencv-python moviepy ffmpeg ffmpeg-python scipy
-
+`pip install mgmodule`
 
 ## Usage
 
@@ -63,7 +56,7 @@ There is no publication mentioning this toolbox yet. But you could reference thi
 
 ## Credits
 
-Developers: [Frida Furmyr](https://github.com/fridafu), [Marcus Widmer](https://github.com/marcuswidmer), [Bálint Laczkó](https://github.com/balintlaczko), [Alexander Refsum Jensenius](https://github.com/alexarje/)
+Developers: [Frida Furmyr](https://github.com/fridafu), [Marcus Widmer](https://github.com/marcuswidmer), [Balint Laczko](https://github.com/balintlaczko), [Alexander Refsum Jensenius](https://github.com/alexarje/)
 
 ## License
 
