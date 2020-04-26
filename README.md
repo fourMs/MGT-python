@@ -35,7 +35,7 @@ Standard installation via pip: paste and execute the following code in the Termi
 
 ## Usage
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fourMs/MGT-python/blob/master/MotionGesturesToolbox.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fourMs/MGT-python/blob/master/MusicalGesturesToolbox.ipynb)
 
 The Jupyter notebook [MotionGesturesToolbox.ipynb](https://github.com/fourMs/MGT-python/blob/master/MotionGesturesToolbox.ipynb) shows examples of the usage of the toolbox.
 
