@@ -31,7 +31,7 @@ MGT can generate both dynamic and static visualizations, as well as some quantit
 
 Standard installation via pip: paste and execute the following code in the Terminal (macOS, Linux) or the PowerShell (Windows):
 
-`pip install mgmodule`
+`pip install musicalgestures`
 
 ## Usage
 
