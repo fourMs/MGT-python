@@ -35,7 +35,7 @@ Standard installation via pip: paste and execute the following code in the Termi
 
 ## Usage
 
-The documentation folder in this repository holds the main documentation file [MGT-doc.pdf](https://github.com/fourMs/MGT-python/blob/master/documentation/MGT_doc.pdf), which describes all functionalities.
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fourMs/MGT-python/blob/master/MotionGesturesToolbox.ipynb)
 
 The Jupyter notebook [MotionGesturesToolbox.ipynb](https://github.com/fourMs/MGT-python/blob/master/MotionGesturesToolbox.ipynb) shows examples of the usage of the toolbox.
 
