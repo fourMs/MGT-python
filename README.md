@@ -2,7 +2,7 @@
 
 The Musical Gestures Toolbox for Python is a collection of tools for video visualization and video analysis.
 
-![MGT python](https://raw.githubusercontent.com/fourMs/MGT-python/master/documentation/figures/mgt-python_640.jpg)
+![MGT python](documentation/figures/promo/mgt-python_640.jpg)
 
 
 ## About
@@ -29,7 +29,7 @@ MGT can generate both dynamic and static visualizations, as well as some quantit
 
 ### Windows, macOS and Linux
 
-Standard installation via pip: paste and execute the following code in the Terminal (macOS, Linux) or the PowerShell (Windows): 
+Standard installation via pip: paste and execute the following code in the Terminal (macOS, Linux) or the PowerShell (Windows):
 
 `pip install mgmodule`
 
