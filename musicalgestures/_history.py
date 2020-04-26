@@ -1,8 +1,8 @@
 import cv2
 import os
 import numpy as np
-from mgmodule._utils import mg_progressbar, extract_wav, embed_audio_in_video
-import mgmodule
+from musicalgestures._utils import extract_wav, embed_audio_in_video, MgProgressbar
+import musicalgestures
 
 
 def history(self, filename='', history_length=10):
@@ -45,6 +45,8 @@ def history(self, filename='', history_length=10):
     height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
     length = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
 
+    pb = MgProgressbar(total=length, prefix='Rendering history video:')
+
     out = cv2.VideoWriter(of + '_history' + fex, fourcc, fps, (width, height))
 
     ii = 0
@@ -79,11 +81,14 @@ def history(self, filename='', history_length=10):
                 out.write(total.astype(np.uint8))
 
         else:
-            mg_progressbar(
-                length, length, 'Rendering history video:', 'Complete')
+            pb.progress(length)
+            # mg_progressbar(
+            #     length, length, 'Rendering history video:', 'Complete')
             break
+
+        pb.progress(ii)
         ii += 1
-        mg_progressbar(ii, length+1, 'Rendering history video:', 'Complete')
+        # mg_progressbar(ii, length+1, 'Rendering history video:', 'Complete')
 
     out.release()
     source_audio = extract_wav(self.of + self.fex)
@@ -91,4 +96,4 @@ def history(self, filename='', history_length=10):
     embed_audio_in_video(source_audio, destination_video)
     os.remove(source_audio)
 
-    return mgmodule.MgObject(destination_video, color=self.color, returned_by_process=True)
+    return musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)

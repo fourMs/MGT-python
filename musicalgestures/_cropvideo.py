@@ -2,8 +2,8 @@ import cv2
 import os
 import numpy as np
 import time
-from mgmodule._utils import mg_progressbar
-from mgmodule._filter import filter_frame
+from musicalgestures._utils import MgProgressbar
+from musicalgestures._filter import filter_frame
 
 
 def mg_cropvideo(
@@ -58,6 +58,7 @@ def mg_cropvideo(
     x_stop, y_stop = -1, -1
 
     drawing = False
+    pb = MgProgressbar(total=length, prefix='Rendering cropped video:')
 
     vid2crop = cv2.VideoCapture(of + fex)
     vid2findbox = cv2.VideoCapture(of + fex)
@@ -99,12 +100,13 @@ def mg_cropvideo(
             out.write(frame_temp)
             ret, frame = vid2crop.read()
         else:
-            mg_progressbar(
-                length, length, 'Rendering cropped video:', 'Complete')
+            pb.progress(length)
+            # mg_progressbar(
+            #     length, length, 'Rendering cropped video:', 'Complete')
             break
-
+        pb.progress(ii)
         ii += 1
-        mg_progressbar(ii, length+1, 'Rendering cropped video:', 'Complete')
+        # mg_progressbar(ii, length+1, 'Rendering cropped video:', 'Complete')
 
     vid2crop.release()
     out.release()
@@ -200,13 +202,15 @@ def find_total_motion_box(vid2findbox, width, height, length, motion_box_thresh,
     total_box = np.zeros([height, width])
     ret, frame = vid2findbox.read()
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    pb = MgProgressbar(total=length, prefix='Finding area of motion:')
     ii = 0
     while(vid2findbox.isOpened()):
         prev_frame = frame.astype(np.int32)
         ret, frame = vid2findbox.read()
         if ret == True:
+            pb.progress(ii)
             ii += 1
-            mg_progressbar(ii, length, 'Finding area of motion:', 'Complete')
+            # mg_progressbar(ii, length, 'Finding area of motion:', 'Complete')
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             frame = frame.astype(np.int32)
 
@@ -220,8 +224,9 @@ def find_total_motion_box(vid2findbox, width, height, length, motion_box_thresh,
         else:
             [total_motion_box, x_start, x_stop, y_start, y_stop] = find_motion_box(
                 total_box, width, height, motion_box_margin)
-            mg_progressbar(
-                length, length, 'Finding area of motion:', 'Complete')
+            pb.progress(length)
+            # mg_progressbar(
+            #     length, length, 'Finding area of motion:', 'Complete')
             break
 
     return x_start, x_stop, y_start, y_stop

@@ -1,8 +1,8 @@
 import cv2
 import os
 import numpy as np
-from mgmodule._utils import mg_progressbar, extract_wav, embed_audio_in_video
-import mgmodule
+from musicalgestures._utils import extract_wav, embed_audio_in_video, MgProgressbar
+import musicalgestures
 
 
 class Flow:
@@ -102,6 +102,9 @@ class Flow:
         height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
 
+        pb = MgProgressbar(
+            total=length, prefix='Rendering dense optical flow video:')
+
         out = cv2.VideoWriter(of + '_flow_dense' + fex,
                               fourcc, fps, (width, height))
 
@@ -145,14 +148,16 @@ class Flow:
                     prev_rgb = rgb
 
             else:
-                mg_progressbar(
-                    length, length, 'Rendering dense optical flow video:', 'Complete')
+                pb.progress(length)
+                # mg_progressbar(
+                #     length, length, 'Rendering dense optical flow video:', 'Complete')
                 break
 
+            pb.progress(ii)
             ii += 1
 
-            mg_progressbar(
-                ii, length+1, 'Rendering dense optical flow video:', 'Complete')
+            # mg_progressbar(
+            #     ii, length+1, 'Rendering dense optical flow video:', 'Complete')
 
         out.release()
         source_audio = extract_wav(of + fex)
@@ -160,7 +165,7 @@ class Flow:
         embed_audio_in_video(source_audio, destination_video)
         os.remove(source_audio)
 
-        return mgmodule.MgObject(destination_video, color=self.color, returned_by_process=True)
+        return musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
 
     def sparse(
             self,
@@ -229,6 +234,9 @@ class Flow:
         height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
 
+        pb = MgProgressbar(
+            total=length, prefix='Rendering sparse optical flow video:')
+
         out = cv2.VideoWriter(of + '_flow_sparse' + fex,
                               fourcc, fps, (width, height))
 
@@ -290,14 +298,16 @@ class Flow:
                 p0 = good_new.reshape(-1, 1, 2)
 
             else:
-                mg_progressbar(
-                    length, length, 'Rendering sparse optical flow video:', 'Complete')
+                pb.progress(length)
+                # mg_progressbar(
+                #     length, length, 'Rendering sparse optical flow video:', 'Complete')
                 break
 
+            pb.progress(ii)
             ii += 1
 
-            mg_progressbar(
-                ii, length+1, 'Rendering sparse optical flow video:', 'Complete')
+            # mg_progressbar(
+            #     ii, length+1, 'Rendering sparse optical flow video:', 'Complete')
 
         out.release()
         source_audio = extract_wav(of + fex)
@@ -305,4 +315,4 @@ class Flow:
         embed_audio_in_video(source_audio, destination_video)
         os.remove(source_audio)
 
-        return mgmodule.MgObject(destination_video, color=self.color, returned_by_process=True)
+        return musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)

@@ -56,9 +56,11 @@ def mg_show(self, filename=None, key=None):
             else:
                 print("No history video found corresponding to",
                       self.of+self.fex, ". Try making one with .history()")
+        # since motionhistory() is deprecated this now expects
+        # a _motion_history which is a result from .motion().history()
         elif key.lower() == 'motionhistory':
-            if os.path.exists(self.of + '_motionhistory' + self.fex):
-                filename = self.of + '_motionhistory' + self.fex
+            if os.path.exists(self.of + '_motion_history' + self.fex):
+                filename = self.of + '_motion_history' + self.fex
             else:
                 print("No motion history video found corresponding to",
                       self.of+self.fex, ". Try making one with .motionhistory()")

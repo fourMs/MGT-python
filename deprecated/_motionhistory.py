@@ -2,10 +2,10 @@ import cv2
 import os
 import numpy as np
 from scipy.signal import medfilt2d
-from mgmodule._centroid import centroid
-from mgmodule._filter import filter_frame
-from mgmodule._utils import mg_progressbar, extract_wav, embed_audio_in_video
-import mgmodule
+from musicalgestures._centroid import centroid
+from musicalgestures._filter import filter_frame
+from musicalgestures._utils import mg_progressbar, extract_wav, embed_audio_in_video
+import musicalgestures
 
 
 def mg_motionhistory(
@@ -160,4 +160,4 @@ def mg_motionhistory(
     embed_audio_in_video(source_audio, destination_video)
     os.remove(source_audio)
 
-    return mgmodule.MgObject(destination_video, color=self.color, returned_by_process=True)
+    return musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
