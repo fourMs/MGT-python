@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import os
-from mgmodule._utils import mg_progressbar, MgImage
+from musicalgestures._utils import MgImage, MgProgressbar
 
 
 def mg_average_image(self, filename='', normalize=True):
@@ -38,6 +38,7 @@ def mg_average_image(self, filename='', normalize=True):
     if self.color == False:
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     average = frame.astype(np.float)/length
+    pb = MgProgressbar(total=length, prefix='Rendering average image:')
     ii = 0
     while(video.isOpened()):
         ret, frame = video.read()
@@ -48,11 +49,13 @@ def mg_average_image(self, filename='', normalize=True):
             frame = frame.astype(np.float)
             average += frame/length
         else:
-            mg_progressbar(
-                length, length, 'Rendering average image:', 'Complete')
+            pb.progress(length)
+            # mg_progressbar(
+            #     length, length, 'Rendering average image:', 'Complete')
             break
+        pb.progress(ii)
         ii += 1
-        mg_progressbar(ii, length, 'Rendering average image:', 'Complete')
+        # mg_progressbar(ii, length, 'Rendering average image:', 'Complete')
 
     if self.color == False:
         average = cv2.cvtColor(average.astype(np.uint8), cv2.COLOR_GRAY2BGR)

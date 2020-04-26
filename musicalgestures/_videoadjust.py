@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from mgmodule._utils import mg_progressbar, scale_num, scale_array
+from musicalgestures._utils import scale_num, scale_array, MgProgressbar
 
 
 def mg_contrast_brightness(of, fex, vidcap, fps, length, width, height, contrast, brightness):
@@ -45,7 +45,8 @@ def mg_contrast_brightness(of, fex, vidcap, fps, length, width, height, contrast
     -------
     - cv2 video capture of output video file.
     """
-
+    pb = MgProgressbar(
+        total=length, prefix='Adjusting contrast and brightness:')
     count = 0
     if brightness != 0 or contrast != 0:
         # keeping values in sensible range
@@ -61,15 +62,17 @@ def mg_contrast_brightness(of, fex, vidcap, fps, length, width, height, contrast
         while success:
             success, image = vidcap.read()
             if not success:
-                mg_progressbar(
-                    length, length, 'Adjusting contrast and brightness:', 'Complete')
+                pb.progress(length)
+                # mg_progressbar(
+                #     length, length, 'Adjusting contrast and brightness:', 'Complete')
                 break
             image = np.int16(image) * (contrast/127+1) - contrast + brightness
             image = np.clip(image, 0, 255)
             out.write(image.astype(np.uint8))
+            pb.progress(count)
             count += 1
-            mg_progressbar(
-                count, length, 'Adjusting contrast and brightness:', 'Complete')
+            # mg_progressbar(
+            #     count, length, 'Adjusting contrast and brightness:', 'Complete')
         out.release()
         vidcap = cv2.VideoCapture(of + '_cb' + fex)
 
@@ -129,6 +132,7 @@ def mg_skip_frames(of, fex, vidcap, skip, fps, length, width, height):
 
         The pixel height of the output video file. 
     """
+    pb = MgProgressbar(total=length, prefix='Skipping frames:')
     count = 0
     if skip != 0:
         fourcc = cv2.VideoWriter_fourcc(*'MJPG')
@@ -138,15 +142,17 @@ def mg_skip_frames(of, fex, vidcap, skip, fps, length, width, height):
         while success:
             success, image = vidcap.read()
             if not success:
-                mg_progressbar(
-                    length, length, 'Skipping frames:', 'Complete')
+                pb.progress(length)
+                # mg_progressbar(
+                #     length, length, 'Skipping frames:', 'Complete')
                 break
             # on every frame we wish to use
             if (count % (skip+1) == 0):  # NB if skip=1, we should keep every other frame
                 out.write(image.astype(np.uint8))
+            pb.progress(count)
             count += 1
-            mg_progressbar(
-                count, length, 'Skipping frames:', 'Complete')
+            # mg_progressbar(
+            #     count, length, 'Skipping frames:', 'Complete')
         out.release()
         vidcap = cv2.VideoCapture(of + '_skip' + fex)
 

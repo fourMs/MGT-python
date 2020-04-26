@@ -1,31 +1,21 @@
-
-
-def mg_progressbar(
-        iteration,
-        total,
-        prefix='',
-        suffix='',
-        decimals=1,
-        length=40,
-        fill='█',
-        printEnd="\r"):
+class MgProgressbar():
     """
     Calls in a loop to create terminal progress bar.
 
-    Parameters
+    Attributes
     ----------
-    - iteration : int
+    - total : int, optional
 
-        Current iteration.
-    - total : int
+        Default is 1000. Total iterations.
+    - time_limit : float, optional
 
-        Total iterations.
+        Default is 0.1. The maximum refresh rate of the progressbar in seconds. 
     - prefix : str, optional
 
-        Prefix string.
+        Default is 'Progress'. Prefix string.
     - suffix : str, optional
 
-        Suffix string.
+        Default is 'Complete'. Suffix string.
     - decimals : int, optional
 
         Default is 1. Positive number of decimals in percent complete.
@@ -35,22 +25,74 @@ def mg_progressbar(
     - fill : str, optional
 
         Default is '█'. Bar fill character.
-    - printEnd : str, optional.
 
-        Default is '\\r'. End of line character.
+    Methods
+    -------
+    - progress(iteration : int)
+
+        Prints the progressbar according to `iteration` which is the 
+        0-based step in the number of steps defined by `self.total`. At the 
+        last step (where the progressbar shows 100%) `iteration` == `total` - 1. 
     """
-    import sys
 
-    percent = ("{0:." + str(decimals) + "f}").format(100 *
-                                                     (iteration / float(total)))
-    filledLength = int(length * iteration // total)
-    bar = fill * filledLength + '-' * (length - filledLength)
-    sys.stdout.flush()
-    sys.stdout.write('\r%s |%s| %s%% %s' %
-                     (prefix, bar, percent, suffix))
-    # Print New Line on Complete
-    if iteration == total:
-        print()
+    def __init__(
+            self,
+            total=100,
+            time_limit=0.1,
+            prefix='Progress',
+            suffix='Complete',
+            decimals=1,
+            length=40,
+            fill='█'):
+
+        self.total = total - 1
+        self.time_limit = time_limit
+        self.prefix = prefix
+        self.suffix = suffix
+        self.decimals = decimals
+        self.length = length
+        self.fill = fill
+        self.now = self.get_now()
+        self.finished = False
+
+    def get_now(self):
+        from datetime import datetime
+        return datetime.timestamp(datetime.now())
+
+    def over_time_limit(self):
+        callback_time = self.get_now()
+        return callback_time - self.now >= self.time_limit
+
+    def progress(self, iteration):
+        if self.finished:
+            return
+        import sys
+        capped_iteration = iteration if iteration <= self.total else self.total
+        # Print New Line on Complete
+        if iteration >= self.total:
+            self.finished = True
+            percent = ("{0:." + str(self.decimals) + "f}").format(100 *
+                                                                  (capped_iteration / float(self.total)))
+            filledLength = int(self.length * capped_iteration // self.total)
+            bar = self.fill * filledLength + '-' * (self.length - filledLength)
+            sys.stdout.flush()
+            sys.stdout.write('\r%s |%s| %s%% %s' %
+                             (self.prefix, bar, percent, self.suffix))
+            print()
+        elif self.over_time_limit():
+            self.now = self.get_now()
+            percent = ("{0:." + str(self.decimals) + "f}").format(100 *
+                                                                  (capped_iteration / float(self.total)))
+            filledLength = int(self.length * capped_iteration // self.total)
+            bar = self.fill * filledLength + '-' * (self.length - filledLength)
+            sys.stdout.flush()
+            sys.stdout.write('\r%s |%s| %s%% %s' %
+                             (self.prefix, bar, percent, self.suffix))
+        else:
+            return
+
+    def __repr__(self):
+        return "MgProgressbar"
 
 
 def scale_num(val, in_low, in_high, out_low, out_high):
@@ -170,7 +212,7 @@ class MgImage():
         import os
         self.of = os.path.splitext(self.filename)[0]
         self.fex = os.path.splitext(self.filename)[1]
-    from mgmodule._show import mg_show as show
+    from musicalgestures._show import mg_show as show
 
     def __repr__(self):
         return f"MgImage('{self.filename}')"

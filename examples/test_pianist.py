@@ -1,12 +1,10 @@
 import sys
 import os
-sys.path.append('../mgmodule')
-sys.path.append('..')
-import mgmodule
+import musicalgestures
 import cv2
 
 # CREATE MODULE OBJECT: Here is an example call to create an mg Object, using loads of parameters
-mg = mgmodule.MgObject('pianist.avi', color=False, crop='auto', skip=3)
+mg = musicalgestures.MgObject('pianist.avi', color=False, crop='auto', skip=3)
 # USE MODULE METHOD: To run the motionvideo analysis, run the function using your object,
 # then create the motion history by chaining the history() function onto the result of the previous (motion) function
 mg.motion(inverted_motionvideo=True, inverted_motiongram=True,

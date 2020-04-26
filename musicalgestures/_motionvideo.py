@@ -1,13 +1,13 @@
-import mgmodule
+import musicalgestures
 import matplotlib.pyplot as plt
 import cv2
 import os
 import numpy as np
 import pandas as pd
 from scipy.signal import medfilt2d
-from mgmodule._centroid import centroid
-from mgmodule._utils import mg_progressbar, extract_wav, embed_audio_in_video, frame2ms
-from mgmodule._filter import filter_frame
+from musicalgestures._centroid import centroid
+from musicalgestures._utils import extract_wav, embed_audio_in_video, frame2ms, MgProgressbar
+from musicalgestures._filter import filter_frame
 
 
 def mg_motionvideo(
@@ -129,6 +129,8 @@ def mg_motionvideo(
         pgbar_text = 'Rendering motion' + ", ".join(np.array(["-video", "-grams", "-plots", "-data"])[
             np.array([save_video, save_motiongrams, save_plot, save_data])]) + ":"
 
+        pb = MgProgressbar(total=self.length, prefix=pgbar_text)
+
         if self.color == False:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             if save_motiongrams:
@@ -210,13 +212,15 @@ def mg_motionvideo(
                         com = np.append(com, combite.reshape(1, 2), axis=0)
                         qom = np.append(qom, qombite)
             else:
-
-                mg_progressbar(self.length, self.length,
-                               pgbar_text, 'Complete')
+                pb.progress(self.length)
+                # mg_progressbar(self.length, self.length,
+                #                pgbar_text, 'Complete')
                 break
+
+            pb.progress(ii)
             ii += 1
-            mg_progressbar(ii, self.length,
-                           pgbar_text, 'Complete')
+            # mg_progressbar(ii, self.length,
+            #                pgbar_text, 'Complete')
 
         if save_motiongrams:
             if self.color == False:
@@ -265,13 +269,13 @@ def mg_motionvideo(
             destination_video = self.of + '_motion' + self.fex
             embed_audio_in_video(source_audio, destination_video)
             os.remove(source_audio)
-            return mgmodule.MgObject(destination_video, color=self.color, returned_by_process=True)
+            return musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
         else:
-            return mgmodule.MgObject(self.of + self.fex, color=self.color, returned_by_process=True)
+            return musicalgestures.MgObject(self.of + self.fex, color=self.color, returned_by_process=True)
 
     else:
         print("Nothing to render. Exiting...")
-        return mgmodule.MgObject(self.of + self.fex, returned_by_process=True)
+        return musicalgestures.MgObject(self.of + self.fex, returned_by_process=True)
 
 
 def plot_motion_metrics(of, fps, com, qom, width, height, unit):
