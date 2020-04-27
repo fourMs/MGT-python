@@ -104,7 +104,7 @@ class MgObject:
     from musicalgestures._motionvideo import mg_motionvideo as motion
     from musicalgestures._motionvideo import plot_motion_metrics
     from musicalgestures._cropvideo import mg_cropvideo, find_motion_box, find_total_motion_box
-    from musicalgestures._motionhistory import mg_motionhistory as motionhistory
+    # from musicalgestures._motionhistory import mg_motionhistory as motionhistory
     from musicalgestures._show import mg_show as show
     from musicalgestures._history import history
     from musicalgestures._average import mg_average_image as average
