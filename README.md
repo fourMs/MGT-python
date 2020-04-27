@@ -2,7 +2,7 @@
 
 The Musical Gestures Toolbox for Python is a collection of tools for video visualization and video analysis.
 
-![MGT python](https://raw.githubusercontent.com/fourMs/MGT-python/master/documentation/figures/promo/ipython_example.gif)
+![MGT python](https://raw.githubusercontent.com/fourMs/MGT-python/master/musicalgestures/documentation/figures/promo/ipython_example.gif)
 
 
 ## About
@@ -35,9 +35,9 @@ Standard installation via pip: paste and execute the following code in the Termi
 
 ## Usage
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fourMs/MGT-python/blob/master/MusicalGesturesToolbox.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fourMs/MGT-python/blob/master/musicalgestures/MusicalGesturesToolbox.ipynb)
 
-The Jupyter notebook [MotionGesturesToolbox.ipynb](https://github.com/fourMs/MGT-python/blob/master/MotionGesturesToolbox.ipynb) shows examples of the usage of the toolbox.
+The Jupyter notebook [MotionGesturesToolbox.ipynb](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/MusicalGesturesToolbox.ipynb) shows examples of the usage of the toolbox.
 
 ## History
 
