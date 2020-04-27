@@ -1,6 +1,6 @@
 include README.md
 include setup.cfg
-include MotionGesturesToolbox.ipynb
+include MusicalGesturesToolbox.ipynb
 include dance.avi
 include LICENSE
 graft documentation
