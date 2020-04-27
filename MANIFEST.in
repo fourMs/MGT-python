@@ -1,7 +1,6 @@
 include README.md
 include setup.cfg
-include MusicalGesturesToolbox.ipynb
-include dance.avi
-include LICENSE
-graft documentation
-graft examples
+graft musicalgestures
+prune musicalgestures/deprecated
+prune musicalgestures/documentation
+prune musicalgestures/paper

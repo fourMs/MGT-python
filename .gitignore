@@ -18,4 +18,6 @@ __pycache__/
 */.ipynb_checkpoints/*
 fix_notebook.py
 read_readme.py
-dist/mgmodule-v1.0.5.tar.gz
+dist
+build
+musicalgestures.egg-info
