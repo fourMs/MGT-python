@@ -1,7 +1,4 @@
-import sys
-import os
 import musicalgestures
-import cv2
 
 # CREATE MODULE OBJECT: Here is an example call to create an mg Object, using loads of parameters
 mg = musicalgestures.MgObject('pianist.avi', color=False, crop='auto', skip=3)

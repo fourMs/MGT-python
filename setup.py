@@ -12,16 +12,22 @@ README = (HERE / "README.md").read_text()
 setup(
     name='musicalgestures',
     packages=['musicalgestures'],
-    version='v1.0.5.6',
+    version='v1.0.5.12',
     license='GNU General Public License v3 (GPLv3)',
     description='Musical Gestures Toolbox for Python',
     long_description=README,
     long_description_content_type='text/markdown',
     include_package_data=True,
+    data_files=[
+        ('Lib/site-packages/musicalgestures',
+         ['MusicalGesturesToolbox.ipynb', 'dance.avi', 'LICENSE', 'README.md']),
+        ('Lib/site-packages/musicalgestures/examples',
+         ['__init__.py', 'Filtering.ipynb', 'pianist.avi', 'test_dance.py', 'test_pianist.py'])
+    ],
     author='University of Oslo fourMs Lab',
     author_email='a.r.jensenius@imv.uio.no',
     url='https://github.com/fourMs/MGT-python',
-    download_url='https://github.com/fourMs/MGT-python/archive/v1.0.5.6.tar.gz',
+    download_url='https://github.com/fourMs/MGT-python/archive/v1.0.5.12.tar.gz',
     keywords=['Computer Vision', 'Motion Analysis',
               'Musical Gestures', 'Video-Analysis'],
     install_requires=[
@@ -34,6 +40,7 @@ setup(
         'ffmpeg-python',
         'scipy'
     ],
+    python_requires='~=3.6',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Science/Research',
