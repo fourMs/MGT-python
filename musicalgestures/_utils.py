@@ -148,6 +148,7 @@ def scale_array(array, out_low, out_high):
 
         The scaled array.
     """
+    import numpy as np
     minimum, maximum = np.min(array), np.max(array)
     m = (out_high - out_low) / (maximum - minimum)
     b = out_low - m * minimum
@@ -242,11 +243,68 @@ def convert_to_avi(filename):
     """
     import os
     of = os.path.splitext(filename)[0]
-    fex = os.path.splitext(filename)[1]
+    #fex = os.path.splitext(filename)[1]
     cmds = ' '.join(['ffmpeg', '-i', filename, "-c:v",
                      "mjpeg", "-q:v", "3", of + '.avi'])
     os.system(cmds)
     return of + '.avi'
+
+
+def cast_into_avi(filename):
+    """
+    *Experimental*
+    Casts a video into and .avi container using ffmpeg. Much faster than `convert_to_avi`,
+    but does not always work well with cv2 or built-in video players.
+
+    Parameters
+    ----------
+    - filename : str
+
+        Path to the input video file.
+
+    Outputs
+    -------
+    - `filename`.avi
+
+        The converted video file.
+
+    Returns
+    -------
+    - str
+
+        The path to the output '.avi' file.
+    """
+    import os
+    of = os.path.splitext(filename)[0]
+    #fex = os.path.splitext(filename)[1]
+    cmds = ' '.join(['ffmpeg', '-i', filename, "-codec copy", of + '.avi'])
+    os.system(cmds)
+    return of + '.avi'
+
+
+def extract_subclip(filename, t1, t2, targetname=None):
+    """ Single threaded version of the same function from ffmpeg_tools.
+    Makes a new video file playing video file ``filename`` between
+        the times ``t1`` and ``t2``. """
+    import os
+    import numpy as np
+    name, ext = os.path.splitext(filename)
+    length = get_length(filename)
+    start, end = np.clip(t1, 0, length), np.clip(t2, 0, length)
+    if start > end:
+        end = length
+
+    if not targetname:
+        T1, T2 = [int(1000*t) for t in [start, end]]
+        targetname = "%sSUB%d_%d.%s" % (name, T1, T2, ext)
+
+    cmd = ' '.join(['ffmpeg', "-y",
+                    "-ss", "%0.2f" % start,
+                    "-i", filename,
+                    "-t", "%0.2f" % (end-start),
+                    "-map", "0", "-codec copy", targetname])
+    # uses os.system instead of subprocess
+    os.system(cmd)
 
 
 def rotate_video(filename, angle):
@@ -337,7 +395,7 @@ def extract_wav(filename):
     """
     import os
     of = os.path.splitext(filename)[0]
-    fex = os.path.splitext(filename)[1]
+    #fex = os.path.splitext(filename)[1]
     cmds = ' '.join(['ffmpeg', '-i', filename, "-acodec",
                      "pcm_s16le", of + '.wav'])
     os.system(cmds)
@@ -360,10 +418,9 @@ def get_length(filename):
 
         The length of the input video file in seconds.
     """
-    import subprocess
-    result = subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of',
-                             'default=noprint_wrappers=1:nokey=1', filename], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    return float(result.stdout)
+    from moviepy.editor import VideoFileClip
+    clip = VideoFileClip(filename)
+    return float(clip.duration)
 
 
 def audio_dilate(filename, dilation_ratio=1):

@@ -21,3 +21,4 @@ read_readme.py
 dist
 build
 musicalgestures.egg-info
+test-videos

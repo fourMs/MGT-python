@@ -1,10 +1,10 @@
 import cv2
 import os
-from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
+#from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 import numpy as np
 from musicalgestures._videoadjust import mg_contrast_brightness, mg_skip_frames
 from musicalgestures._cropvideo import *
-from musicalgestures._utils import convert_to_avi, rotate_video, extract_wav, embed_audio_in_video, convert_to_grayscale
+from musicalgestures._utils import convert_to_avi, rotate_video, extract_wav, embed_audio_in_video, convert_to_grayscale, extract_subclip, get_length
 
 
 class ReadError(Exception):
@@ -124,10 +124,11 @@ def mg_videoreader(
 
     # Cut out relevant bit of video using starttime and endtime
     if starttime != 0 or endtime != 0:
-        print("Trimming...")
-        trimvideo = ffmpeg_extract_subclip(
-            filename, starttime, endtime, targetname=of + '_trim' + fex)
-        print("Trimming done.")
+        print("Trimming...", end='')
+        # if starttime != 0 and endtime == 0:
+        #     endtime = get_length(filename)
+        extract_subclip(filename, starttime, endtime, targetname=of + '_trim' + fex)
+        print(" done.")
         of = of + '_trim'
         trimming = True
         vidcap = cv2.VideoCapture(of+fex)
@@ -142,7 +143,9 @@ def mg_videoreader(
     height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
 
-    if fps == 0:
+    #test reading
+    success, _ = vidcap.read()
+    if fps == 0 or length == 0: # or not success:
         raise ReadError(f"Could not open {filename}.")
 
     source_length_s = length / fps
