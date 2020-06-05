@@ -22,3 +22,6 @@ dist
 build
 musicalgestures.egg-info
 test-videos
+.vscode/settings.json
+dance.avi
+MusicalGesturesToolbox.ipynb
