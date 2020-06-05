@@ -95,6 +95,8 @@ def mg_show(self, filename=None, key=None):
             print("Error opening video stream or file")
         i = int(np.round((1/fps)*1000))
 
+        video_title = os.path.basename(filename)
+
         # Read until video is completed
         while(vidcap.isOpened()):
             # Capture frame-by-frame
@@ -102,10 +104,11 @@ def mg_show(self, filename=None, key=None):
             if ret == True:
 
                 # Display the resulting frame
-                cv2.imshow('Frame', frame)
+                cv2.imshow(video_title, frame)
 
                 # Press Q on keyboard to  exit
-                if cv2.waitKey(i) & 0xFF == ord('q'):
+                # if cv2.waitKey(i) & 0xFF == ord('q'):
+                if cv2.waitKey(i) & 0xFF in [27, ord('q'), ord(' ')]:
                     break
 
             # Break the loop
