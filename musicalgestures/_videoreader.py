@@ -116,12 +116,6 @@ def mg_videoreader(
     cbing = False
     cropping = False
 
-    if fex != '.avi':
-        print("Converting from", fex, "to .avi...")
-        convert_to_avi(filename)
-        fex = '.avi'
-        filename = of + fex
-
     # Cut out relevant bit of video using starttime and endtime
     if starttime != 0 or endtime != 0:
         print("Trimming...", end='')
@@ -131,11 +125,14 @@ def mg_videoreader(
         print(" done.")
         of = of + '_trim'
         trimming = True
-        vidcap = cv2.VideoCapture(of+fex)
 
-    # Or just use whole video
-    else:
-        vidcap = cv2.VideoCapture(of + fex)
+    if fex != '.avi':
+        print("Converting from", fex, "to .avi...")
+        convert_to_avi(of + fex)
+        fex = '.avi'
+        filename = of + fex
+
+    vidcap = cv2.VideoCapture(of + fex)
 
     # Get props from vidcap
     fps = int(vidcap.get(cv2.CAP_PROP_FPS))

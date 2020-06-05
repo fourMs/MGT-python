@@ -404,7 +404,7 @@ def extract_wav(filename):
 
 def get_length(filename):
     """
-    Gets the length (s) of a video using ffprobe.
+    Gets the length (s) of a video using moviepy.
 
     Parameters
     ----------
@@ -421,6 +421,30 @@ def get_length(filename):
     from moviepy.editor import VideoFileClip
     clip = VideoFileClip(filename)
     return float(clip.duration)
+
+
+def has_audio(filename):
+    """
+    Gets the length (s) of a video using moviepy.
+
+    Parameters
+    ----------
+    - filename : str
+
+        Path to the video file to be checked.
+
+    Returns
+    -------
+    - bool
+
+        `True`if `filename` has an audio track, `False` otherwise.
+    """
+    from moviepy.editor import VideoFileClip
+    clip = VideoFileClip(filename)
+    if clip.audio == None:
+        return False
+    else:
+        return True
 
 
 def audio_dilate(filename, dilation_ratio=1):
