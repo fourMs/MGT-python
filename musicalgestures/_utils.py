@@ -245,7 +245,7 @@ def convert_to_avi(filename):
     of = os.path.splitext(filename)[0]
     #fex = os.path.splitext(filename)[1]
     cmds = ' '.join(['ffmpeg', '-i', filename, "-c:v",
-                     "mjpeg", "-q:v", "3", of + '.avi'])
+                     "mjpeg", "-q:v", "3", "-c:a", "copy", of + '.avi'])
     os.system(cmds)
     return of + '.avi'
 

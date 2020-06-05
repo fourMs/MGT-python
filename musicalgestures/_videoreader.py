@@ -233,4 +233,7 @@ def mg_videoreader(
         embed_audio_in_video(source_audio, of + fex, dilation_ratio)
         os.remove(source_audio)
 
+    if vidcap:
+        vidcap.release()
+
     return length, width, height, fps, endtime, of, fex, video_has_audio_track
