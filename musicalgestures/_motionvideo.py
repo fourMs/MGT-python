@@ -265,10 +265,11 @@ def mg_motionvideo(
 
         if save_video:
             out.release()
-            source_audio = extract_wav(self.of + self.fex)
             destination_video = self.of + '_motion' + self.fex
-            embed_audio_in_video(source_audio, destination_video)
-            os.remove(source_audio)
+            if self.has_audio:
+                source_audio = extract_wav(self.of + self.fex)
+                embed_audio_in_video(source_audio, destination_video)
+                os.remove(source_audio)
             return musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
         else:
             return musicalgestures.MgObject(self.of + self.fex, color=self.color, returned_by_process=True)

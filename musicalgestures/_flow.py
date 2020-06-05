@@ -18,6 +18,10 @@ class Flow:
 
         Set class methods in color or grayscale mode. Passed by parent MgObject.
 
+    - has_audio : bool
+
+        Indicates whether source video file has an audio track. Passed by parent MgObject.
+
     Methods
     -------
     - dense()
@@ -28,9 +32,10 @@ class Flow:
         Renders a sparse optical flow video of the input video file.
     """
 
-    def __init__(self, filename, color):
+    def __init__(self, filename, color, has_audio):
         self.filename = filename
         self.color = color
+        self.has_audio = has_audio
 
     def dense(
             self,
@@ -160,10 +165,13 @@ class Flow:
             #     ii, length+1, 'Rendering dense optical flow video:', 'Complete')
 
         out.release()
-        source_audio = extract_wav(of + fex)
+
         destination_video = of + '_flow_dense' + fex
-        embed_audio_in_video(source_audio, destination_video)
-        os.remove(source_audio)
+
+        if self.has_audio:
+            source_audio = extract_wav(of + fex)
+            embed_audio_in_video(source_audio, destination_video)
+            os.remove(source_audio)
 
         return musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
 
@@ -310,9 +318,12 @@ class Flow:
             #     ii, length+1, 'Rendering sparse optical flow video:', 'Complete')
 
         out.release()
-        source_audio = extract_wav(of + fex)
+        
         destination_video = of + '_flow_sparse' + fex
-        embed_audio_in_video(source_audio, destination_video)
-        os.remove(source_audio)
+
+        if self.has_audio:
+            source_audio = extract_wav(of + fex)
+            embed_audio_in_video(source_audio, destination_video)
+            os.remove(source_audio)
 
         return musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)

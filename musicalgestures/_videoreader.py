@@ -4,7 +4,7 @@ import os
 import numpy as np
 from musicalgestures._videoadjust import mg_contrast_brightness, mg_skip_frames
 from musicalgestures._cropvideo import *
-from musicalgestures._utils import convert_to_avi, rotate_video, extract_wav, embed_audio_in_video, convert_to_grayscale, extract_subclip, get_length
+from musicalgestures._utils import has_audio, convert_to_avi, rotate_video, extract_wav, embed_audio_in_video, convert_to_grayscale, extract_subclip, get_length
 
 
 class ReadError(Exception):
@@ -119,13 +119,12 @@ def mg_videoreader(
     # Cut out relevant bit of video using starttime and endtime
     if starttime != 0 or endtime != 0:
         print("Trimming...", end='')
-        # if starttime != 0 and endtime == 0:
-        #     endtime = get_length(filename)
         extract_subclip(filename, starttime, endtime, targetname=of + '_trim' + fex)
         print(" done.")
         of = of + '_trim'
         trimming = True
 
+    # Convert to avi if the input is not avi - necesarry for cv2 compatibility on all platforms
     if fex != '.avi':
         print("Converting from", fex, "to .avi...")
         convert_to_avi(of + fex)
@@ -142,7 +141,7 @@ def mg_videoreader(
 
     #test reading
     success, _ = vidcap.read()
-    if fps == 0 or length == 0: # or not success:
+    if fps == 0 or length == 0 or not success:
         raise ReadError(f"Could not open {filename}.")
 
     source_length_s = length / fps
@@ -150,10 +149,12 @@ def mg_videoreader(
     new_length_s = source_length_s
     dilation_ratio = 1
     need_to_embed_audio = False
+    video_has_audio_track = has_audio(source_name)
 
     if skip != 0 or contrast != 0 or brightness != 0 or crop.lower() != 'none':
-        source_audio = extract_wav(source_name)
-        need_to_embed_audio = True
+        if video_has_audio_track:
+            source_audio = extract_wav(source_name)
+            need_to_embed_audio = True
 
     # To skip ahead a few frames before the next sample set skip to a value above 0
     if skip != 0:
@@ -167,7 +168,8 @@ def mg_videoreader(
         dilation_ratio = source_length_s / new_length_s
         if keep_all:
             vidcap.release()
-            embed_audio_in_video(source_audio, of + fex, dilation_ratio)
+            if video_has_audio_track:
+                embed_audio_in_video(source_audio, of + fex, dilation_ratio)
 
     # Overwrite the inputvalue for endtime not to cut the video at 0...
     if endtime == 0:
@@ -182,7 +184,7 @@ def mg_videoreader(
             os.remove(of + fex)
         of = of + '_rot'
         rotating = True
-        if keep_all:
+        if keep_all and video_has_audio_track:
             embed_audio_in_video(source_audio, of + fex, dilation_ratio)
 
     # Apply contrast/brightness before the motion analysis
@@ -197,7 +199,8 @@ def mg_videoreader(
         cbing = True
         if keep_all:
             vidcap.release()
-            embed_audio_in_video(source_audio, of + fex, dilation_ratio)
+            if video_has_audio_track:
+                embed_audio_in_video(source_audio, of + fex, dilation_ratio)
 
     # Crops video either manually or automatically
     if crop.lower() != 'none':
@@ -211,7 +214,8 @@ def mg_videoreader(
         cropping = True
         if keep_all:
             vidcap.release()
-            embed_audio_in_video(source_audio, of + fex, dilation_ratio)
+            if video_has_audio_track:
+                embed_audio_in_video(source_audio, of + fex, dilation_ratio)
 
     if color == False and returned_by_process == False:
         vidcap.release()
@@ -229,4 +233,4 @@ def mg_videoreader(
         embed_audio_in_video(source_audio, of + fex, dilation_ratio)
         os.remove(source_audio)
 
-    return length, width, height, fps, endtime, of, fex
+    return length, width, height, fps, endtime, of, fex, video_has_audio_track

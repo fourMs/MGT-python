@@ -96,10 +96,11 @@ class MgObject:
         self.crop = crop
         self.rotate = rotate
         self.keep_all = keep_all
+        self.has_audio = None
         self.returned_by_process = returned_by_process
         self.test_input()
         self.get_video()
-        self.flow = Flow(self.filename, self.color)
+        self.flow = Flow(self.filename, self.color, self.has_audio)
 
     from musicalgestures._motionvideo import mg_motionvideo as motion
     from musicalgestures._motionvideo import plot_motion_metrics
@@ -116,7 +117,7 @@ class MgObject:
 
     def get_video(self):
         """ Creates a video attribute to the Musical Gestures object with the given correct settings. """
-        self.length, self.width, self.height, self.fps, self.endtime, self.of, self.fex = mg_videoreader(
+        self.length, self.width, self.height, self.fps, self.endtime, self.of, self.fex, self.has_audio = mg_videoreader(
             filename=self.filename,
             starttime=self.starttime,
             endtime=self.endtime,
