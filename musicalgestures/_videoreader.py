@@ -4,7 +4,7 @@ import os
 import numpy as np
 from musicalgestures._videoadjust import mg_contrast_brightness, mg_skip_frames
 from musicalgestures._cropvideo import *
-from musicalgestures._utils import has_audio, convert_to_avi, rotate_video, extract_wav, embed_audio_in_video, convert_to_grayscale, extract_subclip, get_length
+from musicalgestures._utils import has_audio, convert_to_avi, rotate_video, extract_wav, embed_audio_in_video, convert_to_grayscale, extract_subclip, get_length, skip_frames_ffmpeg
 
 
 class ReadError(Exception):
@@ -152,25 +152,44 @@ def mg_videoreader(
     need_to_embed_audio = False
     video_has_audio_track = has_audio(source_name)
 
-    if skip != 0 or contrast != 0 or brightness != 0 or crop.lower() != 'none':
+    # if skip != 0 or contrast != 0 or brightness != 0 or crop.lower() != 'none':
+    if contrast != 0 or brightness != 0 or crop.lower() != 'none':
         if video_has_audio_track:
             source_audio = extract_wav(source_name)
             need_to_embed_audio = True
 
     # To skip ahead a few frames before the next sample set skip to a value above 0
+    # if skip != 0:
+    #     vidcap, length, fps, width, height = mg_skip_frames(
+    #         of, fex, vidcap, skip, fps, length, width, height)
+    #     if not keep_all and trimming:
+    #         os.remove(of + fex)
+    #     of = of + '_skip'
+    #     skipping = True
+    #     new_length_s = length / fps
+    #     dilation_ratio = source_length_s / new_length_s
+    #     if keep_all:
+    #         vidcap.release()
+    #         if video_has_audio_track:
+    #             embed_audio_in_video(source_audio, of + fex, dilation_ratio)
+
     if skip != 0:
-        vidcap, length, fps, width, height = mg_skip_frames(
-            of, fex, vidcap, skip, fps, length, width, height)
+        skipped_video = skip_frames_ffmpeg(of + fex, skip)
         if not keep_all and trimming:
-            os.remove(of + fex)
+            os.remove(of+fex)
+
         of = of + '_skip'
         skipping = True
+
+        vidcap.release()
+        vidcap = cv2.VideoCapture(of + fex)
+        length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
+        fps = int(vidcap.get(cv2.CAP_PROP_FPS))
+        width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
         new_length_s = length / fps
         dilation_ratio = source_length_s / new_length_s
-        if keep_all:
-            vidcap.release()
-            if video_has_audio_track:
-                embed_audio_in_video(source_audio, of + fex, dilation_ratio)
 
     # Overwrite the inputvalue for endtime not to cut the video at 0...
     if endtime == 0:
