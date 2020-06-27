@@ -263,6 +263,7 @@ def mg_motionvideo(
             plot_motion_metrics(self.of, self.fps, com, qom,
                                 self.width, self.height, unit)
 
+        vidcap.release()
         if save_video:
             out.release()
             destination_video = self.of + '_motion' + self.fex

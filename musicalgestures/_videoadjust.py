@@ -154,6 +154,7 @@ def mg_skip_frames(of, fex, vidcap, skip, fps, length, width, height):
             # mg_progressbar(
             #     count, length, 'Skipping frames:', 'Complete')
         out.release()
+        vidcap.release()
         vidcap = cv2.VideoCapture(of + '_skip' + fex)
 
         length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))

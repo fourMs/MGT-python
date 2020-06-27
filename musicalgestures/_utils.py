@@ -420,7 +420,9 @@ def get_length(filename):
     """
     from moviepy.editor import VideoFileClip
     clip = VideoFileClip(filename)
-    return float(clip.duration)
+    duration = float(clip.duration)
+    clip.close()
+    return duration
 
 
 def has_audio(filename):
@@ -442,8 +444,10 @@ def has_audio(filename):
     from moviepy.editor import VideoFileClip
     clip = VideoFileClip(filename)
     if clip.audio == None:
+        clip.close()
         return False
     else:
+        clip.close()
         return True
 
 
@@ -522,3 +526,49 @@ def embed_audio_in_video(source_audio, destination_video, dilation_ratio=1):
     # replace (silent) destination_video with the one with the embedded audio
     os.remove(destination_video)
     os.rename(of + '_w_audio' + fex, destination_video)
+
+
+def ffmpeg_cmd(command, total_time, pb_prefix='Progress'):
+    import subprocess
+    pb = MgProgressbar(total=total_time, prefix=pb_prefix)
+
+    process = subprocess.Popen(
+        command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+
+    try:
+        while True:
+            out = process.stdout.readline()
+            if out == '':
+                process.wait()
+                break
+                # process.poll()
+                # if process.returncode is not None:
+                #     break
+            elif out.startswith('frame='):
+                out_list = out.split()
+                time_ind = [elem.startswith('time=')
+                            for elem in out_list].index(True)
+                time_str = out_list[time_ind][5:]
+                time_sec = str2sec(time_str)
+                percent = time_sec / total_time * 100
+                pb.progress(time_sec)
+
+        # process.terminate()
+        # del process
+        pb.progress(total_time)
+
+        # return True
+
+    except KeyboardInterrupt:
+        try:
+            process.terminate()
+        except OSError:
+            pass
+        process.wait()
+        # return False
+        raise KeyboardInterrupt
+
+
+def str2sec(time_string):
+    elems = [float(elem) for elem in time_string.split(':')]
+    return elems[0]*3600 + elems[1]*60 + elems[2]

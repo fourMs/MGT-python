@@ -119,7 +119,8 @@ def mg_videoreader(
     # Cut out relevant bit of video using starttime and endtime
     if starttime != 0 or endtime != 0:
         print("Trimming...", end='')
-        extract_subclip(filename, starttime, endtime, targetname=of + '_trim' + fex)
+        extract_subclip(filename, starttime, endtime,
+                        targetname=of + '_trim' + fex)
         print(" done.")
         of = of + '_trim'
         trimming = True
@@ -139,7 +140,7 @@ def mg_videoreader(
     height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
 
-    #test reading
+    # test reading
     success, _ = vidcap.read()
     if fps == 0 or length == 0 or not success:
         raise ReadError(f"Could not open {filename}.")
