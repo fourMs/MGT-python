@@ -118,16 +118,16 @@ def mg_videoreader(
 
     # Cut out relevant bit of video using starttime and endtime
     if starttime != 0 or endtime != 0:
-        print("Trimming...", end='')
+        # print("Trimming...", end='')
         extract_subclip(filename, starttime, endtime,
                         targetname=of + '_trim' + fex)
-        print(" done.")
+        # print(" done.")
         of = of + '_trim'
         trimming = True
 
     # Convert to avi if the input is not avi - necesarry for cv2 compatibility on all platforms
     if fex != '.avi':
-        print("Converting from", fex, "to .avi...")
+        # print("Converting from", fex, "to .avi...")
         convert_to_avi(of + fex)
         fex = '.avi'
         filename = of + fex
@@ -197,9 +197,9 @@ def mg_videoreader(
 
     if rotate != 0:
         vidcap.release()
-        print(f"Rotating video by {rotate} degrees...", end='')
+        # print(f"Rotating video by {rotate} degrees...", end='')
         rotate_video(of + fex, rotate)
-        print(" done.")
+        # print(" done.")
         if not keep_all and (skipping or trimming):
             os.remove(of + fex)
         of = of + '_rot'
@@ -239,9 +239,9 @@ def mg_videoreader(
 
     if color == False and returned_by_process == False:
         vidcap.release()
-        print("Converting to grayscale...", end='')
+        # print("Converting to grayscale...", end='')
         of_gray, fex = convert_to_grayscale(of + fex)
-        print(" done.")
+        # print(" done.")
         if not keep_all and (cropping or cbing or rotating or skipping or trimming):
             os.remove(of + fex)
         of = of_gray

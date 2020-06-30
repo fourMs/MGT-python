@@ -244,9 +244,12 @@ def convert_to_avi(filename):
     import os
     of = os.path.splitext(filename)[0]
     #fex = os.path.splitext(filename)[1]
-    cmds = ' '.join(['ffmpeg', '-i', filename, "-c:v",
-                     "mjpeg", "-q:v", "3", "-c:a", "copy", of + '.avi'])
-    os.system(cmds)
+    # cmds = ' '.join(['ffmpeg', '-i', filename, "-c:v",
+    #                  "mjpeg", "-q:v", "3", "-c:a", "copy", of + '.avi'])
+    cmds = ['ffmpeg', '-i', filename, "-c:v", "mjpeg",
+            "-q:v", "3", "-c:a", "copy", of + '.avi']
+    # os.system(cmds)
+    ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Converting to avi')
     return of + '.avi'
 
 
@@ -277,14 +280,15 @@ def cast_into_avi(filename):
     import os
     of = os.path.splitext(filename)[0]
     #fex = os.path.splitext(filename)[1]
-    cmds = ' '.join(['ffmpeg', '-i', filename, "-codec copy", of + '.avi'])
-    os.system(cmds)
+    # cmds = ' '.join(['ffmpeg', '-i', filename, "-codec copy", of + '.avi'])
+    cmds = ['ffmpeg', '-i', filename, "-codec copy", of + '.avi']
+    # os.system(cmds)
+    ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Casting to avi')
     return of + '.avi'
 
 
 def extract_subclip(filename, t1, t2, targetname=None):
-    """ Single threaded version of the same function from ffmpeg_tools.
-    Makes a new video file playing video file ``filename`` between
+    """ Makes a new video file playing video file ``filename`` between
         the times ``t1`` and ``t2``. """
     import os
     import numpy as np
@@ -303,8 +307,10 @@ def extract_subclip(filename, t1, t2, targetname=None):
                     "-i", filename,
                     "-t", "%0.2f" % (end-start),
                     "-map", "0", "-codec copy", targetname])
-    # uses os.system instead of subprocess
-    os.system(cmd)
+    # cmd = ['ffmpeg', "-y", "-ss", "%0.2f" % start, "-i", filename, "-t",
+    #        "%0.2f" % (end-start), "-map", "0", "-codec copy", targetname]
+    # os.system(cmd)
+    ffmpeg_cmd(cmd, get_length(filename), pb_prefix='Trimming')
 
 
 def rotate_video(filename, angle):
@@ -338,9 +344,13 @@ def rotate_video(filename, angle):
     fex = os.path.splitext(filename)[1]
     if os.path.isfile(of + '_rot.avi'):
         os.remove(of + '_rot.avi')
-    cmds = ' '.join(['ffmpeg', '-i', filename, "-c:v",
-                     "mjpeg", "-q:v", "3", "-vf", f"rotate={math.radians(angle)}", of + '_rot.avi'])
-    os.system(cmds)
+    # cmds = ' '.join(['ffmpeg', '-i', filename, "-c:v",
+    #                  "mjpeg", "-q:v", "3", "-vf", f"rotate={math.radians(angle)}", of + '_rot.avi'])
+    cmds = ['ffmpeg', '-i', filename, "-c:v", "mjpeg", "-q:v", "3",
+            "-vf", f"rotate={math.radians(angle)}", of + '_rot.avi']
+    # os.system(cmds)
+    ffmpeg_cmd(cmds, get_length(filename),
+               pb_prefix=f"Rotating video by {angle} degrees")
     return of + '_rot', fex
 
 
@@ -367,9 +377,12 @@ def convert_to_grayscale(filename):
     import os
     of = os.path.splitext(filename)[0]
     fex = os.path.splitext(filename)[1]
-    cmds = ' '.join(['ffmpeg', '-i', filename, "-c:v", "mjpeg", "-q:v", "3", '-vf',
-                     'hue=s=0', of + '_gray' + fex])
-    os.system(cmds)
+    # cmds = ' '.join(['ffmpeg', '-i', filename, "-c:v", "mjpeg", "-q:v", "3", '-vf',
+    #                  'hue=s=0', of + '_gray' + fex])
+    cmds = ['ffmpeg', '-i', filename, "-c:v", "mjpeg",
+            "-q:v", "3", '-vf', 'hue=s=0', of + '_gray' + fex]
+    # os.system(cmds)
+    ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Converting to grayscale')
     return of + '_gray', fex
 
 
