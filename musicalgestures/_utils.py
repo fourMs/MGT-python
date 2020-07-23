@@ -71,10 +71,9 @@ class MgProgressbar():
         # Print New Line on Complete
         if iteration >= self.total:
             self.finished = True
-            percent = ("{0:." + str(self.decimals) + "f}").format(100 *
-                                                                  (capped_iteration / float(self.total)))
-            filledLength = int(self.length * capped_iteration // self.total)
-            bar = self.fill * filledLength + '-' * (self.length - filledLength)
+            percent = ("{0:." + str(self.decimals) + "f}").format(100)
+            filledLength = int(round(self.length))
+            bar = self.fill * filledLength
             sys.stdout.flush()
             sys.stdout.write('\r%s |%s| %s%% %s' %
                              (self.prefix, bar, percent, self.suffix))
@@ -574,9 +573,6 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress'):
             if out == '':
                 process.wait()
                 break
-                # process.poll()
-                # if process.returncode is not None:
-                #     break
             elif out.startswith('frame='):
                 out_list = out.split()
                 time_ind = [elem.startswith('time=')
