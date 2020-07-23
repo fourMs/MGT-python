@@ -174,8 +174,10 @@ def mg_videoreader(
     #             embed_audio_in_video(source_audio, of + fex, dilation_ratio)
 
     if skip != 0:
-        skipped_video = skip_frames_ffmpeg(of + fex, skip)
+        #skipped_video = skip_frames_ffmpeg(of + fex, skip)
+        skip_frames_ffmpeg(of + fex, skip)
         if not keep_all and trimming:
+            vidcap.release()
             os.remove(of+fex)
 
         of = of + '_skip'

@@ -306,10 +306,8 @@ def extract_subclip(filename, t1, t2, targetname=None):
                     "-i", filename,
                     "-t", "%0.2f" % (end-start),
                     "-map", "0", "-codec copy", targetname])
-    # cmd = ['ffmpeg', "-y", "-ss", "%0.2f" % start, "-i", filename, "-t",
-    #        "%0.2f" % (end-start), "-map", "0", "-codec copy", targetname]
-    # os.system(cmd)
-    ffmpeg_cmd(cmd, get_length(filename), pb_prefix='Trimming')
+
+    ffmpeg_cmd(cmd, length, pb_prefix='Trimming')
 
 
 def rotate_video(filename, angle):
@@ -390,6 +388,7 @@ def skip_frames_ffmpeg(filename, skip=0):
         return
 
     import os
+
     of, fex = os.path.splitext(filename)
 
     pts_ratio = 1 / (skip+1)
@@ -398,11 +397,11 @@ def skip_frames_ffmpeg(filename, skip=0):
     outname = of + '_skip' + fex
 
     cmd = ['ffmpeg', '-y', '-i', filename, '-filter_complex',
-           f'[0:v]setpts={pts_ratio}*PTS[v];[0:a]atempo={atempo_ratio}[a]', '-map', '[v]', '-map', '[a]', '-q:v', '3', outname]
+           f'[0:v]setpts={pts_ratio}*PTS[v];[0:a]atempo={atempo_ratio}[a]', '-map', '[v]', '-map', '[a]', '-q:v', '3', '-shortest', outname]
 
     ffmpeg_cmd(cmd, get_length(filename), pb_prefix='Skipping frames:')
 
-    return outname
+    # return outname
 
 
 def extract_wav(filename):
@@ -582,11 +581,7 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress'):
                 percent = time_sec / total_time * 100
                 pb.progress(time_sec)
 
-        # process.terminate()
-        # del process
         pb.progress(total_time)
-
-        # return True
 
     except KeyboardInterrupt:
         try:
