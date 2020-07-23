@@ -404,6 +404,25 @@ def skip_frames_ffmpeg(filename, skip=0):
     # return outname
 
 
+def videograms_ffmpeg(filename):
+    import os
+    of = os.path.splitext(filename)[0]
+
+    width, height = get_widthheight(filename)
+    framecount = get_framecount(filename)
+    length = get_length(filename)
+
+    outname = of + '_vgx_ffmpeg.png'
+    cmd = ['ffmpeg', '-y', '-i', filename, '-frames', '1', '-vf',
+           f'scale=1:{height}:sws_flags=area,normalize,tile={framecount}x1', outname]
+    ffmpeg_cmd(cmd, length, pb_prefix="Rendering horizontal videogram:")
+
+    outname = of + '_vgy_ffmpeg.png'
+    cmd = ['ffmpeg', '-y', '-i', filename, '-frames', '1', '-vf',
+           f'scale={width}:1:sws_flags=area,normalize,tile=1x{framecount}', outname]
+    ffmpeg_cmd(cmd, length, pb_prefix="Rendering vertical videogram:")
+
+
 def extract_wav(filename):
     """
     Extracts audio from video into a .wav file via ffmpeg.
@@ -454,6 +473,52 @@ def get_length(filename):
     duration = float(clip.duration)
     clip.close()
     return duration
+
+
+def get_framecount(filename):
+    """
+    Returns the number of frames of a video using moviepy.
+
+    Parameters
+    ----------
+    - filename : str
+
+        Path to the video file to be measured.
+
+    Returns
+    -------
+    - int
+
+        The number of frames in the input video file.
+    """
+    from moviepy.editor import VideoFileClip
+    clip = VideoFileClip(filename)
+    framecount = int(round(float(clip.duration) * float(clip.fps)))
+    clip.close()
+    return framecount
+
+
+def get_widthheight(filename):
+    """
+    Returns the width and height (in pixels) of a video using moviepy.
+
+    Parameters
+    ----------
+    - filename : str
+
+        Path to the video file to be measured.
+
+    Returns
+    -------
+    - int
+
+        The width and height (in pixels) of the input video file.
+    """
+    from moviepy.editor import VideoFileClip
+    clip = VideoFileClip(filename)
+    (width, height) = clip.size
+    clip.close()
+    return width, height
 
 
 def has_audio(filename):

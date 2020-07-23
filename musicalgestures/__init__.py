@@ -103,6 +103,7 @@ class MgObject:
         self.flow = Flow(self.filename, self.color, self.has_audio)
 
     from musicalgestures._motionvideo import mg_motionvideo as motion
+    from musicalgestures._videograms import mg_videograms as videograms
     from musicalgestures._motionvideo import plot_motion_metrics
     from musicalgestures._cropvideo import mg_cropvideo, find_motion_box, find_total_motion_box
     # from musicalgestures._motionhistory import mg_motionhistory as motionhistory
