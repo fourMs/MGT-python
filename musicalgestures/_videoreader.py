@@ -2,9 +2,9 @@ import cv2
 import os
 #from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 import numpy as np
-from musicalgestures._videoadjust import mg_contrast_brightness, mg_skip_frames
+from musicalgestures._videoadjust import mg_contrast_brightness, skip_frames_ffmpeg
 from musicalgestures._cropvideo import *
-from musicalgestures._utils import has_audio, convert_to_avi, rotate_video, extract_wav, embed_audio_in_video, convert_to_grayscale, extract_subclip, get_length, skip_frames_ffmpeg
+from musicalgestures._utils import has_audio, convert_to_avi, rotate_video, extract_wav, embed_audio_in_video, convert_to_grayscale, extract_subclip, get_length
 
 
 class ReadError(Exception):

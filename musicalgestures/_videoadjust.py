@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from musicalgestures._utils import scale_num, scale_array, MgProgressbar
+from musicalgestures._utils import scale_num, scale_array, MgProgressbar, get_length, ffmpeg_cmd
 
 
 def mg_contrast_brightness(of, fex, vidcap, fps, length, width, height, contrast, brightness):
@@ -63,16 +63,12 @@ def mg_contrast_brightness(of, fex, vidcap, fps, length, width, height, contrast
             success, image = vidcap.read()
             if not success:
                 pb.progress(length)
-                # mg_progressbar(
-                #     length, length, 'Adjusting contrast and brightness:', 'Complete')
                 break
             image = np.int16(image) * (contrast/127+1) - contrast + brightness
             image = np.clip(image, 0, 255)
             out.write(image.astype(np.uint8))
             pb.progress(count)
             count += 1
-            # mg_progressbar(
-            #     count, length, 'Adjusting contrast and brightness:', 'Complete')
         out.release()
         vidcap = cv2.VideoCapture(of + '_cb' + fex)
 
@@ -143,16 +139,12 @@ def mg_skip_frames(of, fex, vidcap, skip, fps, length, width, height):
             success, image = vidcap.read()
             if not success:
                 pb.progress(length)
-                # mg_progressbar(
-                #     length, length, 'Skipping frames:', 'Complete')
                 break
             # on every frame we wish to use
             if (count % (skip+1) == 0):  # NB if skip=1, we should keep every other frame
                 out.write(image.astype(np.uint8))
             pb.progress(count)
             count += 1
-            # mg_progressbar(
-            #     count, length, 'Skipping frames:', 'Complete')
         out.release()
         vidcap.release()
         vidcap = cv2.VideoCapture(of + '_skip' + fex)
@@ -162,3 +154,22 @@ def mg_skip_frames(of, fex, vidcap, skip, fps, length, width, height):
         width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     return vidcap, length, fps, width, height
+
+
+def skip_frames_ffmpeg(filename, skip=0):
+    if skip == 0:
+        return
+
+    import os
+
+    of, fex = os.path.splitext(filename)
+
+    pts_ratio = 1 / (skip+1)
+    atempo_ratio = skip+1
+
+    outname = of + '_skip' + fex
+
+    cmd = ['ffmpeg', '-y', '-i', filename, '-filter_complex',
+           f'[0:v]setpts={pts_ratio}*PTS[v];[0:a]atempo={atempo_ratio}[a]', '-map', '[v]', '-map', '[a]', '-q:v', '3', '-shortest', outname]
+
+    ffmpeg_cmd(cmd, get_length(filename), pb_prefix='Skipping frames:')

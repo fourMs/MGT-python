@@ -383,27 +383,6 @@ def convert_to_grayscale(filename):
     return of + '_gray', fex
 
 
-def skip_frames_ffmpeg(filename, skip=0):
-    if skip == 0:
-        return
-
-    import os
-
-    of, fex = os.path.splitext(filename)
-
-    pts_ratio = 1 / (skip+1)
-    atempo_ratio = skip+1
-
-    outname = of + '_skip' + fex
-
-    cmd = ['ffmpeg', '-y', '-i', filename, '-filter_complex',
-           f'[0:v]setpts={pts_ratio}*PTS[v];[0:a]atempo={atempo_ratio}[a]', '-map', '[v]', '-map', '[a]', '-q:v', '3', '-shortest', outname]
-
-    ffmpeg_cmd(cmd, get_length(filename), pb_prefix='Skipping frames:')
-
-    # return outname
-
-
 def extract_wav(filename):
     """
     Extracts audio from video into a .wav file via ffmpeg.
