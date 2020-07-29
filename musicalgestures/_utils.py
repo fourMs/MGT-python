@@ -404,25 +404,6 @@ def skip_frames_ffmpeg(filename, skip=0):
     # return outname
 
 
-def videograms_ffmpeg(filename):
-    import os
-    of = os.path.splitext(filename)[0]
-
-    width, height = get_widthheight(filename)
-    framecount = get_framecount(filename)
-    length = get_length(filename)
-
-    outname = of + '_vgx_ffmpeg.png'
-    cmd = ['ffmpeg', '-y', '-i', filename, '-frames', '1', '-vf',
-           f'scale=1:{height}:sws_flags=area,normalize,tile={framecount}x1', outname]
-    ffmpeg_cmd(cmd, length, pb_prefix="Rendering horizontal videogram:")
-
-    outname = of + '_vgy_ffmpeg.png'
-    cmd = ['ffmpeg', '-y', '-i', filename, '-frames', '1', '-vf',
-           f'scale={width}:1:sws_flags=area,normalize,tile=1x{framecount}', outname]
-    ffmpeg_cmd(cmd, length, pb_prefix="Rendering vertical videogram:")
-
-
 def extract_wav(filename):
     """
     Extracts audio from video into a .wav file via ffmpeg.

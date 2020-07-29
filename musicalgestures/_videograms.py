@@ -1,12 +1,12 @@
 import cv2
 import os
 import numpy as np
-from musicalgestures._utils import MgProgressbar
+from musicalgestures._utils import MgProgressbar, get_widthheight, get_framecount, get_length, ffmpeg_cmd
 
 
 def mg_videograms(self):
     """
-    Averages videoframes by axes, and creates two images of the horizontal-axis and vertical-axis stacks.
+    Usees cv2 as backend. Averages videoframes by axes, and creates two images of the horizontal-axis and vertical-axis stacks.
     In these stacks, a single row or column corresponds to a frame from the source video, and the index
     of the row or column corresponds to the index of the source frame.
 
@@ -67,10 +67,6 @@ def mg_videograms(self):
                 mean_y[:, :, channel] = (mean_y[:, :, channel]-mean_y[:, :, channel].min())/(
                     mean_y[:, :, channel].max()-mean_y[:, :, channel].min())*255.0
 
-            # normalization is calculated considering all values in all channels (color channels are not independent)
-            # mean_x = (mean_x-mean_x.min())/(mean_x.max()-mean_x.min())*255.0
-            # mean_y = (mean_y-mean_y.min())/(mean_y.max()-mean_y.min())*255.0
-
             vgramx = np.append(vgramx, mean_x, axis=1)
             vgramy = np.append(vgramy, mean_y, axis=0)
 
@@ -90,20 +86,48 @@ def mg_videograms(self):
         vgramx = cv2.cvtColor(vgramx.astype(
             np.uint8), cv2.COLOR_GRAY2BGR)
 
-    # vgramy = (vgramy-vgramy.min())/(vgramy.max()-vgramy.min())*255.0
-    # vgramx = (vgramx-vgramx.min())/(vgramx.max()-vgramx.min())*255.0
-    # vgramy = vgramy.astype(np.uint8)
-    # vgramx = vgramx.astype(np.uint8)
-    # vgramy = cv2.normalize(vgramy, vgramy, 0, 255, norm_type=cv2.NORM_MINMAX)
-    # vgramx = cv2.normalize(vgramx, vgramx, 0, 255, norm_type=cv2.NORM_MINMAX)
-
-    # cv2.normalize(clipped, clipped, 0, 255, norm_type=cv2.NORM_MINMAX)
-
     cv2.imwrite(self.of+'_vgx.png', vgramx.astype(np.uint8))
-    # cv2.imwrite(self.of+'_vgx_dev2.png', vgramy)
     cv2.imwrite(self.of+'_vgy.png', vgramy.astype(np.uint8))
-    # cv2.imwrite(self.of+'_vgy_dev2.png', vgramx)
 
     vidcap.release()
+
+    return (self.of+'_vgx.png', self.of+'_vgy.png')
+
+
+def videograms_ffmpeg(self):
+    """
+    Usees FFMPEG as backend. Averages videoframes by axes, and creates two images of the horizontal-axis and vertical-axis stacks.
+    In these stacks, a single row or column corresponds to a frame from the source video, and the index
+    of the row or column corresponds to the index of the source frame.
+
+    Outputs
+    -------
+    - `filename`_vgx.png
+
+        A horizontal videogram of the source video.
+    - `filename`_vgy.png
+
+        A vertical videogram of the source video.
+
+    Returns
+    -------
+    - Tuple(str, str)
+
+        A tuple with the string paths to the horizontal and vertical videograms respectively. 
+    """
+
+    width, height = get_widthheight(self.filename)
+    framecount = get_framecount(self.filename)
+    length = get_length(self.filename)
+
+    outname = self.of + '_vgx.png'
+    cmd = ['ffmpeg', '-y', '-i', self.filename, '-frames', '1', '-vf',
+           f'scale=1:{height}:sws_flags=area,normalize,tile={framecount}x1', outname]
+    ffmpeg_cmd(cmd, length, pb_prefix="Rendering horizontal videogram:")
+
+    outname = self.of + '_vgy.png'
+    cmd = ['ffmpeg', '-y', '-i', self.filename, '-frames', '1', '-vf',
+           f'scale={width}:1:sws_flags=area,normalize,tile=1x{framecount}', outname]
+    ffmpeg_cmd(cmd, length, pb_prefix="Rendering vertical videogram:")
 
     return (self.of+'_vgx.png', self.of+'_vgy.png')
