@@ -2,7 +2,7 @@ import cv2
 import os
 #from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 import numpy as np
-from musicalgestures._videoadjust import mg_contrast_brightness, skip_frames_ffmpeg
+from musicalgestures._videoadjust import skip_frames_ffmpeg, contrast_brightness_ffmpeg
 from musicalgestures._cropvideo import *
 from musicalgestures._utils import has_audio, convert_to_avi, rotate_video, extract_wav, embed_audio_in_video, convert_to_grayscale, extract_subclip, get_length
 
@@ -211,18 +211,30 @@ def mg_videoreader(
 
     # Apply contrast/brightness before the motion analysis
     if contrast != 0 or brightness != 0:
-        if keep_all or rotating:
-            vidcap = cv2.VideoCapture(of + fex)
-        vidcap = mg_contrast_brightness(
-            of, fex, vidcap, fps, length, width, height, contrast, brightness)
+        # if keep_all or rotating:
+        #     vidcap = cv2.VideoCapture(of + fex)
+        # vidcap = mg_contrast_brightness(
+        #     of, fex, vidcap, fps, length, width, height, contrast, brightness)
+        contrast_brightness_ffmpeg(
+            of+fex, contrast=contrast, brightness=brightness)
+
         if not keep_all and (rotating or skipping or trimming):
+            vidcap.release()
             os.remove(of + fex)
         of = of + '_cb'
         cbing = True
-        if keep_all:
-            vidcap.release()
-            if video_has_audio_track:
-                embed_audio_in_video(source_audio, of + fex, dilation_ratio)
+
+        vidcap.release()
+        vidcap = cv2.VideoCapture(of + fex)
+        length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
+        fps = int(vidcap.get(cv2.CAP_PROP_FPS))
+        width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+        # if keep_all:
+        #     vidcap.release()
+        #     if video_has_audio_track:
+        #         embed_audio_in_video(source_audio, of + fex, dilation_ratio)
 
     # Crops video either manually or automatically
     if crop.lower() != 'none':

@@ -75,6 +75,43 @@ def mg_contrast_brightness(of, fex, vidcap, fps, length, width, height, contrast
     return vidcap
 
 
+def contrast_brightness_ffmpeg(filename, contrast=0, brightness=0):
+    if contrast == 0 and brightness == 0:
+        return
+
+    import os
+    import numpy as np
+
+    of, fex = os.path.splitext(filename)
+
+    # keeping values in sensible range
+    contrast = np.clip(contrast, -100.0, 100.0)
+    brightness = np.clip(brightness, -100.0, 100.0)
+
+    # ranges are "handpicked" so that the results are close to the results of mg_contrast_brightness
+    if contrast == 0:
+        p_saturation, p_contrast, p_brightness = 0, 0, 0
+    elif contrast > 0:
+        p_saturation = scale_num(contrast, 0, 100, 1, 1.9)
+        p_contrast = scale_num(contrast, 0, 100, 1, 2.3)
+        p_brightness = scale_num(contrast, 0, 100, 0, 0.04)
+    elif contrast < 0:
+        p_saturation = scale_num(contrast, 0, -100, 1, 0)
+        p_contrast = scale_num(contrast, 0, -100, 1, 0)
+        p_brightness = 0
+
+    if brightness != 0:
+        p_brightness += brightness / 100
+
+    outname = of + '_cb' + fex
+
+    cmd = ['ffmpeg', '-y', '-i', filename, '-vf',
+           f'eq=saturation={p_saturation}:contrast={p_contrast}:brightness={p_brightness}', '-q:v', '3', outname]
+
+    ffmpeg_cmd(cmd, get_length(filename),
+               pb_prefix='Adjusting contrast and brightness:')
+
+
 def mg_skip_frames(of, fex, vidcap, skip, fps, length, width, height):
     """
     Time-shrinks the video by skipping (discarding) every n frames determined by `skip`.
