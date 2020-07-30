@@ -2,7 +2,7 @@ import cv2
 import os
 import numpy as np
 import time
-from musicalgestures._utils import MgProgressbar
+from musicalgestures._utils import MgProgressbar, get_length, get_widthheight, get_first_frame_as_image, get_screen_resolution_scaled, get_screen_video_ratio, roundup, crop_ffmpeg
 from musicalgestures._filter import filter_frame
 
 
@@ -230,3 +230,142 @@ def find_total_motion_box(vid2findbox, width, height, length, motion_box_thresh,
             break
 
     return x_start, x_stop, y_start, y_stop
+
+
+def find_motion_box_ffmpeg(filename, motion_box_thresh=0.1, motion_box_margin=12):
+    import subprocess
+    import os
+    import matplotlib
+    import numpy as np
+    total_time = get_length(filename)
+    width, height = get_widthheight(filename)
+    crop_str = ''
+
+    thresh_color = matplotlib.colors.to_hex(
+        [motion_box_thresh, motion_box_thresh, motion_box_thresh])
+    thresh_color = '0x' + thresh_color[1:]
+
+    pb = MgProgressbar(total=total_time, prefix='Finding area of motion:')
+
+    command = ['ffmpeg', '-y', '-i', filename, '-f', 'lavfi', '-i', f'color={thresh_color},scale={width}:{height}', '-f', 'lavfi', '-i', f'color=black,scale={width}:{height}', '-f',
+               'lavfi', '-i', f'color=white,scale={width}:{height}', '-lavfi', 'format=gray,tblend=all_mode=difference,threshold,cropdetect=round=2:limit=0:reset=0', '-f', 'null', '/dev/null']
+
+    process = subprocess.Popen(
+        command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+
+    try:
+        while True:
+            out = process.stdout.readline()
+            if out == '':
+                process.wait()
+                break
+            else:
+                out_list = out.split()
+                crop_and_time = sorted(
+                    [elem for elem in out_list if elem.startswith('t:') or elem.startswith('crop=')])
+                if len(crop_and_time) != 0:
+                    crop_str = crop_and_time[0]
+                    time_float = float(crop_and_time[1][2:])
+                    pb.progress(time_float)
+
+        pb.progress(total_time)
+
+        crop_width, crop_height, crop_x, crop_y = [
+            int(elem) for elem in crop_str[5:].split(':')]
+
+        motion_box_margin = roundup(motion_box_margin, 4)
+
+        crop_width = np.clip(crop_width+motion_box_margin, 4, width)
+        crop_height = np.clip(crop_height+motion_box_margin, 4, height)
+        crop_x = np.clip(crop_x-(motion_box_margin/2), 4, width)
+        crop_y = np.clip(crop_y-(motion_box_margin/2), 4, height)
+
+        if crop_x + crop_width > width:
+            crop_x = width - crop_width
+        else:
+            crop_x = np.clip(crop_x, 0, width)
+        if crop_y + crop_height > height:
+            crop_y = height - crop_height
+        else:
+            crop_y = np.clip(crop_y, 0, height)
+
+        crop_width, crop_height, crop_x, crop_y = [
+            int(elem) for elem in [crop_width, crop_height, crop_x, crop_y]]
+
+        return crop_width, crop_height, crop_x, crop_y
+
+    except KeyboardInterrupt:
+        try:
+            process.terminate()
+        except OSError:
+            pass
+        process.wait()
+        raise KeyboardInterrupt
+
+
+def mg_cropvideo_ffmpeg(
+        filename,
+        crop_movement='Auto',
+        motion_box_thresh=0.1,
+        motion_box_margin=12):
+
+    global frame_mask, drawing, g_val, x_start, x_stop, y_start, y_stop
+    x_start, y_start = -1, -1
+    x_stop, y_stop = -1, -1
+
+    drawing = False
+    pb = MgProgressbar(total=get_length(filename),
+                       prefix='Rendering cropped video:')
+
+    if crop_movement.lower() == 'manual':
+
+        scale_ratio = get_screen_video_ratio(filename)
+
+        width, height = get_widthheight(filename)
+
+        scaled_width, scaled_height = [
+            int(elem * scale_ratio) for elem in [width, height]]
+
+        first_frame_as_image = get_first_frame_as_image(
+            filename, pict_format='.jpg')
+        frame = cv2.imread(first_frame_as_image)
+        frame_scaled = cv2.resize(frame, (scaled_width, scaled_height))
+
+        frame_mask = np.zeros(frame_scaled.shape)
+        name_str = 'Draw rectangle and press "C" to crop'
+        cv2.namedWindow(name_str, cv2.WINDOW_AUTOSIZE)
+        cv2.setMouseCallback(name_str, draw_rectangle, param=frame_scaled)
+        g_val = 220
+        while(1):
+            cv2.imshow(name_str, frame_scaled*(frame_mask != g_val) +
+                       frame_mask.astype(np.uint8))
+            k = cv2.waitKey(1) & 0xFF
+            if k == ord('c') or k == ord('C'):
+                break
+        cv2.destroyAllWindows()
+
+        if x_stop < x_start:
+            temp = x_start
+            x_start = x_stop
+            x_stop = temp
+        if y_stop < y_start:
+            temp = y_start
+            y_start = y_stop
+            y_stop = temp
+
+        w, h, x, y = x_stop - x_start, y_stop - y_start, x_start, y_start
+
+        if scale_ratio < 1:
+            w, h, x, y = [int(elem / scale_ratio) for elem in [w, h, x, y]]
+
+    elif crop_movement.lower() == 'auto':
+        w, h, x, y = find_motion_box_ffmpeg(
+            filename, motion_box_thresh=motion_box_thresh, motion_box_margin=motion_box_margin)
+
+    cropped_video = crop_ffmpeg(filename, w, h, x, y)
+
+    if crop_movement.lower() == 'manual':
+        cv2.destroyAllWindows()
+        os.remove(first_frame_as_image)
+
+    return cropped_video

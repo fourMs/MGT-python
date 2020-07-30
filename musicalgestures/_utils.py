@@ -9,7 +9,7 @@ class MgProgressbar():
         Default is 1000. Total iterations.
     - time_limit : float, optional
 
-        Default is 0.1. The maximum refresh rate of the progressbar in seconds. 
+        Default is 0.1. The maximum refresh rate of the progressbar in seconds.
     - prefix : str, optional
 
         Default is 'Progress'. Prefix string.
@@ -30,9 +30,9 @@ class MgProgressbar():
     -------
     - progress(iteration : int)
 
-        Prints the progressbar according to `iteration` which is the 
-        0-based step in the number of steps defined by `self.total`. At the 
-        last step (where the progressbar shows 100%) `iteration` == `total` - 1. 
+        Prints the progressbar according to `iteration` which is the
+        0-based step in the number of steps defined by `self.total`. At the
+        last step (where the progressbar shows 100%) `iteration` == `total` - 1.
     """
 
     def __init__(
@@ -92,6 +92,15 @@ class MgProgressbar():
 
     def __repr__(self):
         return "MgProgressbar"
+
+
+def roundup(num, modulo_num):
+    num, modulo_num = int(num), int(modulo_num)
+    return num - (num % modulo_num) + modulo_num*((num % modulo_num) != 0)
+
+
+def clamp(num, min_value, max_value):
+    return max(min(num, max_value), min_value)
 
 
 def scale_num(val, in_low, in_high, out_low, out_high):
@@ -242,12 +251,8 @@ def convert_to_avi(filename):
     """
     import os
     of = os.path.splitext(filename)[0]
-    #fex = os.path.splitext(filename)[1]
-    # cmds = ' '.join(['ffmpeg', '-i', filename, "-c:v",
-    #                  "mjpeg", "-q:v", "3", "-c:a", "copy", of + '.avi'])
     cmds = ['ffmpeg', '-i', filename, "-c:v", "mjpeg",
             "-q:v", "3", "-c:a", "copy", of + '.avi']
-    # os.system(cmds)
     ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Converting to avi')
     return of + '.avi'
 
@@ -278,10 +283,7 @@ def cast_into_avi(filename):
     """
     import os
     of = os.path.splitext(filename)[0]
-    #fex = os.path.splitext(filename)[1]
-    # cmds = ' '.join(['ffmpeg', '-i', filename, "-codec copy", of + '.avi'])
     cmds = ['ffmpeg', '-i', filename, "-codec copy", of + '.avi']
-    # os.system(cmds)
     ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Casting to avi')
     return of + '.avi'
 
@@ -307,7 +309,7 @@ def extract_subclip(filename, t1, t2, targetname=None):
                     "-t", "%0.2f" % (end-start),
                     "-map", "0", "-codec copy", targetname])
 
-    ffmpeg_cmd(cmd, length, pb_prefix='Trimming')
+    ffmpeg_cmd(cmd, length, pb_prefix='Trimming:')
 
 
 def rotate_video(filename, angle):
@@ -337,17 +339,15 @@ def rotate_video(filename, angle):
     """
     import os
     import math
-    of = os.path.splitext(filename)[0]
-    fex = os.path.splitext(filename)[1]
-    if os.path.isfile(of + '_rot.avi'):
-        os.remove(of + '_rot.avi')
-    # cmds = ' '.join(['ffmpeg', '-i', filename, "-c:v",
-    #                  "mjpeg", "-q:v", "3", "-vf", f"rotate={math.radians(angle)}", of + '_rot.avi'])
-    cmds = ['ffmpeg', '-i', filename, "-c:v", "mjpeg", "-q:v", "3",
-            "-vf", f"rotate={math.radians(angle)}", of + '_rot.avi']
-    # os.system(cmds)
+    of, fex = os.path.splitext(filename)
+    if os.path.isfile(of + '_rot' + fex):
+        os.remove(of + '_rot' + fex)
+    # cmds = ['ffmpeg', '-i', filename, "-c:v", "mjpeg", "-q:v", "3",
+    #         "-vf", f"rotate={math.radians(angle)}", of + '_rot' + fex]
+    cmds = ['ffmpeg', '-i', filename, "-vf",
+            f"rotate={math.radians(angle)}", "-q:v", "3", of + '_rot' + fex]
     ffmpeg_cmd(cmds, get_length(filename),
-               pb_prefix=f"Rotating video by {angle} degrees")
+               pb_prefix=f"Rotating video by {angle} degrees:")
     return of + '_rot', fex
 
 
@@ -372,15 +372,76 @@ def convert_to_grayscale(filename):
         The path to the output (grayscale) video file.
     """
     import os
-    of = os.path.splitext(filename)[0]
-    fex = os.path.splitext(filename)[1]
-    # cmds = ' '.join(['ffmpeg', '-i', filename, "-c:v", "mjpeg", "-q:v", "3", '-vf',
-    #                  'hue=s=0', of + '_gray' + fex])
-    cmds = ['ffmpeg', '-i', filename, "-c:v", "mjpeg",
-            "-q:v", "3", '-vf', 'hue=s=0', of + '_gray' + fex]
-    # os.system(cmds)
-    ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Converting to grayscale')
+    of, fex = os.path.splitext(filename)
+    # cmds = ['ffmpeg', '-i', filename, "-c:v", "mjpeg",
+    #         "-q:v", "3", '-vf', 'hue=s=0', of + '_gray' + fex]
+    cmds = ['ffmpeg', '-i', filename, '-vf',
+            'hue=s=0', "-q:v", "3", of + '_gray' + fex]
+    ffmpeg_cmd(cmds, get_length(filename),
+               pb_prefix='Converting to grayscale:')
     return of + '_gray', fex
+
+
+def framediff_ffmpeg(filename, outname=None, color=True):
+
+    import os
+    of, fex = os.path.splitext(filename)
+
+    if outname == None:
+        outname = of + '_framediff' + fex
+    if color == True:
+        pixformat = 'gbrp'
+    else:
+        pixformat = 'gray'
+    cmd = ['ffmpeg', '-y', '-i', filename, '-filter_complex',
+           f'format={pixformat},tblend=all_mode=difference', '-q:v', '3', outname]
+    ffmpeg_cmd(cmd, get_length(filename),
+               pb_prefix='Rendering frame difference video:')
+    return outname
+
+
+def threshold_ffmpeg(filename, threshold=0.1, outname=None, binary=False):
+
+    import os
+    import matplotlib
+    of, fex = os.path.splitext(filename)
+
+    if outname == None:
+        outname = of + '_thresh' + fex
+
+    width, height = get_widthheight(filename)
+
+    thresh_color = matplotlib.colors.to_hex([threshold, threshold, threshold])
+    thresh_color = '0x' + thresh_color[1:]
+
+    if binary == False:
+        cmd = ['ffmpeg', '-y', '-i', filename, '-f', 'lavfi', '-i', f'color={thresh_color},scale={width}:{height}', '-f', 'lavfi',
+               '-i', f'color=black,scale={width}:{height}', '-i', filename, '-lavfi', 'format=gbrp,threshold', '-q:v', '3', outname]
+    else:
+        cmd = ['ffmpeg', '-y', '-i', filename, '-f', 'lavfi', '-i', f'color={thresh_color},scale={width}:{height}', '-f', 'lavfi',
+               '-i', f'color=black,scale={width}:{height}', '-f', 'lavfi', '-i', f'color=white,scale={width}:{height}', '-lavfi', 'format=gray,threshold', '-q:v', '3', outname]
+
+    ffmpeg_cmd(cmd, get_length(filename),
+               pb_prefix='Rendering threshold video:')
+
+
+def crop_ffmpeg(filename, w, h, x, y, outname=None):
+
+    import os
+
+    of, fex = os.path.splitext(filename)
+
+    if outname == None:
+        outname = of + '_crop' + fex
+
+    width, height = get_widthheight(filename)
+
+    cmd = ['ffmpeg', '-y', '-i', filename, '-vf',
+           f'crop={w}:{h}:{x}:{y}', '-q:v', '3', outname]
+
+    ffmpeg_cmd(cmd, get_length(filename), pb_prefix='Rendering cropped video:')
+
+    return outname
 
 
 def extract_wav(filename):
@@ -405,7 +466,7 @@ def extract_wav(filename):
     """
     import os
     of = os.path.splitext(filename)[0]
-    #fex = os.path.splitext(filename)[1]
+    # fex = os.path.splitext(filename)[1]
     cmds = ' '.join(['ffmpeg', '-i', filename, "-acodec",
                      "pcm_s16le", of + '.wav'])
     os.system(cmds)
@@ -458,6 +519,29 @@ def get_framecount(filename):
     return framecount
 
 
+def get_fps(filename):
+    """
+    Returns the frames per second value of a video using moviepy.
+
+    Parameters
+    ----------
+    - filename : str
+
+        Path to the video file to be measured.
+
+    Returns
+    -------
+    - float
+
+        The frames per second value of the input video file.
+    """
+    from moviepy.editor import VideoFileClip
+    clip = VideoFileClip(filename)
+    fps = float(clip.fps)
+    clip.close()
+    return fps
+
+
 def get_widthheight(filename):
     """
     Returns the width and height (in pixels) of a video using moviepy.
@@ -479,6 +563,51 @@ def get_widthheight(filename):
     (width, height) = clip.size
     clip.close()
     return width, height
+
+
+def get_first_frame_as_image(filename, outname=None, pict_format='.png'):
+
+    import os
+    of, fex = os.path.splitext(filename)
+
+    if outname == None:
+        outname = of + pict_format
+
+    cmd = ' '.join(['ffmpeg', '-y', '-i', filename, '-frames', '1', outname])
+
+    os.system(cmd)
+
+    return outname
+
+
+def get_screen_resolution_scaled():
+
+    import tkinter as tk
+
+    root = tk.Tk()
+    root.update_idletasks()
+    root.attributes('-fullscreen', True)
+    root.state('iconic')
+    geometry = root.winfo_geometry()
+    width, height = [int(elem) for elem in geometry.split('+')[0].split('x')]
+    root.destroy()
+    return width, height
+
+
+def get_screen_video_ratio(filename):
+
+    screen_width, screen_height = get_screen_resolution_scaled()
+    video_width, video_height = get_widthheight(filename)
+
+    ratio_x, ratio_y = clamp(screen_width / video_width,
+                             0, 1), clamp(screen_height / video_height, 0, 1)
+
+    smallest_ratio = sorted([ratio_x, ratio_y])[0]
+
+    if smallest_ratio < 1:
+        smallest_ratio *= 0.9
+
+    return smallest_ratio
 
 
 def has_audio(filename):

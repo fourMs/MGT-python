@@ -4,7 +4,7 @@ import os
 import numpy as np
 from musicalgestures._videoadjust import skip_frames_ffmpeg, contrast_brightness_ffmpeg
 from musicalgestures._cropvideo import *
-from musicalgestures._utils import has_audio, convert_to_avi, rotate_video, extract_wav, embed_audio_in_video, convert_to_grayscale, extract_subclip, get_length
+from musicalgestures._utils import has_audio, convert_to_avi, rotate_video, extract_wav, embed_audio_in_video, convert_to_grayscale, extract_subclip, get_length, get_fps
 
 
 class ReadError(Exception):
@@ -107,8 +107,7 @@ def mg_videoreader(
         Currently it is always 'avi'.
     """
     # Separate filename from file extension
-    of = os.path.splitext(filename)[0]
-    fex = os.path.splitext(filename)[1]
+    of, fex = os.path.splitext(filename)
 
     trimming = False
     skipping = False
@@ -118,45 +117,42 @@ def mg_videoreader(
 
     # Cut out relevant bit of video using starttime and endtime
     if starttime != 0 or endtime != 0:
-        # print("Trimming...", end='')
         extract_subclip(filename, starttime, endtime,
                         targetname=of + '_trim' + fex)
-        # print(" done.")
         of = of + '_trim'
         trimming = True
 
     # Convert to avi if the input is not avi - necesarry for cv2 compatibility on all platforms
-    if fex != '.avi':
-        # print("Converting from", fex, "to .avi...")
-        convert_to_avi(of + fex)
-        fex = '.avi'
-        filename = of + fex
+    # if fex != '.avi':
+    #     convert_to_avi(of + fex)
+    #     fex = '.avi'
+    #     filename = of + fex
 
-    vidcap = cv2.VideoCapture(of + fex)
+    # vidcap = cv2.VideoCapture(of + fex)
 
     # Get props from vidcap
-    fps = int(vidcap.get(cv2.CAP_PROP_FPS))
-    width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
+    # fps = int(vidcap.get(cv2.CAP_PROP_FPS))
+    # width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    # height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    # length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
 
     # test reading
-    success, _ = vidcap.read()
-    if fps == 0 or length == 0 or not success:
-        raise ReadError(f"Could not open {filename}.")
+    # success, _ = vidcap.read()
+    # if fps == 0 or length == 0 or not success:
+    #     raise ReadError(f"Could not open {filename}.")
 
-    source_length_s = length / fps
-    source_name = of + fex
-    new_length_s = source_length_s
-    dilation_ratio = 1
-    need_to_embed_audio = False
-    video_has_audio_track = has_audio(source_name)
+    # source_length_s = length / fps
+    # source_name = of + fex
+    # new_length_s = source_length_s
+    # dilation_ratio = 1
+    # need_to_embed_audio = False
+    # video_has_audio_track = has_audio(source_name)
 
     # if skip != 0 or contrast != 0 or brightness != 0 or crop.lower() != 'none':
-    if contrast != 0 or brightness != 0 or crop.lower() != 'none':
-        if video_has_audio_track:
-            source_audio = extract_wav(source_name)
-            need_to_embed_audio = True
+    # if contrast != 0 or brightness != 0 or crop.lower() != 'none':
+    #     if video_has_audio_track:
+    #         source_audio = extract_wav(source_name)
+    #         need_to_embed_audio = True
 
     # To skip ahead a few frames before the next sample set skip to a value above 0
     # if skip != 0:
@@ -177,37 +173,38 @@ def mg_videoreader(
         #skipped_video = skip_frames_ffmpeg(of + fex, skip)
         skip_frames_ffmpeg(of + fex, skip)
         if not keep_all and trimming:
-            vidcap.release()
+            # vidcap.release()
             os.remove(of+fex)
 
         of = of + '_skip'
         skipping = True
 
-        vidcap.release()
-        vidcap = cv2.VideoCapture(of + fex)
-        length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
-        fps = int(vidcap.get(cv2.CAP_PROP_FPS))
-        width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        # vidcap.release()
+        # vidcap = cv2.VideoCapture(of + fex)
+        # length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
+        # fps = int(vidcap.get(cv2.CAP_PROP_FPS))
+        # width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        # height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-        new_length_s = length / fps
-        dilation_ratio = source_length_s / new_length_s
+        # new_length_s = length / fps
+        # dilation_ratio = source_length_s / new_length_s
+
+        length = get_length(of+fex)
+        fps = get_fps(of+fex)
 
     # Overwrite the inputvalue for endtime not to cut the video at 0...
     if endtime == 0:
         endtime = length/fps
 
     if rotate != 0:
-        vidcap.release()
-        # print(f"Rotating video by {rotate} degrees...", end='')
+        # vidcap.release()
         rotate_video(of + fex, rotate)
-        # print(" done.")
         if not keep_all and (skipping or trimming):
             os.remove(of + fex)
         of = of + '_rot'
         rotating = True
-        if keep_all and video_has_audio_track:
-            embed_audio_in_video(source_audio, of + fex, dilation_ratio)
+        # if keep_all and video_has_audio_track:
+        #     embed_audio_in_video(source_audio, of + fex, dilation_ratio)
 
     # Apply contrast/brightness before the motion analysis
     if contrast != 0 or brightness != 0:
@@ -219,17 +216,17 @@ def mg_videoreader(
             of+fex, contrast=contrast, brightness=brightness)
 
         if not keep_all and (rotating or skipping or trimming):
-            vidcap.release()
+            # vidcap.release()
             os.remove(of + fex)
         of = of + '_cb'
         cbing = True
 
-        vidcap.release()
-        vidcap = cv2.VideoCapture(of + fex)
-        length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
-        fps = int(vidcap.get(cv2.CAP_PROP_FPS))
-        width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        # vidcap.release()
+        # vidcap = cv2.VideoCapture(of + fex)
+        # length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
+        # fps = int(vidcap.get(cv2.CAP_PROP_FPS))
+        # width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        # height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
         # if keep_all:
         #     vidcap.release()
@@ -238,36 +235,40 @@ def mg_videoreader(
 
     # Crops video either manually or automatically
     if crop.lower() != 'none':
-        if keep_all:
-            vidcap = cv2.VideoCapture(of + fex)
-        [vidcap, width, height] = mg_cropvideo(
-            fps, width, height, length, of, fex, crop, motion_box_thresh=0.1, motion_box_margin=1)
+        # if keep_all:
+        #     vidcap = cv2.VideoCapture(of + fex)
+        # [vidcap, width, height] = mg_cropvideo(
+        #     fps, width, height, length, of, fex, crop, motion_box_thresh=0.1, motion_box_margin=1)
+        mg_cropvideo_ffmpeg(of+fex, crop_movement=crop)
+
         if not keep_all and (cbing or rotating or skipping or trimming):
+            # vidcap.release()
             os.remove(of + fex)
         of = of + '_crop'
         cropping = True
-        if keep_all:
-            vidcap.release()
-            if video_has_audio_track:
-                embed_audio_in_video(source_audio, of + fex, dilation_ratio)
+        # if keep_all:
+        #     vidcap.release()
+        #     if video_has_audio_track:
+        #         embed_audio_in_video(source_audio, of + fex, dilation_ratio)
 
     if color == False and returned_by_process == False:
-        vidcap.release()
-        # print("Converting to grayscale...", end='')
+        # vidcap.release()
         of_gray, fex = convert_to_grayscale(of + fex)
-        # print(" done.")
         if not keep_all and (cropping or cbing or rotating or skipping or trimming):
             os.remove(of + fex)
         of = of_gray
 
-    if color == True or returned_by_process == True:
-        vidcap.release()
+    # if color == True or returned_by_process == True:
+    #     vidcap.release()
 
-    if need_to_embed_audio:
-        embed_audio_in_video(source_audio, of + fex, dilation_ratio)
-        os.remove(source_audio)
+    # if need_to_embed_audio:
+    #     embed_audio_in_video(source_audio, of + fex, dilation_ratio)
+    #     os.remove(source_audio)
 
-    if vidcap:
-        vidcap.release()
+    # if vidcap:
+    #     vidcap.release()
+
+    width, height = get_widthheight(of+fex)
+    video_has_audio_track = has_audio(of+fex)
 
     return length, width, height, fps, endtime, of, fex, video_has_audio_track

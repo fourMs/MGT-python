@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from musicalgestures._utils import scale_num, scale_array, MgProgressbar, get_length, ffmpeg_cmd
+from musicalgestures._utils import scale_num, scale_array, MgProgressbar, get_length, ffmpeg_cmd, has_audio
 
 
 def mg_contrast_brightness(of, fex, vidcap, fps, length, width, height, contrast, brightness):
@@ -206,7 +206,11 @@ def skip_frames_ffmpeg(filename, skip=0):
 
     outname = of + '_skip' + fex
 
-    cmd = ['ffmpeg', '-y', '-i', filename, '-filter_complex',
-           f'[0:v]setpts={pts_ratio}*PTS[v];[0:a]atempo={atempo_ratio}[a]', '-map', '[v]', '-map', '[a]', '-q:v', '3', '-shortest', outname]
+    if has_audio(filename):
+        cmd = ['ffmpeg', '-y', '-i', filename, '-filter_complex',
+               f'[0:v]setpts={pts_ratio}*PTS[v];[0:a]atempo={atempo_ratio}[a]', '-map', '[v]', '-map', '[a]', '-q:v', '3', '-shortest', outname]
+    else:
+        cmd = ['ffmpeg', '-y', '-i', filename, '-filter_complex',
+               f'[0:v]setpts={pts_ratio}*PTS[v]', '-map', '[v]', '-q:v', '3', outname]
 
     ffmpeg_cmd(cmd, get_length(filename), pb_prefix='Skipping frames:')
