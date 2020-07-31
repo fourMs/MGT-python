@@ -59,8 +59,7 @@ def history_ffmpeg(self, filename='', history_length=10, weights=1, normalize=Fa
     if filename == '':
         filename = self.filename
 
-    of = os.path.splitext(filename)[0]
-    fex = os.path.splitext(filename)[1]
+    of, fex = os.path.splitext(filename)
 
     if type(weights) in [int, float]:
         weights_map = np.ones(history_length)

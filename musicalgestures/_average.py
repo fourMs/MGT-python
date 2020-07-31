@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import os
-from musicalgestures._utils import MgImage, MgProgressbar
+from musicalgestures._utils import MgImage, MgProgressbar, convert_to_avi
 
 
 def mg_average_image(self, filename='', normalize=True):
@@ -31,7 +31,14 @@ def mg_average_image(self, filename='', normalize=True):
     if filename == '':
         filename = self.filename
 
-    of = os.path.splitext(filename)[0]
+    of, fex = os.path.splitext(filename)
+
+    # Convert to avi if the input is not avi - necesarry for cv2 compatibility on all platforms
+    if fex != '.avi':
+        convert_to_avi(of + fex)
+        fex = '.avi'
+        filename = of + fex
+
     video = cv2.VideoCapture(filename)
     ret, frame = video.read()
     length = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -50,12 +57,9 @@ def mg_average_image(self, filename='', normalize=True):
             average += frame/length
         else:
             pb.progress(length)
-            # mg_progressbar(
-            #     length, length, 'Rendering average image:', 'Complete')
             break
         pb.progress(ii)
         ii += 1
-        # mg_progressbar(ii, length, 'Rendering average image:', 'Complete')
 
     if self.color == False:
         average = cv2.cvtColor(average.astype(np.uint8), cv2.COLOR_GRAY2BGR)

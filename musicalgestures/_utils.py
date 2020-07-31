@@ -253,7 +253,7 @@ def convert_to_avi(filename):
     of = os.path.splitext(filename)[0]
     cmds = ['ffmpeg', '-i', filename, "-c:v", "mjpeg",
             "-q:v", "3", "-c:a", "copy", of + '.avi']
-    ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Converting to avi')
+    ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Converting to avi:')
     return of + '.avi'
 
 
@@ -345,7 +345,7 @@ def rotate_video(filename, angle):
     # cmds = ['ffmpeg', '-i', filename, "-c:v", "mjpeg", "-q:v", "3",
     #         "-vf", f"rotate={math.radians(angle)}", of + '_rot' + fex]
     cmds = ['ffmpeg', '-i', filename, "-vf",
-            f"rotate={math.radians(angle)}", "-q:v", "3", of + '_rot' + fex]
+            f"rotate={math.radians(angle)}", "-q:v", "3", "-c:a", "copy", of + '_rot' + fex]
     ffmpeg_cmd(cmds, get_length(filename),
                pb_prefix=f"Rotating video by {angle} degrees:")
     return of + '_rot', fex
@@ -376,7 +376,7 @@ def convert_to_grayscale(filename):
     # cmds = ['ffmpeg', '-i', filename, "-c:v", "mjpeg",
     #         "-q:v", "3", '-vf', 'hue=s=0', of + '_gray' + fex]
     cmds = ['ffmpeg', '-i', filename, '-vf',
-            'hue=s=0', "-q:v", "3", of + '_gray' + fex]
+            'hue=s=0', "-q:v", "3", "-c:a", "copy", of + '_gray' + fex]
     ffmpeg_cmd(cmds, get_length(filename),
                pb_prefix='Converting to grayscale:')
     return of + '_gray', fex
@@ -394,7 +394,7 @@ def framediff_ffmpeg(filename, outname=None, color=True):
     else:
         pixformat = 'gray'
     cmd = ['ffmpeg', '-y', '-i', filename, '-filter_complex',
-           f'format={pixformat},tblend=all_mode=difference', '-q:v', '3', outname]
+           f'format={pixformat},tblend=all_mode=difference', '-q:v', '3', "-c:a", "copy", outname]
     ffmpeg_cmd(cmd, get_length(filename),
                pb_prefix='Rendering frame difference video:')
     return outname
@@ -416,10 +416,10 @@ def threshold_ffmpeg(filename, threshold=0.1, outname=None, binary=False):
 
     if binary == False:
         cmd = ['ffmpeg', '-y', '-i', filename, '-f', 'lavfi', '-i', f'color={thresh_color},scale={width}:{height}', '-f', 'lavfi',
-               '-i', f'color=black,scale={width}:{height}', '-i', filename, '-lavfi', 'format=gbrp,threshold', '-q:v', '3', outname]
+               '-i', f'color=black,scale={width}:{height}', '-i', filename, '-lavfi', 'format=gbrp,threshold', '-q:v', '3', "-c:a", "copy", outname]
     else:
         cmd = ['ffmpeg', '-y', '-i', filename, '-f', 'lavfi', '-i', f'color={thresh_color},scale={width}:{height}', '-f', 'lavfi',
-               '-i', f'color=black,scale={width}:{height}', '-f', 'lavfi', '-i', f'color=white,scale={width}:{height}', '-lavfi', 'format=gray,threshold', '-q:v', '3', outname]
+               '-i', f'color=black,scale={width}:{height}', '-f', 'lavfi', '-i', f'color=white,scale={width}:{height}', '-lavfi', 'format=gray,threshold', '-q:v', '3', "-c:a", "copy", outname]
 
     ffmpeg_cmd(cmd, get_length(filename),
                pb_prefix='Rendering threshold video:')
@@ -437,7 +437,7 @@ def crop_ffmpeg(filename, w, h, x, y, outname=None):
     width, height = get_widthheight(filename)
 
     cmd = ['ffmpeg', '-y', '-i', filename, '-vf',
-           f'crop={w}:{h}:{x}:{y}', '-q:v', '3', outname]
+           f'crop={w}:{h}:{x}:{y}', '-q:v', '3', "-c:a", "copy", outname]
 
     ffmpeg_cmd(cmd, get_length(filename), pb_prefix='Rendering cropped video:')
 

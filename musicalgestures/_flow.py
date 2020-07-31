@@ -1,7 +1,7 @@
 import cv2
 import os
 import numpy as np
-from musicalgestures._utils import extract_wav, embed_audio_in_video, MgProgressbar
+from musicalgestures._utils import extract_wav, embed_audio_in_video, MgProgressbar, convert_to_avi
 import musicalgestures
 
 
@@ -96,8 +96,14 @@ class Flow:
         if filename == '':
             filename = self.filename
 
-        of = os.path.splitext(filename)[0]
-        fex = os.path.splitext(filename)[1]
+        of, fex = os.path.splitext(filename)
+
+        # Convert to avi if the input is not avi - necesarry for cv2 compatibility on all platforms
+        if fex != '.avi':
+            convert_to_avi(of + fex)
+            fex = '.avi'
+            filename = of + fex
+
         vidcap = cv2.VideoCapture(filename)
         ret, frame = vidcap.read()
         fourcc = cv2.VideoWriter_fourcc(*'MJPG')
@@ -154,15 +160,10 @@ class Flow:
 
             else:
                 pb.progress(length)
-                # mg_progressbar(
-                #     length, length, 'Rendering dense optical flow video:', 'Complete')
                 break
 
             pb.progress(ii)
             ii += 1
-
-            # mg_progressbar(
-            #     ii, length+1, 'Rendering dense optical flow video:', 'Complete')
 
         out.release()
 
@@ -231,8 +232,14 @@ class Flow:
         if filename == '':
             filename = self.filename
 
-        of = os.path.splitext(filename)[0]
-        fex = os.path.splitext(filename)[1]
+        of, fex = os.path.splitext(filename)
+
+        # Convert to avi if the input is not avi - necesarry for cv2 compatibility on all platforms
+        if fex != '.avi':
+            convert_to_avi(of + fex)
+            fex = '.avi'
+            filename = of + fex
+
         vidcap = cv2.VideoCapture(filename)
         ret, frame = vidcap.read()
         fourcc = cv2.VideoWriter_fourcc(*'MJPG')
@@ -307,18 +314,13 @@ class Flow:
 
             else:
                 pb.progress(length)
-                # mg_progressbar(
-                #     length, length, 'Rendering sparse optical flow video:', 'Complete')
                 break
 
             pb.progress(ii)
             ii += 1
 
-            # mg_progressbar(
-            #     ii, length+1, 'Rendering sparse optical flow video:', 'Complete')
-
         out.release()
-        
+
         destination_video = of + '_flow_sparse' + fex
 
         if self.has_audio:

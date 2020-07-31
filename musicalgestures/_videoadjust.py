@@ -106,7 +106,7 @@ def contrast_brightness_ffmpeg(filename, contrast=0, brightness=0):
     outname = of + '_cb' + fex
 
     cmd = ['ffmpeg', '-y', '-i', filename, '-vf',
-           f'eq=saturation={p_saturation}:contrast={p_contrast}:brightness={p_brightness}', '-q:v', '3', outname]
+           f'eq=saturation={p_saturation}:contrast={p_contrast}:brightness={p_brightness}', '-q:v', '3', "-c:a", "copy", outname]
 
     ffmpeg_cmd(cmd, get_length(filename),
                pb_prefix='Adjusting contrast and brightness:')

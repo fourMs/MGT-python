@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from scipy.signal import medfilt2d
 from musicalgestures._centroid import centroid
-from musicalgestures._utils import extract_wav, embed_audio_in_video, frame2ms, MgProgressbar
+from musicalgestures._utils import extract_wav, embed_audio_in_video, frame2ms, MgProgressbar, convert_to_avi, get_length, get_widthheight
 from musicalgestures._filter import filter_frame
 
 
@@ -107,6 +107,12 @@ def mg_motionvideo(
         self.blur = blur
         self.thresh = thresh
         self.filtertype = filtertype
+
+        # Convert to avi if the input is not avi - necesarry for cv2 compatibility on all platforms
+        if self.fex != '.avi':
+            convert_to_avi(self.of + self.fex)
+            self.fex = '.avi'
+            self.filename = self.of + self.fex
 
         vidcap = cv2.VideoCapture(self.of+self.fex)
         ret, frame = vidcap.read()
@@ -213,14 +219,10 @@ def mg_motionvideo(
                         qom = np.append(qom, qombite)
             else:
                 pb.progress(self.length)
-                # mg_progressbar(self.length, self.length,
-                #                pgbar_text, 'Complete')
                 break
 
             pb.progress(ii)
             ii += 1
-            # mg_progressbar(ii, self.length,
-            #                pgbar_text, 'Complete')
 
         if save_motiongrams:
             if self.color == False:

@@ -4,7 +4,7 @@ import os
 import numpy as np
 from musicalgestures._videoadjust import skip_frames_ffmpeg, contrast_brightness_ffmpeg
 from musicalgestures._cropvideo import *
-from musicalgestures._utils import has_audio, convert_to_avi, rotate_video, extract_wav, embed_audio_in_video, convert_to_grayscale, extract_subclip, get_length, get_fps
+from musicalgestures._utils import has_audio, convert_to_avi, rotate_video, extract_wav, embed_audio_in_video, convert_to_grayscale, extract_subclip, get_length, get_fps, get_framecount
 
 
 class ReadError(Exception):
@@ -189,8 +189,8 @@ def mg_videoreader(
         # new_length_s = length / fps
         # dilation_ratio = source_length_s / new_length_s
 
-        length = get_length(of+fex)
-        fps = get_fps(of+fex)
+    length = get_framecount(of+fex)
+    fps = get_fps(of+fex)
 
     # Overwrite the inputvalue for endtime not to cut the video at 0...
     if endtime == 0:
