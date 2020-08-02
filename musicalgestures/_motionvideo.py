@@ -10,7 +10,93 @@ from musicalgestures._utils import extract_wav, embed_audio_in_video, frame2ms, 
 from musicalgestures._filter import filter_frame
 
 
+def mg_motiongrams(
+        self,
+        filtertype='Regular',
+        thresh=0.05,
+        blur='None',
+        kernel_size=5,
+        inverted_motiongram=False,
+        equalize_motiongram=True):
+
+    mg_motion(
+        self,
+        filtertype=filtertype,
+        thresh=thresh,
+        blur=blur,
+        kernel_size=kernel_size,
+        inverted_motiongram=inverted_motiongram,
+        equalize_motiongram=equalize_motiongram,
+        save_data=False,
+        save_motiongrams=True,
+        save_plot=False,
+        save_video=False)
+
+
+def mg_motiondata(
+        self,
+        filtertype='Regular',
+        thresh=0.05,
+        blur='None',
+        kernel_size=5,
+        data_format="csv"):
+
+    mg_motion(
+        self,
+        filtertype=filtertype,
+        thresh=thresh,
+        blur=blur,
+        kernel_size=kernel_size,
+        data_format=data_format,
+        save_data=True,
+        save_motiongrams=False,
+        save_plot=False,
+        save_video=False)
+
+
+def mg_motionplots(
+        self,
+        filtertype='Regular',
+        thresh=0.05,
+        blur='None',
+        kernel_size=5,
+        unit='seconds'):
+
+    mg_motion(
+        self,
+        filtertype=filtertype,
+        thresh=thresh,
+        blur=blur,
+        kernel_size=kernel_size,
+        unit=unit,
+        save_data=False,
+        save_motiongrams=False,
+        save_plot=True,
+        save_video=False)
+
+
 def mg_motionvideo(
+        self,
+        filtertype='Regular',
+        thresh=0.05,
+        blur='None',
+        kernel_size=5,
+        inverted_motionvideo=False):
+
+    mg_motion(
+        self,
+        filtertype=filtertype,
+        thresh=thresh,
+        blur=blur,
+        kernel_size=kernel_size,
+        inverted_motionvideo=inverted_motionvideo,
+        save_data=False,
+        save_motiongrams=False,
+        save_plot=False,
+        save_video=True)
+
+
+def mg_motion(
         self,
         filtertype='Regular',
         thresh=0.05,

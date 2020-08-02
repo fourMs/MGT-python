@@ -102,7 +102,11 @@ class MgObject:
         self.get_video()
         self.flow = Flow(self.filename, self.color, self.has_audio)
 
-    from musicalgestures._motionvideo import mg_motionvideo as motion
+    from musicalgestures._motionvideo import mg_motion as motion
+    from musicalgestures._motionvideo import mg_motiongrams as motiongrams
+    from musicalgestures._motionvideo import mg_motiondata as motiondata
+    from musicalgestures._motionvideo import mg_motionplots as motionplots
+    from musicalgestures._motionvideo import mg_motionvideo as motionvideo
     # from musicalgestures._videograms import mg_videograms as videograms
     from musicalgestures._videograms import videograms_ffmpeg as videograms
     from musicalgestures._motionvideo import plot_motion_metrics
