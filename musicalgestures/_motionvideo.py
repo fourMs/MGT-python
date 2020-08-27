@@ -190,22 +190,23 @@ def mg_motion(
 
     if save_plot | save_data | save_motiongrams | save_video:
 
-        self.blur = blur
-        self.thresh = thresh
-        self.filtertype = filtertype
+        # self.blur = blur
+        # self.thresh = thresh
+        # self.filtertype = filtertype
+        of, fex = self.of, self.fex
 
         # Convert to avi if the input is not avi - necesarry for cv2 compatibility on all platforms
-        if self.fex != '.avi':
-            convert_to_avi(self.of + self.fex)
-            self.fex = '.avi'
-            self.filename = self.of + self.fex
+        if fex != '.avi':
+            convert_to_avi(of + fex)
+            fex = '.avi'
+            filename = of + fex
 
-        vidcap = cv2.VideoCapture(self.of+self.fex)
+        vidcap = cv2.VideoCapture(of+fex)
         ret, frame = vidcap.read()
 
         if save_video:
             fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-            out = cv2.VideoWriter(self.of + '_motion' + self.fex,
+            out = cv2.VideoWriter(of + '_motion' + fex,
                                   fourcc, self.fps, (self.width, self.height))
 
         if save_motiongrams:
@@ -230,14 +231,14 @@ def mg_motion(
                 gramy = np.zeros([self.height, 1])
 
         while(vidcap.isOpened()):
-            if self.blur.lower() == 'average':
+            if blur.lower() == 'average':
                 prev_frame = cv2.blur(frame, (10, 10))
-            elif self.blur.lower() == 'none':
+            elif blur.lower() == 'none':
                 prev_frame = frame
 
             ret, frame = vidcap.read()
             if ret == True:
-                if self.blur.lower() == 'average':
+                if blur.lower() == 'average':
                     # The higher these numbers the more blur you get
                     frame = cv2.blur(frame, (10, 10))
 
@@ -255,7 +256,7 @@ def mg_motion(
                         motion_frame = (
                             np.abs(frame[:, :, i]-prev_frame[:, :, i])).astype(np.uint8)
                         motion_frame = filter_frame(
-                            motion_frame, self.filtertype, self.thresh, kernel_size)
+                            motion_frame, filtertype, thresh, kernel_size)
                         motion_frame_rgb[:, :, i] = motion_frame
 
                     if save_motiongrams:
@@ -270,7 +271,7 @@ def mg_motion(
                     motion_frame = (
                         np.abs(frame-prev_frame)).astype(np.uint8)
                     motion_frame = filter_frame(
-                        motion_frame, self.filtertype, self.thresh, kernel_size)
+                        motion_frame, filtertype, thresh, kernel_size)
 
                     if save_motiongrams:
                         movement_y = np.mean(
@@ -335,37 +336,37 @@ def mg_motion(
                 gramy = cv2.cvtColor(gramy_hsv, cv2.COLOR_HSV2BGR)
 
             if inverted_motiongram:
-                cv2.imwrite(self.of+'_mgx.png',
+                cv2.imwrite(of+'_mgx.png',
                             cv2.bitwise_not(gramx.astype(np.uint8)))
-                cv2.imwrite(self.of+'_mgy.png',
+                cv2.imwrite(of+'_mgy.png',
                             cv2.bitwise_not(gramy.astype(np.uint8)))
             else:
-                cv2.imwrite(self.of+'_mgx.png', gramx.astype(np.uint8))
-                cv2.imwrite(self.of+'_mgy.png', gramy.astype(np.uint8))
+                cv2.imwrite(of+'_mgx.png', gramx.astype(np.uint8))
+                cv2.imwrite(of+'_mgy.png', gramy.astype(np.uint8))
 
         if save_data:
-            save_txt(self.of, time, com, qom, self.width,
+            save_txt(of, time, com, qom, self.width,
                      self.height, data_format)
 
         if save_plot:
-            plot_motion_metrics(self.of, self.fps, com, qom,
+            plot_motion_metrics(of, self.fps, com, qom,
                                 self.width, self.height, unit)
 
         vidcap.release()
         if save_video:
             out.release()
-            destination_video = self.of + '_motion' + self.fex
+            destination_video = of + '_motion' + fex
             if self.has_audio:
-                source_audio = extract_wav(self.of + self.fex)
+                source_audio = extract_wav(of + fex)
                 embed_audio_in_video(source_audio, destination_video)
                 os.remove(source_audio)
             return musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
         else:
-            return musicalgestures.MgObject(self.of + self.fex, color=self.color, returned_by_process=True)
+            return musicalgestures.MgObject(of + fex, color=self.color, returned_by_process=True)
 
     else:
         print("Nothing to render. Exiting...")
-        return musicalgestures.MgObject(self.of + self.fex, returned_by_process=True)
+        return musicalgestures.MgObject(of + fex, returned_by_process=True)
 
 
 def plot_motion_metrics(of, fps, com, qom, width, height, unit):

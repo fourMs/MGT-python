@@ -4,7 +4,109 @@ import os
 from matplotlib import pyplot as plt
 
 
-def mg_show(self, filename=None, key=None):
+def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, window_height=480, window_title=None):
+
+    def show(file, width=640, height=480, mode='windowed', title='Untitled'):
+        if mode.lower() == 'windowed':
+            cmd = f'ffplay {file} -x {width} -y {height} -window_title "{title}"'
+            os.system(cmd)
+        elif mode.lower() == 'notebook':
+            video_formats = ['.avi', '.mp4', '.mov', '.mkv', '.mpg',
+                             '.mpeg', '.webm', '.ogg', '.ts', '.wmv', '.3gp']
+            image_formats = ['.jpg', '.png', '.jpeg', '.tiff', '.gif', '.bmp']
+            file_extension = os.path.splitext(file)[1].lower()
+
+            if file_extension in video_formats:
+                file_type = 'image'
+            elif file_extension in image_formats:
+                file_type = 'video'
+            print(f'This is a(n) {file_type} file.')
+            print('To be implemented...')
+        else:
+            print(
+                f'Unrecognized mode: "{mode}". Try "windowed" or "notebook".')
+
+    if window_title == None:
+        window_title = self.filename
+
+    if filename == None:
+
+        if key == None:
+            filename = self.filename
+            show(file=filename, width=window_width,
+                 height=window_height, mode=mode, title=window_title)
+        elif key.lower() == 'mgx':
+            filename = self.of + '_mgx.png'
+            show(file=filename, width=window_width,
+                 height=window_height, mode=mode, title=f'Horizontal Motiongram | {filename}')
+        elif key.lower() == 'mgy':
+            filename = self.of + '_mgy.png'
+            show(file=filename, width=window_width,
+                 height=window_height, mode=mode, title=f'Vertical Motiongram | {filename}')
+        elif key.lower() == 'average':
+            filename = self.of + '_average.png'
+            show(file=filename, width=window_width,
+                 height=window_height, mode=mode, title=f'Average | {filename}')
+        elif key.lower() == 'plot':
+            filename = self.of + '_motion_com_qom.png'
+            show(file=filename, width=window_width,
+                 height=window_height, mode=mode, title=f'Centroid and Quantity of Motion | {filename}')
+
+        elif key.lower() == 'motion':
+            # motion is always avi
+            if os.path.exists(self.of + '_motion.avi'):
+                filename = self.of + '_motion.avi'
+                show(file=filename, width=window_width,
+                     height=window_height, mode=mode, title=f'Motion | {filename}')
+            else:
+                print("No motion video found corresponding to",
+                      self.of+self.fex, ". Try making one with .motion()")
+        elif key.lower() == 'history':
+            if os.path.exists(self.of + '_history' + self.fex):
+                filename = self.of + '_history' + self.fex
+                show(file=filename, width=window_width,
+                     height=window_height, mode=mode, title=f'History | {filename}')
+            else:
+                print("No history video found corresponding to",
+                      self.of+self.fex, ". Try making one with .history()")
+        # since motionhistory() is deprecated this now expects
+        # a _motion_history which is a result from .motion().history()
+        elif key.lower() == 'motionhistory':
+            # motion_history is always avi
+            if os.path.exists(self.of + '_motion_history.avi'):
+                filename = self.of + '_motion_history.avi'
+                show(file=filename, width=window_width,
+                     height=window_height, mode=mode, title=f'Motion History | {filename}')
+            else:
+                print("No motion history video found corresponding to",
+                      self.of+self.fex, ". Try making one with .motionhistory()")
+        elif key.lower() == 'sparse':
+            # optical flow is always avi
+            if os.path.exists(self.of + '_flow_sparse.avi'):
+                filename = self.of + '_flow_sparse.avi'
+                show(file=filename, width=window_width,
+                     height=window_height, mode=mode, title=f'Sparse Optical Flow | {filename}')
+            else:
+                print("No sparse optical flow video found corresponding to",
+                      self.of+self.fex, ". Try making one with .flow.sparse()")
+        elif key.lower() == 'dense':
+            # optical flow is always avi
+            if os.path.exists(self.of + '_flow_dense.avi'):
+                filename = self.of + '_flow_dense.avi'
+                show(file=filename, width=window_width,
+                     height=window_height, mode=mode, title=f'Dense Optical Flow | {filename}')
+            else:
+                print("No dense optical flow video found corresponding to",
+                      self.of+self.fex, ". Try making one with .flow.dense()")
+        else:
+            print("Unknown shorthand.\n",
+                  "For images, try 'mgx', 'mgy', 'average' or 'plot'.\n",
+                  "For videos try 'motion', 'history', 'motionhistory', 'sparse' or 'dense'.")
+
+    return self
+
+
+def mg_show_deprecated(self, filename=None, key=None):
     """
     This function simply plays the current vidcap VideoObject. The speed of the video playback 
     might not match the true fps due to non-optimized code. 
