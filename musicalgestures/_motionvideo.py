@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from scipy.signal import medfilt2d
 from musicalgestures._centroid import centroid
-from musicalgestures._utils import extract_wav, embed_audio_in_video, frame2ms, MgProgressbar, convert_to_avi, get_length, get_widthheight
+from musicalgestures._utils import extract_wav, embed_audio_in_video, frame2ms, MgProgressbar, MgImage, MgList, convert_to_avi, get_length, get_widthheight
 from musicalgestures._filter import filter_frame
 
 
@@ -32,6 +32,8 @@ def mg_motiongrams(
         save_plot=False,
         save_video=False)
 
+    return MgList([MgImage(self.of + '_mgx.png'), MgImage(self.of + '_mgy.png')])
+
 
 def mg_motiondata(
         self,
@@ -52,6 +54,8 @@ def mg_motiondata(
         save_motiongrams=False,
         save_plot=False,
         save_video=False)
+
+    return self.of + '_motion.' + data_format
 
 
 def mg_motionplots(
@@ -74,6 +78,8 @@ def mg_motionplots(
         save_plot=True,
         save_video=False)
 
+    return MgImage(self.of + '_motion_com_qom.png')
+
 
 def mg_motionvideo(
         self,
@@ -83,7 +89,7 @@ def mg_motionvideo(
         kernel_size=5,
         inverted_motionvideo=False):
 
-    mg_motion(
+    return mg_motion(
         self,
         filtertype=filtertype,
         thresh=thresh,

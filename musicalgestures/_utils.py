@@ -227,6 +227,29 @@ class MgImage():
         return f"MgImage('{self.filename}')"
 
 
+class MgList():
+    """
+    Class for handling lists of MgObjects or MgImages in the Motion Gestures Toolbox.
+
+    Attributes
+    ----------
+    - objectlist : list
+
+        The list of MgObjects and/or MgImages.
+    """
+
+    def __init__(self, objectlist):
+        self.objectlist = objectlist
+    from musicalgestures._show import mg_show
+
+    def show(self):
+        for obj in self.objectlist:
+            obj.show()
+
+    def __repr__(self):
+        return f"MgList('{self.objectlist}')"
+
+
 def convert_to_avi(filename):
     """
     Converts a video to one with .avi extension using ffmpeg.

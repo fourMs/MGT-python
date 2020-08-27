@@ -1,7 +1,7 @@
 import cv2
 import os
 import numpy as np
-from musicalgestures._utils import MgProgressbar, get_widthheight, get_framecount, get_length, ffmpeg_cmd
+from musicalgestures._utils import MgProgressbar, MgImage, MgList, get_widthheight, get_framecount, get_length, ffmpeg_cmd
 
 
 def mg_videograms(self):
@@ -21,7 +21,7 @@ def mg_videograms(self):
 
     Returns
     -------
-    - Tuple(str, str)
+    - list(str, str)
 
         A tuple with the string paths to the horizontal and vertical videograms respectively. 
     """
@@ -91,7 +91,7 @@ def mg_videograms(self):
 
     vidcap.release()
 
-    return (self.of+'_vgx.png', self.of+'_vgy.png')
+    return [self.of+'_vgx.png', self.of+'_vgy.png']
 
 
 def videograms_ffmpeg(self):
@@ -111,7 +111,7 @@ def videograms_ffmpeg(self):
 
     Returns
     -------
-    - Tuple(str, str)
+    - list(MgImage, MgImage)
 
         A tuple with the string paths to the horizontal and vertical videograms respectively. 
     """
@@ -130,46 +130,4 @@ def videograms_ffmpeg(self):
            f'scale={width}:1:sws_flags=area,normalize,tile=1x{framecount}', outname]
     ffmpeg_cmd(cmd, length, pb_prefix="Rendering vertical videogram:")
 
-    return (self.of+'_vgx.png', self.of+'_vgy.png')
-
-
-def mg_videograms(filename):
-    """
-    Usees FFMPEG as backend. Same as videograms_ffmpeg, but as a standalone function.
-    Averages videoframes by axes, and creates two images of the horizontal-axis and vertical-axis stacks.
-    In these stacks, a single row or column corresponds to a frame from the source video, and the index
-    of the row or column corresponds to the index of the source frame.
-
-    Outputs
-    -------
-    - `filename`_vgx.png
-
-        A horizontal videogram of the source video.
-    - `filename`_vgy.png
-
-        A vertical videogram of the source video.
-
-    Returns
-    -------
-    - Tuple(str, str)
-
-        A tuple with the string paths to the horizontal and vertical videograms respectively. 
-    """
-    import os
-    of = os.path.splitext(filename)[0]
-
-    width, height = get_widthheight(filename)
-    framecount = get_framecount(filename)
-    length = get_length(filename)
-
-    outname = of + '_vgx.png'
-    cmd = ['ffmpeg', '-y', '-i', filename, '-frames', '1', '-vf',
-           f'scale=1:{height}:sws_flags=area,normalize,tile={framecount}x1', outname]
-    ffmpeg_cmd(cmd, length, pb_prefix="Rendering horizontal videogram:")
-
-    outname = of + '_vgy.png'
-    cmd = ['ffmpeg', '-y', '-i', filename, '-frames', '1', '-vf',
-           f'scale={width}:1:sws_flags=area,normalize,tile=1x{framecount}', outname]
-    ffmpeg_cmd(cmd, length, pb_prefix="Rendering vertical videogram:")
-
-    return (of+'_vgx.png', of+'_vgy.png')
+    return MgList([MgImage(self.of+'_vgx.png'), MgImage(self.of+'_vgy.png')])
