@@ -664,7 +664,7 @@ def get_screen_video_ratio(filename):
 
 def has_audio(filename):
     """
-    Gets the length (s) of a video using moviepy.
+    Checks if video has audio track using moviepy.
 
     Parameters
     ----------

@@ -109,6 +109,7 @@ class MgObject:
     from musicalgestures._motionvideo import mg_motionvideo as motionvideo
     # from musicalgestures._videograms import mg_videograms as videograms
     from musicalgestures._videograms import videograms_ffmpeg as videograms
+    from musicalgestures._audio import mg_spectrogram as spectrogram
     from musicalgestures._motionvideo import plot_motion_metrics
     from musicalgestures._cropvideo import mg_cropvideo, find_motion_box, find_total_motion_box
     # from musicalgestures._motionhistory import mg_motionhistory as motionhistory
