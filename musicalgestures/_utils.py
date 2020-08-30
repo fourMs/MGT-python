@@ -280,6 +280,35 @@ def convert_to_avi(filename):
     return of + '.avi'
 
 
+def convert_to_mp4(filename):
+    """
+    Converts a video to one with .mp4 extension using ffmpeg.
+
+    Parameters
+    ----------
+    - filename : str
+
+        Path to the input video file.
+
+    Outputs
+    -------
+    - `filename`.mp4
+
+        The converted video file.
+
+    Returns
+    -------
+    - str
+
+        The path to the output '.mp4' file.
+    """
+    import os
+    of = os.path.splitext(filename)[0]
+    cmds = ['ffmpeg', '-i', filename, "-q:v", "3", "-c:a", "copy", of + '.mp4']
+    ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Converting to mp4:')
+    return of + '.mp4'
+
+
 def cast_into_avi(filename):
     """
     *Experimental*

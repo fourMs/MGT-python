@@ -2,7 +2,8 @@ import cv2
 import numpy as np
 import os
 from matplotlib import pyplot as plt
-from IPython.display import Image, display
+from IPython.display import Image, Video, display
+from base64 import b64encode
 
 
 def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, window_height=480, window_title=None):
@@ -21,11 +22,18 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                 file_type = 'video'
             elif file_extension in image_formats:
                 file_type = 'image'
-            # print(f'This is a(n) {file_type} file.')
             if file_type == 'image':
                 display(Image(file))
             elif file_type == 'video':
-                print('To be implemented...')
+                if file_extension not in ['.mp4', '.webm', '.ogg']:
+                    from musicalgestures._utils import convert_to_mp4
+                    print(
+                        'Only mp4, webm and ogg videos are supported in notebook mode.')
+                    video_to_display = convert_to_mp4(file)
+                else:
+                    video_to_display = file
+
+                display(Video(video_to_display, width=800))
 
         else:
             print(
