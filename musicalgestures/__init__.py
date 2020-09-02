@@ -2,6 +2,7 @@ import os
 from musicalgestures._input_test import mg_input_test
 from musicalgestures._videoreader import mg_videoreader
 from musicalgestures._flow import Flow
+from musicalgestures._audio import Audio
 
 
 class MgObject:
@@ -101,6 +102,7 @@ class MgObject:
         self.test_input()
         self.get_video()
         self.flow = Flow(self.filename, self.color, self.has_audio)
+        self.audio = Audio(self.filename)
 
     from musicalgestures._motionvideo import mg_motion as motion
     from musicalgestures._motionvideo import mg_motiongrams as motiongrams
@@ -109,7 +111,7 @@ class MgObject:
     from musicalgestures._motionvideo import mg_motionvideo as motionvideo
     # from musicalgestures._videograms import mg_videograms as videograms
     from musicalgestures._videograms import videograms_ffmpeg as videograms
-    from musicalgestures._audio import mg_spectrogram as spectrogram
+    # from musicalgestures._audio import mg_spectrogram as spectrogram
     from musicalgestures._motionvideo import plot_motion_metrics
     from musicalgestures._cropvideo import mg_cropvideo, find_motion_box, find_total_motion_box
     # from musicalgestures._motionhistory import mg_motionhistory as motionhistory
