@@ -30,7 +30,7 @@ class Audio:
     - descriptors()
 
         Renders a plot of spectral/loudness descriptors, including RMS energy, spectral flatness,
-        centroid, bandwidth, rolloff
+        centroid, bandwidth, rolloff of the video/audio file.
 
     """
 
@@ -131,6 +131,125 @@ class Audio:
 
         return MgImage(self.of + '_spectrogram.png')
 
+    def descriptors(self, window_size=4096, overlap=8, mel_filters=512, power=2, autoshow=False):
+        """
+        Renders a plot of spectral/loudness descriptors, including RMS energy, spectral flatness,
+        centroid, bandwidth, rolloff of the video/audio file.
+
+        Parameters
+        ----------
+        - window_size : int, optional
+
+            The size of the FFT frame. Default is 4096.
+
+        - overlap : int, optional
+
+            The window overlap. The hop size is window_size / overlap.
+            Example: window_size=1024, overlap=4 -> hop=256
+
+        - mel_filters : int, optional
+
+            The number of filters to use for filtering the frequency domain. Affects the
+            vertical resolution (sharpness) of the spectrogram. NB: Too high values with
+            relatively small window sizes can result in artifacts (typically black lines)
+            in the resulting image. Default is 512.
+
+        - power : int, float
+
+            The steepness of the curve for the color mapping. Default is 2.
+
+        - autoshow: bool, optional
+
+            Whether to show the resulting plot automatically. Default is `False` (plot is not shown).
+
+        Outputs
+        -------
+
+        - `self.filename` + '_descriptors.png'
+
+        Returns
+        -------
+        - MgPlot
+
+            An MgPlot object referring to the output plot and its analysis data.
+        """
+        if not has_audio(self.filename):
+            print('The video has no audio track.')
+            return
+
+        hop_size = int(window_size / overlap)
+
+        y, sr = librosa.load(self.filename, sr=None)
+
+        cent = librosa.feature.spectral_centroid(
+            y=y, sr=sr, n_fft=window_size, hop_length=hop_size)
+        spec_bw = librosa.feature.spectral_bandwidth(
+            y=y, sr=sr, n_fft=window_size, hop_length=hop_size)
+        flatness = librosa.feature.spectral_flatness(
+            y=y, n_fft=window_size, hop_length=hop_size)
+        rolloff = librosa.feature.spectral_rolloff(
+            y=y, sr=sr, n_fft=window_size, hop_length=hop_size, roll_percent=0.99)
+        rolloff_min = librosa.feature.spectral_rolloff(
+            y=y, sr=sr, n_fft=window_size, hop_length=hop_size, roll_percent=0.01)
+        rms = librosa.feature.rms(
+            y=y, frame_length=window_size, hop_length=hop_size)
+
+        S = librosa.feature.melspectrogram(
+            y=y, sr=sr, n_mels=mel_filters, fmax=sr/2, n_fft=window_size, hop_length=hop_size, power=power)
+
+        fig, ax = plt.subplots(figsize=(12, 8), dpi=300, nrows=3, sharex=True)
+
+        img = librosa.display.specshow(librosa.power_to_db(
+            S, ref=np.max, top_db=120), sr=sr, y_axis='mel', fmax=sr/2, x_axis='time', hop_length=hop_size, ax=ax[2])
+
+        # get rid of "default" ticks
+        ax[2].yaxis.set_minor_locator(matplotlib.ticker.NullLocator())
+
+        ax[0].set(title=os.path.basename(self.filename))
+        length = get_length(self.filename)
+        plot_xticks = np.arange(0, length+0.1, length/20)
+        ax[2].set(xticks=plot_xticks)
+
+        freq_ticks = [elem*100 for elem in range(10)]
+        freq_ticks = [250]
+        freq = 500
+        while freq < sr/2:
+            freq_ticks.append(freq)
+            freq *= 1.5
+
+        freq_ticks = [round(elem, -1) for elem in freq_ticks]
+        freq_ticks_labels = [str(round(elem/1000, 1)) +
+                             'k' if elem > 1000 else int(round(elem)) for elem in freq_ticks]
+
+        ax[2].set(yticks=(freq_ticks))
+        ax[2].set(yticklabels=(freq_ticks_labels))
+
+        times = librosa.times_like(
+            cent, sr=sr, n_fft=window_size, hop_length=hop_size)
+
+        ax[2].fill_between(times, cent[0] - spec_bw[0], cent[0] +
+                           spec_bw[0], alpha=0.5, label='Centroid +- bandwidth')
+        ax[2].plot(times, cent.T, label='Centroid', color='w')
+        ax[2].plot(times, rolloff[0], label='Roll-off frequency (0.99)')
+        ax[2].plot(times, rolloff_min[0], color='r',
+                   label='Roll-off frequency (0.01)')
+
+        ax[2].legend(loc='upper left', bbox_to_anchor=(1, 1))
+
+        ax[1].plot(times, flatness.T, label='Flatness', color='y')
+        ax[1].legend(loc='upper left', bbox_to_anchor=(1, 1))
+
+        ax[0].semilogy(times, rms[0], label='RMS Energy')
+        ax[0].legend(loc='upper left', bbox_to_anchor=(1, 1))
+
+        plt.tight_layout()
+        plt.savefig('%s_descriptors.png' % self.of, format='png')
+
+        if not autoshow:
+            plt.close()
+
+        return MgImage(self.of + '_descriptors.png')
+
 
 def mg_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters=512, power=2, autoshow=False):
     """
@@ -138,6 +257,10 @@ def mg_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters=512, 
 
     Parameters
     ----------
+    - filename : str, optional
+
+        Path to the audio/video file to be processed.
+
     - window_size : int, optional
 
         The size of the FFT frame. Default is 4096.
