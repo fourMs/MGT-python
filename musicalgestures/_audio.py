@@ -229,7 +229,7 @@ class Audio:
 
         ax[2].fill_between(times, cent[0] - spec_bw[0], cent[0] +
                            spec_bw[0], alpha=0.5, label='Centroid +- bandwidth')
-        ax[2].plot(times, cent.T, label='Centroid', color='w')
+        ax[2].plot(times, cent.T, label='Centroid', color='y')
         ax[2].plot(times, rolloff[0], label='Roll-off frequency (0.99)')
         ax[2].plot(times, rolloff_min[0], color='r',
                    label='Roll-off frequency (0.01)')
@@ -572,7 +572,7 @@ def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters
 
     ax[2].fill_between(times, cent[0] - spec_bw[0], cent[0] +
                        spec_bw[0], alpha=0.5, label='Centroid +- bandwidth')
-    ax[2].plot(times, cent.T, label='Centroid', color='w')
+    ax[2].plot(times, cent.T, label='Centroid', color='y')
     ax[2].plot(times, rolloff[0], label='Roll-off frequency (0.99)')
     ax[2].plot(times, rolloff_min[0], color='r',
                label='Roll-off frequency (0.01)')
@@ -594,7 +594,7 @@ def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters
     return MgImage(of + '_descriptors.png')
 
 
-def mg_audio_tempogram(window_size=4096, overlap=8, mel_filters=512, power=2, autoshow=False):
+def mg_audio_tempogram(filename=None, window_size=4096, overlap=8, mel_filters=512, power=2, autoshow=False):
     """
     Renders four plots of:
         - onset strength, 
