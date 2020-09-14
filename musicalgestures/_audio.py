@@ -250,6 +250,115 @@ class Audio:
 
         return MgImage(self.of + '_descriptors.png')
 
+    def tempogram(self, window_size=4096, overlap=8, mel_filters=512, power=2, autoshow=False):
+        """
+        Renders four plots of:
+            - onset strength, 
+            - tempogram,  
+            - Mean local & global autocorrelation vs lag (seconds),
+            - Mean local & global autocorrelation vs BPM, and estimated tempo
+        of the video/audio file.
+
+        Parameters
+        ----------
+        - window_size : int, optional
+
+            The size of the FFT frame. Default is 4096.
+
+        - overlap : int, optional
+
+            The window overlap. The hop size is window_size / overlap.
+            Example: window_size=1024, overlap=4 -> hop=256
+
+        - mel_filters : int, optional
+
+            The number of filters to use for filtering the frequency domain. Affects the
+            vertical resolution (sharpness) of the spectrogram. NB: Too high values with
+            relatively small window sizes can result in artifacts (typically black lines)
+            in the resulting image. Default is 512.
+
+        - power : int, float
+
+            The steepness of the curve for the color mapping. Default is 2.
+
+        - autoshow: bool, optional
+
+            Whether to show the resulting plot automatically. Default is `False` (plot is not shown).
+
+        Outputs
+        -------
+
+        - `self.filename` + '_tempogram.png'
+
+        Returns
+        -------
+        - MgPlot
+
+            An MgPlot object referring to the output plot and its analysis data.
+        """
+        if not has_audio(self.filename):
+            print('The video has no audio track.')
+            return
+
+        hop_size = int(window_size / overlap)
+
+        y, sr = librosa.load(self.filename, sr=None)
+
+        oenv = librosa.onset.onset_strength(y=y, sr=sr, hop_length=hop_size)
+
+        tempogram = librosa.feature.tempogram(
+            onset_envelope=oenv, sr=sr, hop_length=hop_size)
+
+        # Compute global onset autocorrelation
+        ac_global = librosa.autocorrelate(oenv, max_size=tempogram.shape[0])
+        ac_global = librosa.util.normalize(ac_global)
+
+        # Estimate the global tempo for display purposes
+        tempo = librosa.beat.tempo(
+            onset_envelope=oenv, sr=sr, hop_length=hop_size)[0]
+
+        fig, ax = plt.subplots(nrows=4, figsize=(12, 8), dpi=300)
+        times = librosa.times_like(oenv, sr=sr, hop_length=hop_size)
+
+        ax[0].plot(times, oenv, label='Onset strength')
+        ax[0].label_outer()
+        ax[0].legend(frameon=True)
+
+        librosa.display.specshow(tempogram, sr=sr, hop_length=hop_size,
+                                 x_axis='time', y_axis='tempo', cmap='magma', ax=ax[1])
+        ax[1].axhline(tempo, color='w', linestyle='--', alpha=1,
+                      label='Estimated tempo={:g}'.format(tempo))
+        ax[1].legend(loc='upper right')
+        ax[1].set(title='Tempogram')
+
+        x = np.linspace(
+            0, tempogram.shape[0] * float(hop_size) / sr, num=tempogram.shape[0])
+        ax[2].plot(x, np.mean(tempogram, axis=1),
+                   label='Mean local autocorrelation')
+        ax[2].plot(x, ac_global, '--', alpha=0.75,
+                   label='Global autocorrelation')
+        ax[2].set(xlabel='Lag (seconds)')
+        ax[2].legend(frameon=True)
+
+        freqs = librosa.tempo_frequencies(
+            tempogram.shape[0], hop_length=hop_size, sr=sr)
+        ax[3].semilogx(freqs[1:], np.mean(tempogram[1:], axis=1),
+                       label='Mean local autocorrelation', basex=2)
+        ax[3].semilogx(freqs[1:], ac_global[1:], '--', alpha=0.75,
+                       label='Global autocorrelation', basex=2)
+        ax[3].axvline(tempo, color='black', linestyle='--',
+                      alpha=.8, label='Estimated tempo={:g}'.format(tempo))
+        ax[3].legend(frameon=True)
+        ax[3].set(xlabel='BPM')
+        ax[3].grid(True)
+
+        plt.savefig('%s_tempogram.png' % self.of, format='png')
+
+        if not autoshow:
+            plt.close()
+
+        return MgImage(self.of + '_tempogram.png')
+
 
 def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters=512, power=2, autoshow=False):
     """
@@ -483,3 +592,123 @@ def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters
         plt.close()
 
     return MgImage(of + '_descriptors.png')
+
+
+def mg_audio_tempogram(window_size=4096, overlap=8, mel_filters=512, power=2, autoshow=False):
+    """
+    Renders four plots of:
+        - onset strength, 
+        - tempogram,  
+        - Mean local & global autocorrelation vs lag (seconds),
+        - Mean local & global autocorrelation vs BPM, and estimated tempo
+    of the video/audio file.
+
+    Parameters
+    ----------
+    - filename : str, optional
+
+        Path to the audio/video file to be processed.
+
+    - window_size : int, optional
+
+        The size of the FFT frame. Default is 4096.
+
+    - overlap : int, optional
+
+        The window overlap. The hop size is window_size / overlap.
+        Example: window_size=1024, overlap=4 -> hop=256
+
+    - mel_filters : int, optional
+
+        The number of filters to use for filtering the frequency domain. Affects the
+        vertical resolution (sharpness) of the spectrogram. NB: Too high values with
+        relatively small window sizes can result in artifacts (typically black lines)
+        in the resulting image. Default is 512.
+
+    - power : int, float
+
+        The steepness of the curve for the color mapping. Default is 2.
+
+    - autoshow: bool, optional
+
+        Whether to show the resulting plot automatically. Default is `False` (plot is not shown).
+
+    Outputs
+    -------
+
+    - `self.filename` + '_tempogram.png'
+
+    Returns
+    -------
+    - MgPlot
+
+        An MgPlot object referring to the output plot and its analysis data.
+    """
+    if filename == None:
+        print("No filename was given.")
+        return
+
+    if not has_audio(filename):
+        print('The video has no audio track.')
+        return
+
+    of, fex = os.path.splitext(filename)
+
+    hop_size = int(window_size / overlap)
+
+    y, sr = librosa.load(filename, sr=None)
+
+    oenv = librosa.onset.onset_strength(y=y, sr=sr, hop_length=hop_size)
+
+    tempogram = librosa.feature.tempogram(
+        onset_envelope=oenv, sr=sr, hop_length=hop_size)
+
+    # Compute global onset autocorrelation
+    ac_global = librosa.autocorrelate(oenv, max_size=tempogram.shape[0])
+    ac_global = librosa.util.normalize(ac_global)
+
+    # Estimate the global tempo for display purposes
+    tempo = librosa.beat.tempo(
+        onset_envelope=oenv, sr=sr, hop_length=hop_size)[0]
+
+    fig, ax = plt.subplots(nrows=4, figsize=(12, 8), dpi=300)
+    times = librosa.times_like(oenv, sr=sr, hop_length=hop_size)
+
+    ax[0].plot(times, oenv, label='Onset strength')
+    ax[0].label_outer()
+    ax[0].legend(frameon=True)
+
+    librosa.display.specshow(tempogram, sr=sr, hop_length=hop_size,
+                             x_axis='time', y_axis='tempo', cmap='magma', ax=ax[1])
+    ax[1].axhline(tempo, color='w', linestyle='--', alpha=1,
+                  label='Estimated tempo={:g}'.format(tempo))
+    ax[1].legend(loc='upper right')
+    ax[1].set(title='Tempogram')
+
+    x = np.linspace(
+        0, tempogram.shape[0] * float(hop_size) / sr, num=tempogram.shape[0])
+    ax[2].plot(x, np.mean(tempogram, axis=1),
+               label='Mean local autocorrelation')
+    ax[2].plot(x, ac_global, '--', alpha=0.75,
+               label='Global autocorrelation')
+    ax[2].set(xlabel='Lag (seconds)')
+    ax[2].legend(frameon=True)
+
+    freqs = librosa.tempo_frequencies(
+        tempogram.shape[0], hop_length=hop_size, sr=sr)
+    ax[3].semilogx(freqs[1:], np.mean(tempogram[1:], axis=1),
+                   label='Mean local autocorrelation', basex=2)
+    ax[3].semilogx(freqs[1:], ac_global[1:], '--', alpha=0.75,
+                   label='Global autocorrelation', basex=2)
+    ax[3].axvline(tempo, color='black', linestyle='--',
+                  alpha=.8, label='Estimated tempo={:g}'.format(tempo))
+    ax[3].legend(frameon=True)
+    ax[3].set(xlabel='BPM')
+    ax[3].grid(True)
+
+    plt.savefig('%s_tempogram.png' % of, format='png')
+
+    if not autoshow:
+        plt.close()
+
+    return MgImage(of + '_tempogram.png')
