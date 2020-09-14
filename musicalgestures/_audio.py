@@ -18,19 +18,25 @@ class Audio:
 
         Path to the input video file. Passed by parent MgObject.
 
-    - has_audio : bool
-
-        Indicates whether source video file has an audio track. Passed by parent MgObject.
-
     Methods
     -------
     - spectrogram()
 
-        Renders a mel-scaled spectrogram of the video/audio file.
+        Renders a figure showing the mel-scaled spectrogram of the video/audio file.
+
     - descriptors()
 
-        Renders a plot of spectral/loudness descriptors, including RMS energy, spectral flatness,
+        Renders a figure of plots showing spectral/loudness descriptors, including RMS energy, spectral flatness,
         centroid, bandwidth, rolloff of the video/audio file.
+
+    - tempogram()
+
+        Renders a figure with four plots of:
+            - onset strength, 
+            - tempogram,  
+            - Mean local & global autocorrelation vs lag (seconds),
+            - Mean local & global autocorrelation vs BPM, and estimated tempo
+        of the video/audio file.
 
     """
 
@@ -38,9 +44,9 @@ class Audio:
         self.filename = filename
         self.of, self.fex = os.path.splitext(filename)
 
-    def spectrogram(self, window_size=4096, overlap=8, mel_filters=512, power=2, autoshow=False):
+    def spectrogram(self, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True):
         """
-        Renders a mel-scaled spectrogram of the video/audio file.
+        Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
         Parameters
         ----------
@@ -60,13 +66,17 @@ class Audio:
             relatively small window sizes can result in artifacts (typically black lines)
             in the resulting image. Default is 512.
 
-        - power : int, float
+        - power : int, float, optional
 
             The steepness of the curve for the color mapping. Default is 2.
 
+        - dpi : int, optional
+
+            Image quality of the rendered figure. Default is 300 DPI.
+
         - autoshow: bool, optional
 
-            Whether to show the resulting plot automatically. Default is `False` (plot is not shown).
+            Whether to show the resulting figure automatically. Default is `True` (figure is shown).
 
         Outputs
         -------
@@ -75,9 +85,9 @@ class Audio:
 
         Returns
         -------
-        - MgPlot
+        - MgImage
 
-            An MgPlot object referring to the output plot and its analysis data.
+            An MgImage object referring to the output image file.
         """
 
         if not has_audio(self.filename):
@@ -131,9 +141,9 @@ class Audio:
 
         return MgImage(self.of + '_spectrogram.png')
 
-    def descriptors(self, window_size=4096, overlap=8, mel_filters=512, power=2, autoshow=False):
+    def descriptors(self, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True):
         """
-        Renders a plot of spectral/loudness descriptors, including RMS energy, spectral flatness,
+        Renders a figure of plots showing spectral/loudness descriptors, including RMS energy, spectral flatness,
         centroid, bandwidth, rolloff of the video/audio file.
 
         Parameters
@@ -154,13 +164,17 @@ class Audio:
             relatively small window sizes can result in artifacts (typically black lines)
             in the resulting image. Default is 512.
 
-        - power : int, float
+        - power : int, float, optional
 
             The steepness of the curve for the color mapping. Default is 2.
 
+        - dpi : int, optional
+
+            Image quality of the rendered figure. Default is 300 DPI.
+
         - autoshow: bool, optional
 
-            Whether to show the resulting plot automatically. Default is `False` (plot is not shown).
+            Whether to show the resulting figure automatically. Default is `True` (figure is shown).
 
         Outputs
         -------
@@ -169,9 +183,9 @@ class Audio:
 
         Returns
         -------
-        - MgPlot
+        - MgImage
 
-            An MgPlot object referring to the output plot and its analysis data.
+            An MgImage object referring to the output figure as an image file.
         """
         if not has_audio(self.filename):
             print('The video has no audio track.')
@@ -197,7 +211,7 @@ class Audio:
         S = librosa.feature.melspectrogram(
             y=y, sr=sr, n_mels=mel_filters, fmax=sr/2, n_fft=window_size, hop_length=hop_size, power=power)
 
-        fig, ax = plt.subplots(figsize=(12, 8), dpi=300, nrows=3, sharex=True)
+        fig, ax = plt.subplots(figsize=(12, 8), dpi=dpi, nrows=3, sharex=True)
 
         img = librosa.display.specshow(librosa.power_to_db(
             S, ref=np.max, top_db=120), sr=sr, y_axis='mel', fmax=sr/2, x_axis='time', hop_length=hop_size, ax=ax[2])
@@ -250,9 +264,9 @@ class Audio:
 
         return MgImage(self.of + '_descriptors.png')
 
-    def tempogram(self, window_size=4096, overlap=8, mel_filters=512, power=2, autoshow=False):
+    def tempogram(self, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True):
         """
-        Renders four plots of:
+        Renders a figure with four plots of:
             - onset strength, 
             - tempogram,  
             - Mean local & global autocorrelation vs lag (seconds),
@@ -277,13 +291,17 @@ class Audio:
             relatively small window sizes can result in artifacts (typically black lines)
             in the resulting image. Default is 512.
 
-        - power : int, float
+        - power : int, float, optional
 
             The steepness of the curve for the color mapping. Default is 2.
 
+        - dpi : int, optional
+
+            Image quality of the rendered figure. Default is 300 DPI.
+
         - autoshow: bool, optional
 
-            Whether to show the resulting plot automatically. Default is `False` (plot is not shown).
+            Whether to show the resulting figure automatically. Default is `True` (figure is shown).
 
         Outputs
         -------
@@ -292,9 +310,9 @@ class Audio:
 
         Returns
         -------
-        - MgPlot
+        - MgImage
 
-            An MgPlot object referring to the output plot and its analysis data.
+            An MgImage object referring to the output figure as an image file.
         """
         if not has_audio(self.filename):
             print('The video has no audio track.')
@@ -317,7 +335,7 @@ class Audio:
         tempo = librosa.beat.tempo(
             onset_envelope=oenv, sr=sr, hop_length=hop_size)[0]
 
-        fig, ax = plt.subplots(nrows=4, figsize=(12, 8), dpi=300)
+        fig, ax = plt.subplots(nrows=4, figsize=(10, 10), dpi=dpi)
         times = librosa.times_like(oenv, sr=sr, hop_length=hop_size)
 
         ax[0].plot(times, oenv, label='Onset strength')
@@ -360,9 +378,9 @@ class Audio:
         return MgImage(self.of + '_tempogram.png')
 
 
-def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters=512, power=2, autoshow=False):
+def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True):
     """
-    Renders a mel-scaled spectrogram of the video/audio file.
+    Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
     Parameters
     ----------
@@ -386,13 +404,17 @@ def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters
         relatively small window sizes can result in artifacts (typically black lines)
         in the resulting image. Default is 512.
 
-    - power : int, float
+    - power : int, float, optional
 
         The steepness of the curve for the color mapping. Default is 2.
 
+    - dpi : int, optional
+
+        Image quality of the rendered figure. Default is 300 DPI.
+
     - autoshow: bool, optional
 
-        Whether to show the resulting plot automatically. Default is `False` (plot is not shown).
+        Whether to show the resulting figure automatically. Default is `True` (figure is shown).
 
     Outputs
     -------
@@ -422,7 +444,7 @@ def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters
     S = librosa.feature.melspectrogram(
         y=y, sr=sr, n_mels=mel_filters, fmax=sr/2, n_fft=window_size, hop_length=hop_size, power=power)
 
-    fig, ax = plt.subplots(figsize=(12, 6), dpi=300)
+    fig, ax = plt.subplots(figsize=(12, 6), dpi=dpi)
 
     img = librosa.display.specshow(librosa.power_to_db(
         S, ref=np.max, top_db=120), sr=sr, y_axis='mel', fmax=sr/2, x_axis='time', hop_length=hop_size, ax=ax)
@@ -463,9 +485,9 @@ def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters
     return MgImage(of + '_spectrogram.png')
 
 
-def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters=512, power=2, autoshow=False):
+def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True):
     """
-    Renders a plot of spectral/loudness descriptors, including RMS energy, spectral flatness,
+    Renders a figure of plots showing spectral/loudness descriptors, including RMS energy, spectral flatness,
     centroid, bandwidth, rolloff of the video/audio file.
 
     Parameters
@@ -490,24 +512,28 @@ def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters
         relatively small window sizes can result in artifacts (typically black lines)
         in the resulting image. Default is 512.
 
-    - power : int, float
+    - power : int, float, optional
 
         The steepness of the curve for the color mapping. Default is 2.
 
+    - dpi : int, optional
+
+        Image quality of the rendered figure. Default is 300 DPI.
+
     - autoshow: bool, optional
 
-        Whether to show the resulting plot automatically. Default is `False` (plot is not shown).
+        Whether to show the resulting figure automatically. Default is `True` (figure is shown).
 
     Outputs
     -------
 
-    - `self.filename` + '_descriptors.png'
+    - `filename` + '_descriptors.png'
 
     Returns
     -------
-    - MgPlot
+    - MgImage
 
-        An MgPlot object referring to the output plot and its analysis data.
+        An MgImage object referring to the output figure as an image file.
     """
 
     if filename == None:
@@ -540,7 +566,7 @@ def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters
     S = librosa.feature.melspectrogram(
         y=y, sr=sr, n_mels=mel_filters, fmax=sr/2, n_fft=window_size, hop_length=hop_size, power=power)
 
-    fig, ax = plt.subplots(figsize=(12, 8), dpi=300, nrows=3, sharex=True)
+    fig, ax = plt.subplots(figsize=(12, 8), dpi=dpi, nrows=3, sharex=True)
 
     img = librosa.display.specshow(librosa.power_to_db(
         S, ref=np.max, top_db=120), sr=sr, y_axis='mel', fmax=sr/2, x_axis='time', hop_length=hop_size, ax=ax[2])
@@ -594,9 +620,9 @@ def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters
     return MgImage(of + '_descriptors.png')
 
 
-def mg_audio_tempogram(filename=None, window_size=4096, overlap=8, mel_filters=512, power=2, autoshow=False):
+def mg_audio_tempogram(filename=None, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True):
     """
-    Renders four plots of:
+    Renders a figure with four plots of:
         - onset strength, 
         - tempogram,  
         - Mean local & global autocorrelation vs lag (seconds),
@@ -625,24 +651,28 @@ def mg_audio_tempogram(filename=None, window_size=4096, overlap=8, mel_filters=5
         relatively small window sizes can result in artifacts (typically black lines)
         in the resulting image. Default is 512.
 
-    - power : int, float
+    - power : int, float, optional
 
         The steepness of the curve for the color mapping. Default is 2.
 
+    - dpi : int, optional
+
+        Image quality of the rendered figure. Default is 300 DPI.
+
     - autoshow: bool, optional
 
-        Whether to show the resulting plot automatically. Default is `False` (plot is not shown).
+        Whether to show the resulting figure automatically. Default is `True` (figure is shown).
 
     Outputs
     -------
 
-    - `self.filename` + '_tempogram.png'
+    - `filename` + '_tempogram.png'
 
     Returns
     -------
-    - MgPlot
+    - MgImage
 
-        An MgPlot object referring to the output plot and its analysis data.
+        An MgImage object referring to the output figure as an image file.
     """
     if filename == None:
         print("No filename was given.")
@@ -671,7 +701,7 @@ def mg_audio_tempogram(filename=None, window_size=4096, overlap=8, mel_filters=5
     tempo = librosa.beat.tempo(
         onset_envelope=oenv, sr=sr, hop_length=hop_size)[0]
 
-    fig, ax = plt.subplots(nrows=4, figsize=(12, 8), dpi=300)
+    fig, ax = plt.subplots(nrows=4, figsize=(10, 16), dpi=dpi)
     times = librosa.times_like(oenv, sr=sr, hop_length=hop_size)
 
     ax[0].plot(times, oenv, label='Onset strength')
