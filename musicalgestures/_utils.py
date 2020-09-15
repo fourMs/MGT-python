@@ -246,6 +246,21 @@ class MgList():
         for obj in self.objectlist:
             obj.show()
 
+    def __len__(self):
+        return len(self.objectlist)
+
+    def __getitem__(self, key):
+        return self.objectlist[key]
+
+    def __setitem__(self, key, value):
+        self.objectlist[key] = value
+
+    def __delitem__(sef, key):
+        del self.objectlist[key]
+
+    def __iter__(self):
+        return iter(self.objectlist)
+
     def __repr__(self):
         return f"MgList('{self.objectlist}')"
 
