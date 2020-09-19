@@ -341,19 +341,18 @@ class MgList():
                 if obj.figure_type == 'audio.tempogram':
                     # increment output filename
                     if plot_counter == 0:
-                        of = obj.data['times'] + '_tempogram'
+                        of = obj.data['of'] + '_tempogram'
                     else:
                         of += '_tempogram'
 
                     if first_plot:
-                        # make plot for onsets
                         ax[plot_counter] = fig.add_subplot(
                             elem_count, 1, plot_counter+1)
                     else:
-                        # make plot for onsets
                         ax[plot_counter] = fig.add_subplot(
                             elem_count, 1, plot_counter+1, sharex=ax[index_of_first_plot])
 
+                    # make plot for onset strength
                     ax[plot_counter].plot(
                         obj.data['times'], obj.data['onset_env'], label='Onset strength')
                     ax[plot_counter].label_outer()
@@ -372,7 +371,74 @@ class MgList():
                     plot_counter += 1
 
                 elif obj.figure_type == 'audio.descriptors':
-                    pass
+                    # increment output filename
+                    if plot_counter == 0:
+                        of = obj.data['of'] + '_descriptors'
+                    else:
+                        of += '_descriptors'
+
+                    if first_plot:
+                        ax[plot_counter] = fig.add_subplot(
+                            elem_count, 1, plot_counter+1)
+                    else:
+                        ax[plot_counter] = fig.add_subplot(
+                            elem_count, 1, plot_counter+1, sharex=ax[index_of_first_plot])
+
+                    # make plot for rms
+                    # ax[plot_counter] = fig.add_subplot(
+                    #     elem_count, 1, plot_counter+1, sharex=ax[index_of_first_plot])
+                    ax[plot_counter].semilogy(
+                        obj.data['times'], obj.data['rms'][0], label='RMS Energy')
+                    ax[plot_counter].legend(loc='upper right')
+                    plot_counter += 1
+
+                    # make plot for flatness
+                    ax[plot_counter] = fig.add_subplot(
+                        elem_count, 1, plot_counter+1, sharex=ax[index_of_first_plot])
+                    ax[plot_counter].plot(
+                        obj.data['times'], obj.data['flatness'].T, label='Flatness', color='y')
+                    ax[plot_counter].legend(loc='upper right')
+                    plot_counter += 1
+
+                    # make plot for spectrogram, centroid, bandwidth and rolloff
+                    ax[plot_counter] = fig.add_subplot(
+                        elem_count, 1, plot_counter+1, sharex=ax[index_of_first_plot])
+                    librosa.display.specshow(librosa.power_to_db(obj.data['S'], ref=np.max, top_db=120), sr=obj.data['sr'],
+                                             y_axis='mel', fmax=obj.data['sr']/2, x_axis='time', hop_length=obj.data['hop_size'], ax=ax[plot_counter])
+                    # get rid of "default" ticks
+                    ax[plot_counter].yaxis.set_minor_locator(
+                        matplotlib.ticker.NullLocator())
+                    plot_xticks = np.arange(
+                        0, obj.data['length']+0.1, obj.data['length']/20)
+                    ax[plot_counter].set(xticks=plot_xticks)
+
+                    freq_ticks = [elem*100 for elem in range(10)]
+                    freq_ticks = [250]
+                    freq = 500
+                    while freq < obj.data['sr']/2:
+                        freq_ticks.append(freq)
+                        freq *= 1.5
+
+                    freq_ticks = [round(elem, -1) for elem in freq_ticks]
+                    freq_ticks_labels = [str(round(
+                        elem/1000, 1)) + 'k' if elem > 1000 else int(round(elem)) for elem in freq_ticks]
+
+                    ax[plot_counter].set(yticks=(freq_ticks))
+                    ax[plot_counter].set(yticklabels=(freq_ticks_labels))
+
+                    ax[plot_counter].fill_between(obj.data['times'], obj.data['cent'][0] - obj.data['spec_bw']
+                                                  [0], obj.data['cent'][0] + obj.data['spec_bw'][0], alpha=0.5, label='Centroid +- bandwidth')
+                    ax[plot_counter].plot(
+                        obj.data['times'], obj.data['cent'].T, label='Centroid', color='y')
+                    ax[plot_counter].plot(
+                        obj.data['times'], obj.data['rolloff'][0], label='Roll-off frequency (0.99)')
+                    ax[plot_counter].plot(
+                        obj.data['times'], obj.data['rolloff_min'][0], color='r', label='Roll-off frequency (0.01)')
+
+                    ax[plot_counter].legend(loc='upper right')
+
+                    plot_counter += 1
+
                 elif obj.figure_type == 'audio.spectrogram':
                     pass
 

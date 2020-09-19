@@ -183,9 +183,9 @@ class Audio:
 
         Returns
         -------
-        - MgImage
+        - MgFigure
 
-            An MgImage object referring to the output figure as an image file.
+            An MgFigure object referring to the internal figure and its data.
         """
         if not has_audio(self.filename):
             print('The video has no audio track.')
@@ -265,7 +265,30 @@ class Audio:
         if not autoshow:
             plt.close()
 
-        return MgImage(self.of + '_descriptors.png')
+        # create MgFigure
+        data = {
+            "hop_size": hop_size,
+            "sr": sr,
+            "of": self.of,
+            "times": times,
+            "S": S,
+            "length": length,
+            "cent": cent,
+            "spec_bw": spec_bw,
+            "rolloff": rolloff,
+            "rolloff_min": rolloff_min,
+            "flatness": flatness,
+            "rms": rms
+        }
+
+        mgf = MgFigure(
+            figure=fig,
+            figure_type='audio.descriptors',
+            data=data,
+            layers=None,
+            image=self.of + '_descriptors.png')
+
+        return mgf
 
     def tempogram(self, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True):
         """
@@ -522,9 +545,9 @@ def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters
 
     Returns
     -------
-    - MgImage
+    - MgFigure
 
-        An MgImage object referring to the output figure as an image file.
+        An MgFigure object referring to the internal figure and its data.
     """
 
     if filename == None:
@@ -594,15 +617,12 @@ def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters
     ax[2].plot(times, rolloff_min[0], color='r',
                label='Roll-off frequency (0.01)')
 
-    # ax[2].legend(loc='upper left', bbox_to_anchor=(1, 1))
     ax[2].legend(loc='upper right')
 
     ax[1].plot(times, flatness.T, label='Flatness', color='y')
-    # ax[1].legend(loc='upper left', bbox_to_anchor=(1, 1))
     ax[1].legend(loc='upper right')
 
     ax[0].semilogy(times, rms[0], label='RMS Energy')
-    # ax[0].legend(loc='upper left', bbox_to_anchor=(1, 1))
     ax[0].legend(loc='upper right')
 
     plt.tight_layout()
@@ -611,7 +631,30 @@ def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters
     if not autoshow:
         plt.close()
 
-    return MgImage(of + '_descriptors.png')
+    # create MgFigure
+    data = {
+        "hop_size": hop_size,
+        "sr": sr,
+        "of": of,
+        "times": times,
+        "S": S,
+        "length": length,
+        "cent": cent,
+        "spec_bw": spec_bw,
+        "rolloff": rolloff,
+        "rolloff_min": rolloff_min,
+        "flatness": flatness,
+        "rms": rms
+    }
+
+    mgf = MgFigure(
+        figure=fig,
+        figure_type='audio.descriptors',
+        data=data,
+        layers=None,
+        image=of + '_descriptors.png')
+
+    return mgf
 
 
 def mg_audio_tempogram(filename=None, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True):
