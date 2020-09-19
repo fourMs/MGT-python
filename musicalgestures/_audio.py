@@ -85,9 +85,9 @@ class Audio:
 
         Returns
         -------
-        - MgImage
+        - MgFigure
 
-            An MgImage object referring to the output image file.
+            An MgFigure object referring to the internal figure and its data.
         """
 
         if not has_audio(self.filename):
@@ -139,7 +139,23 @@ class Audio:
         if not autoshow:
             plt.close()
 
-        return MgImage(self.of + '_spectrogram.png')
+        # create MgFigure
+        data = {
+            "hop_size": hop_size,
+            "sr": sr,
+            "of": self.of,
+            "S": S,
+            "length": length
+        }
+
+        mgf = MgFigure(
+            figure=fig,
+            figure_type='audio.spectrogram',
+            data=data,
+            layers=None,
+            image=self.of + '_spectrogram.png')
+
+        return mgf
 
     def descriptors(self, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True):
         """
@@ -437,9 +453,9 @@ def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters
 
     Returns
     -------
-    - MgImage
+    - MgFigure
 
-        An MgImage object referring to the output image file.
+        An MgFigure object referring to the internal figure and its data.
     """
     if filename == None:
         print("No filename was given.")
@@ -496,7 +512,23 @@ def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters
     if not autoshow:
         plt.close()
 
-    return MgImage(of + '_spectrogram.png')
+    # create MgFigure
+    data = {
+        "hop_size": hop_size,
+        "sr": sr,
+        "of": of,
+        "S": S,
+        "length": length
+    }
+
+    mgf = MgFigure(
+        figure=fig,
+        figure_type='audio.spectrogram',
+        data=data,
+        layers=None,
+        image=of + '_spectrogram.png')
+
+    return mgf
 
 
 def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True):

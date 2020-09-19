@@ -385,8 +385,6 @@ class MgList():
                             elem_count, 1, plot_counter+1, sharex=ax[index_of_first_plot])
 
                     # make plot for rms
-                    # ax[plot_counter] = fig.add_subplot(
-                    #     elem_count, 1, plot_counter+1, sharex=ax[index_of_first_plot])
                     ax[plot_counter].semilogy(
                         obj.data['times'], obj.data['rms'][0], label='RMS Energy')
                     ax[plot_counter].legend(loc='upper right')
@@ -440,7 +438,43 @@ class MgList():
                     plot_counter += 1
 
                 elif obj.figure_type == 'audio.spectrogram':
-                    pass
+                    # increment output filename
+                    if plot_counter == 0:
+                        of = obj.data['of'] + '_spectrogram'
+                    else:
+                        of += '_spectrogram'
+
+                    if first_plot:
+                        ax[plot_counter] = fig.add_subplot(
+                            elem_count, 1, plot_counter+1)
+                    else:
+                        ax[plot_counter] = fig.add_subplot(
+                            elem_count, 1, plot_counter+1, sharex=ax[index_of_first_plot])
+
+                    librosa.display.specshow(librosa.power_to_db(obj.data['S'], ref=np.max, top_db=120), sr=obj.data['sr'],
+                                             y_axis='mel', fmax=obj.data['sr']/2, x_axis='time', hop_length=obj.data['hop_size'], ax=ax[plot_counter])
+                    # get rid of "default" ticks
+                    ax[plot_counter].yaxis.set_minor_locator(
+                        matplotlib.ticker.NullLocator())
+                    plot_xticks = np.arange(
+                        0, obj.data['length']+0.1, obj.data['length']/20)
+                    ax[plot_counter].set(xticks=plot_xticks)
+
+                    freq_ticks = [elem*100 for elem in range(10)]
+                    freq_ticks = [250]
+                    freq = 500
+                    while freq < obj.data['sr']/2:
+                        freq_ticks.append(freq)
+                        freq *= 1.5
+
+                    freq_ticks = [round(elem, -1) for elem in freq_ticks]
+                    freq_ticks_labels = [str(round(
+                        elem/1000, 1)) + 'k' if elem > 1000 else int(round(elem)) for elem in freq_ticks]
+
+                    ax[plot_counter].set(yticks=(freq_ticks))
+                    ax[plot_counter].set(yticklabels=(freq_ticks_labels))
+
+                    plot_counter += 1
 
         fig.tight_layout()
 
