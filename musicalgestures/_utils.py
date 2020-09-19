@@ -473,6 +473,7 @@ class MgList():
 
                     ax[plot_counter].set(yticks=(freq_ticks))
                     ax[plot_counter].set(yticklabels=(freq_ticks_labels))
+                    ax[plot_counter].set(title='Spectrogram')
 
                     plot_counter += 1
 
