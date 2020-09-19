@@ -29,8 +29,8 @@ def mg_videograms(self):
     vidcap = cv2.VideoCapture(self.of+self.fex)
     ret, frame = vidcap.read()
 
-    vgramy = np.zeros([1, self.width, 3])
-    vgramx = np.zeros([self.height, 1, 3])
+    vgramx = np.zeros([1, self.width, 3])
+    vgramy = np.zeros([self.height, 1, 3])
 
     ii = 0
 
@@ -38,8 +38,8 @@ def mg_videograms(self):
 
     if self.color == False:
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        vgramy = np.zeros([1, self.width])
-        vgramx = np.zeros([self.height, 1])
+        vgramx = np.zeros([1, self.width])
+        vgramy = np.zeros([self.height, 1])
 
     while(vidcap.isOpened()):
         prev_frame = frame
@@ -67,8 +67,8 @@ def mg_videograms(self):
                 mean_y[:, :, channel] = (mean_y[:, :, channel]-mean_y[:, :, channel].min())/(
                     mean_y[:, :, channel].max()-mean_y[:, :, channel].min())*255.0
 
-            vgramx = np.append(vgramx, mean_x, axis=1)
-            vgramy = np.append(vgramy, mean_y, axis=0)
+            vgramy = np.append(vgramy, mean_x, axis=1)
+            vgramx = np.append(vgramx, mean_y, axis=0)
 
         else:
             pb.progress(self.length)
@@ -79,15 +79,15 @@ def mg_videograms(self):
 
     if self.color == False:
         # Normalize before converting to uint8 to keep precision
-        vgramy = vgramy/vgramy.max()*255
         vgramx = vgramx/vgramx.max()*255
-        vgramy = cv2.cvtColor(vgramy.astype(
-            np.uint8), cv2.COLOR_GRAY2BGR)
+        vgramy = vgramy/vgramy.max()*255
         vgramx = cv2.cvtColor(vgramx.astype(
             np.uint8), cv2.COLOR_GRAY2BGR)
+        vgramy = cv2.cvtColor(vgramy.astype(
+            np.uint8), cv2.COLOR_GRAY2BGR)
 
-    cv2.imwrite(self.of+'_vgx.png', vgramx.astype(np.uint8))
     cv2.imwrite(self.of+'_vgy.png', vgramy.astype(np.uint8))
+    cv2.imwrite(self.of+'_vgx.png', vgramx.astype(np.uint8))
 
     vidcap.release()
 
@@ -120,12 +120,12 @@ def videograms_ffmpeg(self):
     framecount = get_framecount(self.filename)
     length = get_length(self.filename)
 
-    outname = self.of + '_vgx.png'
+    outname = self.of + '_vgy.png'
     cmd = ['ffmpeg', '-y', '-i', self.filename, '-frames', '1', '-vf',
            f'scale=1:{height}:sws_flags=area,normalize,tile={framecount}x1', outname]
     ffmpeg_cmd(cmd, length, pb_prefix="Rendering horizontal videogram:")
 
-    outname = self.of + '_vgy.png'
+    outname = self.of + '_vgx.png'
     cmd = ['ffmpeg', '-y', '-i', self.filename, '-frames', '1', '-vf',
            f'scale={width}:1:sws_flags=area,normalize,tile=1x{framecount}', outname]
     ffmpeg_cmd(cmd, length, pb_prefix="Rendering vertical videogram:")
