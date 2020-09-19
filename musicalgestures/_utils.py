@@ -229,7 +229,7 @@ class MgImage():
 
 class MgList():
     """
-    Class for handling lists of MgObjects or MgImages in the Motion Gestures Toolbox.
+    Class for handling lists of MgObjects or MgImages in the Musical Gestures Toolbox.
 
     Attributes
     ----------
@@ -263,6 +263,180 @@ class MgList():
 
     def __repr__(self):
         return f"MgList('{self.objectlist}')"
+
+    def as_figure(self, dpi=300):
+        import os
+        import librosa
+        import librosa.display
+        import matplotlib.pyplot as plt
+        import matplotlib.image as mpimg
+        import matplotlib
+        import numpy as np
+
+        elem_count = 0
+
+        for ind, obj in enumerate(self.objectlist):
+            if type(obj) == MgImage:
+                # print(ind, 'MgImage')
+                elem_count += 1
+
+            elif type(obj) == MgFigure:
+                # print(ind, 'MgFigure', obj.figure_type)
+                if obj.figure_type == 'audio.tempogram':
+                    elem_count += 2
+                elif obj.figure_type == 'audio.descriptors':
+                    elem_count += 3
+                elif obj.figure_type == 'audio.spectrogram':
+                    elem_count += 1
+
+            elif type(obj) == MgList:
+                pass
+                # print(ind, 'MgList')
+                # elem_count increments based on the layers and their subplots/images
+
+        print("Total number of subplots:", elem_count)
+        fig = plt.figure(dpi=dpi, figsize=(10, 3*elem_count))
+        ax = [0 for elem in range(elem_count)]
+        index_of_first_plot = None
+        plot_counter = 0
+        of = None
+
+        for ind, obj in enumerate(self.objectlist):
+            if type(obj) == MgImage:
+                ax[plot_counter] = fig.add_subplot(
+                    elem_count, 1, plot_counter+1)
+                ax[plot_counter].imshow(mpimg.imread(obj.filename))
+                ax[plot_counter].set_aspect('auto')
+                ax[plot_counter].axes.xaxis.set_visible(False)
+                ax[plot_counter].axes.yaxis.set_visible(False)
+
+                # add title based on content
+                last_tag = os.path.splitext(obj.filename)[0].split('_')[-1]
+                if last_tag == 'mgx':
+                    ax[plot_counter].set(title='Motiongram X')
+                elif last_tag == 'mgy':
+                    ax[plot_counter].set(title='Motiongram Y')
+                elif last_tag == 'vgx':
+                    ax[plot_counter].set(title='Videogram X')
+                elif last_tag == 'vgy':
+                    ax[plot_counter].set(title='Videogram Y')
+                else:
+                    ax[plot_counter].set(title=os.path.basename(obj.filename))
+
+                # increment output filename
+                if plot_counter == 0:
+                    of = os.path.splitext(obj.filename)[0]
+                else:
+                    of += '_'
+                    of += os.path.splitext(obj.filename)[0].split('_')[-1]
+
+                plot_counter += 1
+
+            elif type(obj) == MgFigure:
+                first_plot = False
+                if index_of_first_plot == None:
+                    index_of_first_plot = plot_counter  # 0-based!
+                    first_plot = True
+
+                if obj.figure_type == 'audio.tempogram':
+                    # increment output filename
+                    if plot_counter == 0:
+                        of = obj.data['times'] + '_tempogram'
+                    else:
+                        of += '_tempogram'
+
+                    if first_plot:
+                        # make plot for onsets
+                        ax[plot_counter] = fig.add_subplot(
+                            elem_count, 1, plot_counter+1)
+                    else:
+                        # make plot for onsets
+                        ax[plot_counter] = fig.add_subplot(
+                            elem_count, 1, plot_counter+1, sharex=ax[index_of_first_plot])
+
+                    ax[plot_counter].plot(
+                        obj.data['times'], obj.data['onset_env'], label='Onset strength')
+                    ax[plot_counter].label_outer()
+                    ax[plot_counter].legend(frameon=True)
+                    plot_counter += 1
+
+                    # make plot for tempogram
+                    ax[plot_counter] = fig.add_subplot(
+                        elem_count, 1, plot_counter+1, sharex=ax[index_of_first_plot])
+                    librosa.display.specshow(obj.data['tempogram'], sr=obj.data['sr'], hop_length=obj.data['hop_size'],
+                                             x_axis='time', y_axis='tempo', cmap='magma', ax=ax[plot_counter])
+                    ax[plot_counter].axhline(obj.data['tempo'], color='w', linestyle='--',
+                                             alpha=1, label='Estimated tempo={:g}'.format(obj.data['tempo']))
+                    ax[plot_counter].legend(loc='upper right')
+                    ax[plot_counter].set(title='Tempogram')
+                    plot_counter += 1
+
+                elif obj.figure_type == 'audio.descriptors':
+                    pass
+                elif obj.figure_type == 'audio.spectrogram':
+                    pass
+
+        fig.tight_layout()
+
+        # save figure as png
+        plt.savefig(of + '.png', format='png')
+
+        # create MgFigure
+        mgf = MgFigure(
+            figure=fig,
+            figure_type='layers',
+            data=None,
+            layers=self.objectlist,
+            image=of + '.png'
+        )
+
+        return mgf
+
+
+class MgFigure():
+    """
+    Class for working with figures and plots within the Musical Gestures Toolbox.
+
+    Attributes
+    ----------
+    - figure : matplotlib.pyplot.figure
+
+        The internal figure.
+
+    - figure_type : str
+
+        A keyword describing the type of the figure, such as "audio.spectrogram", "audio.tempogram",
+        "audio.descriptors", "layers", etc.
+
+    - data : dictionary
+
+        The dictionary containing all the necessary variables, lists and (typically) NumPy arrays necessary
+        to rebuild each subplot in the figure.
+
+    - layers : list
+
+        This is only relevant if the MgFigure instance is already one of "layers" type, which indicates
+        that it is already a composit of several MgFigures and/or MgImages. In this case the layers list
+        should contain all the child instances (MgFigures, MgImages, or MgLists of these) which are 
+        included in this MgFigure and show as subplots. 
+
+    - image : str
+
+        Path to the image file (the rendered figure).
+    """
+
+    def __init__(self, figure=None, figure_type=None, data=None, layers=None, image=None):
+        self.figure = figure
+        self.figure_type = figure_type
+        self.data = data
+        self.layers = layers
+        self.image = image
+
+    def __repr__(self):
+        return f"MgFigure(figure_type='{self.figure_type}')"
+
+    def show(self):
+        self.figure.show()
 
 
 def convert_to_avi(filename):
