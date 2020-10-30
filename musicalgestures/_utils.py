@@ -323,18 +323,14 @@ class MgList():
                     elif obj.figure_type == 'audio.spectrogram':
                         _count += 1
                     elif obj.figure_type == 'layers':
-                        # _count += count_elems(obj.layers, _count)
                         _count = count_elems(obj.layers, _count)
 
                 elif type(obj) == MgList:
-                    # _count += count_elems(obj.objectlist, _count)
                     _count = count_elems(obj.objectlist, _count)
 
             return _count
 
         elem_count = count_elems(self.objectlist, 0)
-
-        # print("Total number of subplots:", elem_count)
 
         def build_figure(elems_list, elem_count, fig, ax, index_of_first_plot, plot_counter, of):
 
@@ -516,9 +512,6 @@ class MgList():
                         plot_counter += 1
 
                     elif obj.figure_type == 'layers':
-                        if first_plot:
-                            ax[plot_counter] = fig.add_subplot(
-                                elem_count, 1, plot_counter+1)
                         of, plot_counter = build_figure(
                             obj.layers, elem_count, fig, ax, index_of_first_plot, plot_counter, of)
 
@@ -529,7 +522,7 @@ class MgList():
             return of, plot_counter
 
         fig = plt.figure(dpi=dpi, figsize=(10, 3*elem_count))
-        ax = [0 for elem in range(elem_count)]
+        ax = [None for elem in range(elem_count)]
         index_of_first_plot = None
         plot_counter = 0
         of = None
