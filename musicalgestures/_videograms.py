@@ -122,12 +122,12 @@ def videograms_ffmpeg(self):
 
     outname = self.of + '_vgy.png'
     cmd = ['ffmpeg', '-y', '-i', self.filename, '-frames', '1', '-vf',
-           f'scale=1:{height}:sws_flags=area,normalize,tile={framecount}x1', outname]
+           f'scale=1:{height}:sws_flags=area,normalize,tile={framecount}x1', '-aspect', f'{framecount}:{height}', outname]
     ffmpeg_cmd(cmd, length, pb_prefix="Rendering horizontal videogram:")
 
     outname = self.of + '_vgx.png'
     cmd = ['ffmpeg', '-y', '-i', self.filename, '-frames', '1', '-vf',
-           f'scale={width}:1:sws_flags=area,normalize,tile=1x{framecount}', outname]
+           f'scale={width}:1:sws_flags=area,normalize,tile=1x{framecount}', '-aspect', f'{width}:{framecount}', outname]
     ffmpeg_cmd(cmd, length, pb_prefix="Rendering vertical videogram:")
 
     return MgList([MgImage(self.of+'_vgx.png'), MgImage(self.of+'_vgy.png')])
