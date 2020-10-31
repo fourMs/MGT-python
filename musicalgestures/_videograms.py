@@ -3,6 +3,8 @@ import os
 import numpy as np
 from musicalgestures._utils import MgProgressbar, MgImage, get_widthheight, get_framecount, get_length, ffmpeg_cmd
 from musicalgestures._mglist import MgList
+from musicalgestures._videoadjust import skip_frames_ffmpeg
+import math
 
 
 def mg_videograms(self):
@@ -112,23 +114,57 @@ def videograms_ffmpeg(self):
 
     Returns
     -------
-    - list(MgImage, MgImage)
+    - MgList(MgImage, MgImage)
 
-        A tuple with the string paths to the horizontal and vertical videograms respectively. 
+        An MgList with the MgImages of the horizontal and vertical videograms respectively. 
     """
 
     width, height = get_widthheight(self.filename)
     framecount = get_framecount(self.filename)
-    length = get_length(self.filename)
 
-    outname = self.of + '_vgy.png'
-    cmd = ['ffmpeg', '-y', '-i', self.filename, '-frames', '1', '-vf',
-           f'scale=1:{height}:sws_flags=area,normalize,tile={framecount}x1', '-aspect', f'{framecount}:{height}', outname]
-    ffmpeg_cmd(cmd, length, pb_prefix="Rendering horizontal videogram:")
+    def calc_skipfactor(width, height, framecount):
+        intmax = 2147483647
+        skipfactor_x = int(
+            math.ceil(framecount*8 / (intmax / (height+128) - 1024)))
+        skipfactor_y = int(
+            math.ceil(framecount / (intmax / ((width*8)+1024) - 128)))
+        return skipfactor_x, skipfactor_y
 
-    outname = self.of + '_vgx.png'
-    cmd = ['ffmpeg', '-y', '-i', self.filename, '-frames', '1', '-vf',
-           f'scale={width}:1:sws_flags=area,normalize,tile=1x{framecount}', '-aspect', f'{width}:{framecount}', outname]
-    ffmpeg_cmd(cmd, length, pb_prefix="Rendering vertical videogram:")
+    testx, testy = calc_skipfactor(width, height, framecount)
 
-    return MgList([MgImage(self.of+'_vgx.png'), MgImage(self.of+'_vgy.png')])
+    if testx > 1 or testy > 1:
+        necessary_skipfactor = max([testx, testy])
+        print(f'{os.path.basename(self.filename)} is too large to process. Applying minimal skipping necessary...')
+
+        skip_frames_ffmpeg(self.filename, skip=necessary_skipfactor-1)
+
+        shortened_file = self.of + '_skip' + self.fex
+        framecount = get_framecount(shortened_file)
+        length = get_length(shortened_file)
+
+        outname = self.of + '_skip_vgy.png'
+        cmd = ['ffmpeg', '-y', '-i', shortened_file, '-frames', '1', '-vf',
+               f'scale=1:{height}:sws_flags=area,normalize,tile={framecount}x1', '-aspect', f'{framecount}:{height}', outname]
+        ffmpeg_cmd(cmd, length, pb_prefix="Rendering horizontal videogram:")
+
+        outname = self.of + '_skip_vgx.png'
+        cmd = ['ffmpeg', '-y', '-i', shortened_file, '-frames', '1', '-vf',
+               f'scale={width}:1:sws_flags=area,normalize,tile=1x{framecount}', '-aspect', f'{width}:{framecount}', outname]
+        ffmpeg_cmd(cmd, length, pb_prefix="Rendering vertical videogram:")
+
+        return MgList([MgImage(self.of+'_skip_vgx.png'), MgImage(self.of+'_skip_vgy.png')])
+
+    else:
+        length = get_length(self.filename)
+
+        outname = self.of + '_vgy.png'
+        cmd = ['ffmpeg', '-y', '-i', self.filename, '-frames', '1', '-vf',
+               f'scale=1:{height}:sws_flags=area,normalize,tile={framecount}x1', '-aspect', f'{framecount}:{height}', outname]
+        ffmpeg_cmd(cmd, length, pb_prefix="Rendering horizontal videogram:")
+
+        outname = self.of + '_vgx.png'
+        cmd = ['ffmpeg', '-y', '-i', self.filename, '-frames', '1', '-vf',
+               f'scale={width}:1:sws_flags=area,normalize,tile=1x{framecount}', '-aspect', f'{width}:{framecount}', outname]
+        ffmpeg_cmd(cmd, length, pb_prefix="Rendering vertical videogram:")
+
+        return MgList([MgImage(self.of+'_vgx.png'), MgImage(self.of+'_vgy.png')])
