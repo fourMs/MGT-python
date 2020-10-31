@@ -308,6 +308,8 @@ class MgList():
         import matplotlib
         import numpy as np
 
+        there_were_layers, first_slot_was_img, img_to_redo = None, None, None
+
         def count_elems(elems_list, elem_count):
             _count = elem_count
 
@@ -334,8 +336,13 @@ class MgList():
 
         def build_figure(elems_list, elem_count, fig, ax, index_of_first_plot, plot_counter, of):
 
+            there_were_layers, first_slot_was_img, img_to_redo = None, None, None
+
             for obj in elems_list:
                 if type(obj) == MgImage:
+                    if plot_counter == 0:
+                        first_slot_was_img = True
+                        img_to_redo = obj.filename
                     ax[plot_counter] = fig.add_subplot(
                         elem_count, 1, plot_counter+1)
                     ax[plot_counter].imshow(mpimg.imread(obj.filename))
@@ -512,14 +519,19 @@ class MgList():
                         plot_counter += 1
 
                     elif obj.figure_type == 'layers':
-                        of, plot_counter = build_figure(
-                            obj.layers, elem_count, fig, ax, index_of_first_plot, plot_counter, of)
+                        there_were_layers = True
+                        if plot_counter == 0:
+                            of, plot_counter, _, first_slot_was_img, img_to_redo = build_figure(
+                                obj.layers, elem_count, fig, ax, index_of_first_plot, plot_counter, of)
+                        else:
+                            of, plot_counter, _, _, _ = build_figure(
+                                obj.layers, elem_count, fig, ax, index_of_first_plot, plot_counter, of)
 
                 elif type(obj) == MgList:
-                    of, plot_counter = build_figure(
+                    of, plot_counter, _, _, _ = build_figure(
                         obj.objectlist, elem_count, fig, ax, index_of_first_plot, plot_counter, of)
 
-            return of, plot_counter
+            return of, plot_counter, there_were_layers, first_slot_was_img, img_to_redo
 
         fig = plt.figure(dpi=dpi, figsize=(10, 3*elem_count))
         ax = [None for elem in range(elem_count)]
@@ -527,8 +539,30 @@ class MgList():
         plot_counter = 0
         of = None
 
-        of, plot_counter = build_figure(
+        of, plot_counter, there_were_layers, first_slot_was_img, img_to_redo = build_figure(
             self.objectlist, elem_count, fig, ax, index_of_first_plot, plot_counter, of)
+
+        # workaround matplotlib bug: if there was a layered figure where the first slot shows an image, delete and redo that slot
+        if first_slot_was_img and there_were_layers:
+            ax[0].remove()
+            ax[0] = fig.add_subplot(elem_count, 1, 1)
+            ax[0].imshow(mpimg.imread(img_to_redo))
+            ax[0].set_aspect('auto')
+            ax[0].axes.xaxis.set_visible(False)
+            ax[0].axes.yaxis.set_visible(False)
+
+            # add title based on content
+            last_tag = os.path.splitext(img_to_redo)[0].split('_')[-1]
+            if last_tag == 'mgx':
+                ax[0].set(title='Motiongram X')
+            elif last_tag == 'mgy':
+                ax[0].set(title='Motiongram Y')
+            elif last_tag == 'vgx':
+                ax[0].set(title='Videogram X')
+            elif last_tag == 'vgy':
+                ax[0].set(title='Videogram Y')
+            else:
+                ax[0].set(title=os.path.basename(img_to_redo))
 
         fig.tight_layout()
 
