@@ -15,7 +15,7 @@ def history_ffmpeg(self, filename='', history_length=10, weights=1, normalize=Fa
     This function  creates a video where each frame is the average of the 
     n previous frames, where n is determined by `history_length`.
     The history frames are summed up and normalized, and added to the 
-    current frame to show the history. Based on ffmpeg.
+    current frame to show the history. Uses ffmpeg.
 
     Parameters
     ----------
@@ -144,7 +144,7 @@ def history_cv2(self, filename='', history_length=10, weights=1):
     This function  creates a video where each frame is the average of the 
     n previous frames, where n is determined by `history_length`.
     The history frames are summed up and normalized, and added to the 
-    current frame to show the history. Based on cv2.
+    current frame to show the history. Uses cv2.
 
     Parameters
     ----------

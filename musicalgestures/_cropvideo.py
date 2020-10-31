@@ -17,7 +17,7 @@ def mg_cropvideo(
         motion_box_thresh=0.1,
         motion_box_margin=1):
     """
-    Crops the video.
+    Crops the video using cv2.
 
     Parameters
     ----------
@@ -119,6 +119,9 @@ def mg_cropvideo(
 
 
 def draw_rectangle(event, x, y, flags, param):
+    """
+    Helper function to render a cropping window to the user in case of manual cropping, using cv2.
+    """
     global x_start, y_start, x_stop, y_stop, drawing, frame_mask
     if event == cv2.EVENT_LBUTTONDOWN:
         frame_mask = np.zeros(param.shape)
@@ -139,6 +142,9 @@ def draw_rectangle(event, x, y, flags, param):
 
 
 def find_motion_box(grayimage, width, height, motion_box_margin):
+    """
+    Helper function to find the area of motion in a single frame, using cv2.
+    """
     prev_Start = width
     prev_Stop = 0
 
@@ -199,6 +205,9 @@ def find_motion_box(grayimage, width, height, motion_box_margin):
 
 
 def find_total_motion_box(vid2findbox, width, height, length, motion_box_thresh, motion_box_margin):
+    """
+    Helper function to find the area of motion in a video, using cv2.
+    """
     total_box = np.zeros([height, width])
     ret, frame = vid2findbox.read()
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -233,6 +242,9 @@ def find_total_motion_box(vid2findbox, width, height, length, motion_box_thresh,
 
 
 def find_motion_box_ffmpeg(filename, motion_box_thresh=0.1, motion_box_margin=12):
+    """
+    Helper function to find the area of motion in a video, using ffmpeg.
+    """
     import subprocess
     import os
     import matplotlib
@@ -308,6 +320,27 @@ def mg_cropvideo_ffmpeg(
         crop_movement='Auto',
         motion_box_thresh=0.1,
         motion_box_margin=12):
+    """
+    Crops the video using ffmpeg.
+
+    Parameters
+    ----------
+    - filename : str
+
+        Path to the video file.
+    - crop_movement : {'Auto','Manual'}, optional
+
+        'Auto' finds the bounding box that contains the total motion in the video.
+        Motion threshold is given by motion_box_thresh. 'Manual' opens up a simple 
+        GUI that is used to crop the video manually by looking at the first frame.
+    - motion_box_thresh : float, optional
+
+        Only meaningful if `crop_movement='Auto'`. Takes floats between 0 and 1,
+        where 0 includes all the motion and 1 includes none.
+    - motion_box_margin : int, optional
+
+        Only meaningful if `crop_movement='Auto'`. Adds margin to the bounding box.
+    """
 
     global frame_mask, drawing, g_val, x_start, x_stop, y_start, y_stop
     x_start, y_start = -1, -1
