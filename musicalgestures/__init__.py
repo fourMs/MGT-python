@@ -3,6 +3,8 @@ from musicalgestures._input_test import mg_input_test
 from musicalgestures._videoreader import mg_videoreader
 from musicalgestures._flow import Flow
 from musicalgestures._audio import Audio
+from musicalgestures._mglist import MgList
+from musicalgestures._utils import MgImage, MgFigure
 
 
 class MgObject:

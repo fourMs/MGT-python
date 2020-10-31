@@ -1,7 +1,8 @@
 import cv2
 import os
 import numpy as np
-from musicalgestures._utils import MgProgressbar, MgImage, MgList, get_widthheight, get_framecount, get_length, ffmpeg_cmd
+from musicalgestures._utils import MgProgressbar, MgImage, get_widthheight, get_framecount, get_length, ffmpeg_cmd
+from musicalgestures._mglist import MgList
 
 
 def mg_videograms(self):

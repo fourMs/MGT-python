@@ -4,7 +4,7 @@ import librosa.display
 import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
-from musicalgestures._utils import MgImage, MgFigure, MgList, extract_wav, get_length, has_audio
+from musicalgestures._utils import MgImage, MgFigure, extract_wav, get_length, has_audio
 import musicalgestures
 
 

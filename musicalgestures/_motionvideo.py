@@ -6,8 +6,9 @@ import numpy as np
 import pandas as pd
 from scipy.signal import medfilt2d
 from musicalgestures._centroid import centroid
-from musicalgestures._utils import extract_wav, embed_audio_in_video, frame2ms, MgProgressbar, MgImage, MgList, convert_to_avi, get_length, get_widthheight
+from musicalgestures._utils import extract_wav, embed_audio_in_video, frame2ms, MgProgressbar, MgImage, convert_to_avi, get_length, get_widthheight
 from musicalgestures._filter import filter_frame
+from musicalgestures._mglist import MgList
 
 
 def mg_motiongrams(
