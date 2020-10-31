@@ -19,6 +19,49 @@ def mg_motiongrams(
         kernel_size=5,
         inverted_motiongram=False,
         equalize_motiongram=True):
+    """
+        Shortcut for `mg_motion` to only render motiongrams.
+
+        Parameters
+        ----------
+        - filtertype : {'Regular', 'Binary', 'Blob'}, optional
+
+            `Regular` turns all values below `thresh` to 0.
+            `Binary` turns all values below `thresh` to 0, above `thresh` to 1.
+            `Blob` removes individual pixels with erosion method.
+        - thresh : float, optional
+
+            A number in the range of 0 to 1. Default is 0.05.
+            Eliminates pixel values less than given threshold.
+        - blur : {'None', 'Average'}, optional
+
+            `Average` to apply a 10px * 10px blurring filter, `None` otherwise.
+        - kernel_size : int, optional
+
+            Default is 5. Size of structuring element.
+        - inverted_motiongram : bool, optional
+
+            Default is `False`. If `True`, inverts colors of the motiongrams.
+        - equalize_motiongram : bool, optional
+
+            Default is `True`. If `True`, converts the motiongrams to hsv-color 
+            space and flattens the value channel (v).
+
+        Outputs
+        -------
+        - `filename`_mgx.png
+
+            A horizontal motiongram of the source video.
+        - `filename`_mgy.png
+
+            A vertical motiongram of the source video.
+
+        Returns
+        -------
+        - MgList(MgImage, MgImage)
+
+            An MgList pointing to the output motiongram images.
+        """
 
     mg_motion(
         self,
@@ -43,6 +86,43 @@ def mg_motiondata(
         blur='None',
         kernel_size=5,
         data_format="csv"):
+    """
+    Shortcut for `mg_motion` to only render motion data.
+
+    Parameters
+    ----------
+    - filtertype : {'Regular', 'Binary', 'Blob'}, optional
+
+        `Regular` turns all values below `thresh` to 0.
+        `Binary` turns all values below `thresh` to 0, above `thresh` to 1.
+        `Blob` removes individual pixels with erosion method.
+    - thresh : float, optional
+
+        A number in the range of 0 to 1. Default is 0.05.
+        Eliminates pixel values less than given threshold.
+    - blur : {'None', 'Average'}, optional
+
+        `Average` to apply a 10px * 10px blurring filter, `None` otherwise.
+    - kernel_size : int, optional
+
+        Default is 5. Size of structuring element.
+    - data_format : {'csv', 'tsv', 'txt'}, optional
+
+        Specifies format of motion-data.
+
+    Outputs
+    -------
+    - `filename`_motion.csv
+
+        A text file containing the quantity of motion and the centroid of motion for each frame 
+        in the source video with timecodes in milliseconds. Available formats: csv, tsv, txt.
+
+    Returns
+    -------
+    - str 
+
+        The path to the rendered data file.
+    """
 
     mg_motion(
         self,
@@ -66,6 +146,42 @@ def mg_motionplots(
         blur='None',
         kernel_size=5,
         unit='seconds'):
+    """
+    Shortcut for `mg_motion` to only render motion plots.
+
+    Parameters
+    ----------
+    - filtertype : {'Regular', 'Binary', 'Blob'}, optional
+
+        `Regular` turns all values below `thresh` to 0.
+        `Binary` turns all values below `thresh` to 0, above `thresh` to 1.
+        `Blob` removes individual pixels with erosion method.
+    - thresh : float, optional
+
+        A number in the range of 0 to 1. Default is 0.05.
+        Eliminates pixel values less than given threshold.
+    - blur : {'None', 'Average'}, optional
+
+        `Average` to apply a 10px * 10px blurring filter, `None` otherwise.
+    - kernel_size : int, optional
+
+        Default is 5. Size of structuring element.
+    - unit : {'seconds', 'samples'}, optional
+
+        Unit in QoM plot.
+
+    Outputs
+    -------
+    - `filename`_motion_com_qom.png
+
+        A plot describing the centroid of motion and the quantity of motion in the source video.
+
+    Returns
+    -------
+    - MgImage
+
+        An MgImage pointing to the exported image (png) of the motion plots.
+    """
 
     mg_motion(
         self,
@@ -89,6 +205,42 @@ def mg_motionvideo(
         blur='None',
         kernel_size=5,
         inverted_motionvideo=False):
+    """
+    Shortcut for `mg_motion` to only render the motion video.
+
+    Parameters
+    ----------
+    - filtertype : {'Regular', 'Binary', 'Blob'}, optional
+
+        `Regular` turns all values below `thresh` to 0.
+        `Binary` turns all values below `thresh` to 0, above `thresh` to 1.
+        `Blob` removes individual pixels with erosion method.
+    - thresh : float, optional
+
+        A number in the range of 0 to 1. Default is 0.05.
+        Eliminates pixel values less than given threshold.
+    - blur : {'None', 'Average'}, optional
+
+        `Average` to apply a 10px * 10px blurring filter, `None` otherwise.
+    - kernel_size : int, optional
+
+        Default is 5. Size of structuring element.
+    - inverted_motionvideo : bool, optional
+
+        Default is `False`. If `True`, inverts colors of the motion video.
+
+    Outputs
+    -------
+    - `filename`_motion.avi
+
+        A video of the absolute difference between consecutive frames in the source video. 
+
+    Returns
+    -------
+    - MgObject 
+
+        A new MgObject pointing to the output '_motion' video file.
+    """
 
     return mg_motion(
         self,
@@ -377,6 +529,9 @@ def mg_motion(
 
 
 def plot_motion_metrics(of, fps, com, qom, width, height, unit):
+    """
+    Helper function to plot the centroid and quantity of motion using matplotlib.
+    """
     plt.rc('text', usetex=False)
     plt.rc('font', family='serif')
     fig = plt.figure(figsize=(12, 6))
@@ -400,7 +555,13 @@ def plot_motion_metrics(of, fps, com, qom, width, height, unit):
 
 
 def save_txt(of, time, com, qom, width, height, data_format):
+    """
+    Helper function to export motion data as textfile(s).
+    """
     def save_single_file(of, time, com, qom, width, height, data_format):
+        """
+        Helper function to export motion data as a textfile using pandas.
+        """
         data_format = data_format.lower()
         df = pd.DataFrame({'Time': time, 'Qom': qom, 'ComX': com.transpose()[
                           0]/width, 'ComY': com.transpose()[1]/height})
