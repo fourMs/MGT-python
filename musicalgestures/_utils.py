@@ -233,13 +233,24 @@ class MgList():
 
     Attributes
     ----------
-    - objectlist : list
+    - *objectlist : objects and/or list(s) of objects
 
-        The list of MgObjects and/or MgImages.
+        MgObjects and/or MgImages to include in the list.
     """
 
-    def __init__(self, objectlist):
-        self.objectlist = objectlist
+    def __init__(self, *objectlist):
+
+        def crawler(l):
+            _tmp = []
+            for elem in l:
+                if type(elem) == list:
+                    _tmp += crawler(elem)
+                else:
+                    _tmp.append(elem)
+            return _tmp
+
+        self.objectlist = crawler(objectlist)
+
     from musicalgestures._show import mg_show
 
     def show(self):
@@ -299,7 +310,7 @@ class MgList():
     def __repr__(self):
         return f"MgList('{self.objectlist}')"
 
-    def as_figure(self, dpi=300, autoshow=True):
+    def as_figure(self, dpi=300, autoshow=True, export_png=True):
         import os
         import librosa
         import librosa.display
@@ -567,7 +578,8 @@ class MgList():
         fig.tight_layout()
 
         # save figure as png
-        plt.savefig(of + '.png', format='png')
+        if export_png:
+            plt.savefig(of + '.png', format='png')
 
         if not autoshow:
             plt.close()
