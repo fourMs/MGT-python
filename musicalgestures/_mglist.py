@@ -4,7 +4,7 @@ from musicalgestures._utils import MgFigure, MgImage
 
 class MgList():
     """
-    Class for handling lists of MgObjects or MgImages in the Musical Gestures Toolbox.
+    Class for handling lists of MgImage, MgFigure and MgList objects in the Musical Gestures Toolbox.
 
     Attributes
     ----------
@@ -14,8 +14,23 @@ class MgList():
     """
 
     def __init__(self, *objectlist):
+        """
+        Initializes the MgList object.
+
+        Args:
+            *objectlist (MgImage, MgFigure or MgList): All the objects to include in the MgList.
+        """
 
         def crawler(l):
+            """
+            Helper function to flatten all arguments into a single list.
+
+            Args:
+                l (list): The list (or list of lists) of objects.
+
+            Returns:
+                list: The flattened list.
+            """
             _tmp = []
             for elem in l:
                 if type(elem) == list:
@@ -30,25 +45,71 @@ class MgList():
     from musicalgestures._utils import MgFigure, MgImage
 
     def show(self):
+        """
+        Iterates all objects in the MgList and calls `mg_show()` on them.
+        """
         for obj in self.objectlist:
             obj.show()
 
     def __len__(self):
+        """
+        Implements `len()`.
+
+        Returns:
+            int: The length of the MgList.
+        """
         return len(self.objectlist)
 
     def __getitem__(self, key):
+        """
+        Implements getting elements given an index from the MgList.
+
+        Args:
+            key (int): The index of the element to retrieve.
+
+        Returns:
+            MgImage, MgFigure, or MgList: The element at `key`.
+        """
         return self.objectlist[key]
 
     def __setitem__(self, key, value):
+        """
+        Implements setting elements given an index from the MgList.
+
+        Args:
+            key (int): The index of the element to change.
+            value (MgImage, MgFigure, or MgList): The element to place at `key`.
+        """
         self.objectlist[key] = value
 
     def __delitem__(self, key):
+        """
+        Implements deleting elements given an index from the MgList.
+
+        Args:
+            key (int): The index of the element to delete.
+        """
         del self.objectlist[key]
 
     def __iter__(self):
+        """
+        Implements `iter()`.
+
+        Returns:
+            iterator: The iterator of `self.objectlist`.
+        """
         return iter(self.objectlist)
 
     def __iadd__(self, other):
+        """
+        Implements `+=`.
+
+        Args:
+            other (MgImage, MgFigure, or MgList): The object(s) to add to the MgList.
+
+        Returns:
+            MgList: The incremented MgList.
+        """
         if type(other) == MgList:
             self.objectlist += other.objectlist
         elif type(other) == list:
@@ -65,6 +126,15 @@ class MgList():
         return MgList(self.objectlist)
 
     def __add__(self, other):
+        """
+        Implements `+`.
+
+        Args:
+            other (MgImage, MgFigure, or MgList): The object(s) to add to the MgList.
+
+        Returns:
+            MgList: The incremented MgList.
+        """
         if type(other) == MgList:
             return MgList(self.objectlist + other.objectlist)
         elif type(other) == list:
@@ -87,6 +157,17 @@ class MgList():
         return f"MgList('{self.objectlist}')"
 
     def as_figure(self, dpi=300, autoshow=True, export_png=True):
+        """
+        Creates a time-aligned figure from all the elements in the MgList.
+
+        Args:
+            dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
+            autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+            export_png (bool, optional): Whether to export a png image of the resulting figure automatically. Defaults to True.
+
+        Returns:
+            MgFigure: The MgFigure with all the elements from the MgList as layers.
+        """
         import os
         import librosa
         import librosa.display
@@ -98,6 +179,16 @@ class MgList():
         there_were_layers, first_slot_was_img, img_to_redo = None, None, None
 
         def count_elems(elems_list, elem_count):
+            """
+            Counts the all elements in a list recursively.
+
+            Args:
+                elems_list (list): The list to count.
+                elem_count (int): The current count. (Pass 0 on the top level.)
+
+            Returns:
+                int: The number of elements in `elems_list`.
+            """
             _count = elem_count
 
             for obj in elems_list:
@@ -122,6 +213,25 @@ class MgList():
         elem_count = count_elems(self.objectlist, 0)
 
         def build_figure(elems_list, elem_count, fig, ax, index_of_first_plot, plot_counter, of):
+            """
+            Recursively crawls through the list of objects, and builds a single top-level figure from them.
+
+            Args:
+                elems_list (list): List of MgImage, MgFigure or MgList objects.
+                elem_count (int): The total number of subplots to make.
+                fig (matplotlib.pyplot.figure): The figure to fill.
+                ax (list): The list of subplots (or their placeholders).
+                index_of_first_plot (int): The index of the first plot.
+                plot_counter (int): The running count of subplots (increments while crawling through all levels and building layers).
+                of (str): The "running" string for the final output file name (each subplot increments it). 
+
+            Returns:
+                str: The final output file name in the current level.
+                int: The final count of subplots including the current level.
+                bool: Whether there were deeper levels inside the current one.
+                bool: Whether the first slot in the figure will come from an MgImage.
+                str: The path to the image from the MgImage on the first slot.
+            """
 
             there_were_layers, first_slot_was_img, img_to_redo = None, None, None
 

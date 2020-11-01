@@ -8,61 +8,17 @@ from musicalgestures._utils import MgImage, MgFigure
 
 
 class MgObject:
-    """ 
-    Initializes Musical Gestures data structure from a video file.
+    """
+    This is the class for working with video files in the Musical Gestures Toolbox.
+    There is a set of preprocessing tools you can use when you load a video, such as:
+    - trimming: to extract a section of the video,
+    - skipping: to shrink the video by skipping N frames after keeping one,
+    - rotating: to rotate the video by N degrees,
+    - applying brightness and contrast
+    - cropping: to crop the video either automatically (by assessing the area of motion) or manually with a pop-up user interface,
+    - converting to grayscale
 
-    Attributes
-    ----------
-    - filename : str
-
-        Path to the video file.
-    - filtertype : {'Regular', 'Binary', 'Blob'}, optional
-
-        The `filtertype` parameter for the `motion()` method.
-        `Regular` turns all values below `thresh` to 0.
-        `Binary` turns all values below `thresh` to 0, above `thresh` to 1.
-        `Blob` removes individual pixels with erosion method.
-
-    - thresh : float, optional
-
-        The `thresh` parameter for the `motion()` method.
-        A number in the range of 0 to 1. Default is 0.05.
-        Eliminates pixel values less than given threshold.
-    - starttime : int or float, optional
-
-        Trims the video from this start time (s).
-    - endtime : int or float, optional
-
-        Trims the video until this end time (s).
-    - blur : {'None', 'Average'}, optional
-
-        The `blur` parameter for the `motion()` method.
-        `Average` to apply a 10px * 10px blurring filter, `None` otherwise.
-    - skip : int, optional
-
-        Time-shrinks the video by skipping (discarding) every n frames determined by `skip`.
-    - rotate : int or float, optional
-
-        Rotates the video by a `rotate` degrees.
-    - color : bool, optional
-
-        Default is `True`. If `False`, converts the video to grayscale and sets every method in grayscale mode.
-    - contrast : int or float, optional
-
-        Applies +/- 100 contrast to video.
-    - brightness : int or float, optional
-
-        Applies +/- 100 brightness to video.
-    - crop : {'none', 'manual', 'auto'}, optional
-
-        If `manual`, opens a window displaying the first frame of the input video file,
-        where the user can draw a rectangle to which cropping is applied.
-        If `auto` the cropping function attempts to determine the area of significant motion 
-        and applies the cropping to that area.
-
-    - keep_all : bool, optional
-
-        Default is `False`. If `True`, preserves an output video file after each used preprocessing stage.
+    These preprocesses will apply upon creating the MgObject. Further processes are available as class methods.
     """
 
     def __init__(
@@ -81,6 +37,25 @@ class MgObject:
             crop='None',
             keep_all=False,
             returned_by_process=False):
+        """
+        Initializes Musical Gestures data structure from a video file, and applies preprocesses if desired.
+
+        Args:
+            filename (str): Path to the video file.
+            filtertype (str, optional): The `filtertype` parameter for the `motion()` method. `Regular` turns all values below `thresh` to 0. `Binary` turns all values below `thresh` to 0, above `thresh` to 1. `Blob` removes individual pixels with erosion method. Defaults to 'Regular'.
+            thresh (float, optional): The `thresh` parameter for the `motion()` method. Eliminates pixel values less than given threshold. A number in the range of 0 to 1. Defaults to 0.05.
+            starttime (int or float, optional): Trims the video from this start time (s). Defaults to 0.
+            endtime (int or float, optional): Trims the video until this end time (s). Defaults to 0 (which means the full length).
+            blur (str, optional): The `blur` parameter for the `motion()` method. 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
+            skip (int, optional): Time-shrinks the video by skipping (discarding) every n frames determined by `skip`. Defaults to 0.
+            rotate (int, optional): Rotates the video by a `rotate` degrees. Defaults to 0.
+            color (bool, optional): If False, converts the video to grayscale and sets every method in grayscale mode. Defaults to True.
+            contrast (int, optional): Applies +/- 100 contrast to video. Defaults to 0.
+            brightness (int, optional): Applies +/- 100 brightness to video. Defaults to 0.
+            crop (str, optional): If 'manual', opens a window displaying the first frame of the input video file, where the user can draw a rectangle to which cropping is applied. If 'auto' the cropping function attempts to determine the area of significant motion and applies the cropping to that area. Defaults to 'None'.
+            keep_all (bool, optional): If True, preserves an output video file after each used preprocessing stage. Defaults to False.
+            returned_by_process (bool, optional): This parameter is only for internal use, do not use it. Defaults to False.
+        """
 
         self.filename = filename
         # name of file without extension (only-filename)
@@ -111,15 +86,12 @@ class MgObject:
     from musicalgestures._motionvideo import mg_motiondata as motiondata
     from musicalgestures._motionvideo import mg_motionplots as motionplots
     from musicalgestures._motionvideo import mg_motionvideo as motionvideo
-    # from musicalgestures._videograms import mg_videograms as videograms
     from musicalgestures._videograms import videograms_ffmpeg as videograms
     from musicalgestures._audio import mg_audio_spectrogram
     from musicalgestures._audio import mg_audio_descriptors
     from musicalgestures._motionvideo import plot_motion_metrics
     from musicalgestures._cropvideo import mg_cropvideo, find_motion_box, find_total_motion_box
-    # from musicalgestures._motionhistory import mg_motionhistory as motionhistory
     from musicalgestures._show import mg_show as show
-    # from musicalgestures._history import history
     from musicalgestures._history import history_ffmpeg as history
     from musicalgestures._average import mg_average_image as average
 

@@ -19,38 +19,21 @@ def mg_cropvideo(
     """
     Crops the video using cv2.
 
-    Parameters
-    ----------
-    - fps : int
+    Args:
+        fps (int): The FPS (frames per second) of the input video capture.
+        width (int): The pixel width of the input video capture.
+        height (int): The pixel height of the input video capture.
+        length (int): The number of frames in the input video capture.
+        of (str): 'Only filename' without extension (but with path to the file).
+        fex (str): File extension.
+        crop_movement (str, optional): 'Auto' finds the bounding box that contains the total motion in the video. Motion threshold is given by motion_box_thresh. 'Manual' opens up a simple GUI that is used to crop the video manually by looking at the first frame. Defaults to 'Auto'.
+        motion_box_thresh (float, optional): Only meaningful if `crop_movement='Auto'`. Takes floats between 0 and 1, where 0 includes all the motion and 1 includes none. Defaults to 0.1.
+        motion_box_margin (int, optional): Only meaningful if `crop_movement='Auto'`. Adds margin to the bounding box. Defaults to 1.
 
-        The FPS (frames per second) of the input video capture.
-    - width : int
-
-        The pixel width of the input video capture. 
-    - height : int
-
-        The pixel height of the input video capture. 
-    - length : int
-
-        The number of frames in the input video capture.
-    - of : str
-
-        'Only filename' without extension (but with path to the file).
-    - fex : str
-
-        File extension.
-    - crop_movement : {'Auto','Manual'}, optional
-
-        'Auto' finds the bounding box that contains the total motion in the video.
-        Motion threshold is given by motion_box_thresh. 'Manual' opens up a simple 
-        GUI that is used to crop the video manually by looking at the first frame.
-    - motion_box_thresh : float, optional
-
-        Only meaningful if `crop_movement='Auto'`. Takes floats between 0 and 1,
-        where 0 includes all the motion and 1 includes none.
-    - motion_box_margin : int, optional
-
-        Only meaningful if `crop_movement='Auto'`. Adds margin to the bounding box.
+    Returns:
+        cv2.VideoCapture: The cropped video as a cv2.Videocapture
+        int: The pixel width of the cropped video
+        int: The pixel height of the cropped video
     """
 
     global frame_mask, drawing, g_val, x_start, x_stop, y_start, y_stop
@@ -101,12 +84,9 @@ def mg_cropvideo(
             ret, frame = vid2crop.read()
         else:
             pb.progress(length)
-            # mg_progressbar(
-            #     length, length, 'Rendering cropped video:', 'Complete')
             break
         pb.progress(ii)
         ii += 1
-        # mg_progressbar(ii, length+1, 'Rendering cropped video:', 'Complete')
 
     vid2crop.release()
     out.release()
@@ -244,7 +224,22 @@ def find_total_motion_box(vid2findbox, width, height, length, motion_box_thresh,
 def find_motion_box_ffmpeg(filename, motion_box_thresh=0.1, motion_box_margin=12):
     """
     Helper function to find the area of motion in a video, using ffmpeg.
+
+    Args:
+        filename (str): Path to the video file.
+        motion_box_thresh (float, optional): Pixel threshold to apply to the video before assessing the area of motion. Defaults to 0.1.
+        motion_box_margin (int, optional): Margin (in pixels) to add to the detected motion box. Defaults to 12.
+
+    Raises:
+        KeyboardInterrupt: In case we stop the process manually.
+
+    Returns:
+        int: The width of the motion box.
+        int: The height of the motion box.
+        int: The X coordinate of the top left corner of the motion box.
+        int: The Y coordinate of the top left corner of the motion box.
     """
+
     import subprocess
     import os
     import matplotlib
@@ -323,23 +318,14 @@ def mg_cropvideo_ffmpeg(
     """
     Crops the video using ffmpeg.
 
-    Parameters
-    ----------
-    - filename : str
+    Args:
+        filename (str): Path to the video file.
+        crop_movement (str, optional): 'Auto' finds the bounding box that contains the total motion in the video. Motion threshold is given by motion_box_thresh. 'Manual' opens up a simple GUI that is used to crop the video manually by looking at the first frame. Defaults to 'Auto'.
+        motion_box_thresh (float, optional): Only meaningful if `crop_movement='Auto'`. Takes floats between 0 and 1, where 0 includes all the motion and 1 includes none. Defaults to 0.1.
+        motion_box_margin (int, optional): Only meaningful if `crop_movement='Auto'`. Adds margin to the bounding box. Defaults to 12.
 
-        Path to the video file.
-    - crop_movement : {'Auto','Manual'}, optional
-
-        'Auto' finds the bounding box that contains the total motion in the video.
-        Motion threshold is given by motion_box_thresh. 'Manual' opens up a simple 
-        GUI that is used to crop the video manually by looking at the first frame.
-    - motion_box_thresh : float, optional
-
-        Only meaningful if `crop_movement='Auto'`. Takes floats between 0 and 1,
-        where 0 includes all the motion and 1 includes none.
-    - motion_box_margin : int, optional
-
-        Only meaningful if `crop_movement='Auto'`. Adds margin to the bounding box.
+    Returns:
+        str: Path to the cropped video.
     """
 
     global frame_mask, drawing, g_val, x_start, x_stop, y_start, y_stop

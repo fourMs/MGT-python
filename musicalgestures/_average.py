@@ -8,24 +8,15 @@ def mg_average_image(self, filename='', normalize=True):
     """
     Finds and saves an average image of an input video file.
 
-    Parameters
-    ----------
-    - filename : str, optional
+    Args:
+        filename (str, optional): Path to the input video file. If not specified the video file pointed to by the MgObject is used. Defaults to ''.
+        normalize (bool, optional): If True, normalizes pixel values in the output image. Defaults to True.
 
-        Path to the input video file. If not specified the video file pointed to by the MgObject is used.
-    - normalize : bool, optional
+    Outputs:
+        `filename`_average.png
 
-        Default is `True`. If `True`, normalizes pixel values in the output image.
-
-    Outputs
-    -------
-    - `filename`_average.png
-
-    Returns
-    -------
-    - MgImage
-
-        A new MgImage pointing to the output '_average' image file.
+    Returns:
+        MgImage: A new MgImage pointing to the output '_average' image file.
     """
 
     if filename == '':

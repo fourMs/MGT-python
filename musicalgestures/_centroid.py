@@ -6,26 +6,14 @@ def centroid(image, width, height):
     """
     Computes the centroid of an image or frame.
 
-    Parameters
-    ----------
-    - image : np.array(uint8)
+    Args:
+        image (np.array(uint8)): The input image matrix for the centroid estimation function.
+        width (int): The pixel width of the input video capture.
+        height (int): The pixel height of the input video capture.
 
-        The input image matrix for the centroid estimation function. 
-    - width : int
-
-        The pixel width of the input video capture. 
-    - height : int
-
-        The pixel height of the input video capture. 
-
-    Returns
-    -------
-    - np.array(2)
-
-        X and Y coordinates of the centroid of motion.
-    - int
-
-        Quantity of motion: How large the change was in pixels.
+    Returns:
+        np.array(2): X and Y coordinates of the centroid of motion.
+        int: Quantity of motion: How large the change was in pixels.
     """
 
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)

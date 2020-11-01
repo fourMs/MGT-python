@@ -12,48 +12,21 @@ class ParameterError(Exception):
 
 def history_ffmpeg(self, filename='', history_length=10, weights=1, normalize=False, norm_strength=1, norm_smooth=0):
     """
-    This function  creates a video where each frame is the average of the 
-    n previous frames, where n is determined by `history_length`.
-    The history frames are summed up and normalized, and added to the 
-    current frame to show the history. Uses ffmpeg.
+    This function  creates a video where each frame is the average of the N previous frames, where n is determined by `history_length`. The history frames are summed up and normalized, and added to the current frame to show the history. Uses ffmpeg.
 
-    Parameters
-    ----------
-    - filename : str, optional
+    Args:
+        filename (str, optional): Path to the input video file. If not specified the video file pointed to by the MgObject is used. Defaults to ''.
+        history_length (int, optional): Number of frames to be saved in the history tail. Defaults to 10.
+        weights (int, float, list or str, optional): Defines the weight or weights applied to the frames in the history tail. If given as list the first element in the list will correspond to the weight of the newest frame in the tail. If given as a str - like "3 1.2 1" - it will be automatically converted to a list - like [3, 1.2, 1]. Defaults to 1.
+        normalize (bool, optional): If True, the history video will be normalized. This can be useful when processing motion (frame difference) videos. Defaults to False.
+        norm_strength (int or float, optional): Defines the strength of the normalization where 1 represents full strength. Defaults to 1.
+        norm_smooth (int, optional): Defines the number of previous frames to use for temporal smoothing. The input range of each channel is smoothed using a rolling average over the current frame and the `norm_smooth` previous frames. Defaults to 0.
 
-        Path to the input video file. If not specified the video file pointed to by the MgObject is used.
-    - history_length : int, optional
+    Outputs:
+        `filename`_history.avi
 
-        Default is 10. Number of frames to be saved in the history tail.
-
-    - weights: int, float, str, list, optional
-
-        Default is 1. Defines the weight or weights applied to the frames in the history tail. If given as list
-        the first element in the list will correspond to the weight of the newest frame in the tail. If given as
-        a str - like "3 1.2 1" - it will be automatically converted to a list - like [3, 1.2, 1].
-
-    - normalize: bool, optional
-
-        Default is `False` (no normalization). If `True`, the history video will be normalized. This can be useful
-        when processing motion (frame difference) videos.
-
-    - norm_strength: int, float, optional
-
-        Default is 1. Defines the strength of the normalization where 1 represents full strength.
-
-    - norm_smooth: int, optional
-
-        Default is 0 (no smoothing). Defines the number of previous frames to use for temporal smoothing. The input 
-        range of each channel is smoothed using a rolling average over the current frame and the `norm_smooth` previous frames.
-
-    Outputs
-    -------
-    - `filename`_history.avi
-
-    Returns
-    -------
-    - MgObject 
-        A new MgObject pointing to the output '_history' video file.
+    Returns:
+        MgObject: A new MgObject pointing to the output '_history' video file.
     """
 
     if filename == '':
@@ -122,47 +95,26 @@ def history_ffmpeg(self, filename='', history_length=10, weights=1, normalize=Fa
         cmd = ['ffmpeg', '-y', '-i', filename, '-vf',
                f'tmix=frames={history_length}:weights={str_weights}', '-q:v', '3', '-c:a', 'copy', outname]
 
-    # success = ffmpeg_cmd(cmd, get_length(filename),
-    #                      pb_prefix='Rendering history video:')
-
     ffmpeg_cmd(cmd, get_length(filename), pb_prefix='Rendering history video:')
-
-    # if success:
-    #     destination_video = self.of + '_history' + self.fex
-    #     return musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
 
     destination_video = self.of + '_history' + self.fex
     return musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
 
-    # else:
-    #     pass
-    # raise KeyboardInterrupt
-
 
 def history_cv2(self, filename='', history_length=10, weights=1):
     """
-    This function  creates a video where each frame is the average of the 
-    n previous frames, where n is determined by `history_length`.
-    The history frames are summed up and normalized, and added to the 
-    current frame to show the history. Uses cv2.
+    This function  creates a video where each frame is the average of the N previous frames, where n is determined by `history_length`. The history frames are summed up and normalized, and added to the current frame to show the history. Uses cv2.
 
-    Parameters
-    ----------
-    - filename : str, optional
+    Args:
+        filename (str, optional): Path to the input video file. If not specified the video file pointed to by the MgObject is used. Defaults to ''.
+        history_length (int, optional): Number of frames to be saved in the history tail. Defaults to 10.
+        weights (int, float, or list, optional): Defines the weight or weights applied to the frames in the history tail. If given as list the first element in the list will correspond to the weight of the newest frame in the tail. Defaults to 1.
 
-        Path to the input video file. If not specified the video file pointed to by the MgObject is used.
-    - history_length : int, optional
+    Outputs:
+        `filename`_history.avi
 
-        Default is 10. Number of frames to be saved in the history tail.
-
-    Outputs
-    -------
-    - `filename`_history.avi
-
-    Returns
-    -------
-    - MgObject 
-        A new MgObject pointing to the output '_history' video file.
+    Returns:
+        MgObject: A new MgObject pointing to the output '_history' video file.
     """
 
     if filename == '':
@@ -233,13 +185,10 @@ def history_cv2(self, filename='', history_length=10, weights=1):
 
         else:
             pb.progress(length)
-            # mg_progressbar(
-            #     length, length, 'Rendering history video:', 'Complete')
             break
 
         pb.progress(ii)
         ii += 1
-        # mg_progressbar(ii, length+1, 'Rendering history video:', 'Complete')
 
     out.release()
 

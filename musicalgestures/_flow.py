@@ -8,31 +8,17 @@ import musicalgestures
 class Flow:
     """
     Class container for the sparse and dense optical flow processes.
-
-    Attributes
-    ----------
-    - filename : str
-
-        Path to the input video file. Passed by parent MgObject.
-    - color : bool
-
-        Set class methods in color or grayscale mode. Passed by parent MgObject.
-
-    - has_audio : bool
-
-        Indicates whether source video file has an audio track. Passed by parent MgObject.
-
-    Methods
-    -------
-    - dense()
-
-        Renders a dense optical flow video of the input video file.
-    - sparse()
-
-        Renders a sparse optical flow video of the input video file.
     """
 
     def __init__(self, filename, color, has_audio):
+        """
+        Initializes the Flow class.
+
+        Args:
+            filename (str): Path to the input video file. Passed by parent MgObject.
+            color (bool): Set class methods in color or grayscale mode. Passed by parent MgObject.
+            has_audio (bool): Indicates whether source video file has an audio track. Passed by parent MgObject.
+        """
         self.filename = filename
         self.color = color
         self.has_audio = has_audio
@@ -49,48 +35,24 @@ class Flow:
             flags=0,
             skip_empty=False):
         """
-        Renders a dense optical flow video of the input video file using `cv2.calcOpticalFlowFarneback()`.
-        For more details about the parameters consult the cv2 documentation.
+        Renders a dense optical flow video of the input video file using `cv2.calcOpticalFlowFarneback()`. The description of the matching parameters are taken from the cv2 documentation.
 
-        Parameters
-        ----------
-        - filename : str, optional
+        Args:
+            filename (str, optional): Path to the input video file. If not specified the video file pointed to by the MgObject is used. Defaults to ''.
+            pyr_scale (float, optional): Specifies the image scale (<1) to build pyramids for each image. `pyr_scale=0.5` means a classical pyramid, where each next layer is twice smaller than the previous one. Defaults to 0.5.
+            levels (int, optional): The number of pyramid layers including the initial image. `levels=1` means that no extra layers are created and only the original images are used. Defaults to 3.
+            winsize (int, optional): The averaging window size. Larger values increase the algorithm robustness to image noise and give more chances for fast motion detection, but yield more blurred motion field. Defaults to 15.
+            iterations (int, optional): The number of iterations the algorithm does at each pyramid level. Defaults to 3.
+            poly_n (int, optional): The size of the pixel neighborhood used to find polynomial expansion in each pixel. Larger values mean that the image will be approximated with smoother surfaces, yielding more robust algorithm and more blurred motion field, typically poly_n =5 or 7. Defaults to 5.
+            poly_sigma (float, optional): The standard deviation of the Gaussian that is used to smooth derivatives used as a basis for the polynomial expansion. For `poly_n=5`, you can set `poly_sigma=1.1`, for `poly_n=7`, a good value would be `poly_sigma=1.5`. Defaults to 1.2.
+            flags (int, optional): Operation flags that can be a combination of the following: - **OPTFLOW_USE_INITIAL_FLOW** uses the input flow as an initial flow approximation. - **OPTFLOW_FARNEBACK_GAUSSIAN** uses the Gaussian \f$\texttt{winsize}\times\texttt{winsize}\f$ filter instead of a box filter of the same size for optical flow estimation. Usually, this option gives z more accurate flow than with a box filter, at the cost of lower speed. Normally, `winsize` for a Gaussian window should be set to a larger value to achieve the same level of robustness. Defaults to 0.
+            skip_empty (bool, optional): If True, repeats previous frame in the output when encounters an empty frame. Defaults to False.
 
-            Path to the input video file. If not specified the video file pointed to by the MgObject is used.
-        - pyr_scale : float, optional
+        Outputs:
+            `filename`_flow_dense.avi
 
-            Default is 0.5.
-        - levels : int, optional
-
-            Default is 3.
-        - winsize : int, optional
-
-            Default is 15.
-        - iterations : int, optional
-
-            Default is 3.
-        - poly_n : int, optional
-
-            Default is 5.
-        - poly_sigma : float, optional
-
-            Default is 1.2.
-        - flags : int, optional
-
-            Default is 0.
-        - skip_empty : bool, optional
-
-            Default is `False`. If `True`, repeats previous frame in the output when encounters an empty frame.
-
-        Outputs
-        -------
-        - `filename`_flow_dense.avi
-
-        Returns
-        -------
-        - MgObject
-
-            A new MgObject pointing to the output '_flow_dense' video file.
+        Returns:
+            MgObject: A new MgObject pointing to the output '_flow_dense' video file.
         """
 
         if filename == '':
@@ -187,46 +149,23 @@ class Flow:
             of_max_level=2,
             of_criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03)):
         """
-        Renders a sparse optical flow video of the input video file using `cv2.calcOpticalFlowPyrLK()`.
-        `cv2.goodFeaturesToTrack()` is used for the corner estimation.
-        For more details about the parameters consult the cv2 documentation.
+        Renders a sparse optical flow video of the input video file using `cv2.calcOpticalFlowPyrLK()`. `cv2.goodFeaturesToTrack()` is used for the corner estimation. The description of the matching parameters are taken from the cv2 documentation.
 
-        Parameters
-        ----------
-        - filename : str, optional
+        Args:
+            filename (str, optional): Path to the input video file. If not specified the video file pointed to by the MgObject is used. Defaults to ''.
+            corner_max_corners (int, optional): Maximum number of corners to return. If there are more corners than are found, the strongest of them is returned. `maxCorners <= 0` implies that no limit on the maximum is set and all detected corners are returned. Defaults to 100.
+            corner_quality_level (float, optional): Parameter characterizing the minimal accepted quality of image corners. The parameter value is multiplied by the best corner quality measure, which is the minimal eigenvalue (see cornerMinEigenVal in cv2 docs) or the Harris function response (see cornerHarris in cv2 docs). The corners with the quality measure less than the product are rejected. For example, if the best corner has the quality measure = 1500, and the qualityLevel=0.01, then all the corners with the quality measure less than 15 are rejected. Defaults to 0.3.
+            corner_min_distance (int, optional): Minimum possible Euclidean distance between the returned corners. Defaults to 7.
+            corner_block_size (int, optional): Size of an average block for computing a derivative covariation matrix over each pixel neighborhood. See cornerEigenValsAndVecs in cv2 docs. Defaults to 7.
+            of_win_size (tuple, optional): Size of the search window at each pyramid level. Defaults to (15, 15).
+            of_max_level (int, optional): 0-based maximal pyramid level number. If set to 0, pyramids are not used (single level), if set to 1, two levels are used, and so on. If pyramids are passed to input then the algorithm will use as many levels as pyramids have but no more than `maxLevel`. Defaults to 2.
+            of_criteria (tuple, optional): Specifies the termination criteria of the iterative search algorithm (after the specified maximum number of iterations criteria.maxCount or when the search window moves by less than criteria.epsilon). Defaults to (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03).
 
-            Path to the input video file. If not specified the video file pointed to by the MgObject is used.
-        - corner_max_corners : int, optional
+        Outputs:
+            `filename`_flow_sparse.avi
 
-            Default is 100.
-        - corner_quality_level : float, optional
-
-            Default is 0.3.
-        - corner_min_distance : int, optional
-
-            Default is 7.
-        - corner_block_size : int, optional
-
-            Default is 7.
-        - of_win_size : tuple (int, int), optional
-
-            Default is (15, 15).
-        - of_max_level : int, optional
-
-            Default is 2.
-        - of_criteria : optional
-
-            Default is `(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03)`.
-
-        Outputs
-        -------
-        - `filename`_flow_sparse.avi
-
-        Returns
-        -------
-        - MgObject
-
-            A new MgObject pointing to the output '_flow_sparse' video file.
+        Returns:
+            MgObject: A new MgObject pointing to the output '_flow_sparse' video file.
         """
 
         if filename == '':
