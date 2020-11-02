@@ -3,79 +3,18 @@ import cv2
 from musicalgestures._utils import scale_num, scale_array, MgProgressbar, get_length, ffmpeg_cmd, has_audio
 
 
-def mg_contrast_brightness(of, fex, vidcap, fps, length, width, height, contrast, brightness):
-    """
-    Applies contrast and brightness to a video.
-
-    Parameters
-    ----------
-    - of : str
-
-        'Only filename' without extension (but with path to the file).
-    - fex : str
-
-        File extension.
-    - vidcap : 
-
-        cv2 capture of video file, with all frames ready to be read with `vidcap.read()`.
-    - fps : int
-
-        The FPS (frames per second) of the input video capture.
-    - length : int
-
-        The number of frames in the input video capture.
-    - width : int
-
-        The pixel width of the input video capture. 
-    - height : int
-
-        The pixel height of the input video capture. 
-    - contrast : int or float, optional
-
-        Applies +/- 100 contrast to video.
-    - brightness : int or float, optional
-
-        Applies +/- 100 brightness to video.
-
-    Outputs
-    -------
-    - A video file with the name `of` + '_cb' + `fex`.
-
-    Returns
-    -------
-    - cv2 video capture of output video file.
-    """
-    pb = MgProgressbar(
-        total=length, prefix='Adjusting contrast and brightness:')
-    count = 0
-    if brightness != 0 or contrast != 0:
-        # keeping values in sensible range
-        contrast = np.clip(contrast, -100.0, 100.0)
-        brightness = np.clip(brightness, -100.0, 100.0)
-
-        contrast *= 1.27
-        brightness *= 2.55
-
-        fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-        out = cv2.VideoWriter(of + '_cb' + fex, fourcc, fps, (width, height))
-        success, image = vidcap.read()
-        while success:
-            success, image = vidcap.read()
-            if not success:
-                pb.progress(length)
-                break
-            image = np.int16(image) * (contrast/127+1) - contrast + brightness
-            image = np.clip(image, 0, 255)
-            out.write(image.astype(np.uint8))
-            pb.progress(count)
-            count += 1
-        out.release()
-        vidcap = cv2.VideoCapture(of + '_cb' + fex)
-
-    return vidcap
-
-
 def contrast_brightness_ffmpeg(filename, contrast=0, brightness=0):
+    """
+    Applies contrast and brightness adjustments on the source video using ffmpeg.
+
+    Args:
+        filename (str): Path to the video to process.
+        contrast (int or float, optional): Increase or decrease contrast. Values range from -100 to 100. Defaults to 0.
+        brightness (int or float, optional): Increase or decrease brightness. Values range from -100 to 100. Defaults to 0.
+
+    Outputs:
+        `filename`_cb.<file extension>
+    """
     if contrast == 0 and brightness == 0:
         return
 
@@ -88,7 +27,7 @@ def contrast_brightness_ffmpeg(filename, contrast=0, brightness=0):
     contrast = np.clip(contrast, -100.0, 100.0)
     brightness = np.clip(brightness, -100.0, 100.0)
 
-    # ranges are "handpicked" so that the results are close to the results of mg_contrast_brightness
+    # ranges are "handpicked" so that the results are close to the results of contrast_brightness_cv2 (deprecated)
     if contrast == 0:
         p_saturation, p_contrast, p_brightness = 0, 0, 0
     elif contrast > 0:
@@ -112,88 +51,17 @@ def contrast_brightness_ffmpeg(filename, contrast=0, brightness=0):
                pb_prefix='Adjusting contrast and brightness:')
 
 
-def mg_skip_frames(of, fex, vidcap, skip, fps, length, width, height):
-    """
-    Time-shrinks the video by skipping (discarding) every n frames determined by `skip`.
-
-    Parameters
-    ----------
-    - of : str
-
-        'Only filename' without extension (but with path to the file).
-    - fex : str
-
-        File extension.
-    - vidcap : 
-
-        cv2 capture of video file, with all frames ready to be read with `vidcap.read()`.
-    - skip : int
-
-        Every n frames to discard. `skip=0` keeps all frames, `skip=1` skips every other frame.
-    - fps : int
-
-        The FPS (frames per second) of the input video capture.
-    - length : int
-
-        The number of frames in the input video capture.
-    - width : int
-
-        The pixel width of the input video capture. 
-    - height : int
-
-        The pixel height of the input video capture.
-
-    Outputs
-    -------
-    - A video file with the name `of` + '_skip' + `fex`.
-
-    Returns
-    -------
-    - videcap :
-
-        cv2 video capture of output video file.
-    - length : int
-
-        The number of frames in the output video file.
-    - fps : int
-
-        The FPS (frames per second) of the output video file.
-    - width : int
-
-        The pixel width of the output video file. 
-    - height : int
-
-        The pixel height of the output video file. 
-    """
-    pb = MgProgressbar(total=length, prefix='Skipping frames:')
-    count = 0
-    if skip != 0:
-        fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-        out = cv2.VideoWriter(of + '_skip' + fex, fourcc,
-                              int(fps), (width, height))  # don't change fps, with higher skip values we want shorter videos
-        success, image = vidcap.read()
-        while success:
-            success, image = vidcap.read()
-            if not success:
-                pb.progress(length)
-                break
-            # on every frame we wish to use
-            if (count % (skip+1) == 0):  # NB if skip=1, we should keep every other frame
-                out.write(image.astype(np.uint8))
-            pb.progress(count)
-            count += 1
-        out.release()
-        vidcap.release()
-        vidcap = cv2.VideoCapture(of + '_skip' + fex)
-
-        length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
-        fps = int(vidcap.get(cv2.CAP_PROP_FPS))
-        width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    return vidcap, length, fps, width, height
-
-
 def skip_frames_ffmpeg(filename, skip=0):
+    """
+    Time-shrinks the video by skipping (discarding) every n frames determined by `skip`. To discard half of the frames (ie. double the speed of the video) use `skip=1`.
+
+    Args:
+        filename (str): Path to the video to process.
+        skip (int, optional): Discard `skip` frames before keeping one. Defaults to 0.
+
+    Outputs:
+        `filename`_skip.<file extension>
+    """
     if skip == 0:
         return
 

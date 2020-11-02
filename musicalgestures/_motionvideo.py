@@ -20,48 +20,23 @@ def mg_motiongrams(
         inverted_motiongram=False,
         equalize_motiongram=True):
     """
-        Shortcut for `mg_motion` to only render motiongrams.
+    Shortcut for `mg_motion` to only render motiongrams.
 
-        Parameters
-        ----------
-        - filtertype : {'Regular', 'Binary', 'Blob'}, optional
+    Args:
+        filtertype (str, optional): 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
+        thresh (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
+        blur (str, optional): 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
+        kernel_size (int, optional): Size of structuring element. Defaults to 5.
+        inverted_motiongram (bool, optional): If True, inverts colors of the motiongrams. Defaults to False.
+        equalize_motiongram (bool, optional): If True, converts the motiongrams to hsv-color space and flattens the value channel (v). Defaults to True.
 
-            `Regular` turns all values below `thresh` to 0.
-            `Binary` turns all values below `thresh` to 0, above `thresh` to 1.
-            `Blob` removes individual pixels with erosion method.
-        - thresh : float, optional
+    Outputs:
+        `filename`_mgx.png: A horizontal motiongram of the source video.
+        `filename`_mgy.png: A vertical motiongram of the source video.
 
-            A number in the range of 0 to 1. Default is 0.05.
-            Eliminates pixel values less than given threshold.
-        - blur : {'None', 'Average'}, optional
-
-            `Average` to apply a 10px * 10px blurring filter, `None` otherwise.
-        - kernel_size : int, optional
-
-            Default is 5. Size of structuring element.
-        - inverted_motiongram : bool, optional
-
-            Default is `False`. If `True`, inverts colors of the motiongrams.
-        - equalize_motiongram : bool, optional
-
-            Default is `True`. If `True`, converts the motiongrams to hsv-color 
-            space and flattens the value channel (v).
-
-        Outputs
-        -------
-        - `filename`_mgx.png
-
-            A horizontal motiongram of the source video.
-        - `filename`_mgy.png
-
-            A vertical motiongram of the source video.
-
-        Returns
-        -------
-        - MgList(MgImage, MgImage)
-
-            An MgList pointing to the output motiongram images.
-        """
+    Returns:
+        MgList(MgImage, MgImage): An MgList pointing to the output motiongram images.
+    """
 
     mg_motion(
         self,
@@ -76,7 +51,7 @@ def mg_motiongrams(
         save_plot=False,
         save_video=False)
 
-    return MgList([MgImage(self.of + '_mgx.png'), MgImage(self.of + '_mgy.png')])
+    return MgList(MgImage(self.of + '_mgx.png'), MgImage(self.of + '_mgy.png'))
 
 
 def mg_motiondata(
@@ -89,39 +64,18 @@ def mg_motiondata(
     """
     Shortcut for `mg_motion` to only render motion data.
 
-    Parameters
-    ----------
-    - filtertype : {'Regular', 'Binary', 'Blob'}, optional
+    Args:
+        filtertype (str, optional): 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
+        thresh (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
+        blur (str, optional): 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
+        kernel_size (int, optional): Size of structuring element. Defaults to 5.
+        data_format (str or list, optional): Specifies format of motion-data. Accepted values are 'csv', 'tsv' and 'txt'. For multiple output formats, use list, eg. ['csv', 'txt']. Defaults to 'csv'.
 
-        `Regular` turns all values below `thresh` to 0.
-        `Binary` turns all values below `thresh` to 0, above `thresh` to 1.
-        `Blob` removes individual pixels with erosion method.
-    - thresh : float, optional
+    Outputs:
+        `filename`_motion.`data_format`: A text file containing the quantity of motion and the centroid of motion for each frame in the source video with timecodes in milliseconds. Available formats: csv, tsv, txt.
 
-        A number in the range of 0 to 1. Default is 0.05.
-        Eliminates pixel values less than given threshold.
-    - blur : {'None', 'Average'}, optional
-
-        `Average` to apply a 10px * 10px blurring filter, `None` otherwise.
-    - kernel_size : int, optional
-
-        Default is 5. Size of structuring element.
-    - data_format : {'csv', 'tsv', 'txt'}, optional
-
-        Specifies format of motion-data.
-
-    Outputs
-    -------
-    - `filename`_motion.csv
-
-        A text file containing the quantity of motion and the centroid of motion for each frame 
-        in the source video with timecodes in milliseconds. Available formats: csv, tsv, txt.
-
-    Returns
-    -------
-    - str 
-
-        The path to the rendered data file.
+    Returns:
+        str or list: The path(s) to the rendered data file(s).
     """
 
     mg_motion(
@@ -136,7 +90,11 @@ def mg_motiondata(
         save_plot=False,
         save_video=False)
 
-    return self.of + '_motion.' + data_format
+    if type(data_format) == list:
+        outlist = [self.of + '_motion' + elem for elem in data_format]
+        return outlist
+    else:
+        return self.of + '_motion.' + data_format
 
 
 def mg_motionplots(
@@ -149,38 +107,15 @@ def mg_motionplots(
     """
     Shortcut for `mg_motion` to only render motion plots.
 
-    Parameters
-    ----------
-    - filtertype : {'Regular', 'Binary', 'Blob'}, optional
+    Args:
+        filtertype (str, optional): 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
+        thresh (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
+        blur (str, optional): 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
+        kernel_size (int, optional): Size of structuring element. Defaults to 5.
+        unit (str, optional): Unit in QoM plot. Accepted values are 'seconds' or 'samples'. Defaults to 'seconds'.
 
-        `Regular` turns all values below `thresh` to 0.
-        `Binary` turns all values below `thresh` to 0, above `thresh` to 1.
-        `Blob` removes individual pixels with erosion method.
-    - thresh : float, optional
-
-        A number in the range of 0 to 1. Default is 0.05.
-        Eliminates pixel values less than given threshold.
-    - blur : {'None', 'Average'}, optional
-
-        `Average` to apply a 10px * 10px blurring filter, `None` otherwise.
-    - kernel_size : int, optional
-
-        Default is 5. Size of structuring element.
-    - unit : {'seconds', 'samples'}, optional
-
-        Unit in QoM plot.
-
-    Outputs
-    -------
-    - `filename`_motion_com_qom.png
-
-        A plot describing the centroid of motion and the quantity of motion in the source video.
-
-    Returns
-    -------
-    - MgImage
-
-        An MgImage pointing to the exported image (png) of the motion plots.
+    Returns:
+        MgImage: An MgImage pointing to the exported image (png) of the motion plots.
     """
 
     mg_motion(
@@ -208,38 +143,18 @@ def mg_motionvideo(
     """
     Shortcut for `mg_motion` to only render the motion video.
 
-    Parameters
-    ----------
-    - filtertype : {'Regular', 'Binary', 'Blob'}, optional
+    Args:
+        filtertype (str, optional): 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
+        thresh (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
+        blur (str, optional): 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
+        kernel_size (int, optional): Size of structuring element. Defaults to 5.
+        inverted_motionvideo (bool, optional): If True, inverts colors of the motion video. Defaults to False.
 
-        `Regular` turns all values below `thresh` to 0.
-        `Binary` turns all values below `thresh` to 0, above `thresh` to 1.
-        `Blob` removes individual pixels with erosion method.
-    - thresh : float, optional
+    Outputs:
+        `filename`_motion.avi: The motion video.
 
-        A number in the range of 0 to 1. Default is 0.05.
-        Eliminates pixel values less than given threshold.
-    - blur : {'None', 'Average'}, optional
-
-        `Average` to apply a 10px * 10px blurring filter, `None` otherwise.
-    - kernel_size : int, optional
-
-        Default is 5. Size of structuring element.
-    - inverted_motionvideo : bool, optional
-
-        Default is `False`. If `True`, inverts colors of the motion video.
-
-    Outputs
-    -------
-    - `filename`_motion.avi
-
-        A video of the absolute difference between consecutive frames in the source video. 
-
-    Returns
-    -------
-    - MgObject 
-
-        A new MgObject pointing to the output '_motion' video file.
+    Returns:
+        MgObject: A new MgObject pointing to the output '_motion' video file.
     """
 
     return mg_motion(
@@ -271,80 +186,32 @@ def mg_motion(
         save_motiongrams=True,
         save_video=True):
     """
-    Finds the difference in pixel value from one frame to the next in an input video, 
-    and saves the frames into a new video. Describes the motion in the recording.
+    Finds the difference in pixel value from one frame to the next in an input video, and saves the frames into a new video. Describes the motion in the recording.
 
-    Parameters
-    ----------
-    - filtertype : {'Regular', 'Binary', 'Blob'}, optional
+    Args:
+        filtertype (str, optional): 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
+        thresh (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
+        blur (str, optional): 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
+        kernel_size (int, optional): Size of structuring element. Defaults to 5.
+        inverted_motionvideo (bool, optional): If True, inverts colors of the motion video. Defaults to False.
+        inverted_motiongram (bool, optional): If True, inverts colors of the motiongrams. Defaults to False.
+        unit (str, optional): Unit in QoM plot. Accepted values are 'seconds' or 'samples'. Defaults to 'seconds'.
+        equalize_motiongram (bool, optional): If True, converts the motiongrams to hsv-color space and flattens the value channel (v). Defaults to True.
+        save_plot (bool, optional): If True, outputs motion-plot. Defaults to True.
+        save_data (bool, optional): If True, outputs motion-data. Defaults to True.
+        data_format (str or list, optional): Specifies format of motion-data. Accepted values are 'csv', 'tsv' and 'txt'. For multiple output formats, use list, eg. ['csv', 'txt']. Defaults to 'csv'.
+        save_motiongrams (bool, optional): If True, outputs motiongrams. Defaults to True.
+        save_video (bool, optional): If True, outputs the motion video. Defaults to True.
 
-        `Regular` turns all values below `thresh` to 0.
-        `Binary` turns all values below `thresh` to 0, above `thresh` to 1.
-        `Blob` removes individual pixels with erosion method.
-    - thresh : float, optional
+    Outputs:
+        `filename`_motion.avi: The motion video.
+        `filename`_motion_com_qom.png: A plot describing the centroid of motion and the quantity of motion in the source video.
+        `filename`_mgx.png: A horizontal motiongram of the source video.
+        `filename`_mgy.png: A vertical motiongram of the source video.
+        `filename`_motion.`data_format`: A text file containing the quantity of motion and the centroid of motion for each frame in the source video with timecodes in milliseconds. Available formats: csv, tsv, txt.
 
-        A number in the range of 0 to 1. Default is 0.05.
-        Eliminates pixel values less than given threshold.
-    - blur : {'None', 'Average'}, optional
-
-        `Average` to apply a 10px * 10px blurring filter, `None` otherwise.
-    - kernel_size : int, optional
-
-        Default is 5. Size of structuring element.
-    - inverted_motionvideo : bool, optional
-
-        Default is `False`. If `True`, inverts colors of the motion video.
-    - inverted_motiongram : bool, optional
-
-        Default is `False`. If `True`, inverts colors of the motiongrams.
-    - unit : {'seconds', 'samples'}, optional
-
-        Unit in QoM plot.
-    - equalize_motiongram : bool, optional
-
-        Default is `True`. If `True`, converts the motiongrams to hsv-color 
-        space and flattens the value channel (v).
-    - save_plot : bool, optional
-
-        Default is `True`. If `True`, outputs motion-plot.
-    - save_data : bool, optional
-
-        Default is `True`. If `True`, outputs motion-data.
-    - data_format : {'csv', 'tsv', 'txt'}, optional
-
-        Specifies format of motion-data.
-    - save_motiongrams : bool, optional
-
-        Default is `True`. If `True`, outputs motiongrams.
-    - save_video : bool, optional
-
-        Default is `True`. If `True`, outputs the motion video.
-
-    Outputs
-    -------
-    - `filename`_motion.avi
-
-        A video of the absolute difference between consecutive frames in the source video. 
-    - `filename`_motion_com_qom.png
-
-        A plot describing the centroid of motion and the quantity of motion in the source video.
-    - `filename`_mgx.png
-
-        A horizontal motiongram of the source video.
-    - `filename`_mgy.png
-
-        A vertical motiongram of the source video.
-    - `filename`_motion.csv
-
-        A text file containing the quantity of motion and the centroid of motion for each frame 
-        in the source video with timecodes in milliseconds. Available formats: csv, tsv, txt.
-
-    Returns
-    -------
-    - MgObject 
-
-        A new MgObject pointing to the output '_motion' video file. If `save_video=False`, it 
-        returns an MgObject pointing to the input video file.
+    Returns:
+        MgObject: A new MgObject pointing to the output '_motion' video file. If `save_video=False`, it returns an MgObject pointing to the input video file.
     """
 
     if save_plot | save_data | save_motiongrams | save_video:

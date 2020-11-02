@@ -1,38 +1,6 @@
 class MgProgressbar():
     """
     Calls in a loop to create terminal progress bar.
-
-    Attributes
-    ----------
-    - total : int, optional
-
-        Default is 1000. Total iterations.
-    - time_limit : float, optional
-
-        Default is 0.1. The maximum refresh rate of the progressbar in seconds.
-    - prefix : str, optional
-
-        Default is 'Progress'. Prefix string.
-    - suffix : str, optional
-
-        Default is 'Complete'. Suffix string.
-    - decimals : int, optional
-
-        Default is 1. Positive number of decimals in percent complete.
-    - length : int, optional
-
-        Default is 40. Character length of bar.
-    - fill : str, optional
-
-        Default is '█'. Bar fill character.
-
-    Methods
-    -------
-    - progress(iteration : int)
-
-        Prints the progressbar according to `iteration` which is the
-        0-based step in the number of steps defined by `self.total`. At the
-        last step (where the progressbar shows 100%) `iteration` == `total` - 1.
     """
 
     def __init__(
@@ -44,6 +12,18 @@ class MgProgressbar():
             decimals=1,
             length=40,
             fill='█'):
+        """
+        Initialize the MgProgressbar object.
+
+        Args:
+            total (int, optional): Total iterations. Defaults to 100.
+            time_limit (float, optional): The minimum refresh rate of the progressbar in seconds. Defaults to 0.1.
+            prefix (str, optional): Prefix string. Defaults to 'Progress'.
+            suffix (str, optional): Suffix string. Defaults to 'Complete'.
+            decimals (int, optional): Positive number of decimals in process percent. Defaults to 1.
+            length (int, optional): Character length of the status bar. Defaults to 40.
+            fill (str, optional): Bar fill character. Defaults to '█'.
+        """
 
         self.total = total - 1
         self.time_limit = time_limit
@@ -56,14 +36,32 @@ class MgProgressbar():
         self.finished = False
 
     def get_now(self):
+        """
+        Gets the current time.
+
+        Returns:
+            datetime.datetime.timestamp: The current time.
+        """
         from datetime import datetime
         return datetime.timestamp(datetime.now())
 
     def over_time_limit(self):
+        """
+        Checks if we should redraw the progress bar at this moment.
+
+        Returns:
+            bool: True if equal or more time has passed than `self.time_limit` since the last redraw.
+        """
         callback_time = self.get_now()
         return callback_time - self.now >= self.time_limit
 
     def progress(self, iteration):
+        """
+        Progresses the progress bar to the next step.
+
+        Args:
+            iteration (int or float): The current iteration. For example, the 57th out of 100 steps, or 12.3s out of the total 60s.
+        """
         if self.finished:
             return
         import sys
@@ -95,11 +93,32 @@ class MgProgressbar():
 
 
 def roundup(num, modulo_num):
+    """
+    Rounds up a number to the next integer multiple of another.
+
+    Args:
+        num (int): The number to round up.
+        modulo_num (int): The number whose next integer multiple we want.
+
+    Returns:
+        int: The rounded-up number.
+    """
     num, modulo_num = int(num), int(modulo_num)
     return num - (num % modulo_num) + modulo_num*((num % modulo_num) != 0)
 
 
 def clamp(num, min_value, max_value):
+    """
+    Clamps a number between a minimum and maximum value.
+
+    Args:
+        num (int or float): The number to clamp.
+        min_value (int or float): The minimum allowed value.
+        max_value (int or float): The maximum allowed value.
+
+    Returns:
+        int or float: The clamped number.
+    """
     return max(min(num, max_value), min_value)
 
 
@@ -107,30 +126,17 @@ def scale_num(val, in_low, in_high, out_low, out_high):
     """
     Scales a number linearly.
 
-    Parameters
-    ----------
-    - val : int or float
+    Args:
+        val (int or float): The value to be scaled.
+        in_low (int or float): Minimum of input range.
+        in_high (int or float): Maximum of input range.
+        out_low (int or float): Minimum of output range.
+        out_high (int or float): Maximum of output range.
 
-        The value to be scaled.
-    - in_low : int or float
-
-        Minimum of input range.
-    - in_high : int or float
-
-        Maximum of input range.
-    - out_low : int or float
-
-        Minimum of output range.
-    - out_high : int or float
-
-        Maximum of output range.
-
-    Returns
-    -------
-    int or float
-
-        The scaled number.
+    Returns:
+        int or float: The scaled number.
     """
+
     return ((val - in_low) * (out_high - out_low)) / (in_high - in_low) + out_low
 
 
@@ -138,24 +144,15 @@ def scale_array(array, out_low, out_high):
     """
     Scales an array linearly.
 
-    Parameters
-    ----------
-    - array : arraylike
+    Args:
+        array (arraylike): The array to be scaled.
+        out_low (int or float): Minimum of output range.
+        out_high (int or float): Maximum of output range.
 
-        The array to be scaled.
-    - out_low : int or float
-
-        Minimum of output range.
-    - out_high : int or float
-
-        Maximum of output range.
-
-    Returns
-    -------
-    - arraylike
-
-        The scaled array.
+    Returns:
+        arraylike: The scaled array.
     """
+
     import numpy as np
     minimum, maximum = np.min(array), np.max(array)
     m = (out_high - out_low) / (maximum - minimum)
@@ -167,18 +164,13 @@ def get_frame_planecount(frame):
     """
     Gets the planecount (color channel count) of a video frame.
 
-    Parameters
-    ----------
-    - frame : numpy array
+    Args:
+        frame (numpy array): A frame extracted by `cv2.VideoCapture().read()`.
 
-        A frame extracted by `cv2.VideoCapture().read()`.
-
-    Returns
-    -------
-    - {3, 1}
-
-        The planecount of the input frame.
+    Returns:
+        int: The planecount of the input frame, 3 or 1.
     """
+
     import numpy as np
     return 3 if len(np.array(frame).shape) == 3 else 1
 
@@ -187,36 +179,29 @@ def frame2ms(frame, fps):
     """
     Converts frames to milliseconds.
 
-    Parameters
-    ----------
-    - frame : int
+    Args:
+        frame (int): The index of the frame to be converted to milliseconds.
+        fps (int): Frames per second.
 
-        The index of the frame to be converted to milliseconds.
-    - fps : int
-
-        Frames per second.
-
-    Returns
-    -------
-    - int
-
-        The rounded millisecond value of the input frame index.
+    Returns:
+        int: The rounded millisecond value of the input frame index.
     """
+
     return round(frame / fps * 1000)
 
 
 class MgImage():
     """
-    Class for handling images in the Motion Gestures Toolbox.
-
-    Attributes
-    ----------
-    - filename : str
-
-        The path to the image file to be loaded.
+    Class for handling images in the Musical Gestures Toolbox.
     """
 
     def __init__(self, filename):
+        """
+        Initializes the MgImage object.
+
+        Args:
+            filename (str): The path to the image file to load.
+        """
         self.filename = filename
         import os
         self.of = os.path.splitext(self.filename)[0]
@@ -230,36 +215,19 @@ class MgImage():
 class MgFigure():
     """
     Class for working with figures and plots within the Musical Gestures Toolbox.
-
-    Attributes
-    ----------
-    - figure : matplotlib.pyplot.figure
-
-        The internal figure.
-
-    - figure_type : str
-
-        A keyword describing the type of the figure, such as "audio.spectrogram", "audio.tempogram",
-        "audio.descriptors", "layers", etc.
-
-    - data : dictionary
-
-        The dictionary containing all the necessary variables, lists and (typically) NumPy arrays necessary
-        to rebuild each subplot in the figure.
-
-    - layers : list
-
-        This is only relevant if the MgFigure instance is already one of "layers" type, which indicates
-        that it is already a composit of several MgFigures and/or MgImages. In this case the layers list
-        should contain all the child instances (MgFigures, MgImages, or MgLists of these) which are 
-        included in this MgFigure and show as subplots. 
-
-    - image : str
-
-        Path to the image file (the rendered figure).
     """
 
     def __init__(self, figure=None, figure_type=None, data=None, layers=None, image=None):
+        """
+        Initializes the MgFigure object.
+
+        Args:
+            figure (matplotlib.pyplot.figure, optional): The internal figure. Defaults to None.
+            figure_type (str, optional): A keyword describing the type of the figure, such as "audio.spectrogram", "audio.tempogram", "audio.descriptors", "layers", etc. Defaults to None.
+            data (dictionary, optional): The dictionary containing all the necessary variables, lists and (typically) NumPy arrays necessary to rebuild each subplot in the figure. Defaults to None.
+            layers (list, optional): This is only relevant if the MgFigure instance is of "layers" type, which indicates that it is a composit of several MgFigures and/or MgImages. In this case the layers list should contain all the child instances (MgFigures, MgImages, or MgLists of these) which are included in this MgFigure and are displayed as subplots. Defaults to None.
+            image (str, optional): Path to the image file (the rendered figure). Defaults to None.
+        """
         self.figure = figure
         self.figure_type = figure_type
         self.data = data
@@ -270,6 +238,9 @@ class MgFigure():
         return f"MgFigure(figure_type='{self.figure_type}')"
 
     def show(self):
+        """
+        Shows the internal matplotlib.pyplot.figure.
+        """
         self.figure.show()
 
 
@@ -277,24 +248,16 @@ def convert_to_avi(filename):
     """
     Converts a video to one with .avi extension using ffmpeg.
 
-    Parameters
-    ----------
-    - filename : str
+    Args:
+        filename (str): Path to the input video file to convert.
 
-        Path to the input video file.
+    Outputs:
+        `filename`.avi
 
-    Outputs
-    -------
-    - `filename`.avi
-
-        The converted video file.
-
-    Returns
-    -------
-    - str
-
-        The path to the output '.avi' file.
+    Returns:
+        str: The path to the output '.avi' file.
     """
+
     import os
     of = os.path.splitext(filename)[0]
     cmds = ['ffmpeg', '-i', filename, "-c:v", "mjpeg",
@@ -307,24 +270,16 @@ def convert_to_mp4(filename):
     """
     Converts a video to one with .mp4 extension using ffmpeg.
 
-    Parameters
-    ----------
-    - filename : str
+    Args:
+        filename (str): Path to the input video file to convert.
 
-        Path to the input video file.
+    Outputs:
+        `filename`.mp4
 
-    Outputs
-    -------
-    - `filename`.mp4
-
-        The converted video file.
-
-    Returns
-    -------
-    - str
-
-        The path to the output '.mp4' file.
+    Returns:
+        str: The path to the output '.mp4' file.
     """
+
     import os
     of = os.path.splitext(filename)[0]
     cmds = ['ffmpeg', '-i', filename, "-q:v", "3", "-c:a", "copy", of + '.mp4']
@@ -338,24 +293,16 @@ def cast_into_avi(filename):
     Casts a video into and .avi container using ffmpeg. Much faster than `convert_to_avi`,
     but does not always work well with cv2 or built-in video players.
 
-    Parameters
-    ----------
-    - filename : str
+    Args:
+        filename (str): Path to the input video file.
 
-        Path to the input video file.
+    Outputs:
+        `filename`.avi
 
-    Outputs
-    -------
-    - `filename`.avi
-
-        The converted video file.
-
-    Returns
-    -------
-    - str
-
-        The path to the output '.avi' file.
+    Returns:
+        str: The path to the output '.avi' file.
     """
+
     import os
     of = os.path.splitext(filename)[0]
     cmds = ['ffmpeg', '-i', filename, "-codec copy", of + '.avi']
@@ -364,8 +311,19 @@ def cast_into_avi(filename):
 
 
 def extract_subclip(filename, t1, t2, targetname=None):
-    """ Makes a new video file playing video file ``filename`` between
-        the times ``t1`` and ``t2``. """
+    """
+    Extracts a section of the video using ffmpeg.
+
+    Args:
+        filename (str): Path to the input video file.
+        t1 (int or float): The start of the section to extract in seconds.
+        t2 (int or float): The end of the section to extract in seconds.
+        targetname (str, optional): The name for the output file. If None, the name will be <input name>SUB<start time in ms>_<end time in ms>.<file extension>. Defaults to None.
+
+    Outputs:
+        The extracted section as a video.
+    """
+
     import os
     import numpy as np
     name, ext = os.path.splitext(filename)
@@ -391,34 +349,23 @@ def rotate_video(filename, angle):
     """
     Rotates a video by an `angle` using ffmpeg.
 
-    Parameters
-    ----------
-    - filename : str
+    Args:
+        filename (str): Path to the input video file.
+        angle (int or float): The angle (in degrees) specifying the amount of rotation. Positive values rotate clockwise.
 
-        The path to the input video.
-    - angle : int or float
+    Outputs:
+        `filename`_rot.<file extension>
 
-        The angle (in degrees) specifying the amount of rotation. Positive values rotate clockwise.
-
-    Outputs
-    -------
-    - `filename`_rot.avi
-
-        The rotated video file.
-
-    Returns
-    -------
-    - str
-
-        The path to the output (rotated) video file.
+    Returns:
+        str: The path to the rotated video file.
     """
+
     import os
     import math
     of, fex = os.path.splitext(filename)
     if os.path.isfile(of + '_rot' + fex):
         os.remove(of + '_rot' + fex)
-    # cmds = ['ffmpeg', '-i', filename, "-c:v", "mjpeg", "-q:v", "3",
-    #         "-vf", f"rotate={math.radians(angle)}", of + '_rot' + fex]
+
     cmds = ['ffmpeg', '-i', filename, "-vf",
             f"rotate={math.radians(angle)}", "-q:v", "3", "-c:a", "copy", of + '_rot' + fex]
     ffmpeg_cmd(cmds, get_length(filename),
@@ -430,26 +377,19 @@ def convert_to_grayscale(filename):
     """
     Converts a video to grayscale using ffmpeg.
 
-    Parameters
-    ----------
-    - filename : str
+    Args:
+        filename (str): Path to the input video file.
 
-        Path to the video file to be converted to grayscale.
+    Outputs:
+        `filename`_gray.<file extension>
 
-    Outputs
-    -------
-    - `filename`_gray.avi
-
-    Returns
-    -------
-    - str
-
-        The path to the output (grayscale) video file.
+    Returns:
+        str: The path to the grayscale video file.
     """
+
     import os
     of, fex = os.path.splitext(filename)
-    # cmds = ['ffmpeg', '-i', filename, "-c:v", "mjpeg",
-    #         "-q:v", "3", '-vf', 'hue=s=0', of + '_gray' + fex]
+
     cmds = ['ffmpeg', '-i', filename, '-vf',
             'hue=s=0', "-q:v", "3", "-c:a", "copy", of + '_gray' + fex]
     ffmpeg_cmd(cmds, get_length(filename),
@@ -458,6 +398,20 @@ def convert_to_grayscale(filename):
 
 
 def framediff_ffmpeg(filename, outname=None, color=True):
+    """
+    Renders a frame difference video from the input using ffmpeg.
+
+    Args:
+        filename (str): Path to the input video file.
+        outname (str, optional): The name of the output video. If None, the output name will be <input video>_framediff.<file extension>. Defaults to None.
+        color (bool, optional): If False, the output will be grayscale. Defaults to True.
+
+    Outputs:
+        The frame difference video.
+
+    Returns:
+        str: Path to the output video.
+    """
 
     import os
     of, fex = os.path.splitext(filename)
@@ -476,6 +430,21 @@ def framediff_ffmpeg(filename, outname=None, color=True):
 
 
 def threshold_ffmpeg(filename, threshold=0.1, outname=None, binary=False):
+    """
+    Renders a pixel-thresholded video from the input using ffmpeg.
+
+    Args:
+        filename (str): Path to the input video file.
+        threshold (float, optional): The normalized pixel value to use as the threshold. Pixels below the threshold will turn black. Defaults to 0.1.
+        outname (str, optional): The name of the output video. If None, the output name will be <input video>_thresh.<file extension>. Defaults to None.
+        binary (bool, optional): If True, the pixels above the threshold will turn white. Defaults to False.
+
+    Outputs:
+        The thresholded video.
+
+    Returns:
+        str: Path to the output video.
+    """
 
     import os
     import matplotlib
@@ -499,8 +468,27 @@ def threshold_ffmpeg(filename, threshold=0.1, outname=None, binary=False):
     ffmpeg_cmd(cmd, get_length(filename),
                pb_prefix='Rendering threshold video:')
 
+    return outname
+
 
 def crop_ffmpeg(filename, w, h, x, y, outname=None):
+    """
+    Crops a video using ffmpeg.
+
+    Args:
+        filename (str): Path to the input video file.
+        w (int): The desired width.
+        h (int): The desired height.
+        x (int): The horizontal coordinate of the top left pixel of the cropping rectangle.
+        y (int): The vertical coordinate of the top left pixel of the cropping rectangle.
+        outname (str, optional): The name of the output video. If None, the output name will be <input video>_crop.<file extension>. Defaults to None.
+
+    Outputs:
+        The cropped video.
+
+    Returns:
+        str: Path to the output video.
+    """
 
     import os
 
@@ -508,8 +496,6 @@ def crop_ffmpeg(filename, w, h, x, y, outname=None):
 
     if outname == None:
         outname = of + '_crop' + fex
-
-    # width, height = get_widthheight(filename)
 
     cmd = ['ffmpeg', '-y', '-i', filename, '-vf',
            f'crop={w}:{h}:{x}:{y}', '-q:v', '3', "-c:a", "copy", outname]
@@ -523,22 +509,16 @@ def extract_wav(filename):
     """
     Extracts audio from video into a .wav file via ffmpeg.
 
-    Parameters
-    ----------
-    - filename : str
+    Args:
+        filename (str): Path to the video file from which the audio track shall be extracted.
 
-        Path to the video file from which the audio track shall be extracted.
+    Outputs:
+        `filename`.wav
 
-    Outputs
-    -------
-    - `filename`.wav
-
-    Returns
-    -------
-    - str
-
-        The path to the output audio file.
+    Returns:
+        str: The path to the output audio file.
     """
+
     import os
     of = os.path.splitext(filename)[0]
     # fex = os.path.splitext(filename)[1]
@@ -550,20 +530,15 @@ def extract_wav(filename):
 
 def get_length(filename):
     """
-    Gets the length (s) of a video using moviepy.
+    Gets the length (in seconds) of a video using moviepy.
 
-    Parameters
-    ----------
-    - filename : str
+    Args:
+        filename (str): Path to the video file to measure.
 
-        Path to the video file to be measured.
-
-    Returns
-    -------
-    - float
-
-        The length of the input video file in seconds.
+    Returns:
+        float: The length of the input video file in seconds.
     """
+
     from moviepy.editor import VideoFileClip
     clip = VideoFileClip(filename)
     duration = float(clip.duration)
@@ -573,20 +548,15 @@ def get_length(filename):
 
 def get_framecount(filename):
     """
-    Returns the number of frames of a video using moviepy.
+    Returns the number of frames in a video using moviepy.
 
-    Parameters
-    ----------
-    - filename : str
+    Args:
+        filename (str): Path to the video file to measure.
 
-        Path to the video file to be measured.
-
-    Returns
-    -------
-    - int
-
-        The number of frames in the input video file.
+    Returns:
+        int: The number of frames in the input video file.
     """
+
     from moviepy.editor import VideoFileClip
     clip = VideoFileClip(filename)
     framecount = int(round(float(clip.duration) * float(clip.fps)))
@@ -596,20 +566,15 @@ def get_framecount(filename):
 
 def get_fps(filename):
     """
-    Returns the frames per second value of a video using moviepy.
+    Gets the FPS (frames per second) value of a video using moviepy.
 
-    Parameters
-    ----------
-    - filename : str
+    Args:
+        filename (str): Path to the video file to measure.
 
-        Path to the video file to be measured.
-
-    Returns
-    -------
-    - float
-
-        The frames per second value of the input video file.
+    Returns:
+        float: The FPS value of the input video file.
     """
+
     from moviepy.editor import VideoFileClip
     clip = VideoFileClip(filename)
     fps = float(clip.fps)
@@ -619,20 +584,16 @@ def get_fps(filename):
 
 def get_widthheight(filename):
     """
-    Returns the width and height (in pixels) of a video using moviepy.
+    Gets the width and height of a video using moviepy.
 
-    Parameters
-    ----------
-    - filename : str
+    Args:
+        filename (str): Path to the video file to measure.
 
-        Path to the video file to be measured.
-
-    Returns
-    -------
-    - int
-
-        The width and height (in pixels) of the input video file.
+    Returns:
+        int: The width of the input video file.
+        int: The height of the input video file.
     """
+
     from moviepy.editor import VideoFileClip
     clip = VideoFileClip(filename)
     (width, height) = clip.size
@@ -641,6 +602,20 @@ def get_widthheight(filename):
 
 
 def get_first_frame_as_image(filename, outname=None, pict_format='.png'):
+    """
+    Extracts the first frame of a video and saves it as an image using ffmpeg.
+
+    Args:
+        filename (str): Path to the input video file.
+        outname (str, optional): The name for the output image. If None, the output name will be <input name>`pict_format`. Defaults to None.
+        pict_format (str, optional): The format to use for the output image. Defaults to '.png'.
+
+    Outputs:
+        The first frame of the input video as an image file.
+
+    Returns:
+        str: Path to the output image file.
+    """
 
     import os
     of = os.path.splitext(filename)[0]
@@ -656,6 +631,13 @@ def get_first_frame_as_image(filename, outname=None, pict_format='.png'):
 
 
 def get_screen_resolution_scaled():
+    """
+    Gets the scaled screen resolution. Respects display scaling on high DPI displays.
+
+    Returns:
+        int: The scaled width of the screen.
+        int: The scaled height of the screen.
+    """
 
     import tkinter as tk
 
@@ -670,6 +652,15 @@ def get_screen_resolution_scaled():
 
 
 def get_screen_video_ratio(filename):
+    """
+    Gets the screen-to-video ratio. Useful to fit windows on the screen.
+
+    Args:
+        filename (str): Path to the input video file.
+
+    Returns:
+        int: The smallest ratio (ie. the one to use for scaling the window to fit the screen).
+    """
 
     screen_width, screen_height = get_screen_resolution_scaled()
     video_width, video_height = get_widthheight(filename)
@@ -689,18 +680,13 @@ def has_audio(filename):
     """
     Checks if video has audio track using moviepy.
 
-    Parameters
-    ----------
-    - filename : str
+    Args:
+        filename (str): Path to the video file to check.
 
-        Path to the video file to be checked.
-
-    Returns
-    -------
-    - bool
-
-        `True`if `filename` has an audio track, `False` otherwise.
+    Returns:
+        bool: True if `filename` has an audio track, False otherwise.
     """
+
     from moviepy.editor import VideoFileClip
     clip = VideoFileClip(filename)
     if clip.audio == None:
@@ -715,25 +701,17 @@ def audio_dilate(filename, dilation_ratio=1):
     """
     Time-stretches or -shrinks (dilates) an audio file using ffmpeg.
 
-    Parameters
-    ----------
-    - filename : str
+    Args:
+        filename (str): Path to the audio file to dilate.
+        dilation_ratio (int or float, optional): The source file's length divided by the resulting file's length. Defaults to 1.
 
-        Path to the audio file to be dilated.
-    - dilation_ratio : int or float, optional
+    Outputs:
+        <file name>_dilated.<file extension>
 
-        Default is 1. The source file's length divided by the resulting file's length.
-
-    Outputs
-    -------
-    - `filename`_dilated.wav
-
-    Returns
-    -------
-    - str
-
-        The path to the output audio file.
+    Returns:
+        str: The path to the output audio file.
     """
+
     import os
     of = os.path.splitext(filename)[0]
     fex = os.path.splitext(filename)[1]
@@ -747,20 +725,15 @@ def embed_audio_in_video(source_audio, destination_video, dilation_ratio=1):
     """
     Embeds an audio file as the audio channel of a video file using ffmpeg.
 
-    Parameters
-    ----------
-    - source_audio : str
+    Args:
+        source_audio (str): Path to the audio file to embed.
+        destination_video (str): Path to the video file to embed the audio file in.
+        dilation_ratio (int or float, optional): The source file's length divided by the resulting file's length. Defaults to 1.
 
-        Path to the audio file to be embedded.
-
-    - destination_video : str
-
-        Path to the video file to embed the audio file in.
-
-    Outputs
-    -------
-    - `destination_video` with the embedded audio file.
+    Outputs:
+        `destination_video` with the embedded audio file.
     """
+
     import os
     of = os.path.splitext(destination_video)[0]
     fex = os.path.splitext(destination_video)[1]
@@ -789,6 +762,17 @@ def embed_audio_in_video(source_audio, destination_video, dilation_ratio=1):
 
 
 def ffmpeg_cmd(command, total_time, pb_prefix='Progress'):
+    """
+    [summary]
+
+    Args:
+        command (list): The ffmpeg command to execute as a list. Eg. ['ffmpeg', '-y', '-i', 'myVid.mp4', 'myVid.mov']
+        total_time (int or float): The length of the output. Needed mainly for the progress bar.
+        pb_prefix (str, optional): The prefix for the progress bar. Defaults to 'Progress'.
+
+    Raises:
+        KeyboardInterrupt: If the user stops the process.
+    """
     import subprocess
     pb = MgProgressbar(total=total_time, prefix=pb_prefix)
 
@@ -807,7 +791,6 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress'):
                             for elem in out_list].index(True)
                 time_str = out_list[time_ind][5:]
                 time_sec = str2sec(time_str)
-                #percent = time_sec / total_time * 100
                 pb.progress(time_sec)
 
         pb.progress(total_time)
@@ -818,10 +801,18 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress'):
         except OSError:
             pass
         process.wait()
-        # return False
         raise KeyboardInterrupt
 
 
 def str2sec(time_string):
+    """
+    Converts a time code string into seconds.
+
+    Args:
+        time_string (str): The time code to convert. Eg. '01:33:42'.
+
+    Returns:
+        int or float: The time code converted to seconds.
+    """
     elems = [float(elem) for elem in time_string.split(':')]
     return elems[0]*3600 + elems[1]*60 + elems[2]

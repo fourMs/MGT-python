@@ -1,10 +1,9 @@
 import cv2
 import os
-#from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 import numpy as np
 from musicalgestures._videoadjust import skip_frames_ffmpeg, contrast_brightness_ffmpeg
 from musicalgestures._cropvideo import *
-from musicalgestures._utils import has_audio, convert_to_avi, rotate_video, extract_wav, embed_audio_in_video, convert_to_grayscale, extract_subclip, get_length, get_fps, get_framecount
+from musicalgestures._utils import has_audio, convert_to_avi, rotate_video, convert_to_grayscale, extract_subclip, get_length, get_fps, get_framecount
 
 
 class ReadError(Exception):
@@ -33,79 +32,33 @@ def mg_videoreader(
     - cropping,
     - converting to grayscale.
 
-    Parameters
-    ----------
-    - filename : str
+    Args:
+        filename (str): Path to the input video file.
+        starttime (int or float, optional): Trims the video from this start time (s). Defaults to 0.
+        endtime (int or float, optional): Trims the video until this end time (s). Defaults to 0 (which will make the algorithm use the full length of the input video instead).
+        skip (int, optional): Time-shrinks the video by skipping (discarding) every n frames determined by `skip`. Defaults to 0.
+        rotate (int or float, optional): Rotates the video by a `rotate` degrees. Defaults to 0.
+        contrast (int or float, optional): Applies +/- 100 contrast to video. Defaults to 0.
+        brightness (int or float, optional): Applies +/- 100 brightness to video. Defaults to 0.
+        crop (str, optional): If 'manual', opens a window displaying the first frame of the input video file, where the user can draw a rectangle to which cropping is applied. If 'auto' the cropping function attempts to determine the area of significant motion and applies the cropping to that area. Defaults to 'None'.
+        color (bool, optional): If False, converts the video to grayscale and sets every method in grayscale mode. Defaults to True.
+        keep_all (bool, optional): If True, preserves an output video file after each used preprocessing stage. Defaults to False.
+        returned_by_process (bool, optional): This parameter is only for internal use, do not use it. Defaults to False.
 
-        Path to the input video file.
-    - starttime : int or float, optional
+    Outputs:
+        A video file with the applied processes. The name of the file will be `filename` + a suffix for each process.
 
-        Trims the video from this start time (s).
-
-    - endtime : int or float, optional
-
-        Trims the video until this end time (s).
-
-    - skip : int, optional
-
-        Time-shrinks the video by skipping (discarding) every n frames determined by `skip`.
-    - rotate : int or float, optional
-
-        Rotates the video by a `rotate` degrees.
-
-    - contrast : int or float, optional
-
-        Applies +/- 100 contrast to video.
-    - brightness : int or float, optional
-
-        Applies +/- 100 brightness to video.
-
-    - crop : {'none', 'manual', 'auto'}, optional
-
-        If `manual`, opens a window displaying the first frame of the input video file,
-        where the user can draw a rectangle to which cropping is applied.
-        If `auto` the cropping function attempts to determine the area of significant motion 
-        and applies the cropping to that area.
-
-    - color : bool, optional
-
-        Default is `True`. If `False`, converts the video to grayscale and sets every method in grayscale mode.
-    - keep_all : bool, optional
-
-        Default is `False`. If `True`, preserves an output video file after each used preprocessing stage.
-
-    Outputs
-    -------
-    - A video file with the applied processes. The name of the file will be `filename` + a suffix for each process.
-
-    Returns
-    -------
-    - length : int
-
-        The number of frames in the output video file.
-
-    - width : int
-
-        The pixel width of the output video file. 
-    - height : int
-
-        The pixel height of the output video file. 
-    - fps : int
-
-        The FPS (frames per second) of the output video file.
-    - endtime : float
-
-        The length of the output video file in seconds.
-
-    - of: str
-
-        The path to the output video file without its extension.
-        The file name gets a suffix for each used process.
-    - fex : str
-
-        The file extension of the output video file.
-        Currently it is always 'avi'.
+    Returns:
+        int: The number of frames in the output video file.
+        int: The pixel width of the output video file.
+        int: The pixel height of the output video file.
+        int: The FPS (frames per second) of the output video file.
+        float: The length of the output video file in seconds.
+        str: The path to the output video file without its extension. The file name gets a suffix for each used process.
+        str: The file extension of the output video file.
+        bool: Whether the video has an audio track.
     """
+
     # Separate filename from file extension
     of, fex = os.path.splitext(filename)
 
@@ -122,151 +75,52 @@ def mg_videoreader(
         of = of + '_trim'
         trimming = True
 
-    # Convert to avi if the input is not avi - necesarry for cv2 compatibility on all platforms
-    # if fex != '.avi':
-    #     convert_to_avi(of + fex)
-    #     fex = '.avi'
-    #     filename = of + fex
-
-    # vidcap = cv2.VideoCapture(of + fex)
-
-    # Get props from vidcap
-    # fps = int(vidcap.get(cv2.CAP_PROP_FPS))
-    # width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    # height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    # length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
-
-    # test reading
-    # success, _ = vidcap.read()
-    # if fps == 0 or length == 0 or not success:
-    #     raise ReadError(f"Could not open {filename}.")
-
-    # source_length_s = length / fps
-    # source_name = of + fex
-    # new_length_s = source_length_s
-    # dilation_ratio = 1
-    # need_to_embed_audio = False
-    # video_has_audio_track = has_audio(source_name)
-
-    # if skip != 0 or contrast != 0 or brightness != 0 or crop.lower() != 'none':
-    # if contrast != 0 or brightness != 0 or crop.lower() != 'none':
-    #     if video_has_audio_track:
-    #         source_audio = extract_wav(source_name)
-    #         need_to_embed_audio = True
-
-    # To skip ahead a few frames before the next sample set skip to a value above 0
-    # if skip != 0:
-    #     vidcap, length, fps, width, height = mg_skip_frames(
-    #         of, fex, vidcap, skip, fps, length, width, height)
-    #     if not keep_all and trimming:
-    #         os.remove(of + fex)
-    #     of = of + '_skip'
-    #     skipping = True
-    #     new_length_s = length / fps
-    #     dilation_ratio = source_length_s / new_length_s
-    #     if keep_all:
-    #         vidcap.release()
-    #         if video_has_audio_track:
-    #             embed_audio_in_video(source_audio, of + fex, dilation_ratio)
-
     if skip != 0:
-        #skipped_video = skip_frames_ffmpeg(of + fex, skip)
         skip_frames_ffmpeg(of + fex, skip)
         if not keep_all and trimming:
-            # vidcap.release()
             os.remove(of+fex)
 
         of = of + '_skip'
         skipping = True
 
-        # vidcap.release()
-        # vidcap = cv2.VideoCapture(of + fex)
-        # length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
-        # fps = int(vidcap.get(cv2.CAP_PROP_FPS))
-        # width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        # height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-
-        # new_length_s = length / fps
-        # dilation_ratio = source_length_s / new_length_s
-
     length = get_framecount(of+fex)
     fps = get_fps(of+fex)
 
-    # Overwrite the inputvalue for endtime not to cut the video at 0...
+    # 0 means full length
     if endtime == 0:
         endtime = length/fps
 
     if rotate != 0:
-        # vidcap.release()
         rotate_video(of + fex, rotate)
         if not keep_all and (skipping or trimming):
             os.remove(of + fex)
         of = of + '_rot'
         rotating = True
-        # if keep_all and video_has_audio_track:
-        #     embed_audio_in_video(source_audio, of + fex, dilation_ratio)
 
     # Apply contrast/brightness before the motion analysis
     if contrast != 0 or brightness != 0:
-        # if keep_all or rotating:
-        #     vidcap = cv2.VideoCapture(of + fex)
-        # vidcap = mg_contrast_brightness(
-        #     of, fex, vidcap, fps, length, width, height, contrast, brightness)
         contrast_brightness_ffmpeg(
             of+fex, contrast=contrast, brightness=brightness)
 
         if not keep_all and (rotating or skipping or trimming):
-            # vidcap.release()
             os.remove(of + fex)
         of = of + '_cb'
         cbing = True
 
-        # vidcap.release()
-        # vidcap = cv2.VideoCapture(of + fex)
-        # length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
-        # fps = int(vidcap.get(cv2.CAP_PROP_FPS))
-        # width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        # height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-
-        # if keep_all:
-        #     vidcap.release()
-        #     if video_has_audio_track:
-        #         embed_audio_in_video(source_audio, of + fex, dilation_ratio)
-
     # Crops video either manually or automatically
     if crop.lower() != 'none':
-        # if keep_all:
-        #     vidcap = cv2.VideoCapture(of + fex)
-        # [vidcap, width, height] = mg_cropvideo(
-        #     fps, width, height, length, of, fex, crop, motion_box_thresh=0.1, motion_box_margin=1)
         mg_cropvideo_ffmpeg(of+fex, crop_movement=crop)
 
         if not keep_all and (cbing or rotating or skipping or trimming):
-            # vidcap.release()
             os.remove(of + fex)
         of = of + '_crop'
         cropping = True
-        # if keep_all:
-        #     vidcap.release()
-        #     if video_has_audio_track:
-        #         embed_audio_in_video(source_audio, of + fex, dilation_ratio)
 
     if color == False and returned_by_process == False:
-        # vidcap.release()
         of_gray, fex = convert_to_grayscale(of + fex)
         if not keep_all and (cropping or cbing or rotating or skipping or trimming):
             os.remove(of + fex)
         of = of_gray
-
-    # if color == True or returned_by_process == True:
-    #     vidcap.release()
-
-    # if need_to_embed_audio:
-    #     embed_audio_in_video(source_audio, of + fex, dilation_ratio)
-    #     os.remove(source_audio)
-
-    # if vidcap:
-    #     vidcap.release()
 
     width, height = get_widthheight(of+fex)
     video_has_audio_track = has_audio(of+fex)

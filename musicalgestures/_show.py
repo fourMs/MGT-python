@@ -7,8 +7,29 @@ from base64 import b64encode
 
 
 def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, window_height=480, window_title=None):
+    """
+    General method to show an image or video file either in a window, or inline in a jupyter notebook.
+
+    Args:
+        filename (str, optional): If given, `mg_show` will show this file instead of what it inherits from its parent object. Defaults to None.
+        key (str, optional): If given, `mg_show` will search for file names corresponding to certain processes you have previously rendered on your source. It is meant to be a shortcut, so you don't have to remember the exact name (and path) of eg. a motion video corresponding to your source in your MgObject, but you rather just use `MgObject('path/to/vid.mp4').show(key='motion')`. Accepted values are 'mgx', 'mgy', 'average', 'plot', 'motion', 'history', 'motionhistory', 'sparse', and 'dense'. Defaults to None.
+        mode (str, optional): Whether to show things in a separate window or inline in the jupyter notebook. Accepted values are 'windowed' and 'notebook'. Defaults to 'windowed'.
+        window_width (int, optional): The width of the window. Defaults to 640.
+        window_height (int, optional): The height of the window. Defaults to 480.
+        window_title (str, optional): The title of the window. If None, the title of the window will be the file name. Defaults to None.
+    """
 
     def show(file, width=640, height=480, mode='windowed', title='Untitled'):
+        """
+        Helper function which actually does the "showing".
+
+        Args:
+            file (str): Path to the file.
+            width (int, optional): The width of the window. Defaults to 640.
+            height (int, optional): The height of the window. Defaults to 480.
+            mode (str, optional): 'windowed' will use ffplay (in a separate window), while 'notebook' will use Image or Video from IPython.display. Defaults to 'windowed'.
+            title (str, optional): The title of the window. Defaults to 'Untitled'.
+        """
         if mode.lower() == 'windowed':
             cmd = f'ffplay {file} -x {width} -y {height} -window_title "{title}"'
             os.system(cmd)
@@ -82,8 +103,6 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             else:
                 print("No history video found corresponding to",
                       self.of+self.fex, ". Try making one with .history()")
-        # since motionhistory() is deprecated this now expects
-        # a _motion_history which is a result from .motion().history()
         elif key.lower() == 'motionhistory':
             # motion_history is always avi
             if os.path.exists(self.of + '_motion_history.avi'):
@@ -116,121 +135,8 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                   "For images, try 'mgx', 'mgy', 'average' or 'plot'.\n",
                   "For videos try 'motion', 'history', 'motionhistory', 'sparse' or 'dense'.")
 
+    else:
+        show(file=filename, width=window_width,
+             height=window_height, mode=mode, title=window_title)
+
     return self
-
-
-def mg_show_deprecated(self, filename=None, key=None):
-    """
-    This function simply plays the current vidcap VideoObject. The speed of the video playback 
-    might not match the true fps due to non-optimized code. 
-
-    Parameters
-    ----------
-    - filename : str, optional
-
-        Default is `None`. If `None`, the current video to which the MgObject points is played.
-        If filename is given, this file is played instead. 
-    - key : {None, 'mgx', 'mgy', 'average', 'plot', 'motion', 'history', 'motionhistory', 'sparse', 'dense'}, optional
-
-        If either of these shorthands is used the method attempts to show the 
-        (previously rendered) video file corresponding to the one in the MgObject.
-    """
-
-    video_mode = True
-
-    def show_image(ending, title=''):
-        video_mode = False
-        img = cv2.imread(self.of + ending, 3)
-        cv2.imshow(title, img)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-
-    if filename == None:
-
-        if key == None:
-            filename = self.of+self.fex
-        elif key.lower() == 'mgx':
-            show_image('_mgx.png', 'Horizontal Motiongram')
-        elif key.lower() == 'mgy':
-            show_image('_mgy.png', 'Vertical Motiongram')
-        elif key.lower() == 'average':
-            show_image('_average.png', 'Average')
-        elif key.lower() == 'plot':
-            show_image('_motion_com_qom.png',
-                       'Centroid and Quantity of Motion')
-
-        elif key.lower() == 'motion':
-            if os.path.exists(self.of + '_motion' + self.fex):
-                filename = self.of + '_motion' + self.fex
-            else:
-                print("No motion video found corresponding to",
-                      self.of+self.fex, ". Try making one with .motion()")
-        elif key.lower() == 'history':
-            if os.path.exists(self.of + '_history' + self.fex):
-                filename = self.of + '_history' + self.fex
-            else:
-                print("No history video found corresponding to",
-                      self.of+self.fex, ". Try making one with .history()")
-        # since motionhistory() is deprecated this now expects
-        # a _motion_history which is a result from .motion().history()
-        elif key.lower() == 'motionhistory':
-            if os.path.exists(self.of + '_motion_history' + self.fex):
-                filename = self.of + '_motion_history' + self.fex
-            else:
-                print("No motion history video found corresponding to",
-                      self.of+self.fex, ". Try making one with .motionhistory()")
-        elif key.lower() == 'sparse':
-            if os.path.exists(self.of + '_flow_sparse' + self.fex):
-                filename = self.of + '_flow_sparse' + self.fex
-            else:
-                print("No sparse optical flow video found corresponding to",
-                      self.of+self.fex, ". Try making one with .flow.sparse()")
-        elif key.lower() == 'dense':
-            if os.path.exists(self.of + '_flow_dense' + self.fex):
-                filename = self.of + '_flow_dense' + self.fex
-            else:
-                print("No dense optical flow video found corresponding to",
-                      self.of+self.fex, ". Try making one with .flow.dense()")
-        else:
-            print("Unknown shorthand.\n",
-                  "For images, try 'mgx', 'mgy', 'average' or 'plot'.\n",
-                  "For videos try 'motion', 'history', 'motionhistory', 'sparse' or 'dense'.\n",
-                  "Showing video from the MgObject.")
-            filename = self.of+self.fex
-
-    if self.fex == '.png':
-        video_mode = False
-        show_image('.png')
-
-    if video_mode and (filename != None):
-        vidcap = cv2.VideoCapture(filename)
-        fps = float(vidcap.get(cv2.CAP_PROP_FPS))
-        # Check if camera opened successfully
-        if (vidcap.isOpened() == False):
-            print("Error opening video stream or file")
-        i = int(np.round((1/fps)*1000))
-
-        video_title = os.path.basename(filename)
-
-        # Read until video is completed
-        while(vidcap.isOpened()):
-            # Capture frame-by-frame
-            ret, frame = vidcap.read()
-            if ret == True:
-
-                # Display the resulting frame
-                cv2.imshow(video_title, frame)
-
-                # Press Q on keyboard to  exit
-                # if cv2.waitKey(i) & 0xFF == ord('q'):
-                if cv2.waitKey(i) & 0xFF in [27, ord('q'), ord(' ')]:
-                    break
-
-            # Break the loop
-            else:
-                break
-        # When everything done, release the video capture object
-        vidcap.release()
-
-        # Closes all the frames
-        cv2.destroyAllWindows()
