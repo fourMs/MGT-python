@@ -2,8 +2,9 @@
 
 > Auto-generated documentation modules index.
 
-Full list of Musicalgestures project modules.
+Full list of [Musicalgestures](README.md#musicalgestures-index) project modules.
 
+- [Musicalgestures Index](README.md#musicalgestures-index)
 - [Audio](_audio.md#audio)
 - [Average](_average.md#average)
 - [Centroid](_centroid.md#centroid)
