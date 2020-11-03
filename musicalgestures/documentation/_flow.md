@@ -1,6 +1,6 @@
 # Flow
 
-> Auto-generated documentation for [_flow](..\_flow.py) module.
+> Auto-generated documentation for [_flow](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py) module.
 
 - [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Flow
     - [Flow](#flow)
@@ -9,7 +9,7 @@
 
 ## Flow
 
-[[find in source code]](..\_flow.py#L8)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L8)
 
 ```python
 class Flow():
@@ -20,7 +20,7 @@ Class container for the sparse and dense optical flow processes.
 
 ### Flow().dense
 
-[[find in source code]](..\_flow.py#L26)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L26)
 
 ```python
 def dense(
@@ -59,7 +59,7 @@ Outputs:
 
 ### Flow().sparse
 
-[[find in source code]](..\_flow.py#L141)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L141)
 
 ```python
 def sparse(

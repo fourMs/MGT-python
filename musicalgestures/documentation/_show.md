@@ -1,13 +1,13 @@
 # Show
 
-> Auto-generated documentation for [_show](..\_show.py) module.
+> Auto-generated documentation for [_show](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_show.py) module.
 
 - [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Show
     - [mg_show](#mg_show)
 
 ## mg_show
 
-[[find in source code]](..\_show.py#L9)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_show.py#L9)
 
 ```python
 def mg_show(

@@ -1,6 +1,6 @@
 # History
 
-> Auto-generated documentation for [_history](..\_history.py) module.
+> Auto-generated documentation for [_history](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_history.py) module.
 
 - [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / History
     - [ParameterError](#parametererror)
@@ -9,7 +9,7 @@
 
 ## ParameterError
 
-[[find in source code]](..\_history.py#L8)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_history.py#L8)
 
 ```python
 class ParameterError(Exception):
@@ -19,7 +19,7 @@ Base class for argument errors.
 
 ## history_cv2
 
-[[find in source code]](..\_history.py#L104)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_history.py#L104)
 
 ```python
 def history_cv2(self, filename='', history_length=10, weights=1):
@@ -42,7 +42,7 @@ Outputs:
 
 ## history_ffmpeg
 
-[[find in source code]](..\_history.py#L13)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_history.py#L13)
 
 ```python
 def history_ffmpeg(

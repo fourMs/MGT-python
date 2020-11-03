@@ -1,6 +1,6 @@
 # Audio
 
-> Auto-generated documentation for [_audio](..\_audio.py) module.
+> Auto-generated documentation for [_audio](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py) module.
 
 - [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Audio
     - [Audio](#audio)
@@ -13,7 +13,7 @@
 
 ## Audio
 
-[[find in source code]](..\_audio.py#L11)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L11)
 
 ```python
 class Audio():
@@ -24,7 +24,7 @@ Class container for audio analysis processes.
 
 ### Audio().descriptors
 
-[[find in source code]](..\_audio.py#L112)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L112)
 
 ```python
 def descriptors(
@@ -57,7 +57,7 @@ Outputs:
 
 ### Audio().spectrogram
 
-[[find in source code]](..\_audio.py#L26)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L26)
 
 ```python
 def spectrogram(
@@ -90,7 +90,7 @@ Outputs:
 
 ### Audio().tempogram
 
-[[find in source code]](..\_audio.py#L233)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L233)
 
 ```python
 def tempogram(
@@ -123,7 +123,7 @@ Outputs:
 
 ## mg_audio_descriptors
 
-[[find in source code]](..\_audio.py#L403)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L403)
 
 ```python
 def mg_audio_descriptors(
@@ -158,7 +158,7 @@ Outputs:
 
 ## mg_audio_spectrogram
 
-[[find in source code]](..\_audio.py#L309)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L309)
 
 ```python
 def mg_audio_spectrogram(
@@ -193,7 +193,7 @@ Outputs:
 
 ## mg_audio_tempogram
 
-[[find in source code]](..\_audio.py#L530)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L530)
 
 ```python
 def mg_audio_tempogram(

@@ -1,6 +1,6 @@
 # MgList
 
-> Auto-generated documentation for [_mglist](..\_mglist.py) module.
+> Auto-generated documentation for [_mglist](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_mglist.py) module.
 
 - [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / MgList
     - [MgList](#mglist)
@@ -16,7 +16,7 @@
 
 ## MgList
 
-[[find in source code]](..\_mglist.py#L5)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_mglist.py#L5)
 
 ```python
 class MgList():
@@ -33,7 +33,7 @@ MgObjects and/or MgImages to include in the list.
 
 ### MgList().\_\_add\_\_
 
-[[find in source code]](..\_mglist.py#L128)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_mglist.py#L128)
 
 ```python
 def __add__(other):
@@ -51,7 +51,7 @@ other (MgImage, MgFigure, or MgList): The object(s) to add to the MgList.
 
 ### MgList().\_\_delitem\_\_
 
-[[find in source code]](..\_mglist.py#L85)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_mglist.py#L85)
 
 ```python
 def __delitem__(key):
@@ -65,7 +65,7 @@ Implements deleting elements given an index from the MgList.
 
 ### MgList().\_\_getitem\_\_
 
-[[find in source code]](..\_mglist.py#L63)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_mglist.py#L63)
 
 ```python
 def __getitem__(key):
@@ -83,7 +83,7 @@ MgImage, MgFigure, or MgList: The element at `key`.
 
 ### MgList().\_\_iadd\_\_
 
-[[find in source code]](..\_mglist.py#L103)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_mglist.py#L103)
 
 ```python
 def __iadd__(other):
@@ -101,7 +101,7 @@ other (MgImage, MgFigure, or MgList): The object(s) to add to the MgList.
 
 ### MgList().\_\_iter\_\_
 
-[[find in source code]](..\_mglist.py#L94)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_mglist.py#L94)
 
 ```python
 def __iter__():
@@ -115,7 +115,7 @@ Implements `iter()`.
 
 ### MgList().\_\_len\_\_
 
-[[find in source code]](..\_mglist.py#L54)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_mglist.py#L54)
 
 ```python
 def __len__():
@@ -129,7 +129,7 @@ Implements `len()`.
 
 ### MgList().\_\_setitem\_\_
 
-[[find in source code]](..\_mglist.py#L75)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_mglist.py#L75)
 
 ```python
 def __setitem__(key, value):
@@ -144,7 +144,7 @@ value (MgImage, MgFigure, or MgList): The element to place at `key`.
 
 ### MgList().as_figure
 
-[[find in source code]](..\_mglist.py#L159)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_mglist.py#L159)
 
 ```python
 def as_figure(dpi=300, autoshow=True, export_png=True):
@@ -164,7 +164,7 @@ Creates a time-aligned figure from all the elements in the MgList.
 
 ### MgList().show
 
-[[find in source code]](..\_mglist.py#L47)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_mglist.py#L47)
 
 ```python
 def show():

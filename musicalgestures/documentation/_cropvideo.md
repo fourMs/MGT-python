@@ -1,6 +1,6 @@
 # Cropvideo
 
-> Auto-generated documentation for [_cropvideo](..\_cropvideo.py) module.
+> Auto-generated documentation for [_cropvideo](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py) module.
 
 - [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Cropvideo
     - [draw_rectangle](#draw_rectangle)
@@ -12,7 +12,7 @@
 
 ## draw_rectangle
 
-[[find in source code]](..\_cropvideo.py#L101)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L101)
 
 ```python
 def draw_rectangle(event, x, y, flags, param):
@@ -22,7 +22,7 @@ Helper function to render a cropping window to the user in case of manual croppi
 
 ## find_motion_box
 
-[[find in source code]](..\_cropvideo.py#L124)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L124)
 
 ```python
 def find_motion_box(grayimage, width, height, motion_box_margin):
@@ -32,7 +32,7 @@ Helper function to find the area of motion in a single frame, using cv2.
 
 ## find_motion_box_ffmpeg
 
-[[find in source code]](..\_cropvideo.py#L224)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L224)
 
 ```python
 def find_motion_box_ffmpeg(
@@ -63,7 +63,7 @@ Helper function to find the area of motion in a video, using ffmpeg.
 
 ## find_total_motion_box
 
-[[find in source code]](..\_cropvideo.py#L187)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L187)
 
 ```python
 def find_total_motion_box(
@@ -80,7 +80,7 @@ Helper function to find the area of motion in a video, using cv2.
 
 ## mg_cropvideo
 
-[[find in source code]](..\_cropvideo.py#L9)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L9)
 
 ```python
 def mg_cropvideo(
@@ -118,7 +118,7 @@ Crops the video using cv2.
 
 ## mg_cropvideo_ffmpeg
 
-[[find in source code]](..\_cropvideo.py#L313)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L313)
 
 ```python
 def mg_cropvideo_ffmpeg(
