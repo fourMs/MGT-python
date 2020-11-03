@@ -13,7 +13,7 @@
 
 ## mg_motion
 
-[[find in source code]](..\_motionvideo.py#L173)
+[[find in source code]](..\_motionvideo.py#L197)
 
 ```python
 def mg_motion(
@@ -65,7 +65,7 @@ Outputs:
 
 ## mg_motiondata
 
-[[find in source code]](..\_motionvideo.py#L57)
+[[find in source code]](..\_motionvideo.py#L67)
 
 ```python
 def mg_motiondata(
@@ -105,9 +105,9 @@ def mg_motiongrams(
     filtertype='Regular',
     thresh=0.05,
     blur='None',
+    use_median=False,
     kernel_size=5,
     inverted_motiongram=False,
-    equalize_motiongram=True,
 ):
 ```
 
@@ -118,9 +118,9 @@ Shortcut for [mg_motion](#mg_motion) to only render motiongrams.
 - `filtertype` *str, optional* - 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
 - `thresh` *float, optional* - Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
 - `blur` *str, optional* - 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
-- `kernel_size` *int, optional* - Size of structuring element. Defaults to 5.
+- `use_median` *bool, optional* - If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
+- `kernel_size` *int, optional* - Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
 - `inverted_motiongram` *bool, optional* - If True, inverts colors of the motiongrams. Defaults to False.
-- `equalize_motiongram` *bool, optional* - If True, converts the motiongrams to hsv-color space and flattens the value channel (v). Defaults to True.
 
 Outputs:
     - ``filename`_mgx.png` - A horizontal motiongram of the source video.
@@ -132,7 +132,7 @@ Outputs:
 
 ## mg_motionplots
 
-[[find in source code]](..\_motionvideo.py#L100)
+[[find in source code]](..\_motionvideo.py#L110)
 
 ```python
 def mg_motionplots(
@@ -161,7 +161,7 @@ Shortcut for [mg_motion](#mg_motion) to only render motion plots.
 
 ## mg_motionvideo
 
-[[find in source code]](..\_motionvideo.py#L136)
+[[find in source code]](..\_motionvideo.py#L146)
 
 ```python
 def mg_motionvideo(
@@ -169,23 +169,25 @@ def mg_motionvideo(
     filtertype='Regular',
     thresh=0.05,
     blur='None',
+    use_median=False,
     kernel_size=5,
     inverted_motionvideo=False,
 ):
 ```
 
-Shortcut for [mg_motion](#mg_motion) to only render the motion video.
+Shortcut to only render the motion video. Uses musicalgestures._utils.motionvideo_ffmpeg. Note that this does not apply median filter by default. If you need it use `use_median=True`.
 
 #### Arguments
 
 - `filtertype` *str, optional* - 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
 - `thresh` *float, optional* - Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
 - `blur` *str, optional* - 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
-- `kernel_size` *int, optional* - Size of structuring element. Defaults to 5.
+- `use_median` *bool, optional* - If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
+- `kernel_size` *int, optional* - Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
 - `inverted_motionvideo` *bool, optional* - If True, inverts colors of the motion video. Defaults to False.
 
 Outputs:
-    - ``filename`_motion.avi` - The motion video.
+    - ``filename`_motion.<file` *extension>* - The motion video.
 
 #### Returns
 
@@ -193,7 +195,7 @@ Outputs:
 
 ## plot_motion_metrics
 
-[[find in source code]](..\_motionvideo.py#L398)
+[[find in source code]](..\_motionvideo.py#L422)
 
 ```python
 def plot_motion_metrics(of, fps, com, qom, width, height, unit):
@@ -203,7 +205,7 @@ Helper function to plot the centroid and quantity of motion using matplotlib.
 
 ## save_txt
 
-[[find in source code]](..\_motionvideo.py#L424)
+[[find in source code]](..\_motionvideo.py#L448)
 
 ```python
 def save_txt(of, time, com, qom, width, height, data_format):

@@ -32,6 +32,8 @@
     - [get_screen_video_ratio](#get_screen_video_ratio)
     - [get_widthheight](#get_widthheight)
     - [has_audio](#has_audio)
+    - [motiongrams_ffmpeg](#motiongrams_ffmpeg)
+    - [motionvideo_ffmpeg](#motionvideo_ffmpeg)
     - [rotate_video](#rotate_video)
     - [roundup](#roundup)
     - [scale_array](#scale_array)
@@ -140,7 +142,7 @@ iteration (int or float): The current iteration. For example, the 57th out of 10
 
 ## audio_dilate
 
-[[find in source code]](..\_utils.py#L700)
+[[find in source code]](..\_utils.py#L897)
 
 ```python
 def audio_dilate(filename, dilation_ratio=1):
@@ -268,7 +270,7 @@ Outputs:
 
 ## crop_ffmpeg
 
-[[find in source code]](..\_utils.py#L474)
+[[find in source code]](..\_utils.py#L671)
 
 ```python
 def crop_ffmpeg(filename, w, h, x, y, outname=None):
@@ -294,7 +296,7 @@ Outputs:
 
 ## embed_audio_in_video
 
-[[find in source code]](..\_utils.py#L724)
+[[find in source code]](..\_utils.py#L921)
 
 ```python
 def embed_audio_in_video(source_audio, destination_video, dilation_ratio=1):
@@ -333,7 +335,7 @@ Outputs:
 
 ## extract_wav
 
-[[find in source code]](..\_utils.py#L508)
+[[find in source code]](..\_utils.py#L705)
 
 ```python
 def extract_wav(filename):
@@ -354,7 +356,7 @@ Outputs:
 
 ## ffmpeg_cmd
 
-[[find in source code]](..\_utils.py#L764)
+[[find in source code]](..\_utils.py#L961)
 
 ```python
 def ffmpeg_cmd(command, total_time, pb_prefix='Progress'):
@@ -416,7 +418,7 @@ Outputs:
 
 ## get_first_frame_as_image
 
-[[find in source code]](..\_utils.py#L604)
+[[find in source code]](..\_utils.py#L801)
 
 ```python
 def get_first_frame_as_image(filename, outname=None, pict_format='.png'):
@@ -439,7 +441,7 @@ Outputs:
 
 ## get_fps
 
-[[find in source code]](..\_utils.py#L567)
+[[find in source code]](..\_utils.py#L764)
 
 ```python
 def get_fps(filename):
@@ -475,7 +477,7 @@ frame (numpy array): A frame extracted by `cv2.VideoCapture().read()`.
 
 ## get_framecount
 
-[[find in source code]](..\_utils.py#L549)
+[[find in source code]](..\_utils.py#L746)
 
 ```python
 def get_framecount(filename):
@@ -493,7 +495,7 @@ Returns the number of frames in a video using moviepy.
 
 ## get_length
 
-[[find in source code]](..\_utils.py#L531)
+[[find in source code]](..\_utils.py#L728)
 
 ```python
 def get_length(filename):
@@ -511,7 +513,7 @@ Gets the length (in seconds) of a video using moviepy.
 
 ## get_screen_resolution_scaled
 
-[[find in source code]](..\_utils.py#L633)
+[[find in source code]](..\_utils.py#L830)
 
 ```python
 def get_screen_resolution_scaled():
@@ -526,7 +528,7 @@ Gets the scaled screen resolution. Respects display scaling on high DPI displays
 
 ## get_screen_video_ratio
 
-[[find in source code]](..\_utils.py#L654)
+[[find in source code]](..\_utils.py#L851)
 
 ```python
 def get_screen_video_ratio(filename):
@@ -544,7 +546,7 @@ Gets the screen-to-video ratio. Useful to fit windows on the screen.
 
 ## get_widthheight
 
-[[find in source code]](..\_utils.py#L585)
+[[find in source code]](..\_utils.py#L782)
 
 ```python
 def get_widthheight(filename):
@@ -563,7 +565,7 @@ Gets the width and height of a video using moviepy.
 
 ## has_audio
 
-[[find in source code]](..\_utils.py#L679)
+[[find in source code]](..\_utils.py#L876)
 
 ```python
 def has_audio(filename):
@@ -578,6 +580,84 @@ Checks if video has audio track using moviepy.
 #### Returns
 
 - `bool` - True if `filename` has an audio track, False otherwise.
+
+## motiongrams_ffmpeg
+
+[[find in source code]](..\_utils.py#L570)
+
+```python
+def motiongrams_ffmpeg(
+    filename,
+    color=True,
+    filtertype='regular',
+    threshold=0.05,
+    blur='none',
+    use_median=False,
+    kernel_size=5,
+    invert=False,
+):
+```
+
+Renders horizontal and vertical motiongrams using ffmpeg.
+
+#### Arguments
+
+- `filename` *str* - Path to the input video file.
+- `color` *bool, optional* - If False the input is converted to grayscale at the start of the process. This can significantly reduce render time. Defaults to True.
+- `filtertype` *str, optional* - 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
+- `thresh` *float, optional* - Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
+- `blur` *str, optional* - 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
+- `use_median` *bool, optional* - If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
+- `kernel_size` *int, optional* - Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
+- `invert` *bool, optional* - If True, inverts colors of the motiongrams. Defaults to False.
+
+Outputs:
+    `filename`_vgx.png
+    `filename`_vgy.png
+
+#### Returns
+
+- `str` - Path to the output horizontal motiongram (_mgx).
+- `str` - Path to the output vertical motiongram (_mgy).
+
+## motionvideo_ffmpeg
+
+[[find in source code]](..\_utils.py#L474)
+
+```python
+def motionvideo_ffmpeg(
+    filename,
+    color=True,
+    filtertype='regular',
+    threshold=0.05,
+    blur='none',
+    use_median=False,
+    kernel_size=5,
+    invert=False,
+    outname=None,
+):
+```
+
+Renders a motion video using ffmpeg.
+
+#### Arguments
+
+- `filename` *str* - Path to the input video file.
+- `color` *bool, optional* - If False the input is converted to grayscale at the start of the process. This can significantly reduce render time. Defaults to True.
+- `filtertype` *str, optional* - 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
+- `thresh` *float, optional* - Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
+- `blur` *str, optional* - 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
+- `use_median` *bool, optional* - If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
+- `kernel_size` *int, optional* - Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
+- `invert` *bool, optional* - If True, inverts colors of the motion video. Defaults to False.
+- `outname` *str, optional* - If None the name of the output video will be <file name>_motion.<file extension>. Defaults to None.
+
+Outputs:
+    The motion video.
+
+#### Returns
+
+- `str` - Path to the output video.
 
 ## rotate_video
 
@@ -664,7 +744,7 @@ int or float: The scaled number.
 
 ## str2sec
 
-[[find in source code]](..\_utils.py#L807)
+[[find in source code]](..\_utils.py#L1004)
 
 ```python
 def str2sec(time_string):
