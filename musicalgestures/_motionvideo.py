@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from scipy.signal import medfilt2d
 from musicalgestures._centroid import centroid
-from musicalgestures._utils import extract_wav, embed_audio_in_video, frame2ms, MgProgressbar, MgImage, convert_to_avi, get_length, get_widthheight
+from musicalgestures._utils import extract_wav, embed_audio_in_video, frame2ms, MgProgressbar, MgImage, convert_to_avi, get_length, get_widthheight, motionvideo_ffmpeg, motiongrams_ffmpeg
 from musicalgestures._filter import filter_frame
 from musicalgestures._mglist import MgList
 
@@ -16,9 +16,9 @@ def mg_motiongrams(
         filtertype='Regular',
         thresh=0.05,
         blur='None',
+        use_median=False,
         kernel_size=5,
-        inverted_motiongram=False,
-        equalize_motiongram=True):
+        inverted_motiongram=False):
     """
     Shortcut for `mg_motion` to only render motiongrams.
 
@@ -26,9 +26,9 @@ def mg_motiongrams(
         filtertype (str, optional): 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
         thresh (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
         blur (str, optional): 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
-        kernel_size (int, optional): Size of structuring element. Defaults to 5.
+        use_median (bool, optional): If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
+        kernel_size (int, optional): Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
         inverted_motiongram (bool, optional): If True, inverts colors of the motiongrams. Defaults to False.
-        equalize_motiongram (bool, optional): If True, converts the motiongrams to hsv-color space and flattens the value channel (v). Defaults to True.
 
     Outputs:
         `filename`_mgx.png: A horizontal motiongram of the source video.
@@ -38,18 +38,28 @@ def mg_motiongrams(
         MgList(MgImage, MgImage): An MgList pointing to the output motiongram images.
     """
 
-    mg_motion(
-        self,
+    motiongrams_ffmpeg(
+        filename=self.filename,
+        color=self.color,
         filtertype=filtertype,
-        thresh=thresh,
+        threshold=thresh,
         blur=blur,
+        use_median=use_median,
         kernel_size=kernel_size,
-        inverted_motiongram=inverted_motiongram,
-        equalize_motiongram=equalize_motiongram,
-        save_data=False,
-        save_motiongrams=True,
-        save_plot=False,
-        save_video=False)
+        invert=inverted_motiongram)
+
+    # mg_motion(
+    #     self,
+    #     filtertype=filtertype,
+    #     thresh=thresh,
+    #     blur=blur,
+    #     kernel_size=kernel_size,
+    #     inverted_motiongram=inverted_motiongram,
+    #     equalize_motiongram=equalize_motiongram,
+    #     save_data=False,
+    #     save_motiongrams=True,
+    #     save_plot=False,
+    #     save_video=False)
 
     return MgList(MgImage(self.of + '_mgx.png'), MgImage(self.of + '_mgy.png'))
 
@@ -138,36 +148,50 @@ def mg_motionvideo(
         filtertype='Regular',
         thresh=0.05,
         blur='None',
+        use_median=False,
         kernel_size=5,
         inverted_motionvideo=False):
     """
-    Shortcut for `mg_motion` to only render the motion video.
+    Shortcut to only render the motion video. Uses musicalgestures._utils.motionvideo_ffmpeg. Note that this does not apply median filter by default. If you need it use `use_median=True`.
 
     Args:
         filtertype (str, optional): 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
         thresh (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
         blur (str, optional): 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
-        kernel_size (int, optional): Size of structuring element. Defaults to 5.
+        use_median (bool, optional): If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
+        kernel_size (int, optional): Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
         inverted_motionvideo (bool, optional): If True, inverts colors of the motion video. Defaults to False.
 
     Outputs:
-        `filename`_motion.avi: The motion video.
+        `filename`_motion.<file extension>: The motion video.
 
     Returns:
         MgObject: A new MgObject pointing to the output '_motion' video file.
     """
 
-    return mg_motion(
-        self,
+    motionvideo = motionvideo_ffmpeg(
+        filename=self.filename,
+        color=self.color,
         filtertype=filtertype,
-        thresh=thresh,
+        threshold=thresh,
         blur=blur,
+        use_median=use_median,
         kernel_size=kernel_size,
-        inverted_motionvideo=inverted_motionvideo,
-        save_data=False,
-        save_motiongrams=False,
-        save_plot=False,
-        save_video=True)
+        invert=inverted_motionvideo)
+
+    return musicalgestures.MgObject(motionvideo, color=self.color, returned_by_process=True)
+
+    # return mg_motion(
+    #     self,
+    #     filtertype=filtertype,
+    #     thresh=thresh,
+    #     blur=blur,
+    #     kernel_size=kernel_size,
+    #     inverted_motionvideo=inverted_motionvideo,
+    #     save_data=False,
+    #     save_motiongrams=False,
+    #     save_plot=False,
+    #     save_video=True)
 
 
 def mg_motion(

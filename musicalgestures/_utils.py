@@ -471,6 +471,203 @@ def threshold_ffmpeg(filename, threshold=0.1, outname=None, binary=False):
     return outname
 
 
+def motionvideo_ffmpeg(
+        filename,
+        color=True,
+        filtertype='regular',
+        threshold=0.05,
+        blur='none',
+        use_median=False,
+        kernel_size=5,
+        invert=False,
+        outname=None):
+    """
+    Renders a motion video using ffmpeg. 
+
+    Args:
+        filename (str): Path to the input video file.
+        color (bool, optional): If False the input is converted to grayscale at the start of the process. This can significantly reduce render time. Defaults to True.
+        filtertype (str, optional): 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
+        thresh (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
+        blur (str, optional): 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
+        use_median (bool, optional): If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
+        kernel_size (int, optional): Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
+        invert (bool, optional): If True, inverts colors of the motion video. Defaults to False.
+        outname (str, optional): If None the name of the output video will be <file name>_motion.<file extension>. Defaults to None.
+
+    Outputs:
+        The motion video.
+
+    Returns:
+        str: Path to the output video.
+    """
+
+    import os
+    import matplotlib
+    of, fex = os.path.splitext(filename)
+
+    cmd = ['ffmpeg', '-y', '-i', filename]
+    cmd_filter = ''
+
+    if outname == None:
+        outname = of + '_motion' + fex
+
+    cmd_end = ['-q:v', '3', "-c:a", "copy", outname]
+
+    # set color mode
+    if color == True:
+        pixformat = 'gbrp'
+    else:
+        pixformat = 'gray'
+    cmd_filter += f'format={pixformat},'
+
+    # set blur
+    if blur.lower() == 'average':
+        cmd_filter += 'avgblur=sizeX=10:sizeY=10,'
+
+    # set frame difference
+    if filtertype.lower() == 'regular':
+        cmd_filter += 'tblend=all_mode=difference[diff],'
+    else:
+        cmd_filter += 'tblend=all_mode=difference,'
+
+    width, height = get_widthheight(filename)
+
+    thresh_color = matplotlib.colors.to_hex([threshold, threshold, threshold])
+    thresh_color = '0x' + thresh_color[1:]
+
+    # set threshold
+    if filtertype.lower() == 'regular':
+        cmd += ['-f', 'lavfi', '-i', f'color={thresh_color},scale={width}:{height}',
+                '-f', 'lavfi', '-i', f'color=black,scale={width}:{height}']
+        cmd_filter += '[0:v][1][2][diff]threshold,'
+    elif filtertype.lower() == 'binary':
+        cmd += ['-f', 'lavfi', '-i', f'color={thresh_color},scale={width}:{height}', '-f', 'lavfi', '-i',
+                f'color=black,scale={width}:{height}', '-f', 'lavfi', '-i', f'color=white,scale={width}:{height}']
+        cmd_filter += 'threshold,'
+    elif filtertype.lower() == 'blob':
+        # cmd_filter += 'erosion,' # erosion is always 3x3 so we will hack it with a median filter with percentile=0 which will pick minimum values
+        cmd_filter += f'median=radius={kernel_size}:percentile=0,'
+
+    # set median
+    if use_median and filtertype.lower() != 'blob':  # makes no sense to median-filter the eroded video
+        cmd_filter += f'median=radius={kernel_size},'
+
+    # set invert
+    if invert:
+        cmd_filter += 'negate'
+    else:
+        # remove last comma after previous filter
+        cmd_filter = cmd_filter[: -1]
+
+    cmd += ['-filter_complex', cmd_filter] + cmd_end
+
+    ffmpeg_cmd(cmd, get_length(filename), pb_prefix='Rendering motion video:')
+
+    return outname
+
+
+def motiongrams_ffmpeg(
+        filename,
+        color=True,
+        filtertype='regular',
+        threshold=0.05,
+        blur='none',
+        use_median=False,
+        kernel_size=5,
+        invert=False):
+    """
+    Renders horizontal and vertical motiongrams using ffmpeg. 
+
+    Args:
+        filename (str): Path to the input video file.
+        color (bool, optional): If False the input is converted to grayscale at the start of the process. This can significantly reduce render time. Defaults to True.
+        filtertype (str, optional): 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
+        thresh (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
+        blur (str, optional): 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
+        use_median (bool, optional): If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
+        kernel_size (int, optional): Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
+        invert (bool, optional): If True, inverts colors of the motiongrams. Defaults to False.
+
+    Outputs:
+        `filename`_vgx.png
+        `filename`_vgy.png
+
+    Returns:
+        str: Path to the output horizontal motiongram (_mgx).
+        str: Path to the output vertical motiongram (_mgy).
+    """
+
+    import os
+    import matplotlib
+    of, fex = os.path.splitext(filename)
+
+    cmd = ['ffmpeg', '-y', '-i', filename, '-frames', '1']
+    cmd_filter = ''
+
+    width, height = get_widthheight(filename)
+    framecount = get_framecount(filename)
+
+    cmd_end_x = ['-aspect', f'{framecount}:{height}', of+'_mgx.png']
+    cmd_end_y = ['-aspect', f'{width}:{framecount}', of+'_mgy.png']
+
+    # set color mode
+    if color == True:
+        pixformat = 'gbrp'
+    else:
+        pixformat = 'gray'
+    cmd_filter += f'format={pixformat},'
+
+    # set blur
+    if blur.lower() == 'average':
+        cmd_filter += 'avgblur=sizeX=10:sizeY=10,'
+
+    # set frame difference
+    if filtertype.lower() == 'regular':
+        cmd_filter += 'tblend=all_mode=difference[diff],'
+    else:
+        cmd_filter += 'tblend=all_mode=difference,'
+
+    thresh_color = matplotlib.colors.to_hex([threshold, threshold, threshold])
+    thresh_color = '0x' + thresh_color[1:]
+
+    # set threshold
+    if filtertype.lower() == 'regular':
+        cmd += ['-f', 'lavfi', '-i', f'color={thresh_color},scale={width}:{height}',
+                '-f', 'lavfi', '-i', f'color=black,scale={width}:{height}']
+        cmd_filter += '[0:v][1][2][diff]threshold,'
+    elif filtertype.lower() == 'binary':
+        cmd += ['-f', 'lavfi', '-i', f'color={thresh_color},scale={width}:{height}', '-f', 'lavfi', '-i',
+                f'color=black,scale={width}:{height}', '-f', 'lavfi', '-i', f'color=white,scale={width}:{height}']
+        cmd_filter += 'threshold,'
+    elif filtertype.lower() == 'blob':
+        # cmd_filter += 'erosion,' # erosion is always 3x3 so we will hack it with a median filter with percentile=0 which will pick minimum values
+        cmd_filter += f'median=radius={kernel_size}:percentile=0,'
+
+    # set median
+    if use_median and filtertype.lower() != 'blob':  # makes no sense to median-filter the eroded video
+        cmd_filter += f'median=radius={kernel_size},'
+
+    # set invert
+    if invert:
+        cmd_filter += 'negate,'
+
+    cmd_filter_x = cmd_filter + \
+        f'scale=1:{height}:sws_flags=area,normalize,tile={framecount}x1'
+    cmd_filter_y = cmd_filter + \
+        f'scale={width}:1:sws_flags=area,normalize,tile=1x{framecount}'
+
+    cmd_x = cmd + ['-filter_complex', cmd_filter_x] + cmd_end_x
+    cmd_y = cmd + ['-filter_complex', cmd_filter_y] + cmd_end_y
+
+    ffmpeg_cmd(cmd_x, get_length(filename),
+               pb_prefix='Rendering horizontal motiongram:')
+    ffmpeg_cmd(cmd_y, get_length(filename),
+               pb_prefix='Rendering vertical motiongram:')
+
+    return of+'_mgx.png', of+'_mgy.png'
+
+
 def crop_ffmpeg(filename, w, h, x, y, outname=None):
     """
     Crops a video using ffmpeg.
