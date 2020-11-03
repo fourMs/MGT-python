@@ -124,8 +124,8 @@ Shortcut for [mg_motion](#mg_motion) to only render motiongrams.
 
 #### Outputs
 
-- ``filename`_mgx.png` - A horizontal motiongram of the source video.
-- ``filename`_mgy.png` - A vertical motiongram of the source video.
+- `filename` *_mgx.png* - A horizontal motiongram of the source video.
+- `filename` *_mgy.png* - A vertical motiongram of the source video.
 
 #### Returns
 

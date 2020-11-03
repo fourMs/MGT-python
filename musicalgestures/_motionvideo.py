@@ -32,8 +32,8 @@ def mg_motiongrams(
 
     #### Outputs
 
-        `filename`_mgx.png: A horizontal motiongram of the source video.
-        `filename`_mgy.png: A vertical motiongram of the source video.
+        filename _mgx.png: A horizontal motiongram of the source video.
+        filename _mgy.png: A vertical motiongram of the source video.
 
     Returns:
         MgList(MgImage, MgImage): An MgList pointing to the output motiongram images.
