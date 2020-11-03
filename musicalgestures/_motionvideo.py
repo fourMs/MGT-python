@@ -31,6 +31,7 @@ def mg_motiongrams(
         inverted_motiongram (bool, optional): If True, inverts colors of the motiongrams. Defaults to False.
 
     #### Outputs
+
         `filename`_mgx.png: A horizontal motiongram of the source video.
         `filename`_mgy.png: A vertical motiongram of the source video.
 
