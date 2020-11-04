@@ -94,6 +94,7 @@ class MgObject:
     from musicalgestures._show import mg_show as show
     from musicalgestures._history import history_ffmpeg as history
     from musicalgestures._average import mg_average_image as average
+    from musicalgestures._pose import pose
 
     def test_input(self):
         """ Gives feedback to user if initialization from input went wrong. """
