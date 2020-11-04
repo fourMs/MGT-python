@@ -60,7 +60,7 @@ class MgProgressbar():
         Progresses the progress bar to the next step.
 
         Args:
-            iteration (int or float): The current iteration. For example, the 57th out of 100 steps, or 12.3s out of the total 60s.
+            iteration (float): The current iteration. For example, the 57th out of 100 steps, or 12.3s out of the total 60s.
         """
         if self.finished:
             return
@@ -112,12 +112,12 @@ def clamp(num, min_value, max_value):
     Clamps a number between a minimum and maximum value.
 
     Args:
-        num (int or float): The number to clamp.
-        min_value (int or float): The minimum allowed value.
-        max_value (int or float): The maximum allowed value.
+        num (float): The number to clamp.
+        min_value (float): The minimum allowed value.
+        max_value (float): The maximum allowed value.
 
     Returns:
-        int or float: The clamped number.
+        float: The clamped number.
     """
     return max(min(num, max_value), min_value)
 
@@ -127,14 +127,14 @@ def scale_num(val, in_low, in_high, out_low, out_high):
     Scales a number linearly.
 
     Args:
-        val (int or float): The value to be scaled.
-        in_low (int or float): Minimum of input range.
-        in_high (int or float): Maximum of input range.
-        out_low (int or float): Minimum of output range.
-        out_high (int or float): Maximum of output range.
+        val (float): The value to be scaled.
+        in_low (float): Minimum of input range.
+        in_high (float): Maximum of input range.
+        out_low (float): Minimum of output range.
+        out_high (float): Maximum of output range.
 
     Returns:
-        int or float: The scaled number.
+        float: The scaled number.
     """
 
     return ((val - in_low) * (out_high - out_low)) / (in_high - in_low) + out_low
@@ -146,8 +146,8 @@ def scale_array(array, out_low, out_high):
 
     Args:
         array (arraylike): The array to be scaled.
-        out_low (int or float): Minimum of output range.
-        out_high (int or float): Maximum of output range.
+        out_low (float): Minimum of output range.
+        out_high (float): Maximum of output range.
 
     Returns:
         arraylike: The scaled array.
@@ -316,8 +316,8 @@ def extract_subclip(filename, t1, t2, targetname=None):
 
     Args:
         filename (str): Path to the input video file.
-        t1 (int or float): The start of the section to extract in seconds.
-        t2 (int or float): The end of the section to extract in seconds.
+        t1 (float): The start of the section to extract in seconds.
+        t2 (float): The end of the section to extract in seconds.
         targetname (str, optional): The name for the output file. If None, the name will be <input name>SUB<start time in ms>_<end time in ms>.<file extension>. Defaults to None.
 
     Outputs:
@@ -351,7 +351,7 @@ def rotate_video(filename, angle):
 
     Args:
         filename (str): Path to the input video file.
-        angle (int or float): The angle (in degrees) specifying the amount of rotation. Positive values rotate clockwise.
+        angle (float): The angle (in degrees) specifying the amount of rotation. Positive values rotate clockwise.
 
     Outputs:
         `filename`_rot.<file extension>
@@ -900,7 +900,7 @@ def audio_dilate(filename, dilation_ratio=1):
 
     Args:
         filename (str): Path to the audio file to dilate.
-        dilation_ratio (int or float, optional): The source file's length divided by the resulting file's length. Defaults to 1.
+        dilation_ratio (float, optional): The source file's length divided by the resulting file's length. Defaults to 1.
 
     Outputs:
         <file name>_dilated.<file extension>
@@ -925,7 +925,7 @@ def embed_audio_in_video(source_audio, destination_video, dilation_ratio=1):
     Args:
         source_audio (str): Path to the audio file to embed.
         destination_video (str): Path to the video file to embed the audio file in.
-        dilation_ratio (int or float, optional): The source file's length divided by the resulting file's length. Defaults to 1.
+        dilation_ratio (float, optional): The source file's length divided by the resulting file's length. Defaults to 1.
 
     Outputs:
         `destination_video` with the embedded audio file.
@@ -964,7 +964,7 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress'):
 
     Args:
         command (list): The ffmpeg command to execute as a list. Eg. ['ffmpeg', '-y', '-i', 'myVid.mp4', 'myVid.mov']
-        total_time (int or float): The length of the output. Needed mainly for the progress bar.
+        total_time (float): The length of the output. Needed mainly for the progress bar.
         pb_prefix (str, optional): The prefix for the progress bar. Defaults to 'Progress'.
 
     Raises:
@@ -1009,7 +1009,7 @@ def str2sec(time_string):
         time_string (str): The time code to convert. Eg. '01:33:42'.
 
     Returns:
-        int or float: The time code converted to seconds.
+        float: The time code converted to seconds.
     """
     elems = [float(elem) for elem in time_string.split(':')]
     return elems[0]*3600 + elems[1]*60 + elems[2]

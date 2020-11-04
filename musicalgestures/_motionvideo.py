@@ -30,10 +30,9 @@ def mg_motiongrams(
         kernel_size (int, optional): Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
         inverted_motiongram (bool, optional): If True, inverts colors of the motiongrams. Defaults to False.
 
-    #### Outputs
-
-        filename _mgx.png: A horizontal motiongram of the source video.
-        filename _mgy.png: A vertical motiongram of the source video.
+    Outputs:
+        `filename`_mgx.png: A horizontal motiongram of the source video.
+        `filename`_mgy.png: A vertical motiongram of the source video.
 
     Returns:
         MgList(MgImage, MgImage): An MgList pointing to the output motiongram images.

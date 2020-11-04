@@ -31,7 +31,7 @@ class Audio:
             window_size (int, optional): The size of the FFT frame. Defaults to 4096.
             overlap (int, optional): The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
             mel_filters (int, optional): The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
-            power (int or float, optional): The steepness of the curve for the color mapping. Defaults to 2.
+            power (float, optional): The steepness of the curve for the color mapping. Defaults to 2.
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
 
@@ -117,7 +117,7 @@ class Audio:
             window_size (int, optional): The size of the FFT frame. Defaults to 4096.
             overlap (int, optional): The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
             mel_filters (int, optional): The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
-            power (int or float, optional): The steepness of the curve for the color mapping. Defaults to 2.
+            power (float, optional): The steepness of the curve for the color mapping. Defaults to 2.
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
 
@@ -238,7 +238,7 @@ class Audio:
             window_size (int, optional): The size of the FFT frame. Defaults to 4096.
             overlap (int, optional): The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
             mel_filters (int, optional): The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
-            power (int or float, optional): The steepness of the curve for the color mapping. Defaults to 2.
+            power (float, optional): The steepness of the curve for the color mapping. Defaults to 2.
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
 
@@ -315,7 +315,7 @@ def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters
         window_size (int, optional): The size of the FFT frame. Defaults to 4096.
         overlap (int, optional): The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
         mel_filters (int, optional): The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
-        power (int or float, optional): The steepness of the curve for the color mapping. Defaults to 2.
+        power (float, optional): The steepness of the curve for the color mapping. Defaults to 2.
         dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
         autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
 
@@ -409,7 +409,7 @@ def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters
         window_size (int, optional): The size of the FFT frame. Defaults to 4096.
         overlap (int, optional): The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
         mel_filters (int, optional): The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
-        power (int or float, optional): The steepness of the curve for the color mapping. Defaults to 2.
+        power (float, optional): The steepness of the curve for the color mapping. Defaults to 2.
         dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
         autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
 
@@ -536,7 +536,7 @@ def mg_audio_tempogram(filename=None, window_size=4096, overlap=8, mel_filters=5
         window_size (int, optional): The size of the FFT frame. Defaults to 4096.
         overlap (int, optional): The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
         mel_filters (int, optional): The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
-        power (int or float, optional): The steepness of the curve for the color mapping. Defaults to 2.
+        power (float, optional): The steepness of the curve for the color mapping. Defaults to 2.
         dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
         autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
 

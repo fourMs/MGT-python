@@ -1,45 +1,45 @@
 # Utils
 
-> Auto-generated documentation for [_utils](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py) module.
+> Auto-generated documentation for [\_utils](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py) module.
 
 - [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Utils
-    - [MgFigure](#mgfigure)
-        - [MgFigure().show](#mgfigureshow)
-    - [MgImage](#mgimage)
-    - [MgProgressbar](#mgprogressbar)
-        - [MgProgressbar().get_now](#mgprogressbarget_now)
-        - [MgProgressbar().over_time_limit](#mgprogressbarover_time_limit)
-        - [MgProgressbar().progress](#mgprogressbarprogress)
-    - [audio_dilate](#audio_dilate)
-    - [cast_into_avi](#cast_into_avi)
-    - [clamp](#clamp)
-    - [convert_to_avi](#convert_to_avi)
-    - [convert_to_grayscale](#convert_to_grayscale)
-    - [convert_to_mp4](#convert_to_mp4)
-    - [crop_ffmpeg](#crop_ffmpeg)
-    - [embed_audio_in_video](#embed_audio_in_video)
-    - [extract_subclip](#extract_subclip)
-    - [extract_wav](#extract_wav)
-    - [ffmpeg_cmd](#ffmpeg_cmd)
-    - [frame2ms](#frame2ms)
-    - [framediff_ffmpeg](#framediff_ffmpeg)
-    - [get_first_frame_as_image](#get_first_frame_as_image)
-    - [get_fps](#get_fps)
-    - [get_frame_planecount](#get_frame_planecount)
-    - [get_framecount](#get_framecount)
-    - [get_length](#get_length)
-    - [get_screen_resolution_scaled](#get_screen_resolution_scaled)
-    - [get_screen_video_ratio](#get_screen_video_ratio)
-    - [get_widthheight](#get_widthheight)
-    - [has_audio](#has_audio)
-    - [motiongrams_ffmpeg](#motiongrams_ffmpeg)
-    - [motionvideo_ffmpeg](#motionvideo_ffmpeg)
-    - [rotate_video](#rotate_video)
-    - [roundup](#roundup)
-    - [scale_array](#scale_array)
-    - [scale_num](#scale_num)
-    - [str2sec](#str2sec)
-    - [threshold_ffmpeg](#threshold_ffmpeg)
+  - [MgFigure](#mgfigure)
+    - [MgFigure().show](#mgfigureshow)
+  - [MgImage](#mgimage)
+  - [MgProgressbar](#mgprogressbar)
+    - [MgProgressbar().get_now](#mgprogressbarget_now)
+    - [MgProgressbar().over_time_limit](#mgprogressbarover_time_limit)
+    - [MgProgressbar().progress](#mgprogressbarprogress)
+  - [audio_dilate](#audio_dilate)
+  - [cast_into_avi](#cast_into_avi)
+  - [clamp](#clamp)
+  - [convert_to_avi](#convert_to_avi)
+  - [convert_to_grayscale](#convert_to_grayscale)
+  - [convert_to_mp4](#convert_to_mp4)
+  - [crop_ffmpeg](#crop_ffmpeg)
+  - [embed_audio_in_video](#embed_audio_in_video)
+  - [extract_subclip](#extract_subclip)
+  - [extract_wav](#extract_wav)
+  - [ffmpeg_cmd](#ffmpeg_cmd)
+  - [frame2ms](#frame2ms)
+  - [framediff_ffmpeg](#framediff_ffmpeg)
+  - [get_first_frame_as_image](#get_first_frame_as_image)
+  - [get_fps](#get_fps)
+  - [get_frame_planecount](#get_frame_planecount)
+  - [get_framecount](#get_framecount)
+  - [get_length](#get_length)
+  - [get_screen_resolution_scaled](#get_screen_resolution_scaled)
+  - [get_screen_video_ratio](#get_screen_video_ratio)
+  - [get_widthheight](#get_widthheight)
+  - [has_audio](#has_audio)
+  - [motiongrams_ffmpeg](#motiongrams_ffmpeg)
+  - [motionvideo_ffmpeg](#motionvideo_ffmpeg)
+  - [rotate_video](#rotate_video)
+  - [roundup](#roundup)
+  - [scale_array](#scale_array)
+  - [scale_num](#scale_num)
+  - [str2sec](#str2sec)
+  - [threshold_ffmpeg](#threshold_ffmpeg)
 
 ## MgFigure
 
@@ -138,7 +138,7 @@ Progresses the progress bar to the next step.
 
 #### Arguments
 
-iteration (int or float): The current iteration. For example, the 57th out of 100 steps, or 12.3s out of the total 60s.
+- `iteration` _float_ - The current iteration. For example, the 57th out of 100 steps, or 12.3s out of the total 60s.
 
 ## audio_dilate
 
@@ -152,11 +152,12 @@ Time-stretches or -shrinks (dilates) an audio file using ffmpeg.
 
 #### Arguments
 
-- `filename` *str* - Path to the audio file to dilate.
-dilation_ratio (int or float, optional): The source file's length divided by the resulting file's length. Defaults to 1.
+- `filename` _str_ - Path to the audio file to dilate.
+- `dilation_ratio` _float, optional_ - The source file's length divided by the resulting file's length. Defaults to 1.
 
-Outputs:
-    <file name>_dilated.<file extension>
+#### Outputs
+
+- \<file name\>\_dilated.\<file extension\>
 
 #### Returns
 
@@ -170,16 +171,18 @@ Outputs:
 def cast_into_avi(filename):
 ```
 
-*Experimental*
+_Experimental_
+
 Casts a video into and .avi container using ffmpeg. Much faster than [convert_to_avi](#convert_to_avi),
 but does not always work well with cv2 or built-in video players.
 
 #### Arguments
 
-- `filename` *str* - Path to the input video file.
+- `filename` _str_ - Path to the input video file.
 
-Outputs:
-    `filename`.avi
+#### Outputs
+
+- `filename`.avi
 
 #### Returns
 
@@ -197,13 +200,13 @@ Clamps a number between a minimum and maximum value.
 
 #### Arguments
 
-num (int or float): The number to clamp.
-min_value (int or float): The minimum allowed value.
-max_value (int or float): The maximum allowed value.
+- `num` _float_ - The number to clamp.
+- `min_value` _float_ - The minimum allowed value.
+- `max_value` _float_ - The maximum allowed value.
 
 #### Returns
 
-int or float: The clamped number.
+- `float` - The clamped number.
 
 ## convert_to_avi
 
@@ -217,10 +220,11 @@ Converts a video to one with .avi extension using ffmpeg.
 
 #### Arguments
 
-- `filename` *str* - Path to the input video file to convert.
+- `filename` _str_ - Path to the input video file to convert.
 
-Outputs:
-    `filename`.avi
+#### Outputs
+
+- `filename`.avi
 
 #### Returns
 
@@ -238,10 +242,11 @@ Converts a video to grayscale using ffmpeg.
 
 #### Arguments
 
-- `filename` *str* - Path to the input video file.
+- `filename` _str_ - Path to the input video file.
 
-Outputs:
-    `filename`_gray.<file extension>
+#### Outputs
+
+- `filename`\_gray.\<file extension\>
 
 #### Returns
 
@@ -259,10 +264,11 @@ Converts a video to one with .mp4 extension using ffmpeg.
 
 #### Arguments
 
-- `filename` *str* - Path to the input video file to convert.
+- `filename` _str_ - Path to the input video file to convert.
 
-Outputs:
-    `filename`.mp4
+#### Outputs
+
+- `filename`.mp4
 
 #### Returns
 
@@ -280,15 +286,16 @@ Crops a video using ffmpeg.
 
 #### Arguments
 
-- `filename` *str* - Path to the input video file.
-- `w` *int* - The desired width.
-- `h` *int* - The desired height.
-- `x` *int* - The horizontal coordinate of the top left pixel of the cropping rectangle.
-- `y` *int* - The vertical coordinate of the top left pixel of the cropping rectangle.
-- `outname` *str, optional* - The name of the output video. If None, the output name will be <input video>_crop.<file extension>. Defaults to None.
+- `filename` _str_ - Path to the input video file.
+- `w` _int_ - The desired width.
+- `h` _int_ - The desired height.
+- `x` _int_ - The horizontal coordinate of the top left pixel of the cropping rectangle.
+- `y` _int_ - The vertical coordinate of the top left pixel of the cropping rectangle.
+- `outname` _str, optional_ - The name of the output video. If None, the output name will be \<input video\>\_crop.\<file extension\>. Defaults to None.
 
-Outputs:
-    The cropped video.
+#### Outputs
+
+- The cropped video.
 
 #### Returns
 
@@ -306,12 +313,13 @@ Embeds an audio file as the audio channel of a video file using ffmpeg.
 
 #### Arguments
 
-- `source_audio` *str* - Path to the audio file to embed.
-- `destination_video` *str* - Path to the video file to embed the audio file in.
-dilation_ratio (int or float, optional): The source file's length divided by the resulting file's length. Defaults to 1.
+- `source_audio` _str_ - Path to the audio file to embed.
+- `destination_video` _str_ - Path to the video file to embed the audio file in.
+- `dilation_ratio` _float, optional_ - The source file's length divided by the resulting file's length. Defaults to 1.
 
-Outputs:
-    `destination_video` with the embedded audio file.
+#### Outputs
+
+- `destination_video` with the embedded audio file.
 
 ## extract_subclip
 
@@ -325,13 +333,14 @@ Extracts a section of the video using ffmpeg.
 
 #### Arguments
 
-- `filename` *str* - Path to the input video file.
-t1 (int or float): The start of the section to extract in seconds.
-t2 (int or float): The end of the section to extract in seconds.
-- `targetname` *str, optional* - The name for the output file. If None, the name will be <input name>SUB<start time in ms>_<end time in ms>.<file extension>. Defaults to None.
+- `filename` _str_ - Path to the input video file.
+- `t1` _float_ - The start of the section to extract in seconds.
+- `t2` _float_ - The end of the section to extract in seconds.
+- `targetname` _str, optional_ - The name for the output file. If None, the name will be \<input name\>SUB\<start time in ms\>\_\<end time in ms\>.\<file extension\>. Defaults to None.
 
-Outputs:
-    The extracted section as a video.
+#### Outputs
+
+- The extracted section as a video.
 
 ## extract_wav
 
@@ -345,10 +354,11 @@ Extracts audio from video into a .wav file via ffmpeg.
 
 #### Arguments
 
-- `filename` *str* - Path to the video file from which the audio track shall be extracted.
+- `filename` _str_ - Path to the video file from which the audio track shall be extracted.
 
-Outputs:
-    `filename`.wav
+#### Outputs
+
+- `filename`.wav
 
 #### Returns
 
@@ -366,9 +376,9 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress'):
 
 #### Arguments
 
-- `command` *list* - The ffmpeg command to execute as a list. Eg. ['ffmpeg', '-y', '-i', 'myVid.mp4', 'myVid.mov']
-total_time (int or float): The length of the output. Needed mainly for the progress bar.
-- `pb_prefix` *str, optional* - The prefix for the progress bar. Defaults to 'Progress'.
+- `command` _list_ - The ffmpeg command to execute as a list. Eg. ['ffmpeg', '-y', '-i', 'myVid.mp4', 'myVid.mov']
+- `total_time` _float_ - The length of the output. Needed mainly for the progress bar.
+- `pb_prefix` _str, optional_ - The prefix for the progress bar. Defaults to 'Progress'.
 
 #### Raises
 
@@ -386,8 +396,8 @@ Converts frames to milliseconds.
 
 #### Arguments
 
-- `frame` *int* - The index of the frame to be converted to milliseconds.
-- `fps` *int* - Frames per second.
+- `frame` _int_ - The index of the frame to be converted to milliseconds.
+- `fps` _int_ - Frames per second.
 
 #### Returns
 
@@ -405,12 +415,13 @@ Renders a frame difference video from the input using ffmpeg.
 
 #### Arguments
 
-- `filename` *str* - Path to the input video file.
-- `outname` *str, optional* - The name of the output video. If None, the output name will be <input video>_framediff.<file extension>. Defaults to None.
-- `color` *bool, optional* - If False, the output will be grayscale. Defaults to True.
+- `filename` _str_ - Path to the input video file.
+- `outname` _str, optional_ - The name of the output video. If None, the output name will be \<input video\>\_framediff.\<file extension\>. Defaults to None.
+- `color` _bool, optional_ - If False, the output will be grayscale. Defaults to True.
 
-Outputs:
-    The frame difference video.
+#### Outputs
+
+- The frame difference video.
 
 #### Returns
 
@@ -428,12 +439,13 @@ Extracts the first frame of a video and saves it as an image using ffmpeg.
 
 #### Arguments
 
-- `filename` *str* - Path to the input video file.
-- `outname` *str, optional* - The name for the output image. If None, the output name will be <input name>`pict_format`. Defaults to None.
-- `pict_format` *str, optional* - The format to use for the output image. Defaults to '.png'.
+- `filename` _str_ - Path to the input video file.
+- `outname` _str, optional_ - The name for the output image. If None, the output name will be \<input name\>`pict_format`. Defaults to None.
+- `pict_format` _str, optional_ - The format to use for the output image. Defaults to '.png'.
 
-Outputs:
-    The first frame of the input video as an image file.
+#### Outputs
+
+- The first frame of the input video as an image file.
 
 #### Returns
 
@@ -451,7 +463,7 @@ Gets the FPS (frames per second) value of a video using moviepy.
 
 #### Arguments
 
-- `filename` *str* - Path to the video file to measure.
+- `filename` _str_ - Path to the video file to measure.
 
 #### Returns
 
@@ -469,7 +481,7 @@ Gets the planecount (color channel count) of a video frame.
 
 #### Arguments
 
-frame (numpy array): A frame extracted by `cv2.VideoCapture().read()`.
+- `frame` _numpy array_ - A frame extracted by `cv2.VideoCapture().read()`.
 
 #### Returns
 
@@ -487,7 +499,7 @@ Returns the number of frames in a video using moviepy.
 
 #### Arguments
 
-- `filename` *str* - Path to the video file to measure.
+- `filename` _str_ - Path to the video file to measure.
 
 #### Returns
 
@@ -505,7 +517,7 @@ Gets the length (in seconds) of a video using moviepy.
 
 #### Arguments
 
-- `filename` *str* - Path to the video file to measure.
+- `filename` _str_ - Path to the video file to measure.
 
 #### Returns
 
@@ -538,7 +550,7 @@ Gets the screen-to-video ratio. Useful to fit windows on the screen.
 
 #### Arguments
 
-- `filename` *str* - Path to the input video file.
+- `filename` _str_ - Path to the input video file.
 
 #### Returns
 
@@ -556,7 +568,7 @@ Gets the width and height of a video using moviepy.
 
 #### Arguments
 
-- `filename` *str* - Path to the video file to measure.
+- `filename` _str_ - Path to the video file to measure.
 
 #### Returns
 
@@ -575,7 +587,7 @@ Checks if video has audio track using moviepy.
 
 #### Arguments
 
-- `filename` *str* - Path to the video file to check.
+- `filename` _str_ - Path to the video file to check.
 
 #### Returns
 
@@ -602,23 +614,24 @@ Renders horizontal and vertical motiongrams using ffmpeg.
 
 #### Arguments
 
-- `filename` *str* - Path to the input video file.
-- `color` *bool, optional* - If False the input is converted to grayscale at the start of the process. This can significantly reduce render time. Defaults to True.
-- `filtertype` *str, optional* - 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
-- `thresh` *float, optional* - Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
-- `blur` *str, optional* - 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
-- `use_median` *bool, optional* - If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
-- `kernel_size` *int, optional* - Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
-- `invert` *bool, optional* - If True, inverts colors of the motiongrams. Defaults to False.
+- `filename` _str_ - Path to the input video file.
+- `color` _bool, optional_ - If False the input is converted to grayscale at the start of the process. This can significantly reduce render time. Defaults to True.
+- `filtertype` _str, optional_ - 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
+- `thresh` _float, optional_ - Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
+- `blur` _str, optional_ - 'Average' to apply a 10px \* 10px blurring filter, 'None' otherwise. Defaults to 'None'.
+- `use_median` _bool, optional_ - If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
+- `kernel_size` _int, optional_ - Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
+- `invert` _bool, optional_ - If True, inverts colors of the motiongrams. Defaults to False.
 
-Outputs:
-    `filename`_vgx.png
-    `filename`_vgy.png
+#### Outputs
+
+- `filename`\_vgx.png
+- `filename`\_vgy.png
 
 #### Returns
 
-- `str` - Path to the output horizontal motiongram (_mgx).
-- `str` - Path to the output vertical motiongram (_mgy).
+- `str` - Path to the output horizontal motiongram (\_mgx).
+- `str` - Path to the output vertical motiongram (\_mgy).
 
 ## motionvideo_ffmpeg
 
@@ -642,18 +655,19 @@ Renders a motion video using ffmpeg.
 
 #### Arguments
 
-- `filename` *str* - Path to the input video file.
-- `color` *bool, optional* - If False the input is converted to grayscale at the start of the process. This can significantly reduce render time. Defaults to True.
-- `filtertype` *str, optional* - 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
-- `thresh` *float, optional* - Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
-- `blur` *str, optional* - 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
-- `use_median` *bool, optional* - If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
-- `kernel_size` *int, optional* - Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
-- `invert` *bool, optional* - If True, inverts colors of the motion video. Defaults to False.
-- `outname` *str, optional* - If None the name of the output video will be <file name>_motion.<file extension>. Defaults to None.
+- `filename` _str_ - Path to the input video file.
+- `color` _bool, optional_ - If False the input is converted to grayscale at the start of the process. This can significantly reduce render time. Defaults to True.
+- `filtertype` _str, optional_ - 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
+- `thresh` _float, optional_ - Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
+- `blur` _str, optional_ - 'Average' to apply a 10px \* 10px blurring filter, 'None' otherwise. Defaults to 'None'.
+- `use_median` _bool, optional_ - If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
+- `kernel_size` _int, optional_ - Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
+- `invert` _bool, optional_ - If True, inverts colors of the motion video. Defaults to False.
+- `outname` _str, optional_ - If None the name of the output video will be \<file name\>\_motion.\<file extension\>. Defaults to None.
 
-Outputs:
-    The motion video.
+#### Outputs
+
+- The motion video.
 
 #### Returns
 
@@ -671,11 +685,12 @@ Rotates a video by an `angle` using ffmpeg.
 
 #### Arguments
 
-- `filename` *str* - Path to the input video file.
-angle (int or float): The angle (in degrees) specifying the amount of rotation. Positive values rotate clockwise.
+- `filename` _str_ - Path to the input video file.
+  angle _float_ - The angle (in degrees) specifying the amount of rotation. Positive values rotate clockwise.
 
-Outputs:
-    `filename`_rot.<file extension>
+#### Outputs
+
+- `filename`\_rot.\<file extension\>
 
 #### Returns
 
@@ -693,8 +708,8 @@ Rounds up a number to the next integer multiple of another.
 
 #### Arguments
 
-- `num` *int* - The number to round up.
-- `modulo_num` *int* - The number whose next integer multiple we want.
+- `num` _int_ - The number to round up.
+- `modulo_num` _int_ - The number whose next integer multiple we want.
 
 #### Returns
 
@@ -712,9 +727,9 @@ Scales an array linearly.
 
 #### Arguments
 
-- `array` *arraylike* - The array to be scaled.
-out_low (int or float): Minimum of output range.
-out_high (int or float): Maximum of output range.
+- `array` _arraylike_ - The array to be scaled.
+- `out_low` _float_ - Minimum of output range.
+- `out_high` _float_ - Maximum of output range.
 
 #### Returns
 
@@ -732,15 +747,15 @@ Scales a number linearly.
 
 #### Arguments
 
-val (int or float): The value to be scaled.
-in_low (int or float): Minimum of input range.
-in_high (int or float): Maximum of input range.
-out_low (int or float): Minimum of output range.
-out_high (int or float): Maximum of output range.
+- `val` _float_ - The value to be scaled.
+- `in_low` _float_ - Minimum of input range.
+- `in_high` _float_ - Maximum of input range.
+- `out_low` _float_ - Minimum of output range.
+- `out_high` _float_ - Maximum of output range.
 
 #### Returns
 
-int or float: The scaled number.
+- `float` - The scaled number.
 
 ## str2sec
 
@@ -754,11 +769,11 @@ Converts a time code string into seconds.
 
 #### Arguments
 
-- `time_string` *str* - The time code to convert. Eg. '01:33:42'.
+- `time_string` _str_ - The time code to convert. Eg. '01:33:42'.
 
 #### Returns
 
-int or float: The time code converted to seconds.
+- `float` - The time code converted to seconds.
 
 ## threshold_ffmpeg
 
@@ -772,13 +787,14 @@ Renders a pixel-thresholded video from the input using ffmpeg.
 
 #### Arguments
 
-- `filename` *str* - Path to the input video file.
-- `threshold` *float, optional* - The normalized pixel value to use as the threshold. Pixels below the threshold will turn black. Defaults to 0.1.
-- `outname` *str, optional* - The name of the output video. If None, the output name will be <input video>_thresh.<file extension>. Defaults to None.
-- `binary` *bool, optional* - If True, the pixels above the threshold will turn white. Defaults to False.
+- `filename` _str_ - Path to the input video file.
+- `threshold` _float, optional_ - The normalized pixel value to use as the threshold. Pixels below the threshold will turn black. Defaults to 0.1.
+- `outname` _str, optional_ - The name of the output video. If None, the output name will be \<input video\>\_thresh.\<file extension\>. Defaults to None.
+- `binary` _bool, optional_ - If True, the pixels above the threshold will turn white. Defaults to False.
 
-Outputs:
-    The thresholded video.
+#### Outputs
+
+- The thresholded video.
 
 #### Returns
 

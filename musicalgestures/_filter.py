@@ -9,7 +9,7 @@ def filter_frame(motion_frame, filtertype, thresh, kernel_size):
 
     Args:
         motion_frame (np.array(uint8)): Input motion image.
-        filtertype (str): `Regular` turns all values below `thresh` to 0. `Binary` turns all values below `thresh` to 0, above `thresh` to 1. `Blob` removes individual pixels with erosion method.
+        filtertype (str): 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method.
         thresh (float): A number in the range of 0 to 1. Eliminates pixel values less than given threshold.
         kernel_size (int): Size of structuring element.
 

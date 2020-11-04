@@ -1,15 +1,15 @@
 # Audio
 
-> Auto-generated documentation for [_audio](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py) module.
+> Auto-generated documentation for [\_audio](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py) module.
 
 - [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Audio
-    - [Audio](#audio)
-        - [Audio().descriptors](#audiodescriptors)
-        - [Audio().spectrogram](#audiospectrogram)
-        - [Audio().tempogram](#audiotempogram)
-    - [mg_audio_descriptors](#mg_audio_descriptors)
-    - [mg_audio_spectrogram](#mg_audio_spectrogram)
-    - [mg_audio_tempogram](#mg_audio_tempogram)
+  - [Audio](#audio)
+    - [Audio().descriptors](#audiodescriptors)
+    - [Audio().spectrogram](#audiospectrogram)
+    - [Audio().tempogram](#audiotempogram)
+  - [mg_audio_descriptors](#mg_audio_descriptors)
+  - [mg_audio_spectrogram](#mg_audio_spectrogram)
+  - [mg_audio_tempogram](#mg_audio_tempogram)
 
 ## Audio
 
@@ -41,15 +41,16 @@ Renders a figure of plots showing spectral/loudness descriptors, including RMS e
 
 #### Arguments
 
-- `window_size` *int, optional* - The size of the FFT frame. Defaults to 4096.
-- `overlap` *int, optional* - The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
-- `mel_filters` *int, optional* - The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
-power (int or float, optional): The steepness of the curve for the color mapping. Defaults to 2.
-- `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
-- `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
+- `window_size` _int, optional_ - The size of the FFT frame. Defaults to 4096.
+- `overlap` _int, optional_ - The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
+- `mel_filters` _int, optional_ - The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
+- `power` _float, optional_ - The steepness of the curve for the color mapping. Defaults to 2.
+- `dpi` _int, optional_ - Image quality of the rendered figure in DPI. Defaults to 300.
+- `autoshow` _bool, optional_ - Whether to show the resulting figure automatically. Defaults to True.
 
-Outputs:
-    `self.filename`_descriptors.png
+#### Outputs
+
+- `self.filename`\_descriptors.png
 
 #### Returns
 
@@ -74,15 +75,16 @@ Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
 #### Arguments
 
-- `window_size` *int, optional* - The size of the FFT frame. Defaults to 4096.
-- `overlap` *int, optional* - The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
-- `mel_filters` *int, optional* - The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
-power (int or float, optional): The steepness of the curve for the color mapping. Defaults to 2.
-- `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
-- `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
+- `window_size` _int, optional_ - The size of the FFT frame. Defaults to 4096.
+- `overlap` _int, optional_ - The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
+- `mel_filters` _int, optional_ - The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
+- `power` _float, optional_ - The steepness of the curve for the color mapping. Defaults to 2.
+- `dpi` _int, optional_ - Image quality of the rendered figure in DPI. Defaults to 300.
+- `autoshow` _bool, optional_ - Whether to show the resulting figure automatically. Defaults to True.
 
-Outputs:
-    `self.filename`_spectrogram.png
+#### Outputs
+
+- `self.filename`\_spectrogram.png
 
 #### Returns
 
@@ -107,15 +109,16 @@ Renders a figure with a plots of onset strength and tempogram of the video/audio
 
 #### Arguments
 
-- `window_size` *int, optional* - The size of the FFT frame. Defaults to 4096.
-- `overlap` *int, optional* - The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
-- `mel_filters` *int, optional* - The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
-power (int or float, optional): The steepness of the curve for the color mapping. Defaults to 2.
-- `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
-- `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
+- `window_size` _int, optional_ - The size of the FFT frame. Defaults to 4096.
+- `overlap` _int, optional_ - The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
+- `mel_filters` _int, optional_ - The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
+- `power` _float, optional_ - The steepness of the curve for the color mapping. Defaults to 2.
+- `dpi` _int, optional_ - Image quality of the rendered figure in DPI. Defaults to 300.
+- `autoshow` _bool, optional_ - Whether to show the resulting figure automatically. Defaults to True.
 
-Outputs:
-    `self.filename`_tempogram.png
+#### Outputs
+
+- `self.filename`\_tempogram.png
 
 #### Returns
 
@@ -141,16 +144,17 @@ Renders a figure of plots showing spectral/loudness descriptors, including RMS e
 
 #### Arguments
 
-- `filename` *str, optional* - Path to the audio/video file to be processed. Defaults to None.
-- `window_size` *int, optional* - The size of the FFT frame. Defaults to 4096.
-- `overlap` *int, optional* - The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
-- `mel_filters` *int, optional* - The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
-power (int or float, optional): The steepness of the curve for the color mapping. Defaults to 2.
-- `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
-- `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
+- `filename` _str, optional_ - Path to the audio/video file to be processed. Defaults to None.
+- `window_size` _int, optional_ - The size of the FFT frame. Defaults to 4096.
+- `overlap` _int, optional_ - The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
+- `mel_filters` _int, optional_ - The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
+- `power` _float, optional_ - The steepness of the curve for the color mapping. Defaults to 2.
+- `dpi` _int, optional_ - Image quality of the rendered figure in DPI. Defaults to 300.
+- `autoshow` _bool, optional_ - Whether to show the resulting figure automatically. Defaults to True.
 
-Outputs:
-    `filename`_descriptors.png
+#### Outputs
+
+- `filename`\_descriptors.png
 
 #### Returns
 
@@ -176,16 +180,17 @@ Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
 #### Arguments
 
-- `filename` *str, optional* - Path to the audio/video file to be processed. Defaults to None.
-- `window_size` *int, optional* - The size of the FFT frame. Defaults to 4096.
-- `overlap` *int, optional* - The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
-- `mel_filters` *int, optional* - The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
-power (int or float, optional): The steepness of the curve for the color mapping. Defaults to 2.
-- `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
-- `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
+- `filename` _str, optional_ - Path to the audio/video file to be processed. Defaults to None.
+- `window_size` _int, optional_ - The size of the FFT frame. Defaults to 4096.
+- `overlap` _int, optional_ - The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
+- `mel_filters` _int, optional_ - The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
+- `power` _float, optional_ - The steepness of the curve for the color mapping. Defaults to 2.
+- `dpi` _int, optional_ - Image quality of the rendered figure in DPI. Defaults to 300.
+- `autoshow` _bool, optional_ - Whether to show the resulting figure automatically. Defaults to True.
 
-Outputs:
-    `filename`_spectrogram.png
+#### Outputs
+
+- `filename`\_spectrogram.png
 
 #### Returns
 
@@ -211,16 +216,17 @@ Renders a figure with a plots of onset strength and tempogram of the video/audio
 
 #### Arguments
 
-- `filename` *str, optional* - Path to the audio/video file to be processed. Defaults to None.
-- `window_size` *int, optional* - The size of the FFT frame. Defaults to 4096.
-- `overlap` *int, optional* - The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
-- `mel_filters` *int, optional* - The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
-power (int or float, optional): The steepness of the curve for the color mapping. Defaults to 2.
-- `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
-- `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
+- `filename` _str, optional_ - Path to the audio/video file to be processed. Defaults to None.
+- `window_size` _int, optional_ - The size of the FFT frame. Defaults to 4096.
+- `overlap` _int, optional_ - The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
+- `mel_filters` _int, optional_ - The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
+- `power` _float, optional_ - The steepness of the curve for the color mapping. Defaults to 2.
+- `dpi` _int, optional_ - Image quality of the rendered figure in DPI. Defaults to 300.
+- `autoshow` _bool, optional_ - Whether to show the resulting figure automatically. Defaults to True.
 
-Outputs:
-    `filename`_tempogram.png
+#### Outputs
+
+- `filename`\_tempogram.png
 
 #### Returns
 
