@@ -25,3 +25,8 @@ test-videos
 .vscode/settings.json
 dance.avi
 MusicalGesturesToolbox.ipynb
+musicalgestures/pose/mpi/pose_iter_160000.caffemodel
+musicalgestures/pose/mpi/pose_deploy_linevec_faster_4_stages.prototxt
+musicalgestures/pose/mpi/pose_deploy_linevec.prototxt
+musicalgestures/pose/coco/pose_iter_440000.caffemodel
+musicalgestures/pose/coco/pose_deploy_linevec.prototxt
