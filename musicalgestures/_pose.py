@@ -51,6 +51,19 @@ def pose(self, model='mpi', device='cpu', threshold=0.1, downsampling_factor=4, 
         weightsFile = 'musicalgestures/pose/mpi/pose_iter_160000.caffemodel'
         model = 'mpi'
 
+    # Check if .caffemodel file exists, download if necessary
+    if not os.path.exists(weightsFile):
+        print('Could not find weights file. Do you want to download it (~200MB)? (y/n)')
+        answer = input()
+        if answer.lower() == 'n':
+            print('Ok. Exiting...')
+            return musicalgestures.MgObject(self.filename, color=self.color, returned_by_process=True)
+        elif answer.lower() == 'y':
+            download_model(model)
+        else:
+            print(f'Unrecognized answer "{answer}". Exiting...')
+            return musicalgestures.MgObject(self.filename, color=self.color, returned_by_process=True)
+
     # Read the network into Memory
     net = cv2.dnn.readNetFromCaffe(protoFile, weightsFile)
     if device == "cpu":
@@ -240,3 +253,74 @@ def pose(self, model='mpi', device='cpu', threshold=0.1, downsampling_factor=4, 
     save_txt(of, width, height, model, data, data_format)
 
     return musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
+
+
+def download_model(modeltype):
+    """
+    Helper function to automatically download model (.caffemodel) files.
+    """
+    import platform
+    import subprocess
+
+    batch, shell = '_remote.bat', '_remote.sh'
+
+    the_system = platform.system()
+
+    pb_prefix = ''
+    mpi_script = 'musicalgestures/pose/getMPI'
+    coco_script = 'musicalgestures/pose/getCOCO'
+    wget_win = os.path.abspath(
+        'musicalgestures/3rdparty/windows/wget/wget.exe')
+    target_folder_mpi = os.path.abspath('musicalgestures/pose/mpi')
+    target_folder_coco = os.path.abspath('musicalgestures/pose/coco')
+
+    if the_system == 'Windows':
+        mpi_script += batch
+        coco_script += batch
+
+    else:
+        mpi_script += shell
+        coco_script += shell
+
+    if modeltype.lower() == 'mpi':
+        command = os.path.abspath(mpi_script)
+        if the_system == 'Windows':
+            command += f' {wget_win} {target_folder_mpi}'
+        else:
+            command += f' {target_folder_mpi}'
+        pb_prefix = 'Downloading MPI model:'
+    else:
+        command = os.path.abspath(coco_script)
+        if the_system == 'Windows':
+            command += f' {wget_win} {target_folder_coco}'
+        else:
+            command += f' {target_folder_coco}'
+        pb_prefix = 'Downloading COCO model:'
+
+    pb = MgProgressbar(total=100, prefix=pb_prefix)
+
+    process = subprocess.Popen(
+        command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True, shell=True)
+
+    try:
+        while True:
+            out = process.stdout.readline()
+            if out == '':
+                process.wait()
+                break
+            elif out.find('%') != -1:
+                percentage_place = out.find('%')
+                percent = out[percentage_place-2:percentage_place]
+                pb.progress(float(percent))
+            else:
+                print(out)
+
+        pb.progress(100)
+
+    except KeyboardInterrupt:
+        try:
+            process.terminate()
+        except OSError:
+            pass
+        process.wait()
+        raise KeyboardInterrupt
