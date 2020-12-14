@@ -18,7 +18,8 @@ def mg_motiongrams(
         blur='None',
         use_median=False,
         kernel_size=5,
-        inverted_motiongram=False):
+        inverted_motiongram=False,
+        equalize_motiongram=True):
     """
     Shortcut for `mg_motion` to only render motiongrams.
 
@@ -29,6 +30,7 @@ def mg_motiongrams(
         use_median (bool, optional): If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
         kernel_size (int, optional): Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
         inverted_motiongram (bool, optional): If True, inverts colors of the motiongrams. Defaults to False.
+        equalize_motiongram (bool, optional): If True, converts the motiongrams to hsv-color space and flattens the value channel (v). Defaults to True.
 
     Outputs:
         `filename`_mgx.png: A horizontal motiongram of the source video.
