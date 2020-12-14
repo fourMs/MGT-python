@@ -24,6 +24,6 @@ musicalgestures.egg-info
 test-videos
 .vscode/settings.json
 dance.avi
-MusicalGesturesToolbox.ipynb
 musicalgestures/pose/mpi/pose_iter_160000.caffemodel
 musicalgestures/pose/coco/pose_iter_440000.caffemodel
+MusicalGesturesToolbox_devlocal.ipynb
