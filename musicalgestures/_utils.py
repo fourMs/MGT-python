@@ -260,7 +260,7 @@ def convert_to_avi(filename):
 
     import os
     of = os.path.splitext(filename)[0]
-    cmds = ['ffmpeg', '-i', filename, "-c:v", "mjpeg",
+    cmds = ['ffmpeg', '-y', '-i', filename, "-c:v", "mjpeg",
             "-q:v", "3", "-c:a", "copy", of + '.avi']
     ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Converting to avi:')
     return of + '.avi'
@@ -282,7 +282,8 @@ def convert_to_mp4(filename):
 
     import os
     of = os.path.splitext(filename)[0]
-    cmds = ['ffmpeg', '-i', filename, "-q:v", "3", "-c:a", "copy", of + '.mp4']
+    cmds = ['ffmpeg', '-y', '-i', filename,
+            "-q:v", "3", "-c:a", "copy", of + '.mp4']
     ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Converting to mp4:')
     return of + '.mp4'
 
@@ -305,7 +306,7 @@ def cast_into_avi(filename):
 
     import os
     of = os.path.splitext(filename)[0]
-    cmds = ['ffmpeg', '-i', filename, "-codec copy", of + '.avi']
+    cmds = ['ffmpeg', '-y', '-i', filename, "-codec copy", of + '.avi']
     ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Casting to avi')
     return of + '.avi'
 
@@ -336,11 +337,19 @@ def extract_subclip(filename, t1, t2, targetname=None):
         T1, T2 = [int(1000*t) for t in [start, end]]
         targetname = "%sSUB%d_%d.%s" % (name, T1, T2, ext)
 
-    cmd = ' '.join(['ffmpeg', "-y",
-                    "-ss", "%0.2f" % start,
-                    "-i", filename,
-                    "-t", "%0.2f" % (end-start),
-                    "-map", "0", "-codec copy", targetname])
+    # avoiding newly discovered ffmpeg glitch with non-avi files | 13-dec-2020
+    if os.path.splitext(filename)[1] != '.avi':
+        cmd = ' '.join(['ffmpeg', "-y",
+                        "-ss", "%0.2f" % start,
+                        "-i", filename,
+                        "-t", "%0.2f" % (end-start),
+                        "-map", "0", targetname])
+    else:
+        cmd = ' '.join(['ffmpeg', "-y",
+                        "-ss", "%0.2f" % start,
+                        "-i", filename,
+                        "-t", "%0.2f" % (end-start),
+                        "-map", "0", "-codec copy", targetname])
 
     ffmpeg_cmd(cmd, length, pb_prefix='Trimming:')
 
@@ -366,7 +375,7 @@ def rotate_video(filename, angle):
     if os.path.isfile(of + '_rot' + fex):
         os.remove(of + '_rot' + fex)
 
-    cmds = ['ffmpeg', '-i', filename, "-vf",
+    cmds = ['ffmpeg', '-y', '-i', filename, "-vf",
             f"rotate={math.radians(angle)}", "-q:v", "3", "-c:a", "copy", of + '_rot' + fex]
     ffmpeg_cmd(cmds, get_length(filename),
                pb_prefix=f"Rotating video by {angle} degrees:")
@@ -390,7 +399,7 @@ def convert_to_grayscale(filename):
     import os
     of, fex = os.path.splitext(filename)
 
-    cmds = ['ffmpeg', '-i', filename, '-vf',
+    cmds = ['ffmpeg', '-y', '-i', filename, '-vf',
             'hue=s=0', "-q:v", "3", "-c:a", "copy", of + '_gray' + fex]
     ffmpeg_cmd(cmds, get_length(filename),
                pb_prefix='Converting to grayscale:')
@@ -602,14 +611,16 @@ def motiongrams_ffmpeg(
     import matplotlib
     of, fex = os.path.splitext(filename)
 
-    cmd = ['ffmpeg', '-y', '-i', filename, '-frames', '1']
+    cmd = ['ffmpeg', '-y', '-i', filename]
     cmd_filter = ''
 
     width, height = get_widthheight(filename)
     framecount = get_framecount(filename)
 
-    cmd_end_x = ['-aspect', f'{framecount}:{height}', of+'_mgx.png']
-    cmd_end_y = ['-aspect', f'{width}:{framecount}', of+'_mgy.png']
+    cmd_end_y = ['-aspect', f'{framecount}:{height}',
+                 '-frames', '1', of+'_mgy_ffmpeg.png']
+    cmd_end_x = ['-aspect', f'{width}:{framecount}',
+                 '-frames', '1', of+'_mgx_ffmpeg.png']
 
     # set color mode
     if color == True:
@@ -652,13 +663,13 @@ def motiongrams_ffmpeg(
     if invert:
         cmd_filter += 'negate,'
 
-    cmd_filter_x = cmd_filter + \
-        f'scale=1:{height}:sws_flags=area,normalize,tile={framecount}x1'
     cmd_filter_y = cmd_filter + \
+        f'scale=1:{height}:sws_flags=area,normalize,tile={framecount}x1'
+    cmd_filter_x = cmd_filter + \
         f'scale={width}:1:sws_flags=area,normalize,tile=1x{framecount}'
 
-    cmd_x = cmd + ['-filter_complex', cmd_filter_x] + cmd_end_x
     cmd_y = cmd + ['-filter_complex', cmd_filter_y] + cmd_end_y
+    cmd_x = cmd + ['-filter_complex', cmd_filter_x] + cmd_end_x
 
     ffmpeg_cmd(cmd_x, get_length(filename),
                pb_prefix='Rendering horizontal motiongram:')
@@ -719,7 +730,7 @@ def extract_wav(filename):
     import os
     of = os.path.splitext(filename)[0]
     # fex = os.path.splitext(filename)[1]
-    cmds = ' '.join(['ffmpeg', '-i', filename, "-acodec",
+    cmds = ' '.join(['ffmpeg', '-y', '-i', filename, "-acodec",
                      "pcm_s16le", of + '.wav'])
     os.system(cmds)
     return of + '.wav'
@@ -912,7 +923,7 @@ def audio_dilate(filename, dilation_ratio=1):
     import os
     of = os.path.splitext(filename)[0]
     fex = os.path.splitext(filename)[1]
-    cmds = ' '.join(['ffmpeg', '-i', filename, '-codec:a', 'pcm_s16le',
+    cmds = ' '.join(['ffmpeg', '-y', '-i', filename, '-codec:a', 'pcm_s16le',
                      '-filter:a', 'atempo=' + str(dilation_ratio), of + '_dilated' + fex])
     os.system(cmds)
     return of + '_dilated' + fex
@@ -945,7 +956,7 @@ def embed_audio_in_video(source_audio, destination_video, dilation_ratio=1):
         dilated = False
 
     # embed audio in video
-    cmds = ' '.join(['ffmpeg', '-i', destination_video, '-i', audio_to_embed, '-c:v',
+    cmds = ' '.join(['ffmpeg', '-y', '-i', destination_video, '-i', audio_to_embed, '-c:v',
                      'copy', '-map', '0:v:0', '-map', '1:a:0', '-shortest', of + '_w_audio' + fex])
     os.system(cmds)  # creates '_w_audio.avi'
 
@@ -958,7 +969,7 @@ def embed_audio_in_video(source_audio, destination_video, dilation_ratio=1):
     os.rename(of + '_w_audio' + fex, destination_video)
 
 
-def ffmpeg_cmd(command, total_time, pb_prefix='Progress'):
+def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False):
     """
     [summary]
 
@@ -972,6 +983,14 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress'):
     """
     import subprocess
     pb = MgProgressbar(total=total_time, prefix=pb_prefix)
+
+    if print_cmd:
+        print()
+        if type(command) == list:
+            print(' '.join(command))
+        else:
+            print(command)
+        print()
 
     process = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)

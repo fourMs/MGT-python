@@ -55,13 +55,13 @@ def videograms_ffmpeg(self):
         length = get_length(shortened_file)
 
         outname = self.of + '_skip_vgy.png'
-        cmd = ['ffmpeg', '-y', '-i', shortened_file, '-frames', '1', '-vf',
-               f'scale=1:{height}:sws_flags=area,normalize,tile={framecount}x1', '-aspect', f'{framecount}:{height}', outname]
+        cmd = ['ffmpeg', '-y', '-i', shortened_file, '-vf',
+               f'scale=1:{height}:sws_flags=area,normalize,tile={framecount}x1', '-aspect', f'{framecount}:{height}', '-frames', '1', outname]
         ffmpeg_cmd(cmd, length, pb_prefix="Rendering horizontal videogram:")
 
         outname = self.of + '_skip_vgx.png'
-        cmd = ['ffmpeg', '-y', '-i', shortened_file, '-frames', '1', '-vf',
-               f'scale={width}:1:sws_flags=area,normalize,tile=1x{framecount}', '-aspect', f'{width}:{framecount}', outname]
+        cmd = ['ffmpeg', '-y', '-i', shortened_file, '-vf',
+               f'scale={width}:1:sws_flags=area,normalize,tile=1x{framecount}', '-aspect', f'{width}:{framecount}', '-frames', '1', outname]
         ffmpeg_cmd(cmd, length, pb_prefix="Rendering vertical videogram:")
 
         return MgList([MgImage(self.of+'_skip_vgx.png'), MgImage(self.of+'_skip_vgy.png')])
