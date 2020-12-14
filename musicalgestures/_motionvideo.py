@@ -38,28 +38,29 @@ def mg_motiongrams(
         MgList(MgImage, MgImage): An MgList pointing to the output motiongram images.
     """
 
-    motiongrams_ffmpeg(
-        filename=self.filename,
-        color=self.color,
-        filtertype=filtertype,
-        threshold=thresh,
-        blur=blur,
-        use_median=use_median,
-        kernel_size=kernel_size,
-        invert=inverted_motiongram)
-
-    # mg_motion(
-    #     self,
+    # color-mismatch issue needs to be fixed with this one
+    # motiongrams_ffmpeg(
+    #     filename=self.filename,
+    #     color=self.color,
     #     filtertype=filtertype,
-    #     thresh=thresh,
+    #     threshold=thresh,
     #     blur=blur,
+    #     use_median=use_median,
     #     kernel_size=kernel_size,
-    #     inverted_motiongram=inverted_motiongram,
-    #     equalize_motiongram=equalize_motiongram,
-    #     save_data=False,
-    #     save_motiongrams=True,
-    #     save_plot=False,
-    #     save_video=False)
+    #     invert=inverted_motiongram)
+
+    mg_motion(
+        self,
+        filtertype=filtertype,
+        thresh=thresh,
+        blur=blur,
+        kernel_size=kernel_size,
+        inverted_motiongram=inverted_motiongram,
+        equalize_motiongram=equalize_motiongram,
+        save_data=False,
+        save_motiongrams=True,
+        save_plot=False,
+        save_video=False)
 
     return MgList(MgImage(self.of + '_mgx.png'), MgImage(self.of + '_mgy.png'))
 
@@ -101,7 +102,7 @@ def mg_motiondata(
         save_video=False)
 
     if type(data_format) == list:
-        outlist = [self.of + '_motion' + elem for elem in data_format]
+        outlist = [self.of + '_motion.' + elem for elem in data_format]
         return outlist
     else:
         return self.of + '_motion.' + data_format
@@ -426,6 +427,8 @@ def plot_motion_metrics(of, fps, com, qom, width, height, unit):
     plt.rc('text', usetex=False)
     plt.rc('font', family='serif')
     fig = plt.figure(figsize=(12, 6))
+    fig.patch.set_facecolor('white')
+    fig.patch.set_alpha(1)
     ax = fig.add_subplot(1, 2, 1)
     ax.scatter(com[:, 0]/width, com[:, 1]/height, s=2)
     ax.set_xlim((0, 1))
@@ -442,7 +445,7 @@ def plot_motion_metrics(of, fps, com, qom, width, height, unit):
     ax.set_ylabel('Pixels normalized')
     ax.set_title('Quantity of motion')
     ax.bar(np.arange(len(qom)-1)/fps, qom[1:]/(width*height))
-    plt.savefig('%s_motion_com_qom.png' % of, format='png')
+    plt.savefig('%s_motion_com_qom.png' % of, format='png', transparent=False)
 
 
 def save_txt(of, time, com, qom, width, height, data_format):
