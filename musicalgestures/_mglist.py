@@ -44,12 +44,16 @@ class MgList():
     from musicalgestures._show import mg_show
     from musicalgestures._utils import MgFigure, MgImage
 
-    def show(self):
+    def show(self, filename=None, key=None, mode='windowed', window_width=640, window_height=480, window_title=None):
         """
         Iterates all objects in the MgList and calls `mg_show()` on them.
         """
         for obj in self.objectlist:
-            obj.show()
+            if type(obj) != MgFigure:
+                obj.show(filename=filename, key=key, mode=mode, window_width=window_width,
+                         window_height=window_height, window_title=window_title)
+            else:
+                obj.show()
 
     def __len__(self):
         """
