@@ -34,7 +34,9 @@ setup(
         'moviepy',
         'ffmpeg',
         'ffmpeg-python',
-        'scipy'
+        'scipy',
+        'librosa',
+        'ipython'
     ],
     python_requires='~=3.6',
     classifiers=[
