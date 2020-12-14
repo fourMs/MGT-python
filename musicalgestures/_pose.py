@@ -32,27 +32,27 @@ def pose(self, model='mpi', device='cpu', threshold=0.1, downsampling_factor=4, 
     """
 
     if model.lower() == 'mpi':
-        protoFile = 'musicalgestures/pose/mpi/pose_deploy_linevec_faster_4_stages.prototxt'
-        weightsFile = 'musicalgestures/pose/mpi/pose_iter_160000.caffemodel'
+        protoFile = 'pose/mpi/pose_deploy_linevec_faster_4_stages.prototxt'
+        weightsFile = 'pose/mpi/pose_iter_160000.caffemodel'
         model = 'mpi'
         nPoints = 15
         POSE_PAIRS = [[0, 1], [1, 2], [2, 3], [3, 4], [1, 5], [5, 6], [6, 7], [
             1, 14], [14, 8], [8, 9], [9, 10], [14, 11], [11, 12], [12, 13]]
     elif model.lower() == 'coco':
-        protoFile = 'musicalgestures/pose/coco/pose_deploy_linevec.prototxt'
-        weightsFile = 'musicalgestures/pose/coco/pose_iter_440000.caffemodel'
+        protoFile = 'pose/coco/pose_deploy_linevec.prototxt'
+        weightsFile = 'pose/coco/pose_iter_440000.caffemodel'
         model = 'coco'
         nPoints = 18
         POSE_PAIRS = [[1, 0], [1, 2], [1, 5], [2, 3], [3, 4], [5, 6], [6, 7], [1, 8], [
             8, 9], [9, 10], [1, 11], [11, 12], [12, 13], [0, 14], [0, 15], [14, 16], [15, 17]]
     else:
         print(f'Unrecognized model "{model}", switching to default (mpi).')
-        protoFile = 'musicalgestures/pose/mpi/pose_deploy_linevec_faster_4_stages.prototxt'
-        weightsFile = 'musicalgestures/pose/mpi/pose_iter_160000.caffemodel'
+        protoFile = 'pose/mpi/pose_deploy_linevec_faster_4_stages.prototxt'
+        weightsFile = 'pose/mpi/pose_iter_160000.caffemodel'
         model = 'mpi'
 
     # Check if .caffemodel file exists, download if necessary
-    if not os.path.exists(weightsFile):
+    if not os.path.exists(os.path.abspath(weightsFile)):
         print('Could not find weights file. Do you want to download it (~200MB)? (y/n)')
         answer = input()
         if answer.lower() == 'n':
@@ -267,12 +267,12 @@ def download_model(modeltype):
     the_system = platform.system()
 
     pb_prefix = ''
-    mpi_script = 'musicalgestures/pose/getMPI'
-    coco_script = 'musicalgestures/pose/getCOCO'
+    mpi_script = 'pose/getMPI'
+    coco_script = 'pose/getCOCO'
     wget_win = os.path.abspath(
-        'musicalgestures/3rdparty/windows/wget/wget.exe')
-    target_folder_mpi = os.path.abspath('musicalgestures/pose/mpi')
-    target_folder_coco = os.path.abspath('musicalgestures/pose/coco')
+        '3rdparty/windows/wget/wget.exe')
+    target_folder_mpi = os.path.abspath('pose/mpi')
+    target_folder_coco = os.path.abspath('pose/coco')
 
     if the_system == 'Windows':
         mpi_script += batch
@@ -315,7 +315,7 @@ def download_model(modeltype):
             else:
                 print(out)
 
-        pb.progress(100)
+        # pb.progress(100)
 
     except KeyboardInterrupt:
         try:
