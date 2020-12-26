@@ -292,7 +292,7 @@ def download_model(modeltype):
         if the_system == 'Windows':
             command += f' {wget_win} {target_folder_mpi}'
         else:
-            command = 'sudo ' + command
+            command = 'sudo -S' + command
             command += f' {target_folder_mpi}'
         pb_prefix = 'Downloading MPI model:'
     else:
@@ -305,8 +305,18 @@ def download_model(modeltype):
 
     pb = MgProgressbar(total=100, prefix=pb_prefix)
 
-    process = subprocess.Popen(
-        command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True, shell=True)
+    if the_system == 'Windows':
+        process = subprocess.Popen(
+            command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True, shell=True)
+    else:
+        try:
+            import getpass
+            p = getpass.getpass() 
+            process = subprocess.Popen(
+                command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE, universal_newlines=True, shell=True)
+            process.communicate(p+'\n')
+        except Exception as error: 
+            print('ERROR', error)
 
     try:
         while True:
