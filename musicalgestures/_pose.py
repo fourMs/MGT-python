@@ -292,6 +292,7 @@ def download_model(modeltype):
         if the_system == 'Windows':
             command += f' {wget_win} {target_folder_mpi}'
         else:
+            command = 'sudo ' + command
             command += f' {target_folder_mpi}'
         pb_prefix = 'Downloading MPI model:'
     else:
