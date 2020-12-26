@@ -4,6 +4,6 @@ MPI_FOLDER="mpi/"
 
 # 
 MPI_MODEL="pose/mpi/pose_iter_160000.caffemodel"
-sudo wget -c ${OPENPOSE_URL}${MPI_MODEL} -P ${MPI_FOLDER}
+wget -c ${OPENPOSE_URL}${MPI_MODEL} -P ${MPI_FOLDER}
 
 # Download finished.

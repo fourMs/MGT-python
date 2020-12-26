@@ -292,7 +292,7 @@ def download_model(modeltype):
         if the_system == 'Windows':
             command += f' {wget_win} {target_folder_mpi}'
         else:
-            command = 'sudo -S ' + command
+            command = 'sudo -S bash ' + command
             command += f' {target_folder_mpi}'
         pb_prefix = 'Downloading MPI model:'
     else:
@@ -300,6 +300,7 @@ def download_model(modeltype):
         if the_system == 'Windows':
             command += f' {wget_win} {target_folder_coco}'
         else:
+            command = 'sudo -S bash ' + command
             command += f' {target_folder_coco}'
         pb_prefix = 'Downloading COCO model:'
 
@@ -316,6 +317,7 @@ def download_model(modeltype):
             process = subprocess.Popen(
                 command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE, universal_newlines=True, shell=True)
             process.stdin.write(p+'\n')
+            process.stdin.flush()
         except Exception as error: 
             print('ERROR', error)
 
