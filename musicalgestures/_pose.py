@@ -311,10 +311,11 @@ def download_model(modeltype):
     else:
         try:
             import getpass
+            print('Enter User Password:')
             p = getpass.getpass() 
             process = subprocess.Popen(
                 command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE, universal_newlines=True, shell=True)
-            process.communicate(p+'\n')
+            process.stdin.write(p+'\n')
         except Exception as error: 
             print('ERROR', error)
 
