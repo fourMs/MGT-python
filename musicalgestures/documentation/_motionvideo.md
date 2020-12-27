@@ -206,7 +206,7 @@ Shortcut to only render the motion video. Uses `musicalgestures.\_utils.motionvi
 [[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L422)
 
 ```python
-def plot_motion_metrics(of, fps, com, qom, width, height, unit):
+def plot_motion_metrics(of, fps, com, qom, width, height, unit, title):
 ```
 
 Helper function to plot the centroid and quantity of motion using matplotlib.
