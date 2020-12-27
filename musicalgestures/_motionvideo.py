@@ -116,7 +116,8 @@ def mg_motionplots(
         thresh=0.05,
         blur='None',
         kernel_size=5,
-        unit='seconds'):
+        unit='seconds',
+        title=None):
     """
     Shortcut for `mg_motion` to only render motion plots.
 
@@ -126,6 +127,7 @@ def mg_motionplots(
         blur (str, optional): 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
         kernel_size (int, optional): Size of structuring element. Defaults to 5.
         unit (str, optional): Unit in QoM plot. Accepted values are 'seconds' or 'samples'. Defaults to 'seconds'.
+        title (str, optional): Optionally add title to the plot. Defaults to None, which uses the file name as a title.
 
     Returns:
         MgImage: An MgImage pointing to the exported image (png) of the motion plots.
@@ -141,6 +143,7 @@ def mg_motionplots(
         save_data=False,
         save_motiongrams=False,
         save_plot=True,
+        plot_title=title,
         save_video=False)
 
     return MgImage(self.of + '_motion_com_qom.png')
@@ -208,6 +211,7 @@ def mg_motion(
         unit='seconds',
         equalize_motiongram=True,
         save_plot=True,
+        plot_title=None,
         save_data=True,
         data_format="csv",
         save_motiongrams=True,
@@ -225,6 +229,7 @@ def mg_motion(
         unit (str, optional): Unit in QoM plot. Accepted values are 'seconds' or 'samples'. Defaults to 'seconds'.
         equalize_motiongram (bool, optional): If True, converts the motiongrams to hsv-color space and flattens the value channel (v). Defaults to True.
         save_plot (bool, optional): If True, outputs motion-plot. Defaults to True.
+        plot_title (str, optional): Optionally add title to the plot. Defaults to None, which uses the file name as a title.
         save_data (bool, optional): If True, outputs motion-data. Defaults to True.
         data_format (str or list, optional): Specifies format of motion-data. Accepted values are 'csv', 'tsv' and 'txt'. For multiple output formats, use list, eg. ['csv', 'txt']. Defaults to 'csv'.
         save_motiongrams (bool, optional): If True, outputs motiongrams. Defaults to True.
@@ -402,8 +407,10 @@ def mg_motion(
                      self.height, data_format)
 
         if save_plot:
+            if plot_title == None:
+                plot_title = os.path.basename(of + fex)
             plot_motion_metrics(of, self.fps, com, qom,
-                                self.width, self.height, unit)
+                                self.width, self.height, unit, plot_title)
 
         vidcap.release()
         if save_video:
@@ -422,7 +429,7 @@ def mg_motion(
         return musicalgestures.MgObject(of + fex, returned_by_process=True)
 
 
-def plot_motion_metrics(of, fps, com, qom, width, height, unit):
+def plot_motion_metrics(of, fps, com, qom, width, height, unit, title):
     """
     Helper function to plot the centroid and quantity of motion using matplotlib.
     """
@@ -431,6 +438,8 @@ def plot_motion_metrics(of, fps, com, qom, width, height, unit):
     fig = plt.figure(figsize=(12, 6))
     fig.patch.set_facecolor('white')
     fig.patch.set_alpha(1)
+    # add title
+    fig.suptitle(title, fontsize=16)
     ax = fig.add_subplot(1, 2, 1)
     ax.scatter(com[:, 0]/width, com[:, 1]/height, s=2)
     ax.set_xlim((0, 1))

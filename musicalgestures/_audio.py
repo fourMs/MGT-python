@@ -23,7 +23,7 @@ class Audio:
         self.filename = filename
         self.of, self.fex = os.path.splitext(filename)
 
-    def spectrogram(self, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True):
+    def spectrogram(self, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True, title=None):
         """
         Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
@@ -34,6 +34,7 @@ class Audio:
             power (float, optional): The steepness of the curve for the color mapping. Defaults to 2.
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+            title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title.
 
         Outputs:
             `self.filename`_spectrogram.png
@@ -59,6 +60,11 @@ class Audio:
         fig.patch.set_facecolor('white')
         fig.patch.set_alpha(1)
 
+        # add title
+        if title == None:
+            title = os.path.basename(self.filename)
+        fig.suptitle(title, fontsize=16)
+
         img = librosa.display.specshow(librosa.power_to_db(
             S, ref=np.max, top_db=120), sr=sr, y_axis='mel', fmax=sr/2, x_axis='time', hop_length=hop_size, ax=ax)
 
@@ -68,7 +74,7 @@ class Audio:
         # get rid of "default" ticks
         ax.yaxis.set_minor_locator(matplotlib.ticker.NullLocator())
 
-        ax.set(title=os.path.basename(self.filename))
+        # ax.set(title=os.path.basename(self.filename))
         length = get_length(self.filename)
         plot_xticks = np.arange(0, length+0.1, length/20)
         ax.set(xticks=plot_xticks)
@@ -113,7 +119,7 @@ class Audio:
 
         return mgf
 
-    def descriptors(self, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True):
+    def descriptors(self, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True, title=None):
         """
         Renders a figure of plots showing spectral/loudness descriptors, including RMS energy, spectral flatness, centroid, bandwidth, rolloff of the video/audio file.
 
@@ -124,6 +130,7 @@ class Audio:
             power (float, optional): The steepness of the curve for the color mapping. Defaults to 2.
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+            title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title.
 
         Outputs:
             `self.filename`_descriptors.png
@@ -161,13 +168,18 @@ class Audio:
         fig.patch.set_facecolor('white')
         fig.patch.set_alpha(1)
 
+        # add title
+        if title == None:
+            title = os.path.basename(self.filename)
+        fig.suptitle(title, fontsize=16)
+
         img = librosa.display.specshow(librosa.power_to_db(
             S, ref=np.max, top_db=120), sr=sr, y_axis='mel', fmax=sr/2, x_axis='time', hop_length=hop_size, ax=ax[2])
 
         # get rid of "default" ticks
         ax[2].yaxis.set_minor_locator(matplotlib.ticker.NullLocator())
 
-        ax[0].set(title=os.path.basename(self.filename))
+        # ax[0].set(title=os.path.basename(self.filename))
         length = get_length(self.filename)
         plot_xticks = np.arange(0, length+0.1, length/20)
         ax[2].set(xticks=plot_xticks)
@@ -238,7 +250,7 @@ class Audio:
 
         return mgf
 
-    def tempogram(self, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True):
+    def tempogram(self, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True, title=None):
         """
         Renders a figure with a plots of onset strength and tempogram of the video/audio file.
 
@@ -249,6 +261,7 @@ class Audio:
             power (float, optional): The steepness of the curve for the color mapping. Defaults to 2.
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+            title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title.
 
         Outputs:
             `self.filename`_tempogram.png
@@ -279,6 +292,11 @@ class Audio:
         # make sure background is white
         fig.patch.set_facecolor('white')
         fig.patch.set_alpha(1)
+
+        # add title
+        if title == None:
+            title = os.path.basename(self.filename)
+        fig.suptitle(title, fontsize=16)
 
         times = librosa.times_like(oenv, sr=sr, hop_length=hop_size)
 
@@ -319,7 +337,7 @@ class Audio:
         return mgf
 
 
-def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True):
+def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True, title=None):
     """
     Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
@@ -331,6 +349,7 @@ def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters
         power (float, optional): The steepness of the curve for the color mapping. Defaults to 2.
         dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
         autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+        title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title.
 
     Outputs:
         `filename`_spectrogram.png
@@ -362,6 +381,11 @@ def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters
     fig.patch.set_facecolor('white')
     fig.patch.set_alpha(1)
 
+    # add title
+    if title == None:
+        title = os.path.basename(filename)
+    fig.suptitle(title, fontsize=16)
+
     img = librosa.display.specshow(librosa.power_to_db(
         S, ref=np.max, top_db=120), sr=sr, y_axis='mel', fmax=sr/2, x_axis='time', hop_length=hop_size, ax=ax)
 
@@ -371,7 +395,7 @@ def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters
     # get rid of "default" ticks
     ax.yaxis.set_minor_locator(matplotlib.ticker.NullLocator())
 
-    ax.set(title=os.path.basename(filename))
+    # ax.set(title=os.path.basename(filename))
     length = get_length(filename)
     plot_xticks = np.arange(0, length+0.1, length/20)
     ax.set(xticks=plot_xticks)
@@ -417,7 +441,7 @@ def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters
     return mgf
 
 
-def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True):
+def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True, title=None):
     """
     Renders a figure of plots showing spectral/loudness descriptors, including RMS energy, spectral flatness, centroid, bandwidth, rolloff of the video/audio file.
 
@@ -429,6 +453,7 @@ def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters
         power (float, optional): The steepness of the curve for the color mapping. Defaults to 2.
         dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
         autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+        title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title.
 
     Outputs:
         `filename`_descriptors.png
@@ -473,13 +498,18 @@ def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters
     fig.patch.set_facecolor('white')
     fig.patch.set_alpha(1)
 
+    # add title
+    if title == None:
+        title = os.path.basename(filename)
+    fig.suptitle(title, fontsize=16)
+
     img = librosa.display.specshow(librosa.power_to_db(
         S, ref=np.max, top_db=120), sr=sr, y_axis='mel', fmax=sr/2, x_axis='time', hop_length=hop_size, ax=ax[2])
 
     # get rid of "default" ticks
     ax[2].yaxis.set_minor_locator(matplotlib.ticker.NullLocator())
 
-    ax[0].set(title=os.path.basename(filename))
+    # ax[0].set(title=os.path.basename(filename))
     length = get_length(filename)
     plot_xticks = np.arange(0, length+0.1, length/20)
     ax[2].set(xticks=plot_xticks)
@@ -548,7 +578,7 @@ def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters
     return mgf
 
 
-def mg_audio_tempogram(filename=None, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True):
+def mg_audio_tempogram(filename=None, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True, title=None):
     """
     Renders a figure with a plots of onset strength and tempogram of the video/audio file.
 
@@ -560,6 +590,7 @@ def mg_audio_tempogram(filename=None, window_size=4096, overlap=8, mel_filters=5
         power (float, optional): The steepness of the curve for the color mapping. Defaults to 2.
         dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
         autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+        title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title.
 
     Outputs:
         `filename`_tempogram.png
@@ -596,6 +627,11 @@ def mg_audio_tempogram(filename=None, window_size=4096, overlap=8, mel_filters=5
     # make sure background is white
     fig.patch.set_facecolor('white')
     fig.patch.set_alpha(1)
+
+    # add title
+    if title == None:
+        title = os.path.basename(filename)
+    fig.suptitle(title, fontsize=16)
 
     times = librosa.times_like(oenv, sr=sr, hop_length=hop_size)
 

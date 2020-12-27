@@ -160,13 +160,14 @@ class MgList():
     def __repr__(self):
         return f"MgList('{self.objectlist}')"
 
-    def as_figure(self, dpi=300, autoshow=True, export_png=True):
+    def as_figure(self, dpi=300, autoshow=True, title=None, export_png=True):
         """
         Creates a time-aligned figure from all the elements in the MgList.
 
         Args:
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+            title (str, optional): Optionally add a title to the figure. Defaults to None (no title).
             export_png (bool, optional): Whether to export a png image of the resulting figure automatically. Defaults to True.
 
         Returns:
@@ -439,6 +440,10 @@ class MgList():
         # make sure background is white
         fig.patch.set_facecolor('white')
         fig.patch.set_alpha(1)
+
+        if title != None and type(title)==str:
+            # add title
+            fig.suptitle(title, fontsize=16, y=0.99)
 
         ax = [None for elem in range(elem_count)]
         index_of_first_plot = None
