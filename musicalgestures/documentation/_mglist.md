@@ -147,7 +147,7 @@ Implements setting elements given an index from the MgList.
 [[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_mglist.py#L159)
 
 ```python
-def as_figure(dpi=300, autoshow=True, export_png=True):
+def as_figure(dpi=300, autoshow=True, title=None, export_png=True):
 ```
 
 Creates a time-aligned figure from all the elements in the MgList.
@@ -156,6 +156,7 @@ Creates a time-aligned figure from all the elements in the MgList.
 
 - `dpi` _int, optional_ - Image quality of the rendered figure in DPI. Defaults to 300.
 - `autoshow` _bool, optional_ - Whether to show the resulting figure automatically. Defaults to True.
+- `title` _str, optional_ - Optionally add title to the figure. Defaults to None, which uses the file name as a title.
 - `export_png` _bool, optional_ - Whether to export a png image of the resulting figure automatically. Defaults to True.
 
 #### Returns
