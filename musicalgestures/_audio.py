@@ -55,6 +55,10 @@ class Audio:
 
         fig, ax = plt.subplots(figsize=(12, 6), dpi=300)
 
+        # make sure background is white
+        fig.patch.set_facecolor('white')
+        fig.patch.set_alpha(1)
+
         img = librosa.display.specshow(librosa.power_to_db(
             S, ref=np.max, top_db=120), sr=sr, y_axis='mel', fmax=sr/2, x_axis='time', hop_length=hop_size, ax=ax)
 
@@ -86,7 +90,7 @@ class Audio:
 
         plt.tight_layout()
 
-        plt.savefig('%s_spectrogram.png' % self.of, format='png')
+        plt.savefig('%s_spectrogram.png' % self.of, format='png', transparent=False)
 
         if not autoshow:
             plt.close()
@@ -153,6 +157,10 @@ class Audio:
 
         fig, ax = plt.subplots(figsize=(12, 8), dpi=dpi, nrows=3, sharex=True)
 
+        # make sure background is white
+        fig.patch.set_facecolor('white')
+        fig.patch.set_alpha(1)
+
         img = librosa.display.specshow(librosa.power_to_db(
             S, ref=np.max, top_db=120), sr=sr, y_axis='mel', fmax=sr/2, x_axis='time', hop_length=hop_size, ax=ax[2])
 
@@ -200,7 +208,7 @@ class Audio:
         ax[0].legend(loc='upper right')
 
         plt.tight_layout()
-        plt.savefig('%s_descriptors.png' % self.of, format='png')
+        plt.savefig('%s_descriptors.png' % self.of, format='png', transparent=False)
 
         if not autoshow:
             plt.close()
@@ -267,6 +275,11 @@ class Audio:
             onset_envelope=oenv, sr=sr, hop_length=hop_size)[0]
 
         fig, ax = plt.subplots(nrows=2, figsize=(10, 6), dpi=dpi, sharex=True)
+
+        # make sure background is white
+        fig.patch.set_facecolor('white')
+        fig.patch.set_alpha(1)
+
         times = librosa.times_like(oenv, sr=sr, hop_length=hop_size)
 
         ax[0].plot(times, oenv, label='Onset strength')
@@ -280,7 +293,7 @@ class Audio:
         ax[1].legend(loc='upper right')
         ax[1].set(title='Tempogram')
 
-        plt.savefig('%s_tempogram.png' % self.of, format='png')
+        plt.savefig('%s_tempogram.png' % self.of, format='png', transparent=False)
 
         if not autoshow:
             plt.close()
@@ -345,6 +358,10 @@ def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters
 
     fig, ax = plt.subplots(figsize=(12, 6), dpi=dpi)
 
+    # make sure background is white
+    fig.patch.set_facecolor('white')
+    fig.patch.set_alpha(1)
+
     img = librosa.display.specshow(librosa.power_to_db(
         S, ref=np.max, top_db=120), sr=sr, y_axis='mel', fmax=sr/2, x_axis='time', hop_length=hop_size, ax=ax)
 
@@ -376,7 +393,7 @@ def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters
 
     plt.tight_layout()
 
-    plt.savefig('%s_spectrogram.png' % of, format='png')
+    plt.savefig('%s_spectrogram.png' % of, format='png', transparent=False)
 
     if not autoshow:
         plt.close()
@@ -452,6 +469,10 @@ def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters
 
     fig, ax = plt.subplots(figsize=(12, 8), dpi=dpi, nrows=3, sharex=True)
 
+    # make sure background is white
+    fig.patch.set_facecolor('white')
+    fig.patch.set_alpha(1)
+
     img = librosa.display.specshow(librosa.power_to_db(
         S, ref=np.max, top_db=120), sr=sr, y_axis='mel', fmax=sr/2, x_axis='time', hop_length=hop_size, ax=ax[2])
 
@@ -496,7 +517,7 @@ def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters
     ax[0].legend(loc='upper right')
 
     plt.tight_layout()
-    plt.savefig('%s_descriptors.png' % of, format='png')
+    plt.savefig('%s_descriptors.png' % of, format='png', transparent=False)
 
     if not autoshow:
         plt.close()
@@ -572,6 +593,10 @@ def mg_audio_tempogram(filename=None, window_size=4096, overlap=8, mel_filters=5
 
     fig, ax = plt.subplots(nrows=2, figsize=(10, 6), dpi=dpi, sharex=True)
 
+    # make sure background is white
+    fig.patch.set_facecolor('white')
+    fig.patch.set_alpha(1)
+
     times = librosa.times_like(oenv, sr=sr, hop_length=hop_size)
 
     ax[0].plot(times, oenv, label='Onset strength')
@@ -585,7 +610,7 @@ def mg_audio_tempogram(filename=None, window_size=4096, overlap=8, mel_filters=5
     ax[1].legend(loc='upper right')
     ax[1].set(title='Tempogram')
 
-    plt.savefig('%s_tempogram.png' % of, format='png')
+    plt.savefig('%s_tempogram.png' % of, format='png', transparent=False)
 
     if not autoshow:
         plt.close()

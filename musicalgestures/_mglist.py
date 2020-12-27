@@ -435,6 +435,11 @@ class MgList():
             return of, plot_counter, there_were_layers, first_slot_was_img, img_to_redo
 
         fig = plt.figure(dpi=dpi, figsize=(10, 3*elem_count))
+
+        # make sure background is white
+        fig.patch.set_facecolor('white')
+        fig.patch.set_alpha(1)
+
         ax = [None for elem in range(elem_count)]
         index_of_first_plot = None
         plot_counter = 0
@@ -469,7 +474,7 @@ class MgList():
 
         # save figure as png
         if export_png:
-            plt.savefig(of + '.png', format='png')
+            plt.savefig(of + '.png', format='png', transparent=False)
 
         if not autoshow:
             plt.close()
