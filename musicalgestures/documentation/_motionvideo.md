@@ -27,6 +27,7 @@ def mg_motion(
     unit='seconds',
     equalize_motiongram=True,
     save_plot=True,
+    plot_title=None,
     save_data=True,
     data_format='csv',
     save_motiongrams=True,
@@ -47,6 +48,7 @@ Finds the difference in pixel value from one frame to the next in an input video
 - `unit` _str, optional_ - Unit in QoM plot. Accepted values are 'seconds' or 'samples'. Defaults to 'seconds'.
 - `equalize_motiongram` _bool, optional_ - If True, converts the motiongrams to hsv-color space and flattens the value channel (v). Defaults to True.
 - `save_plot` _bool, optional_ - If True, outputs motion-plot. Defaults to True.
+- `plot_title` _str, optional_ - Optionally add title to the plot. Defaults to None, which uses the file name as a title.
 - `save_data` _bool, optional_ - If True, outputs motion-data. Defaults to True.
   data_format (str or list, optional): Specifies format of motion-data. Accepted values are 'csv', 'tsv' and 'txt'. For multiple output formats, use list, eg. ['csv', 'txt']. Defaults to 'csv'.
 - `save_motiongrams` _bool, optional_ - If True, outputs motiongrams. Defaults to True.
@@ -145,6 +147,7 @@ def mg_motionplots(
     blur='None',
     kernel_size=5,
     unit='seconds',
+    title=None
 ):
 ```
 
@@ -157,6 +160,7 @@ Shortcut for [mg_motion](#mg_motion) to only render motion plots.
 - `blur` _str, optional_ - 'Average' to apply a 10px \* 10px blurring filter, 'None' otherwise. Defaults to 'None'.
 - `kernel_size` _int, optional_ - Size of structuring element. Defaults to 5.
 - `unit` _str, optional_ - Unit in QoM plot. Accepted values are 'seconds' or 'samples'. Defaults to 'seconds'.
+- `title` _str, optional_ - Optionally add title to the plot. Defaults to None, which uses the file name as a title.
 
 #### Returns
 
