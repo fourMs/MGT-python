@@ -34,6 +34,7 @@ def descriptors(
     power=2,
     dpi=300,
     autoshow=True,
+    title=None
 ):
 ```
 
@@ -47,6 +48,7 @@ Renders a figure of plots showing spectral/loudness descriptors, including RMS e
 - `power` _float, optional_ - The steepness of the curve for the color mapping. Defaults to 2.
 - `dpi` _int, optional_ - Image quality of the rendered figure in DPI. Defaults to 300.
 - `autoshow` _bool, optional_ - Whether to show the resulting figure automatically. Defaults to True.
+- `title` _str, optional_ - Optionally add title to the figure. Defaults to None, which uses the file name as a title.
 
 #### Outputs
 
@@ -68,6 +70,7 @@ def spectrogram(
     power=2,
     dpi=300,
     autoshow=True,
+    title=None
 ):
 ```
 
@@ -81,6 +84,7 @@ Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 - `power` _float, optional_ - The steepness of the curve for the color mapping. Defaults to 2.
 - `dpi` _int, optional_ - Image quality of the rendered figure in DPI. Defaults to 300.
 - `autoshow` _bool, optional_ - Whether to show the resulting figure automatically. Defaults to True.
+- `title` _str, optional_ - Optionally add title to the figure. Defaults to None, which uses the file name as a title.
 
 #### Outputs
 
@@ -102,6 +106,7 @@ def tempogram(
     power=2,
     dpi=300,
     autoshow=True,
+    title=None
 ):
 ```
 
@@ -115,6 +120,7 @@ Renders a figure with a plots of onset strength and tempogram of the video/audio
 - `power` _float, optional_ - The steepness of the curve for the color mapping. Defaults to 2.
 - `dpi` _int, optional_ - Image quality of the rendered figure in DPI. Defaults to 300.
 - `autoshow` _bool, optional_ - Whether to show the resulting figure automatically. Defaults to True.
+- `title` _str, optional_ - Optionally add title to the figure. Defaults to None, which uses the file name as a title.
 
 #### Outputs
 
@@ -137,6 +143,7 @@ def mg_audio_descriptors(
     power=2,
     dpi=300,
     autoshow=True,
+    title=None
 ):
 ```
 
@@ -151,6 +158,7 @@ Renders a figure of plots showing spectral/loudness descriptors, including RMS e
 - `power` _float, optional_ - The steepness of the curve for the color mapping. Defaults to 2.
 - `dpi` _int, optional_ - Image quality of the rendered figure in DPI. Defaults to 300.
 - `autoshow` _bool, optional_ - Whether to show the resulting figure automatically. Defaults to True.
+- `title` _str, optional_ - Optionally add title to the figure. Defaults to None, which uses the file name as a title.
 
 #### Outputs
 
@@ -173,6 +181,7 @@ def mg_audio_spectrogram(
     power=2,
     dpi=300,
     autoshow=True,
+    title=None
 ):
 ```
 
@@ -187,6 +196,7 @@ Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 - `power` _float, optional_ - The steepness of the curve for the color mapping. Defaults to 2.
 - `dpi` _int, optional_ - Image quality of the rendered figure in DPI. Defaults to 300.
 - `autoshow` _bool, optional_ - Whether to show the resulting figure automatically. Defaults to True.
+- `title` _str, optional_ - Optionally add title to the figure. Defaults to None, which uses the file name as a title.
 
 #### Outputs
 
@@ -209,6 +219,7 @@ def mg_audio_tempogram(
     power=2,
     dpi=300,
     autoshow=True,
+    title=None
 ):
 ```
 
@@ -223,6 +234,7 @@ Renders a figure with a plots of onset strength and tempogram of the video/audio
 - `power` _float, optional_ - The steepness of the curve for the color mapping. Defaults to 2.
 - `dpi` _int, optional_ - Image quality of the rendered figure in DPI. Defaults to 300.
 - `autoshow` _bool, optional_ - Whether to show the resulting figure automatically. Defaults to True.
+- `title` _str, optional_ - Optionally add title to the figure. Defaults to None, which uses the file name as a title.
 
 #### Outputs
 
