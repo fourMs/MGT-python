@@ -339,17 +339,17 @@ def extract_subclip(filename, t1, t2, targetname=None):
 
     # avoiding newly discovered ffmpeg glitch with non-avi files | 13-dec-2020
     if os.path.splitext(filename)[1] != '.avi':
-        cmd = ' '.join(['ffmpeg', "-y",
+        cmd = ['ffmpeg', "-y",
                         "-ss", "%0.2f" % start,
                         "-i", filename,
                         "-t", "%0.2f" % (end-start),
-                        "-map", "0", targetname])
+                        "-map", "0", targetname]
     else:
-        cmd = ' '.join(['ffmpeg', "-y",
+        cmd = ['ffmpeg', "-y",
                         "-ss", "%0.2f" % start,
                         "-i", filename,
                         "-t", "%0.2f" % (end-start),
-                        "-map", "0", "-codec copy", targetname])
+                        "-map", "0", "-codec copy", targetname]
 
     ffmpeg_cmd(cmd, length, pb_prefix='Trimming:')
 
