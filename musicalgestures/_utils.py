@@ -1089,7 +1089,7 @@ def ffmpeg_cmd_async(command, total_time, pb_prefix='Progress', print_cmd=False,
     if loop and loop.is_running():
         tsk = loop.create_task(run_cmd(command, pb))
     else:
-        asyncio.run(main())
+        asyncio.run(run_cmd(command, pb))
 
 def str2sec(time_string):
     """
