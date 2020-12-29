@@ -434,7 +434,7 @@ def plot_motion_metrics(of, fps, com, qom, width, height, unit, title):
     Helper function to plot the centroid and quantity of motion using matplotlib.
     """
     plt.rc('text', usetex=False)
-    plt.rc('font', family='serif')
+    # plt.rc('font', family='serif')
     fig = plt.figure(figsize=(12, 6))
     fig.patch.set_facecolor('white')
     fig.patch.set_alpha(1)
