@@ -32,7 +32,8 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
         """
         if mode.lower() == 'windowed':
             cmd = f'ffplay {file} -x {width} -y {height} -window_title "{title}"'
-            os.system(cmd)
+            # os.system(cmd)
+            show_async(cmd)
         elif mode.lower() == 'notebook':
             video_formats = ['.avi', '.mp4', '.mov', '.mkv', '.mpg',
                              '.mpeg', '.webm', '.ogg', '.ts', '.wmv', '.3gp']
@@ -140,3 +141,22 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
              height=window_height, mode=mode, title=window_title)
 
     return self
+
+
+def show_async(command):
+    """Helper function to show ffplay windows asynchronously"""
+    import asyncio
+
+    async def run_cmd(command):
+        process = await asyncio.create_subprocess_shell(command)
+        await process.communicate()
+
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:  # if cleanup: 'RuntimeError: There is no current event loop..'
+        loop = None
+
+    if loop and loop.is_running():
+        tsk = loop.create_task(run_cmd(command))
+    else:
+        asyncio.run(run_cmd(command))
