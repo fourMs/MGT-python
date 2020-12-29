@@ -379,6 +379,7 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress'):
 - `command` _list_ - The ffmpeg command to execute as a list. Eg. ['ffmpeg', '-y', '-i', 'myVid.mp4', 'myVid.mov']
 - `total_time` _float_ - The length of the output. Needed mainly for the progress bar.
 - `pb_prefix` _str, optional_ - The prefix for the progress bar. Defaults to 'Progress'.
+- `print_cmd` _bool, optional_ - Whether to print the full ffmpeg command to the console before executing it. Good for debugging. Defaults to False.
 
 #### Raises
 
