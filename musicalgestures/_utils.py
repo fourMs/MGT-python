@@ -969,15 +969,16 @@ def embed_audio_in_video(source_audio, destination_video, dilation_ratio=1):
     os.rename(of + '_w_audio' + fex, destination_video)
 
 
-def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False):
+def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, stream=True):
     """
-    [summary]
+    Run an ffmpeg command in a subprocess and show progress using an MgProgressbar.
 
     Args:
         command (list): The ffmpeg command to execute as a list. Eg. ['ffmpeg', '-y', '-i', 'myVid.mp4', 'myVid.mov']
         total_time (float): The length of the output. Needed mainly for the progress bar.
         pb_prefix (str, optional): The prefix for the progress bar. Defaults to 'Progress'.
         print_cmd (bool, optional): Whether to print the full ffmpeg command to the console before executing it. Good for debugging. Defaults to False.
+        stream (bool, optional): Whether to have a continuous output stream or just (the last) one. Defaults to True (continuous stream).
 
     Raises:
         KeyboardInterrupt: If the user stops the process.
@@ -998,7 +999,10 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False):
 
     try:
         while True:
-            out = process.stdout.readline()
+            if stream:
+                out = process.stdout.readline()
+            else:
+                out = process.stdout.read()
             if out == '':
                 process.wait()
                 break
@@ -1020,6 +1024,72 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False):
         process.wait()
         raise KeyboardInterrupt
 
+
+def ffmpeg_cmd_async(command, total_time, pb_prefix='Progress', print_cmd=False, stream=True):
+    """
+    Run an ffmpeg command in an asynchronous subprocess and show progress using an MgProgressbar.
+
+    Args:
+        command (list): The ffmpeg command to execute as a list. Eg. ['ffmpeg', '-y', '-i', 'myVid.mp4', 'myVid.mov']
+        total_time (float): The length of the output. Needed mainly for the progress bar.
+        pb_prefix (str, optional): The prefix for the progress bar. Defaults to 'Progress'.
+        print_cmd (bool, optional): Whether to print the full ffmpeg command to the console before executing it. Good for debugging. Defaults to False.
+        stream (bool, optional): Whether to have a continuous output stream or just (the last) one. Defaults to True (continuous stream).
+
+    Raises:
+        KeyboardInterrupt: If the user stops the process.
+    """
+    import asyncio
+
+    pb = MgProgressbar(total=total_time, prefix=pb_prefix)
+
+    if print_cmd:
+        print()
+        if type(command) == list:
+            print(' '.join(command))
+        else:
+            print(command)
+        print()
+
+    async def run_cmd(command, pb):
+        
+        process = await asyncio.create_subprocess_shell(' '.join(command), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT)
+
+        try:
+            while True:
+                out = await process.stdout.read()
+                if out != None:
+                    out = out.decode()
+                    if out == '':
+                        await process.wait()
+                        break
+                    elif out.startswith('frame='):
+                        out_list = out.split()
+                        time_ind = [elem.startswith('time=')
+                                    for elem in out_list].index(True)
+                        time_str = out_list[time_ind][5:]
+                        time_sec = str2sec(time_str)
+                        pb.progress(time_sec)
+
+            pb.progress(total_time)
+
+        except KeyboardInterrupt:
+            try:
+                await process.terminate()
+            except OSError:
+                pass
+            await process.wait()
+            raise KeyboardInterrupt
+
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:  # if cleanup: 'RuntimeError: There is no current event loop..'
+        loop = None
+
+    if loop and loop.is_running():
+        tsk = loop.create_task(run_cmd(command, pb))
+    else:
+        asyncio.run(main())
 
 def str2sec(time_string):
     """
