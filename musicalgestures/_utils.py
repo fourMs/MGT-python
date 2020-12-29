@@ -241,7 +241,7 @@ class MgFigure():
         """
         Shows the internal matplotlib.pyplot.figure.
         """
-        self.figure.show()
+        return self.figure
 
 
 def convert_to_avi(filename):
@@ -977,6 +977,7 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False):
         command (list): The ffmpeg command to execute as a list. Eg. ['ffmpeg', '-y', '-i', 'myVid.mp4', 'myVid.mov']
         total_time (float): The length of the output. Needed mainly for the progress bar.
         pb_prefix (str, optional): The prefix for the progress bar. Defaults to 'Progress'.
+        print_cmd (bool, optional): Whether to print the full ffmpeg command to the console before executing it. Good for debugging. Defaults to False.
 
     Raises:
         KeyboardInterrupt: If the user stops the process.
