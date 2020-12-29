@@ -349,7 +349,7 @@ def extract_subclip(filename, t1, t2, targetname=None):
                         "-ss", "%0.2f" % start,
                         "-i", filename,
                         "-t", "%0.2f" % (end-start),
-                        "-map", "0", "-codec copy", targetname]
+                        "-map", "0", "-codec", "copy", targetname]
 
     ffmpeg_cmd(cmd, length, pb_prefix='Trimming:')
 
