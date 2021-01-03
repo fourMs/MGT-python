@@ -87,7 +87,7 @@ Class for handling images in the Musical Gestures Toolbox.
 class MgProgressbar():
     def __init__(
         total=100,
-        time_limit=0.1,
+        time_limit=0.25,
         prefix='Progress',
         suffix='Complete',
         decimals=1,
