@@ -6,7 +6,7 @@ class MgProgressbar():
     def __init__(
             self,
             total=100,
-            time_limit=0.1,
+            time_limit=0.25,
             prefix='Progress',
             suffix='Complete',
             decimals=1,
@@ -17,7 +17,7 @@ class MgProgressbar():
 
         Args:
             total (int, optional): Total iterations. Defaults to 100.
-            time_limit (float, optional): The minimum refresh rate of the progressbar in seconds. Defaults to 0.1.
+            time_limit (float, optional): The minimum refresh rate of the progressbar in seconds. Defaults to 0.25.
             prefix (str, optional): Prefix string. Defaults to 'Progress'.
             suffix (str, optional): Suffix string. Defaults to 'Complete'.
             decimals (int, optional): Positive number of decimals in process percent. Defaults to 1.
@@ -672,9 +672,9 @@ def motiongrams_ffmpeg(
     cmd_x = cmd + ['-filter_complex', cmd_filter_x] + cmd_end_x
 
     ffmpeg_cmd(cmd_x, get_length(filename),
-               pb_prefix='Rendering horizontal motiongram:')
+               pb_prefix='Rendering horizontal motiongram:', stream=False)
     ffmpeg_cmd(cmd_y, get_length(filename),
-               pb_prefix='Rendering vertical motiongram:')
+               pb_prefix='Rendering vertical motiongram:', stream=False)
 
     return of+'_mgx.png', of+'_mgy.png'
 
