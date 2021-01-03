@@ -32,8 +32,6 @@ setup(
         'matplotlib',
         'opencv-python',
         'moviepy',
-        'ffmpeg',
-        'ffmpeg-python',
         'scipy',
         'librosa',
         'ipython'
