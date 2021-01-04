@@ -3,5 +3,4 @@ include setup.cfg
 graft musicalgestures
 prune musicalgestures/deprecated
 prune musicalgestures/documentation
-prune musicalgestures/paper
 prune musicalgestures/.ipynb_checkpoints
