@@ -6,7 +6,7 @@ class MgProgressbar():
     def __init__(
             self,
             total=100,
-            time_limit=0.25,
+            time_limit=0.5,
             prefix='Progress',
             suffix='Complete',
             decimals=1,
@@ -17,7 +17,7 @@ class MgProgressbar():
 
         Args:
             total (int, optional): Total iterations. Defaults to 100.
-            time_limit (float, optional): The minimum refresh rate of the progressbar in seconds. Defaults to 0.25.
+            time_limit (float, optional): The minimum refresh rate of the progressbar in seconds. Defaults to 0.5.
             prefix (str, optional): Prefix string. Defaults to 'Progress'.
             suffix (str, optional): Suffix string. Defaults to 'Complete'.
             decimals (int, optional): Positive number of decimals in process percent. Defaults to 1.
