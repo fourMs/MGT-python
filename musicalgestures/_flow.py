@@ -83,6 +83,7 @@ class Flow:
 
         ret, frame1 = vidcap.read()
         prev_frame = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
+        prev_rgb = None
         hsv = np.zeros_like(frame1)
         hsv[..., 1] = 255
 
@@ -115,7 +116,7 @@ class Flow:
                 prev_frame = next_frame
 
                 if skip_empty:
-                    if np.sum(rgb) > 0:
+                    if np.sum(rgb) > 0 or ii == 0:
                         prev_rgb = rgb
                 else:
                     prev_rgb = rgb
