@@ -286,19 +286,6 @@ def download_model(modeltype):
         mpi_script += shell
         coco_script += shell
 
-    # sanitize paths with spaces for shell input
-    def sanitize_path(path):
-        if path.find(' ') != -1:
-            return f'"{path}"'
-        else:
-            return path
-
-    mpi_script = sanitize_path(mpi_script)
-    coco_script = sanitize_path(coco_script)
-    wget_win = sanitize_path(wget_win)
-    target_folder_mpi = sanitize_path(target_folder_mpi)
-    target_folder_coco = sanitize_path(target_folder_coco)
-
     if modeltype.lower() == 'mpi':
         command = mpi_script
         if the_system == 'Windows':
