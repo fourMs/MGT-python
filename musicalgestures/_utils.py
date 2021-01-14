@@ -34,6 +34,10 @@ class MgProgressbar():
         self.fill = fill
         self.now = self.get_now()
         self.finished = False
+        self.could_not_get_terminal_window = False
+        self.tw_width = 0
+        self.tw_height = 0
+        self.display_only_percent = False
 
     def get_now(self):
         """
@@ -55,6 +59,38 @@ class MgProgressbar():
         callback_time = self.get_now()
         return callback_time - self.now >= self.time_limit
 
+    def adjust_printlength(self):
+        if self.tw_width <= 0:
+            return
+        elif self.could_not_get_terminal_window:
+            return
+        else:
+            current_length = len(self.prefix) + self.length + self.decimals + len(self.suffix) + 10 
+            if current_length > self.tw_width:
+                diff = current_length - self.tw_width
+                if diff < self.length:
+                    self.length -= diff
+                else: # remove suffix
+                    current_length = current_length - len(self.suffix)
+                    diff = current_length - self.tw_width
+                    if diff <= 0:
+                        self.suffix = ""
+                    elif diff < self.length:
+                        self.suffix = ""
+                        self.length -= diff
+                    else: # remove prefix
+                        current_length = current_length - len(self.prefix)
+                        diff = current_length - self.tw_width
+                        if diff <= 0:
+                            self.suffix = ""
+                            self.prefix = ""
+                        elif diff < self.length:
+                            self.suffix = ""
+                            self.prefix = ""
+                            self.length -= diff
+                        else: # display only percent
+                            self.display_only_percent = True
+
     def progress(self, iteration):
         """
         Progresses the progress bar to the next step.
@@ -64,7 +100,15 @@ class MgProgressbar():
         """
         if self.finished:
             return
-        import sys
+        import sys, shutil
+
+        if not self.could_not_get_terminal_window:
+            self.tw_width, self.tw_height = shutil.get_terminal_size((0, 0))
+            if self.tw_width + self.tw_height == 0:
+                self.could_not_get_terminal_window = True
+            else:
+                self.adjust_printlength()
+
         capped_iteration = iteration if iteration <= self.total else self.total
         # Print New Line on Complete
         if iteration >= self.total:
@@ -73,8 +117,11 @@ class MgProgressbar():
             filledLength = int(round(self.length))
             bar = self.fill * filledLength
             sys.stdout.flush()
-            sys.stdout.write('\r%s |%s| %s%% %s' %
-                             (self.prefix, bar, percent, self.suffix))
+            if self.display_only_percent:
+                sys.stdout.write('\r%s' % (percent))
+            else:
+                sys.stdout.write('\r%s |%s| %s%% %s' %
+                                (self.prefix, bar, percent, self.suffix))
             print()
         elif self.over_time_limit():
             self.now = self.get_now()
@@ -83,8 +130,11 @@ class MgProgressbar():
             filledLength = int(self.length * capped_iteration // self.total)
             bar = self.fill * filledLength + '-' * (self.length - filledLength)
             sys.stdout.flush()
-            sys.stdout.write('\r%s |%s| %s%% %s' %
-                             (self.prefix, bar, percent, self.suffix))
+            if self.display_only_percent:
+                sys.stdout.write('\r%s' % (percent))
+            else:
+                sys.stdout.write('\r%s |%s| %s%% %s' %
+                                (self.prefix, bar, percent, self.suffix))
         else:
             return
 
