@@ -879,13 +879,22 @@ def get_first_frame_as_image(filename, outname=None, pict_format='.png'):
     of = os.path.splitext(filename)[0]
 
     if outname == None:
-        outname = of + pict_format
+        if of.find(' ') != -1:
+            outname = '"' + of + pict_format + '"'
+        else:
+            outname = of + pict_format
+
+    if filename.find(' ') != -1:
+        filename = '"' + filename + '"'
 
     cmd = ' '.join(['ffmpeg', '-y', '-i', filename, '-frames', '1', outname])
 
     os.system(cmd)
 
-    return outname
+    if outname.find(' ') != -1:
+        return outname[1:-1]
+    else:
+        return outname
 
 
 def get_screen_resolution_scaled():
