@@ -800,58 +800,46 @@ def extract_wav(filename):
     return outname
 
 
-def get_length(filename):
+class FFprobeError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
+class NoStreamError(FFprobeError):
+    pass
+
+
+class NoDurationError(FFprobeError):
+    pass
+
+
+def ffprobe(filename):
     """
-    Gets the length (in seconds) of a video using moviepy.
+    Returns info about video/audio file using FFprobe.
 
     Args:
         filename (str): Path to the video file to measure.
 
     Returns:
-        float: The length of the input video file in seconds.
+        str: decoded FFprobe output (stdout) as one string.
     """
+    import subprocess
+    command = ['ffprobe', filename]
+    process = subprocess.Popen(
+        command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+    try:
+        out, err = process.communicate(timeout=10)
+    except TimeoutExpired:
+        process.kill()
+        out, err = process.communicate()
 
-    from moviepy.editor import VideoFileClip
-    clip = VideoFileClip(filename)
-    duration = float(clip.duration)
-    clip.close()
-    return duration
-
-
-def get_framecount(filename):
-    """
-    Returns the number of frames in a video using moviepy.
-
-    Args:
-        filename (str): Path to the video file to measure.
-
-    Returns:
-        int: The number of frames in the input video file.
-    """
-
-    from moviepy.editor import VideoFileClip
-    clip = VideoFileClip(filename)
-    framecount = int(round(float(clip.duration) * float(clip.fps)))
-    clip.close()
-    return framecount
-
-
-def get_fps(filename):
-    """
-    Gets the FPS (frames per second) value of a video using moviepy.
-
-    Args:
-        filename (str): Path to the video file to measure.
-
-    Returns:
-        float: The FPS value of the input video file.
-    """
-
-    from moviepy.editor import VideoFileClip
-    clip = VideoFileClip(filename)
-    fps = float(clip.fps)
-    clip.close()
-    return fps
+    if err:
+        raise FFprobeError(err)
+    else:
+        if out.splitlines()[-1].find("No such file or directory") != -1:
+            raise FileNotFoundError(out.splitlines()[-1])
+        else:
+            return out
 
 
 # def get_widthheight(filename):
@@ -872,14 +860,6 @@ def get_fps(filename):
 #     clip.close()
 #     return width, height
 
-class FFprobeError(Exception):
-    def __init__(self, message):
-        self.message = message
-
-
-class NoVideoStreamError(FFprobeError):
-    pass
-
 
 def get_widthheight(filename):
     """
@@ -892,8 +872,152 @@ def get_widthheight(filename):
         int: The width of the input video file.
         int: The height of the input video file.
     """
+    out = ffprobe(filename)
+    out_array = out.splitlines()
+    video_stream = None
+    at_line = -1
+    while video_stream == None:
+        video_stream = out_array[at_line] if out_array[at_line].find(
+            "Video:") != -1 else None
+        at_line -= 1
+        if at_line < -len(out_array):
+            raise NoStreamError(
+                "No video stream found. (Is this a video file?)")
+    width = int(video_stream.split('x')[-2].split(' ')[-1])
+    height = int(video_stream.split(
+        'x')[-1].split(',')[0].split(' ')[0])
+    return width, height
+
+
+# def has_audio(filename):
+#     """
+#     Checks if video has audio track using moviepy.
+
+#     Args:
+#         filename (str): Path to the video file to check.
+
+#     Returns:
+#         bool: True if `filename` has an audio track, False otherwise.
+#     """
+
+#     from moviepy.editor import VideoFileClip
+#     clip = VideoFileClip(filename)
+#     if clip.audio == None:
+#         clip.close()
+#         return False
+#     else:
+#         clip.close()
+#         return True
+
+
+def has_audio(filename):
+    """
+    Checks if video has audio track using FFprobe.
+
+    Args:
+        filename (str): Path to the video file to check.
+
+    Returns:
+        bool: True if `filename` has an audio track, False otherwise.
+    """
+    out = ffprobe(filename)
+    out_array = out.splitlines()
+    audio_stream = None
+    at_line = -1
+    while audio_stream == None:
+        audio_stream = out_array[at_line] if out_array[at_line].find(
+            "Audio:") != -1 else None
+        at_line -= 1
+        if at_line < -len(out_array):
+            break
+    if audio_stream == None:
+        return False
+    else:
+        return True
+
+
+# def get_length(filename):
+#     """
+#     Gets the length (in seconds) of a video using moviepy.
+
+#     Args:
+#         filename (str): Path to the video file to measure.
+
+#     Returns:
+#         float: The length of the input video file in seconds.
+#     """
+
+#     from moviepy.editor import VideoFileClip
+#     clip = VideoFileClip(filename)
+#     duration = float(clip.duration)
+#     clip.close()
+#     return duration
+
+
+def get_length(filename):
+    """
+    Gets the length (in seconds) of a video using FFprobe.
+
+    Args:
+        filename (str): Path to the video file to measure.
+
+    Returns:
+        float: The length of the input video file in seconds.
+    """
+    out = ffprobe(filename)
+    out_array = out.splitlines()
+    duration = None
+    at_line = -1
+    while duration == None:
+        duration = out_array[at_line] if out_array[at_line].find(
+            "Duration:") != -1 else None
+        at_line -= 1
+        if at_line < -len(out_array):
+            raise NoDurationError(
+                "Could not get duration.")
+
+    width = int(video_stream.split('x')[-2].split(' ')[-1])
+    height = int(video_stream.split('x')[-1].split(',')[0].split(' ')[0])
+    return width, height
+
+
+# def get_framecount(filename):
+#     """
+#     Returns the number of frames in a video using moviepy.
+
+#     Args:
+#         filename (str): Path to the video file to measure.
+
+#     Returns:
+#         int: The number of frames in the input video file.
+#     """
+
+#     from moviepy.editor import VideoFileClip
+#     clip = VideoFileClip(filename)
+#     framecount = int(round(float(clip.duration) * float(clip.fps)))
+#     clip.close()
+#     return framecount
+
+
+def get_framecount(filename, fast=True):
+    """
+    Returns the number of frames in a video using FFprobe.
+
+    Args:
+        filename (str): Path to the video file to measure.
+
+    Returns:
+        int: The number of frames in the input video file.
+    """
     import subprocess
-    command = ['ffprobe', filename]
+    command_query_container = 'ffprobe -v error -select_streams v:0 -show_entries stream=nb_frames -of default=nokey=1:noprint_wrappers=1'.split(
+        ' ')
+    command_query_container.append(filename)
+    command_count = 'ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of default=nokey=1:noprint_wrappers=1'.split(
+        ' ')
+    command_count.append(filename)
+    command = command_query_container if fast else command_count
+
     process = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
     try:
@@ -904,24 +1028,70 @@ def get_widthheight(filename):
 
     if err:
         raise FFprobeError(err)
-    else:
+
+    elif out:
         if out.splitlines()[-1].find("No such file or directory") != -1:
             raise FileNotFoundError(out.splitlines()[-1])
         else:
-            out_array = out.splitlines()
-            video_stream = None
-            at_line = -1
-            while video_stream == None:
-                video_stream = out_array[at_line] if out_array[at_line].find(
-                    "Video:") != -1 else None
-                at_line -= 1
-                if at_line < -len(out_array):
-                    raise NoVideoStreamError(
-                        "No video stream found. (Is this an audio file?)")
-            width = int(video_stream.split('x')[-2].split(' ')[-1])
-            height = int(video_stream.split(
-                'x')[-1].split(',')[0].split(' ')[0])
-            return width, height
+            return int(out)
+
+    else:
+        if fast:
+            return get_framecount(filename, fast=False)
+        else:
+            raise FFprobeError(
+                "Could not count frames. (Is this a video file?)")
+
+
+# def get_fps(filename):
+#     """
+#     Gets the FPS (frames per second) value of a video using moviepy.
+
+#     Args:
+#         filename (str): Path to the video file to measure.
+
+#     Returns:
+#         float: The FPS value of the input video file.
+#     """
+
+#     from moviepy.editor import VideoFileClip
+#     clip = VideoFileClip(filename)
+#     fps = float(clip.fps)
+#     clip.close()
+#     return fps
+
+
+def get_fps(filename):
+    """
+    Gets the FPS (frames per second) value of a video using FFprobe.
+
+    Args:
+        filename (str): Path to the video file to measure.
+
+    Returns:
+        float: The FPS value of the input video file.
+    """
+    out = ffprobe(filename)
+    out_array = out.splitlines()
+    video_stream = None
+    at_line = -1
+    while video_stream == None:
+        video_stream = out_array[at_line] if out_array[at_line].find(
+            "Video:") != -1 else None
+        at_line -= 1
+        if at_line < -len(out_array):
+            raise NoStreamError(
+                "No video stream found. (Is this a video file?)")
+    video_stream_array = video_stream.split(',')
+    fps = None
+    at_chunk = -1
+    while fps == None:
+        fps = float(video_stream_array[at_chunk].split(
+            ' ')[-2]) if video_stream_array[at_chunk].split(' ')[-1] == 'fps' else None
+        at_chunk -= 1
+        if at_chunk < -len(video_stream_array):
+            raise FFprobeError("Could not fetch FPS.")
+    return fps
 
 
 def get_first_frame_as_image(filename, outname=None, pict_format='.png'):
@@ -998,27 +1168,6 @@ def get_screen_video_ratio(filename):
         smallest_ratio *= 0.9
 
     return smallest_ratio
-
-
-def has_audio(filename):
-    """
-    Checks if video has audio track using moviepy.
-
-    Args:
-        filename (str): Path to the video file to check.
-
-    Returns:
-        bool: True if `filename` has an audio track, False otherwise.
-    """
-
-    from moviepy.editor import VideoFileClip
-    clip = VideoFileClip(filename)
-    if clip.audio == None:
-        clip.close()
-        return False
-    else:
-        clip.close()
-        return True
 
 
 def audio_dilate(filename, dilation_ratio=1):
