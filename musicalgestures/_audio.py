@@ -67,6 +67,8 @@ class Audio:
 
         img = librosa.display.specshow(librosa.power_to_db(
             S, ref=np.max, top_db=120), sr=sr, y_axis='mel', fmax=sr/2, x_axis='time', hop_length=hop_size, ax=ax)
+        
+        print(type(img))
 
         colorbar_ticks = range(-120, 1, 10)
         fig.colorbar(img, format='%+2.0f dB', ticks=colorbar_ticks)

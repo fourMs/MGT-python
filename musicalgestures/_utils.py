@@ -65,12 +65,13 @@ class MgProgressbar():
         elif self.could_not_get_terminal_window:
             return
         else:
-            current_length = len(self.prefix) + self.length + self.decimals + len(self.suffix) + 10 
+            current_length = len(self.prefix) + self.length + \
+                self.decimals + len(self.suffix) + 10
             if current_length > self.tw_width:
                 diff = current_length - self.tw_width
                 if diff < self.length:
                     self.length -= diff
-                else: # remove suffix
+                else:  # remove suffix
                     current_length = current_length - len(self.suffix)
                     diff = current_length - self.tw_width
                     if diff <= 0:
@@ -78,7 +79,7 @@ class MgProgressbar():
                     elif diff < self.length:
                         self.suffix = ""
                         self.length -= diff
-                    else: # remove prefix
+                    else:  # remove prefix
                         current_length = current_length - len(self.prefix)
                         diff = current_length - self.tw_width
                         if diff <= 0:
@@ -88,7 +89,7 @@ class MgProgressbar():
                             self.suffix = ""
                             self.prefix = ""
                             self.length -= diff
-                        else: # display only percent
+                        else:  # display only percent
                             self.display_only_percent = True
 
     def progress(self, iteration):
@@ -100,7 +101,8 @@ class MgProgressbar():
         """
         if self.finished:
             return
-        import sys, shutil
+        import sys
+        import shutil
 
         if not self.could_not_get_terminal_window:
             self.tw_width, self.tw_height = shutil.get_terminal_size((0, 0))
@@ -121,7 +123,7 @@ class MgProgressbar():
                 sys.stdout.write('\r%s' % (percent))
             else:
                 sys.stdout.write('\r%s |%s| %s%% %s' %
-                                (self.prefix, bar, percent, self.suffix))
+                                 (self.prefix, bar, percent, self.suffix))
             print()
         elif self.over_time_limit():
             self.now = self.get_now()
@@ -134,7 +136,7 @@ class MgProgressbar():
                 sys.stdout.write('\r%s' % (percent))
             else:
                 sys.stdout.write('\r%s |%s| %s%% %s' %
-                                (self.prefix, bar, percent, self.suffix))
+                                 (self.prefix, bar, percent, self.suffix))
         else:
             return
 
@@ -309,11 +311,15 @@ def convert_to_avi(filename):
     """
 
     import os
-    of = os.path.splitext(filename)[0]
+    of, fex = os.path.splitext(filename)
+    if fex == '.avi':
+        print(f'{filename} is already in avi container.')
+        return filename
+    outname = of + '.avi'
     cmds = ['ffmpeg', '-y', '-i', filename, "-c:v", "mjpeg",
-            "-q:v", "3", "-c:a", "copy", of + '.avi']
+            "-q:v", "3", "-c:a", "copy", outname]
     ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Converting to avi:')
-    return of + '.avi'
+    return outname
 
 
 def convert_to_mp4(filename):
@@ -331,11 +337,15 @@ def convert_to_mp4(filename):
     """
 
     import os
-    of = os.path.splitext(filename)[0]
+    of, fex = os.path.splitext(filename)
+    if fex == '.mp4':
+        print(f'{filename} is already in mp4 container.')
+        return filename
+    outname = of + '.mp4'
     cmds = ['ffmpeg', '-y', '-i', filename,
-            "-q:v", "3", "-c:a", "copy", of + '.mp4']
+            "-q:v", "3", "-c:a", "copy", outname]
     ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Converting to mp4:')
-    return of + '.mp4'
+    return outname
 
 
 def cast_into_avi(filename):
@@ -356,9 +366,10 @@ def cast_into_avi(filename):
 
     import os
     of = os.path.splitext(filename)[0]
-    cmds = ['ffmpeg', '-y', '-i', filename, "-codec copy", of + '.avi']
+    outname = of + '.avi'
+    cmds = ['ffmpeg', '-y', '-i', filename, "-codec copy", outname]
     ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Casting to avi')
-    return of + '.avi'
+    return outname
 
 
 def extract_subclip(filename, t1, t2, targetname=None):
@@ -369,7 +380,7 @@ def extract_subclip(filename, t1, t2, targetname=None):
         filename (str): Path to the input video file.
         t1 (float): The start of the section to extract in seconds.
         t2 (float): The end of the section to extract in seconds.
-        targetname (str, optional): The name for the output file. If None, the name will be <input name>SUB<start time in ms>_<end time in ms>.<file extension>. Defaults to None.
+        targetname (str, optional): The name for the output file. If None, the name will be \<input name\>SUB\<start time in ms\>_\<end time in ms\>.\<file extension\>. Defaults to None.
 
     Outputs:
         The extracted section as a video.
@@ -387,19 +398,19 @@ def extract_subclip(filename, t1, t2, targetname=None):
         T1, T2 = [int(1000*t) for t in [start, end]]
         targetname = "%sSUB%d_%d.%s" % (name, T1, T2, ext)
 
-    # avoiding newly discovered ffmpeg glitch with non-avi files | 13-dec-2020
+    # avoiding ffmpeg glitch if format is not avi:
     if os.path.splitext(filename)[1] != '.avi':
         cmd = ['ffmpeg', "-y",
-                        "-ss", "%0.2f" % start,
-                        "-i", filename,
-                        "-t", "%0.2f" % (end-start),
-                        "-map", "0", targetname]
+               "-ss", "%0.2f" % start,
+               "-i", filename,
+               "-t", "%0.2f" % (end-start),
+               "-map", "0", targetname]
     else:
         cmd = ['ffmpeg', "-y",
-                        "-ss", "%0.2f" % start,
-                        "-i", filename,
-                        "-t", "%0.2f" % (end-start),
-                        "-map", "0", "-codec", "copy", targetname]
+               "-ss", "%0.2f" % start,
+               "-i", filename,
+               "-t", "%0.2f" % (end-start),
+               "-map", "0", "-codec", "copy", targetname]
 
     ffmpeg_cmd(cmd, length, pb_prefix='Trimming:')
 
@@ -778,12 +789,15 @@ def extract_wav(filename):
     """
 
     import os
-    of = os.path.splitext(filename)[0]
-    # fex = os.path.splitext(filename)[1]
-    cmds = ' '.join(['ffmpeg', '-y', '-i', filename, "-acodec",
-                     "pcm_s16le", of + '.wav'])
+    of, fex = os.path.splitext(filename)
+    if fex in ['.wav', '.WAV']:
+        print(f'{filename} is already in .wav container.')
+        return filename
+    outname = of + '.wav'
+    cmds = ' '.join(['ffmpeg', '-y', '-i', wrap_str(filename), "-acodec",
+                     "pcm_s16le", wrap_str(outname)])
     os.system(cmds)
-    return of + '.wav'
+    return outname
 
 
 def get_length(filename):
@@ -840,9 +854,36 @@ def get_fps(filename):
     return fps
 
 
+# def get_widthheight(filename):
+#     """
+#     Gets the width and height of a video using moviepy.
+
+#     Args:
+#         filename (str): Path to the video file to measure.
+
+#     Returns:
+#         int: The width of the input video file.
+#         int: The height of the input video file.
+#     """
+
+#     from moviepy.editor import VideoFileClip
+#     clip = VideoFileClip(filename)
+#     (width, height) = clip.size
+#     clip.close()
+#     return width, height
+
+class FFprobeError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
+class NoVideoStreamError(FFprobeError):
+    pass
+
+
 def get_widthheight(filename):
     """
-    Gets the width and height of a video using moviepy.
+    Gets the width and height of a video using FFprobe.
 
     Args:
         filename (str): Path to the video file to measure.
@@ -851,12 +892,36 @@ def get_widthheight(filename):
         int: The width of the input video file.
         int: The height of the input video file.
     """
+    import subprocess
+    command = ['ffprobe', filename]
+    process = subprocess.Popen(
+        command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+    try:
+        out, err = process.communicate(timeout=10)
+    except TimeoutExpired:
+        process.kill()
+        out, err = process.communicate()
 
-    from moviepy.editor import VideoFileClip
-    clip = VideoFileClip(filename)
-    (width, height) = clip.size
-    clip.close()
-    return width, height
+    if err:
+        raise FFprobeError(err)
+    else:
+        if out.splitlines()[-1].find("No such file or directory") != -1:
+            raise FileNotFoundError(out.splitlines()[-1])
+        else:
+            out_array = out.splitlines()
+            video_stream = None
+            at_line = -1
+            while video_stream == None:
+                video_stream = out_array[at_line] if out_array[at_line].find(
+                    "Video:") != -1 else None
+                at_line -= 1
+                if at_line < -len(out_array):
+                    raise NoVideoStreamError(
+                        "No video stream found. (Is this an audio file?)")
+            width = int(video_stream.split('x')[-2].split(' ')[-1])
+            height = int(video_stream.split(
+                'x')[-1].split(',')[0].split(' ')[0])
+            return width, height
 
 
 def get_first_frame_as_image(filename, outname=None, pict_format='.png'):
@@ -879,22 +944,14 @@ def get_first_frame_as_image(filename, outname=None, pict_format='.png'):
     of = os.path.splitext(filename)[0]
 
     if outname == None:
-        if of.find(' ') != -1:
-            outname = '"' + of + pict_format + '"'
-        else:
-            outname = of + pict_format
+        outname = of + pict_format
 
-    if filename.find(' ') != -1:
-        filename = '"' + filename + '"'
-
-    cmd = ' '.join(['ffmpeg', '-y', '-i', filename, '-frames', '1', outname])
+    cmd = ' '.join(['ffmpeg', '-y', '-i', wrap_str(filename),
+                    '-frames', '1', wrap_str(outname)])
 
     os.system(cmd)
 
-    if outname.find(' ') != -1:
-        return outname[1:-1]
-    else:
-        return outname
+    return outname
 
 
 def get_screen_resolution_scaled():
@@ -980,12 +1037,12 @@ def audio_dilate(filename, dilation_ratio=1):
     """
 
     import os
-    of = os.path.splitext(filename)[0]
-    fex = os.path.splitext(filename)[1]
-    cmds = ' '.join(['ffmpeg', '-y', '-i', filename, '-codec:a', 'pcm_s16le',
-                     '-filter:a', 'atempo=' + str(dilation_ratio), of + '_dilated' + fex])
+    of, fex = os.path.splitext(filename)
+    outname = of + '_dilated' + fex
+    cmds = ' '.join(['ffmpeg', '-y', '-i', wrap_str(filename), '-codec:a', 'pcm_s16le',
+                     '-filter:a', 'atempo=' + str(dilation_ratio), wrap_str(outname)])
     os.system(cmds)
-    return of + '_dilated' + fex
+    return outname
 
 
 def embed_audio_in_video(source_audio, destination_video, dilation_ratio=1):
@@ -1002,8 +1059,7 @@ def embed_audio_in_video(source_audio, destination_video, dilation_ratio=1):
     """
 
     import os
-    of = os.path.splitext(destination_video)[0]
-    fex = os.path.splitext(destination_video)[1]
+    of, fex = os.path.splitext(destination_video)
 
     # dilate audio file if necessary (ie. when skipping)
     if dilation_ratio != 1:
@@ -1015,8 +1071,9 @@ def embed_audio_in_video(source_audio, destination_video, dilation_ratio=1):
         dilated = False
 
     # embed audio in video
-    cmds = ' '.join(['ffmpeg', '-y', '-i', destination_video, '-i', audio_to_embed, '-c:v',
-                     'copy', '-map', '0:v:0', '-map', '1:a:0', '-shortest', of + '_w_audio' + fex])
+    outname = of + '_w_audio' + fex
+    cmds = ' '.join(['ffmpeg', '-y', '-i', wrap_str(destination_video), '-i', wrap_str(audio_to_embed), '-c:v',
+                     'copy', '-map', '0:v:0', '-map', '1:a:0', '-shortest', wrap_str(outname)])
     os.system(cmds)  # creates '_w_audio.avi'
 
     # cleanup:
@@ -1025,7 +1082,7 @@ def embed_audio_in_video(source_audio, destination_video, dilation_ratio=1):
         os.remove(audio_to_embed)
     # replace (silent) destination_video with the one with the embedded audio
     os.remove(destination_video)
-    os.rename(of + '_w_audio' + fex, destination_video)
+    os.rename(outname, destination_video)
 
 
 def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, stream=True):
@@ -1111,7 +1168,7 @@ def ffmpeg_cmd_async(command, total_time, pb_prefix='Progress', print_cmd=False,
         print()
 
     async def run_cmd(command, pb):
-        
+
         process = await asyncio.create_subprocess_shell(' '.join(command), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT)
 
         try:
@@ -1150,6 +1207,7 @@ def ffmpeg_cmd_async(command, total_time, pb_prefix='Progress', print_cmd=False,
     else:
         asyncio.run(run_cmd(command, pb))
 
+
 def str2sec(time_string):
     """
     Converts a time code string into seconds.
@@ -1162,3 +1220,41 @@ def str2sec(time_string):
     """
     elems = [float(elem) for elem in time_string.split(':')]
     return elems[0]*3600 + elems[1]*60 + elems[2]
+
+
+def wrap_str(string, matchers=[" ", "(", ")"]):
+    """
+    Wraps a string in double quotes if it contains any of `matchers` - by default: space or parentheses.
+    Useful when working with shell commands.
+
+
+    Args:
+        string (str): The string to inspect.
+        matchers (list, optional): The list of characters to look for in the string. Defaults to [" ", "(", ")"].
+
+    Returns:
+        str: The (wrapped) string.
+    """
+
+    matchers = [" ", "(", ")"]
+
+    if any(True for char in string if char in matchers) and '"' not in [string[0], string[-1]]:
+        return '"' + string + '"'
+    else:
+        return string
+
+
+def unwrap_str(string):
+    """
+    Unwraps a string from double quotes.
+
+    Args:
+        string (str): The string to inspect.
+
+    Returns:
+        str: The (unwrapped) string.
+    """
+    if '"' in [string[0], string[-1]]:
+        return string[1:-1]
+    else:
+        return string
