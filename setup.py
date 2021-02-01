@@ -31,7 +31,6 @@ setup(
         'pandas',
         'matplotlib',
         'opencv-python',
-        'moviepy',
         'scipy',
         'librosa',
         'ipython'
