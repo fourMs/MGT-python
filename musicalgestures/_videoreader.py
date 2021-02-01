@@ -123,8 +123,5 @@ def mg_videoreader(
         of = of_gray
 
     width, height = get_widthheight(of+fex)
-    # width, height = 300, 200
     video_has_audio_track = has_audio(of+fex)
-    # video_has_audio_track = True
-
     return length, width, height, fps, endtime, of, fex, video_has_audio_track
