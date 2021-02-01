@@ -2,8 +2,8 @@ import cv2
 import os
 import numpy as np
 from musicalgestures._videoadjust import skip_frames_ffmpeg, contrast_brightness_ffmpeg
-from musicalgestures._cropvideo import *
-from musicalgestures._utils import has_audio, convert_to_avi, rotate_video, convert_to_grayscale, extract_subclip, get_length, get_fps, get_framecount
+from musicalgestures._cropvideo import mg_cropvideo_ffmpeg
+from musicalgestures._utils import has_audio, convert_to_avi, rotate_video, convert_to_grayscale, extract_subclip, get_length, get_fps, get_framecount, get_widthheight
 
 
 class ReadError(Exception):
@@ -122,9 +122,9 @@ def mg_videoreader(
             os.remove(of + fex)
         of = of_gray
 
-    # width, height = get_widthheight(of+fex)
-    width, height = 300, 200
-    # video_has_audio_track = has_audio(of+fex)
-    video_has_audio_track = True
+    width, height = get_widthheight(of+fex)
+    # width, height = 300, 200
+    video_has_audio_track = has_audio(of+fex)
+    # video_has_audio_track = True
 
     return length, width, height, fps, endtime, of, fex, video_has_audio_track

@@ -975,10 +975,11 @@ def get_length(filename):
         if at_line < -len(out_array):
             raise NoDurationError(
                 "Could not get duration.")
-
-    width = int(video_stream.split('x')[-2].split(' ')[-1])
-    height = int(video_stream.split('x')[-1].split(',')[0].split(' ')[0])
-    return width, height
+    duration_array = duration.split(' ')
+    time_string_index = duration_array.index("Duration:") + 1
+    time_string = duration_array[time_string_index][:-1]
+    elems = [float(elem) for elem in time_string.split(':')]
+    return elems[0]*3600 + elems[1]*60 + elems[2]
 
 
 # def get_framecount(filename):
