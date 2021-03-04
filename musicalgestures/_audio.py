@@ -58,7 +58,7 @@ class Audio:
         S = librosa.feature.melspectrogram(
             y=y, sr=sr, n_mels=mel_filters, fmax=sr/2, n_fft=window_size, hop_length=hop_size, power=power)
 
-        fig, ax = plt.subplots(figsize=(12, 6), dpi=300)
+        fig, ax = plt.subplots(figsize=(12, 6), dpi=dpi)
 
         # make sure background is white
         fig.patch.set_facecolor('white')
