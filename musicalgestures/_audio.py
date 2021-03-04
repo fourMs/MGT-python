@@ -27,6 +27,55 @@ class Audio:
         self.filename = filename
         self.of, self.fex = os.path.splitext(filename)
 
+
+    def waveform(self, mono=False, dpi=300, autoshow=True, title=None):
+
+        if not has_audio(self.filename):
+            print('The video has no audio track.')
+            return
+
+        y, sr = librosa.load(self.filename, sr=None, mono=mono)
+
+        length = get_length(self.filename)
+
+        fig, ax = plt.subplots(figsize=(12, 4), dpi=dpi)
+
+        # make sure background is white
+        fig.patch.set_facecolor('white')
+        fig.patch.set_alpha(1)
+
+        # add title
+        if title == None:
+            title = os.path.basename(self.filename)
+        fig.suptitle(title, fontsize=16)
+
+        librosa.display.waveplot(y, sr=sr, ax=ax)
+
+        plt.tight_layout()
+
+        plt.savefig('%s_waveform.png' %
+                    self.of, format='png', transparent=False)
+
+        if not autoshow:
+            plt.close()
+
+        # create MgFigure
+        data = {
+            "sr": sr,
+            "of": self.of,
+            "y": y,
+            "length": length
+        }
+
+        mgf = MgFigure(
+            figure=fig,
+            figure_type='audio.waveform',
+            data=data,
+            layers=None,
+            image=self.of + '_waveform.png')
+
+        return mgf
+
     def spectrogram(self, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True, title=None):
         """
         Renders a figure showing the mel-scaled spectrogram of the video/audio file.
@@ -342,6 +391,60 @@ class Audio:
             image=self.of + '_tempogram.png')
 
         return mgf
+
+def mg_audio_waveform(filename=None, mono=False, dpi=300, autoshow=True, title=None):
+
+    if filename == None:
+        print("No filename was given.")
+        return
+
+    if not has_audio(filename):
+        print('The video has no audio track.')
+        return
+
+    of, fex = os.path.splitext(filename)
+
+    y, sr = librosa.load(filename, sr=None, mono=mono)
+
+    length = get_length(filename)
+
+    fig, ax = plt.subplots(figsize=(12, 4), dpi=dpi)
+
+    # make sure background is white
+    fig.patch.set_facecolor('white')
+    fig.patch.set_alpha(1)
+
+    # add title
+    if title == None:
+        title = os.path.basename(filename)
+    fig.suptitle(title, fontsize=16)
+
+    librosa.display.waveplot(y, sr=sr, ax=ax)
+
+    plt.tight_layout()
+
+    plt.savefig('%s_waveform.png' %
+                of, format='png', transparent=False)
+
+    if not autoshow:
+        plt.close()
+
+    # create MgFigure
+    data = {
+        "sr": sr,
+        "of": of,
+        "y": y,
+        "length": length
+    }
+
+    mgf = MgFigure(
+        figure=fig,
+        figure_type='audio.waveform',
+        data=data,
+        layers=None,
+        image=of + '_waveform.png')
+
+    return mgf
 
 
 def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True, title=None):
