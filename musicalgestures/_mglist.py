@@ -207,6 +207,8 @@ class MgList():
                         _count += 3
                     elif obj.figure_type == 'audio.spectrogram':
                         _count += 1
+                    elif obj.figure_type == 'audio.waveform':
+                        _count += 1
                     elif obj.figure_type == 'layers':
                         _count = count_elems(obj.layers, _count)
 
@@ -417,6 +419,31 @@ class MgList():
                         ax[plot_counter].set(yticks=(freq_ticks))
                         ax[plot_counter].set(yticklabels=(freq_ticks_labels))
                         ax[plot_counter].set(title='Spectrogram')
+
+                        plot_counter += 1
+
+                    elif obj.figure_type == 'audio.waveform':
+                        # increment output filename
+                        if plot_counter == 0:
+                            of = obj.data['of'] + '_waveform'
+                        else:
+                            of += '_waveform'
+
+                        if first_plot:
+                            ax[plot_counter] = fig.add_subplot(
+                                elem_count, 1, plot_counter+1)
+                        else:
+                            ax[plot_counter] = fig.add_subplot(
+                                elem_count, 1, plot_counter+1, sharex=ax[index_of_first_plot])
+
+
+                        librosa.display.waveplot(obj.data['y'], sr=obj.data['sr'], ax=ax[plot_counter])
+
+                        plot_xticks = np.arange(
+                            0, obj.data['length']+0.1, obj.data['length']/20)
+                        ax[plot_counter].set(xticks=plot_xticks)
+
+                        ax[plot_counter].set(title='Waveform')
 
                         plot_counter += 1
 
