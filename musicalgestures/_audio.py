@@ -29,6 +29,18 @@ class Audio:
 
 
     def waveform(self, mono=False, dpi=300, autoshow=True, title=None):
+        """
+        Renders a figure showing the waveform of the video/audio file.
+
+        Args:
+            mono (bool, optional): Convert the signal to mono. Defaults to False.
+            dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
+            autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+            title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title. Defaults to None.
+
+        Returns:
+            MgFigure: An MgFigure object referring to the internal figure and its data.
+        """
 
         if not has_audio(self.filename):
             print('The video has no audio track.')
@@ -393,6 +405,19 @@ class Audio:
         return mgf
 
 def mg_audio_waveform(filename=None, mono=False, dpi=300, autoshow=True, title=None):
+    """
+    Renders a figure showing the waveform of the video/audio file.
+
+    Args:
+        filename (str, optional): Path to the audio/video file to be processed. Defaults to None.
+        mono (bool, optional): Convert the signal to mono. Defaults to False.
+        dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
+        autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+        title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title. Defaults to None.
+
+    Returns:
+        MgFigure: An MgFigure object referring to the internal figure and its data.
+    """
 
     if filename == None:
         print("No filename was given.")
