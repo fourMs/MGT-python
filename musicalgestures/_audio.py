@@ -11,6 +11,13 @@ import musicalgestures
 plt.plot()
 plt.close()
 
+import warnings
+from matplotlib import MatplotlibDeprecationWarning
+# suppress "Pysoundfile Failed" warnings when dealing with mp3 files/audio tracks
+warnings.filterwarnings("ignore", "PySoundFile failed. Trying audioread instead.", category=UserWarning, module="librosa")
+# suppress librosa MatplotlibDeprecationWarnings
+warnings.filterwarnings("ignore", "", category=MatplotlibDeprecationWarning, module="librosa")
+
 
 class Audio:
     """
