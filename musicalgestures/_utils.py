@@ -1033,6 +1033,12 @@ def get_framecount(filename, fast=True):
     elif out:
         if out.splitlines()[-1].find("No such file or directory") != -1:
             raise FileNotFoundError(out.splitlines()[-1])
+        elif out.startswith("N/A"):
+            if fast:
+                return get_framecount(filename, fast=False)
+            else:
+                raise FFprobeError(
+                    "Could not count frames. (Is this a video file?)")
         else:
             return int(out)
 
