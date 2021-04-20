@@ -27,11 +27,13 @@ MGT can generate both dynamic and static visualizations, as well as some quantit
 ## Installation
 
 
-### Windows, macOS and Linux
+### Windows, OSX and Linux
 
-Standard installation via pip: paste and execute the following code in the Terminal (macOS, Linux) or the PowerShell (Windows):
+The standard installation via pip: paste and execute the following code in the Terminal (OSX, Linux) or the PowerShell (Windows):
 
 `pip install musicalgestures`
+
+MGT is developed in Python 3 and relies on FFmpeg and OpenCV. See [the wiki](https://github.com/fourMs/MGT-python/wiki#installation) for more details on the installation process.
 
 ## Usage
 
