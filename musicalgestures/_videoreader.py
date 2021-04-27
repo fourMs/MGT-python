@@ -45,9 +45,6 @@ def mg_videoreader(
         keep_all (bool, optional): If True, preserves an output video file after each used preprocessing stage. Defaults to False.
         returned_by_process (bool, optional): This parameter is only for internal use, do not use it. Defaults to False.
 
-    Outputs:
-        A video file with the applied processes. The name of the file will be `filename` + a suffix for each process.
-
     Returns:
         int: The number of frames in the output video file.
         int: The pixel width of the output video file.
@@ -70,17 +67,18 @@ def mg_videoreader(
 
     # Cut out relevant bit of video using starttime and endtime
     if starttime != 0 or endtime != 0:
-        extract_subclip(filename, starttime, endtime,
-                        targetname=of + '_trim' + fex)
-        of = of + '_trim'
+        tmp_path = extract_subclip(filename, starttime, endtime, target_name=of + '_trim' + fex)
+        of = os.path.splitext(tmp_path)[0]
+        # of = of + '_trim'
         trimming = True
 
     if skip != 0:
-        skip_frames_ffmpeg(of + fex, skip)
+        tmp_path = skip_frames_ffmpeg(of + fex, skip)
         if not keep_all and trimming:
             os.remove(of+fex)
 
-        of = of + '_skip'
+        # of = of + '_skip'
+        of = os.path.splitext(tmp_path)[0]
         skipping = True
 
     length = get_framecount(of+fex)
@@ -91,36 +89,38 @@ def mg_videoreader(
         endtime = length/fps
 
     if rotate != 0:
-        rotate_video(of + fex, rotate)
+        tmp_path = rotate_video(of + fex, rotate)
         if not keep_all and (skipping or trimming):
             os.remove(of + fex)
-        of = of + '_rot'
+        of = os.path.splitext(tmp_path)[0]
+        # of = of + '_rot'
         rotating = True
 
     # Apply contrast/brightness before the motion analysis
     if contrast != 0 or brightness != 0:
-        contrast_brightness_ffmpeg(
-            of+fex, contrast=contrast, brightness=brightness)
+        tmp_path = contrast_brightness_ffmpeg(of+fex, contrast=contrast, brightness=brightness)
 
         if not keep_all and (rotating or skipping or trimming):
             os.remove(of + fex)
-        of = of + '_cb'
+        # of = of + '_cb'
+        of = os.path.splitext(tmp_path)[0]
         cbing = True
 
     # Crops video either manually or automatically
     if crop.lower() != 'none':
-        mg_cropvideo_ffmpeg(of+fex, crop_movement=crop)
+        tmp_path = mg_cropvideo_ffmpeg(of+fex, crop_movement=crop)
 
         if not keep_all and (cbing or rotating or skipping or trimming):
             os.remove(of + fex)
-        of = of + '_crop'
+        of = os.path.splitext(tmp_path)[0]
+        # of = of + '_crop'
         cropping = True
 
     if color == False and returned_by_process == False:
-        of_gray, fex = convert_to_grayscale(of + fex)
+        tmp_path = convert_to_grayscale(of + fex)
         if not keep_all and (cropping or cbing or rotating or skipping or trimming):
             os.remove(of + fex)
-        of = of_gray
+        of = os.path.splitext(tmp_path)[0]
 
     width, height = get_widthheight(of+fex)
     video_has_audio_track = has_audio(of+fex)

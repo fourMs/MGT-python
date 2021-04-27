@@ -7,6 +7,7 @@ from base64 import b64encode
 
 
 def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, window_height=480, window_title=None):
+# def mg_show(self, filename=None, mode='windowed', window_width=640, window_height=480, window_title=None):
     """
     General method to show an image or video file either in a window, or inline in a jupyter notebook.
 
@@ -65,7 +66,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
         window_title = self.filename
 
     if filename == None:
-
+        # filename = self.filename
         if key == None:
             filename = self.filename
             show(file=filename, width=window_width,
@@ -139,6 +140,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
     else:
         show(file=filename, width=window_width,
              height=window_height, mode=mode, title=window_title)
+    # show(file=filename, width=window_width, height=window_height, mode=mode, title=window_title)
 
     return self
 

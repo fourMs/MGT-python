@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from scipy.signal import medfilt2d
 from musicalgestures._centroid import centroid
-from musicalgestures._utils import extract_wav, embed_audio_in_video, frame2ms, MgProgressbar, MgImage, convert_to_avi, get_length, get_widthheight, motionvideo_ffmpeg, motiongrams_ffmpeg
+from musicalgestures._utils import extract_wav, embed_audio_in_video, frame2ms, MgProgressbar, MgImage, convert_to_avi, get_length, get_widthheight, motionvideo_ffmpeg, generate_outfilename #,motiongrams_ffmpeg
 from musicalgestures._filter import filter_frame
 from musicalgestures._mglist import MgList
 
@@ -19,7 +19,10 @@ def mg_motiongrams(
         use_median=False,
         kernel_size=5,
         inverted_motiongram=False,
-        equalize_motiongram=True):
+        equalize_motiongram=True,
+        target_name_mgx=None,
+        target_name_mgy=None,
+        overwrite=False):
     """
     Shortcut for `mg_motion` to only render motiongrams.
 
@@ -31,10 +34,9 @@ def mg_motiongrams(
         kernel_size (int, optional): Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
         inverted_motiongram (bool, optional): If True, inverts colors of the motiongrams. Defaults to False.
         equalize_motiongram (bool, optional): If True, converts the motiongrams to hsv-color space and flattens the value channel (v). Defaults to True.
-
-    Outputs:
-        `filename`_mgx.png: A horizontal motiongram of the source video.
-        `filename`_mgy.png: A vertical motiongram of the source video.
+        target_name_mgx (str, optional): Target output name for the vertical motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgx" should be used).
+        target_name_mgy (str, optional): Target output name for the horizontal motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgy" should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
         MgList(MgImage, MgImage): An MgList pointing to the output motiongram images.
@@ -51,6 +53,18 @@ def mg_motiongrams(
     #     kernel_size=kernel_size,
     #     invert=inverted_motiongram)
 
+    out_x, out_y = None, None
+
+    if target_name_mgx == None:
+        target_name_mgx = self.of + '_mgx.png'
+    if target_name_mgy == None:
+        target_name_mgy = self.of + '_mgy.png'
+    if not overwrite:
+        out_x = generate_outfilename(target_name_mgx)
+        out_y = generate_outfilename(target_name_mgy)
+    else:
+        out_x, out_y = target_name_mgx, target_name_mgy
+
     mg_motion(
         self,
         filtertype=filtertype,
@@ -62,9 +76,12 @@ def mg_motiongrams(
         save_data=False,
         save_motiongrams=True,
         save_plot=False,
-        save_video=False)
+        save_video=False,
+        target_name_mgx=target_name_mgx,
+        target_name_mgy=target_name_mgy,
+        overwrite=overwrite)
 
-    return MgList(MgImage(self.of + '_mgx.png'), MgImage(self.of + '_mgy.png'))
+    return MgList(MgImage(out_x), MgImage(out_y))
 
 
 def mg_motiondata(
@@ -73,7 +90,9 @@ def mg_motiondata(
         thresh=0.05,
         blur='None',
         kernel_size=5,
-        data_format="csv"):
+        data_format="csv",
+        target_name=None,
+        overwrite=False):
     """
     Shortcut for `mg_motion` to only render motion data.
 
@@ -83,13 +102,33 @@ def mg_motiondata(
         blur (str, optional): 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
         kernel_size (int, optional): Size of structuring element. Defaults to 5.
         data_format (str or list, optional): Specifies format of motion-data. Accepted values are 'csv', 'tsv' and 'txt'. For multiple output formats, use list, eg. ['csv', 'txt']. Defaults to 'csv'.
-
-    Outputs:
-        `filename`_motion.`data_format`: A text file containing the quantity of motion and the centroid of motion for each frame in the source video with timecodes in milliseconds. Available formats: csv, tsv, txt.
+        target_name (str, optional): Target output name for the data. Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
         str or list: The path(s) to the rendered data file(s).
     """
+
+    out = None
+
+    if type(data_format) == str:
+        if target_name == None:
+            target_name = self.of + '_motion.' + data_format
+        if not overwrite:
+            target_name = generate_outfilename(target_name)
+        out = target_name
+
+    if type(data_format) == list:
+        out = []
+        if target_name == None:
+            target_name = self.of + '_motion.csv' # this csv is just a temporary placeholder, the correct extension is always enforced based on the data_format(s)
+        target_name_of = os.path.splitext(target_name)[0]
+        for item in data_format:
+            if not overwrite:
+                tmp_name = generate_outfilename(target_name_of + '.' + item)
+                out.append(tmp_name)
+            else:
+                tmp_name = target_name_of + '.' + item
 
     mg_motion(
         self,
@@ -101,13 +140,16 @@ def mg_motiondata(
         save_data=True,
         save_motiongrams=False,
         save_plot=False,
-        save_video=False)
+        save_video=False,
+        target_name_data=target_name,
+        overwrite=overwrite)
 
-    if type(data_format) == list:
-        outlist = [self.of + '_motion.' + elem for elem in data_format]
-        return outlist
-    else:
-        return self.of + '_motion.' + data_format
+    # if type(data_format) == list:
+    #     outlist = [self.of + '_motion.' + elem for elem in data_format]
+    #     return outlist
+    # else:
+    #     return self.of + '_motion.' + data_format
+    return out
 
 
 def mg_motionplots(
@@ -117,7 +159,9 @@ def mg_motionplots(
         blur='None',
         kernel_size=5,
         unit='seconds',
-        title=None):
+        title=None,
+        target_name=None,
+        overwrite=False):
     """
     Shortcut for `mg_motion` to only render motion plots.
 
@@ -128,10 +172,17 @@ def mg_motionplots(
         kernel_size (int, optional): Size of structuring element. Defaults to 5.
         unit (str, optional): Unit in QoM plot. Accepted values are 'seconds' or 'samples'. Defaults to 'seconds'.
         title (str, optional): Optionally add title to the plot. Defaults to None, which uses the file name as a title.
+        target_name (str, optional): Target output name for the plot. Defaults to None (which assumes that the input filename with the suffix "_motion_com_qom" should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
         MgImage: An MgImage pointing to the exported image (png) of the motion plots.
     """
+
+    if target_name == None:
+        target_name = self.of + '_motion_com_qom.png'
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
 
     mg_motion(
         self,
@@ -144,9 +195,11 @@ def mg_motionplots(
         save_motiongrams=False,
         save_plot=True,
         plot_title=title,
-        save_video=False)
+        save_video=False,
+        target_name_plot=target_name,
+        overwrite=overwrite)
 
-    return MgImage(self.of + '_motion_com_qom.png')
+    return MgImage(target_name)
 
 
 def mg_motionvideo(
@@ -156,7 +209,9 @@ def mg_motionvideo(
         blur='None',
         use_median=False,
         kernel_size=5,
-        inverted_motionvideo=False):
+        inverted_motionvideo=False,
+        target_name=None,
+        overwrite=False):
     """
     Shortcut to only render the motion video. Uses musicalgestures._utils.motionvideo_ffmpeg. Note that this does not apply median filter by default. If you need it use `use_median=True`.
 
@@ -167,9 +222,8 @@ def mg_motionvideo(
         use_median (bool, optional): If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
         kernel_size (int, optional): Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
         inverted_motionvideo (bool, optional): If True, inverts colors of the motion video. Defaults to False.
-
-    Outputs:
-        `filename`_motion.<file extension>: The motion video.
+        target_name (str, optional): Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
         MgObject: A new MgObject pointing to the output '_motion' video file.
@@ -183,7 +237,9 @@ def mg_motionvideo(
         blur=blur,
         use_median=use_median,
         kernel_size=kernel_size,
-        invert=inverted_motionvideo)
+        invert=inverted_motionvideo,
+        target_name=target_name,
+        overwrite=overwrite)
 
     return musicalgestures.MgObject(motionvideo, color=self.color, returned_by_process=True)
 
@@ -215,9 +271,18 @@ def mg_motion(
         save_data=True,
         data_format="csv",
         save_motiongrams=True,
-        save_video=True):
+        save_video=True,
+        target_name_video=None,
+        target_name_plot=None,
+        target_name_data=None,
+        target_name_mgx=None,
+        target_name_mgy=None,
+        overwrite=False):
     """
-    Finds the difference in pixel value from one frame to the next in an input video, and saves the frames into a new video. Describes the motion in the recording.
+    Finds the difference in pixel value from one frame to the next in an input video, and saves the frames into a new video. 
+    Describes the motion in the recording. Outputs: a motion video, a plot describing the centroid of motion and the 
+    quantity of motion, horizontal and vertical motiongrams, and a text file containing the quantity of motion and the 
+    centroid of motion for each frame with timecodes in milliseconds.
 
     Args:
         filtertype (str, optional): 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
@@ -234,38 +299,42 @@ def mg_motion(
         data_format (str or list, optional): Specifies format of motion-data. Accepted values are 'csv', 'tsv' and 'txt'. For multiple output formats, use list, eg. ['csv', 'txt']. Defaults to 'csv'.
         save_motiongrams (bool, optional): If True, outputs motiongrams. Defaults to True.
         save_video (bool, optional): If True, outputs the motion video. Defaults to True.
-
-    Outputs:
-        `filename`_motion.avi: The motion video.
-        `filename`_motion_com_qom.png: A plot describing the centroid of motion and the quantity of motion in the source video.
-        `filename`_mgx.png: A horizontal motiongram of the source video.
-        `filename`_mgy.png: A vertical motiongram of the source video.
-        `filename`_motion.`data_format`: A text file containing the quantity of motion and the centroid of motion for each frame in the source video with timecodes in milliseconds. Available formats: csv, tsv, txt.
+        target_name_video (str, optional): Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).
+        target_name_plot (str, optional): Target output name for the plot. Defaults to None (which assumes that the input filename with the suffix "_motion_com_qom" should be used).
+        target_name_data (str, optional): Target output name for the data. Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).
+        target_name_mgx (str, optional): Target output name for the vertical motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgx" should be used).
+        target_name_mgy (str, optional): Target output name for the horizontal motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgy" should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
-        MgObject: A new MgObject pointing to the output '_motion' video file. If `save_video=False`, it returns an MgObject pointing to the input video file.
+        MgObject: A new MgObject pointing to the output video file. If `save_video=False`, it returns an MgObject pointing to the input video file.
     """
 
     if save_plot | save_data | save_motiongrams | save_video:
+        # ignore runtime warnings when dividing by 0
+        np.seterr(divide='ignore', invalid='ignore')
 
-        # self.blur = blur
-        # self.thresh = thresh
-        # self.filtertype = filtertype
         of, fex = self.of, self.fex
 
         # Convert to avi if the input is not avi - necesarry for cv2 compatibility on all platforms
         if fex != '.avi':
-            convert_to_avi(of + fex)
-            fex = '.avi'
-            filename = of + fex
+            filename = convert_to_avi(of + fex, overwrite=overwrite)
+            of, fex = os.path.splitext(filename)
 
         vidcap = cv2.VideoCapture(of+fex)
         ret, frame = vidcap.read()
 
         if save_video:
+            if target_name_video == None:
+                target_name_video = of + '_motion' + fex
+            # enforce avi
+            else:
+                target_name_video = os.path.splitext(target_name_video)[0] + fex
+            if not overwrite:
+                target_name_video = generate_outfilename(target_name_video)
+
             fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-            out = cv2.VideoWriter(of + '_motion' + fex,
-                                  fourcc, self.fps, (self.width, self.height))
+            out = cv2.VideoWriter(target_name_video, fourcc, self.fps, (self.width, self.height))
 
         if save_motiongrams:
             gramx = np.zeros([1, self.width, 3])
@@ -393,24 +462,31 @@ def mg_motion(
                 gramy_hsv[:, :, 2] = cv2.equalizeHist(gramy_hsv[:, :, 2])
                 gramy = cv2.cvtColor(gramy_hsv, cv2.COLOR_HSV2BGR)
 
+            if target_name_mgx == None:
+                target_name_mgx = of+'_mgx.png'
+            if target_name_mgy == None:
+                target_name_mgy = of+'_mgy.png'
+            if not overwrite:
+                target_name_mgx = generate_outfilename(target_name_mgx)
+                target_name_mgy = generate_outfilename(target_name_mgy)
+
             if inverted_motiongram:
-                cv2.imwrite(of+'_mgx.png',
-                            cv2.bitwise_not(gramx.astype(np.uint8)))
-                cv2.imwrite(of+'_mgy.png',
-                            cv2.bitwise_not(gramy.astype(np.uint8)))
+                cv2.imwrite(target_name_mgx, cv2.bitwise_not(gramx.astype(np.uint8)))
+                cv2.imwrite(target_name_mgy, cv2.bitwise_not(gramy.astype(np.uint8)))
             else:
-                cv2.imwrite(of+'_mgx.png', gramx.astype(np.uint8))
-                cv2.imwrite(of+'_mgy.png', gramy.astype(np.uint8))
+                cv2.imwrite(target_name_mgx, gramx.astype(np.uint8))
+                cv2.imwrite(target_name_mgy, gramy.astype(np.uint8))
 
         if save_data:
-            save_txt(of, time, com, qom, self.width,
-                     self.height, data_format)
+            save_txt(of, time, com, qom, self.width, self.height, data_format, target_name_data=target_name_data, overwrite=overwrite)
 
         if save_plot:
             if plot_title == None:
                 plot_title = os.path.basename(of + fex)
-            plot_motion_metrics(of, self.fps, com, qom,
-                                self.width, self.height, unit, plot_title)
+            plot_motion_metrics(of, self.fps, com, qom, self.width, self.height, unit, plot_title, target_name_plot=target_name_plot, overwrite=overwrite)
+
+        # resetting numpy warnings for dividing by 0
+        np.seterr(divide='warn', invalid='warn')
 
         vidcap.release()
         if save_video:
@@ -429,7 +505,7 @@ def mg_motion(
         return musicalgestures.MgObject(of + fex, returned_by_process=True)
 
 
-def plot_motion_metrics(of, fps, com, qom, width, height, unit, title):
+def plot_motion_metrics(of, fps, com, qom, width, height, unit, title, target_name_plot, overwrite):
     """
     Helper function to plot the centroid and quantity of motion using matplotlib.
     """
@@ -456,45 +532,84 @@ def plot_motion_metrics(of, fps, com, qom, width, height, unit, title):
     ax.set_ylabel('Pixels normalized')
     ax.set_title('Quantity of motion')
     ax.bar(np.arange(len(qom)-1)/fps, qom[1:]/(width*height))
-    plt.savefig('%s_motion_com_qom.png' % of, format='png', transparent=False)
+
+    if target_name_plot == None:
+        target_name_plot = of + '_motion_com_qom.png'
+    else:
+        # enforce png
+        target_name_plot = os.path.splitext(target_name_plot)[0] + '.png'
+    if not overwrite:
+        target_name_plot = generate_outfilename(target_name_plot)
+
+    plt.savefig(target_name_plot, format='png', transparent=False)
 
 
-def save_txt(of, time, com, qom, width, height, data_format):
+def save_txt(of, time, com, qom, width, height, data_format, target_name_data, overwrite):
     """
     Helper function to export motion data as textfile(s).
     """
-    def save_single_file(of, time, com, qom, width, height, data_format):
+    def save_single_file(of, time, com, qom, width, height, data_format, target_name_data, overwrite):
         """
         Helper function to export motion data as a textfile using pandas.
         """
         data_format = data_format.lower()
         df = pd.DataFrame({'Time': time, 'Qom': qom, 'ComX': com.transpose()[
                           0]/width, 'ComY': com.transpose()[1]/height})
+
         if data_format == "tsv":
-            with open(of+'_motion.tsv', 'wb') as f:
+
+            if target_name_data == None:
+                target_name_data = of+'_motion.tsv'
+            else:
+                # take name, but enforce tsv
+                target_name_data = os.path.splitext(target_name_data)[0] + '.tsv'
+            if not overwrite:
+                target_name_data = generate_outfilename(target_name_data)
+
+            with open(target_name_data, 'wb') as f:
                 f.write(b'Time\tQom\tComX\tComY\n')
                 np.savetxt(f, df.values, delimiter='\t',
                            fmt=['%d', '%d', '%.15f', '%.15f'])
+
         elif data_format == "csv":
-            df.to_csv(of+'_motion.csv', index=None)
+
+            if target_name_data == None:
+                target_name_data = of+'_motion.csv'
+            else:
+                # take name, but enforce csv
+                target_name_data = os.path.splitext(target_name_data)[0] + '.csv'
+            if not overwrite:
+                target_name_data = generate_outfilename(target_name_data)   
+
+            df.to_csv(target_name_data, index=None)
+
         elif data_format == "txt":
-            with open(of+'_motion.txt', 'wb') as f:
+
+            if target_name_data == None:
+                target_name_data = of+'_motion.txt'
+            else:
+                # take name, but enforce txt
+                target_name_data = os.path.splitext(target_name_data)[0] + '.txt'
+            if not overwrite:
+                target_name_data = generate_outfilename(target_name_data)  
+
+            with open(target_name_data, 'wb') as f:
                 f.write(b'Time Qom ComX ComY\n')
                 np.savetxt(f, df.values, delimiter=' ',
                            fmt=['%d', '%d', '%.15f', '%.15f'])
+
         elif data_format not in ["tsv", "csv", "txt"]:
-            print(
-                f"Invalid data format: '{data_format}'.\nFalling back to '.csv'.")
+            print(f"Invalid data format: '{data_format}'.\nFalling back to '.csv'.")
+            save_single_file(of, time, com, qom, width, height, "csv", target_name_data=target_name_data, overwrite=overwrite)
 
     if type(data_format) == str:
-        save_single_file(of, time, com, qom, width, height, data_format)
+        save_single_file(of, time, com, qom, width, height, data_format, target_name_data=target_name_data, overwrite=overwrite)
 
     elif type(data_format) == list:
         if all([item.lower() in ["csv", "tsv", "txt"] for item in data_format]):
             data_format = list(set(data_format))
-            [save_single_file(of, time, com, qom, width, height, item)
+            [save_single_file(of, time, com, qom, width, height, item, target_name_data=target_name_data, overwrite=overwrite)
              for item in data_format]
         else:
-            print(
-                f"Unsupported formats in {data_format}.\nFalling back to '.csv'.")
-            save_single_file(of, time, com, qom, width, height, "csv")
+            print(f"Unsupported formats in {data_format}.\nFalling back to '.csv'.")
+            save_single_file(of, time, com, qom, width, height, "csv", target_name_data=target_name_data, overwrite=overwrite)

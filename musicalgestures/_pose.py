@@ -3,16 +3,29 @@ import cv2
 import os
 import numpy as np
 import pandas as pd
-from musicalgestures._utils import MgProgressbar, convert_to_avi, extract_wav, embed_audio_in_video, roundup, frame2ms
+from musicalgestures._utils import MgProgressbar, convert_to_avi, extract_wav, embed_audio_in_video, roundup, frame2ms, generate_outfilename
 import musicalgestures
 import itertools
 
 # implementation mainly inspired by: https://github.com/spmallick/learnopencv/blob/master/OpenPose/OpenPoseVideo.py
 
 
-def pose(self, model='mpi', device='cpu', threshold=0.1, downsampling_factor=4, save_data=True, data_format='csv', save_video=True):
+def pose(
+    self, 
+    model='mpi', 
+    device='cpu', 
+    threshold=0.1, 
+    downsampling_factor=4, 
+    save_data=True, 
+    data_format='csv', 
+    save_video=True, 
+    target_name_video=None, 
+    target_name_data=None, 
+    overwrite=False):
     """
-    Renders a video with the pose estimation (aka. "keypoint detection" or "skeleton tracking") overlaid on it. Outputs the predictions in a text file (default format is csv). Uses models from the [openpose](https://github.com/CMU-Perceptual-Computing-Lab/openpose) project.
+    Renders a video with the pose estimation (aka. "keypoint detection" or "skeleton tracking") overlaid on it. 
+    Outputs the predictions in a text file containing the normalized x and y coordinates of each keypoints 
+    (default format is csv). Uses models from the [openpose](https://github.com/CMU-Perceptual-Computing-Lab/openpose) project.
 
     Args:
         model (str, optional): 'mpi' loads the model trained on the Multi-Person Dataset (MPII), 'coco' loads one trained on the COCO dataset. The MPII model outputs 15 points, while the COCO model produces 18 points. Defaults to 'mpi'.
@@ -22,13 +35,12 @@ def pose(self, model='mpi', device='cpu', threshold=0.1, downsampling_factor=4, 
         save_data (bool, optional): Whether we save the predicted pose data to a file. Defaults to True.
         data_format (str or list, optional): Specifies format of pose-data. Accepted values are 'csv', 'tsv' and 'txt'. For multiple output formats, use list, eg. ['csv', 'txt']. Defaults to 'csv'.
         save_video (bool, optional): Whether we save the video with the estimated pose overlaid on it. Defaults to True.
-
-    Outputs:
-        `filename`_pose.avi: The source video with pose overlay.
-        `filename`_pose.`data_format`: A text file containing the normalized x and y coordinates of each keypoints (such as head, left shoulder, right shoulder, etc) for each frame in the source video with timecodes in milliseconds. Available formats: csv, tsv, txt.
+        target_name_video (str, optional): Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_pose" should be used).
+        target_name_data (str, optional): Target output name for the data. Defaults to None (which assumes that the input filename with the suffix "_pose" should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
-        MgObject: An MgObject pointing to the output '_pose' video.
+        MgObject: An MgObject pointing to the output video.
     """
 
     module_path = os.path.abspath(os.path.dirname(musicalgestures.__file__))
@@ -80,9 +92,8 @@ def pose(self, model='mpi', device='cpu', threshold=0.1, downsampling_factor=4, 
     of, fex = os.path.splitext(self.filename)
 
     if fex != '.avi':
-        convert_to_avi(of + fex)
-        fex = '.avi'
-        filename = of + fex
+        filename = convert_to_avi(of + fex, overwrite=overwrite)
+        of, fex = os.path.splitext(filename)
     else:
         filename = self.filename
 
@@ -100,8 +111,15 @@ def pose(self, model='mpi', device='cpu', threshold=0.1, downsampling_factor=4, 
     pb = MgProgressbar(total=length, prefix='Rendering pose estimation video:')
 
     if save_video:
+        if target_name_video == None:
+            target_name_video = of + '_pose' + fex
+        # if a target name was given we still enforce the .avi container anyway
+        else:
+            target_name_video = os.path.splitext(target_name_video) + fex
+        if not overwrite:
+            target_name_video = generate_outfilename(target_name_video)
         fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-        out = cv2.VideoWriter(of + '_pose' + fex, fourcc, fps, (width, height))
+        out = cv2.VideoWriter(target_name_video, fourcc, fps, (width, height))
 
     ii = 0
     data = []
@@ -172,17 +190,17 @@ def pose(self, model='mpi', device='cpu', threshold=0.1, downsampling_factor=4, 
 
     if save_video:
         out.release()
-        destination_video = of + '_pose' + fex
+        destination_video = target_name_video
         if self.has_audio:
             source_audio = extract_wav(of + fex)
             embed_audio_in_video(source_audio, destination_video)
             os.remove(source_audio)
 
-    def save_txt(of, width, height, model, data, data_format):
+    def save_txt(of, width, height, model, data, data_format, target_name_data, overwrite):
         """
         Helper function to export pose estimation data as textfile(s).
         """
-        def save_single_file(of, width, height, model, data, data_format):
+        def save_single_file(of, width, height, model, data, data_format, target_name_data, overwrite):
             """
             Helper function to export pose estimation data as a textfile using pandas.
             """
@@ -210,7 +228,16 @@ def pose(self, model='mpi', device='cpu', threshold=0.1, downsampling_factor=4, 
             df = pd.DataFrame(data=data, columns=headers)
 
             if data_format == "tsv":
-                with open(of+'_pose.tsv', 'wb') as f:
+
+                if target_name_data == None:
+                    target_name_data = of+'_pose.tsv'
+                else:
+                    # take name, but enforce tsv
+                    target_name_data = os.path.splitext(target_name_data)[0] + '.tsv'
+                if not overwrite:
+                    target_name_data = generate_outfilename(target_name_data)
+
+                with open(target_name_data, 'wb') as f:
                     head_str = ''
                     for head in headers:
                         head_str += head + '\t'
@@ -222,10 +249,28 @@ def pose(self, model='mpi', device='cpu', threshold=0.1, downsampling_factor=4, 
                     np.savetxt(f, df.values, delimiter='\t', fmt=fmt_list)
 
             elif data_format == "csv":
-                df.to_csv(of+'_pose.csv', index=None)
+
+                if target_name_data == None:
+                    target_name_data = of+'_pose.csv'
+                else:
+                    # take name, but enforce csv
+                    target_name_data = os.path.splitext(target_name_data)[0] + '.csv'
+                if not overwrite:
+                    target_name_data = generate_outfilename(target_name_data)                
+
+                df.to_csv(target_name_data, index=None)
 
             elif data_format == "txt":
-                with open(of+'_pose.txt', 'wb') as f:
+
+                if target_name_data == None:
+                    target_name_data = of+'_pose.txt'
+                else:
+                    # take name, but enforce txt
+                    target_name_data = os.path.splitext(target_name_data)[0] + '.txt'
+                if not overwrite:
+                    target_name_data = generate_outfilename(target_name_data)   
+
+                with open(target_name_data, 'wb') as f:
                     head_str = ''
                     for head in headers:
                         head_str += head + ' '
@@ -236,23 +281,23 @@ def pose(self, model='mpi', device='cpu', threshold=0.1, downsampling_factor=4, 
                         len(table_to_use)*2)]
                     np.savetxt(f, df.values, delimiter=' ', fmt=fmt_list)
             elif data_format not in ["tsv", "csv", "txt"]:
-                print(
-                    f"Invalid data format: '{data_format}'.\nFalling back to '.csv'.")
+                print(f"Invalid data format: '{data_format}'.\nFalling back to '.csv'.")
+                save_single_file(of, width, height, model, data, "csv", target_name_data=target_name_data, overwrite=overwrite)
 
         if type(data_format) == str:
-            save_single_file(of, width, height, model, data, data_format)
+            save_single_file(of, width, height, model, data, data_format, target_name_data=target_name_data, overwrite=overwrite)
 
         elif type(data_format) == list:
             if all([item.lower() in ["csv", "tsv", "txt"] for item in data_format]):
                 data_format = list(set(data_format))
-                [save_single_file(of, width, height, model, data, item)
+                [save_single_file(of, width, height, model, data, item, target_name_data=target_name_data, overwrite=overwrite)
                  for item in data_format]
             else:
-                print(
-                    f"Unsupported formats in {data_format}.\nFalling back to '.csv'.")
-                save_single_file(of, width, height, model, data, "csv")
+                print(f"Unsupported formats in {data_format}.\nFalling back to '.csv'.")
+                save_single_file(of, width, height, model, data, "csv", target_name_data=target_name_data, overwrite=overwrite)
 
-    save_txt(of, width, height, model, data, data_format)
+    if save_data:
+        save_txt(of, width, height, model, data, data_format, target_name_data=target_name_data, overwrite=overwrite)
 
     return musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
 
@@ -333,8 +378,6 @@ def download_model(modeltype):
                 pb.progress(float(percent))
             else:
                 print(out)
-
-        # pb.progress(100)
 
     except KeyboardInterrupt:
         try:

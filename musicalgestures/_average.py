@@ -1,34 +1,37 @@
 import cv2
 import numpy as np
 import os
-from musicalgestures._utils import MgImage, MgProgressbar, convert_to_avi
+from musicalgestures._utils import MgImage, MgProgressbar, convert_to_avi, generate_outfilename
 
 
-def mg_average_image(self, filename='', normalize=True):
+def mg_average_image(self, filename=None, normalize=True, target_name=None, overwrite=False):
     """
     Finds and saves an average image of an input video file.
 
     Args:
-        filename (str, optional): Path to the input video file. If not specified the video file pointed to by the MgObject is used. Defaults to ''.
+        filename (str, optional): Path to the input video file. If None, the video file of the MgObject is used. Defaults to None.
         normalize (bool, optional): If True, normalizes pixel values in the output image. Defaults to True.
-
-    Outputs:
-        `filename`_average.png
+        target_name (str, optional): The name of the output video. Defaults to None (which assumes that the input filename with the suffix "_average" should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
-        MgImage: A new MgImage pointing to the output '_average' image file.
+        MgImage: A new MgImage pointing to the output image file.
     """
 
-    if filename == '':
+    if filename == None:
         filename = self.filename
 
     of, fex = os.path.splitext(filename)
 
     # Convert to avi if the input is not avi - necesarry for cv2 compatibility on all platforms
     if fex != '.avi':
-        convert_to_avi(of + fex)
-        fex = '.avi'
-        filename = of + fex
+        filename = convert_to_avi(of + fex, overwrite=overwrite)
+        of, fex = os.path.splitext(filename)
+
+    if target_name == None:
+        target_name = of+'_average.png'
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
 
     video = cv2.VideoCapture(filename)
     ret, frame = video.read()
@@ -60,9 +63,9 @@ def mg_average_image(self, filename='', normalize=True):
         norm_average = np.zeros_like(average)
         norm_average = cv2.normalize(
             average,  norm_average, 0, 255, cv2.NORM_MINMAX)
-        cv2.imwrite(of+'_average.png', norm_average.astype(np.uint8))
+        cv2.imwrite(target_name, norm_average.astype(np.uint8))
 
     else:
-        cv2.imwrite(of+'_average.png', average.astype(np.uint8))
+        cv2.imwrite(target_name, average.astype(np.uint8))
 
-    return MgImage(of+'_average.png')
+    return MgImage(target_name)

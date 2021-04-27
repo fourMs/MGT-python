@@ -4,7 +4,7 @@ import librosa.display
 import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
-from musicalgestures._utils import MgImage, MgFigure, extract_wav, get_length, has_audio
+from musicalgestures._utils import MgImage, MgFigure, get_length, has_audio, generate_outfilename
 import musicalgestures
 
 # preventing librosa-matplotlib deadlock
@@ -35,7 +35,7 @@ class Audio:
         self.of, self.fex = os.path.splitext(filename)
 
 
-    def waveform(self, mono=False, dpi=300, autoshow=True, title=None):
+    def waveform(self, mono=False, dpi=300, autoshow=True, title=None, target_name=None, overwrite=False):
         """
         Renders a figure showing the waveform of the video/audio file.
 
@@ -44,6 +44,8 @@ class Audio:
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
             title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title. Defaults to None.
+            target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_waveform.png" should be used).
+            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
         Returns:
             MgFigure: An MgFigure object referring to the internal figure and its data.
@@ -52,6 +54,14 @@ class Audio:
         if not has_audio(self.filename):
             print('The video has no audio track.')
             return
+
+        if target_name == None:
+            target_name = self.of + '_waveform.png'
+        else:
+            #enforce png
+            target_name = os.path.splitext(target_name)[0] + '.png'
+        if not overwrite:
+            target_name = generate_outfilename(target_name)
 
         y, sr = librosa.load(self.filename, sr=None, mono=mono)
 
@@ -72,8 +82,7 @@ class Audio:
 
         plt.tight_layout()
 
-        plt.savefig('%s_waveform.png' %
-                    self.of, format='png', transparent=False)
+        plt.savefig(target_name, format='png', transparent=False)
 
         if not autoshow:
             plt.close()
@@ -91,11 +100,11 @@ class Audio:
             figure_type='audio.waveform',
             data=data,
             layers=None,
-            image=self.of + '_waveform.png')
+            image=target_name)
 
         return mgf
 
-    def spectrogram(self, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True, title=None):
+    def spectrogram(self, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True, title=None, target_name=None, overwrite=False):
         """
         Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
@@ -107,9 +116,8 @@ class Audio:
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
             title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title.
-
-        Outputs:
-            `self.filename`_spectrogram.png
+            target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_spectrogram.png" should be used).
+            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
         Returns:
             MgFigure: An MgFigure object referring to the internal figure and its data.
@@ -118,6 +126,14 @@ class Audio:
         if not has_audio(self.filename):
             print('The video has no audio track.')
             return
+
+        if target_name == None:
+            target_name = self.of + '_spectrogram.png'
+        else:
+            #enforce png
+            target_name = os.path.splitext(target_name)[0] + '.png'
+        if not overwrite:
+            target_name = generate_outfilename(target_name)
 
         hop_size = int(window_size / overlap)
 
@@ -168,8 +184,7 @@ class Audio:
 
         plt.tight_layout()
 
-        plt.savefig('%s_spectrogram.png' %
-                    self.of, format='png', transparent=False)
+        plt.savefig(target_name, format='png', transparent=False)
 
         if not autoshow:
             plt.close()
@@ -188,11 +203,11 @@ class Audio:
             figure_type='audio.spectrogram',
             data=data,
             layers=None,
-            image=self.of + '_spectrogram.png')
+            image=target_name)
 
         return mgf
 
-    def descriptors(self, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True, title=None):
+    def descriptors(self, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True, title=None, target_name=None, overwrite=False):
         """
         Renders a figure of plots showing spectral/loudness descriptors, including RMS energy, spectral flatness, centroid, bandwidth, rolloff of the video/audio file.
 
@@ -204,9 +219,8 @@ class Audio:
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
             title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title.
-
-        Outputs:
-            `self.filename`_descriptors.png
+            target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_descriptors.png" should be used).
+            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
         Returns:
             MgFigure: An MgFigure object referring to the internal figure and its data.
@@ -214,6 +228,14 @@ class Audio:
         if not has_audio(self.filename):
             print('The video has no audio track.')
             return
+
+        if target_name == None:
+            target_name = self.of + '_descriptors.png'
+        else:
+            #enforce png
+            target_name = os.path.splitext(target_name)[0] + '.png'
+        if not overwrite:
+            target_name = generate_outfilename(target_name)
 
         hop_size = int(window_size / overlap)
 
@@ -293,8 +315,7 @@ class Audio:
         ax[0].legend(loc='upper right')
 
         plt.tight_layout()
-        plt.savefig('%s_descriptors.png' %
-                    self.of, format='png', transparent=False)
+        plt.savefig(target_name, format='png', transparent=False)
 
         if not autoshow:
             plt.close()
@@ -320,11 +341,11 @@ class Audio:
             figure_type='audio.descriptors',
             data=data,
             layers=None,
-            image=self.of + '_descriptors.png')
+            image=target_name)
 
         return mgf
 
-    def tempogram(self, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True, title=None):
+    def tempogram(self, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True, title=None, target_name=None, overwrite=False):
         """
         Renders a figure with a plots of onset strength and tempogram of the video/audio file.
 
@@ -336,9 +357,8 @@ class Audio:
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
             title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title.
-
-        Outputs:
-            `self.filename`_tempogram.png
+            target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_tempogram.png" should be used).
+            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
         Returns:
             MgFigure: An MgFigure object referring to the internal figure and its data.
@@ -347,6 +367,14 @@ class Audio:
         if not has_audio(self.filename):
             print('The video has no audio track.')
             return
+
+        if target_name == None:
+            target_name = self.of + '_tempogram.png'
+        else:
+            #enforce png
+            target_name = os.path.splitext(target_name)[0] + '.png'
+        if not overwrite:
+            target_name = generate_outfilename(target_name)
 
         hop_size = int(window_size / overlap)
 
@@ -385,8 +413,7 @@ class Audio:
         ax[1].legend(loc='upper right')
         ax[1].set(title='Tempogram')
 
-        plt.savefig('%s_tempogram.png' %
-                    self.of, format='png', transparent=False)
+        plt.savefig(target_name, format='png', transparent=False)
 
         if not autoshow:
             plt.close()
@@ -407,11 +434,11 @@ class Audio:
             figure_type='audio.tempogram',
             data=data,
             layers=None,
-            image=self.of + '_tempogram.png')
+            image=target_name)
 
         return mgf
 
-def mg_audio_waveform(filename=None, mono=False, dpi=300, autoshow=True, title=None):
+def mg_audio_waveform(filename=None, mono=False, dpi=300, autoshow=True, title=None, target_name=None, overwrite=False):
     """
     Renders a figure showing the waveform of the video/audio file.
 
@@ -421,6 +448,8 @@ def mg_audio_waveform(filename=None, mono=False, dpi=300, autoshow=True, title=N
         dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
         autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
         title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title. Defaults to None.
+        target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_waveform.png" should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
         MgFigure: An MgFigure object referring to the internal figure and its data.
@@ -433,6 +462,14 @@ def mg_audio_waveform(filename=None, mono=False, dpi=300, autoshow=True, title=N
     if not has_audio(filename):
         print('The video has no audio track.')
         return
+
+    if target_name == None:
+        target_name = of + '_waveform.png'
+    else:
+        #enforce png
+        target_name = os.path.splitext(target_name)[0] + '.png'
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
 
     of, fex = os.path.splitext(filename)
 
@@ -455,8 +492,7 @@ def mg_audio_waveform(filename=None, mono=False, dpi=300, autoshow=True, title=N
 
     plt.tight_layout()
 
-    plt.savefig('%s_waveform.png' %
-                of, format='png', transparent=False)
+    plt.savefig(target_name, format='png', transparent=False)
 
     if not autoshow:
         plt.close()
@@ -474,12 +510,12 @@ def mg_audio_waveform(filename=None, mono=False, dpi=300, autoshow=True, title=N
         figure_type='audio.waveform',
         data=data,
         layers=None,
-        image=of + '_waveform.png')
+        image=target_name)
 
     return mgf
 
 
-def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True, title=None):
+def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True, title=None, target_name=None, overwrite=False):
     """
     Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
@@ -492,9 +528,8 @@ def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters
         dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
         autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
         title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title.
-
-    Outputs:
-        `filename`_spectrogram.png
+        target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_spectrogram.png" should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
         MgFigure: An MgFigure object referring to the internal figure and its data.
@@ -507,6 +542,14 @@ def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters
     if not has_audio(filename):
         print('The video has no audio track.')
         return
+
+    if target_name == None:
+        target_name = of + '_spectrogram.png'
+    else:
+        #enforce png
+        target_name = os.path.splitext(target_name)[0] + '.png'
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
 
     of, fex = os.path.splitext(filename)
 
@@ -559,7 +602,7 @@ def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters
 
     plt.tight_layout()
 
-    plt.savefig('%s_spectrogram.png' % of, format='png', transparent=False)
+    plt.savefig(target_name, format='png', transparent=False)
 
     if not autoshow:
         plt.close()
@@ -578,12 +621,12 @@ def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters
         figure_type='audio.spectrogram',
         data=data,
         layers=None,
-        image=of + '_spectrogram.png')
+        image=target_name)
 
     return mgf
 
 
-def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True, title=None):
+def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True, title=None, target_name=None, overwrite=False):
     """
     Renders a figure of plots showing spectral/loudness descriptors, including RMS energy, spectral flatness, centroid, bandwidth, rolloff of the video/audio file.
 
@@ -596,9 +639,8 @@ def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters
         dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
         autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
         title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title.
-
-    Outputs:
-        `filename`_descriptors.png
+        target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_descriptors.png" should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
         MgFigure: An MgFigure object referring to the internal figure and its data.
@@ -611,6 +653,14 @@ def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters
     if not has_audio(filename):
         print('The video has no audio track.')
         return
+
+    if target_name == None:
+        target_name = of + '_descriptors.png'
+    else:
+        #enforce png
+        target_name = os.path.splitext(target_name)[0] + '.png'
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
 
     of, fex = os.path.splitext(filename)
 
@@ -689,7 +739,7 @@ def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters
     ax[0].legend(loc='upper right')
 
     plt.tight_layout()
-    plt.savefig('%s_descriptors.png' % of, format='png', transparent=False)
+    plt.savefig(target_name, format='png', transparent=False)
 
     if not autoshow:
         plt.close()
@@ -715,12 +765,12 @@ def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters
         figure_type='audio.descriptors',
         data=data,
         layers=None,
-        image=of + '_descriptors.png')
+        image=target_name)
 
     return mgf
 
 
-def mg_audio_tempogram(filename=None, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True, title=None):
+def mg_audio_tempogram(filename=None, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True, title=None, target_name=None, overwrite=False):
     """
     Renders a figure with a plots of onset strength and tempogram of the video/audio file.
 
@@ -733,9 +783,8 @@ def mg_audio_tempogram(filename=None, window_size=4096, overlap=8, mel_filters=5
         dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
         autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
         title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title.
-
-    Outputs:
-        `filename`_tempogram.png
+        target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_tempogram.png" should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
         MgFigure: An MgFigure object referring to the internal figure and its data.
@@ -748,6 +797,14 @@ def mg_audio_tempogram(filename=None, window_size=4096, overlap=8, mel_filters=5
     if not has_audio(filename):
         print('The video has no audio track.')
         return
+
+    if target_name == None:
+        target_name = of + '_tempogram.png'
+    else:
+        #enforce png
+        target_name = os.path.splitext(target_name)[0] + '.png'
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
 
     of, fex = os.path.splitext(filename)
 
@@ -788,7 +845,7 @@ def mg_audio_tempogram(filename=None, window_size=4096, overlap=8, mel_filters=5
     ax[1].legend(loc='upper right')
     ax[1].set(title='Tempogram')
 
-    plt.savefig('%s_tempogram.png' % of, format='png', transparent=False)
+    plt.savefig(target_name, format='png', transparent=False)
 
     if not autoshow:
         plt.close()
@@ -809,6 +866,6 @@ def mg_audio_tempogram(filename=None, window_size=4096, overlap=8, mel_filters=5
         figure_type='audio.tempogram',
         data=data,
         layers=None,
-        image=of + '_tempogram.png')
+        image=target_name)
 
     return mgf

@@ -1,19 +1,23 @@
 import cv2
 import os
 import numpy as np
-from musicalgestures._utils import MgProgressbar, MgImage, get_widthheight, get_framecount, get_length, ffmpeg_cmd
+from musicalgestures._utils import MgProgressbar, MgImage, get_widthheight, get_framecount, get_length, ffmpeg_cmd, generate_outfilename
 from musicalgestures._mglist import MgList
 from musicalgestures._videoadjust import skip_frames_ffmpeg
 import math
 
 
-def videograms_ffmpeg(self):
+def videograms_ffmpeg(self, target_name_x=None, target_name_y=None, overwrite=False):
     """
-    Renders horizontal and vertical videograms of the source video using ffmpeg. Averages videoframes by axes, and creates two images of the horizontal-axis and vertical-axis stacks. In these stacks, a single row or column corresponds to a frame from the source video, and the index of the row or column corresponds to the index of the source frame.
+    Renders horizontal and vertical videograms of the source video using ffmpeg. Averages videoframes by axes, 
+    and creates two images of the horizontal-axis and vertical-axis stacks. In these stacks, a single row or 
+    column corresponds to a frame from the source video, and the index of the row or column corresponds to 
+    the index of the source frame.
 
-    Outputs:
-        `self.filename`_vgx.png
-        `self.filename`_vgy.png
+    Args:
+        target_name_x (str, optional): Target output name for the videogram on the X axis. Defaults to None (which assumes that the input filename with the suffix "_vgx" should be used).
+        target_name_y (str, optional): Target output name for the videogram on the Y axis. Defaults to None (which assumes that the input filename with the suffix "_vgy" should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
         MgList(MgImage, MgImage): An MgList with the MgImage objects referring to the horizontal and vertical videograms respectively. 
@@ -48,35 +52,46 @@ def videograms_ffmpeg(self):
         necessary_skipfactor = max([testx, testy])
         print(f'{os.path.basename(self.filename)} is too large to process. Applying minimal skipping necessary...')
 
-        skip_frames_ffmpeg(self.filename, skip=necessary_skipfactor-1)
-
-        shortened_file = self.of + '_skip' + self.fex
+        shortened_file = skip_frames_ffmpeg(self.filename, skip=necessary_skipfactor-1)
+        skip_of = os.path.splitext(shortened_file)[0]
         framecount = get_framecount(shortened_file)
         length = get_length(shortened_file)
 
-        outname = self.of + '_skip_vgy.png'
+        if target_name_x == None:
+            target_name_x = skip_of+'_vgx.png'
+        if target_name_y == None:
+            target_name_y = skip_of+'_vgy.png'
+        if not overwrite:
+            target_name_x = generate_outfilename(target_name_x)
+            target_name_y = generate_outfilename(target_name_y)
+
         cmd = ['ffmpeg', '-y', '-i', shortened_file, '-vf',
-               f'scale=1:{height}:sws_flags=area,normalize,tile={framecount}x1', '-aspect', f'{framecount}:{height}', '-frames', '1', outname]
+               f'scale=1:{height}:sws_flags=area,normalize,tile={framecount}x1', '-aspect', f'{framecount}:{height}', '-frames', '1', target_name_y]
         ffmpeg_cmd(cmd, length, stream=False, pb_prefix="Rendering horizontal videogram:")
 
-        outname = self.of + '_skip_vgx.png'
         cmd = ['ffmpeg', '-y', '-i', shortened_file, '-vf',
-               f'scale={width}:1:sws_flags=area,normalize,tile=1x{framecount}', '-aspect', f'{width}:{framecount}', '-frames', '1', outname]
+               f'scale={width}:1:sws_flags=area,normalize,tile=1x{framecount}', '-aspect', f'{width}:{framecount}', '-frames', '1', target_name_x]
         ffmpeg_cmd(cmd, length, stream=False, pb_prefix="Rendering vertical videogram:")
 
-        return MgList([MgImage(self.of+'_skip_vgx.png'), MgImage(self.of+'_skip_vgy.png')])
+        return MgList([MgImage(target_name_x), MgImage(target_name_y)])
 
     else:
         length = get_length(self.filename)
 
-        outname = self.of + '_vgy.png'
+        if target_name_x == None:
+            target_name_x = self.of +'_vgx.png'
+        if target_name_y == None:
+            target_name_y = self.of+'_vgy.png'
+        if not overwrite:
+            target_name_x = generate_outfilename(target_name_x)
+            target_name_y = generate_outfilename(target_name_y)
+
         cmd = ['ffmpeg', '-y', '-i', self.filename, '-frames', '1', '-vf',
-               f'scale=1:{height}:sws_flags=area,normalize,tile={framecount}x1', '-aspect', f'{framecount}:{height}', outname]
+               f'scale=1:{height}:sws_flags=area,normalize,tile={framecount}x1', '-aspect', f'{framecount}:{height}', target_name_y]
         ffmpeg_cmd(cmd, length, stream=False, pb_prefix="Rendering horizontal videogram:")
 
-        outname = self.of + '_vgx.png'
         cmd = ['ffmpeg', '-y', '-i', self.filename, '-frames', '1', '-vf',
-               f'scale={width}:1:sws_flags=area,normalize,tile=1x{framecount}', '-aspect', f'{width}:{framecount}', outname]
+               f'scale={width}:1:sws_flags=area,normalize,tile=1x{framecount}', '-aspect', f'{width}:{framecount}', target_name_x]
         ffmpeg_cmd(cmd, length, stream=False, pb_prefix="Rendering vertical videogram:")
 
-        return MgList([MgImage(self.of+'_vgx.png'), MgImage(self.of+'_vgy.png')])
+        return MgList([MgImage(target_name_x), MgImage(target_name_y)])

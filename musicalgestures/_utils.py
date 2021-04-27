@@ -212,6 +212,67 @@ def scale_array(array, out_low, out_high):
     return m * array + b
 
 
+def generate_outfilename(requested_name):
+    """Returns a unique filepath to avoid overwriting existing files. Increments requested 
+    filename if necessary by appending an integer, like "_0" or "_1", etc to the file name.
+
+    Args:
+        requested_name (str): Requested file name as path string.
+
+    Returns:
+        str: If file at requested_name is not present, then requested_name, else an incremented filename.
+    """
+    import os
+    requested_name = os.path.abspath(requested_name).replace('\\', '/')
+    req_of, req_fex = os.path.splitext(requested_name)
+    req_of = req_of.replace('\\', '/')
+    req_folder = os.path.dirname(requested_name).replace('\\', '/')
+    req_of_base = os.path.basename(req_of)
+    req_file_base = os.path.basename(requested_name)
+    out_increment = 0
+    files_in_folder = os.listdir(req_folder)
+    # if the target folder is empty, return the requested path
+    if len(files_in_folder) == 0:
+        return requested_name
+    # filter files with same ext
+    files_w_same_ext = list(filter(lambda x: os.path.splitext(x)[1] == req_fex, files_in_folder))
+    # if there are no files with the same ext
+    if len(files_w_same_ext) == 0:
+        return requested_name
+    # filter for files with same start and ext
+    files_w_same_start_ext = list(filter(lambda x: x.startswith(req_of_base), files_w_same_ext))
+    # if there are no files with the same start and ext
+    if len(files_w_same_start_ext) == 0:
+        return requested_name
+    #check if requested file is already present
+    present = None
+    try:
+        ind = files_w_same_start_ext.index(req_file_base)
+        present = True
+    except ValueError:
+        present = False
+    # if requested file is not present
+    if not present:
+        return requested_name
+    # if the original filename is already taken, check if there are incremented filenames
+    files_w_increment = list(filter(lambda x: x.startswith(req_of_base+"_"), files_w_same_start_ext))
+    # if there are no files with increments
+    if len(files_w_same_start_ext) == 0:
+        return f'{req_of}_1{req_fex}'
+    # parse increments, discard the ones that are invalid, increment highest
+    for file in files_w_increment:
+        _of = os.path.splitext(file)[0]
+        _only_incr = _of[len(req_of_base)+1:]
+        try:
+            found_incr = int(_only_incr)
+            found_incr = max(0, found_incr) # clip at 0
+            out_increment = max(out_increment, found_incr+1)
+        except ValueError: # if cannot be converted to int
+            pass
+    # return incremented filename
+    return f'{req_of}_{out_increment}{req_fex}'
+
+
 def get_frame_planecount(frame):
     """
     Gets the planecount (color channel count) of a video frame.
@@ -296,15 +357,14 @@ class MgFigure():
         return self.figure
 
 
-def convert_to_avi(filename):
+def convert_to_avi(filename, target_name=None, overwrite=False):
     """
     Converts a video to one with .avi extension using ffmpeg.
 
     Args:
         filename (str): Path to the input video file to convert.
-
-    Outputs:
-        `filename`.avi
+        target_name (str, optional): Target filename as path. Defaults to None (which assumes that the input filename should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
 
     Returns:
         str: The path to the output '.avi' file.
@@ -315,22 +375,24 @@ def convert_to_avi(filename):
     if fex == '.avi':
         print(f'{filename} is already in avi container.')
         return filename
-    outname = of + '.avi'
+    if not target_name:
+        target_name = of + '.avi'
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
     cmds = ['ffmpeg', '-y', '-i', filename, "-c:v", "mjpeg",
-            "-q:v", "3", "-c:a", "copy", outname]
+            "-q:v", "3", "-c:a", "copy", target_name]
     ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Converting to avi:')
-    return outname
+    return target_name
 
 
-def convert_to_mp4(filename):
+def convert_to_mp4(filename, target_name=None, overwrite=False):
     """
     Converts a video to one with .mp4 extension using ffmpeg.
 
     Args:
         filename (str): Path to the input video file to convert.
-
-    Outputs:
-        `filename`.mp4
+        target_name (str, optional): Target filename as path. Defaults to None (which assumes that the input filename should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
 
     Returns:
         str: The path to the output '.mp4' file.
@@ -341,14 +403,17 @@ def convert_to_mp4(filename):
     if fex == '.mp4':
         print(f'{filename} is already in mp4 container.')
         return filename
-    outname = of + '.mp4'
+    if not target_name:
+        target_name = of + '.mp4'
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
     cmds = ['ffmpeg', '-y', '-i', filename,
-            "-q:v", "3", "-c:a", "copy", outname]
+            "-q:v", "3", "-c:a", "copy", target_name]
     ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Converting to mp4:')
-    return outname
+    return target_name
 
 
-def cast_into_avi(filename):
+def cast_into_avi(filename, target_name=None, overwrite=False):
     """
     *Experimental*
     Casts a video into and .avi container using ffmpeg. Much faster than `convert_to_avi`,
@@ -356,9 +421,8 @@ def cast_into_avi(filename):
 
     Args:
         filename (str): Path to the input video file.
-
-    Outputs:
-        `filename`.avi
+        target_name (str, optional): Target filename as path. Defaults to None (which assumes that the input filename should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
 
     Returns:
         str: The path to the output '.avi' file.
@@ -366,13 +430,16 @@ def cast_into_avi(filename):
 
     import os
     of = os.path.splitext(filename)[0]
-    outname = of + '.avi'
-    cmds = ['ffmpeg', '-y', '-i', filename, "-codec copy", outname]
+    if not target_name:
+        target_name = of + '.avi'
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
+    cmds = ['ffmpeg', '-y', '-i', filename, "-codec copy", target_name]
     ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Casting to avi')
-    return outname
+    return target_name
 
 
-def extract_subclip(filename, t1, t2, targetname=None):
+def extract_subclip(filename, t1, t2, target_name=None, overwrite=False):
     """
     Extracts a section of the video using ffmpeg.
 
@@ -380,10 +447,11 @@ def extract_subclip(filename, t1, t2, targetname=None):
         filename (str): Path to the input video file.
         t1 (float): The start of the section to extract in seconds.
         t2 (float): The end of the section to extract in seconds.
-        targetname (str, optional): The name for the output file. If None, the name will be \<input name\>SUB\<start time in ms\>_\<end time in ms\>.\<file extension\>. Defaults to None.
+        target_name (str, optional): The name for the output file. If None, the name will be \<input name\>SUB\<start time in ms\>_\<end time in ms\>.\<file extension\>. Defaults to None.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
 
-    Outputs:
-        The extracted section as a video.
+    Returns:
+        str: Path to the extracted section as a video.
     """
 
     import os
@@ -394,9 +462,12 @@ def extract_subclip(filename, t1, t2, targetname=None):
     if start > end:
         end = length
 
-    if not targetname:
+    if not target_name:
         T1, T2 = [int(1000*t) for t in [start, end]]
-        targetname = "%sSUB%d_%d.%s" % (name, T1, T2, ext)
+        target_name = "%sSUB%d_%d.%s" % (name, T1, T2, ext)
+
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
 
     # avoiding ffmpeg glitch if format is not avi:
     if os.path.splitext(filename)[1] != '.avi':
@@ -404,27 +475,27 @@ def extract_subclip(filename, t1, t2, targetname=None):
                "-ss", "%0.2f" % start,
                "-i", filename,
                "-t", "%0.2f" % (end-start),
-               "-map", "0", targetname]
+               "-map", "0", target_name]
     else:
         cmd = ['ffmpeg', "-y",
                "-ss", "%0.2f" % start,
                "-i", filename,
                "-t", "%0.2f" % (end-start),
-               "-map", "0", "-codec", "copy", targetname]
+               "-map", "0", "-codec", "copy", target_name]
 
     ffmpeg_cmd(cmd, length, pb_prefix='Trimming:')
+    return target_name
 
 
-def rotate_video(filename, angle):
+def rotate_video(filename, angle, target_name=None, overwrite=False):
     """
     Rotates a video by an `angle` using ffmpeg.
 
     Args:
         filename (str): Path to the input video file.
         angle (float): The angle (in degrees) specifying the amount of rotation. Positive values rotate clockwise.
-
-    Outputs:
-        `filename`_rot.<file extension>
+        target_name (str, optional): Target filename as path. Defaults to None (which assumes that the input filename with the suffix "_rot" should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
 
     Returns:
         str: The path to the rotated video file.
@@ -433,25 +504,27 @@ def rotate_video(filename, angle):
     import os
     import math
     of, fex = os.path.splitext(filename)
-    if os.path.isfile(of + '_rot' + fex):
-        os.remove(of + '_rot' + fex)
+
+    if not target_name:
+        target_name = of + '_rot' + fex
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
 
     cmds = ['ffmpeg', '-y', '-i', filename, "-vf",
-            f"rotate={math.radians(angle)}", "-q:v", "3", "-c:a", "copy", of + '_rot' + fex]
+            f"rotate={math.radians(angle)}", "-q:v", "3", "-c:a", "copy", target_name]
     ffmpeg_cmd(cmds, get_length(filename),
                pb_prefix=f"Rotating video by {angle} degrees:")
-    return of + '_rot', fex
+    return target_name
 
 
-def convert_to_grayscale(filename):
+def convert_to_grayscale(filename, target_name=None, overwrite=False):
     """
     Converts a video to grayscale using ffmpeg.
 
     Args:
         filename (str): Path to the input video file.
-
-    Outputs:
-        `filename`_gray.<file extension>
+        target_name (str, optional): Target filename as path. Defaults to None (which assumes that the input filename with the suffix "_gray" should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
 
     Returns:
         str: The path to the grayscale video file.
@@ -460,24 +533,27 @@ def convert_to_grayscale(filename):
     import os
     of, fex = os.path.splitext(filename)
 
+    if not target_name:
+        target_name = of + '_gray' + fex
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
+
     cmds = ['ffmpeg', '-y', '-i', filename, '-vf',
-            'hue=s=0', "-q:v", "3", "-c:a", "copy", of + '_gray' + fex]
+            'hue=s=0', "-q:v", "3", "-c:a", "copy", target_name]
     ffmpeg_cmd(cmds, get_length(filename),
                pb_prefix='Converting to grayscale:')
-    return of + '_gray', fex
+    return target_name
 
 
-def framediff_ffmpeg(filename, outname=None, color=True):
+def framediff_ffmpeg(filename, target_name=None, color=True, overwrite=False):
     """
     Renders a frame difference video from the input using ffmpeg.
 
     Args:
         filename (str): Path to the input video file.
-        outname (str, optional): The name of the output video. If None, the output name will be <input video>_framediff.<file extension>. Defaults to None.
+        target_name (str, optional): The name of the output video. Defaults to None (which assumes that the input filename with the suffix "_framediff" should be used).
         color (bool, optional): If False, the output will be grayscale. Defaults to True.
-
-    Outputs:
-        The frame difference video.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
 
     Returns:
         str: Path to the output video.
@@ -486,31 +562,31 @@ def framediff_ffmpeg(filename, outname=None, color=True):
     import os
     of, fex = os.path.splitext(filename)
 
-    if outname == None:
-        outname = of + '_framediff' + fex
+    if target_name == None:
+        target_name = of + '_framediff' + fex
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
     if color == True:
         pixformat = 'gbrp'
     else:
         pixformat = 'gray'
     cmd = ['ffmpeg', '-y', '-i', filename, '-filter_complex',
-           f'format={pixformat},tblend=all_mode=difference', '-q:v', '3', "-c:a", "copy", outname]
+           f'format={pixformat},tblend=all_mode=difference', '-q:v', '3', "-c:a", "copy", target_name]
     ffmpeg_cmd(cmd, get_length(filename),
                pb_prefix='Rendering frame difference video:')
-    return outname
+    return target_name
 
 
-def threshold_ffmpeg(filename, threshold=0.1, outname=None, binary=False):
+def threshold_ffmpeg(filename, threshold=0.1, target_name=None, binary=False, overwrite=False):
     """
     Renders a pixel-thresholded video from the input using ffmpeg.
 
     Args:
         filename (str): Path to the input video file.
         threshold (float, optional): The normalized pixel value to use as the threshold. Pixels below the threshold will turn black. Defaults to 0.1.
-        outname (str, optional): The name of the output video. If None, the output name will be <input video>_thresh.<file extension>. Defaults to None.
+        target_name (str, optional): The name of the output video. Defaults to None (which assumes that the input filename with the suffix "_thresh" should be used).
         binary (bool, optional): If True, the pixels above the threshold will turn white. Defaults to False.
-
-    Outputs:
-        The thresholded video.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
 
     Returns:
         str: Path to the output video.
@@ -520,8 +596,10 @@ def threshold_ffmpeg(filename, threshold=0.1, outname=None, binary=False):
     import matplotlib
     of, fex = os.path.splitext(filename)
 
-    if outname == None:
-        outname = of + '_thresh' + fex
+    if target_name == None:
+        target_name = of + '_thresh' + fex
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
 
     width, height = get_widthheight(filename)
 
@@ -530,15 +608,15 @@ def threshold_ffmpeg(filename, threshold=0.1, outname=None, binary=False):
 
     if binary == False:
         cmd = ['ffmpeg', '-y', '-i', filename, '-f', 'lavfi', '-i', f'color={thresh_color},scale={width}:{height}', '-f', 'lavfi',
-               '-i', f'color=black,scale={width}:{height}', '-i', filename, '-lavfi', 'format=gbrp,threshold', '-q:v', '3', "-c:a", "copy", outname]
+               '-i', f'color=black,scale={width}:{height}', '-i', filename, '-lavfi', 'format=gbrp,threshold', '-q:v', '3', "-c:a", "copy", target_name]
     else:
         cmd = ['ffmpeg', '-y', '-i', filename, '-f', 'lavfi', '-i', f'color={thresh_color},scale={width}:{height}', '-f', 'lavfi',
-               '-i', f'color=black,scale={width}:{height}', '-f', 'lavfi', '-i', f'color=white,scale={width}:{height}', '-lavfi', 'format=gray,threshold', '-q:v', '3', "-c:a", "copy", outname]
+               '-i', f'color=black,scale={width}:{height}', '-f', 'lavfi', '-i', f'color=white,scale={width}:{height}', '-lavfi', 'format=gray,threshold', '-q:v', '3', "-c:a", "copy", target_name]
 
     ffmpeg_cmd(cmd, get_length(filename),
                pb_prefix='Rendering threshold video:')
 
-    return outname
+    return target_name
 
 
 def motionvideo_ffmpeg(
@@ -550,7 +628,8 @@ def motionvideo_ffmpeg(
         use_median=False,
         kernel_size=5,
         invert=False,
-        outname=None):
+        target_name=None,
+        overwrite=False):
     """
     Renders a motion video using ffmpeg. 
 
@@ -563,10 +642,8 @@ def motionvideo_ffmpeg(
         use_median (bool, optional): If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
         kernel_size (int, optional): Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
         invert (bool, optional): If True, inverts colors of the motion video. Defaults to False.
-        outname (str, optional): If None the name of the output video will be <file name>_motion.<file extension>. Defaults to None.
-
-    Outputs:
-        The motion video.
+        target_name (str, optional): Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
 
     Returns:
         str: Path to the output video.
@@ -579,10 +656,12 @@ def motionvideo_ffmpeg(
     cmd = ['ffmpeg', '-y', '-i', filename]
     cmd_filter = ''
 
-    if outname == None:
-        outname = of + '_motion' + fex
+    if target_name == None:
+        target_name = of + '_motion' + fex
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
 
-    cmd_end = ['-q:v', '3', "-c:a", "copy", outname]
+    cmd_end = ['-q:v', '3', "-c:a", "copy", target_name]
 
     # set color mode
     if color == True:
@@ -634,7 +713,7 @@ def motionvideo_ffmpeg(
 
     ffmpeg_cmd(cmd, get_length(filename), pb_prefix='Rendering motion video:')
 
-    return outname
+    return target_name
 
 
 def motiongrams_ffmpeg(
@@ -645,7 +724,10 @@ def motiongrams_ffmpeg(
         blur='none',
         use_median=False,
         kernel_size=5,
-        invert=False):
+        invert=False,
+        target_name_x=None,
+        target_name_y=None,
+        overwrite=False):
     """
     Renders horizontal and vertical motiongrams using ffmpeg. 
 
@@ -658,10 +740,9 @@ def motiongrams_ffmpeg(
         use_median (bool, optional): If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
         kernel_size (int, optional): Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
         invert (bool, optional): If True, inverts colors of the motiongrams. Defaults to False.
-
-    Outputs:
-        `filename`_vgx.png
-        `filename`_vgy.png
+        target_name_x (str, optional): Target output name for the motiongram on the X axis. Defaults to None (which assumes that the input filename with the suffix "_mgx_ffmpeg" should be used).
+        target_name_y (str, optional): Target output name for the motiongram on the Y axis. Defaults to None (which assumes that the input filename with the suffix "_mgy_ffmpeg" should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
         str: Path to the output horizontal motiongram (_mgx).
@@ -672,6 +753,14 @@ def motiongrams_ffmpeg(
     import matplotlib
     of, fex = os.path.splitext(filename)
 
+    if target_name_x == None:
+        target_name_x = of+'_mgx_ffmpeg.png'
+    if target_name_y == None:
+        target_name_y = of+'_mgy_ffmpeg.png'
+    if not overwrite:
+        target_name_x = generate_outfilename(target_name_x)
+        target_name_y = generate_outfilename(target_name_y)
+
     cmd = ['ffmpeg', '-y', '-i', filename]
     cmd_filter = ''
 
@@ -679,9 +768,9 @@ def motiongrams_ffmpeg(
     framecount = get_framecount(filename)
 
     cmd_end_y = ['-aspect', f'{framecount}:{height}',
-                 '-frames', '1', of+'_mgy_ffmpeg.png']
+                 '-frames', '1', target_name_y]
     cmd_end_x = ['-aspect', f'{width}:{framecount}',
-                 '-frames', '1', of+'_mgx_ffmpeg.png']
+                 '-frames', '1', target_name_x]
 
     # set color mode
     if color == True:
@@ -737,10 +826,10 @@ def motiongrams_ffmpeg(
     ffmpeg_cmd(cmd_y, get_length(filename),
                pb_prefix='Rendering vertical motiongram:', stream=False)
 
-    return of+'_mgx.png', of+'_mgy.png'
+    return target_name_x, target_name_y
 
 
-def crop_ffmpeg(filename, w, h, x, y, outname=None):
+def crop_ffmpeg(filename, w, h, x, y, target_name=None, overwrite=False):
     """
     Crops a video using ffmpeg.
 
@@ -750,10 +839,8 @@ def crop_ffmpeg(filename, w, h, x, y, outname=None):
         h (int): The desired height.
         x (int): The horizontal coordinate of the top left pixel of the cropping rectangle.
         y (int): The vertical coordinate of the top left pixel of the cropping rectangle.
-        outname (str, optional): The name of the output video. If None, the output name will be <input video>_crop.<file extension>. Defaults to None.
-
-    Outputs:
-        The cropped video.
+        target_name (str, optional): The name of the output video. Defaults to None (which assumes that the input filename with the suffix "_crop" should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
         str: Path to the output video.
@@ -763,26 +850,27 @@ def crop_ffmpeg(filename, w, h, x, y, outname=None):
 
     of, fex = os.path.splitext(filename)
 
-    if outname == None:
-        outname = of + '_crop' + fex
+    if target_name == None:
+        target_name = of + '_crop' + fex
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
 
     cmd = ['ffmpeg', '-y', '-i', filename, '-vf',
-           f'crop={w}:{h}:{x}:{y}', '-q:v', '3', "-c:a", "copy", outname]
+           f'crop={w}:{h}:{x}:{y}', '-q:v', '3', "-c:a", "copy", target_name]
 
     ffmpeg_cmd(cmd, get_length(filename), pb_prefix='Rendering cropped video:')
 
-    return outname
+    return target_name
 
 
-def extract_wav(filename):
+def extract_wav(filename, target_name=None, overwrite=False):
     """
     Extracts audio from video into a .wav file via ffmpeg.
 
     Args:
         filename (str): Path to the video file from which the audio track shall be extracted.
-
-    Outputs:
-        `filename`.wav
+        target_name (str, optional): The name of the output video. Defaults to None (which assumes that the input filename should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
 
     Returns:
         str: The path to the output audio file.
@@ -790,14 +878,20 @@ def extract_wav(filename):
 
     import os
     of, fex = os.path.splitext(filename)
+
+    if target_name == None:
+        target_name = of + '.wav'
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
+
     if fex in ['.wav', '.WAV']:
         print(f'{filename} is already in .wav container.')
         return filename
-    outname = of + '.wav'
+
     cmds = ' '.join(['ffmpeg', '-y', '-i', wrap_str(filename), "-acodec",
-                     "pcm_s16le", wrap_str(outname)])
+                     "pcm_s16le", wrap_str(target_name)])
     os.system(cmds)
-    return outname
+    return target_name
 
 
 class FFprobeError(Exception):
@@ -842,25 +936,6 @@ def ffprobe(filename):
             return out
 
 
-# def get_widthheight(filename):
-#     """
-#     Gets the width and height of a video using moviepy.
-
-#     Args:
-#         filename (str): Path to the video file to measure.
-
-#     Returns:
-#         int: The width of the input video file.
-#         int: The height of the input video file.
-#     """
-
-#     from moviepy.editor import VideoFileClip
-#     clip = VideoFileClip(filename)
-#     (width, height) = clip.size
-#     clip.close()
-#     return width, height
-
-
 def get_widthheight(filename):
     """
     Gets the width and height of a video using FFprobe.
@@ -889,27 +964,6 @@ def get_widthheight(filename):
     return width, height
 
 
-# def has_audio(filename):
-#     """
-#     Checks if video has audio track using moviepy.
-
-#     Args:
-#         filename (str): Path to the video file to check.
-
-#     Returns:
-#         bool: True if `filename` has an audio track, False otherwise.
-#     """
-
-#     from moviepy.editor import VideoFileClip
-#     clip = VideoFileClip(filename)
-#     if clip.audio == None:
-#         clip.close()
-#         return False
-#     else:
-#         clip.close()
-#         return True
-
-
 def has_audio(filename):
     """
     Checks if video has audio track using FFprobe.
@@ -934,24 +988,6 @@ def has_audio(filename):
         return False
     else:
         return True
-
-
-# def get_length(filename):
-#     """
-#     Gets the length (in seconds) of a video using moviepy.
-
-#     Args:
-#         filename (str): Path to the video file to measure.
-
-#     Returns:
-#         float: The length of the input video file in seconds.
-#     """
-
-#     from moviepy.editor import VideoFileClip
-#     clip = VideoFileClip(filename)
-#     duration = float(clip.duration)
-#     clip.close()
-#     return duration
 
 
 def get_length(filename):
@@ -980,24 +1016,6 @@ def get_length(filename):
     time_string = duration_array[time_string_index][:-1]
     elems = [float(elem) for elem in time_string.split(':')]
     return elems[0]*3600 + elems[1]*60 + elems[2]
-
-
-# def get_framecount(filename):
-#     """
-#     Returns the number of frames in a video using moviepy.
-
-#     Args:
-#         filename (str): Path to the video file to measure.
-
-#     Returns:
-#         int: The number of frames in the input video file.
-#     """
-
-#     from moviepy.editor import VideoFileClip
-#     clip = VideoFileClip(filename)
-#     framecount = int(round(float(clip.duration) * float(clip.fps)))
-#     clip.close()
-#     return framecount
 
 
 def get_framecount(filename, fast=True):
@@ -1050,24 +1068,6 @@ def get_framecount(filename, fast=True):
                 "Could not count frames. (Is this a video file?)")
 
 
-# def get_fps(filename):
-#     """
-#     Gets the FPS (frames per second) value of a video using moviepy.
-
-#     Args:
-#         filename (str): Path to the video file to measure.
-
-#     Returns:
-#         float: The FPS value of the input video file.
-#     """
-
-#     from moviepy.editor import VideoFileClip
-#     clip = VideoFileClip(filename)
-#     fps = float(clip.fps)
-#     clip.close()
-#     return fps
-
-
 def get_fps(filename):
     """
     Gets the FPS (frames per second) value of a video using FFprobe.
@@ -1101,17 +1101,15 @@ def get_fps(filename):
     return fps
 
 
-def get_first_frame_as_image(filename, outname=None, pict_format='.png'):
+def get_first_frame_as_image(filename, target_name=None, pict_format='.png', overwrite=False):
     """
     Extracts the first frame of a video and saves it as an image using ffmpeg.
 
     Args:
         filename (str): Path to the input video file.
-        outname (str, optional): The name for the output image. If None, the output name will be <input name>`pict_format`. Defaults to None.
+        target_name (str, optional): The name for the output image. Defaults to None (which assumes that the input filename should be used).
         pict_format (str, optional): The format to use for the output image. Defaults to '.png'.
-
-    Outputs:
-        The first frame of the input video as an image file.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
 
     Returns:
         str: Path to the output image file.
@@ -1120,15 +1118,17 @@ def get_first_frame_as_image(filename, outname=None, pict_format='.png'):
     import os
     of = os.path.splitext(filename)[0]
 
-    if outname == None:
-        outname = of + pict_format
+    if target_name == None:
+        target_name = of + pict_format
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
 
     cmd = ' '.join(['ffmpeg', '-y', '-i', wrap_str(filename),
-                    '-frames', '1', wrap_str(outname)])
+                    '-frames', '1', wrap_str(target_name)])
 
     os.system(cmd)
 
-    return outname
+    return target_name
 
 
 def get_screen_resolution_scaled():
@@ -1177,16 +1177,15 @@ def get_screen_video_ratio(filename):
     return smallest_ratio
 
 
-def audio_dilate(filename, dilation_ratio=1):
+def audio_dilate(filename, dilation_ratio=1, target_name=None, overwrite=False):
     """
     Time-stretches or -shrinks (dilates) an audio file using ffmpeg.
 
     Args:
         filename (str): Path to the audio file to dilate.
         dilation_ratio (float, optional): The source file's length divided by the resulting file's length. Defaults to 1.
-
-    Outputs:
-        <file name>_dilated.<file extension>
+        target_name (str, optional): The name of the output video. Defaults to None (which assumes that the input filename with the suffix "_dilated" should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
 
     Returns:
         str: The path to the output audio file.
@@ -1194,11 +1193,16 @@ def audio_dilate(filename, dilation_ratio=1):
 
     import os
     of, fex = os.path.splitext(filename)
-    outname = of + '_dilated' + fex
+
+    if target_name == None:
+        target_name = of + '_dilated' + fex
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
+
     cmds = ' '.join(['ffmpeg', '-y', '-i', wrap_str(filename), '-codec:a', 'pcm_s16le',
-                     '-filter:a', 'atempo=' + str(dilation_ratio), wrap_str(outname)])
+                     '-filter:a', 'atempo=' + str(dilation_ratio), wrap_str(target_name)])
     os.system(cmds)
-    return outname
+    return target_name
 
 
 def embed_audio_in_video(source_audio, destination_video, dilation_ratio=1):
@@ -1209,9 +1213,6 @@ def embed_audio_in_video(source_audio, destination_video, dilation_ratio=1):
         source_audio (str): Path to the audio file to embed.
         destination_video (str): Path to the video file to embed the audio file in.
         dilation_ratio (float, optional): The source file's length divided by the resulting file's length. Defaults to 1.
-
-    Outputs:
-        `destination_video` with the embedded audio file.
     """
 
     import os
@@ -1382,7 +1383,6 @@ def wrap_str(string, matchers=[" ", "(", ")"]):
     """
     Wraps a string in double quotes if it contains any of `matchers` - by default: space or parentheses.
     Useful when working with shell commands.
-
 
     Args:
         string (str): The string to inspect.

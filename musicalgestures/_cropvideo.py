@@ -100,7 +100,9 @@ def mg_cropvideo_ffmpeg(
         filename,
         crop_movement='Auto',
         motion_box_thresh=0.1,
-        motion_box_margin=12):
+        motion_box_margin=12,
+        target_name=None,
+        overwrite=False):
     """
     Crops the video using ffmpeg.
 
@@ -109,6 +111,8 @@ def mg_cropvideo_ffmpeg(
         crop_movement (str, optional): 'Auto' finds the bounding box that contains the total motion in the video. Motion threshold is given by motion_box_thresh. 'Manual' opens up a simple GUI that is used to crop the video manually by looking at the first frame. Defaults to 'Auto'.
         motion_box_thresh (float, optional): Only meaningful if `crop_movement='Auto'`. Takes floats between 0 and 1, where 0 includes all the motion and 1 includes none. Defaults to 0.1.
         motion_box_margin (int, optional): Only meaningful if `crop_movement='Auto'`. Adds margin to the bounding box. Defaults to 12.
+        target_name (str, optional): The name of the output video. Defaults to None (which assumes that the input filename with the suffix "_crop" should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
         str: Path to the cropped video.
@@ -140,7 +144,7 @@ def mg_cropvideo_ffmpeg(
         w, h, x, y = find_motion_box_ffmpeg(
             filename, motion_box_thresh=motion_box_thresh, motion_box_margin=motion_box_margin)
 
-    cropped_video = crop_ffmpeg(filename, w, h, x, y)
+    cropped_video = crop_ffmpeg(filename, w, h, x, y, target_name=target_name, overwrite=overwrite)
 
     if crop_movement.lower() == 'manual':
         cv2.destroyAllWindows()
