@@ -56,7 +56,16 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                 else:
                     video_to_display = file
 
-                display(Video(video_to_display, width=800))
+                # if the video is at the same folder as the notebook, we need to use relative path
+                # and if it is somewhere else, we need to embed it to make it work (neither absolute nor relative paths seem to work without embedding)
+                cwd = os.getcwd().replace('\\', '/')
+                file_dir = os.path.dirname(video_to_display).replace('\\', '/')
+                if file_dir == cwd:
+                    video_to_display = os.path.relpath(video_to_display, os.getcwd()).replace('\\', '/')
+                    display(Video(video_to_display))
+                else:
+                    display(Video(video_to_display, embed=True))
+
 
         else:
             print(

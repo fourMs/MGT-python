@@ -408,8 +408,35 @@ def convert_to_mp4(filename, target_name=None, overwrite=False):
     if not overwrite:
         target_name = generate_outfilename(target_name)
     cmds = ['ffmpeg', '-y', '-i', filename,
-            "-q:v", "3", "-c:a", "copy", target_name]
+            "-q:v", "3", target_name]
     ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Converting to mp4:')
+    return target_name
+
+def convert_to_webm(filename, target_name=None, overwrite=False):
+    """
+    Converts a video to one with .webm extension using ffmpeg.
+
+    Args:
+        filename (str): Path to the input video file to convert.
+        target_name (str, optional): Target filename as path. Defaults to None (which assumes that the input filename should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+
+    Returns:
+        str: The path to the output '.webm' file.
+    """
+
+    import os
+    of, fex = os.path.splitext(filename)
+    if fex == '.webm':
+        print(f'{filename} is already in webm container.')
+        return filename
+    if not target_name:
+        target_name = of + '.webm'
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
+    cmds = ['ffmpeg', '-y', '-i', filename,
+            "-q:v", "3", target_name]
+    ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Converting to webm:')
     return target_name
 
 
