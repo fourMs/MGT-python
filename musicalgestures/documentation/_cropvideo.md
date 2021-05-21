@@ -1,38 +1,24 @@
 # Cropvideo
 
-> Auto-generated documentation for [_cropvideo](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py) module.
+> Auto-generated documentation for [_cropvideo](git config --get remote.origin.url_cropvideo.py) module.
 
-- [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Cropvideo
-    - [draw_rectangle](#draw_rectangle)
-    - [find_motion_box](#find_motion_box)
+- [musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Cropvideo
+    - [async_subprocess](#async_subprocess)
     - [find_motion_box_ffmpeg](#find_motion_box_ffmpeg)
-    - [find_total_motion_box](#find_total_motion_box)
-    - [mg_cropvideo](#mg_cropvideo)
     - [mg_cropvideo_ffmpeg](#mg_cropvideo_ffmpeg)
+    - [run_cropping_window](#run_cropping_window)
 
-## draw_rectangle
+## async_subprocess
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L101)
-
-```python
-def draw_rectangle(event, x, y, flags, param):
-```
-
-Helper function to render a cropping window to the user in case of manual cropping, using cv2.
-
-## find_motion_box
-
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L124)
+[[find in source code]](git config --get remote.origin.url_cropvideo.py#L156)
 
 ```python
-def find_motion_box(grayimage, width, height, motion_box_margin):
+async def async_subprocess(command):
 ```
-
-Helper function to find the area of motion in a single frame, using cv2.
 
 ## find_motion_box_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L224)
+[[find in source code]](git config --get remote.origin.url_cropvideo.py#L10)
 
 ```python
 def find_motion_box_ffmpeg(
@@ -61,64 +47,9 @@ Helper function to find the area of motion in a video, using ffmpeg.
 - `int` - The X coordinate of the top left corner of the motion box.
 - `int` - The Y coordinate of the top left corner of the motion box.
 
-## find_total_motion_box
-
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L187)
-
-```python
-def find_total_motion_box(
-    vid2findbox,
-    width,
-    height,
-    length,
-    motion_box_thresh,
-    motion_box_margin,
-):
-```
-
-Helper function to find the area of motion in a video, using cv2.
-
-## mg_cropvideo
-
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L9)
-
-```python
-def mg_cropvideo(
-    fps,
-    width,
-    height,
-    length,
-    of,
-    fex,
-    crop_movement='Auto',
-    motion_box_thresh=0.1,
-    motion_box_margin=1,
-):
-```
-
-Crops the video using cv2.
-
-#### Arguments
-
-- `fps` *int* - The FPS (frames per second) of the input video capture.
-- `width` *int* - The pixel width of the input video capture.
-- `height` *int* - The pixel height of the input video capture.
-- `length` *int* - The number of frames in the input video capture.
-- `of` *str* - 'Only filename' without extension (but with path to the file).
-- `fex` *str* - File extension.
-- `crop_movement` *str, optional* - 'Auto' finds the bounding box that contains the total motion in the video. Motion threshold is given by motion_box_thresh. 'Manual' opens up a simple GUI that is used to crop the video manually by looking at the first frame. Defaults to 'Auto'.
-- `motion_box_thresh` *float, optional* - Only meaningful if `crop_movement='Auto'`. Takes floats between 0 and 1, where 0 includes all the motion and 1 includes none. Defaults to 0.1.
-- `motion_box_margin` *int, optional* - Only meaningful if `crop_movement='Auto'`. Adds margin to the bounding box. Defaults to 1.
-
-#### Returns
-
-- `cv2.VideoCapture` - The cropped video as a cv2.Videocapture
-- `int` - The pixel width of the cropped video
-- `int` - The pixel height of the cropped video
-
 ## mg_cropvideo_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L313)
+[[find in source code]](git config --get remote.origin.url_cropvideo.py#L99)
 
 ```python
 def mg_cropvideo_ffmpeg(
@@ -126,6 +57,8 @@ def mg_cropvideo_ffmpeg(
     crop_movement='Auto',
     motion_box_thresh=0.1,
     motion_box_margin=12,
+    target_name=None,
+    overwrite=False,
 ):
 ```
 
@@ -137,7 +70,17 @@ Crops the video using ffmpeg.
 - `crop_movement` *str, optional* - 'Auto' finds the bounding box that contains the total motion in the video. Motion threshold is given by motion_box_thresh. 'Manual' opens up a simple GUI that is used to crop the video manually by looking at the first frame. Defaults to 'Auto'.
 - `motion_box_thresh` *float, optional* - Only meaningful if `crop_movement='Auto'`. Takes floats between 0 and 1, where 0 includes all the motion and 1 includes none. Defaults to 0.1.
 - `motion_box_margin` *int, optional* - Only meaningful if `crop_movement='Auto'`. Adds margin to the bounding box. Defaults to 12.
+- `target_name` *str, optional* - The name of the output video. Defaults to None (which assumes that the input filename with the suffix "_crop" should be used).
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
 #### Returns
 
 - `str` - Path to the cropped video.
+
+## run_cropping_window
+
+[[find in source code]](git config --get remote.origin.url_cropvideo.py#L176)
+
+```python
+def run_cropping_window(imgpath, scale_ratio, scaled_width, scaled_height):
+```

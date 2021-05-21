@@ -1,14 +1,14 @@
 # Videoreader
 
-> Auto-generated documentation for [\_videoreader](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_videoreader.py) module.
+> Auto-generated documentation for [_videoreader](git config --get remote.origin.url_videoreader.py) module.
 
-- [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Videoreader
-  - [ReadError](#readerror)
-  - [mg_videoreader](#mg_videoreader)
+- [musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Videoreader
+    - [ReadError](#readerror)
+    - [mg_videoreader](#mg_videoreader)
 
 ## ReadError
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_videoreader.py#L9)
+[[find in source code]](git config --get remote.origin.url_videoreader.py#L9)
 
 ```python
 class ReadError(Exception):
@@ -18,7 +18,7 @@ Base class for file read errors.
 
 ## mg_videoreader
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_videoreader.py#L14)
+[[find in source code]](git config --get remote.origin.url_videoreader.py#L14)
 
 ```python
 def mg_videoreader(
@@ -37,7 +37,6 @@ def mg_videoreader(
 ```
 
 Reads in a video file, and optionally apply several different processes on it. These include:
-
 - trimming,
 - skipping,
 - rotating,
@@ -47,21 +46,17 @@ Reads in a video file, and optionally apply several different processes on it. T
 
 #### Arguments
 
-- `filename` _str_ - Path to the input video file.
-  starttime (int or float, optional): Trims the video from this start time (s). Defaults to 0.
-  endtime (int or float, optional): Trims the video until this end time (s). Defaults to 0 (which will make the algorithm use the full length of the input video instead).
-- `skip` _int, optional_ - Time-shrinks the video by skipping (discarding) every n frames determined by `skip`. Defaults to 0.
-  rotate (int or float, optional): Rotates the video by a `rotate` degrees. Defaults to 0.
-  contrast (int or float, optional): Applies +/- 100 contrast to video. Defaults to 0.
-  brightness (int or float, optional): Applies +/- 100 brightness to video. Defaults to 0.
-- `crop` _str, optional_ - If 'manual', opens a window displaying the first frame of the input video file, where the user can draw a rectangle to which cropping is applied. If 'auto' the cropping function attempts to determine the area of significant motion and applies the cropping to that area. Defaults to 'None'.
-- `color` _bool, optional_ - If False, converts the video to grayscale and sets every method in grayscale mode. Defaults to True.
-- `keep_all` _bool, optional_ - If True, preserves an output video file after each used preprocessing stage. Defaults to False.
-- `returned_by_process` _bool, optional_ - This parameter is only for internal use, do not use it. Defaults to False.
-
-#### Outputs
-
-- A video file with the applied processes. The name of the file will be `filename` + a suffix for each process.
+- `filename` *str* - Path to the input video file.
+starttime (int or float, optional): Trims the video from this start time (s). Defaults to 0.
+endtime (int or float, optional): Trims the video until this end time (s). Defaults to 0 (which will make the algorithm use the full length of the input video instead).
+- `skip` *int, optional* - Time-shrinks the video by skipping (discarding) every n frames determined by `skip`. Defaults to 0.
+rotate (int or float, optional): Rotates the video by a `rotate` degrees. Defaults to 0.
+contrast (int or float, optional): Applies +/- 100 contrast to video. Defaults to 0.
+brightness (int or float, optional): Applies +/- 100 brightness to video. Defaults to 0.
+- `crop` *str, optional* - If 'manual', opens a window displaying the first frame of the input video file, where the user can draw a rectangle to which cropping is applied. If 'auto' the cropping function attempts to determine the area of significant motion and applies the cropping to that area. Defaults to 'None'.
+- `color` *bool, optional* - If False, converts the video to grayscale and sets every method in grayscale mode. Defaults to True.
+- `keep_all` *bool, optional* - If True, preserves an output video file after each used preprocessing stage. Defaults to False.
+- `returned_by_process` *bool, optional* - This parameter is only for internal use, do not use it. Defaults to False.
 
 #### Returns
 

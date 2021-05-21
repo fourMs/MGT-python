@@ -1,13 +1,14 @@
-# Musicalgestures Modules
+# musicalgestures Modules
 
 > Auto-generated documentation modules index.
 
-Full list of [Musicalgestures](README.md#musicalgestures-index) project modules.
+Full list of [musicalgestures](README.md#musicalgestures-index) project modules.
 
-- [Musicalgestures Index](README.md#musicalgestures-index)
+- [musicalgestures Index](README.md#musicalgestures-index)
 - [Audio](_audio.md#audio)
 - [Average](_average.md#average)
 - [Centroid](_centroid.md#centroid)
+- [Cropping Window](_cropping_window.md#cropping-window)
 - [Cropvideo](_cropvideo.md#cropvideo)
 - [Filter](_filter.md#filter)
 - [Flow](_flow.md#flow)

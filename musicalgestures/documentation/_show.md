@@ -1,13 +1,14 @@
 # Show
 
-> Auto-generated documentation for [_show](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_show.py) module.
+> Auto-generated documentation for [_show](git config --get remote.origin.url_show.py) module.
 
-- [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Show
+- [musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Show
     - [mg_show](#mg_show)
+    - [show_async](#show_async)
 
 ## mg_show
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_show.py#L9)
+[[find in source code]](git config --get remote.origin.url_show.py#L11)
 
 ```python
 def mg_show(
@@ -31,3 +32,13 @@ General method to show an image or video file either in a window, or inline in a
 - `window_width` *int, optional* - The width of the window. Defaults to 640.
 - `window_height` *int, optional* - The height of the window. Defaults to 480.
 - `window_title` *str, optional* - The title of the window. If None, the title of the window will be the file name. Defaults to None.
+
+## show_async
+
+[[find in source code]](git config --get remote.origin.url_show.py#L255)
+
+```python
+def show_async(command):
+```
+
+Helper function to show ffplay windows asynchronously

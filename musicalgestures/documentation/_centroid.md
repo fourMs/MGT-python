@@ -1,13 +1,13 @@
 # Centroid
 
-> Auto-generated documentation for [_centroid](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_centroid.py) module.
+> Auto-generated documentation for [_centroid](git config --get remote.origin.url_centroid.py) module.
 
-- [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Centroid
+- [musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Centroid
     - [centroid](#centroid)
 
 ## centroid
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_centroid.py#L5)
+[[find in source code]](git config --get remote.origin.url_centroid.py#L5)
 
 ```python
 def centroid(image, width, height):

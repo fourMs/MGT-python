@@ -1,19 +1,21 @@
 # Audio
 
-> Auto-generated documentation for [\_audio](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py) module.
+> Auto-generated documentation for [_audio](git config --get remote.origin.url_audio.py) module.
 
-- [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Audio
-  - [Audio](#audio)
-    - [Audio().descriptors](#audiodescriptors)
-    - [Audio().spectrogram](#audiospectrogram)
-    - [Audio().tempogram](#audiotempogram)
-  - [mg_audio_descriptors](#mg_audio_descriptors)
-  - [mg_audio_spectrogram](#mg_audio_spectrogram)
-  - [mg_audio_tempogram](#mg_audio_tempogram)
+- [musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Audio
+    - [Audio](#audio)
+        - [Audio().descriptors](#audiodescriptors)
+        - [Audio().spectrogram](#audiospectrogram)
+        - [Audio().tempogram](#audiotempogram)
+        - [Audio().waveform](#audiowaveform)
+    - [mg_audio_descriptors](#mg_audio_descriptors)
+    - [mg_audio_spectrogram](#mg_audio_spectrogram)
+    - [mg_audio_tempogram](#mg_audio_tempogram)
+    - [mg_audio_waveform](#mg_audio_waveform)
 
 ## Audio
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L11)
+[[find in source code]](git config --get remote.origin.url_audio.py#L22)
 
 ```python
 class Audio():
@@ -24,7 +26,7 @@ Class container for audio analysis processes.
 
 ### Audio().descriptors
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L112)
+[[find in source code]](git config --get remote.origin.url_audio.py#L210)
 
 ```python
 def descriptors(
@@ -34,7 +36,9 @@ def descriptors(
     power=2,
     dpi=300,
     autoshow=True,
-    title=None
+    title=None,
+    target_name=None,
+    overwrite=False,
 ):
 ```
 
@@ -42,17 +46,15 @@ Renders a figure of plots showing spectral/loudness descriptors, including RMS e
 
 #### Arguments
 
-- `window_size` _int, optional_ - The size of the FFT frame. Defaults to 4096.
-- `overlap` _int, optional_ - The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
-- `mel_filters` _int, optional_ - The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
-- `power` _float, optional_ - The steepness of the curve for the color mapping. Defaults to 2.
-- `dpi` _int, optional_ - Image quality of the rendered figure in DPI. Defaults to 300.
-- `autoshow` _bool, optional_ - Whether to show the resulting figure automatically. Defaults to True.
-- `title` _str, optional_ - Optionally add title to the figure. Defaults to None, which uses the file name as a title.
-
-#### Outputs
-
-- `self.filename`\_descriptors.png
+- `window_size` *int, optional* - The size of the FFT frame. Defaults to 4096.
+- `overlap` *int, optional* - The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
+- `mel_filters` *int, optional* - The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
+- `power` *float, optional* - The steepness of the curve for the color mapping. Defaults to 2.
+- `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
+- `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
+- `title` *str, optional* - Optionally add title to the figure. Defaults to None, which uses the file name as a title.
+- `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_descriptors.png" should be used).
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
 #### Returns
 
@@ -60,7 +62,7 @@ Renders a figure of plots showing spectral/loudness descriptors, including RMS e
 
 ### Audio().spectrogram
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L26)
+[[find in source code]](git config --get remote.origin.url_audio.py#L107)
 
 ```python
 def spectrogram(
@@ -70,7 +72,9 @@ def spectrogram(
     power=2,
     dpi=300,
     autoshow=True,
-    title=None
+    title=None,
+    target_name=None,
+    overwrite=False,
 ):
 ```
 
@@ -78,17 +82,15 @@ Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
 #### Arguments
 
-- `window_size` _int, optional_ - The size of the FFT frame. Defaults to 4096.
-- `overlap` _int, optional_ - The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
-- `mel_filters` _int, optional_ - The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
-- `power` _float, optional_ - The steepness of the curve for the color mapping. Defaults to 2.
-- `dpi` _int, optional_ - Image quality of the rendered figure in DPI. Defaults to 300.
-- `autoshow` _bool, optional_ - Whether to show the resulting figure automatically. Defaults to True.
-- `title` _str, optional_ - Optionally add title to the figure. Defaults to None, which uses the file name as a title.
-
-#### Outputs
-
-- `self.filename`\_spectrogram.png
+- `window_size` *int, optional* - The size of the FFT frame. Defaults to 4096.
+- `overlap` *int, optional* - The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
+- `mel_filters` *int, optional* - The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
+- `power` *float, optional* - The steepness of the curve for the color mapping. Defaults to 2.
+- `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
+- `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
+- `title` *str, optional* - Optionally add title to the figure. Defaults to None, which uses the file name as a title.
+- `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_spectrogram.png" should be used).
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
 #### Returns
 
@@ -96,7 +98,7 @@ Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
 ### Audio().tempogram
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L233)
+[[find in source code]](git config --get remote.origin.url_audio.py#L348)
 
 ```python
 def tempogram(
@@ -106,7 +108,9 @@ def tempogram(
     power=2,
     dpi=300,
     autoshow=True,
-    title=None
+    title=None,
+    target_name=None,
+    overwrite=False,
 ):
 ```
 
@@ -114,17 +118,45 @@ Renders a figure with a plots of onset strength and tempogram of the video/audio
 
 #### Arguments
 
-- `window_size` _int, optional_ - The size of the FFT frame. Defaults to 4096.
-- `overlap` _int, optional_ - The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
-- `mel_filters` _int, optional_ - The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
-- `power` _float, optional_ - The steepness of the curve for the color mapping. Defaults to 2.
-- `dpi` _int, optional_ - Image quality of the rendered figure in DPI. Defaults to 300.
-- `autoshow` _bool, optional_ - Whether to show the resulting figure automatically. Defaults to True.
-- `title` _str, optional_ - Optionally add title to the figure. Defaults to None, which uses the file name as a title.
+- `window_size` *int, optional* - The size of the FFT frame. Defaults to 4096.
+- `overlap` *int, optional* - The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
+- `mel_filters` *int, optional* - The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
+- `power` *float, optional* - The steepness of the curve for the color mapping. Defaults to 2.
+- `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
+- `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
+- `title` *str, optional* - Optionally add title to the figure. Defaults to None, which uses the file name as a title.
+- `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_tempogram.png" should be used).
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
-#### Outputs
+#### Returns
 
-- `self.filename`\_tempogram.png
+- `MgFigure` - An MgFigure object referring to the internal figure and its data.
+
+### Audio().waveform
+
+[[find in source code]](git config --get remote.origin.url_audio.py#L38)
+
+```python
+def waveform(
+    mono=False,
+    dpi=300,
+    autoshow=True,
+    title=None,
+    target_name=None,
+    overwrite=False,
+):
+```
+
+Renders a figure showing the waveform of the video/audio file.
+
+#### Arguments
+
+- `mono` *bool, optional* - Convert the signal to mono. Defaults to False.
+- `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
+- `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
+- `title` *str, optional* - Optionally add title to the figure. Defaults to None, which uses the file name as a title. Defaults to None.
+- `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_waveform.png" should be used).
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
 #### Returns
 
@@ -132,7 +164,7 @@ Renders a figure with a plots of onset strength and tempogram of the video/audio
 
 ## mg_audio_descriptors
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L403)
+[[find in source code]](git config --get remote.origin.url_audio.py#L629)
 
 ```python
 def mg_audio_descriptors(
@@ -143,7 +175,9 @@ def mg_audio_descriptors(
     power=2,
     dpi=300,
     autoshow=True,
-    title=None
+    title=None,
+    target_name=None,
+    overwrite=False,
 ):
 ```
 
@@ -151,18 +185,16 @@ Renders a figure of plots showing spectral/loudness descriptors, including RMS e
 
 #### Arguments
 
-- `filename` _str, optional_ - Path to the audio/video file to be processed. Defaults to None.
-- `window_size` _int, optional_ - The size of the FFT frame. Defaults to 4096.
-- `overlap` _int, optional_ - The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
-- `mel_filters` _int, optional_ - The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
-- `power` _float, optional_ - The steepness of the curve for the color mapping. Defaults to 2.
-- `dpi` _int, optional_ - Image quality of the rendered figure in DPI. Defaults to 300.
-- `autoshow` _bool, optional_ - Whether to show the resulting figure automatically. Defaults to True.
-- `title` _str, optional_ - Optionally add title to the figure. Defaults to None, which uses the file name as a title.
-
-#### Outputs
-
-- `filename`\_descriptors.png
+- `filename` *str, optional* - Path to the audio/video file to be processed. Defaults to None.
+- `window_size` *int, optional* - The size of the FFT frame. Defaults to 4096.
+- `overlap` *int, optional* - The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
+- `mel_filters` *int, optional* - The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
+- `power` *float, optional* - The steepness of the curve for the color mapping. Defaults to 2.
+- `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
+- `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
+- `title` *str, optional* - Optionally add title to the figure. Defaults to None, which uses the file name as a title.
+- `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_descriptors.png" should be used).
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
 #### Returns
 
@@ -170,7 +202,7 @@ Renders a figure of plots showing spectral/loudness descriptors, including RMS e
 
 ## mg_audio_spectrogram
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L309)
+[[find in source code]](git config --get remote.origin.url_audio.py#L518)
 
 ```python
 def mg_audio_spectrogram(
@@ -181,7 +213,9 @@ def mg_audio_spectrogram(
     power=2,
     dpi=300,
     autoshow=True,
-    title=None
+    title=None,
+    target_name=None,
+    overwrite=False,
 ):
 ```
 
@@ -189,18 +223,16 @@ Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
 #### Arguments
 
-- `filename` _str, optional_ - Path to the audio/video file to be processed. Defaults to None.
-- `window_size` _int, optional_ - The size of the FFT frame. Defaults to 4096.
-- `overlap` _int, optional_ - The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
-- `mel_filters` _int, optional_ - The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
-- `power` _float, optional_ - The steepness of the curve for the color mapping. Defaults to 2.
-- `dpi` _int, optional_ - Image quality of the rendered figure in DPI. Defaults to 300.
-- `autoshow` _bool, optional_ - Whether to show the resulting figure automatically. Defaults to True.
-- `title` _str, optional_ - Optionally add title to the figure. Defaults to None, which uses the file name as a title.
-
-#### Outputs
-
-- `filename`\_spectrogram.png
+- `filename` *str, optional* - Path to the audio/video file to be processed. Defaults to None.
+- `window_size` *int, optional* - The size of the FFT frame. Defaults to 4096.
+- `overlap` *int, optional* - The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
+- `mel_filters` *int, optional* - The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
+- `power` *float, optional* - The steepness of the curve for the color mapping. Defaults to 2.
+- `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
+- `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
+- `title` *str, optional* - Optionally add title to the figure. Defaults to None, which uses the file name as a title.
+- `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_spectrogram.png" should be used).
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
 #### Returns
 
@@ -208,7 +240,7 @@ Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
 ## mg_audio_tempogram
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L530)
+[[find in source code]](git config --get remote.origin.url_audio.py#L773)
 
 ```python
 def mg_audio_tempogram(
@@ -219,7 +251,9 @@ def mg_audio_tempogram(
     power=2,
     dpi=300,
     autoshow=True,
-    title=None
+    title=None,
+    target_name=None,
+    overwrite=False,
 ):
 ```
 
@@ -227,18 +261,48 @@ Renders a figure with a plots of onset strength and tempogram of the video/audio
 
 #### Arguments
 
-- `filename` _str, optional_ - Path to the audio/video file to be processed. Defaults to None.
-- `window_size` _int, optional_ - The size of the FFT frame. Defaults to 4096.
-- `overlap` _int, optional_ - The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
-- `mel_filters` _int, optional_ - The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
-- `power` _float, optional_ - The steepness of the curve for the color mapping. Defaults to 2.
-- `dpi` _int, optional_ - Image quality of the rendered figure in DPI. Defaults to 300.
-- `autoshow` _bool, optional_ - Whether to show the resulting figure automatically. Defaults to True.
-- `title` _str, optional_ - Optionally add title to the figure. Defaults to None, which uses the file name as a title.
+- `filename` *str, optional* - Path to the audio/video file to be processed. Defaults to None.
+- `window_size` *int, optional* - The size of the FFT frame. Defaults to 4096.
+- `overlap` *int, optional* - The window overlap. The hop size is window_size / overlap. Example: window_size=1024, overlap=4 -> hop=256. Defaults to 8.
+- `mel_filters` *int, optional* - The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
+- `power` *float, optional* - The steepness of the curve for the color mapping. Defaults to 2.
+- `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
+- `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
+- `title` *str, optional* - Optionally add title to the figure. Defaults to None, which uses the file name as a title.
+- `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_tempogram.png" should be used).
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
-#### Outputs
+#### Returns
 
-- `filename`\_tempogram.png
+- `MgFigure` - An MgFigure object referring to the internal figure and its data.
+
+## mg_audio_waveform
+
+[[find in source code]](git config --get remote.origin.url_audio.py#L441)
+
+```python
+def mg_audio_waveform(
+    filename=None,
+    mono=False,
+    dpi=300,
+    autoshow=True,
+    title=None,
+    target_name=None,
+    overwrite=False,
+):
+```
+
+Renders a figure showing the waveform of the video/audio file.
+
+#### Arguments
+
+- `filename` *str, optional* - Path to the audio/video file to be processed. Defaults to None.
+- `mono` *bool, optional* - Convert the signal to mono. Defaults to False.
+- `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
+- `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
+- `title` *str, optional* - Optionally add title to the figure. Defaults to None, which uses the file name as a title. Defaults to None.
+- `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_waveform.png" should be used).
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
 #### Returns
 

@@ -1,46 +1,57 @@
 # Videoadjust
 
-> Auto-generated documentation for [\_videoadjust](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_videoadjust.py) module.
+> Auto-generated documentation for [_videoadjust](git config --get remote.origin.url_videoadjust.py) module.
 
-- [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Videoadjust
-  - [contrast_brightness_ffmpeg](#contrast_brightness_ffmpeg)
-  - [skip_frames_ffmpeg](#skip_frames_ffmpeg)
+- [musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Videoadjust
+    - [contrast_brightness_ffmpeg](#contrast_brightness_ffmpeg)
+    - [skip_frames_ffmpeg](#skip_frames_ffmpeg)
 
 ## contrast_brightness_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_videoadjust.py#L6)
+[[find in source code]](git config --get remote.origin.url_videoadjust.py#L6)
 
 ```python
-def contrast_brightness_ffmpeg(filename, contrast=0, brightness=0):
+def contrast_brightness_ffmpeg(
+    filename,
+    contrast=0,
+    brightness=0,
+    target_name=None,
+    overwrite=False,
+):
 ```
 
 Applies contrast and brightness adjustments on the source video using ffmpeg.
 
 #### Arguments
 
-- `filename` _str_ - Path to the video to process.
-  contrast (int or float, optional): Increase or decrease contrast. Values range from -100 to 100. Defaults to 0.
-  brightness (int or float, optional): Increase or decrease brightness. Values range from -100 to 100. Defaults to 0.
+- `filename` *str* - Path to the video to process.
+contrast (int or float, optional): Increase or decrease contrast. Values range from -100 to 100. Defaults to 0.
+brightness (int or float, optional): Increase or decrease brightness. Values range from -100 to 100. Defaults to 0.
+- `target_name` *str, optional* - Defaults to None (which assumes that the input filename with the suffix "_cb" should be used).
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
 
-#### Outputs
+#### Returns
 
-- `filename`\_cb.\<file extension\>
+- `str` - Path to the output video.
 
 ## skip_frames_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_videoadjust.py#L54)
+[[find in source code]](git config --get remote.origin.url_videoadjust.py#L61)
 
 ```python
-def skip_frames_ffmpeg(filename, skip=0):
+def skip_frames_ffmpeg(filename, skip=0, target_name=None, overwrite=False):
 ```
 
-Time-shrinks the video by skipping (discarding) every n frames determined by `skip`. To discard half of the frames (ie. double the speed of the video) use `skip=1`.
+Time-shrinks the video by skipping (discarding) every n frames determined by `skip`.
+To discard half of the frames (ie. double the speed of the video) use `skip=1`.
 
 #### Arguments
 
-- `filename` _str_ - Path to the video to process.
-- `skip` _int, optional_ - Discard `skip` frames before keeping one. Defaults to 0.
+- `filename` *str* - Path to the video to process.
+- `skip` *int, optional* - Discard `skip` frames before keeping one. Defaults to 0.
+- `target_name` *str, optional* - Defaults to None (which assumes that the input filename with the suffix "_skip" should be used).
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
 
-#### Outputs
+#### Returns
 
-- `filename`\_skip.\<file extension\>
+- `str` - Path to the output video.
