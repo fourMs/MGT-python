@@ -333,8 +333,8 @@ def download_model(modeltype):
     mpi_script = module_path + '/pose/getMPI'
     coco_script = module_path + '/pose/getCOCO'
     wget_win = module_path + '/3rdparty/windows/wget/wget.exe'
-    target_folder_mpi = module_path + '/pose/mpi'
-    target_folder_coco = module_path + '/pose/coco'
+    target_folder_mpi = musicalgestures._utils.wrap_str(module_path + '/pose/mpi')
+    target_folder_coco = musicalgestures._utils.wrap_str(module_path + '/pose/coco')
 
     if the_system == 'Windows':
         mpi_script += batch
@@ -344,7 +344,7 @@ def download_model(modeltype):
         coco_script += shell
 
     if modeltype.lower() == 'mpi':
-        command = mpi_script
+        command = musicalgestures._utils.wrap_str(mpi_script) 
         if the_system == 'Windows':
             command += f' {wget_win} {target_folder_mpi}'
         else:
