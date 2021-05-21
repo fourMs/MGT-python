@@ -1,13 +1,13 @@
 # Average
 
-> Auto-generated documentation for [_average](git config --get remote.origin.url_average.py) module.
+> Auto-generated documentation for [_average](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_average.py) module.
 
-- [musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Average
+- [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Average
     - [mg_average_image](#mg_average_image)
 
 ## mg_average_image
 
-[[find in source code]](git config --get remote.origin.url_average.py#L7)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_average.py#L7)
 
 ```python
 def mg_average_image(

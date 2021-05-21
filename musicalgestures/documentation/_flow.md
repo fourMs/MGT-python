@@ -1,15 +1,15 @@
 # Flow
 
-> Auto-generated documentation for [_flow](git config --get remote.origin.url_flow.py) module.
+> Auto-generated documentation for [_flow](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py) module.
 
-- [musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Flow
+- [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Flow
     - [Flow](#flow)
         - [Flow().dense](#flowdense)
         - [Flow().sparse](#flowsparse)
 
 ## Flow
 
-[[find in source code]](git config --get remote.origin.url_flow.py#L9)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L9)
 
 ```python
 class Flow():
@@ -20,7 +20,7 @@ Class container for the sparse and dense optical flow processes.
 
 ### Flow().dense
 
-[[find in source code]](git config --get remote.origin.url_flow.py#L29)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L29)
 
 ```python
 def dense(
@@ -60,7 +60,7 @@ Renders a dense optical flow video of the input video file using `cv2.calcOptica
 
 ### Flow().sparse
 
-[[find in source code]](git config --get remote.origin.url_flow.py#L158)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L158)
 
 ```python
 def sparse(

@@ -1,15 +1,15 @@
 # Input Test
 
-> Auto-generated documentation for [_input_test](git config --get remote.origin.url_input_test.py) module.
+> Auto-generated documentation for [_input_test](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_input_test.py) module.
 
-- [musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Input Test
+- [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Input Test
     - [Error](#error)
     - [InputError](#inputerror)
     - [mg_input_test](#mg_input_test)
 
 ## Error
 
-[[find in source code]](git config --get remote.origin.url_input_test.py#L1)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_input_test.py#L1)
 
 ```python
 class Error(Exception):
@@ -19,7 +19,7 @@ Base class for exceptions in this module.
 
 ## InputError
 
-[[find in source code]](git config --get remote.origin.url_input_test.py#L6)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_input_test.py#L6)
 
 ```python
 class InputError(Error):
@@ -38,7 +38,7 @@ Exception raised for errors in the input.
 
 ## mg_input_test
 
-[[find in source code]](git config --get remote.origin.url_input_test.py#L18)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_input_test.py#L18)
 
 ```python
 def mg_input_test(

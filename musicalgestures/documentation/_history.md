@@ -1,15 +1,15 @@
 # History
 
-> Auto-generated documentation for [_history](git config --get remote.origin.url_history.py) module.
+> Auto-generated documentation for [_history](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_history.py) module.
 
-- [musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / History
+- [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / History
     - [ParameterError](#parametererror)
     - [history_cv2](#history_cv2)
     - [history_ffmpeg](#history_ffmpeg)
 
 ## ParameterError
 
-[[find in source code]](git config --get remote.origin.url_history.py#L8)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_history.py#L8)
 
 ```python
 class ParameterError(Exception):
@@ -19,7 +19,7 @@ Base class for argument errors.
 
 ## history_cv2
 
-[[find in source code]](git config --get remote.origin.url_history.py#L110)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_history.py#L110)
 
 ```python
 def history_cv2(
@@ -48,7 +48,7 @@ weights (int, float, or list, optional): Defines the weight or weights applied t
 
 ## history_ffmpeg
 
-[[find in source code]](git config --get remote.origin.url_history.py#L13)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_history.py#L13)
 
 ```python
 def history_ffmpeg(

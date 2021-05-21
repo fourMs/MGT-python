@@ -1,8 +1,8 @@
-# musicalgestures Index
+# Musicalgestures Index
 
 > Auto-generated documentation index.
 
-Full musicalgestures project documentation can be found in [Modules](MODULES.md#musicalgestures-modules)
+Full Musicalgestures project documentation can be found in [Modules](MODULES.md#musicalgestures-modules)
 
-- [musicalgestures Index](#musicalgestures-index)
-  - [musicalgestures Modules](MODULES.md#musicalgestures-modules)
+- [Musicalgestures Index](#musicalgestures-index)
+  - [Musicalgestures Modules](MODULES.md#musicalgestures-modules)

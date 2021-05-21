@@ -1,14 +1,14 @@
 # Pose
 
-> Auto-generated documentation for [_pose](git config --get remote.origin.url_pose.py) module.
+> Auto-generated documentation for [_pose](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py) module.
 
-- [musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Pose
+- [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Pose
     - [download_model](#download_model)
     - [pose](#pose)
 
 ## download_model
 
-[[find in source code]](git config --get remote.origin.url_pose.py#L317)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py#L317)
 
 ```python
 def download_model(modeltype):
@@ -18,7 +18,7 @@ Helper function to automatically download model (.caffemodel) files.
 
 ## pose
 
-[[find in source code]](git config --get remote.origin.url_pose.py#L13)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py#L13)
 
 ```python
 def pose(

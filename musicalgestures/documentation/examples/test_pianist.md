@@ -1,8 +1,8 @@
 # Test Pianist
 
-> Auto-generated documentation for [examples.test_pianist](git config --get remote.origin.urlexamples/test_pianist.py) module.
+> Auto-generated documentation for [examples.test_pianist](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/examples/test_pianist.py) module.
 
-- [musicalgestures](..\README.md#musicalgestures-index) / [Modules](..\MODULES.md#musicalgestures-modules) / [Examples](index.md#examples) / Test Pianist
+- [Musicalgestures](..\README.md#musicalgestures-index) / [Modules](..\MODULES.md#musicalgestures-modules) / [Examples](index.md#examples) / Test Pianist
 
 #### Attributes
 

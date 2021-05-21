@@ -1,8 +1,8 @@
 # Motionvideo
 
-> Auto-generated documentation for [_motionvideo](git config --get remote.origin.url_motionvideo.py) module.
+> Auto-generated documentation for [_motionvideo](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py) module.
 
-- [musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Motionvideo
+- [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Motionvideo
     - [mg_motion](#mg_motion)
     - [mg_motiondata](#mg_motiondata)
     - [mg_motiongrams](#mg_motiongrams)
@@ -13,7 +13,7 @@
 
 ## mg_motion
 
-[[find in source code]](git config --get remote.origin.url_motionvideo.py#L265)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L265)
 
 ```python
 def mg_motion(
@@ -75,7 +75,7 @@ data_format (str or list, optional): Specifies format of motion-data. Accepted v
 
 ## mg_motiondata
 
-[[find in source code]](git config --get remote.origin.url_motionvideo.py#L87)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L87)
 
 ```python
 def mg_motiondata(
@@ -108,7 +108,7 @@ str or list: The path(s) to the rendered data file(s).
 
 ## mg_motiongrams
 
-[[find in source code]](git config --get remote.origin.url_motionvideo.py#L14)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L14)
 
 ```python
 def mg_motiongrams(
@@ -147,7 +147,7 @@ Shortcut for [mg_motion](#mg_motion) to only render motiongrams.
 
 ## mg_motionplots
 
-[[find in source code]](git config --get remote.origin.url_motionvideo.py#L155)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L155)
 
 ```python
 def mg_motionplots(
@@ -182,7 +182,7 @@ Shortcut for [mg_motion](#mg_motion) to only render motion plots.
 
 ## mg_motionvideo
 
-[[find in source code]](git config --get remote.origin.url_motionvideo.py#L206)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L206)
 
 ```python
 def mg_motionvideo(
@@ -217,7 +217,7 @@ Shortcut to only render the motion video. Uses musicalgestures._utils.motionvide
 
 ## plot_motion_metrics
 
-[[find in source code]](git config --get remote.origin.url_motionvideo.py#L532)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L532)
 
 ```python
 def plot_motion_metrics(
@@ -238,7 +238,7 @@ Helper function to plot the centroid and quantity of motion using matplotlib.
 
 ## save_txt
 
-[[find in source code]](git config --get remote.origin.url_motionvideo.py#L573)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L573)
 
 ```python
 def save_txt(
