@@ -128,8 +128,14 @@ def history_cv2(self, filename=None, history_length=10, weights=1, target_name=N
     of, fex = os.path.splitext(filename)
 
     if fex != '.avi':
-        filename = convert_to_avi(of + fex, overwrite=overwrite)
-        of, fex = os.path.splitext(filename)
+        # first check if there already is a converted version, if not create one and register it to the parent self
+        if "as_avi" not in self.__dict__.keys():
+            file_as_avi = convert_to_avi(of + fex, overwrite=overwrite)
+            # register it as the avi version for the file
+            self.as_avi = musicalgestures.MgObject(file_as_avi)
+        # point of and fex to the avi version
+        of, fex = self.as_avi.of, self.as_avi.fex
+        filename = of + fex
     
     video = cv2.VideoCapture(filename)
     ret, frame = video.read()
