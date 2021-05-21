@@ -78,7 +78,7 @@ class MgObject:
         self.returned_by_process = returned_by_process
         self.test_input()
         self.get_video()
-        self.flow = Flow(self.filename, self.color, self.has_audio)
+        self.flow = Flow(self, self.filename, self.color, self.has_audio)
         self.audio = Audio(self.filename)
 
     from musicalgestures._motionvideo import mg_motion as motion

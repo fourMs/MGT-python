@@ -92,8 +92,14 @@ def pose(
     of, fex = os.path.splitext(self.filename)
 
     if fex != '.avi':
-        filename = convert_to_avi(of + fex, overwrite=overwrite)
-        of, fex = os.path.splitext(filename)
+        # first check if there already is a converted version, if not create one and register it to the parent self
+        if "as_avi" not in self.__dict__.keys():
+            file_as_avi = convert_to_avi(of + fex, overwrite=overwrite)
+            # register it as the avi version for the file
+            self.as_avi = musicalgestures.MgObject(file_as_avi)
+        # point of and fex to the avi version
+        of, fex = self.as_avi.of, self.as_avi.fex
+        filename = of + fex
     else:
         filename = self.filename
 
@@ -299,7 +305,13 @@ def pose(
     if save_data:
         save_txt(of, width, height, model, data, data_format, target_name_data=target_name_data, overwrite=overwrite)
 
-    return musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
+    if save_video:
+        # save result as pose_video for parent MgObject
+        self.pose_video = musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
+        return self.pose_video
+    else:
+        # otherwise just return the parent MgObject
+        return self
 
 
 def download_model(modeltype):

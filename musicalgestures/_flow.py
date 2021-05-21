@@ -3,6 +3,7 @@ import os
 import numpy as np
 from musicalgestures._utils import extract_wav, embed_audio_in_video, MgProgressbar, convert_to_avi, generate_outfilename
 import musicalgestures
+import weakref
 
 
 class Flow:
@@ -10,15 +11,17 @@ class Flow:
     Class container for the sparse and dense optical flow processes.
     """
 
-    def __init__(self, filename, color, has_audio):
+    def __init__(self, parent, filename, color, has_audio):
         """
         Initializes the Flow class.
 
         Args:
+            parent (MgObject): the parent MgObject.
             filename (str): Path to the input video file. Passed by parent MgObject.
             color (bool): Set class methods in color or grayscale mode. Passed by parent MgObject.
             has_audio (bool): Indicates whether source video file has an audio track. Passed by parent MgObject.
         """
+        self.parent = weakref.ref(parent)
         self.filename = filename
         self.color = color
         self.has_audio = has_audio
@@ -63,8 +66,14 @@ class Flow:
 
         # Convert to avi if the input is not avi - necesarry for cv2 compatibility on all platforms
         if fex != '.avi':
-            filename = convert_to_avi(of + fex, overwrite=overwrite)
-            of, fex = os.path.splitext(filename)
+            # first check if there already is a converted version, if not create one and register it to the parent self
+            if "as_avi" not in self.parent().__dict__.keys():
+                file_as_avi = convert_to_avi(of + fex, overwrite=overwrite)
+                # register it as the avi version for the file
+                self.parent().as_avi = musicalgestures.MgObject(file_as_avi)
+            # point of and fex to the avi version
+            of, fex = self.parent().as_avi.of, self.parent().as_avi.fex
+            filename = self.parent().as_avi.filename
 
         vidcap = cv2.VideoCapture(filename)
         ret, frame = vidcap.read()
@@ -141,7 +150,10 @@ class Flow:
             embed_audio_in_video(source_audio, destination_video)
             os.remove(source_audio)
 
-        return musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
+        # save result at flow_dense_video at parent MgObject
+        self.parent().flow_dense_video = musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
+
+        return self.parent().flow_dense_video
 
     def sparse(
             self,
@@ -181,8 +193,14 @@ class Flow:
 
         # Convert to avi if the input is not avi - necesarry for cv2 compatibility on all platforms
         if fex != '.avi':
-            filename = convert_to_avi(of + fex, overwrite=overwrite)
-            of, fex = os.path.splitext(filename)
+            # first check if there already is a converted version, if not create one and register it to the parent self
+            if "as_avi" not in self.parent().__dict__.keys():
+                file_as_avi = convert_to_avi(of + fex, overwrite=overwrite)
+                # register it as the avi version for the file
+                self.parent().as_avi = musicalgestures.MgObject(file_as_avi)
+            # point of and fex to the avi version
+            of, fex = self.parent().as_avi.of, self.parent().as_avi.fex
+            filename = self.parent().as_avi.filename
 
         vidcap = cv2.VideoCapture(filename)
         ret, frame = vidcap.read()
@@ -276,4 +294,7 @@ class Flow:
             embed_audio_in_video(source_audio, destination_video)
             os.remove(source_audio)
 
-        return musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
+        # save result at flow_sparse_video at parent MgObject
+        self.parent().flow_sparse_video = musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
+
+        return self.parent().flow_sparse_video

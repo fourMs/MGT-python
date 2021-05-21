@@ -80,7 +80,7 @@ def mg_motiongrams(
         target_name_mgx=target_name_mgx,
         target_name_mgy=target_name_mgy,
         overwrite=overwrite)
-
+    # mg_motion also saves the motiongrams as MgImages to self.motiongram_x and self.motiongram_y of the parent MgObject
     return MgList(MgImage(out_x), MgImage(out_y))
 
 
@@ -199,6 +199,7 @@ def mg_motionplots(
         target_name_plot=target_name,
         overwrite=overwrite)
 
+    # mg_motion also saves the plot as an MgImage to self.motion_plot of the parent MgObject
     return MgImage(target_name)
 
 
@@ -241,7 +242,12 @@ def mg_motionvideo(
         target_name=target_name,
         overwrite=overwrite)
 
-    return musicalgestures.MgObject(motionvideo, color=self.color, returned_by_process=True)
+    # return musicalgestures.MgObject(motionvideo, color=self.color, returned_by_process=True)
+
+    # save motion video as motion_video for parent MgObject
+    # we have to do this here since we are not using mg_motion (that would normally save the result itself)
+    self.motion_video = musicalgestures.MgObject(motionvideo, color=self.color, returned_by_process=True)
+    return self.motion_video
 
     # return mg_motion(
     #     self,
@@ -318,8 +324,13 @@ def mg_motion(
 
         # Convert to avi if the input is not avi - necesarry for cv2 compatibility on all platforms
         if fex != '.avi':
-            filename = convert_to_avi(of + fex, overwrite=overwrite)
-            of, fex = os.path.splitext(filename)
+            # first check if there already is a converted version, if not create one and register it to the parent self
+            if "as_avi" not in self.__dict__.keys():
+                file_as_avi = convert_to_avi(of + fex, overwrite=overwrite)
+                # register it as the avi version for the file
+                self.as_avi = musicalgestures.MgObject(file_as_avi)
+            # point of and fex to the avi version
+            of, fex = self.as_avi.of, self.as_avi.fex
 
         vidcap = cv2.VideoCapture(of+fex)
         ret, frame = vidcap.read()
@@ -477,13 +488,18 @@ def mg_motion(
                 cv2.imwrite(target_name_mgx, gramx.astype(np.uint8))
                 cv2.imwrite(target_name_mgy, gramy.astype(np.uint8))
 
+            # save rendered motiongrams as MgImages into parent MgObject
+            self.motiongram_x = MgImage(target_name_mgx)
+            self.motiongram_y = MgImage(target_name_mgy)
+
         if save_data:
             save_txt(of, time, com, qom, self.width, self.height, data_format, target_name_data=target_name_data, overwrite=overwrite)
 
         if save_plot:
             if plot_title == None:
                 plot_title = os.path.basename(of + fex)
-            plot_motion_metrics(of, self.fps, com, qom, self.width, self.height, unit, plot_title, target_name_plot=target_name_plot, overwrite=overwrite)
+            # save plot as an MgImage at motion_plot for parent MgObject
+            self.motion_plot = MgImage(plot_motion_metrics(of, self.fps, com, qom, self.width, self.height, unit, plot_title, target_name_plot=target_name_plot, overwrite=overwrite))
 
         # resetting numpy warnings for dividing by 0
         np.seterr(divide='warn', invalid='warn')
@@ -491,18 +507,26 @@ def mg_motion(
         vidcap.release()
         if save_video:
             out.release()
-            destination_video = of + '_motion' + fex
+            # destination_video = of + '_motion' + fex
+            destination_video = target_name_video
             if self.has_audio:
                 source_audio = extract_wav(of + fex)
                 embed_audio_in_video(source_audio, destination_video)
                 os.remove(source_audio)
-            return musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
+            # return musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
+            # save rendered motion video as the motion_video of the parent MgObject
+            self.motion_video = musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
+            return self.motion_video
+        # if we don't save the motion video, just return the MgObject the motion() was called upon
         else:
-            return musicalgestures.MgObject(of + fex, color=self.color, returned_by_process=True)
+            # return musicalgestures.MgObject(of + fex, color=self.color, returned_by_process=True)
+            return self
 
+    # just return the MgObject the motion() was called upon
     else:
         print("Nothing to render. Exiting...")
-        return musicalgestures.MgObject(of + fex, returned_by_process=True)
+        # return musicalgestures.MgObject(of + fex, returned_by_process=True)
+        return self
 
 
 def plot_motion_metrics(of, fps, com, qom, width, height, unit, title, target_name_plot, overwrite):
@@ -542,6 +566,8 @@ def plot_motion_metrics(of, fps, com, qom, width, height, unit, title, target_na
         target_name_plot = generate_outfilename(target_name_plot)
 
     plt.savefig(target_name_plot, format='png', transparent=False)
+
+    return target_name_plot
 
 
 def save_txt(of, time, com, qom, width, height, data_format, target_name_data, overwrite):

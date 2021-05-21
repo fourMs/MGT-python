@@ -68,4 +68,7 @@ def mg_average_image(self, filename=None, normalize=True, target_name=None, over
     else:
         cv2.imwrite(target_name, average.astype(np.uint8))
 
-    return MgImage(target_name)
+    # save result as the average_image for parent MgObject
+    self.average_image = MgImage(target_name)
+
+    return self.average_image

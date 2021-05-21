@@ -101,8 +101,10 @@ def history_ffmpeg(self, filename=None, history_length=10, weights=1, normalize=
 
     ffmpeg_cmd(cmd, get_length(filename), pb_prefix='Rendering history video:')
 
-    # destination_video = self.of + '_history' + self.fex
-    return musicalgestures.MgObject(target_name, color=self.color, returned_by_process=True)
+    # save the result as the history_video for parent MgObject
+    self.history_video = musicalgestures.MgObject(target_name, color=self.color, returned_by_process=True)
+
+    return self.history_video
 
 
 def history_cv2(self, filename=None, history_length=10, weights=1, target_name=None, overwrite=False):
@@ -211,4 +213,7 @@ def history_cv2(self, filename=None, history_length=10, weights=1, target_name=N
         embed_audio_in_video(source_audio, destination_video)
         os.remove(source_audio)
 
-    return musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
+    self.history_video = musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
+
+    # return musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
+    return self.history_video

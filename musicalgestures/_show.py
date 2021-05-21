@@ -4,6 +4,8 @@ import os
 from matplotlib import pyplot as plt
 from IPython.display import Image, Video, display
 from base64 import b64encode
+import musicalgestures
+# from musicalgestures._utils import get_widthheight
 
 
 def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, window_height=480, window_title=None):
@@ -20,7 +22,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
         window_title (str, optional): The title of the window. If None, the title of the window will be the file name. Defaults to None.
     """
 
-    def show(file, width=640, height=480, mode='windowed', title='Untitled'):
+    def show(file, width=640, height=480, mode='windowed', title='Untitled', parent=None):
         """
         Helper function which actually does the "showing".
 
@@ -49,12 +51,23 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                 display(Image(file))
             elif file_type == 'video':
                 if file_extension not in ['.mp4', '.webm', '.ogg']:
-                    from musicalgestures._utils import convert_to_mp4
-                    print(
-                        'Only mp4, webm and ogg videos are supported in notebook mode.')
-                    video_to_display = convert_to_mp4(file)
+                    keys = parent.__dict__.keys()
+                    if "as_mp4" not in keys:
+                        from musicalgestures._utils import convert_to_mp4
+                        print(
+                            'Only mp4, webm and ogg videos are supported in notebook mode.')
+                        video_to_display = convert_to_mp4(file)
+                        # register converted video as_mp4 for parent MgObject
+                        parent.as_mp4 = musicalgestures.MgObject(video_to_display)
+                    else:
+                        video_to_display = parent.as_mp4.filename
                 else:
                     video_to_display = file
+
+                # check width and height of video, if they are bigger than "appropriate", limit their dimensions
+                video_width, video_height = musicalgestures._utils.get_widthheight(video_to_display)
+                video_width = video_width if video_width <= width else width
+                video_height = video_height if video_height <= height else height
 
                 # if the video is at the same folder as the notebook, we need to use relative path
                 # and if it is somewhere else, we need to embed it to make it work (neither absolute nor relative paths seem to work without embedding)
@@ -62,9 +75,9 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                 file_dir = os.path.dirname(video_to_display).replace('\\', '/')
                 if file_dir == cwd:
                     video_to_display = os.path.relpath(video_to_display, os.getcwd()).replace('\\', '/')
-                    display(Video(video_to_display))
+                    display(Video(video_to_display, width=video_width, height=video_height))
                 else:
-                    display(Video(video_to_display, embed=True))
+                    display(Video(video_to_display, width=video_width, height=video_height, embed=True))
 
 
         else:
@@ -76,79 +89,164 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
 
     if filename == None:
         # filename = self.filename
+        keys = self.__dict__.keys()
         if key == None:
             filename = self.filename
             show(file=filename, width=window_width,
-                 height=window_height, mode=mode, title=window_title)
+                 height=window_height, mode=mode, title=window_title, parent=self)
+
         elif key.lower() == 'mgx':
-            filename = self.of + '_mgx.png'
-            show(file=filename, width=window_width,
-                 height=window_height, mode=mode, title=f'Horizontal Motiongram | {filename}')
+            # filename = self.of + '_mgx.png'
+            if "motiongram_x" in keys:
+                filename = self.motiongram_x.filename
+                show(file=filename, width=window_width,
+                    height=window_height, mode=mode, title=f'Horizontal Motiongram | {filename}', parent=self)
+            else:
+                raise FileNotFoundError("There is no known horizontal motiongram for this file.")
+
         elif key.lower() == 'mgy':
-            filename = self.of + '_mgy.png'
-            show(file=filename, width=window_width,
-                 height=window_height, mode=mode, title=f'Vertical Motiongram | {filename}')
+            # filename = self.of + '_mgy.png'
+            if "motiongram_y" in keys:
+                filename = self.motiongram_y.filename
+                show(file=filename, width=window_width,
+                    height=window_height, mode=mode, title=f'Vertical Motiongram | {filename}', parent=self)
+            else:
+                raise FileNotFoundError("There is no known vertical motiongram for this file.")
+
+        elif key.lower() == 'vgx':
+            # filename = self.of + '_vgx.png'
+            if "videogram_x" in keys:
+                filename = self.videogram_x.filename
+                show(file=filename, width=window_width,
+                    height=window_height, mode=mode, title=f'Horizontal Videogram | {filename}', parent=self)
+            else:
+                raise FileNotFoundError("There is no known horizontal videogram for this file.")
+
+        elif key.lower() == 'vgy':
+            # filename = self.of + '_vgy.png'
+            if "videogram_y" in keys:
+                filename = self.videogram_y.filename
+                show(file=filename, width=window_width,
+                    height=window_height, mode=mode, title=f'Vertical Videogram | {filename}', parent=self)
+            else:
+                raise FileNotFoundError("There is no known vertical videogram for this file.")
+
         elif key.lower() == 'average':
-            filename = self.of + '_average.png'
-            show(file=filename, width=window_width,
-                 height=window_height, mode=mode, title=f'Average | {filename}')
+            # filename = self.of + '_average.png'
+            if "average_image" in keys:
+                filename = self.average_image.filename
+                show(file=filename, width=window_width,
+                    height=window_height, mode=mode, title=f'Average Image | {filename}', parent=self)
+            else:
+                raise FileNotFoundError("There is no known average image for this file.")
         elif key.lower() == 'plot':
-            filename = self.of + '_motion_com_qom.png'
-            show(file=filename, width=window_width,
-                 height=window_height, mode=mode, title=f'Centroid and Quantity of Motion | {filename}')
+            # filename = self.of + '_motion_com_qom.png'
+            if "motion_plot" in keys:
+                filename = self.motion_plot.filename
+                show(file=filename, width=window_width,
+                    height=window_height, mode=mode, title=f'Centroid and Quantity of Motion | {filename}', parent=self)
+            else:
+                raise FileNotFoundError("There is no known motion plot for this file.")
 
         elif key.lower() == 'motion':
             # motion is always avi
-            if os.path.exists(self.of + '_motion.avi'):
-                filename = self.of + '_motion.avi'
+            # if os.path.exists(self.of + '_motion.avi'):
+            #     filename = self.of + '_motion.avi'
+            #     show(file=filename, width=window_width,
+            #          height=window_height, mode=mode, title=f'Motion | {filename}')
+            # else:
+            #     print("No motion video found corresponding to",
+            #           self.of+self.fex, ". Try making one with .motion()")
+            if "motion_video" in keys:
+                filename = self.motion_video.filename
                 show(file=filename, width=window_width,
-                     height=window_height, mode=mode, title=f'Motion | {filename}')
+                    height=window_height, mode=mode, title=f'Motion Video | {filename}', parent=self)
             else:
-                print("No motion video found corresponding to",
-                      self.of+self.fex, ". Try making one with .motion()")
+                raise FileNotFoundError("There is no known motion video for this file.")
+
         elif key.lower() == 'history':
-            if os.path.exists(self.of + '_history' + self.fex):
-                filename = self.of + '_history' + self.fex
+            # if os.path.exists(self.of + '_history' + self.fex):
+            #     filename = self.of + '_history' + self.fex
+            #     show(file=filename, width=window_width,
+            #          height=window_height, mode=mode, title=f'History | {filename}')
+            # else:
+            #     print("No history video found corresponding to",
+            #           self.of+self.fex, ". Try making one with .history()")
+            if "history_video" in keys:
+                filename = self.history_video.filename
                 show(file=filename, width=window_width,
-                     height=window_height, mode=mode, title=f'History | {filename}')
+                    height=window_height, mode=mode, title=f'History Video | {filename}', parent=self)
             else:
-                print("No history video found corresponding to",
-                      self.of+self.fex, ". Try making one with .history()")
+                raise FileNotFoundError("There is no known history video for this file.")
+
         elif key.lower() == 'motionhistory':
             # motion_history is always avi
-            if os.path.exists(self.of + '_motion_history.avi'):
-                filename = self.of + '_motion_history.avi'
-                show(file=filename, width=window_width,
-                     height=window_height, mode=mode, title=f'Motion History | {filename}')
+            # if os.path.exists(self.of + '_motion_history.avi'):
+            #     filename = self.of + '_motion_history.avi'
+            #     show(file=filename, width=window_width,
+            #          height=window_height, mode=mode, title=f'Motion History | {filename}')
+            # else:
+            #     print("No motion history video found corresponding to",
+            #           self.of+self.fex, ". Try making one with .motionhistory()")
+            if "motion_video" in keys:
+                motion_video_keys = self.motion_video.__dict__.keys()
+                if "history_video" in motion_video_keys:
+                    filename = self.motion_vide.history_video.filename
+                    show(file=filename, width=window_width,
+                        height=window_height, mode=mode, title=f'Motion History Video | {filename}', parent=self)
+                else:
+                    raise FileNotFoundError("There is no known motion history video for this file.")
             else:
-                print("No motion history video found corresponding to",
-                      self.of+self.fex, ". Try making one with .motionhistory()")
+                raise FileNotFoundError("There is no known motion video for this file.")
+
         elif key.lower() == 'sparse':
             # optical flow is always avi
-            if os.path.exists(self.of + '_flow_sparse.avi'):
-                filename = self.of + '_flow_sparse.avi'
+            # if os.path.exists(self.of + '_flow_sparse.avi'):
+            #     filename = self.of + '_flow_sparse.avi'
+            #     show(file=filename, width=window_width,
+            #          height=window_height, mode=mode, title=f'Sparse Optical Flow | {filename}')
+            # else:
+            #     print("No sparse optical flow video found corresponding to",
+            #           self.of+self.fex, ". Try making one with .flow.sparse()")
+            if "flow_sparse_video" in keys:
+                filename = self.flow_sparse_video.filename
                 show(file=filename, width=window_width,
-                     height=window_height, mode=mode, title=f'Sparse Optical Flow | {filename}')
+                    height=window_height, mode=mode, title=f'Sparse Optical Flow Video | {filename}', parent=self)
             else:
-                print("No sparse optical flow video found corresponding to",
-                      self.of+self.fex, ". Try making one with .flow.sparse()")
+                raise FileNotFoundError("There is no known sparse optial flow video for this file.")
+
         elif key.lower() == 'dense':
             # optical flow is always avi
-            if os.path.exists(self.of + '_flow_dense.avi'):
-                filename = self.of + '_flow_dense.avi'
+            # if os.path.exists(self.of + '_flow_dense.avi'):
+            #     filename = self.of + '_flow_dense.avi'
+            #     show(file=filename, width=window_width,
+            #          height=window_height, mode=mode, title=f'Dense Optical Flow | {filename}')
+            # else:
+            #     print("No dense optical flow video found corresponding to",
+            #           self.of+self.fex, ". Try making one with .flow.dense()")
+            if "flow_dense_video" in keys:
+                filename = self.flow_dense_video.filename
                 show(file=filename, width=window_width,
-                     height=window_height, mode=mode, title=f'Dense Optical Flow | {filename}')
+                    height=window_height, mode=mode, title=f'Dense Optical Flow Video | {filename}', parent=self)
             else:
-                print("No dense optical flow video found corresponding to",
-                      self.of+self.fex, ". Try making one with .flow.dense()")
+                raise FileNotFoundError("There is no known dense optial flow video for this file.")
+
+        elif key.lower() == 'pose':
+            if "pose_video" in keys:
+                filename = self.pose_video.filename
+                show(file=filename, width=window_width,
+                    height=window_height, mode=mode, title=f'Pose Video | {filename}', parent=self)
+            else:
+                raise FileNotFoundError("There is no known pose video for this file.")
+
         else:
             print("Unknown shorthand.\n",
-                  "For images, try 'mgx', 'mgy', 'average' or 'plot'.\n",
-                  "For videos try 'motion', 'history', 'motionhistory', 'sparse' or 'dense'.")
+                  "For images, try 'mgx', 'mgy', 'vgx', 'vgy', 'average' or 'plot'.\n",
+                  "For videos try 'motion', 'history', 'motionhistory', 'sparse', 'dense' or 'pose'.")
 
     else:
         show(file=filename, width=window_width,
-             height=window_height, mode=mode, title=window_title)
+             height=window_height, mode=mode, title=window_title, parent=self)
     # show(file=filename, width=window_width, height=window_height, mode=mode, title=window_title)
 
     return self
