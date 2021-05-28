@@ -1,9 +1,13 @@
-import cv2
-import numpy as np
+# import cv2
+# import numpy as np
 import os
 from matplotlib import pyplot as plt
-from IPython.display import Image, Video, display
-from base64 import b64encode
+from IPython.display import Image, display
+try:
+    from IPython.display import Video
+except:
+    from IPython.core.display import Video
+# from base64 import b64encode
 import musicalgestures
 # from musicalgestures._utils import get_widthheight
 
