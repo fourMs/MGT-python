@@ -3,6 +3,7 @@
 > Auto-generated documentation for [_utils](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py) module.
 
 - [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Utils
+    - [FFmpegError](#ffmpegerror)
     - [FFprobeError](#ffprobeerror)
     - [MgFigure](#mgfigure)
         - [MgFigure().show](#mgfigureshow)
@@ -50,6 +51,15 @@
     - [threshold_ffmpeg](#threshold_ffmpeg)
     - [unwrap_str](#unwrap_str)
     - [wrap_str](#wrap_str)
+
+## FFmpegError
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1272)
+
+```python
+class FFmpegError(Exception):
+    def __init__(message):
+```
 
 ## FFprobeError
 
@@ -423,7 +433,7 @@ Extracts audio from video into a .wav file via ffmpeg.
 
 ## ffmpeg_cmd
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1272)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1277)
 
 ```python
 def ffmpeg_cmd(
@@ -448,10 +458,11 @@ Run an ffmpeg command in a subprocess and show progress using an MgProgressbar.
 #### Raises
 
 - `KeyboardInterrupt` - If the user stops the process.
+- `FFmpegError` - If the ffmpeg process was unsuccessful.
 
 ## ffmpeg_cmd_async
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1328)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1343)
 
 ```python
 def ffmpeg_cmd_async(
@@ -459,7 +470,6 @@ def ffmpeg_cmd_async(
     total_time,
     pb_prefix='Progress',
     print_cmd=False,
-    stream=True,
 ):
 ```
 
@@ -471,7 +481,6 @@ Run an ffmpeg command in an asynchronous subprocess and show progress using an M
 - `total_time` *float* - The length of the output. Needed mainly for the progress bar.
 - `pb_prefix` *str, optional* - The prefix for the progress bar. Defaults to 'Progress'.
 - `print_cmd` *bool, optional* - Whether to print the full ffmpeg command to the console before executing it. Good for debugging. Defaults to False.
-- `stream` *bool, optional* - Whether to have a continuous output stream or just (the last) one. Defaults to True (continuous stream).
 
 #### Raises
 
@@ -885,7 +894,7 @@ Scales a number linearly.
 
 ## str2sec
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1395)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1420)
 
 ```python
 def str2sec(time_string):
@@ -931,7 +940,7 @@ Renders a pixel-thresholded video from the input using ffmpeg.
 
 ## unwrap_str
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1430)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1455)
 
 ```python
 def unwrap_str(string):
@@ -949,7 +958,7 @@ Unwraps a string from double quotes.
 
 ## wrap_str
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1409)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1434)
 
 ```python
 def wrap_str(string, matchers=[' ', '(', ')']):
