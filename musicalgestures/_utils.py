@@ -1269,6 +1269,11 @@ def embed_audio_in_video(source_audio, destination_video, dilation_ratio=1):
     os.rename(outname, destination_video)
 
 
+class FFmpegError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
 def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, stream=True):
     """
     Run an ffmpeg command in a subprocess and show progress using an MgProgressbar.
@@ -1282,9 +1287,13 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, strea
 
     Raises:
         KeyboardInterrupt: If the user stops the process.
+        FFmpegError: If the ffmpeg process was unsuccessful.
     """
     import subprocess
     pb = MgProgressbar(total=total_time, prefix=pb_prefix)
+
+    # add -loglevel error
+    command = ['ffmpeg', '-loglevel', 'error'] + command[1:]
 
     if print_cmd:
         print()
@@ -1295,10 +1304,16 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, strea
         print()
 
     process = subprocess.Popen(
-        command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        # command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+    err = None
 
     try:
         while True:
+            err = process.stderr.read()
+            if err != '':
+                raise FFmpegError(err)
+
             if stream:
                 out = process.stdout.readline()
             else:
@@ -1313,8 +1328,8 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, strea
                 time_str = out_list[time_ind][5:]
                 time_sec = str2sec(time_str)
                 pb.progress(time_sec)
-
-        pb.progress(total_time)
+        if err == '':
+            pb.progress(total_time)
 
     except KeyboardInterrupt:
         try:
@@ -1325,7 +1340,7 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, strea
         raise KeyboardInterrupt
 
 
-def ffmpeg_cmd_async(command, total_time, pb_prefix='Progress', print_cmd=False, stream=True):
+def ffmpeg_cmd_async(command, total_time, pb_prefix='Progress', print_cmd=False):
     """
     Run an ffmpeg command in an asynchronous subprocess and show progress using an MgProgressbar.
 
@@ -1334,7 +1349,6 @@ def ffmpeg_cmd_async(command, total_time, pb_prefix='Progress', print_cmd=False,
         total_time (float): The length of the output. Needed mainly for the progress bar.
         pb_prefix (str, optional): The prefix for the progress bar. Defaults to 'Progress'.
         print_cmd (bool, optional): Whether to print the full ffmpeg command to the console before executing it. Good for debugging. Defaults to False.
-        stream (bool, optional): Whether to have a continuous output stream or just (the last) one. Defaults to True (continuous stream).
 
     Raises:
         KeyboardInterrupt: If the user stops the process.
@@ -1342,6 +1356,9 @@ def ffmpeg_cmd_async(command, total_time, pb_prefix='Progress', print_cmd=False,
     import asyncio
 
     pb = MgProgressbar(total=total_time, prefix=pb_prefix)
+
+    # add -loglevel error
+    command = ['ffmpeg', '-loglevel', 'error'] + command[1:]
 
     if print_cmd:
         print()
@@ -1353,10 +1370,17 @@ def ffmpeg_cmd_async(command, total_time, pb_prefix='Progress', print_cmd=False,
 
     async def run_cmd(command, pb):
 
-        process = await asyncio.create_subprocess_shell(' '.join(command), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT)
-
+        process = await asyncio.create_subprocess_shell(' '.join(command), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+        err = None
         try:
             while True:
+                err = await process.stderr.read()
+                if err != '':
+                    print("ERROR")
+                    print(err.decode())
+                    await process.wait()
+                    break
+                    
                 out = await process.stdout.read()
                 if out != None:
                     out = out.decode()
@@ -1370,8 +1394,8 @@ def ffmpeg_cmd_async(command, total_time, pb_prefix='Progress', print_cmd=False,
                         time_str = out_list[time_ind][5:]
                         time_sec = str2sec(time_str)
                         pb.progress(time_sec)
-
-            pb.progress(total_time)
+            if err == '':
+                pb.progress(total_time)
 
         except KeyboardInterrupt:
             try:
@@ -1387,7 +1411,8 @@ def ffmpeg_cmd_async(command, total_time, pb_prefix='Progress', print_cmd=False,
         loop = None
 
     if loop and loop.is_running():
-        tsk = loop.create_task(run_cmd(command, pb))
+        # tsk = loop.create_task(run_cmd(command, pb))
+        loop.create_task(run_cmd(command, pb))
     else:
         asyncio.run(run_cmd(command, pb))
 
