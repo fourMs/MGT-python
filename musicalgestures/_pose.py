@@ -21,7 +21,8 @@ def pose(
     save_video=True, 
     target_name_video=None, 
     target_name_data=None, 
-    overwrite=False):
+    overwrite=False,
+    colab=False):
     """
     Renders a video with the pose estimation (aka. "keypoint detection" or "skeleton tracking") overlaid on it. 
     Outputs the predictions in a text file containing the normalized x and y coordinates of each keypoints 
@@ -38,6 +39,7 @@ def pose(
         target_name_video (str, optional): Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_pose" should be used).
         target_name_data (str, optional): Target output name for the data. Defaults to None (which assumes that the input filename with the suffix "_pose" should be used).
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+        colab (bool, optional): Whether to enable colab-mode, which will not query user password when downloading models. This is to optimize usability in Google Colab.
 
     Returns:
         MgObject: An MgObject pointing to the output video.
@@ -73,7 +75,7 @@ def pose(
             print('Ok. Exiting...')
             return musicalgestures.MgObject(self.filename, color=self.color, returned_by_process=True)
         elif answer.lower() == 'y':
-            download_model(model)
+            download_model(model, colab=colab)
         else:
             print(f'Unrecognized answer "{answer}". Exiting...')
             return musicalgestures.MgObject(self.filename, color=self.color, returned_by_process=True)
@@ -314,7 +316,7 @@ def pose(
         return self
 
 
-def download_model(modeltype):
+def download_model(modeltype, colab):
     """
     Helper function to automatically download model (.caffemodel) files.
     """
@@ -362,7 +364,7 @@ def download_model(modeltype):
 
     pb = MgProgressbar(total=100, prefix=pb_prefix)
 
-    if the_system == 'Windows':
+    if the_system == 'Windows' or colab:
         process = subprocess.Popen(
             command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True, shell=True)
     else:
