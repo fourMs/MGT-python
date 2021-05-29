@@ -8,10 +8,10 @@
 
 ## download_model
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py#L317)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py#L319)
 
 ```python
-def download_model(modeltype):
+def download_model(modeltype, colab):
 ```
 
 Helper function to automatically download model (.caffemodel) files.
@@ -33,6 +33,7 @@ def pose(
     target_name_video=None,
     target_name_data=None,
     overwrite=False,
+    colab=False,
 ):
 ```
 
@@ -47,11 +48,12 @@ Outputs the predictions in a text file containing the normalized x and y coordin
 - `threshold` *float, optional* - The normalized confidence threshold that decides whether we keep or discard a predicted point. Discarded points get substituted with (0, 0) in the output data. Defaults to 0.1.
 - `downsampling_factor` *int, optional* - Decides how much we downsample the video before we pass it to the neural network. For example `downsampling_factor=4` means that the input to the network is one-fourth the resolution of the source video. Heaviver downsampling reduces rendering time but produces lower quality pose estimation. Defaults to 4.
 - `save_data` *bool, optional* - Whether we save the predicted pose data to a file. Defaults to True.
-- `data_format` *str or list, optional* - Specifies format of pose-data. Accepted values are 'csv', 'tsv' and 'txt'. For multiple output formats, use list, eg. ['csv', 'txt']. Defaults to 'csv'.
+- `data_format` *str, optional* - Specifies format of pose-data. Accepted values are 'csv', 'tsv' and 'txt'. For multiple output formats, use list, eg. ['csv', 'txt']. Defaults to 'csv'.
 - `save_video` *bool, optional* - Whether we save the video with the estimated pose overlaid on it. Defaults to True.
 - `target_name_video` *str, optional* - Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_pose" should be used).
 - `target_name_data` *str, optional* - Target output name for the data. Defaults to None (which assumes that the input filename with the suffix "_pose" should be used).
 - `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+- `colab` *bool, optional* - Whether to enable colab-mode, which will not query user password when downloading models. This is to optimize usability in Google Colab.
 
 #### Returns
 
