@@ -35,7 +35,7 @@ General method to show an image or video file either in a window, or inline in a
 
 ## show_async
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_show.py#L259)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_show.py#L263)
 
 ```python
 def show_async(command):

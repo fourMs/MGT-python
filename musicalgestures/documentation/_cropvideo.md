@@ -5,12 +5,13 @@
 - [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Cropvideo
     - [async_subprocess](#async_subprocess)
     - [find_motion_box_ffmpeg](#find_motion_box_ffmpeg)
+    - [manual_text_input](#manual_text_input)
     - [mg_cropvideo_ffmpeg](#mg_cropvideo_ffmpeg)
     - [run_cropping_window](#run_cropping_window)
 
 ## async_subprocess
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L156)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L160)
 
 ```python
 async def async_subprocess(command):
@@ -47,6 +48,21 @@ Helper function to find the area of motion in a video, using ffmpeg.
 - `int` - The X coordinate of the top left corner of the motion box.
 - `int` - The Y coordinate of the top left corner of the motion box.
 
+## manual_text_input
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L205)
+
+```python
+def manual_text_input():
+```
+
+Helper function for mg_crop_video_ffmpeg when its crop_movement is 'manual', but the environment is in Colab.
+In this case we can't display the windowed cropping UI, so we ask for the values as a text input.
+
+#### Returns
+
+- `list` - x, y, w, h for crop_ffmpeg.
+
 ## mg_cropvideo_ffmpeg
 
 [[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L99)
@@ -79,7 +95,7 @@ Crops the video using ffmpeg.
 
 ## run_cropping_window
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L176)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L180)
 
 ```python
 def run_cropping_window(imgpath, scale_ratio, scaled_width, scaled_height):

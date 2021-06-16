@@ -41,6 +41,7 @@
     - [get_screen_video_ratio](#get_screen_video_ratio)
     - [get_widthheight](#get_widthheight)
     - [has_audio](#has_audio)
+    - [in_colab](#in_colab)
     - [motiongrams_ffmpeg](#motiongrams_ffmpeg)
     - [motionvideo_ffmpeg](#motionvideo_ffmpeg)
     - [rotate_video](#rotate_video)
@@ -724,6 +725,20 @@ Checks if video has audio track using FFprobe.
 #### Returns
 
 - `bool` - True if `filename` has an audio track, False otherwise.
+
+## in_colab
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1420)
+
+```python
+def in_colab():
+```
+
+Check's if the environment is a Google Colab document.
+
+#### Returns
+
+- `bool` - True if the environment is a Colab document, otherwise False.
 
 ## motiongrams_ffmpeg
 
