@@ -152,7 +152,8 @@ def mg_cropvideo_ffmpeg(
 
     if crop_movement.lower() == 'manual':
         cv2.destroyAllWindows()
-        os.remove(first_frame_as_image)
+        if not in_colab():
+            os.remove(first_frame_as_image)
 
     return cropped_video
 
