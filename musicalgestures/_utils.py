@@ -1416,3 +1416,17 @@ def unwrap_str(string):
         return string[1:-1]
     else:
         return string
+
+def in_colab():
+    """
+    Check's if the environment is a Google Colab document.
+
+    Returns:
+        bool: True if the environment is a Colab document, otherwise False.
+    """
+    result = None
+    try:
+        result = 'google.colab' in str(get_ipython())
+    except NameError:
+        result = False
+    return result

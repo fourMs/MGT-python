@@ -38,6 +38,10 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             title (str, optional): The title of the window. Defaults to 'Untitled'.
         """
         if mode.lower() == 'windowed':
+            from musicalgestures._utils import in_colab
+            if in_colab():
+                mode = 'notebook'
+        if mode.lower() == 'windowed':
             cmd = f'ffplay "{file}" -x {width} -y {height} -window_title "{title}"'
             # os.system(cmd)
             show_async(cmd)
