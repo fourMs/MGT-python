@@ -1292,8 +1292,8 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, strea
     import subprocess
     pb = MgProgressbar(total=total_time, prefix=pb_prefix)
 
-    # add -loglevel error
-    command = ['ffmpeg', '-loglevel', 'error'] + command[1:]
+    # hide banner
+    command = ['ffmpeg', '-hide_banner'] + command[1:]
 
     if print_cmd:
         print()
@@ -1304,22 +1304,21 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, strea
         print()
 
     process = subprocess.Popen(
-        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-        # command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
-    err = None
+        command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+    returncode = None
+    all_out = ''
 
     try:
         while True:
-            err = process.stderr.read()
-            if err != '':
-                raise FFmpegError(err)
 
             if stream:
                 out = process.stdout.readline()
             else:
                 out = process.stdout.read()
+            all_out += out
             if out == '':
                 process.wait()
+                returncode = process.returncode
                 break
             elif out.startswith('frame='):
                 out_list = out.split()
@@ -1328,8 +1327,11 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, strea
                 time_str = out_list[time_ind][5:]
                 time_sec = str2sec(time_str)
                 pb.progress(time_sec)
-        if err == '':
+            
+        if returncode in [None, 0]:
             pb.progress(total_time)
+        else:
+            raise FFmpegError(all_out)
 
     except KeyboardInterrupt:
         try:
@@ -1338,83 +1340,6 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, strea
             pass
         process.wait()
         raise KeyboardInterrupt
-
-
-def ffmpeg_cmd_async(command, total_time, pb_prefix='Progress', print_cmd=False):
-    """
-    Run an ffmpeg command in an asynchronous subprocess and show progress using an MgProgressbar.
-
-    Args:
-        command (list): The ffmpeg command to execute as a list. Eg. ['ffmpeg', '-y', '-i', 'myVid.mp4', 'myVid.mov']
-        total_time (float): The length of the output. Needed mainly for the progress bar.
-        pb_prefix (str, optional): The prefix for the progress bar. Defaults to 'Progress'.
-        print_cmd (bool, optional): Whether to print the full ffmpeg command to the console before executing it. Good for debugging. Defaults to False.
-
-    Raises:
-        KeyboardInterrupt: If the user stops the process.
-    """
-    import asyncio
-
-    pb = MgProgressbar(total=total_time, prefix=pb_prefix)
-
-    # add -loglevel error
-    command = ['ffmpeg', '-loglevel', 'error'] + command[1:]
-
-    if print_cmd:
-        print()
-        if type(command) == list:
-            print(' '.join(command))
-        else:
-            print(command)
-        print()
-
-    async def run_cmd(command, pb):
-
-        process = await asyncio.create_subprocess_shell(' '.join(command), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
-        err = None
-        try:
-            while True:
-                err = await process.stderr.read()
-                if err != '':
-                    print("ERROR")
-                    print(err.decode())
-                    await process.wait()
-                    break
-                    
-                out = await process.stdout.read()
-                if out != None:
-                    out = out.decode()
-                    if out == '':
-                        await process.wait()
-                        break
-                    elif out.startswith('frame='):
-                        out_list = out.split()
-                        time_ind = [elem.startswith('time=')
-                                    for elem in out_list].index(True)
-                        time_str = out_list[time_ind][5:]
-                        time_sec = str2sec(time_str)
-                        pb.progress(time_sec)
-            if err == '':
-                pb.progress(total_time)
-
-        except KeyboardInterrupt:
-            try:
-                await process.terminate()
-            except OSError:
-                pass
-            await process.wait()
-            raise KeyboardInterrupt
-
-    try:
-        loop = asyncio.get_running_loop()
-    except RuntimeError:  # if cleanup: 'RuntimeError: There is no current event loop..'
-        loop = None
-
-    if loop and loop.is_running():
-        # tsk = loop.create_task(run_cmd(command, pb))
-        loop.create_task(run_cmd(command, pb))
-    else:
-        asyncio.run(run_cmd(command, pb))
 
 
 def str2sec(time_string):
