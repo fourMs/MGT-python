@@ -3,7 +3,7 @@ import os
 import numpy as np
 import time
 import asyncio
-from musicalgestures._utils import MgProgressbar, get_length, get_widthheight, get_first_frame_as_image, get_box_video_ratio, roundup, crop_ffmpeg, wrap_str, unwrap_str
+from musicalgestures._utils import MgProgressbar, get_length, get_widthheight, get_first_frame_as_image, get_box_video_ratio, roundup, crop_ffmpeg, wrap_str, unwrap_str, in_colab
 from musicalgestures._filter import filter_frame
 
 
@@ -124,21 +124,25 @@ def mg_cropvideo_ffmpeg(
                        prefix='Rendering cropped video:')
 
     if crop_movement.lower() == 'manual':
+        if not in_colab():
 
-        scale_ratio = get_box_video_ratio(filename)
-        width, height = get_widthheight(filename)
-        scaled_width, scaled_height = [
-            int(elem * scale_ratio) for elem in [width, height]]
-        first_frame_as_image = get_first_frame_as_image(
-            filename, pict_format='.jpg')
+            scale_ratio = get_box_video_ratio(filename)
+            width, height = get_widthheight(filename)
+            scaled_width, scaled_height = [
+                int(elem * scale_ratio) for elem in [width, height]]
+            first_frame_as_image = get_first_frame_as_image(
+                filename, pict_format='.jpg')
 
-        # Cropping UI moved to another subprocess to avoid cv2.waitKey crashing Python with segmentation fault on Linux in Terminal
-        import threading
-        x = threading.Thread(target=run_cropping_window, args=(
-            first_frame_as_image, scale_ratio, scaled_width, scaled_height))
-        # run_cropping_window(first_frame_as_image, scale_ratio, scaled_width, scaled_height)
-        x.start()
-        x.join()
+            # Cropping UI moved to another subprocess to avoid cv2.waitKey crashing Python with segmentation fault on Linux in Terminal
+            import threading
+            x = threading.Thread(target=run_cropping_window, args=(
+                first_frame_as_image, scale_ratio, scaled_width, scaled_height))
+            # run_cropping_window(first_frame_as_image, scale_ratio, scaled_width, scaled_height)
+            x.start()
+            x.join()
+
+        else:
+            x, y, w, h = manual_text_input()
 
     elif crop_movement.lower() == 'auto':
         w, h, x, y = find_motion_box_ffmpeg(
@@ -196,3 +200,35 @@ def run_cropping_window(imgpath, scale_ratio, scaled_width, scaled_height):
         tsk = loop.create_task(async_subprocess(command))
     else:
         asyncio.run(async_subprocess(command))
+
+
+def manual_text_input():
+    """
+    Helper function for mg_crop_video_ffmpeg when its crop_movement is 'manual', but the environment is in Colab.
+    In this case we can't display the windowed cropping UI, so we ask for the values as a text input.
+
+    Returns:
+        list: x, y, w, h for crop_ffmpeg. 
+    """
+    print("Looks like we are in Colab, can't run the cropping GUI here.")
+    print("Please add the parameters of the cropping rectangle (in pixels): x, y, width, height")
+    print("""
+        x (int): The horizontal coordinate of the top left pixel of the cropping rectangle.
+        y (int): The vertical coordinate of the top left pixel of the cropping rectangle.
+        width (int): The desired width.
+        height (int): The desired height.
+    """)
+    res = input()
+    res = res.replace(",", " ")
+    res_list = ' '.join(res.split()).split(" ")
+    try:
+        res_list_int = [abs(int(float(item))) for item in res_list]
+    except ValueError:
+        raise ValueError("Invalid parameter(s) found. Try only integer numbers.")
+
+    if len(res_list_int) < 4:
+        raise RuntimeError(f"Not enough parameters in {res_list_int}")
+
+    res_list_int = res_list_int[:4]
+
+    return res_list_int
