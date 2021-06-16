@@ -3,7 +3,7 @@ import os
 import numpy as np
 import time
 import asyncio
-from musicalgestures._utils import MgProgressbar, get_length, get_widthheight, get_first_frame_as_image, get_screen_resolution_scaled, get_screen_video_ratio, roundup, crop_ffmpeg, wrap_str, unwrap_str
+from musicalgestures._utils import MgProgressbar, get_length, get_widthheight, get_first_frame_as_image, get_box_video_ratio, roundup, crop_ffmpeg, wrap_str, unwrap_str
 from musicalgestures._filter import filter_frame
 
 
@@ -125,7 +125,7 @@ def mg_cropvideo_ffmpeg(
 
     if crop_movement.lower() == 'manual':
 
-        scale_ratio = get_screen_video_ratio(filename)
+        scale_ratio = get_box_video_ratio(filename)
         width, height = get_widthheight(filename)
         scaled_width, scaled_height = [
             int(elem * scale_ratio) for elem in [width, height]]

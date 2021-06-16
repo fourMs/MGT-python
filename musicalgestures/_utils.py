@@ -1187,7 +1187,7 @@ def get_screen_video_ratio(filename):
         filename (str): Path to the input video file.
 
     Returns:
-        int: The smallest ratio (ie. the one to use for scaling the window to fit the screen).
+        int: The smallest ratio (ie. the one to use for scaling the video window to fit the screen).
     """
 
     screen_width, screen_height = get_screen_resolution_scaled()
@@ -1195,6 +1195,31 @@ def get_screen_video_ratio(filename):
 
     ratio_x, ratio_y = clamp(screen_width / video_width,
                              0, 1), clamp(screen_height / video_height, 0, 1)
+
+    smallest_ratio = sorted([ratio_x, ratio_y])[0]
+
+    if smallest_ratio < 1:
+        smallest_ratio *= 0.9
+
+    return smallest_ratio
+
+def get_box_video_ratio(filename, box_width=800, box_height=600):
+    """
+    Gets the box-to-video ratio between an arbitrarily defind box and the video dimensions. Useful to fit windows into a certain area.
+
+    Args:
+        filename (str): Path to the input video file.
+        box_width (int, optional): The width of the box to fit the video into.
+        box_height (int, optional): The height of the box to fit the video into.
+
+    Returns:
+        int: The smallest ratio (ie. the one to use for scaling the video window to fit into the box).
+    """
+
+    video_width, video_height = get_widthheight(filename)
+
+    ratio_x, ratio_y = clamp(box_width / video_width,
+                             0, 1), clamp(box_height / video_height, 0, 1)
 
     smallest_ratio = sorted([ratio_x, ratio_y])[0]
 
