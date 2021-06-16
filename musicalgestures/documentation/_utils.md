@@ -27,11 +27,11 @@
     - [extract_subclip](#extract_subclip)
     - [extract_wav](#extract_wav)
     - [ffmpeg_cmd](#ffmpeg_cmd)
-    - [ffmpeg_cmd_async](#ffmpeg_cmd_async)
     - [ffprobe](#ffprobe)
     - [frame2ms](#frame2ms)
     - [framediff_ffmpeg](#framediff_ffmpeg)
     - [generate_outfilename](#generate_outfilename)
+    - [get_box_video_ratio](#get_box_video_ratio)
     - [get_first_frame_as_image](#get_first_frame_as_image)
     - [get_fps](#get_fps)
     - [get_frame_planecount](#get_frame_planecount)
@@ -54,7 +54,7 @@
 
 ## FFmpegError
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1272)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1297)
 
 ```python
 class FFmpegError(Exception):
@@ -203,7 +203,7 @@ class NoStreamError(FFprobeError):
 
 ## audio_dilate
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1207)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1232)
 
 ```python
 def audio_dilate(
@@ -375,7 +375,7 @@ Crops a video using ffmpeg.
 
 ## embed_audio_in_video
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1235)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1260)
 
 ```python
 def embed_audio_in_video(source_audio, destination_video, dilation_ratio=1):
@@ -433,7 +433,7 @@ Extracts audio from video into a .wav file via ffmpeg.
 
 ## ffmpeg_cmd
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1277)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1302)
 
 ```python
 def ffmpeg_cmd(
@@ -459,32 +459,6 @@ Run an ffmpeg command in a subprocess and show progress using an MgProgressbar.
 
 - `KeyboardInterrupt` - If the user stops the process.
 - `FFmpegError` - If the ffmpeg process was unsuccessful.
-
-## ffmpeg_cmd_async
-
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1343)
-
-```python
-def ffmpeg_cmd_async(
-    command,
-    total_time,
-    pb_prefix='Progress',
-    print_cmd=False,
-):
-```
-
-Run an ffmpeg command in an asynchronous subprocess and show progress using an MgProgressbar.
-
-#### Arguments
-
-- `command` *list* - The ffmpeg command to execute as a list. Eg. ['ffmpeg', '-y', '-i', 'myVid.mp4', 'myVid.mov']
-- `total_time` *float* - The length of the output. Needed mainly for the progress bar.
-- `pb_prefix` *str, optional* - The prefix for the progress bar. Defaults to 'Progress'.
-- `print_cmd` *bool, optional* - Whether to print the full ffmpeg command to the console before executing it. Good for debugging. Defaults to False.
-
-#### Raises
-
-- `KeyboardInterrupt` - If the user stops the process.
 
 ## ffprobe
 
@@ -562,6 +536,26 @@ filename if necessary by appending an integer, like "_0" or "_1", etc to the fil
 #### Returns
 
 - `str` - If file at requested_name is not present, then requested_name, else an incremented filename.
+
+## get_box_video_ratio
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1206)
+
+```python
+def get_box_video_ratio(filename, box_width=800, box_height=600):
+```
+
+Gets the box-to-video ratio between an arbitrarily defind box and the video dimensions. Useful to fit windows into a certain area.
+
+#### Arguments
+
+- `filename` *str* - Path to the input video file.
+- `box_width` *int, optional* - The width of the box to fit the video into.
+- `box_height` *int, optional* - The height of the box to fit the video into.
+
+#### Returns
+
+- `int` - The smallest ratio (ie. the one to use for scaling the video window to fit into the box).
 
 ## get_first_frame_as_image
 
@@ -692,7 +686,7 @@ Gets the screen-to-video ratio. Useful to fit windows on the screen.
 
 #### Returns
 
-- `int` - The smallest ratio (ie. the one to use for scaling the window to fit the screen).
+- `int` - The smallest ratio (ie. the one to use for scaling the video window to fit the screen).
 
 ## get_widthheight
 
@@ -894,7 +888,7 @@ Scales a number linearly.
 
 ## str2sec
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1420)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1370)
 
 ```python
 def str2sec(time_string):
@@ -940,7 +934,7 @@ Renders a pixel-thresholded video from the input using ffmpeg.
 
 ## unwrap_str
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1455)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1405)
 
 ```python
 def unwrap_str(string):
@@ -958,7 +952,7 @@ Unwraps a string from double quotes.
 
 ## wrap_str
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1434)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1384)
 
 ```python
 def wrap_str(string, matchers=[' ', '(', ')']):
