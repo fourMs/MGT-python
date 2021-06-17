@@ -3,7 +3,7 @@ import cv2
 import os
 import numpy as np
 import pandas as pd
-from musicalgestures._utils import MgProgressbar, convert_to_avi, extract_wav, embed_audio_in_video, roundup, frame2ms, generate_outfilename
+from musicalgestures._utils import MgProgressbar, convert_to_avi, extract_wav, embed_audio_in_video, roundup, frame2ms, generate_outfilename, in_colab
 import musicalgestures
 import itertools
 
@@ -21,8 +21,7 @@ def pose(
     save_video=True, 
     target_name_video=None, 
     target_name_data=None, 
-    overwrite=False,
-    colab=False):
+    overwrite=False):
     """
     Renders a video with the pose estimation (aka. "keypoint detection" or "skeleton tracking") overlaid on it. 
     Outputs the predictions in a text file containing the normalized x and y coordinates of each keypoints 
@@ -39,7 +38,6 @@ def pose(
         target_name_video (str, optional): Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_pose" should be used).
         target_name_data (str, optional): Target output name for the data. Defaults to None (which assumes that the input filename with the suffix "_pose" should be used).
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
-        colab (bool, optional): Whether to enable colab-mode, which will not query user password when downloading models. This is to optimize usability in Google Colab.
 
     Returns:
         MgObject: An MgObject pointing to the output video.
@@ -75,13 +73,19 @@ def pose(
             print('Ok. Exiting...')
             return musicalgestures.MgObject(self.filename, color=self.color, returned_by_process=True)
         elif answer.lower() == 'y':
-            download_model(model, colab=colab)
+            download_model(model)
         else:
             print(f'Unrecognized answer "{answer}". Exiting...')
             return musicalgestures.MgObject(self.filename, color=self.color, returned_by_process=True)
 
     # Read the network into Memory
     net = cv2.dnn.readNetFromCaffe(protoFile, weightsFile)
+    device = device.lower()
+    # enforce CPU device in Colab
+    if in_colab() and device=='gpu':
+        print('Sorry, OpenCV GPU acceleration is not supported in Colab. Switching to CPU.')
+        device = 'cpu'
+
     if device == "cpu":
         net.setPreferableBackend(cv2.dnn.DNN_TARGET_CPU)
     elif device == "gpu":
@@ -316,7 +320,7 @@ def pose(
         return self
 
 
-def download_model(modeltype, colab):
+def download_model(modeltype):
     """
     Helper function to automatically download model (.caffemodel) files.
     """
@@ -327,7 +331,7 @@ def download_model(modeltype, colab):
 
     module_path = os.path.abspath(os.path.dirname(musicalgestures.__file__))
 
-    batch, shell = '_remote.bat', '_remote.sh'
+    batch, shell, shell_colab = '_remote.bat', '_remote.sh', '_remote_colab.sh'
 
     the_system = platform.system()
 
@@ -341,6 +345,9 @@ def download_model(modeltype, colab):
     if the_system == 'Windows':
         mpi_script += batch
         coco_script += batch
+    elif in_colab():
+        mpi_script += shell_colab
+        coco_script += shell_colab
     else:
         mpi_script += shell
         coco_script += shell
@@ -364,7 +371,7 @@ def download_model(modeltype, colab):
 
     pb = MgProgressbar(total=100, prefix=pb_prefix)
 
-    if the_system == 'Windows' or colab:
+    if the_system == 'Windows' or in_colab():
         process = subprocess.Popen(
             command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True, shell=True)
     else:
@@ -390,8 +397,8 @@ def download_model(modeltype, colab):
                 percentage_place = out.find('%')
                 percent = out[percentage_place-2:percentage_place]
                 pb.progress(float(percent))
-            else:
-                print(out)
+            # else:
+            #     print(out)
 
     except KeyboardInterrupt:
         try:
