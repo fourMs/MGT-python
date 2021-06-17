@@ -8,10 +8,10 @@
 
 ## download_model
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py#L319)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py#L323)
 
 ```python
-def download_model(modeltype, colab):
+def download_model(modeltype):
 ```
 
 Helper function to automatically download model (.caffemodel) files.
@@ -33,7 +33,6 @@ def pose(
     target_name_video=None,
     target_name_data=None,
     overwrite=False,
-    colab=False,
 ):
 ```
 
@@ -53,7 +52,6 @@ Outputs the predictions in a text file containing the normalized x and y coordin
 - `target_name_video` *str, optional* - Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_pose" should be used).
 - `target_name_data` *str, optional* - Target output name for the data. Defaults to None (which assumes that the input filename with the suffix "_pose" should be used).
 - `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
-- `colab` *bool, optional* - Whether to enable colab-mode, which will not query user password when downloading models. This is to optimize usability in Google Colab.
 
 #### Returns
 
