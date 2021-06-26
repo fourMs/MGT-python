@@ -82,6 +82,7 @@ class MgObject:
         self.audio = Audio(self.filename)
 
     from musicalgestures._motionvideo import mg_motion as motion
+    from musicalgestures._motionvideo_mp_run import mg_motion_mp as motion_mp
     from musicalgestures._motionvideo import mg_motiongrams as motiongrams
     from musicalgestures._motionvideo import mg_motiondata as motiondata
     from musicalgestures._motionvideo import mg_motionplots as motionplots
