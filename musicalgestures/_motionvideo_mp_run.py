@@ -33,7 +33,8 @@ def mg_motion_mp(
         target_name_data=None,
         target_name_mgx=None,
         target_name_mgy=None,
-        overwrite=False):
+        overwrite=False,
+        num_processes=-1):
 
     of, fex = self.of, self.fex
 
@@ -64,7 +65,7 @@ def mg_motion_mp(
 
     save_data_feed = save_data or save_plot
 
-    command = [pythonkw, pyfile, temp_folder, of_feed, fex, self.fps, self.width, self.height, self.length, self.color, filtertype, thresh, blur, kernel_size, inverted_motionvideo, inverted_motiongram, equalize_motiongram, save_data_feed, save_motiongrams, save_video]
+    command = [pythonkw, pyfile, temp_folder, of_feed, fex, self.fps, self.width, self.height, self.length, self.color, filtertype, thresh, blur, kernel_size, inverted_motionvideo, inverted_motiongram, equalize_motiongram, save_data_feed, save_motiongrams, save_video, num_processes]
     command = [str(item) for item in command]
     # print()
     # print(command)
@@ -108,28 +109,54 @@ def mg_motion_mp(
     # print("organizing results...")
     results = os.listdir(temp_folder)
     time_files  = [temp_folder + file for file in results if file.startswith("time")]
+    time_files.sort()
     com_files   = [temp_folder + file for file in results if file.startswith("com")]
+    com_files.sort()
     qom_files   = [temp_folder + file for file in results if file.startswith("qom")]
+    qom_files.sort()
     gramx_files = [temp_folder + file for file in results if file.startswith("gramx")]
+    gramx_files.sort()
     gramy_files = [temp_folder + file for file in results if file.startswith("gramy")]
+    gramy_files.sort()
     video_files = [temp_folder + file for file in results if file.endswith("avi")]
+    video_files.sort()
 
     gramx, gramy, time, com, qom = None, None, None, None, None
 
     if save_motiongrams:
         # load gramx
-        for idx, item in enumerate(gramx_files):
-            if idx == 0:
-                gramx = np.load(item)
-            else:
-                gramx = np.append(gramx, np.load(item)[1:-1], axis=0)
+        # if we only used a single chunk, load everything
+        if len(gramx_files) == 1:
+            gramx = np.load(gramx_files[0])
+        # or in case there were multiple chunks...
+        else:
+            for idx, item in enumerate(gramx_files):
+                if idx == 0:
+                    # do not drop first row in first chunk
+                    gramx = np.load(item)[:-1]
+                elif idx == len(gramy_files) - 1:
+                    # do not drop the last row in last chunk
+                    gramx = np.append(gramx, np.load(item)[1:], axis=0)
+                else:
+                    # else drop first and last rows from chunk
+                    gramx = np.append(gramx, np.load(item)[1:-1], axis=0)
 
         # load gramy
-        for idx, item in enumerate(gramy_files):
-            if idx == 0:
-                gramy = np.load(item)
-            else:
-                gramy = np.append(gramy, np.load(item)[:, 1:], axis=1)
+        # if we only used a single chunk, load everything
+        if len(gramy_files) == 1:
+            gramy = np.load(gramy_files[0])
+        # or in case there were multiple chunks...
+        else:
+            for idx, item in enumerate(gramy_files):
+                if idx == 0:
+                    # do not drop first column in first chunk
+                    gramy = np.load(item)[:, :-1]
+                elif idx == len(gramy_files) - 1:
+                    # do not drop the last column in last chunk
+                    gramy = np.append(gramy, np.load(item)[:, 1:], axis=1)
+                else:
+                    # else drop first and last columns from chunk
+                    gramy = np.append(gramy, np.load(item)[:, 1:-1], axis=1)
 
         if self.color == False:
             # Normalize before converting to uint8 to keep precision

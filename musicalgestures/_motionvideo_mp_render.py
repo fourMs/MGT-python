@@ -125,7 +125,7 @@ def mg_motion_mp(args):
                 motion_frame_rgb = motion_frame
 
             if save_video:
-                # if this is not the first process (rendering the start of the video) then don't save the first frame of the output (it'll always be black).
+                # if this is not the first process (rendering the start of the video) then drop the first frame of the output (it'll always be black).
                 if process_id != 0 and ii > 0:
                     if inverted_motionvideo:
                         out.write(cv2.bitwise_not(
@@ -185,9 +185,7 @@ def mg_motion_mp(args):
 
 def run_pool(func, args, numprocesses):
     pool = multiprocessing.Pool(numprocesses)
-    # results = pool.map(func, args)
     pool.map(func, args)
-    # return results
 
 
 def calc_frame_groups(framecount, num_cores):
@@ -202,18 +200,6 @@ def calc_frame_groups(framecount, num_cores):
         groups.append([startframe, numframes])
 
     return groups
-
-
-def testhogfunc(process_id):
-    limit = 20
-    count = 0
-    while count < limit:
-        print(process_id, count)
-        futyi = 0
-        for i in range(10_000_000):
-            futyi += 1
-        count += 1
-    return process_id, count
 
 
 def bool_from_str(boolstring):
@@ -240,6 +226,7 @@ if __name__ == "__main__":
     parser.add_argument('save_data', metavar='save_data', type=str, help='save_data')
     parser.add_argument('save_motiongrams', metavar='save_motiongrams', type=str, help='save_motiongrams')
     parser.add_argument('save_video', metavar='save_video', type=str, help='save_video')
+    parser.add_argument('num_processes', metavar='num_processes', type=str, help='num_processes')
 
     args = parser.parse_args()
 
@@ -257,21 +244,19 @@ if __name__ == "__main__":
     fps, width, height, length = int(float(args.fps)), int(float(args.width)), int(float(args.height)), int(float(args.length))
     color, filtertype, thresh, blur, kernel_size = bool_from_str(args.color), args.filtertype, float(args.thresh), args.blur, int(float(args.kernel_size))
     inverted_motionvideo, inverted_motiongram, equalize_motiongram = bool_from_str(args.inverted_motionvideo), bool_from_str(args.inverted_motiongram), bool_from_str(args.equalize_motiongram)
-    save_data, save_motiongrams, save_video = bool_from_str(args.save_data), bool_from_str(args.save_motiongrams), bool_from_str(args.save_video) 
+    save_data, save_motiongrams, save_video = bool_from_str(args.save_data), bool_from_str(args.save_motiongrams), bool_from_str(args.save_video)
+    num_processes = multiprocessing.cpu_count() if int(float(args.num_processes)) < 1 else min(int(float(args.num_processes)), multiprocessing.cpu_count())
 
-    numprocessors = multiprocessing.cpu_count()
-    frame_groups = calc_frame_groups(length, numprocessors)
+    frame_groups = calc_frame_groups(length, num_processes)
 
     feed_args = []
 
-    for i in range(numprocessors):
+    for i in range(num_processes):
         start_frame, num_frames = frame_groups[i]
         initargs = [target_folder, of, fex, fps, width, height, length, color, filtertype, thresh, blur, kernel_size, inverted_motionvideo, inverted_motiongram, equalize_motiongram, save_data, save_motiongrams, save_video, start_frame, num_frames, i, client]
         # client.sendall(bytes(str(initargs), 'utf-8'))
         feed_args.append(initargs)
 
-    # results = run_pool(mg_motion_mp, feed_args, numprocessors)
-    run_pool(mg_motion_mp, feed_args, numprocessors)
+    run_pool(mg_motion_mp, feed_args, num_processes)
 
     client.close()
-    # print("Closed socket client.")
