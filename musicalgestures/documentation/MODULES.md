@@ -16,6 +16,8 @@ Full list of [Musicalgestures](README.md#musicalgestures-index) project modules.
 - [Input Test](_input_test.md#input-test)
 - [MgList](_mglist.md#mglist)
 - [Motionvideo](_motionvideo.md#motionvideo)
+- [Motionvideo Mp Render](_motionvideo_mp_render.md#motionvideo-mp-render)
+- [Motionvideo Mp Run](_motionvideo_mp_run.md#motionvideo-mp-run)
 - [Pose](_pose.md#pose)
 - [Show](_show.md#show)
 - [Utils](_utils.md#utils)
