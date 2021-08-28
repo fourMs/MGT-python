@@ -143,7 +143,7 @@ Shortcut for [mg_motion](#mg_motion) to only render motiongrams.
 
 #### Returns
 
-- `MgList(MgImage,` *MgImage)* - An MgList pointing to the output motiongram images.
+- `MgList` - An MgList pointing to the output motiongram images (as MgImages).
 
 ## mg_motionplots
 

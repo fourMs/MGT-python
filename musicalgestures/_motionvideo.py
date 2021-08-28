@@ -39,7 +39,7 @@ def mg_motiongrams(
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
-        MgList(MgImage, MgImage): An MgList pointing to the output motiongram images.
+        MgList: An MgList pointing to the output motiongram images (as MgImages).
     """
 
     # color-mismatch issue needs to be fixed with this one
