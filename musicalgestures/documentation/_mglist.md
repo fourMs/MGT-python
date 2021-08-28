@@ -43,7 +43,7 @@ Implements `+`.
 
 #### Arguments
 
-other (MgImage, MgFigure, or MgList): The object(s) to add to the MgList.
+- `other` *MgImage/MgFigure/MgList* - The object(s) to add to the MgList.
 
 #### Returns
 
@@ -79,7 +79,7 @@ Implements getting elements given an index from the MgList.
 
 #### Returns
 
-MgImage, MgFigure, or MgList: The element at `key`.
+- `MgImage/MgFigure/MgList` - The element at `key`.
 
 ### MgList().\_\_iadd\_\_
 
@@ -93,7 +93,7 @@ Implements `+=`.
 
 #### Arguments
 
-other (MgImage, MgFigure, or MgList): The object(s) to add to the MgList.
+- `other` *MgImage/MgFigure/MgList* - The object(s) to add to the MgList.
 
 #### Returns
 
@@ -140,7 +140,7 @@ Implements setting elements given an index from the MgList.
 #### Arguments
 
 - `key` *int* - The index of the element to change.
-value (MgImage, MgFigure, or MgList): The element to place at `key`.
+- `value` *MgImage/MgFigure/MgList* - The element to place at `key`.
 
 ### MgList().as_figure
 

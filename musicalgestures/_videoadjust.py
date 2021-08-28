@@ -9,8 +9,8 @@ def contrast_brightness_ffmpeg(filename, contrast=0, brightness=0, target_name=N
 
     Args:
         filename (str): Path to the video to process.
-        contrast (int or float, optional): Increase or decrease contrast. Values range from -100 to 100. Defaults to 0.
-        brightness (int or float, optional): Increase or decrease brightness. Values range from -100 to 100. Defaults to 0.
+        contrast (int/float, optional): Increase or decrease contrast. Values range from -100 to 100. Defaults to 0.
+        brightness (int/float, optional): Increase or decrease brightness. Values range from -100 to 100. Defaults to 0.
         target_name (str, optional): Defaults to None (which assumes that the input filename with the suffix "_cb" should be used).
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
 

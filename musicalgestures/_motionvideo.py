@@ -101,12 +101,12 @@ def mg_motiondata(
         thresh (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
         blur (str, optional): 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
         kernel_size (int, optional): Size of structuring element. Defaults to 5.
-        data_format (str or list, optional): Specifies format of motion-data. Accepted values are 'csv', 'tsv' and 'txt'. For multiple output formats, use list, eg. ['csv', 'txt']. Defaults to 'csv'.
+        data_format (str/list, optional): Specifies format of motion-data. Accepted values are 'csv', 'tsv' and 'txt'. For multiple output formats, use list, eg. ['csv', 'txt']. Defaults to 'csv'.
         target_name (str, optional): Target output name for the data. Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
-        str or list: The path(s) to the rendered data file(s).
+        str/list: The path(s) to the rendered data file(s).
     """
 
     out = None
@@ -302,7 +302,7 @@ def mg_motion(
         save_plot (bool, optional): If True, outputs motion-plot. Defaults to True.
         plot_title (str, optional): Optionally add title to the plot. Defaults to None, which uses the file name as a title.
         save_data (bool, optional): If True, outputs motion-data. Defaults to True.
-        data_format (str or list, optional): Specifies format of motion-data. Accepted values are 'csv', 'tsv' and 'txt'. For multiple output formats, use list, eg. ['csv', 'txt']. Defaults to 'csv'.
+        data_format (str/list, optional): Specifies format of motion-data. Accepted values are 'csv', 'tsv' and 'txt'. For multiple output formats, use list, eg. ['csv', 'txt']. Defaults to 'csv'.
         save_motiongrams (bool, optional): If True, outputs motiongrams. Defaults to True.
         save_video (bool, optional): If True, outputs the motion video. Defaults to True.
         target_name_video (str, optional): Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).

@@ -34,12 +34,12 @@ def mg_videoreader(
 
     Args:
         filename (str): Path to the input video file.
-        starttime (int or float, optional): Trims the video from this start time (s). Defaults to 0.
-        endtime (int or float, optional): Trims the video until this end time (s). Defaults to 0 (which will make the algorithm use the full length of the input video instead).
+        starttime (int/float, optional): Trims the video from this start time (s). Defaults to 0.
+        endtime (int/float, optional): Trims the video until this end time (s). Defaults to 0 (which will make the algorithm use the full length of the input video instead).
         skip (int, optional): Time-shrinks the video by skipping (discarding) every n frames determined by `skip`. Defaults to 0.
-        rotate (int or float, optional): Rotates the video by a `rotate` degrees. Defaults to 0.
-        contrast (int or float, optional): Applies +/- 100 contrast to video. Defaults to 0.
-        brightness (int or float, optional): Applies +/- 100 brightness to video. Defaults to 0.
+        rotate (int/float, optional): Rotates the video by a `rotate` degrees. Defaults to 0.
+        contrast (int/float, optional): Applies +/- 100 contrast to video. Defaults to 0.
+        brightness (int/float, optional): Applies +/- 100 brightness to video. Defaults to 0.
         crop (str, optional): If 'manual', opens a window displaying the first frame of the input video file, where the user can draw a rectangle to which cropping is applied. If 'auto' the cropping function attempts to determine the area of significant motion and applies the cropping to that area. Defaults to 'None'.
         color (bool, optional): If False, converts the video to grayscale and sets every method in grayscale mode. Defaults to True.
         keep_all (bool, optional): If True, preserves an output video file after each used preprocessing stage. Defaults to False.

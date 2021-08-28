@@ -23,8 +23,8 @@ def mg_input_test(filename, filtertype, thresh, starttime, endtime, blur, skip):
         filename (str): Path to the input video file.
         filtertype (str): 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method.
         thresh (float): A number in the range of 0 to 1. Eliminates pixel values less than given threshold.
-        starttime (int or float): Trims the video from this start time (s).
-        endtime (int or float): Trims the video until this end time (s).
+        starttime (int/float): Trims the video from this start time (s).
+        endtime (int/float): Trims the video until this end time (s).
         blur (str): 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise.
         skip (int): Every n frames to discard. `skip=0` keeps all frames, `skip=1` skips every other frame.
 

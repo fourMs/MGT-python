@@ -18,7 +18,7 @@ class MgList():
         Initializes the MgList object.
 
         Args:
-            *objectlist (MgImage, MgFigure or MgList): All the objects to include in the MgList.
+            *objectlist (MgImage/MgFigure/MgList): All the objects to include in the MgList.
         """
 
         def crawler(l):
@@ -72,7 +72,7 @@ class MgList():
             key (int): The index of the element to retrieve.
 
         Returns:
-            MgImage, MgFigure, or MgList: The element at `key`.
+            MgImage/MgFigure/MgList: The element at `key`.
         """
         return self.objectlist[key]
 
@@ -82,7 +82,7 @@ class MgList():
 
         Args:
             key (int): The index of the element to change.
-            value (MgImage, MgFigure, or MgList): The element to place at `key`.
+            value (MgImage/MgFigure/MgList): The element to place at `key`.
         """
         self.objectlist[key] = value
 
@@ -109,7 +109,7 @@ class MgList():
         Implements `+=`.
 
         Args:
-            other (MgImage, MgFigure, or MgList): The object(s) to add to the MgList.
+            other (MgImage/MgFigure/MgList): The object(s) to add to the MgList.
 
         Returns:
             MgList: The incremented MgList.
@@ -134,7 +134,7 @@ class MgList():
         Implements `+`.
 
         Args:
-            other (MgImage, MgFigure, or MgList): The object(s) to add to the MgList.
+            other (MgImage/MgFigure/MgList): The object(s) to add to the MgList.
 
         Returns:
             MgList: The incremented MgList.
