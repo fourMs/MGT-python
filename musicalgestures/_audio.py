@@ -463,6 +463,8 @@ def mg_audio_waveform(filename=None, mono=False, dpi=300, autoshow=True, title=N
         print('The video has no audio track.')
         return
 
+    of, fex = os.path.splitext(filename)
+
     if target_name == None:
         target_name = of + '_waveform.png'
     else:
@@ -470,8 +472,6 @@ def mg_audio_waveform(filename=None, mono=False, dpi=300, autoshow=True, title=N
         target_name = os.path.splitext(target_name)[0] + '.png'
     if not overwrite:
         target_name = generate_outfilename(target_name)
-
-    of, fex = os.path.splitext(filename)
 
     y, sr = librosa.load(filename, sr=None, mono=mono)
 
@@ -543,6 +543,8 @@ def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters
         print('The video has no audio track.')
         return
 
+    of, fex = os.path.splitext(filename)
+
     if target_name == None:
         target_name = of + '_spectrogram.png'
     else:
@@ -550,8 +552,6 @@ def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters
         target_name = os.path.splitext(target_name)[0] + '.png'
     if not overwrite:
         target_name = generate_outfilename(target_name)
-
-    of, fex = os.path.splitext(filename)
 
     hop_size = int(window_size / overlap)
 
@@ -654,6 +654,8 @@ def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters
         print('The video has no audio track.')
         return
 
+    of, fex = os.path.splitext(filename)
+
     if target_name == None:
         target_name = of + '_descriptors.png'
     else:
@@ -661,8 +663,6 @@ def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters
         target_name = os.path.splitext(target_name)[0] + '.png'
     if not overwrite:
         target_name = generate_outfilename(target_name)
-
-    of, fex = os.path.splitext(filename)
 
     hop_size = int(window_size / overlap)
 
@@ -798,6 +798,8 @@ def mg_audio_tempogram(filename=None, window_size=4096, overlap=8, mel_filters=5
         print('The video has no audio track.')
         return
 
+    of, fex = os.path.splitext(filename)
+
     if target_name == None:
         target_name = of + '_tempogram.png'
     else:
@@ -805,8 +807,6 @@ def mg_audio_tempogram(filename=None, window_size=4096, overlap=8, mel_filters=5
         target_name = os.path.splitext(target_name)[0] + '.png'
     if not overwrite:
         target_name = generate_outfilename(target_name)
-
-    of, fex = os.path.splitext(filename)
 
     hop_size = int(window_size / overlap)
 
