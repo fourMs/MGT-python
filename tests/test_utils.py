@@ -44,6 +44,7 @@ class Test_scale_array:
     def test_negative(self):
         assert scale_array(np.array([1, 2, 3]), -0.1, -0.3).all() == np.array([-0.1, -0.2, -0.3]).all()
 
+
 class Test_generate_outfilename:
     def test_increment_once(self):
         f = open('testfile.txt', 'w')
@@ -58,6 +59,23 @@ class Test_generate_outfilename:
         assert os.path.basename(generate_outfilename("testfile.txt")) == "testfile_1.txt"
         os.remove("testfile.txt")
         os.remove("testfile_0.txt")
+
+
+class Test_get_frame_planecount:
+    def test_3plane(self):
+        frame = np.random.rand(3, 1920, 1080)
+        assert get_frame_planecount(frame) == 3
+    def test_1plane(self):
+        frame = np.random.rand(1920, 1080)
+        assert get_frame_planecount(frame) == 1
+
+
+class Test_frame2ms:
+    def test_expected(self):
+        assert frame2ms(1234, 56) == 22036
+    def test_unexpected(self):
+        assert frame2ms(1234.56, 78.9) == 15647
+
 
 
 #%%
