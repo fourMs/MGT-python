@@ -12,6 +12,7 @@ import musicalgestures
 # from musicalgestures._utils import get_widthheight
 
 
+
 def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, window_height=480, window_title=None):
 # def mg_show(self, filename=None, mode='windowed', window_width=640, window_height=480, window_title=None):
     """
@@ -42,9 +43,12 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             if in_colab():
                 mode = 'notebook'
         if mode.lower() == 'windowed':
-            cmd = f'ffplay "{file}" -x {width} -y {height} -window_title "{title}"'
-            # os.system(cmd)
-            show_async(cmd)
+            from musicalgestures._utils import wrap_str
+            # cmd = f'ffplay "{file}" -x {width} -y {height} -window_title "{title}"'
+            cmd = f'ffplay {wrap_str(file)} -x {width} -y {height} -window_title {wrap_str(title)}'
+            # show_async(cmd)
+            show_in_new_process(cmd)
+
         elif mode.lower() == 'notebook':
             video_formats = ['.avi', '.mp4', '.mov', '.mkv', '.mpg',
                              '.mpeg', '.webm', '.ogg', '.ts', '.wmv', '.3gp']
@@ -96,7 +100,6 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
         window_title = self.filename
 
     if filename == None:
-        # filename = self.filename
         keys = self.__dict__.keys()
         if key == None:
             filename = self.filename
@@ -104,7 +107,6 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                  height=window_height, mode=mode, title=window_title, parent=self)
 
         elif key.lower() == 'mgx':
-            # filename = self.of + '_mgx.png'
             if "motiongram_x" in keys:
                 filename = self.motiongram_x.filename
                 show(file=filename, width=window_width,
@@ -113,7 +115,6 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                 raise FileNotFoundError("There is no known horizontal motiongram for this file.")
 
         elif key.lower() == 'mgy':
-            # filename = self.of + '_mgy.png'
             if "motiongram_y" in keys:
                 filename = self.motiongram_y.filename
                 show(file=filename, width=window_width,
@@ -122,7 +123,6 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                 raise FileNotFoundError("There is no known vertical motiongram for this file.")
 
         elif key.lower() == 'vgx':
-            # filename = self.of + '_vgx.png'
             if "videogram_x" in keys:
                 filename = self.videogram_x.filename
                 show(file=filename, width=window_width,
@@ -131,7 +131,6 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                 raise FileNotFoundError("There is no known horizontal videogram for this file.")
 
         elif key.lower() == 'vgy':
-            # filename = self.of + '_vgy.png'
             if "videogram_y" in keys:
                 filename = self.videogram_y.filename
                 show(file=filename, width=window_width,
@@ -140,7 +139,6 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                 raise FileNotFoundError("There is no known vertical videogram for this file.")
 
         elif key.lower() == 'average':
-            # filename = self.of + '_average.png'
             if "average_image" in keys:
                 filename = self.average_image.filename
                 show(file=filename, width=window_width,
@@ -157,14 +155,6 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                 raise FileNotFoundError("There is no known motion plot for this file.")
 
         elif key.lower() == 'motion':
-            # motion is always avi
-            # if os.path.exists(self.of + '_motion.avi'):
-            #     filename = self.of + '_motion.avi'
-            #     show(file=filename, width=window_width,
-            #          height=window_height, mode=mode, title=f'Motion | {filename}')
-            # else:
-            #     print("No motion video found corresponding to",
-            #           self.of+self.fex, ". Try making one with .motion()")
             if "motion_video" in keys:
                 filename = self.motion_video.filename
                 show(file=filename, width=window_width,
@@ -173,13 +163,6 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                 raise FileNotFoundError("There is no known motion video for this file.")
 
         elif key.lower() == 'history':
-            # if os.path.exists(self.of + '_history' + self.fex):
-            #     filename = self.of + '_history' + self.fex
-            #     show(file=filename, width=window_width,
-            #          height=window_height, mode=mode, title=f'History | {filename}')
-            # else:
-            #     print("No history video found corresponding to",
-            #           self.of+self.fex, ". Try making one with .history()")
             if "history_video" in keys:
                 filename = self.history_video.filename
                 show(file=filename, width=window_width,
@@ -188,14 +171,6 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                 raise FileNotFoundError("There is no known history video for this file.")
 
         elif key.lower() == 'motionhistory':
-            # motion_history is always avi
-            # if os.path.exists(self.of + '_motion_history.avi'):
-            #     filename = self.of + '_motion_history.avi'
-            #     show(file=filename, width=window_width,
-            #          height=window_height, mode=mode, title=f'Motion History | {filename}')
-            # else:
-            #     print("No motion history video found corresponding to",
-            #           self.of+self.fex, ". Try making one with .motionhistory()")
             if "motion_video" in keys:
                 motion_video_keys = self.motion_video.__dict__.keys()
                 if "history_video" in motion_video_keys:
@@ -208,14 +183,6 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                 raise FileNotFoundError("There is no known motion video for this file.")
 
         elif key.lower() == 'sparse':
-            # optical flow is always avi
-            # if os.path.exists(self.of + '_flow_sparse.avi'):
-            #     filename = self.of + '_flow_sparse.avi'
-            #     show(file=filename, width=window_width,
-            #          height=window_height, mode=mode, title=f'Sparse Optical Flow | {filename}')
-            # else:
-            #     print("No sparse optical flow video found corresponding to",
-            #           self.of+self.fex, ". Try making one with .flow.sparse()")
             if "flow_sparse_video" in keys:
                 filename = self.flow_sparse_video.filename
                 show(file=filename, width=window_width,
@@ -224,14 +191,6 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                 raise FileNotFoundError("There is no known sparse optial flow video for this file.")
 
         elif key.lower() == 'dense':
-            # optical flow is always avi
-            # if os.path.exists(self.of + '_flow_dense.avi'):
-            #     filename = self.of + '_flow_dense.avi'
-            #     show(file=filename, width=window_width,
-            #          height=window_height, mode=mode, title=f'Dense Optical Flow | {filename}')
-            # else:
-            #     print("No dense optical flow video found corresponding to",
-            #           self.of+self.fex, ". Try making one with .flow.dense()")
             if "flow_dense_video" in keys:
                 filename = self.flow_dense_video.filename
                 show(file=filename, width=window_width,
@@ -277,3 +236,24 @@ def show_async(command):
         tsk = loop.create_task(run_cmd(command))
     else:
         asyncio.run(run_cmd(command))
+
+
+def show_in_new_process(command):
+    import subprocess
+    # import time
+    import sys
+    import platform
+    from musicalgestures._utils import wrap_str
+    module_path = os.path.realpath(os.path.dirname(musicalgestures.__file__)).replace('\\', '/')
+    the_system = platform.system()
+    pythonkw = "python"
+    if the_system != "Windows":
+        pythonkw += "3"
+    pyfile = wrap_str(module_path + '/_show_window.py')
+    cmd = [pythonkw, pyfile, wrap_str(command)]
+    # print(cmd)
+    with open(os.devnull, 'r+b', 0) as DEVNULL:
+        process = subprocess.Popen(cmd, stdin=DEVNULL, stdout=DEVNULL, stderr=DEVNULL, close_fds=True)
+    # time.sleep(1)
+    if process.poll():
+        sys.exit(process.returncode)
