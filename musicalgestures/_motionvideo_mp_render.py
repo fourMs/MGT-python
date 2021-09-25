@@ -4,12 +4,7 @@ import os
 import argparse
 import cv2
 import sys
-try:
-    import musicalgestures
-except:
-    # local dev mode
-    sys.path.append('../')
-    import musicalgestures
+import musicalgestures
 from musicalgestures._utils import frame2ms
 from musicalgestures._centroid import centroid
 from musicalgestures._filter import filter_frame
