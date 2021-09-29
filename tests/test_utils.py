@@ -5,6 +5,7 @@ import musicalgestures
 from musicalgestures._utils import *
 import numpy as np
 import os
+import pytest
 
 # %%
 
@@ -15,6 +16,11 @@ class Test_MgProgressbar:
                            suffix="Done", decimals=3, length=30, fill="@")
         assert pb.total == 41
         assert pb.time_limit == 0.42
+        assert pb.prefix == "Test"
+        assert pb.suffix == "Done"
+        assert pb.decimals == 3
+        assert pb.length == 30
+        assert pb.fill == "@"
 
 
 class Test_roundup:
@@ -69,22 +75,17 @@ class Test_scale_array:
 
 
 class Test_generate_outfilename:
-    def test_increment_once(self):
-        f = open('testfile.txt', 'w')
-        f.close()
-        assert os.path.basename(generate_outfilename(
-            "testfile.txt")) == "testfile_0.txt"
-        os.remove("testfile.txt")
+    def test_increment_once(self, tmp_path):
+        p = tmp_path / "testfile.txt"
+        p.write_text("test")
+        assert os.path.basename(generate_outfilename(str(p))) == "testfile_0.txt"
 
-    def test_increment_twice(self):
-        f = open('testfile.txt', 'w')
-        f.close()
-        f = open('testfile_0.txt', 'w')
-        f.close()
-        assert os.path.basename(generate_outfilename(
-            "testfile.txt")) == "testfile_1.txt"
-        os.remove("testfile.txt")
-        os.remove("testfile_0.txt")
+    def test_increment_twice(self, tmp_path):
+        p1 = tmp_path / "testfile.txt"
+        p1.write_text("test")
+        p2 = tmp_path / "testfile_0.txt"
+        p2.write_text("test")
+        assert os.path.basename(generate_outfilename(str(p1))) == "testfile_1.txt"
 
 
 class Test_get_frame_planecount:
@@ -105,4 +106,40 @@ class Test_frame2ms:
         assert frame2ms(1234.56, 78.9) == 15647
 
 
-# %%
+class Test_MgImage:
+    def test_init(self):
+        img = MgImage("test_image.png")
+        assert img.filename == "test_image.png"
+        assert img.of == "test_image"
+        assert img.fex == ".png"
+
+
+class Test_MgFigure:
+    def test_init(self):
+        import matplotlib.pyplot as plt
+        x = np.arange(0, 5, 0.1)
+        y = np.sin(x)
+        data = {"x": x, "y": y}
+        plt.plot(x, y)
+        fig = MgFigure(figure=plt, figure_type="testy.test", data=data, layers="layers", image="image")
+        assert fig.figure == plt
+        assert fig.figure_type == "testy.test"
+        assert fig.data["x"].all() == data["x"].all()
+        assert fig.data["y"].all() == data["y"].all()
+        assert fig.layers == "layers"
+        assert fig.image == "image"
+
+
+@pytest.fixture(scope="class")
+def testvideo_mp4(tmp_path_factory):
+    target_name = str(tmp_path_factory.mktemp("data")).replace("\\", "/") + "/testvideo.avi"
+    testvideo_avi = extract_subclip(musicalgestures.examples.dance, 5, 6, target_name=target_name)
+    testvideo_mp4 = convert_to_mp4(testvideo_avi)
+    return testvideo_mp4
+
+class Test_convert_to_avi:
+    def test_output(self, tmp_path, testvideo_mp4):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_converted.avi"
+        testvideo_avi = convert_to_avi(testvideo_mp4, target_name=target_name)
+        assert os.path.isfile(testvideo_avi) == True
+
