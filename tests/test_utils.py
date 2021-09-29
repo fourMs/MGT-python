@@ -1,13 +1,8 @@
-# %%
-# import sys
-# sys.path.append('../')
 import musicalgestures
 from musicalgestures._utils import *
 import numpy as np
 import os
 import pytest
-
-# %%
 
 
 class Test_MgProgressbar:
@@ -138,8 +133,44 @@ def testvideo_mp4(tmp_path_factory):
     return testvideo_mp4
 
 class Test_convert_to_avi:
+    @pytest.mark.xfail(raises=AssertionError)
     def test_output(self, tmp_path, testvideo_mp4):
         target_name = str(tmp_path).replace("\\", "/") + "/testvideo_converted.avi"
         testvideo_avi = convert_to_avi(testvideo_mp4, target_name=target_name)
+        length_in = get_length(testvideo_mp4)
+        length_out = get_length(testvideo_avi)
         assert os.path.isfile(testvideo_avi) == True
+        assert os.path.splitext(testvideo_avi)[1] == ".avi"
+        assert target_name == testvideo_avi
+        assert length_in == length_out # this will fail due to ffmpeg bug: https://trac.ffmpeg.org/ticket/9443#ticket
 
+
+@pytest.fixture(scope="class")
+def testvideo_avi(tmp_path_factory):
+    target_name = str(tmp_path_factory.mktemp("data")).replace("\\", "/") + "/testvideo.avi"
+    testvideo_avi = extract_subclip(musicalgestures.examples.dance, 5, 6, target_name=target_name)
+    return testvideo_avi
+
+class Test_convert_to_mp4:
+    def test_output(self, tmp_path, testvideo_avi):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_converted.mp4"
+        testvideo_mp4 = convert_to_mp4(testvideo_avi, target_name=target_name)
+        length_in = get_length(testvideo_avi)
+        length_out = get_length(testvideo_mp4)
+        assert os.path.isfile(testvideo_mp4) == True
+        assert os.path.splitext(testvideo_mp4)[1] == ".mp4"
+        assert target_name == testvideo_mp4
+        assert length_in == length_out
+
+
+class Test_convert_to_webm:
+    @pytest.mark.xfail(raises=AssertionError)
+    def test_output(self, tmp_path, testvideo_avi):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_converted.webm"
+        testvideo_webm = convert_to_webm(testvideo_avi, target_name=target_name)
+        length_in = get_length(testvideo_avi)
+        length_out = get_length(testvideo_webm)
+        assert os.path.isfile(testvideo_webm) == True
+        assert os.path.splitext(testvideo_webm)[1] == ".webm"
+        assert target_name == testvideo_webm
+        assert length_in == length_out # this will fail, need to find out why

@@ -372,7 +372,7 @@ def convert_to_avi(filename, target_name=None, overwrite=False):
 
     import os
     of, fex = os.path.splitext(filename)
-    if fex == '.avi':
+    if fex.lower() == '.avi':
         print(f'{filename} is already in avi container.')
         return filename
     if not target_name:
@@ -400,7 +400,7 @@ def convert_to_mp4(filename, target_name=None, overwrite=False):
 
     import os
     of, fex = os.path.splitext(filename)
-    if fex == '.mp4':
+    if fex.lower() == '.mp4':
         print(f'{filename} is already in mp4 container.')
         return filename
     if not target_name:
@@ -427,7 +427,7 @@ def convert_to_webm(filename, target_name=None, overwrite=False):
 
     import os
     of, fex = os.path.splitext(filename)
-    if fex == '.webm':
+    if fex.lower() == '.webm':
         print(f'{filename} is already in webm container.')
         return filename
     if not target_name:
