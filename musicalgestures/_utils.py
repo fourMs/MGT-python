@@ -357,6 +357,33 @@ class MgFigure():
         return self.figure
 
 
+def convert(filename, target_name, overwrite=False):
+    """
+    Converts a video to another format/container using ffmpeg.
+
+    Args:
+        filename (str): Path to the input video file to convert.
+        target_name (str): Target filename as path.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+
+    Returns:
+        str: The path to the output file.
+    """
+
+    import os
+    of, fex = os.path.splitext(filename)
+    target_of, target_fex = os.path.splitext(target_name)
+    if fex.lower() == target_fex.lower():
+        print(f'{filename} is already in {fex} container.')
+        return filename
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
+    cmds = ['ffmpeg', '-y', '-i', filename,
+            "-q:v", "3", target_name]
+    ffmpeg_cmd(cmds, get_length(filename), pb_prefix=f'Converting to {target_fex}:')
+    return target_name
+
+
 def convert_to_avi(filename, target_name=None, overwrite=False):
     """
     Converts a video to one with .avi extension using ffmpeg.
