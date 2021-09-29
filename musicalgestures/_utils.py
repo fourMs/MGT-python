@@ -357,6 +357,11 @@ class MgFigure():
         return self.figure
 
 
+class WrongContainer(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
 def convert(filename, target_name, overwrite=False):
     """
     Converts a video to another format/container using ffmpeg.
@@ -404,6 +409,8 @@ def convert_to_avi(filename, target_name=None, overwrite=False):
         return filename
     if not target_name:
         target_name = of + '.avi'
+    elif os.path.splitext(target_name)[1].lower() != '.avi':
+        raise WrongContainer(f"requested target container is NOT .avi but {os.path.splitext(target_name)[1]}.")
     if not overwrite:
         target_name = generate_outfilename(target_name)
     cmds = ['ffmpeg', '-y', '-i', filename, "-c:v", "mjpeg",
@@ -432,12 +439,15 @@ def convert_to_mp4(filename, target_name=None, overwrite=False):
         return filename
     if not target_name:
         target_name = of + '.mp4'
+    elif os.path.splitext(target_name)[1].lower() != '.mp4':
+        raise WrongContainer(f"requested target container is NOT .mp4 but {os.path.splitext(target_name)[1]}.")
     if not overwrite:
         target_name = generate_outfilename(target_name)
     cmds = ['ffmpeg', '-y', '-i', filename,
             "-q:v", "3", target_name]
     ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Converting to mp4:')
     return target_name
+
 
 def convert_to_webm(filename, target_name=None, overwrite=False):
     """
@@ -459,6 +469,8 @@ def convert_to_webm(filename, target_name=None, overwrite=False):
         return filename
     if not target_name:
         target_name = of + '.webm'
+    elif os.path.splitext(target_name)[1].lower() != '.webm':
+        raise WrongContainer(f"requested target container is NOT .webm but {os.path.splitext(target_name)[1]}.")
     if not overwrite:
         target_name = generate_outfilename(target_name)
     cmds = ['ffmpeg', '-y', '-i', filename,
@@ -486,6 +498,8 @@ def cast_into_avi(filename, target_name=None, overwrite=False):
     of = os.path.splitext(filename)[0]
     if not target_name:
         target_name = of + '.avi'
+    elif os.path.splitext(target_name)[1].lower() != '.avi':
+        raise WrongContainer(f"requested target container is NOT .avi but {os.path.splitext(target_name)[1]}.")
     if not overwrite:
         target_name = generate_outfilename(target_name)
     cmds = ['ffmpeg', '-y', '-i', filename, "-codec copy", target_name]
