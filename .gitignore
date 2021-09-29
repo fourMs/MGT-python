@@ -27,3 +27,9 @@ dance.avi
 musicalgestures/pose/mpi/pose_iter_160000.caffemodel
 musicalgestures/pose/coco/pose_iter_440000.caffemodel
 MusicalGesturesToolbox_devlocal.ipynb
+musicalgestures/interactive.py
+musicalgestures/pytest.ini
+pytest.ini
+tests/.coverage
+tests/.vs/slnx.sqlite
+tests/pytest.ini
