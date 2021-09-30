@@ -145,6 +145,27 @@ def format_pairs():
     all_combinations = list(itertools.combinations(video_formats, 2))
     return all_combinations
 
+
+class Test_pass_if_containers_match:
+    def test_match(self):
+        pass_if_containers_match("file_1.avi", "file_2.avi")
+        assert 42 == 42 # no error thrown
+
+    def test_mismatch(self):
+        with pytest.raises(WrongContainer):
+            pass_if_containers_match("file_1.avi", "file_2.mp4")
+
+
+class Test_pass_if_container_is:
+    def test_match(self):
+        pass_if_container_is(".avi", "file.avi")
+        assert 42 == 42 # no error thrown
+
+    def test_mismatch(self):
+        with pytest.raises(WrongContainer):
+            pass_if_container_is(".avi", "file_2.mp4")
+
+
 class Test_convert:
     @pytest.mark.parametrize("execution_number", range(len(list(itertools.combinations(['.avi', '.mp4', '.mov', '.mkv', '.mpg', '.mpeg', '.webm', '.ogg'], 2)))))
     def test_output(self, format_pairs, execution_number, tmp_path, testvideo_avi):
@@ -175,11 +196,6 @@ class Test_convert_to_avi:
         assert os.path.splitext(testvideo_avi)[1] == ".avi"
         assert target_name == testvideo_avi
         # assert length_in == length_out # this will fail due to ffmpeg bug: https://trac.ffmpeg.org/ticket/9443#ticket
-    
-    def test_requested_container_incorrect(self, tmp_path, testvideo_mp4):
-        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_converted.mp4"
-        with pytest.raises(WrongContainer):
-            convert_to_avi(testvideo_mp4, target_name=target_name)
 
 
 class Test_convert_to_mp4:
@@ -193,25 +209,20 @@ class Test_convert_to_mp4:
         assert target_name == testvideo_mp4
         assert length_in == length_out
 
-    def test_requested_container_incorrect(self, tmp_path, testvideo_avi):
-        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_converted.avi"
-        with pytest.raises(WrongContainer):
-            convert_to_mp4(testvideo_avi, target_name=target_name)
-
 
 class Test_convert_to_webm:
-    # @pytest.mark.xfail(raises=AssertionError)
     def test_output(self, tmp_path, testvideo_avi):
         target_name = str(tmp_path).replace("\\", "/") + "/testvideo_converted.webm"
         testvideo_webm = convert_to_webm(testvideo_avi, target_name=target_name)
-        # length_in = get_length(testvideo_avi)
-        # length_out = get_length(testvideo_webm)
         assert os.path.isfile(testvideo_webm) == True
         assert os.path.splitext(testvideo_webm)[1] == ".webm"
         assert target_name == testvideo_webm
-        # assert length_in == length_out # this will fail, need to find out why
 
-    def test_requested_container_incorrect(self, tmp_path, testvideo_avi):
-        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_converted.mp4"
-        with pytest.raises(WrongContainer):
-            convert_to_webm(testvideo_avi, target_name=target_name)
+
+class Test_cast_into_avi:
+    def test_output(self, tmp_path, testvideo_mp4):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_casted.avi"
+        testvideo_casted_avi = cast_into_avi(testvideo_mp4, target_name=target_name)
+        assert os.path.isfile(testvideo_casted_avi) == True
+        assert os.path.splitext(testvideo_casted_avi)[1] == ".avi"
+        assert target_name == testvideo_casted_avi

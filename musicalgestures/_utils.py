@@ -362,6 +362,38 @@ class WrongContainer(Exception):
         self.message = message
 
 
+def pass_if_containers_match(file_1, file_2):
+    """Checks if file extensions match between two files. If they do it passes, is they don't it raises WrongContainer exception.
+
+    Args:
+        file_1 (str): First file in comparison.
+        file_2 (str): Second file in comparison.
+
+    Raises:
+        WrongContainer: If file extensions (containers) mismatch.
+    """
+    import os
+    fex_1 = os.path.splitext(file_1)[1].lower()
+    fex_2 = os.path.splitext(file_2)[1]. lower()
+    if fex_1 != fex_2:
+        raise WrongContainer(f"Container mismatch: {fex_1} vs {fex_2}; between {file_1} and {file_2}.")
+
+
+def pass_if_container_is(container, file):
+    """Checks if a file's extension matches a desired one. Passes if so, raises WrongContainer if not.
+
+    Args:
+        container (str): The container to match.
+        file (str): Path to the file to inspect.
+
+    Raises:
+        WrongContainer: If the file extension (container) matches the desired one.
+    """
+    import os
+    if os.path.splitext(file)[1].lower() != container.lower():
+        raise WrongContainer(f"Container should be {container.lower()}, but it is {os.path.splitext(file)[1].lower()} in file {file}.")
+
+
 def convert(filename, target_name, overwrite=False):
     """
     Converts a video to another format/container using ffmpeg.
@@ -409,10 +441,9 @@ def convert_to_avi(filename, target_name=None, overwrite=False):
         return filename
     if not target_name:
         target_name = of + '.avi'
-    elif os.path.splitext(target_name)[1].lower() != '.avi':
-        raise WrongContainer(f"requested target container is NOT .avi but {os.path.splitext(target_name)[1]}.")
     if not overwrite:
         target_name = generate_outfilename(target_name)
+    pass_if_container_is(".avi", target_name)
     cmds = ['ffmpeg', '-y', '-i', filename, "-c:v", "mjpeg",
             "-q:v", "3", "-c:a", "copy", target_name]
     ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Converting to avi:')
@@ -439,10 +470,9 @@ def convert_to_mp4(filename, target_name=None, overwrite=False):
         return filename
     if not target_name:
         target_name = of + '.mp4'
-    elif os.path.splitext(target_name)[1].lower() != '.mp4':
-        raise WrongContainer(f"requested target container is NOT .mp4 but {os.path.splitext(target_name)[1]}.")
     if not overwrite:
         target_name = generate_outfilename(target_name)
+    pass_if_container_is(".mp4", target_name)
     cmds = ['ffmpeg', '-y', '-i', filename,
             "-q:v", "3", target_name]
     ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Converting to mp4:')
@@ -469,10 +499,9 @@ def convert_to_webm(filename, target_name=None, overwrite=False):
         return filename
     if not target_name:
         target_name = of + '.webm'
-    elif os.path.splitext(target_name)[1].lower() != '.webm':
-        raise WrongContainer(f"requested target container is NOT .webm but {os.path.splitext(target_name)[1]}.")
     if not overwrite:
         target_name = generate_outfilename(target_name)
+    pass_if_container_is(".webm", target_name)
     cmds = ['ffmpeg', '-y', '-i', filename,
             "-q:v", "3", target_name]
     ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Converting to webm:')
@@ -498,11 +527,10 @@ def cast_into_avi(filename, target_name=None, overwrite=False):
     of = os.path.splitext(filename)[0]
     if not target_name:
         target_name = of + '.avi'
-    elif os.path.splitext(target_name)[1].lower() != '.avi':
-        raise WrongContainer(f"requested target container is NOT .avi but {os.path.splitext(target_name)[1]}.")
     if not overwrite:
         target_name = generate_outfilename(target_name)
-    cmds = ['ffmpeg', '-y', '-i', filename, "-codec copy", target_name]
+    pass_if_container_is(".avi", target_name)
+    cmds = ['ffmpeg', '-y', '-i', filename, "-codec", "copy", target_name]
     ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Casting to avi')
     return target_name
 
@@ -528,7 +556,8 @@ def extract_subclip(filename, t1, t2, target_name=None, overwrite=False):
     length = get_length(filename)
     start, end = np.clip(t1, 0, length), np.clip(t2, 0, length)
     if start > end:
-        end = length
+        # end = length
+        start, end = end, start
 
     if not target_name:
         T1, T2 = [int(1000*t) for t in [start, end]]
