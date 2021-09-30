@@ -226,3 +226,64 @@ class Test_cast_into_avi:
         assert os.path.isfile(testvideo_casted_avi) == True
         assert os.path.splitext(testvideo_casted_avi)[1] == ".avi"
         assert target_name == testvideo_casted_avi
+
+
+class Test_extract_subclip:
+    def test_output(self, tmp_path, testvideo_avi):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_trimmed.avi"
+        testvideo_trimmed = extract_subclip(testvideo_avi, 3, 4, target_name=target_name)
+        assert os.path.isfile(testvideo_trimmed) == True
+        assert os.path.splitext(testvideo_trimmed)[1] == ".avi"
+        assert target_name == testvideo_trimmed
+
+    def test_length(self, tmp_path):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_trimmed.avi"
+        testvideo_trimmed = extract_subclip(musicalgestures.examples.dance, 3, 4, target_name=target_name)
+        fps = get_fps(musicalgestures.examples.dance)
+        result_framecount = get_framecount(testvideo_trimmed)
+        assert fps - 1 <= result_framecount <= fps + 1
+
+
+class Test_rotate_video:
+    def test_output(self, tmp_path, testvideo_avi):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_rotated.avi"
+        testvideo_rotated = rotate_video(testvideo_avi, 90, target_name=target_name)
+        assert os.path.isfile(testvideo_rotated) == True
+        assert os.path.splitext(testvideo_rotated)[1] == ".avi"
+        assert target_name == testvideo_rotated
+
+
+class Test_convert_to_grayscale:
+    def test_output(self, tmp_path, testvideo_avi):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_grayscale.avi"
+        testvideo_grayscale = convert_to_grayscale(testvideo_avi, target_name=target_name)
+        assert os.path.isfile(testvideo_grayscale) == True
+        assert os.path.splitext(testvideo_grayscale)[1] == ".avi"
+        assert target_name == testvideo_grayscale
+
+
+class Test_framediff_ffmpeg:
+    def test_output(self, tmp_path, testvideo_avi):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_framediff.avi"
+        testvideo_framediff = framediff_ffmpeg(testvideo_avi, target_name=target_name)
+        assert os.path.isfile(testvideo_framediff) == True
+        assert os.path.splitext(testvideo_framediff)[1] == ".avi"
+        assert target_name == testvideo_framediff
+
+
+class Test_threshold_ffmpeg:
+    def test_output(self, tmp_path, testvideo_avi):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_threshold.avi"
+        testvideo_threshold = threshold_ffmpeg(testvideo_avi, target_name=target_name)
+        assert os.path.isfile(testvideo_threshold) == True
+        assert os.path.splitext(testvideo_threshold)[1] == ".avi"
+        assert target_name == testvideo_threshold
+
+
+class Test_motionvideo_ffmpeg:
+    def test_output(self, tmp_path, testvideo_avi):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_motionvideo.avi"
+        testvideo_motionvideo = motionvideo_ffmpeg(testvideo_avi, target_name=target_name)
+        assert os.path.isfile(testvideo_motionvideo) == True
+        assert os.path.splitext(testvideo_motionvideo)[1] == ".avi"
+        assert target_name == testvideo_motionvideo

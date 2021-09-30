@@ -566,6 +566,8 @@ def extract_subclip(filename, t1, t2, target_name=None, overwrite=False):
     if not overwrite:
         target_name = generate_outfilename(target_name)
 
+    pass_if_containers_match(filename, target_name)
+
     # avoiding ffmpeg glitch if format is not avi:
     if os.path.splitext(filename)[1] != '.avi':
         cmd = ['ffmpeg', "-y",
@@ -607,6 +609,8 @@ def rotate_video(filename, angle, target_name=None, overwrite=False):
     if not overwrite:
         target_name = generate_outfilename(target_name)
 
+    pass_if_containers_match(filename, target_name)
+
     cmds = ['ffmpeg', '-y', '-i', filename, "-vf",
             f"rotate={math.radians(angle)}", "-q:v", "3", "-c:a", "copy", target_name]
     ffmpeg_cmd(cmds, get_length(filename),
@@ -634,6 +638,8 @@ def convert_to_grayscale(filename, target_name=None, overwrite=False):
         target_name = of + '_gray' + fex
     if not overwrite:
         target_name = generate_outfilename(target_name)
+
+    pass_if_containers_match(filename, target_name)
 
     cmds = ['ffmpeg', '-y', '-i', filename, '-vf',
             'hue=s=0', "-q:v", "3", "-c:a", "copy", target_name]
@@ -663,6 +669,7 @@ def framediff_ffmpeg(filename, target_name=None, color=True, overwrite=False):
         target_name = of + '_framediff' + fex
     if not overwrite:
         target_name = generate_outfilename(target_name)
+    pass_if_containers_match(filename, target_name)
     if color == True:
         pixformat = 'gbrp'
     else:
@@ -697,6 +704,8 @@ def threshold_ffmpeg(filename, threshold=0.1, target_name=None, binary=False, ov
         target_name = of + '_thresh' + fex
     if not overwrite:
         target_name = generate_outfilename(target_name)
+
+    pass_if_containers_match(filename, target_name)
 
     width, height = get_widthheight(filename)
 
@@ -757,6 +766,8 @@ def motionvideo_ffmpeg(
         target_name = of + '_motion' + fex
     if not overwrite:
         target_name = generate_outfilename(target_name)
+
+    pass_if_containers_match(filename, target_name)
 
     cmd_end = ['-q:v', '3', "-c:a", "copy", target_name]
 
