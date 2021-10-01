@@ -140,6 +140,27 @@ def testvideo_avi(tmp_path_factory):
     return testvideo_avi
 
 @pytest.fixture(scope="class")
+def testvideo_avi_silent(tmp_path_factory):
+    target_name = str(tmp_path_factory.mktemp("data")).replace("\\", "/") + "/testvideo.avi"
+    target_name_silent = str(tmp_path_factory.mktemp("data")).replace("\\", "/") + "/testvideo_silent.avi"
+    testvideo_avi = extract_subclip(musicalgestures.examples.dance, 5, 6, target_name=target_name)
+    cmd = ["ffmpeg", "-y", "-i", target_name, "-an", target_name_silent]
+    ffmpeg_cmd(cmd, get_length(testvideo_avi), stream=False)
+    return target_name_silent
+
+@pytest.fixture(scope="class")
+def testimage(tmp_path_factory):
+    target_name = str(tmp_path_factory.mktemp("data")).replace("\\", "/") + "/testimage.png"
+    testimage = get_first_frame_as_image(musicalgestures.examples.dance, target_name=target_name)
+    return testimage
+
+@pytest.fixture(scope="class")
+def testaudio(tmp_path_factory):
+    target_name = str(tmp_path_factory.mktemp("data")).replace("\\", "/") + "/testaudio.wav"
+    testaudio = extract_wav(musicalgestures.examples.dance, target_name=target_name)
+    return testaudio
+
+@pytest.fixture(scope="class")
 def format_pairs():
     video_formats = ['.avi', '.mp4', '.mov', '.mkv', '.mpg', '.mpeg', '.webm', '.ogg']
     all_combinations = list(itertools.combinations(video_formats, 2))
@@ -287,3 +308,133 @@ class Test_motionvideo_ffmpeg:
         assert os.path.isfile(testvideo_motionvideo) == True
         assert os.path.splitext(testvideo_motionvideo)[1] == ".avi"
         assert target_name == testvideo_motionvideo
+
+
+class Test_motiongrams_ffmpeg:
+    def test_output(self, tmp_path):
+        target_name_x = str(tmp_path).replace("\\", "/") + "/testmotiongram_x.png"
+        target_name_y = str(tmp_path).replace("\\", "/") + "/testmotiongram_y.png"
+        testmotiongram_x, testmotiongram_y = motiongrams_ffmpeg(musicalgestures.examples.pianist, target_name_x=target_name_x, target_name_y=target_name_y)
+        assert os.path.isfile(testmotiongram_x) == True
+        assert os.path.isfile(testmotiongram_y) == True
+        assert os.path.splitext(testmotiongram_x)[1] == ".png"
+        assert os.path.splitext(testmotiongram_y)[1] == ".png"
+        assert target_name_x == testmotiongram_x
+        assert target_name_y == testmotiongram_y
+
+
+class Test_crop_ffmpeg:
+    def test_output(self, tmp_path, testvideo_avi):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_cropped.avi"
+        testvideo_cropped = crop_ffmpeg(testvideo_avi, 50, 50, 0, 0, target_name=target_name)
+        assert os.path.isfile(testvideo_cropped) == True
+        assert os.path.splitext(testvideo_cropped)[1] == ".avi"
+        assert target_name == testvideo_cropped
+
+
+class Test_extract_wav:
+    def test_output(self, tmp_path, testvideo_avi):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_audio.wav"
+        testvideo_audio = extract_wav(testvideo_avi, target_name=target_name)
+        assert os.path.isfile(testvideo_audio) == True
+        assert os.path.splitext(testvideo_audio)[1] == ".wav"
+        assert target_name == testvideo_audio
+
+
+class Test_ffprobe:
+    def test_nofile(self, tmp_path):
+        test_input = str(tmp_path).replace("\\", "/") + "/thisfiledoesnotexist.mp4"
+        with pytest.raises(FileNotFoundError):
+            ffprobe(test_input)
+
+    def test_video(self, testvideo_avi):
+        result = ffprobe(testvideo_avi)
+        assert type(result) == str
+        assert len(result) > 0
+
+    def test_image(self, testimage):
+        result = ffprobe(testimage)
+        assert type(result) == str
+        assert len(result) > 0
+
+    def test_audio(self, testaudio):
+        result = ffprobe(testaudio)
+        assert type(result) == str
+        assert len(result) > 0
+
+
+class Test_get_widthheight:
+    def test_get_widthheight(self):
+        width, height = get_widthheight(musicalgestures.examples.dance)
+        assert width == 518
+        assert height == 496
+
+
+class Test_has_audio:
+    def test_with_audio(self, testvideo_avi):
+        assert has_audio(testvideo_avi) == True
+
+    def test_without_audio(self, testvideo_avi_silent):
+        assert has_audio(testvideo_avi_silent) == False
+
+
+class Test_get_length:
+    def test_video(self):
+        result = get_length(musicalgestures.examples.dance)
+        assert type(result) == float
+        assert result == 62.84
+
+    def test_audio(self, testaudio):
+        result = get_length(testaudio)
+        assert type(result) == float
+        assert result == 62.86
+
+
+class Test_get_framecount:
+    def test_get_framecount(self):
+        result = get_framecount(musicalgestures.examples.dance)
+        assert type(result) == int
+        assert result == 1571
+
+
+class Test_get_fps:
+    def test_get_fps(self):
+        result = get_fps(musicalgestures.examples.dance)
+        assert type(result) == float
+        assert result == 25.0
+
+
+class Test_get_first_frame_as_image:
+    def test_get_first_frame_as_image(self, tmp_path):
+        target_name = str(tmp_path).replace("\\", "/") + "/first_frame.png"
+        result = get_first_frame_as_image(musicalgestures.examples.dance, target_name=target_name)
+        assert type(result) == str
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".png"
+
+
+class Test_get_box_video_ratio:
+    def test_normal(self):
+        result = get_box_video_ratio(musicalgestures.examples.dance)
+        assert result == 1
+    
+    def test_small(self):
+        result = get_box_video_ratio(musicalgestures.examples.dance, box_width=100)
+        assert result == 0.17374517374517376
+
+
+class Test_audio_dilate:
+    def test_2x(self, tmp_path, testaudio):
+        target_name = str(tmp_path).replace("\\", "/") + "/test_dilated.wav"
+        result = audio_dilate(testaudio, dilation_ratio=0.5, target_name=target_name)
+        length_in = get_length(testaudio)
+        length_out = get_length(result)
+        assert abs(length_out - (2 * length_in)) < 0.1
+
+
+    def test_half(self, tmp_path, testaudio):
+        target_name = str(tmp_path).replace("\\", "/") + "/test_dilated.wav"
+        result = audio_dilate(testaudio, dilation_ratio=2, target_name=target_name)
+        length_in = get_length(testaudio)
+        length_out = get_length(result)
+        assert abs(length_in - (2 * length_out)) < 0.1

@@ -869,6 +869,9 @@ def motiongrams_ffmpeg(
         target_name_x = generate_outfilename(target_name_x)
         target_name_y = generate_outfilename(target_name_y)
 
+    pass_if_container_is(".png", target_name_x)
+    pass_if_container_is(".png", target_name_y)
+
     cmd = ['ffmpeg', '-y', '-i', filename]
     cmd_filter = ''
 
@@ -962,6 +965,8 @@ def crop_ffmpeg(filename, w, h, x, y, target_name=None, overwrite=False):
         target_name = of + '_crop' + fex
     if not overwrite:
         target_name = generate_outfilename(target_name)
+    
+    pass_if_containers_match(filename, target_name)
 
     cmd = ['ffmpeg', '-y', '-i', filename, '-vf',
            f'crop={w}:{h}:{x}:{y}', '-q:v', '3', "-c:a", "copy", target_name]
@@ -991,6 +996,8 @@ def extract_wav(filename, target_name=None, overwrite=False):
         target_name = of + '.wav'
     if not overwrite:
         target_name = generate_outfilename(target_name)
+
+    pass_if_container_is(".wav", target_name)
 
     if fex in ['.wav', '.WAV']:
         print(f'{filename} is already in .wav container.')
@@ -1231,6 +1238,8 @@ def get_first_frame_as_image(filename, target_name=None, pict_format='.png', ove
     if not overwrite:
         target_name = generate_outfilename(target_name)
 
+    pass_if_container_is(pict_format, target_name)
+
     cmd = ' '.join(['ffmpeg', '-y', '-i', wrap_str(filename),
                     '-frames', '1', wrap_str(target_name)])
 
@@ -1331,6 +1340,8 @@ def audio_dilate(filename, dilation_ratio=1, target_name=None, overwrite=False):
         target_name = of + '_dilated' + fex
     if not overwrite:
         target_name = generate_outfilename(target_name)
+
+    pass_if_containers_match(filename, target_name)
 
     cmds = ' '.join(['ffmpeg', '-y', '-i', wrap_str(filename), '-codec:a', 'pcm_s16le',
                      '-filter:a', 'atempo=' + str(dilation_ratio), wrap_str(target_name)])
