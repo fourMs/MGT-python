@@ -65,32 +65,59 @@ class MgProgressbar():
         elif self.could_not_get_terminal_window:
             return
         else:
-            current_length = len(self.prefix) + self.length + \
-                self.decimals + len(self.suffix) + 10
+            _length_before = self.length
+            current_length = len(self.prefix) + self.length + self.decimals + len(self.suffix) + 10
+
+            # if the length of printed line is longer than the terminal window's width
             if current_length > self.tw_width:
                 diff = current_length - self.tw_width
+
+                # if the difference is shorter than the progress bar length
                 if diff < self.length:
-                    self.length -= diff
+                    self.length -= diff # shorten the progress bar
+
+                # if the difference is at least as long as the progress bar or longer
                 else:  # remove suffix
-                    current_length = current_length - len(self.suffix)
-                    diff = current_length - self.tw_width
+                    current_length = current_length - len(self.suffix) # remove suffix
+                    diff = current_length - self.tw_width # recalculate difference
+
+                    # if the terminal width is long enough without suffix
                     if diff <= 0:
+                        self.suffix = "" # just remove suffix
+
+                    # the terminal window is too short even without suffix
+                    # remove suffix and test again
+                    else:
                         self.suffix = ""
-                    elif diff < self.length:
-                        self.suffix = ""
-                        self.length -= diff
-                    else:  # remove prefix
-                        current_length = current_length - len(self.prefix)
-                        diff = current_length - self.tw_width
-                        if diff <= 0:
-                            self.suffix = ""
-                            self.prefix = ""
-                        elif diff < self.length:
-                            self.suffix = ""
-                            self.prefix = ""
-                            self.length -= diff
-                        else:  # display only percent
-                            self.display_only_percent = True
+
+                        # --- SUFFIX IS REMOVED ---
+
+                        # if the difference is shorter than the progress bar
+                        if diff < self.length:
+                            self.length -= diff # shorten progress bar
+                        
+                        # if the difference is longer than the progress bar, remove prefix
+                        else:  # remove prefix
+                            current_length = current_length - len(self.prefix)
+                            diff = current_length - self.tw_width
+
+                            # if the terminal width is long enough without prefix
+                            if diff <= 0:
+                                self.prefix = "" # just remove prefix
+
+                            # the terminal window is too short even without prefix (and suffix)
+                            # remove prefix and test again
+                            else:
+                                self.prefix = ""
+
+                                # --- PREFFIX IS REMOVED ---
+
+                                # if the difference is shorter than the progress bar
+                                if diff < self.length:
+                                    self.length -= diff # shorten progress bar
+
+                                else:  # display only percent
+                                    self.display_only_percent = True
 
     def progress(self, iteration):
         """

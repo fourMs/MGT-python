@@ -33,3 +33,4 @@ pytest.ini
 tests/.coverage
 tests/.vs/slnx.sqlite
 tests/pytest.ini
+tests/htmlcov

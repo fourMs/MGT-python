@@ -18,6 +18,126 @@ class Test_MgProgressbar:
         assert pb.length == 30
         assert pb.fill == "@"
 
+    def test_adjust_printlength_tw_width_0(self):
+        pb = MgProgressbar()
+        # spoof terminal window stuff
+        pb.tw_width = 0
+        pb.could_not_get_terminal_window = False
+        assert pb.adjust_printlength() == None
+
+    def test_adjust_printlength_no_terminal(self):
+        pb = MgProgressbar()
+        # spoof terminal window stuff
+        pb.tw_width = 1
+        pb.could_not_get_terminal_window = True
+        assert pb.adjust_printlength() == None
+
+    def test_adjust_printlength_shorten_by_1(self):
+        pb = MgProgressbar()
+        _current_length = len(pb.prefix) + pb.length + pb.decimals + len(pb.suffix) + 10
+        # spoof terminal window stuff
+        pb.tw_width = _current_length - 1
+        pb.could_not_get_terminal_window = False
+        suffix_before = pb.suffix
+        length_before = pb.length
+        pb.adjust_printlength()
+        assert pb.suffix == suffix_before
+        # shortened it by 1
+        assert pb.length == length_before - 1
+
+    def test_adjust_printlength_shorten_to_1(self):
+        pb = MgProgressbar()
+        _current_length = len(pb.prefix) + pb.length + pb.decimals + len(pb.suffix) + 10
+        # spoof terminal window stuff
+        pb.tw_width = _current_length - pb.length + 1
+        pb.could_not_get_terminal_window = False
+        suffix_before = pb.suffix
+        pb.adjust_printlength()
+        assert pb.suffix == suffix_before
+        assert pb.length == 1
+
+    def test_adjust_printlength_only_remove_suffix(self):
+        my_suffix = "very long testsuffix"
+        pb = MgProgressbar(suffix=my_suffix, length=len(my_suffix))
+        _current_length = len(pb.prefix) + pb.length + pb.decimals + len(pb.suffix) + 10
+        # spoof terminal window stuff
+        pb.tw_width = _current_length - pb.length
+        pb.could_not_get_terminal_window = False
+        length_before = pb.length
+        pb.adjust_printlength()
+        assert pb.suffix == ""
+        assert pb.length == length_before
+
+    def test_adjust_printlength_remove_suffix_and_shorten(self):
+        pb = MgProgressbar(suffix="testsuffix")
+        _current_length = len(pb.prefix) + pb.length + pb.decimals + len(pb.suffix) + 10
+        # spoof terminal window stuff
+        pb.tw_width = _current_length - pb.length - 1
+        pb.could_not_get_terminal_window = False
+        length_before = pb.length
+        pb.adjust_printlength()
+        assert pb.suffix == ""
+        assert pb.length < length_before
+
+    def test_adjust_printlength_only_remove_prefix_and_suffix(self):
+        my_suffix = "very long testsuffix"
+        my_prefix = "very long testprefix"
+        pb = MgProgressbar(suffix=my_suffix, prefix=my_prefix, length=len(my_suffix))
+        _current_length = len(pb.prefix) + pb.length + pb.decimals + len(pb.suffix) + 10
+        # spoof terminal window stuff
+        pb.tw_width = _current_length - pb.length - len(pb.suffix)
+        pb.could_not_get_terminal_window = False
+        length_before = pb.length
+        pb.adjust_printlength()
+        assert pb.suffix == ""
+        assert pb.prefix == ""
+        assert pb.length == length_before
+
+    def test_adjust_printlength_only_remove_prefix_and_suffix_and_shorten(self):
+        my_suffix = "very long testsuffix"
+        my_prefix = "very long testprefix"
+        pb = MgProgressbar(suffix=my_suffix, prefix=my_prefix, length=len(my_suffix))
+        _current_length = len(pb.prefix) + pb.length + pb.decimals + len(pb.suffix) + 10
+        # spoof terminal window stuff
+        pb.tw_width = _current_length - pb.length - len(pb.suffix) - 1
+        pb.could_not_get_terminal_window = False
+        length_before = pb.length
+        pb.adjust_printlength()
+        assert pb.suffix == ""
+        assert pb.prefix == ""
+        assert pb.length == length_before - 1
+
+    def test_adjust_printlength_display_only_percent(self):
+        my_suffix = "very long testsuffix"
+        my_prefix = "very long testprefix"
+        pb = MgProgressbar(suffix=my_suffix, prefix=my_prefix, length=len(my_suffix))
+        _current_length = len(pb.prefix) + pb.length + pb.decimals + len(pb.suffix) + 10
+        # spoof terminal window stuff
+        pb.tw_width = _current_length - pb.length - len(pb.suffix) - len(pb.prefix)
+        pb.could_not_get_terminal_window = False
+        assert pb.display_only_percent == False
+        pb.adjust_printlength()
+        assert pb.suffix == ""
+        assert pb.prefix == ""
+        assert pb.display_only_percent == True
+
+    def test_progress(self):
+        pb = MgProgressbar(total=100)
+        assert pb.progress(1) == None
+
+    def test_progress_only_percent(self):
+        pb = MgProgressbar(total=100)
+        # spoof terminal window stuff
+        pb.could_not_get_terminal_window = True
+        pb.display_only_percent = True
+        pb.tw_width = 1
+        assert pb.progress(1) == None
+        assert pb.display_only_percent == True
+
+    def test_repr(self):
+        pb = MgProgressbar(total=100)
+        assert print(pb) == None
+
 
 class Test_roundup:
     def test_positive(self):
@@ -496,3 +616,8 @@ class Test_unwrap_str:
 
     def test_expected_no_unwrap(self):
         assert unwrap_str("one two") == "one two"
+
+
+class Test_in_colab:
+    def test_in_colab(self):
+        assert in_colab() == False
