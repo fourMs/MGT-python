@@ -187,6 +187,14 @@ class Test_pass_if_container_is:
             pass_if_container_is(".avi", "file_2.mp4")
 
 
+def pass_if_lengths_match(file_1, file_2, tolerance=1):
+    frames_in = get_framecount(file_1)
+    frames_out = get_framecount(file_2, fast=False)
+    # many ffmpeg conversions/filters have the issue of adding an extra fram into the result
+    # so if the length difference between the input and output is +/- 1 frame, then we are okay
+    assert abs(frames_in - frames_out) <= tolerance
+
+
 class Test_convert:
     @pytest.mark.parametrize("execution_number", range(len(list(itertools.combinations(['.avi', '.mp4', '.mov', '.mkv', '.mpg', '.mpeg', '.webm', '.ogg'], 2)))))
     def test_output(self, format_pairs, execution_number, tmp_path, testvideo_avi):
@@ -198,116 +206,116 @@ class Test_convert:
         else:
             startfile = testvideo_avi
         result = convert(startfile, target_name)
-        # length_in = get_length(startfile)
-        # length_out = get_length(result)
+        pass_if_lengths_match(startfile, result)
         assert os.path.isfile(result) == True
         assert os.path.splitext(result)[1] == fex_to
         assert target_name == result
-        # assert length_in == length_out # often fails due to ffmpeg
 
 
 class Test_convert_to_avi:
-    # @pytest.mark.xfail(raises=AssertionError)
     def test_output(self, tmp_path, testvideo_mp4):
         target_name = str(tmp_path).replace("\\", "/") + "/testvideo_converted.avi"
-        testvideo_avi = convert_to_avi(testvideo_mp4, target_name=target_name)
-        # length_in = get_length(testvideo_mp4)
-        # length_out = get_length(testvideo_avi)
-        assert os.path.isfile(testvideo_avi) == True
-        assert os.path.splitext(testvideo_avi)[1] == ".avi"
-        assert target_name == testvideo_avi
-        # assert length_in == length_out # this will fail due to ffmpeg bug: https://trac.ffmpeg.org/ticket/9443#ticket
+        result = convert_to_avi(testvideo_mp4, target_name=target_name)
+        pass_if_lengths_match(testvideo_mp4, result)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".avi"
+        assert target_name == result
 
 
 class Test_convert_to_mp4:
     def test_output(self, tmp_path, testvideo_avi):
         target_name = str(tmp_path).replace("\\", "/") + "/testvideo_converted.mp4"
-        testvideo_mp4 = convert_to_mp4(testvideo_avi, target_name=target_name)
-        length_in = get_length(testvideo_avi)
-        length_out = get_length(testvideo_mp4)
-        assert os.path.isfile(testvideo_mp4) == True
-        assert os.path.splitext(testvideo_mp4)[1] == ".mp4"
-        assert target_name == testvideo_mp4
-        assert length_in == length_out
+        result = convert_to_mp4(testvideo_avi, target_name=target_name)
+        pass_if_lengths_match(testvideo_avi, result)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".mp4"
+        assert target_name == result
 
 
 class Test_convert_to_webm:
     def test_output(self, tmp_path, testvideo_avi):
         target_name = str(tmp_path).replace("\\", "/") + "/testvideo_converted.webm"
-        testvideo_webm = convert_to_webm(testvideo_avi, target_name=target_name)
-        assert os.path.isfile(testvideo_webm) == True
-        assert os.path.splitext(testvideo_webm)[1] == ".webm"
-        assert target_name == testvideo_webm
+        result = convert_to_webm(testvideo_avi, target_name=target_name)
+        pass_if_lengths_match(testvideo_avi, result)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".webm"
+        assert target_name == result
 
 
 class Test_cast_into_avi:
     def test_output(self, tmp_path, testvideo_mp4):
         target_name = str(tmp_path).replace("\\", "/") + "/testvideo_casted.avi"
-        testvideo_casted_avi = cast_into_avi(testvideo_mp4, target_name=target_name)
-        assert os.path.isfile(testvideo_casted_avi) == True
-        assert os.path.splitext(testvideo_casted_avi)[1] == ".avi"
-        assert target_name == testvideo_casted_avi
+        result = cast_into_avi(testvideo_mp4, target_name=target_name)
+        pass_if_lengths_match(testvideo_mp4, result)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".avi"
+        assert target_name == result
 
 
 class Test_extract_subclip:
     def test_output(self, tmp_path, testvideo_avi):
         target_name = str(tmp_path).replace("\\", "/") + "/testvideo_trimmed.avi"
-        testvideo_trimmed = extract_subclip(testvideo_avi, 3, 4, target_name=target_name)
-        assert os.path.isfile(testvideo_trimmed) == True
-        assert os.path.splitext(testvideo_trimmed)[1] == ".avi"
-        assert target_name == testvideo_trimmed
+        result = extract_subclip(testvideo_avi, 3, 4, target_name=target_name)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".avi"
+        assert target_name == result
 
     def test_length(self, tmp_path):
         target_name = str(tmp_path).replace("\\", "/") + "/testvideo_trimmed.avi"
-        testvideo_trimmed = extract_subclip(musicalgestures.examples.dance, 3, 4, target_name=target_name)
+        result = extract_subclip(musicalgestures.examples.dance, 3, 4, target_name=target_name)
         fps = get_fps(musicalgestures.examples.dance)
-        result_framecount = get_framecount(testvideo_trimmed)
+        result_framecount = get_framecount(result)
         assert fps - 1 <= result_framecount <= fps + 1
 
 
 class Test_rotate_video:
     def test_output(self, tmp_path, testvideo_avi):
         target_name = str(tmp_path).replace("\\", "/") + "/testvideo_rotated.avi"
-        testvideo_rotated = rotate_video(testvideo_avi, 90, target_name=target_name)
-        assert os.path.isfile(testvideo_rotated) == True
-        assert os.path.splitext(testvideo_rotated)[1] == ".avi"
-        assert target_name == testvideo_rotated
+        result = rotate_video(testvideo_avi, 90, target_name=target_name)
+        pass_if_lengths_match(testvideo_avi, result)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".avi"
+        assert target_name == result
 
 
 class Test_convert_to_grayscale:
     def test_output(self, tmp_path, testvideo_avi):
         target_name = str(tmp_path).replace("\\", "/") + "/testvideo_grayscale.avi"
-        testvideo_grayscale = convert_to_grayscale(testvideo_avi, target_name=target_name)
-        assert os.path.isfile(testvideo_grayscale) == True
-        assert os.path.splitext(testvideo_grayscale)[1] == ".avi"
-        assert target_name == testvideo_grayscale
+        result = convert_to_grayscale(testvideo_avi, target_name=target_name)
+        pass_if_lengths_match(testvideo_avi, result)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".avi"
+        assert target_name == result
 
 
 class Test_framediff_ffmpeg:
     def test_output(self, tmp_path, testvideo_avi):
         target_name = str(tmp_path).replace("\\", "/") + "/testvideo_framediff.avi"
-        testvideo_framediff = framediff_ffmpeg(testvideo_avi, target_name=target_name)
-        assert os.path.isfile(testvideo_framediff) == True
-        assert os.path.splitext(testvideo_framediff)[1] == ".avi"
-        assert target_name == testvideo_framediff
+        result = framediff_ffmpeg(testvideo_avi, target_name=target_name)
+        pass_if_lengths_match(testvideo_avi, result, tolerance=2)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".avi"
+        assert target_name == result
 
 
 class Test_threshold_ffmpeg:
     def test_output(self, tmp_path, testvideo_avi):
         target_name = str(tmp_path).replace("\\", "/") + "/testvideo_threshold.avi"
-        testvideo_threshold = threshold_ffmpeg(testvideo_avi, target_name=target_name)
-        assert os.path.isfile(testvideo_threshold) == True
-        assert os.path.splitext(testvideo_threshold)[1] == ".avi"
-        assert target_name == testvideo_threshold
+        result = threshold_ffmpeg(testvideo_avi, target_name=target_name)
+        pass_if_lengths_match(testvideo_avi, result)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".avi"
+        assert target_name == result
 
 
 class Test_motionvideo_ffmpeg:
     def test_output(self, tmp_path, testvideo_avi):
         target_name = str(tmp_path).replace("\\", "/") + "/testvideo_motionvideo.avi"
-        testvideo_motionvideo = motionvideo_ffmpeg(testvideo_avi, target_name=target_name)
-        assert os.path.isfile(testvideo_motionvideo) == True
-        assert os.path.splitext(testvideo_motionvideo)[1] == ".avi"
-        assert target_name == testvideo_motionvideo
+        result = motionvideo_ffmpeg(testvideo_avi, target_name=target_name)
+        pass_if_lengths_match(testvideo_avi, result, tolerance=2)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".avi"
+        assert target_name == result
 
 
 class Test_motiongrams_ffmpeg:
@@ -326,19 +334,23 @@ class Test_motiongrams_ffmpeg:
 class Test_crop_ffmpeg:
     def test_output(self, tmp_path, testvideo_avi):
         target_name = str(tmp_path).replace("\\", "/") + "/testvideo_cropped.avi"
-        testvideo_cropped = crop_ffmpeg(testvideo_avi, 50, 50, 0, 0, target_name=target_name)
-        assert os.path.isfile(testvideo_cropped) == True
-        assert os.path.splitext(testvideo_cropped)[1] == ".avi"
-        assert target_name == testvideo_cropped
+        result = crop_ffmpeg(testvideo_avi, 50, 50, 0, 0, target_name=target_name)
+        pass_if_lengths_match(testvideo_avi, result)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".avi"
+        assert target_name == result
 
 
 class Test_extract_wav:
     def test_output(self, tmp_path, testvideo_avi):
         target_name = str(tmp_path).replace("\\", "/") + "/testvideo_audio.wav"
-        testvideo_audio = extract_wav(testvideo_avi, target_name=target_name)
-        assert os.path.isfile(testvideo_audio) == True
-        assert os.path.splitext(testvideo_audio)[1] == ".wav"
-        assert target_name == testvideo_audio
+        result = extract_wav(testvideo_avi, target_name=target_name)
+        length_in = get_length(testvideo_avi)
+        length_out = get_length(result)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".wav"
+        assert target_name == result
+        assert abs(length_in - length_out) <= 0.05
 
 
 class Test_ffprobe:
@@ -429,7 +441,7 @@ class Test_audio_dilate:
         result = audio_dilate(testaudio, dilation_ratio=0.5, target_name=target_name)
         length_in = get_length(testaudio)
         length_out = get_length(result)
-        assert abs(length_out - (2 * length_in)) < 0.1
+        assert abs(length_out - (2 * length_in)) < 0.05
 
 
     def test_half(self, tmp_path, testaudio):
@@ -437,4 +449,50 @@ class Test_audio_dilate:
         result = audio_dilate(testaudio, dilation_ratio=2, target_name=target_name)
         length_in = get_length(testaudio)
         length_out = get_length(result)
-        assert abs(length_in - (2 * length_out)) < 0.1
+        assert abs(length_in - (2 * length_out)) < 0.05
+
+
+class Test_embed_audio_in_video:
+    def test_embed_audio_in_video(self, tmp_path, testvideo_avi_silent, testaudio):
+        state_before = has_audio(testvideo_avi_silent)
+        embed_audio_in_video(testaudio, testvideo_avi_silent)
+        state_after = has_audio(testvideo_avi_silent)
+        assert state_before == False
+        assert state_after == True
+
+
+class Test_ffmpeg_cmd:
+    def test_expected(self, tmp_path, testvideo_avi):
+        target_name = str(tmp_path).replace("\\", "/") + "/test_result.mp4"
+        cmd = ['ffmpeg', '-y', '-i', testvideo_avi, target_name]
+        ffmpeg_cmd(cmd, get_length(testvideo_avi))
+        assert os.path.isfile(target_name) == True
+        assert os.path.splitext(target_name)[1] == ".mp4"
+
+    def test_unexpected(self, tmp_path, testvideo_avi):
+        target_name = str(tmp_path).replace("\\", "/") + "/test_result.mp4"
+        cmd = ['ffmpeg', '-y', '-i', testvideo_avi, '-stupid', 'argument', target_name]
+        with pytest.raises(FFmpegError):
+            ffmpeg_cmd(cmd, get_length(testvideo_avi))
+
+
+class Test_str2sec:
+    def test_str2sec(self):
+        assert str2sec("01:02:03") == 3723
+
+
+class Test_wrap_str:
+    def test_expected_wrap(self):
+        assert wrap_str("one two") == '"one two"'
+
+    def test_expected_no_wrap(self):
+        assert wrap_str("onetwo") == "onetwo"
+
+
+class Test_unwrap_str:
+    def test_expected_unwrap(self):
+        assert unwrap_str("'one two'") == 'one two'
+        assert unwrap_str('"one two"') == "one two"
+
+    def test_expected_no_unwrap(self):
+        assert unwrap_str("one two") == "one two"

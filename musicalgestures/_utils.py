@@ -1496,7 +1496,7 @@ def wrap_str(string, matchers=[" ", "(", ")"]):
 
 def unwrap_str(string):
     """
-    Unwraps a string from double quotes.
+    Unwraps a string from quotes.
 
     Args:
         string (str): The string to inspect.
@@ -1505,6 +1505,8 @@ def unwrap_str(string):
         str: The (unwrapped) string.
     """
     if '"' in [string[0], string[-1]]:
+        return string[1:-1]
+    elif "'" in [string[0], string[-1]]:
         return string[1:-1]
     else:
         return string
