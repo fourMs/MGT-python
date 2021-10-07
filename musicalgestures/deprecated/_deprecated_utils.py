@@ -409,3 +409,49 @@ def videograms_cv2(self):
     vidcap.release()
 
     return [self.of+'_vgx.png', self.of+'_vgy.png']
+
+
+def get_screen_resolution_scaled():
+    """
+    Gets the scaled screen resolution. Respects display scaling on high DPI displays.
+
+    Returns:
+        int: The scaled width of the screen.
+        int: The scaled height of the screen.
+    """
+
+    import tkinter as tk
+
+    root = tk.Tk()
+    root.update_idletasks()
+    root.attributes('-fullscreen', True)
+    root.state('iconic')
+    geometry = root.winfo_geometry()
+    width, height = [int(elem) for elem in geometry.split('+')[0].split('x')]
+    root.destroy()
+    return width, height
+
+
+def get_screen_video_ratio(filename):
+    """
+    Gets the screen-to-video ratio. Useful to fit windows on the screen.
+
+    Args:
+        filename (str): Path to the input video file.
+
+    Returns:
+        int: The smallest ratio (ie. the one to use for scaling the video window to fit the screen).
+    """
+
+    screen_width, screen_height = get_screen_resolution_scaled()
+    video_width, video_height = get_widthheight(filename)
+
+    ratio_x, ratio_y = clamp(screen_width / video_width,
+                             0, 1), clamp(screen_height / video_height, 0, 1)
+
+    smallest_ratio = sorted([ratio_x, ratio_y])[0]
+
+    if smallest_ratio < 1:
+        smallest_ratio *= 0.9
+
+    return smallest_ratio
