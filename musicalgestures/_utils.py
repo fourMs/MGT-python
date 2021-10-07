@@ -136,7 +136,7 @@ class MgProgressbar():
             if self.tw_width + self.tw_height == 0:
                 self.could_not_get_terminal_window = True
             else:
-                self.adjust_printlength()
+                self.adjust_printlength() # this line cannot be tested :'(
 
         capped_iteration = iteration if iteration <= self.total else self.total
         # Print New Line on Complete
@@ -284,8 +284,8 @@ def generate_outfilename(requested_name):
     # if the original filename is already taken, check if there are incremented filenames
     files_w_increment = list(filter(lambda x: x.startswith(req_of_base+"_"), files_w_same_start_ext))
     # if there are no files with increments
-    if len(files_w_same_start_ext) == 0:
-        return f'{req_of}_1{req_fex}'
+    if len(files_w_increment) == 0:
+        return f'{req_of}_0{req_fex}'
     # parse increments, discard the ones that are invalid, increment highest
     for file in files_w_increment:
         _of = os.path.splitext(file)[0]
@@ -1274,51 +1274,6 @@ def get_first_frame_as_image(filename, target_name=None, pict_format='.png', ove
 
     return target_name
 
-
-def get_screen_resolution_scaled():
-    """
-    Gets the scaled screen resolution. Respects display scaling on high DPI displays.
-
-    Returns:
-        int: The scaled width of the screen.
-        int: The scaled height of the screen.
-    """
-
-    import tkinter as tk
-
-    root = tk.Tk()
-    root.update_idletasks()
-    root.attributes('-fullscreen', True)
-    root.state('iconic')
-    geometry = root.winfo_geometry()
-    width, height = [int(elem) for elem in geometry.split('+')[0].split('x')]
-    root.destroy()
-    return width, height
-
-
-def get_screen_video_ratio(filename):
-    """
-    Gets the screen-to-video ratio. Useful to fit windows on the screen.
-
-    Args:
-        filename (str): Path to the input video file.
-
-    Returns:
-        int: The smallest ratio (ie. the one to use for scaling the video window to fit the screen).
-    """
-
-    screen_width, screen_height = get_screen_resolution_scaled()
-    video_width, video_height = get_widthheight(filename)
-
-    ratio_x, ratio_y = clamp(screen_width / video_width,
-                             0, 1), clamp(screen_height / video_height, 0, 1)
-
-    smallest_ratio = sorted([ratio_x, ratio_y])[0]
-
-    if smallest_ratio < 1:
-        smallest_ratio *= 0.9
-
-    return smallest_ratio
 
 def get_box_video_ratio(filename, box_width=800, box_height=600):
     """
