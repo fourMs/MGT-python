@@ -4,6 +4,7 @@ import numpy as np
 import os
 import itertools
 import pytest
+import time
 
 
 class Test_MgProgressbar:
@@ -123,7 +124,21 @@ class Test_MgProgressbar:
 
     def test_progress(self):
         pb = MgProgressbar(total=100)
-        assert pb.progress(1) == None
+        step = 0
+        while step < 103:
+            time.sleep(0.01)
+            assert pb.progress(step) == None
+            step += 1
+
+    def test_progress_no_terminal(self):
+        pb = MgProgressbar(total=100)
+        step = 0
+        # spoof terminal window stuff
+        pb.could_not_get_terminal_window = True
+        while step < 103:
+            time.sleep(0.01)
+            assert pb.progress(step) == None
+            step += 1
 
     def test_progress_only_percent(self):
         pb = MgProgressbar(total=100)
@@ -131,8 +146,12 @@ class Test_MgProgressbar:
         pb.could_not_get_terminal_window = True
         pb.display_only_percent = True
         pb.tw_width = 1
-        assert pb.progress(1) == None
-        assert pb.display_only_percent == True
+        step = 0
+        while step < 103:
+            time.sleep(0.01)
+            assert pb.progress(step) == None
+            assert pb.display_only_percent == True
+            step += 1
 
     def test_repr(self):
         pb = MgProgressbar(total=100)
@@ -191,9 +210,38 @@ class Test_scale_array:
 
 
 class Test_generate_outfilename:
+    def test_empty_folder(self, tmp_path):
+        p = tmp_path / "testfile.txt"
+        assert os.path.basename(generate_outfilename(str(p))) == "testfile.txt"
+
+    def test_no_file_with_same_ext(self, tmp_path):
+        p = tmp_path / "testfile.txt"
+        other_file = tmp_path / "other_file.json"
+        other_file.write_text("{testy: test}")
+        assert os.path.basename(generate_outfilename(str(p))) == "testfile.txt"
+
+    def test_no_file_with_same_start_and_ext(self, tmp_path):
+        p = tmp_path / "testfile.txt"
+        other_file = tmp_path / "other_file.txt"
+        other_file.write_text("42")
+        assert os.path.basename(generate_outfilename(str(p))) == "testfile.txt"
+
+    def test_similar_start_and_same_ext(self, tmp_path):
+        p = tmp_path / "testfile.txt"
+        other_file = tmp_path / "testfile_other.txt"
+        other_file.write_text("42")
+        assert os.path.basename(generate_outfilename(str(p))) == "testfile.txt"
+
     def test_increment_once(self, tmp_path):
         p = tmp_path / "testfile.txt"
         p.write_text("test")
+        assert os.path.basename(generate_outfilename(str(p))) == "testfile_0.txt"
+
+    def test_increment_once_ignore_irrelevant(self, tmp_path):
+        p = tmp_path / "testfile.txt"
+        p.write_text("test")
+        other_file = tmp_path / "testfile_other.txt"
+        other_file.write_text("42")
         assert os.path.basename(generate_outfilename(str(p))) == "testfile_0.txt"
 
     def test_increment_twice(self, tmp_path):
@@ -229,6 +277,10 @@ class Test_MgImage:
         assert img.of == "test_image"
         assert img.fex == ".png"
 
+    def test_repr(self):
+        img = MgImage("test_image.png")
+        assert print(img) == None
+
 
 class Test_MgFigure:
     def test_init(self):
@@ -245,21 +297,50 @@ class Test_MgFigure:
         assert fig.layers == "layers"
         assert fig.image == "image"
 
+    def test_repr(self):
+        import matplotlib.pyplot as plt
+        x = np.arange(0, 5, 0.1)
+        y = np.sin(x)
+        data = {"x": x, "y": y}
+        plt.plot(x, y)
+        fig = MgFigure(figure=plt, figure_type="testy.test", data=data, layers="layers", image="image")
+        assert print(fig) == None
+
+    def test_show(self):
+        import matplotlib.pyplot as plt
+        x = np.arange(0, 5, 0.1)
+        y = np.sin(x)
+        data = {"x": x, "y": y}
+        plt.plot(x, y)
+        fig = MgFigure(figure=plt, figure_type="testy.test", data=data, layers="layers", image="image")
+        assert fig.show() == fig.figure
 
 @pytest.fixture(scope="class")
+# @pytest.fixture()
 def testvideo_mp4(tmp_path_factory):
     target_name = str(tmp_path_factory.mktemp("data")).replace("\\", "/") + "/testvideo.avi"
     testvideo_avi = extract_subclip(musicalgestures.examples.dance, 5, 6, target_name=target_name)
     testvideo_mp4 = convert_to_mp4(testvideo_avi)
+    os.remove(testvideo_avi)
     return testvideo_mp4
 
 @pytest.fixture(scope="class")
+# @pytest.fixture()
 def testvideo_avi(tmp_path_factory):
     target_name = str(tmp_path_factory.mktemp("data")).replace("\\", "/") + "/testvideo.avi"
     testvideo_avi = extract_subclip(musicalgestures.examples.dance, 5, 6, target_name=target_name)
     return testvideo_avi
 
 @pytest.fixture(scope="class")
+# @pytest.fixture()
+def testvideo_webm(tmp_path_factory):
+    target_name = str(tmp_path_factory.mktemp("data")).replace("\\", "/") + "/testvideo.avi"
+    testvideo_avi = extract_subclip(musicalgestures.examples.dance, 5, 6, target_name=target_name)
+    testvideo_webm = convert_to_webm(testvideo_avi)
+    return testvideo_webm
+
+@pytest.fixture(scope="class")
+# @pytest.fixture()
 def testvideo_avi_silent(tmp_path_factory):
     target_name = str(tmp_path_factory.mktemp("data")).replace("\\", "/") + "/testvideo.avi"
     target_name_silent = str(tmp_path_factory.mktemp("data")).replace("\\", "/") + "/testvideo_silent.avi"
@@ -269,18 +350,21 @@ def testvideo_avi_silent(tmp_path_factory):
     return target_name_silent
 
 @pytest.fixture(scope="class")
+# @pytest.fixture()
 def testimage(tmp_path_factory):
     target_name = str(tmp_path_factory.mktemp("data")).replace("\\", "/") + "/testimage.png"
     testimage = get_first_frame_as_image(musicalgestures.examples.dance, target_name=target_name)
     return testimage
 
 @pytest.fixture(scope="class")
+# @pytest.fixture()
 def testaudio(tmp_path_factory):
     target_name = str(tmp_path_factory.mktemp("data")).replace("\\", "/") + "/testaudio.wav"
     testaudio = extract_wav(musicalgestures.examples.dance, target_name=target_name)
     return testaudio
 
 @pytest.fixture(scope="class")
+# @pytest.fixture()
 def format_pairs():
     video_formats = ['.avi', '.mp4', '.mov', '.mkv', '.mpg', '.mpeg', '.webm', '.ogg']
     all_combinations = list(itertools.combinations(video_formats, 2))
@@ -331,6 +415,11 @@ class Test_convert:
         assert os.path.splitext(result)[1] == fex_to
         assert target_name == result
 
+    def test_already_in_container(self, tmp_path, testvideo_avi):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_converted.avi"
+        result = convert(testvideo_avi, target_name)
+        assert result == testvideo_avi
+
 
 class Test_convert_to_avi:
     def test_output(self, tmp_path, testvideo_mp4):
@@ -340,6 +429,18 @@ class Test_convert_to_avi:
         assert os.path.isfile(result) == True
         assert os.path.splitext(result)[1] == ".avi"
         assert target_name == result
+
+    def test_already_in_container(self, tmp_path, testvideo_avi):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_converted.avi"
+        result = convert_to_avi(testvideo_avi, target_name=target_name)
+        assert result == testvideo_avi
+
+    def test_no_target_name(self, tmp_path, testvideo_mp4):
+        result = convert_to_avi(testvideo_mp4)
+        pass_if_lengths_match(testvideo_mp4, result)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".avi"
+        assert os.path.splitext(os.path.basename(result))[0] == os.path.splitext(os.path.basename(testvideo_mp4))[0]
 
 
 class Test_convert_to_mp4:
@@ -351,6 +452,17 @@ class Test_convert_to_mp4:
         assert os.path.splitext(result)[1] == ".mp4"
         assert target_name == result
 
+    def test_already_in_container(self, tmp_path, testvideo_mp4):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_converted.mp4"
+        result = convert_to_mp4(testvideo_mp4, target_name=target_name)
+        assert result == testvideo_mp4
+
+    def test_no_target_name(self, tmp_path, testvideo_avi):
+        result = convert_to_mp4(testvideo_avi)
+        pass_if_lengths_match(testvideo_avi, result)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".mp4"
+
 
 class Test_convert_to_webm:
     def test_output(self, tmp_path, testvideo_avi):
@@ -360,6 +472,17 @@ class Test_convert_to_webm:
         assert os.path.isfile(result) == True
         assert os.path.splitext(result)[1] == ".webm"
         assert target_name == result
+
+    def test_already_in_container(self, tmp_path, testvideo_webm):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_converted.webm"
+        result = convert_to_webm(testvideo_webm, target_name)
+        assert result == testvideo_webm
+
+    def test_no_target_name(self, tmp_path, testvideo_avi):
+        result = convert_to_webm(testvideo_avi)
+        pass_if_lengths_match(testvideo_avi, result)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".webm"
 
 
 class Test_cast_into_avi:
@@ -371,13 +494,26 @@ class Test_cast_into_avi:
         assert os.path.splitext(result)[1] == ".avi"
         assert target_name == result
 
-
-class Test_extract_subclip:
-    def test_output(self, tmp_path, testvideo_avi):
-        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_trimmed.avi"
-        result = extract_subclip(testvideo_avi, 3, 4, target_name=target_name)
+    def test_no_target_name(self, tmp_path, testvideo_mp4):
+        result = cast_into_avi(testvideo_mp4)
+        pass_if_lengths_match(testvideo_mp4, result)
         assert os.path.isfile(result) == True
         assert os.path.splitext(result)[1] == ".avi"
+
+
+class Test_extract_subclip:
+    def test_output_avi(self, tmp_path, testvideo_avi):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_trimmed.avi"
+        result = extract_subclip(testvideo_avi, 0, 1, target_name=target_name)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".avi"
+        assert target_name == result
+
+    def test_output_mp4(self, tmp_path, testvideo_mp4):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_trimmed.mp4"
+        result = extract_subclip(testvideo_mp4, 0, 1, target_name=target_name)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".mp4"
         assert target_name == result
 
     def test_length(self, tmp_path):
@@ -386,6 +522,19 @@ class Test_extract_subclip:
         fps = get_fps(musicalgestures.examples.dance)
         result_framecount = get_framecount(result)
         assert fps - 1 <= result_framecount <= fps + 1
+
+    def test_start_later_than_end(self, tmp_path, testvideo_avi):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_trimmed.avi"
+        result = extract_subclip(testvideo_avi, 1, 0, target_name=target_name)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".avi"
+        assert target_name == result
+
+    def test_no_target_name(self, tmp_path, testvideo_avi):
+        result = extract_subclip(testvideo_avi, 0, 1)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".avi"
+        assert os.path.splitext(os.path.basename(result))[0] == os.path.splitext(os.path.basename(testvideo_avi))[0] + "SUB0_1000."
 
 
 class Test_rotate_video:
@@ -397,6 +546,12 @@ class Test_rotate_video:
         assert os.path.splitext(result)[1] == ".avi"
         assert target_name == result
 
+    def test_no_target_name(self, tmp_path, testvideo_avi):
+        result = rotate_video(testvideo_avi, -90)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".avi"
+        assert os.path.splitext(os.path.basename(result))[0] == os.path.splitext(os.path.basename(testvideo_avi))[0] + "_rot"
+
 
 class Test_convert_to_grayscale:
     def test_output(self, tmp_path, testvideo_avi):
@@ -407,11 +562,31 @@ class Test_convert_to_grayscale:
         assert os.path.splitext(result)[1] == ".avi"
         assert target_name == result
 
+    def test_no_target_name(self, tmp_path, testvideo_avi):
+        result = convert_to_grayscale(testvideo_avi)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".avi"
+        assert os.path.splitext(os.path.basename(result))[0] == os.path.splitext(os.path.basename(testvideo_avi))[0] + "_gray"
+
 
 class Test_framediff_ffmpeg:
     def test_output(self, tmp_path, testvideo_avi):
         target_name = str(tmp_path).replace("\\", "/") + "/testvideo_framediff.avi"
         result = framediff_ffmpeg(testvideo_avi, target_name=target_name)
+        pass_if_lengths_match(testvideo_avi, result, tolerance=2)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".avi"
+        assert target_name == result
+
+    def test_no_target_name(self, tmp_path, testvideo_avi):
+        result = framediff_ffmpeg(testvideo_avi)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".avi"
+        assert os.path.splitext(os.path.basename(result))[0] == os.path.splitext(os.path.basename(testvideo_avi))[0] + "_framediff"
+
+    def test_color_false(self, tmp_path, testvideo_avi):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_framediff.avi"
+        result = framediff_ffmpeg(testvideo_avi, target_name=target_name, color=False)
         pass_if_lengths_match(testvideo_avi, result, tolerance=2)
         assert os.path.isfile(result) == True
         assert os.path.splitext(result)[1] == ".avi"
@@ -427,11 +602,78 @@ class Test_threshold_ffmpeg:
         assert os.path.splitext(result)[1] == ".avi"
         assert target_name == result
 
+    def test_no_target_name(self, tmp_path, testvideo_avi):
+        result = threshold_ffmpeg(testvideo_avi)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".avi"
+        assert os.path.splitext(os.path.basename(result))[0] == os.path.splitext(os.path.basename(testvideo_avi))[0] + "_thresh"
+
+    def test_binary(self, tmp_path, testvideo_avi):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_threshold.avi"
+        result = threshold_ffmpeg(testvideo_avi, target_name=target_name, binary=True)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".avi"
+        assert target_name == result
+
 
 class Test_motionvideo_ffmpeg:
     def test_output(self, tmp_path, testvideo_avi):
         target_name = str(tmp_path).replace("\\", "/") + "/testvideo_motionvideo.avi"
         result = motionvideo_ffmpeg(testvideo_avi, target_name=target_name)
+        pass_if_lengths_match(testvideo_avi, result, tolerance=2)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".avi"
+        assert target_name == result
+
+    def test_no_target_name(self, tmp_path, testvideo_avi):
+        result = motionvideo_ffmpeg(testvideo_avi)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".avi"
+        assert os.path.splitext(os.path.basename(result))[0] == os.path.splitext(os.path.basename(testvideo_avi))[0] + "_motion"
+
+    def test_color_false(self, tmp_path, testvideo_avi):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_motionvideo.avi"
+        result = motionvideo_ffmpeg(testvideo_avi, target_name=target_name, color=False)
+        pass_if_lengths_match(testvideo_avi, result, tolerance=2)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".avi"
+        assert target_name == result
+
+    def test_blur(self, tmp_path, testvideo_avi):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_motionvideo.avi"
+        result = motionvideo_ffmpeg(testvideo_avi, target_name=target_name, blur='average')
+        pass_if_lengths_match(testvideo_avi, result, tolerance=2)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".avi"
+        assert target_name == result
+
+    def test_filtertype_binary(self, tmp_path, testvideo_avi):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_motionvideo.avi"
+        result = motionvideo_ffmpeg(testvideo_avi, target_name=target_name, filtertype='binary')
+        pass_if_lengths_match(testvideo_avi, result, tolerance=2)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".avi"
+        assert target_name == result
+
+    def test_filtertype_blob(self, tmp_path, testvideo_avi):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_motionvideo.avi"
+        result = motionvideo_ffmpeg(testvideo_avi, target_name=target_name, filtertype='blob')
+        pass_if_lengths_match(testvideo_avi, result, tolerance=2)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".avi"
+        assert target_name == result
+
+    def test_median(self, tmp_path, testvideo_avi):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_motionvideo.avi"
+        result = motionvideo_ffmpeg(testvideo_avi, target_name=target_name, use_median=True)
+        pass_if_lengths_match(testvideo_avi, result, tolerance=2)
+        assert os.path.isfile(result) == True
+        assert os.path.splitext(result)[1] == ".avi"
+        assert target_name == result
+
+    def test_invert(self, tmp_path, testvideo_avi):
+        target_name = str(tmp_path).replace("\\", "/") + "/testvideo_motionvideo.avi"
+        result = motionvideo_ffmpeg(testvideo_avi, target_name=target_name, invert=True)
         pass_if_lengths_match(testvideo_avi, result, tolerance=2)
         assert os.path.isfile(result) == True
         assert os.path.splitext(result)[1] == ".avi"
