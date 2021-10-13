@@ -66,7 +66,8 @@ class MgProgressbar():
             return
         else:
             _length_before = self.length
-            current_length = len(self.prefix) + self.length + self.decimals + len(self.suffix) + 10
+            current_length = len(self.prefix) + self.length + \
+                self.decimals + len(self.suffix) + 10
 
             # if the length of printed line is longer than the terminal window's width
             if current_length > self.tw_width:
@@ -74,16 +75,17 @@ class MgProgressbar():
 
                 # if the difference is shorter than the progress bar length
                 if diff < self.length:
-                    self.length -= diff # shorten the progress bar
+                    self.length -= diff  # shorten the progress bar
 
                 # if the difference is at least as long as the progress bar or longer
                 else:  # remove suffix
-                    current_length = current_length - len(self.suffix) # remove suffix
-                    diff = current_length - self.tw_width # recalculate difference
+                    current_length = current_length - \
+                        len(self.suffix)  # remove suffix
+                    diff = current_length - self.tw_width  # recalculate difference
 
                     # if the terminal width is long enough without suffix
                     if diff <= 0:
-                        self.suffix = "" # just remove suffix
+                        self.suffix = ""  # just remove suffix
 
                     # the terminal window is too short even without suffix
                     # remove suffix and test again
@@ -94,8 +96,8 @@ class MgProgressbar():
 
                         # if the difference is shorter than the progress bar
                         if diff < self.length:
-                            self.length -= diff # shorten progress bar
-                        
+                            self.length -= diff  # shorten progress bar
+
                         # if the difference is longer than the progress bar, remove prefix
                         else:  # remove prefix
                             current_length = current_length - len(self.prefix)
@@ -103,7 +105,7 @@ class MgProgressbar():
 
                             # if the terminal width is long enough without prefix
                             if diff <= 0:
-                                self.prefix = "" # just remove prefix
+                                self.prefix = ""  # just remove prefix
 
                             # the terminal window is too short even without prefix (and suffix)
                             # remove prefix and test again
@@ -114,7 +116,7 @@ class MgProgressbar():
 
                                 # if the difference is shorter than the progress bar
                                 if diff < self.length:
-                                    self.length -= diff # shorten progress bar
+                                    self.length -= diff  # shorten progress bar
 
                                 else:  # display only percent
                                     self.display_only_percent = True
@@ -136,7 +138,7 @@ class MgProgressbar():
             if self.tw_width + self.tw_height == 0:
                 self.could_not_get_terminal_window = True
             else:
-                self.adjust_printlength() # this line cannot be tested :'(
+                self.adjust_printlength()  # this line cannot be tested :'(
 
         capped_iteration = iteration if iteration <= self.total else self.total
         # Print New Line on Complete
@@ -262,16 +264,18 @@ def generate_outfilename(requested_name):
     if len(files_in_folder) == 0:
         return requested_name
     # filter files with same ext
-    files_w_same_ext = list(filter(lambda x: os.path.splitext(x)[1] == req_fex, files_in_folder))
+    files_w_same_ext = list(filter(lambda x: os.path.splitext(x)[
+                            1] == req_fex, files_in_folder))
     # if there are no files with the same ext
     if len(files_w_same_ext) == 0:
         return requested_name
     # filter for files with same start and ext
-    files_w_same_start_ext = list(filter(lambda x: x.startswith(req_of_base), files_w_same_ext))
+    files_w_same_start_ext = list(
+        filter(lambda x: x.startswith(req_of_base), files_w_same_ext))
     # if there are no files with the same start and ext
     if len(files_w_same_start_ext) == 0:
         return requested_name
-    #check if requested file is already present
+    # check if requested file is already present
     present = None
     try:
         ind = files_w_same_start_ext.index(req_file_base)
@@ -282,7 +286,8 @@ def generate_outfilename(requested_name):
     if not present:
         return requested_name
     # if the original filename is already taken, check if there are incremented filenames
-    files_w_increment = list(filter(lambda x: x.startswith(req_of_base+"_"), files_w_same_start_ext))
+    files_w_increment = list(filter(lambda x: x.startswith(
+        req_of_base+"_"), files_w_same_start_ext))
     # if there are no files with increments
     if len(files_w_increment) == 0:
         return f'{req_of}_0{req_fex}'
@@ -292,9 +297,9 @@ def generate_outfilename(requested_name):
         _only_incr = _of[len(req_of_base)+1:]
         try:
             found_incr = int(_only_incr)
-            found_incr = max(0, found_incr) # clip at 0
+            found_incr = max(0, found_incr)  # clip at 0
             out_increment = max(out_increment, found_incr+1)
-        except ValueError: # if cannot be converted to int
+        except ValueError:  # if cannot be converted to int
             pass
     # return incremented filename
     return f'{req_of}_{out_increment}{req_fex}'
@@ -403,7 +408,8 @@ def pass_if_containers_match(file_1, file_2):
     fex_1 = os.path.splitext(file_1)[1].lower()
     fex_2 = os.path.splitext(file_2)[1]. lower()
     if fex_1 != fex_2:
-        raise WrongContainer(f"Container mismatch: {fex_1} vs {fex_2}; between {file_1} and {file_2}.")
+        raise WrongContainer(
+            f"Container mismatch: {fex_1} vs {fex_2}; between {file_1} and {file_2}.")
 
 
 def pass_if_container_is(container, file):
@@ -418,7 +424,8 @@ def pass_if_container_is(container, file):
     """
     import os
     if os.path.splitext(file)[1].lower() != container.lower():
-        raise WrongContainer(f"Container should be {container.lower()}, but it is {os.path.splitext(file)[1].lower()} in file {file}.")
+        raise WrongContainer(
+            f"Container should be {container.lower()}, but it is {os.path.splitext(file)[1].lower()} in file {file}.")
 
 
 def convert(filename, target_name, overwrite=False):
@@ -444,7 +451,8 @@ def convert(filename, target_name, overwrite=False):
         target_name = generate_outfilename(target_name)
     cmds = ['ffmpeg', '-y', '-i', filename,
             "-q:v", "3", target_name]
-    ffmpeg_cmd(cmds, get_length(filename), pb_prefix=f'Converting to {target_fex}:')
+    ffmpeg_cmd(cmds, get_length(filename),
+               pb_prefix=f'Converting to {target_fex}:')
     return target_name
 
 
@@ -931,17 +939,18 @@ def motiongrams_ffmpeg(
     thresh_color = '0x' + thresh_color[1:]
 
     # set threshold
-    if filtertype.lower() == 'regular':
-        cmd += ['-f', 'lavfi', '-i', f'color={thresh_color},scale={width}:{height}',
-                '-f', 'lavfi', '-i', f'color=black,scale={width}:{height}']
-        cmd_filter += '[0:v][1][2][diff]threshold,'
-    elif filtertype.lower() == 'binary':
-        cmd += ['-f', 'lavfi', '-i', f'color={thresh_color},scale={width}:{height}', '-f', 'lavfi', '-i',
-                f'color=black,scale={width}:{height}', '-f', 'lavfi', '-i', f'color=white,scale={width}:{height}']
-        cmd_filter += 'threshold,'
-    elif filtertype.lower() == 'blob':
-        # cmd_filter += 'erosion,' # erosion is always 3x3 so we will hack it with a median filter with percentile=0 which will pick minimum values
-        cmd_filter += f'median=radius={kernel_size}:percentile=0,'
+    if threshold > 0:
+        if filtertype.lower() == 'regular':
+            cmd += ['-f', 'lavfi', '-i', f'color={thresh_color},scale={width}:{height}',
+                    '-f', 'lavfi', '-i', f'color=black,scale={width}:{height}']
+            cmd_filter += '[0:v][1][2][diff]threshold,'
+        elif filtertype.lower() == 'binary':
+            cmd += ['-f', 'lavfi', '-i', f'color={thresh_color},scale={width}:{height}', '-f', 'lavfi', '-i',
+                    f'color=black,scale={width}:{height}', '-f', 'lavfi', '-i', f'color=white,scale={width}:{height}']
+            cmd_filter += 'threshold,'
+        elif filtertype.lower() == 'blob':
+            # cmd_filter += 'erosion,' # erosion is always 3x3 so we will hack it with a median filter with percentile=0 which will pick minimum values
+            cmd_filter += f'median=radius={kernel_size}:percentile=0,'
 
     # set median
     if use_median and filtertype.lower() != 'blob':  # makes no sense to median-filter the eroded video
@@ -952,9 +961,11 @@ def motiongrams_ffmpeg(
         cmd_filter += 'negate,'
 
     cmd_filter_y = cmd_filter + \
-        f'scale=1:{height}:sws_flags=area,normalize,tile={framecount}x1'
+        f'scale=1:{height},tile={framecount}x1,normalize=independence=0'
+    # f'scale=1:{height}:sws_flags=area,normalize,tile={framecount}x1'
     cmd_filter_x = cmd_filter + \
-        f'scale={width}:1:sws_flags=area,normalize,tile=1x{framecount}'
+        f'scale={width}:1,tile=1x{framecount},normalize=independence=0'
+    # f'scale={width}:1:sws_flags=area,normalize,tile=1x{framecount}'
 
     cmd_y = cmd + ['-filter_complex', cmd_filter_y] + cmd_end_y
     cmd_x = cmd + ['-filter_complex', cmd_filter_x] + cmd_end_x
@@ -992,7 +1003,7 @@ def crop_ffmpeg(filename, w, h, x, y, target_name=None, overwrite=False):
         target_name = of + '_crop' + fex
     if not overwrite:
         target_name = generate_outfilename(target_name)
-    
+
     pass_if_containers_match(filename, target_name)
 
     cmd = ['ffmpeg', '-y', '-i', filename, '-vf',
@@ -1426,7 +1437,7 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, strea
                 time_str = out_list[time_ind][5:]
                 time_sec = str2sec(time_str)
                 pb.progress(time_sec)
-            
+
         if returncode in [None, 0]:
             pb.progress(total_time)
         else:
@@ -1492,6 +1503,7 @@ def unwrap_str(string):
         return string[1:-1]
     else:
         return string
+
 
 def in_colab():
     """
