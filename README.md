@@ -23,6 +23,9 @@ MGT can generate both dynamic and static visualizations, as well as some quantit
     - centroid of motion
     - area of motion
 
+## Description
+
+Watch 10-minute intro video to the toolbox: 
 
 [![Video](https://www.uio.no/ritmo/english/research/labs/fourms/software/musicalgesturestoolbox/mgt-python/video/nordicsmc2021-thumbnail.png)](https://youtu.be/mIFbi3BDVPE)
 
