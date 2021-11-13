@@ -4,11 +4,11 @@
 
 - [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Show
     - [mg_show](#mg_show)
-    - [show_async](#show_async)
+    - [show_in_new_process](#show_in_new_process)
 
 ## mg_show
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_show.py#L15)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_show.py#L16)
 
 ```python
 def mg_show(
@@ -33,12 +33,10 @@ General method to show an image or video file either in a window, or inline in a
 - `window_height` *int, optional* - The height of the window. Defaults to 480.
 - `window_title` *str, optional* - The title of the window. If None, the title of the window will be the file name. Defaults to None.
 
-## show_async
+## show_in_new_process
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_show.py#L263)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_show.py#L222)
 
 ```python
-def show_async(command):
+def show_in_new_process(command):
 ```
-
-Helper function to show ffplay windows asynchronously

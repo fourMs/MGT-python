@@ -20,6 +20,7 @@ Full list of [Musicalgestures](README.md#musicalgestures-index) project modules.
 - [Motionvideo Mp Run](_motionvideo_mp_run.md#motionvideo-mp-run)
 - [Pose](_pose.md#pose)
 - [Show](_show.md#show)
+- [Show Window](_show_window.md#show-window)
 - [Utils](_utils.md#utils)
 - [Videoadjust](_videoadjust.md#videoadjust)
 - [Videograms](_videograms.md#videograms)
