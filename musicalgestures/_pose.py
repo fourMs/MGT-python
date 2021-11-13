@@ -359,7 +359,7 @@ def download_model(modeltype):
     pb_prefix = ''
     mpi_script = module_path + '/pose/getMPI'
     coco_script = module_path + '/pose/getCOCO'
-    body_25_script = module_path + '/pose/getBODY25'
+    body_25_script = module_path + '/pose/getBODY_25'
     wget_win = musicalgestures._utils.wrap_str(
         module_path + '/3rdparty/windows/wget/wget.exe')
     target_folder_mpi = musicalgestures._utils.wrap_str(
