@@ -27,7 +27,7 @@ MGT can generate both dynamic and static visualizations, as well as some quantit
 
 Watch 10-minute intro video to the toolbox: 
 
-[![Video](https://www.uio.no/ritmo/english/research/labs/fourms/software/musicalgesturestoolbox/mgt-python/video/nordicsmc2021-thumbnail.png)](https://youtu.be/mIFbi3BDVPE)
+[![Video](https://www.uio.no/ritmo/english/research/labs/fourms/software/musicalgesturestoolbox/mgt-python/video/nordicsmc2021-thumbnail.png)](https://youtu.be/tZVX_lDFrwc)
 
 ## Installation
 
@@ -56,7 +56,8 @@ The software is currently maintained by the [fourMs lab](https://github.com/four
 
 There is no publication mentioning this toolbox yet. But you could reference this publication describing the similar Matlab toolbox:
 
-- Jensenius, Alexander Refsum (2018). [The Musical Gestures Toolbox for Matlab](http://hdl.handle.net/10852/65559). Proceedings of the 19th International Society for Music Information Retrieval Conference, Late Breaking Demos Session.
+- Laczkó, B., & Jensenius, A. R. (2021). [Reflections on the Development of the Musical Gestures Toolbox for Python](https://nordicsmc.create.aau.dk/wp-content/NordicSMC/Nordic_SMC_2021_paper_38.pdf). Proceedings of the Nordic Sound and Music Computing Conference.
+
 
 
 ## Credits
