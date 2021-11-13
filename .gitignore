@@ -34,3 +34,5 @@ tests/.coverage
 tests/.vs/slnx.sqlite
 tests/pytest.ini
 tests/htmlcov
+musicalgestures/pose/body_25/pose_iter_584000.caffemodel
+musicalgestures/pose/body_25/.wget-hsts
