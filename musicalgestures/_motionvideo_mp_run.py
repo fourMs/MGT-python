@@ -301,13 +301,13 @@ def run_socket_server(host, port, pb, numprocesses):
                         progress = tracker.progress(node, iteration)
                     pb.progress(progress)
                 else:
-                    # print()
-                    # print("got something else...")
-                    # print(data_str)
-                    pass
+                    print()
+                    print("got something else...")
+                    print(data_str)
+                    # pass
 
                 if not data:
-                    # print("shutting down server")
+                    print("shutting down server")
                     break
 
 

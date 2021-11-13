@@ -4,7 +4,7 @@ import os
 import argparse
 import cv2
 import sys
-import musicalgestures
+# import musicalgestures
 from musicalgestures._utils import frame2ms
 from musicalgestures._centroid import centroid
 from musicalgestures._filter import filter_frame
@@ -37,8 +37,9 @@ def mg_motion_mp(args):
     ret, frame = vidcap.read()
 
     if save_video:
-        target_name_video = target_folder + of + '_motion_' + process_id_str + fex
+        target_name_video = target_folder + os.path.basename(of) + '_motion_' + process_id_str + fex
         # print(target_name_video)
+        client.sendall(bytes(target_name_video, 'utf-8'))
         fourcc = cv2.VideoWriter_fourcc(*'MJPG')
         out = cv2.VideoWriter(target_name_video, fourcc, fps, (width, height))
 
