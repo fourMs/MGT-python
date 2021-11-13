@@ -20,6 +20,7 @@ fix_notebook.py
 read_readme.py
 dist
 build
+install_test_venv
 musicalgestures.egg-info
 test-videos
 .vscode/settings.json
