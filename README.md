@@ -54,10 +54,9 @@ The software is currently maintained by the [fourMs lab](https://github.com/four
 
 ## Reference
 
-There is no publication mentioning this toolbox yet. But you could reference this publication describing the similar Matlab toolbox:
+If you use this toolbox in your research, please cite this article:
 
 - Laczkó, B., & Jensenius, A. R. (2021). [Reflections on the Development of the Musical Gestures Toolbox for Python](https://nordicsmc.create.aau.dk/wp-content/NordicSMC/Nordic_SMC_2021_paper_38.pdf). Proceedings of the Nordic Sound and Music Computing Conference.
-
 
 
 ## Credits
