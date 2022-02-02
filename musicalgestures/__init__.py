@@ -88,6 +88,8 @@ class MgObject:
     from musicalgestures._motionvideo import mg_motionplots as motionplots
     from musicalgestures._motionvideo import mg_motionvideo as motionvideo
     from musicalgestures._videograms import videograms_ffmpeg as videograms
+    from musicalgestures._directograms import mg_directograms as directograms
+    from musicalgestures._impacts import mg_impacts as impacts
     from musicalgestures._audio import mg_audio_spectrogram
     from musicalgestures._audio import mg_audio_descriptors
     from musicalgestures._motionvideo import plot_motion_metrics
