@@ -59,8 +59,7 @@ def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.
     more consistent across video resolutions. Fianlly, the local mean of the impact envelopes are calculated using a 0.1-second window, and local maxima
     using a 0.15-second window. Impacts are defined as local maxima that are above their local mean by at least 10% of the envelope’s global maximum.
 
-    Abe Davis - Visual Rhythm and Beat (section 4.2 and 4.3)
-    source: http://www.abedavis.com/files/papers/VisualRhythm_Davis18.pdf
+    Source: Abe Davis -- [Visual Rhythm and Beat](http://www.abedavis.com/files/papers/VisualRhythm_Davis18.pdf) (section 4.2 and 4.3)
 
     Args:
         title (str, optional): Optionally add title to the figure. Defaults to None, which uses 'Directogram' as a title. Defaults to None.
@@ -178,7 +177,7 @@ def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.
         target_name = generate_outfilename(target_name)
 
     plt.savefig(target_name, format='png', transparent=False)
-    plt.show()
+    plt.close()
 
     # create MgFigure
     data = {

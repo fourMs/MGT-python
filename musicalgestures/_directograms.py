@@ -32,8 +32,8 @@ def mg_directograms(self, title=None, filtertype='Adaptative', thresh=0.05, kern
     Compute a directogram to factor the magnitude of motion into different angles.
     Each columun of the directogram is computed as the weighted histogram (HISTOGRAM_BINS) of angles for the optical flow of an input frame.
 
-    Abe Davis - Visual Rhythm and Beat (section 4.1)
-    source: http://www.abedavis.com/files/papers/VisualRhythm_Davis18.pdf
+    Source: Abe Davis -- [Visual Rhythm and Beat](http://www.abedavis.com/files/papers/VisualRhythm_Davis18.pdf) (section 4.1)
+    
 
     Args:
         title (str, optional): Optionally add title to the figure. Defaults to None, which uses 'Directogram' as a title. Defaults to None.
@@ -135,7 +135,7 @@ def mg_directograms(self, title=None, filtertype='Adaptative', thresh=0.05, kern
         target_name = generate_outfilename(target_name)
 
     plt.savefig(target_name, format='png', transparent=False)
-    plt.show()
+    plt.close()
 
     # create MgFigure
     data = {
