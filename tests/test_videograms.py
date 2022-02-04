@@ -25,7 +25,7 @@ def testvideo_mp4(tmp_path_factory):
 
 class Test_videograms:
     def test_normal_case(self, testvideo_avi):
-        mg = musicalgestures.MgObject(testvideo_avi)
+        mg = musicalgestures.MgVideo(testvideo_avi)
         result = mg.videograms()
         assert type(result) == musicalgestures.MgList
         for videogram in result:

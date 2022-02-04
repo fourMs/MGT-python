@@ -52,9 +52,9 @@ def mg_motionhistory(
 
     Returns
     -------
-    - MgObject
+    - MgVideo
 
-        A new MgObject pointing to the output '_motionhistory' video file.
+        A new MgVideo pointing to the output '_motionhistory' video file.
     """
     enhancement = 1  # This can be adjusted to higher number to make motion more visible. Use with caution to not make it overflow.
     self.filtertype = filtertype
@@ -160,4 +160,4 @@ def mg_motionhistory(
     embed_audio_in_video(source_audio, destination_video)
     os.remove(source_audio)
 
-    return musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
+    return musicalgestures.MgVideo(destination_video, color=self.color, returned_by_process=True)

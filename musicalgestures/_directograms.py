@@ -10,9 +10,10 @@ from musicalgestures._utils import MgProgressbar, MgFigure, convert_to_avi, gene
 
 HISTOGRAM_BINS = np.linspace(-np.pi, np.pi, 100)
 
+
 def directogram(optical_flow):
 
-    norms = np.linalg.norm(optical_flow, axis=2) # norm of the matrix
+    norms = np.linalg.norm(optical_flow, axis=2)  # norm of the matrix
     # Compute angles for the optical flow of the input frame
     angles = np.arctan2(optical_flow[:, :, 1], optical_flow[:, :, 0])
     # Return the indices of the histogram bins to which each value in the angles array belongs
@@ -25,8 +26,8 @@ def directogram(optical_flow):
 
     return directogram
 
-def mg_directograms(self, title=None, filtertype='Adaptative', thresh=0.05, kernel_size=5, target_name=None, overwrite=False):
 
+def mg_directograms(self, title=None, filtertype='Adaptative', thresh=0.05, kernel_size=5, target_name=None, overwrite=False):
     """
     Compute a directogram to factor the magnitude of motion into different angles.
     Each columun of the directogram is computed as the weighted histogram (HISTOGRAM_BINS) of angles for the optical flow of an input frame.
@@ -53,7 +54,7 @@ def mg_directograms(self, title=None, filtertype='Adaptative', thresh=0.05, kern
         if "as_avi" not in self.__dict__.keys():
             file_as_avi = convert_to_avi(of + fex, overwrite=overwrite)
             # register it as the avi version for the file
-            self.as_avi = musicalgestures.MgObject(file_as_avi)
+            self.as_avi = musicalgestures.MgVideo(file_as_avi)
         # point of and fex to the avi version
         of, fex = self.as_avi.of, self.as_avi.fex
         filename = of + fex
@@ -83,14 +84,17 @@ def mg_directograms(self, title=None, filtertype='Adaptative', thresh=0.05, kern
             next_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
             if filtertype == 'Adaptative':
-                next_frame = cv2.adaptiveThreshold(next_frame,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
+                next_frame = cv2.adaptiveThreshold(
+                    next_frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
             else:
                 # Frame Thresholding: apply threshold filter and median filter (of `kernel_size`x`kernel_size`) to the frame.
-                next_frame = filter_frame(next_frame, filtertype, thresh, kernel_size)
+                next_frame = filter_frame(
+                    next_frame, filtertype, thresh, kernel_size)
 
             # Renders a dense optical flow video of the input video file using `cv2.calcOpticalFlowFarneback()`.
             # The description of the matching parameters are taken from the cv2 documentation.
-            optical_flow = cv2.calcOpticalFlowFarneback(prev_frame, next_frame, None, 0.5, 3, 15, 3, 5, 1.2, 0)
+            optical_flow = cv2.calcOpticalFlowFarneback(
+                prev_frame, next_frame, None, 0.5, 3, 15, 3, 5, 1.2, 0)
             directograms.append(directogram(optical_flow))
             directogram_times[i] = len(directograms) / fps
             prev_frame = next_frame
@@ -116,7 +120,8 @@ def mg_directograms(self, title=None, filtertype='Adaptative', thresh=0.05, kern
 
     fig.suptitle(title, fontsize=16)
 
-    ax.pcolormesh(directogram_times, HISTOGRAM_BINS, np.array(directograms).T, norm=colors.PowerNorm(gamma=1.0/2.0))
+    ax.pcolormesh(directogram_times, HISTOGRAM_BINS, np.array(
+        directograms).T, norm=colors.PowerNorm(gamma=1.0/2.0))
     ax.set_ylabel('Angle [Radians]')
     ax.set_xlabel('Time [Seconds]')
 

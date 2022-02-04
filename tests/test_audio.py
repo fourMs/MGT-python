@@ -37,11 +37,11 @@ class Test_Audio:
 
 class Test_Audio_Waveform:
     def test_waveform_no_audio(self, testvideo_avi_silent):
-        assert musicalgestures.MgObject(
+        assert musicalgestures.MgVideo(
             testvideo_avi_silent).audio.waveform() == None
 
     def test_target_name_is_none(self, testvideo_avi):
-        result = musicalgestures.MgObject(
+        result = musicalgestures.MgVideo(
             testvideo_avi).audio.waveform(target_name=None)
         assert type(result) == musicalgestures._utils.MgFigure
         assert result.figure_type == "audio.waveform"
@@ -51,7 +51,7 @@ class Test_Audio_Waveform:
     def test_target_name(self, testvideo_avi):
         tmp_folder = os.path.dirname(testvideo_avi)
         target_name = tmp_folder + "/result.png"
-        result = musicalgestures.MgObject(
+        result = musicalgestures.MgVideo(
             testvideo_avi).audio.waveform(target_name=target_name)
         assert type(result) == musicalgestures._utils.MgFigure
         assert result.figure_type == "audio.waveform"
@@ -60,7 +60,7 @@ class Test_Audio_Waveform:
         assert target_name == result.image
 
     def test_target_no_autoshow(self, testvideo_avi):
-        result = musicalgestures.MgObject(
+        result = musicalgestures.MgVideo(
             testvideo_avi).audio.waveform(autoshow=False)
         assert type(result) == musicalgestures._utils.MgFigure
         assert result.figure_type == "audio.waveform"
@@ -103,11 +103,11 @@ class Test_Waveform:
 
 class Test_Audio_Spectrogram:
     def test_spectrogram_no_audio(self, testvideo_avi_silent):
-        assert musicalgestures.MgObject(
+        assert musicalgestures.MgVideo(
             testvideo_avi_silent).audio.spectrogram() == None
 
     def test_target_name_is_none(self, testvideo_avi):
-        result = musicalgestures.MgObject(
+        result = musicalgestures.MgVideo(
             testvideo_avi).audio.spectrogram(target_name=None)
         assert type(result) == musicalgestures._utils.MgFigure
         assert result.figure_type == "audio.spectrogram"
@@ -117,7 +117,7 @@ class Test_Audio_Spectrogram:
     def test_target_name(self, testvideo_avi):
         tmp_folder = os.path.dirname(testvideo_avi)
         target_name = tmp_folder + "/result.png"
-        result = musicalgestures.MgObject(
+        result = musicalgestures.MgVideo(
             testvideo_avi).audio.spectrogram(target_name=target_name)
         assert type(result) == musicalgestures._utils.MgFigure
         assert result.figure_type == "audio.spectrogram"
@@ -126,7 +126,7 @@ class Test_Audio_Spectrogram:
         assert target_name == result.image
 
     def test_target_no_autoshow(self, testvideo_avi):
-        result = musicalgestures.MgObject(
+        result = musicalgestures.MgVideo(
             testvideo_avi).audio.spectrogram(autoshow=False)
         assert type(result) == musicalgestures._utils.MgFigure
         assert result.figure_type == "audio.spectrogram"
@@ -169,11 +169,11 @@ class Test_Spectrogram:
 
 class Test_Audio_Descriptors:
     def test_descriptors_no_audio(self, testvideo_avi_silent):
-        assert musicalgestures.MgObject(
+        assert musicalgestures.MgVideo(
             testvideo_avi_silent).audio.descriptors() == None
 
     def test_target_name_is_none(self, testvideo_avi):
-        result = musicalgestures.MgObject(
+        result = musicalgestures.MgVideo(
             testvideo_avi).audio.descriptors(target_name=None)
         assert type(result) == musicalgestures._utils.MgFigure
         assert result.figure_type == "audio.descriptors"
@@ -183,7 +183,7 @@ class Test_Audio_Descriptors:
     def test_target_name(self, testvideo_avi):
         tmp_folder = os.path.dirname(testvideo_avi)
         target_name = tmp_folder + "/result.png"
-        result = musicalgestures.MgObject(
+        result = musicalgestures.MgVideo(
             testvideo_avi).audio.descriptors(target_name=target_name)
         assert type(result) == musicalgestures._utils.MgFigure
         assert result.figure_type == "audio.descriptors"
@@ -192,7 +192,7 @@ class Test_Audio_Descriptors:
         assert target_name == result.image
 
     def test_target_no_autoshow(self, testvideo_avi):
-        result = musicalgestures.MgObject(
+        result = musicalgestures.MgVideo(
             testvideo_avi).audio.descriptors(autoshow=False)
         assert type(result) == musicalgestures._utils.MgFigure
         assert result.figure_type == "audio.descriptors"
@@ -235,11 +235,11 @@ class Test_Descriptors:
 
 class Test_Audio_Tempogram:
     def test_tempogram_no_audio(self, testvideo_avi_silent):
-        assert musicalgestures.MgObject(
+        assert musicalgestures.MgVideo(
             testvideo_avi_silent).audio.tempogram() == None
 
     def test_target_name_is_none(self, testvideo_avi):
-        result = musicalgestures.MgObject(
+        result = musicalgestures.MgVideo(
             testvideo_avi).audio.tempogram(target_name=None)
         assert type(result) == musicalgestures._utils.MgFigure
         assert result.figure_type == "audio.tempogram"
@@ -249,7 +249,7 @@ class Test_Audio_Tempogram:
     def test_target_name(self, testvideo_avi):
         tmp_folder = os.path.dirname(testvideo_avi)
         target_name = tmp_folder + "/result.png"
-        result = musicalgestures.MgObject(
+        result = musicalgestures.MgVideo(
             testvideo_avi).audio.tempogram(target_name=target_name)
         assert type(result) == musicalgestures._utils.MgFigure
         assert result.figure_type == "audio.tempogram"
@@ -258,7 +258,7 @@ class Test_Audio_Tempogram:
         assert target_name == result.image
 
     def test_target_no_autoshow(self, testvideo_avi):
-        result = musicalgestures.MgObject(
+        result = musicalgestures.MgVideo(
             testvideo_avi).audio.tempogram(autoshow=False)
         assert type(result) == musicalgestures._utils.MgFigure
         assert result.figure_type == "audio.tempogram"

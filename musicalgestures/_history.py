@@ -15,7 +15,7 @@ def history_ffmpeg(self, filename=None, history_length=10, weights=1, normalize=
     This function  creates a video where each frame is the average of the N previous frames, where n is determined by `history_length`. The history frames are summed up and normalized, and added to the current frame to show the history. Uses ffmpeg.
 
     Args:
-        filename (str, optional): Path to the input video file. If None, the video file of the MgObject is used. Defaults to None.
+        filename (str, optional): Path to the input video file. If None, the video file of the MgVideo is used. Defaults to None.
         history_length (int, optional): Number of frames to be saved in the history tail. Defaults to 10.
         weights (int/float/list/str, optional): Defines the weight or weights applied to the frames in the history tail. If given as list the first element in the list will correspond to the weight of the newest frame in the tail. If given as a str - like "3 1.2 1" - it will be automatically converted to a list - like [3, 1.2, 1]. Defaults to 1.
         normalize (bool, optional): If True, the history video will be normalized. This can be useful when processing motion (frame difference) videos. Defaults to False.
@@ -25,7 +25,7 @@ def history_ffmpeg(self, filename=None, history_length=10, weights=1, normalize=
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
-        MgObject: A new MgObject pointing to the output video file.
+        MgVideo: A new MgVideo pointing to the output video file.
     """
 
     if filename == None:
@@ -82,7 +82,6 @@ def history_ffmpeg(self, filename=None, history_length=10, weights=1, normalize=
             raise ParameterError(
                 'Wrong type used for norm_smooth. Use only int.')
 
-
     if target_name == None:
         target_name = of + '_history' + fex
     if not overwrite:
@@ -101,8 +100,9 @@ def history_ffmpeg(self, filename=None, history_length=10, weights=1, normalize=
 
     ffmpeg_cmd(cmd, get_length(filename), pb_prefix='Rendering history video:')
 
-    # save the result as the history_video for parent MgObject
-    self.history_video = musicalgestures.MgObject(target_name, color=self.color, returned_by_process=True)
+    # save the result as the history_video for parent MgVideo
+    self.history_video = musicalgestures.MgVideo(
+        target_name, color=self.color, returned_by_process=True)
 
     return self.history_video
 
@@ -112,14 +112,14 @@ def history_cv2(self, filename=None, history_length=10, weights=1, target_name=N
     This function  creates a video where each frame is the average of the N previous frames, where n is determined by `history_length`. The history frames are summed up and normalized, and added to the current frame to show the history. Uses cv2.
 
     Args:
-        filename (str, optional): Path to the input video file. If None, the video file of the MgObject is used. Defaults to None.
+        filename (str, optional): Path to the input video file. If None, the video file of the MgVideo is used. Defaults to None.
         history_length (int, optional): Number of frames to be saved in the history tail. Defaults to 10.
         weights (int/float/list, optional): Defines the weight or weights applied to the frames in the history tail. If given as list the first element in the list will correspond to the weight of the newest frame in the tail. Defaults to 1.
         target_name (str, optional): Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_history" should be used).
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
-        MgObject: A new MgObject pointing to the output video file.
+        MgVideo: A new MgVideo pointing to the output video file.
     """
 
     if filename == None:
@@ -132,11 +132,11 @@ def history_cv2(self, filename=None, history_length=10, weights=1, target_name=N
         if "as_avi" not in self.__dict__.keys():
             file_as_avi = convert_to_avi(of + fex, overwrite=overwrite)
             # register it as the avi version for the file
-            self.as_avi = musicalgestures.MgObject(file_as_avi)
+            self.as_avi = musicalgestures.MgVideo(file_as_avi)
         # point of and fex to the avi version
         of, fex = self.as_avi.of, self.as_avi.fex
         filename = of + fex
-    
+
     video = cv2.VideoCapture(filename)
     ret, frame = video.read()
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
@@ -219,7 +219,8 @@ def history_cv2(self, filename=None, history_length=10, weights=1, target_name=N
         embed_audio_in_video(source_audio, destination_video)
         os.remove(source_audio)
 
-    self.history_video = musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
+    self.history_video = musicalgestures.MgVideo(
+        destination_video, color=self.color, returned_by_process=True)
 
-    # return musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
+    # return musicalgestures.MgVideo(destination_video, color=self.color, returned_by_process=True)
     return self.history_video

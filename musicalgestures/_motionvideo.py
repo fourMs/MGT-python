@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from scipy.signal import medfilt2d
 from musicalgestures._centroid import centroid
-from musicalgestures._utils import extract_wav, embed_audio_in_video, frame2ms, MgProgressbar, MgImage, convert_to_avi, get_length, get_widthheight, motionvideo_ffmpeg, generate_outfilename #,motiongrams_ffmpeg
+from musicalgestures._utils import extract_wav, embed_audio_in_video, frame2ms, MgProgressbar, MgImage, convert_to_avi, get_length, get_widthheight, motionvideo_ffmpeg, generate_outfilename  # ,motiongrams_ffmpeg
 from musicalgestures._filter import filter_frame
 from musicalgestures._mglist import MgList
 
@@ -80,7 +80,7 @@ def mg_motiongrams(
         target_name_mgx=target_name_mgx,
         target_name_mgy=target_name_mgy,
         overwrite=overwrite)
-    # mg_motion also saves the motiongrams as MgImages to self.motiongram_x and self.motiongram_y of the parent MgObject
+    # mg_motion also saves the motiongrams as MgImages to self.motiongram_x and self.motiongram_y of the parent MgVideo
     return MgList(MgImage(out_x), MgImage(out_y))
 
 
@@ -121,7 +121,8 @@ def mg_motiondata(
     if type(data_format) == list:
         out = []
         if target_name == None:
-            target_name = self.of + '_motion.csv' # this csv is just a temporary placeholder, the correct extension is always enforced based on the data_format(s)
+            # this csv is just a temporary placeholder, the correct extension is always enforced based on the data_format(s)
+            target_name = self.of + '_motion.csv'
         target_name_of = os.path.splitext(target_name)[0]
         for item in data_format:
             if not overwrite:
@@ -199,7 +200,7 @@ def mg_motionplots(
         target_name_plot=target_name,
         overwrite=overwrite)
 
-    # mg_motion also saves the plot as an MgImage to self.motion_plot of the parent MgObject
+    # mg_motion also saves the plot as an MgImage to self.motion_plot of the parent MgVideo
     return MgImage(target_name)
 
 
@@ -227,7 +228,7 @@ def mg_motionvideo(
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
-        MgObject: A new MgObject pointing to the output '_motion' video file.
+        MgVideo: A new MgVideo pointing to the output '_motion' video file.
     """
 
     motionvideo = motionvideo_ffmpeg(
@@ -242,11 +243,12 @@ def mg_motionvideo(
         target_name=target_name,
         overwrite=overwrite)
 
-    # return musicalgestures.MgObject(motionvideo, color=self.color, returned_by_process=True)
+    # return musicalgestures.MgVideo(motionvideo, color=self.color, returned_by_process=True)
 
-    # save motion video as motion_video for parent MgObject
+    # save motion video as motion_video for parent MgVideo
     # we have to do this here since we are not using mg_motion (that would normally save the result itself)
-    self.motion_video = musicalgestures.MgObject(motionvideo, color=self.color, returned_by_process=True)
+    self.motion_video = musicalgestures.MgVideo(
+        motionvideo, color=self.color, returned_by_process=True)
     return self.motion_video
 
     # return mg_motion(
@@ -313,7 +315,7 @@ def mg_motion(
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
-        MgObject: A new MgObject pointing to the output video file. If `save_video=False`, it returns an MgObject pointing to the input video file.
+        MgVideo: A new MgVideo pointing to the output video file. If `save_video=False`, it returns an MgVideo pointing to the input video file.
     """
 
     if save_plot | save_data | save_motiongrams | save_video:
@@ -328,7 +330,7 @@ def mg_motion(
             if "as_avi" not in self.__dict__.keys():
                 file_as_avi = convert_to_avi(of + fex, overwrite=overwrite)
                 # register it as the avi version for the file
-                self.as_avi = musicalgestures.MgObject(file_as_avi)
+                self.as_avi = musicalgestures.MgVideo(file_as_avi)
             # point of and fex to the avi version
             of, fex = self.as_avi.of, self.as_avi.fex
 
@@ -340,12 +342,14 @@ def mg_motion(
                 target_name_video = of + '_motion' + fex
             # enforce avi
             else:
-                target_name_video = os.path.splitext(target_name_video)[0] + fex
+                target_name_video = os.path.splitext(
+                    target_name_video)[0] + fex
             if not overwrite:
                 target_name_video = generate_outfilename(target_name_video)
 
             fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-            out = cv2.VideoWriter(target_name_video, fourcc, self.fps, (self.width, self.height))
+            out = cv2.VideoWriter(target_name_video, fourcc,
+                                  self.fps, (self.width, self.height))
 
         if save_motiongrams:
             gramx = np.zeros([1, self.width, 3])
@@ -482,24 +486,28 @@ def mg_motion(
                 target_name_mgy = generate_outfilename(target_name_mgy)
 
             if inverted_motiongram:
-                cv2.imwrite(target_name_mgx, cv2.bitwise_not(gramx.astype(np.uint8)))
-                cv2.imwrite(target_name_mgy, cv2.bitwise_not(gramy.astype(np.uint8)))
+                cv2.imwrite(target_name_mgx, cv2.bitwise_not(
+                    gramx.astype(np.uint8)))
+                cv2.imwrite(target_name_mgy, cv2.bitwise_not(
+                    gramy.astype(np.uint8)))
             else:
                 cv2.imwrite(target_name_mgx, gramx.astype(np.uint8))
                 cv2.imwrite(target_name_mgy, gramy.astype(np.uint8))
 
-            # save rendered motiongrams as MgImages into parent MgObject
+            # save rendered motiongrams as MgImages into parent MgVideo
             self.motiongram_x = MgImage(target_name_mgx)
             self.motiongram_y = MgImage(target_name_mgy)
 
         if save_data:
-            save_txt(of, time, com, qom, self.width, self.height, data_format, target_name_data=target_name_data, overwrite=overwrite)
+            save_txt(of, time, com, qom, self.width, self.height, data_format,
+                     target_name_data=target_name_data, overwrite=overwrite)
 
         if save_plot:
             if plot_title == None:
                 plot_title = os.path.basename(of + fex)
-            # save plot as an MgImage at motion_plot for parent MgObject
-            self.motion_plot = MgImage(plot_motion_metrics(of, self.fps, com, qom, self.width, self.height, unit, plot_title, target_name_plot=target_name_plot, overwrite=overwrite))
+            # save plot as an MgImage at motion_plot for parent MgVideo
+            self.motion_plot = MgImage(plot_motion_metrics(of, self.fps, com, qom, self.width,
+                                       self.height, unit, plot_title, target_name_plot=target_name_plot, overwrite=overwrite))
 
         # resetting numpy warnings for dividing by 0
         np.seterr(divide='warn', invalid='warn')
@@ -513,19 +521,20 @@ def mg_motion(
                 source_audio = extract_wav(of + fex)
                 embed_audio_in_video(source_audio, destination_video)
                 os.remove(source_audio)
-            # return musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
-            # save rendered motion video as the motion_video of the parent MgObject
-            self.motion_video = musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
+            # return musicalgestures.MgVideo(destination_video, color=self.color, returned_by_process=True)
+            # save rendered motion video as the motion_video of the parent MgVideo
+            self.motion_video = musicalgestures.MgVideo(
+                destination_video, color=self.color, returned_by_process=True)
             return self.motion_video
-        # if we don't save the motion video, just return the MgObject the motion() was called upon
+        # if we don't save the motion video, just return the MgVideo the motion() was called upon
         else:
-            # return musicalgestures.MgObject(of + fex, color=self.color, returned_by_process=True)
+            # return musicalgestures.MgVideo(of + fex, color=self.color, returned_by_process=True)
             return self
 
-    # just return the MgObject the motion() was called upon
+    # just return the MgVideo the motion() was called upon
     else:
         print("Nothing to render. Exiting...")
-        # return musicalgestures.MgObject(of + fex, returned_by_process=True)
+        # return musicalgestures.MgVideo(of + fex, returned_by_process=True)
         return self
 
 
@@ -588,7 +597,8 @@ def save_txt(of, time, com, qom, width, height, data_format, target_name_data, o
                 target_name_data = of+'_motion.tsv'
             else:
                 # take name, but enforce tsv
-                target_name_data = os.path.splitext(target_name_data)[0] + '.tsv'
+                target_name_data = os.path.splitext(
+                    target_name_data)[0] + '.tsv'
             if not overwrite:
                 target_name_data = generate_outfilename(target_name_data)
 
@@ -603,9 +613,10 @@ def save_txt(of, time, com, qom, width, height, data_format, target_name_data, o
                 target_name_data = of+'_motion.csv'
             else:
                 # take name, but enforce csv
-                target_name_data = os.path.splitext(target_name_data)[0] + '.csv'
+                target_name_data = os.path.splitext(
+                    target_name_data)[0] + '.csv'
             if not overwrite:
-                target_name_data = generate_outfilename(target_name_data)   
+                target_name_data = generate_outfilename(target_name_data)
 
             df.to_csv(target_name_data, index=None)
 
@@ -615,9 +626,10 @@ def save_txt(of, time, com, qom, width, height, data_format, target_name_data, o
                 target_name_data = of+'_motion.txt'
             else:
                 # take name, but enforce txt
-                target_name_data = os.path.splitext(target_name_data)[0] + '.txt'
+                target_name_data = os.path.splitext(
+                    target_name_data)[0] + '.txt'
             if not overwrite:
-                target_name_data = generate_outfilename(target_name_data)  
+                target_name_data = generate_outfilename(target_name_data)
 
             with open(target_name_data, 'wb') as f:
                 f.write(b'Time Qom ComX ComY\n')
@@ -625,11 +637,14 @@ def save_txt(of, time, com, qom, width, height, data_format, target_name_data, o
                            fmt=['%d', '%d', '%.15f', '%.15f'])
 
         elif data_format not in ["tsv", "csv", "txt"]:
-            print(f"Invalid data format: '{data_format}'.\nFalling back to '.csv'.")
-            save_single_file(of, time, com, qom, width, height, "csv", target_name_data=target_name_data, overwrite=overwrite)
+            print(
+                f"Invalid data format: '{data_format}'.\nFalling back to '.csv'.")
+            save_single_file(of, time, com, qom, width, height, "csv",
+                             target_name_data=target_name_data, overwrite=overwrite)
 
     if type(data_format) == str:
-        save_single_file(of, time, com, qom, width, height, data_format, target_name_data=target_name_data, overwrite=overwrite)
+        save_single_file(of, time, com, qom, width, height, data_format,
+                         target_name_data=target_name_data, overwrite=overwrite)
 
     elif type(data_format) == list:
         if all([item.lower() in ["csv", "tsv", "txt"] for item in data_format]):
@@ -637,5 +652,7 @@ def save_txt(of, time, com, qom, width, height, data_format, target_name_data, o
             [save_single_file(of, time, com, qom, width, height, item, target_name_data=target_name_data, overwrite=overwrite)
              for item in data_format]
         else:
-            print(f"Unsupported formats in {data_format}.\nFalling back to '.csv'.")
-            save_single_file(of, time, com, qom, width, height, "csv", target_name_data=target_name_data, overwrite=overwrite)
+            print(
+                f"Unsupported formats in {data_format}.\nFalling back to '.csv'.")
+            save_single_file(of, time, com, qom, width, height, "csv",
+                             target_name_data=target_name_data, overwrite=overwrite)

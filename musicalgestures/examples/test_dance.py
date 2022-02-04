@@ -1,10 +1,10 @@
 import musicalgestures
 
-# CREATE MODULE OBJECT: Here is an example call to create an mg Object, using loads of parameters
-mg = musicalgestures.MgObject('../dance.avi', starttime=2,
-                              endtime=20, contrast=100, brightness=50)
+# CREATE MODULE OBJECT: Here is an example call to create an MgVideo, using loads of parameters
+mg = musicalgestures.MgVideo('../dance.avi', starttime=2,
+                             endtime=20, contrast=100, brightness=50)
 
-# USE MODULE METHOD: To run the motionvideo analysis, run the function using your object
+# USE MODULE METHOD: To run the motionvideo analysis, run the function using your video object
 mg.motion(inverted_motionvideo=False, inverted_motiongram=False,
           thresh=0.05, unit='seconds')
 

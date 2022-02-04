@@ -6,13 +6,16 @@ import matplotlib.pyplot as plt
 import musicalgestures
 from musicalgestures._directograms import directogram
 from musicalgestures._utils import MgProgressbar, MgFigure, convert_to_avi, generate_outfilename
+from musicalgestures._filter import filter_frame
+
 
 def impact_envelope(directogram, kernel_size=3):
 
     # Apply a median filter to the directogram using a local window-size given by kernel_size
     filtered_directogram = medfilt2d(directogram, kernel_size)
     flux = np.zeros(directogram.shape)
-    flux[1:, :] = (filtered_directogram - np.roll(filtered_directogram, 1, axis=0))[1:, :]
+    flux[1:, :] = (filtered_directogram -
+                   np.roll(filtered_directogram, 1, axis=0))[1:, :]
     flux[flux < 0] = 0.0
 
     impact_envelope = flux.sum(axis=1)
@@ -24,6 +27,7 @@ def impact_envelope(directogram, kernel_size=3):
 
     return impact_envelope
 
+
 def impact_detection(envelopes, time, fps, local_mean=0.1, local_maxima=0.15):
 
     global_max = envelopes.max()
@@ -34,17 +38,19 @@ def impact_detection(envelopes, time, fps, local_mean=0.1, local_maxima=0.15):
     impact = []
 
     for i in range(max_window_delta + 4, len(time) - max_window_delta - 4):
-        local_mean_window = (envelopes[i - mean_window_delta:i].mean() + envelopes[i+1:i+1 + mean_window_delta].mean()) / 2
-        local_max_window = max(envelopes[i - max_window_delta:i].max(), envelopes[i+1:i+1 + max_window_delta].max())
+        local_mean_window = (envelopes[i - mean_window_delta:i].mean() +
+                             envelopes[i+1:i+1 + mean_window_delta].mean()) / 2
+        local_max_window = max(
+            envelopes[i - max_window_delta:i].max(), envelopes[i+1:i+1 + max_window_delta].max())
 
         current = envelopes[i]
         if current > local_max_window and (current - local_mean_window) > 0.1 * global_max:
-            impact.append(i/fps) # convert impacts to seconds
+            impact.append(i/fps)  # convert impacts to seconds
 
     return impact
 
-def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.15, filtertype='Adaptative', thresh=0.05, kernel_size=5, target_name=None, overwrite=False):
 
+def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.15, filtertype='Adaptative', thresh=0.05, kernel_size=5, target_name=None, overwrite=False):
     """
     Compute a visual analogue of an onset envelope, aslo known as an impact envelope (Abe Davis).
     This is computed by summing over positive entries in the columns of the directogram. This gives an impact envelope with precisely the same
@@ -78,7 +84,7 @@ def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.
         if "as_avi" not in self.__dict__.keys():
             file_as_avi = convert_to_avi(of + fex, overwrite=overwrite)
             # register it as the avi version for the file
-            self.as_avi = musicalgestures.MgObject(file_as_avi)
+            self.as_avi = musicalgestures.MgVideo(file_as_avi)
         # point of and fex to the avi version
         of, fex = self.as_avi.of, self.as_avi.fex
         filename = of + fex
@@ -108,14 +114,17 @@ def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.
             next_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
             if filtertype == 'Adaptative':
-                next_frame = cv2.adaptiveThreshold(next_frame,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
+                next_frame = cv2.adaptiveThreshold(
+                    next_frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
             else:
                 # Frame Thresholding: apply threshold filter and median filter (of `kernel_size`x`kernel_size`) to the frame.
-                next_frame = filter_frame(next_frame, filtertype, thresh, kernel_size)
+                next_frame = filter_frame(
+                    next_frame, filtertype, thresh, kernel_size)
 
             # Renders a dense optical flow video of the input video file using `cv2.calcOpticalFlowFarneback()`.
             # The description of the matching parameters are taken from the cv2 documentation.
-            optical_flow = cv2.calcOpticalFlowFarneback(prev_frame, next_frame, None, 0.5, 3, 15, 3, 5, 1.2, 0)
+            optical_flow = cv2.calcOpticalFlowFarneback(
+                prev_frame, next_frame, None, 0.5, 3, 15, 3, 5, 1.2, 0)
             directograms.append(directogram(optical_flow))
             directogram_times[i] = len(directograms) / fps
             prev_frame = next_frame
@@ -131,7 +140,8 @@ def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.
 
     # Compute impact envelopes and impact detection
     impact_envelopes = impact_envelope(np.array(directograms))
-    impacts = impact_detection(impact_envelopes, directogram_times, fps, local_mean=local_mean, local_maxima=local_maxima)
+    impacts = impact_detection(impact_envelopes, directogram_times,
+                               fps, local_mean=local_mean, local_maxima=local_maxima)
 
     fig, ax = plt.subplots(figsize=(12, 4), dpi=300)
 
@@ -141,7 +151,8 @@ def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.
 
     # add title
     if title == None:
-        title = os.path.basename(f'Impact Envelopes (filter type: {filtertype})')
+        title = os.path.basename(
+            f'Impact Envelopes (filter type: {filtertype})')
 
     fig.suptitle(title, fontsize=16)
 
@@ -151,7 +162,8 @@ def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.
     ax.margins(x=0)
 
     if detection:
-        ax.vlines(impacts, 0, max(impact_envelopes), colors='red', linestyles='dashed', label=f'Impact Detection\nLocal mean: {local_mean}\nLocal maxima: {local_maxima}')
+        ax.vlines(impacts, 0, max(impact_envelopes), colors='red', linestyles='dashed',
+                  label=f'Impact Detection\nLocal mean: {local_mean}\nLocal maxima: {local_maxima}')
         ax.legend(loc='upper right')
 
     fig.tight_layout()

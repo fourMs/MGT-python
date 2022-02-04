@@ -16,10 +16,10 @@ class Flow:
         Initializes the Flow class.
 
         Args:
-            parent (MgObject): the parent MgObject.
-            filename (str): Path to the input video file. Passed by parent MgObject.
-            color (bool): Set class methods in color or grayscale mode. Passed by parent MgObject.
-            has_audio (bool): Indicates whether source video file has an audio track. Passed by parent MgObject.
+            parent (MgVideo): the parent MgVideo.
+            filename (str): Path to the input video file. Passed by parent MgVideo.
+            color (bool): Set class methods in color or grayscale mode. Passed by parent MgVideo.
+            has_audio (bool): Indicates whether source video file has an audio track. Passed by parent MgVideo.
         """
         self.parent = weakref.ref(parent)
         self.filename = filename
@@ -43,7 +43,7 @@ class Flow:
         Renders a dense optical flow video of the input video file using `cv2.calcOpticalFlowFarneback()`. The description of the matching parameters are taken from the cv2 documentation.
 
         Args:
-            filename (str, optional): Path to the input video file. If None the video file of the MgObject is used. Defaults to None.
+            filename (str, optional): Path to the input video file. If None the video file of the MgVideo is used. Defaults to None.
             pyr_scale (float, optional): Specifies the image scale (<1) to build pyramids for each image. `pyr_scale=0.5` means a classical pyramid, where each next layer is twice smaller than the previous one. Defaults to 0.5.
             levels (int, optional): The number of pyramid layers including the initial image. `levels=1` means that no extra layers are created and only the original images are used. Defaults to 3.
             winsize (int, optional): The averaging window size. Larger values increase the algorithm robustness to image noise and give more chances for fast motion detection, but yield more blurred motion field. Defaults to 15.
@@ -56,7 +56,7 @@ class Flow:
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
         Returns:
-            MgObject: A new MgObject pointing to the output video file.
+            MgVideo: A new MgVideo pointing to the output video file.
         """
 
         if filename == None:
@@ -70,7 +70,7 @@ class Flow:
             if "as_avi" not in self.parent().__dict__.keys():
                 file_as_avi = convert_to_avi(of + fex, overwrite=overwrite)
                 # register it as the avi version for the file
-                self.parent().as_avi = musicalgestures.MgObject(file_as_avi)
+                self.parent().as_avi = musicalgestures.MgVideo(file_as_avi)
             # point of and fex to the avi version
             of, fex = self.parent().as_avi.of, self.parent().as_avi.fex
             filename = self.parent().as_avi.filename
@@ -150,8 +150,9 @@ class Flow:
             embed_audio_in_video(source_audio, destination_video)
             os.remove(source_audio)
 
-        # save result at flow_dense_video at parent MgObject
-        self.parent().flow_dense_video = musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
+        # save result at flow_dense_video at parent MgVideo
+        self.parent().flow_dense_video = musicalgestures.MgVideo(
+            destination_video, color=self.color, returned_by_process=True)
 
         return self.parent().flow_dense_video
 
@@ -164,14 +165,15 @@ class Flow:
             corner_block_size=7,
             of_win_size=(15, 15),
             of_max_level=2,
-            of_criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03),
+            of_criteria=(cv2.TERM_CRITERIA_EPS |
+                         cv2.TERM_CRITERIA_COUNT, 10, 0.03),
             target_name=None,
             overwrite=False):
         """
         Renders a sparse optical flow video of the input video file using `cv2.calcOpticalFlowPyrLK()`. `cv2.goodFeaturesToTrack()` is used for the corner estimation. The description of the matching parameters are taken from the cv2 documentation.
 
         Args:
-            filename (str, optional): Path to the input video file. If None, the video file of the MgObject is used. Defaults to None.
+            filename (str, optional): Path to the input video file. If None, the video file of the MgVideo is used. Defaults to None.
             corner_max_corners (int, optional): Maximum number of corners to return. If there are more corners than are found, the strongest of them is returned. `maxCorners <= 0` implies that no limit on the maximum is set and all detected corners are returned. Defaults to 100.
             corner_quality_level (float, optional): Parameter characterizing the minimal accepted quality of image corners. The parameter value is multiplied by the best corner quality measure, which is the minimal eigenvalue (see cornerMinEigenVal in cv2 docs) or the Harris function response (see cornerHarris in cv2 docs). The corners with the quality measure less than the product are rejected. For example, if the best corner has the quality measure = 1500, and the qualityLevel=0.01, then all the corners with the quality measure less than 15 are rejected. Defaults to 0.3.
             corner_min_distance (int, optional): Minimum possible Euclidean distance between the returned corners. Defaults to 7.
@@ -183,7 +185,7 @@ class Flow:
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
         Returns:
-            MgObject: A new MgObject pointing to the output video file.
+            MgVideo: A new MgVideo pointing to the output video file.
         """
 
         if filename == None:
@@ -197,7 +199,7 @@ class Flow:
             if "as_avi" not in self.parent().__dict__.keys():
                 file_as_avi = convert_to_avi(of + fex, overwrite=overwrite)
                 # register it as the avi version for the file
-                self.parent().as_avi = musicalgestures.MgObject(file_as_avi)
+                self.parent().as_avi = musicalgestures.MgVideo(file_as_avi)
             # point of and fex to the avi version
             of, fex = self.parent().as_avi.of, self.parent().as_avi.fex
             filename = self.parent().as_avi.filename
@@ -262,7 +264,8 @@ class Flow:
                 for i, (new, old) in enumerate(zip(good_new, good_old)):
                     a, b = new.ravel()
                     c, d = old.ravel()
-                    mask = cv2.line(mask, (int(a), int(b)), (int(c), int(d)), color[i].tolist(), 2)
+                    mask = cv2.line(mask, (int(a), int(b)),
+                                    (int(c), int(d)), color[i].tolist(), 2)
 
                     if self.color == False:
                         frame = cv2.cvtColor(frame_gray, cv2.COLOR_GRAY2BGR)
@@ -294,7 +297,8 @@ class Flow:
             embed_audio_in_video(source_audio, destination_video)
             os.remove(source_audio)
 
-        # save result at flow_sparse_video at parent MgObject
-        self.parent().flow_sparse_video = musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
+        # save result at flow_sparse_video at parent MgVideo
+        self.parent().flow_sparse_video = musicalgestures.MgVideo(
+            destination_video, color=self.color, returned_by_process=True)
 
         return self.parent().flow_sparse_video

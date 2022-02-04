@@ -12,6 +12,7 @@ import threading
 import multiprocessing
 import cv2
 
+
 def mg_motion_mp(
         self,
         filtertype='Regular',
@@ -44,11 +45,12 @@ def mg_motion_mp(
         if "as_avi" not in self.__dict__.keys():
             file_as_avi = convert_to_avi(of + fex, overwrite=overwrite)
             # register it as the avi version for the file
-            self.as_avi = musicalgestures.MgObject(file_as_avi)
+            self.as_avi = musicalgestures.MgVideo(file_as_avi)
         # point of and fex to the avi version
         of, fex = self.as_avi.of, self.as_avi.fex
 
-    module_path = os.path.abspath(os.path.dirname(musicalgestures.__file__)).replace('\\', '/')
+    module_path = os.path.abspath(os.path.dirname(
+        musicalgestures.__file__)).replace('\\', '/')
     the_system = platform.system()
     pythonkw = "python"
     if the_system != "Windows":
@@ -65,14 +67,15 @@ def mg_motion_mp(
 
     save_data_feed = save_data or save_plot
 
-    command = [pythonkw, pyfile, temp_folder, of_feed, fex, self.fps, self.width, self.height, self.length, self.color, filtertype, thresh, blur, kernel_size, inverted_motionvideo, inverted_motiongram, equalize_motiongram, save_data_feed, save_motiongrams, save_video, num_processes]
+    command = [pythonkw, pyfile, temp_folder, of_feed, fex, self.fps, self.width, self.height, self.length, self.color, filtertype, thresh, blur,
+               kernel_size, inverted_motionvideo, inverted_motiongram, equalize_motiongram, save_data_feed, save_motiongrams, save_video, num_processes]
     command = [str(item) for item in command]
     # print()
     # print(command)
     # print()
 
     pgbar_text = 'Rendering motion' + ", ".join(np.array(["-video", "-grams", "-plots", "-data"])[
-            np.array([save_video, save_motiongrams, save_plot, save_data])]) + ":"
+        np.array([save_video, save_motiongrams, save_plot, save_data])]) + ":"
     pb = MgProgressbar(total=self.length, prefix=pgbar_text)
     progress = 0
 
@@ -108,17 +111,23 @@ def mg_motion_mp(
 
     # print("organizing results...")
     results = os.listdir(temp_folder)
-    time_files  = [temp_folder + file for file in results if file.startswith("time")]
+    time_files = [temp_folder +
+                  file for file in results if file.startswith("time")]
     time_files.sort()
-    com_files   = [temp_folder + file for file in results if file.startswith("com")]
+    com_files = [temp_folder +
+                 file for file in results if file.startswith("com")]
     com_files.sort()
-    qom_files   = [temp_folder + file for file in results if file.startswith("qom")]
+    qom_files = [temp_folder +
+                 file for file in results if file.startswith("qom")]
     qom_files.sort()
-    gramx_files = [temp_folder + file for file in results if file.startswith("gramx")]
+    gramx_files = [temp_folder +
+                   file for file in results if file.startswith("gramx")]
     gramx_files.sort()
-    gramy_files = [temp_folder + file for file in results if file.startswith("gramy")]
+    gramy_files = [temp_folder +
+                   file for file in results if file.startswith("gramy")]
     gramy_files.sort()
-    video_files = [temp_folder + file for file in results if file.endswith("avi")]
+    video_files = [temp_folder +
+                   file for file in results if file.endswith("avi")]
     video_files.sort()
 
     gramx, gramy, time, com, qom = None, None, None, None, None
@@ -190,13 +199,15 @@ def mg_motion_mp(
             target_name_mgy = generate_outfilename(target_name_mgy)
 
         if inverted_motiongram:
-            cv2.imwrite(target_name_mgx, cv2.bitwise_not(gramx.astype(np.uint8)))
-            cv2.imwrite(target_name_mgy, cv2.bitwise_not(gramy.astype(np.uint8)))
+            cv2.imwrite(target_name_mgx, cv2.bitwise_not(
+                gramx.astype(np.uint8)))
+            cv2.imwrite(target_name_mgy, cv2.bitwise_not(
+                gramy.astype(np.uint8)))
         else:
             cv2.imwrite(target_name_mgx, gramx.astype(np.uint8))
             cv2.imwrite(target_name_mgy, gramy.astype(np.uint8))
 
-        # save rendered motiongrams as MgImages into parent MgObject
+        # save rendered motiongrams as MgImages into parent MgVideo
         self.motiongram_x = MgImage(target_name_mgx)
         self.motiongram_y = MgImage(target_name_mgy)
 
@@ -223,7 +234,8 @@ def mg_motion_mp(
             else:
                 com = np.append(com, np.load(item)[1:], axis=0)
 
-        save_txt(of, time, com, qom, self.width, self.height, data_format, target_name_data=target_name_data, overwrite=overwrite)
+        save_txt(of, time, com, qom, self.width, self.height, data_format,
+                 target_name_data=target_name_data, overwrite=overwrite)
 
     if save_plot:
         if not save_data:
@@ -243,8 +255,9 @@ def mg_motion_mp(
 
         if plot_title == None:
             plot_title = os.path.basename(of + fex)
-        # save plot as an MgImage at motion_plot for parent MgObject
-        self.motion_plot = MgImage(plot_motion_metrics(of, self.fps, com, qom, self.width, self.height, unit, plot_title, target_name_plot=target_name_plot, overwrite=overwrite))
+        # save plot as an MgImage at motion_plot for parent MgVideo
+        self.motion_plot = MgImage(plot_motion_metrics(of, self.fps, com, qom, self.width,
+                                   self.height, unit, plot_title, target_name_plot=target_name_plot, overwrite=overwrite))
 
     if save_video:
         if target_name_video == None:
@@ -265,8 +278,9 @@ def mg_motion_mp(
             source_audio = extract_wav(of + fex)
             embed_audio_in_video(source_audio, destination_video)
             os.remove(source_audio)
-        # save rendered motion video as the motion_video of the parent MgObject
-        self.motion_video = musicalgestures.MgObject(destination_video, color=self.color, returned_by_process=True)
+        # save rendered motion video as the motion_video of the parent MgVideo
+        self.motion_video = musicalgestures.MgVideo(
+            destination_video, color=self.color, returned_by_process=True)
 
     # print("Cleanup...")
     shutil.rmtree(temp_folder)
@@ -345,7 +359,7 @@ def concat_videos(list_of_videos, target_name=None, overwrite=False, pb_prefix='
     for cmdlet in cmd_end:
         cmds.append(cmdlet)
 
-    ffmpeg_cmd(cmds, get_length(list_of_videos[0]) * len(list_of_videos), pb_prefix=pb_prefix, stream=stream)
+    ffmpeg_cmd(cmds, get_length(
+        list_of_videos[0]) * len(list_of_videos), pb_prefix=pb_prefix, stream=stream)
 
     return target_name
-

@@ -7,7 +7,7 @@ from musicalgestures._mglist import MgList
 from musicalgestures._utils import MgImage, MgFigure
 
 
-class MgObject:
+class MgVideo:
     """
     This is the class for working with video files in the Musical Gestures Toolbox.
     There is a set of preprocessing tools you can use when you load a video, such as:
@@ -18,7 +18,7 @@ class MgObject:
     - cropping: to crop the video either automatically (by assessing the area of motion) or manually with a pop-up user interface,
     - converting to grayscale
 
-    These preprocesses will apply upon creating the MgObject. Further processes are available as class methods.
+    These preprocesses will apply upon creating the MgVideo. Further processes are available as class methods.
     """
 
     def __init__(
@@ -124,15 +124,17 @@ class MgObject:
         self.filename = self.of + self.fex
 
     def __repr__(self):
-        return f"MgObject('{self.filename}')"
+        return f"MgVideo('{self.filename}')"
 
 
 class Examples:
     def __init__(self):
-        module_path = os.path.realpath(os.path.dirname(__file__)).replace("\\", "/")
+        module_path = os.path.realpath(
+            os.path.dirname(__file__)).replace("\\", "/")
         # module_path = os.path.abspath(os.path.dirname(__file__))
         self.dance = module_path + "/dance.avi"
         self.pianist = module_path + "/examples/pianist.avi"
         self.notebook = module_path + "/MusicalGesturesToolbox.ipynb"
+
 
 examples = Examples()

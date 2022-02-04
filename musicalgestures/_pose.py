@@ -40,7 +40,7 @@ def pose(
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
-        MgObject: An MgObject pointing to the output video.
+        MgVideo: An MgVideo pointing to the output video.
     """
 
     module_path = os.path.abspath(os.path.dirname(musicalgestures.__file__))
@@ -78,12 +78,12 @@ def pose(
         answer = input()
         if answer.lower() == 'n':
             print('Ok. Exiting...')
-            return musicalgestures.MgObject(self.filename, color=self.color, returned_by_process=True)
+            return musicalgestures.MgVideo(self.filename, color=self.color, returned_by_process=True)
         elif answer.lower() == 'y':
             download_model(model)
         else:
             print(f'Unrecognized answer "{answer}". Exiting...')
-            return musicalgestures.MgObject(self.filename, color=self.color, returned_by_process=True)
+            return musicalgestures.MgVideo(self.filename, color=self.color, returned_by_process=True)
 
     # Read the network into Memory
     net = cv2.dnn.readNetFromCaffe(protoFile, weightsFile)
@@ -109,7 +109,7 @@ def pose(
         if "as_avi" not in self.__dict__.keys():
             file_as_avi = convert_to_avi(of + fex, overwrite=overwrite)
             # register it as the avi version for the file
-            self.as_avi = musicalgestures.MgObject(file_as_avi)
+            self.as_avi = musicalgestures.MgVideo(file_as_avi)
         # point of and fex to the avi version
         of, fex = self.as_avi.of, self.as_avi.fex
         filename = of + fex
@@ -332,12 +332,12 @@ def pose(
                  target_name_data=target_name_data, overwrite=overwrite)
 
     if save_video:
-        # save result as pose_video for parent MgObject
-        self.pose_video = musicalgestures.MgObject(
+        # save result as pose_video for parent MgVideo
+        self.pose_video = musicalgestures.MgVideo(
             destination_video, color=self.color, returned_by_process=True)
         return self.pose_video
     else:
-        # otherwise just return the parent MgObject
+        # otherwise just return the parent MgVideo
         return self
 
 

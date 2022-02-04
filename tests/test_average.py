@@ -25,21 +25,21 @@ def testvideo_mp4(tmp_path_factory):
 
 class Test_Average:
     def test_normal_case(self):
-        mg = musicalgestures.MgObject(musicalgestures.examples.dance)
+        mg = musicalgestures.MgVideo(musicalgestures.examples.dance)
         result = mg.average()
         assert type(result) == musicalgestures._utils.MgImage
         assert os.path.isfile(result.filename) == True
         assert os.path.splitext(result.filename)[1] == ".png"
 
     def test_not_avi(self, testvideo_mp4):
-        mg = musicalgestures.MgObject(testvideo_mp4)
+        mg = musicalgestures.MgVideo(testvideo_mp4)
         result = mg.average()
         assert type(result) == musicalgestures._utils.MgImage
         assert os.path.isfile(result.filename) == True
         assert os.path.splitext(result.filename)[1] == ".png"
 
     def test_no_color(self):
-        mg = musicalgestures.MgObject(
+        mg = musicalgestures.MgVideo(
             musicalgestures.examples.dance, color=False)
         result = mg.average()
         assert type(result) == musicalgestures._utils.MgImage
@@ -47,7 +47,7 @@ class Test_Average:
         assert os.path.splitext(result.filename)[1] == ".png"
 
     def test_no_normalize(self, testvideo_avi):
-        mg = musicalgestures.MgObject(testvideo_avi)
+        mg = musicalgestures.MgVideo(testvideo_avi)
         result = mg.average(normalize=False)
         assert type(result) == musicalgestures._utils.MgImage
         assert os.path.isfile(result.filename) == True
