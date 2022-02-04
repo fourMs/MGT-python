@@ -36,7 +36,7 @@ This function  creates a video where each frame is the average of the N previous
 
 #### Arguments
 
-- `filename` *str, optional* - Path to the input video file. If None, the video file of the MgObject is used. Defaults to None.
+- `filename` *str, optional* - Path to the input video file. If None, the video file of the MgVideo is used. Defaults to None.
 - `history_length` *int, optional* - Number of frames to be saved in the history tail. Defaults to 10.
 - `weights` *int/float/list, optional* - Defines the weight or weights applied to the frames in the history tail. If given as list the first element in the list will correspond to the weight of the newest frame in the tail. Defaults to 1.
 - `target_name` *str, optional* - Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_history" should be used).
@@ -44,7 +44,7 @@ This function  creates a video where each frame is the average of the N previous
 
 #### Returns
 
-- `MgObject` - A new MgObject pointing to the output video file.
+- `MgVideo` - A new MgVideo pointing to the output video file.
 
 ## history_ffmpeg
 
@@ -68,7 +68,7 @@ This function  creates a video where each frame is the average of the N previous
 
 #### Arguments
 
-- `filename` *str, optional* - Path to the input video file. If None, the video file of the MgObject is used. Defaults to None.
+- `filename` *str, optional* - Path to the input video file. If None, the video file of the MgVideo is used. Defaults to None.
 - `history_length` *int, optional* - Number of frames to be saved in the history tail. Defaults to 10.
 - `weights` *int/float/list/str, optional* - Defines the weight or weights applied to the frames in the history tail. If given as list the first element in the list will correspond to the weight of the newest frame in the tail. If given as a str - like "3 1.2 1" - it will be automatically converted to a list - like [3, 1.2, 1]. Defaults to 1.
 - `normalize` *bool, optional* - If True, the history video will be normalized. This can be useful when processing motion (frame difference) videos. Defaults to False.
@@ -79,4 +79,4 @@ This function  creates a video where each frame is the average of the N previous
 
 #### Returns
 
-- `MgObject` - A new MgObject pointing to the output video file.
+- `MgVideo` - A new MgVideo pointing to the output video file.

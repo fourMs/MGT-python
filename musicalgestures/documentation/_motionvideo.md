@@ -13,7 +13,7 @@
 
 ## mg_motion
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L265)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L267)
 
 ```python
 def mg_motion(
@@ -71,7 +71,7 @@ centroid of motion for each frame with timecodes in milliseconds.
 
 #### Returns
 
-- `MgObject` - A new MgObject pointing to the output video file. If `save_video=False`, it returns an MgObject pointing to the input video file.
+- `MgVideo` - A new MgVideo pointing to the output video file. If `save_video=False`, it returns an MgVideo pointing to the input video file.
 
 ## mg_motiondata
 
@@ -147,7 +147,7 @@ Shortcut for [mg_motion](#mg_motion) to only render motiongrams.
 
 ## mg_motionplots
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L155)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L156)
 
 ```python
 def mg_motionplots(
@@ -182,7 +182,7 @@ Shortcut for [mg_motion](#mg_motion) to only render motion plots.
 
 ## mg_motionvideo
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L206)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L207)
 
 ```python
 def mg_motionvideo(
@@ -213,11 +213,11 @@ Shortcut to only render the motion video. Uses musicalgestures._utils.motionvide
 
 #### Returns
 
-- `MgObject` - A new MgObject pointing to the output '_motion' video file.
+- `MgVideo` - A new MgVideo pointing to the output '_motion' video file.
 
 ## plot_motion_metrics
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L532)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L541)
 
 ```python
 def plot_motion_metrics(
@@ -238,7 +238,7 @@ Helper function to plot the centroid and quantity of motion using matplotlib.
 
 ## save_txt
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L573)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L582)
 
 ```python
 def save_txt(

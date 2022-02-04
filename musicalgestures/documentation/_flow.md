@@ -42,7 +42,7 @@ Renders a dense optical flow video of the input video file using `cv2.calcOptica
 
 #### Arguments
 
-- `filename` *str, optional* - Path to the input video file. If None the video file of the MgObject is used. Defaults to None.
+- `filename` *str, optional* - Path to the input video file. If None the video file of the MgVideo is used. Defaults to None.
 - `pyr_scale` *float, optional* - Specifies the image scale (<1) to build pyramids for each image. `pyr_scale=0.5` means a classical pyramid, where each next layer is twice smaller than the previous one. Defaults to 0.5.
 - `levels` *int, optional* - The number of pyramid layers including the initial image. `levels=1` means that no extra layers are created and only the original images are used. Defaults to 3.
 - `winsize` *int, optional* - The averaging window size. Larger values increase the algorithm robustness to image noise and give more chances for fast motion detection, but yield more blurred motion field. Defaults to 15.
@@ -56,11 +56,11 @@ Renders a dense optical flow video of the input video file using `cv2.calcOptica
 
 #### Returns
 
-- `MgObject` - A new MgObject pointing to the output video file.
+- `MgVideo` - A new MgVideo pointing to the output video file.
 
 ### Flow().sparse
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L158)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L159)
 
 ```python
 def sparse(
@@ -81,7 +81,7 @@ Renders a sparse optical flow video of the input video file using `cv2.calcOptic
 
 #### Arguments
 
-- `filename` *str, optional* - Path to the input video file. If None, the video file of the MgObject is used. Defaults to None.
+- `filename` *str, optional* - Path to the input video file. If None, the video file of the MgVideo is used. Defaults to None.
 - `corner_max_corners` *int, optional* - Maximum number of corners to return. If there are more corners than are found, the strongest of them is returned. `maxCorners <= 0` implies that no limit on the maximum is set and all detected corners are returned. Defaults to 100.
 - `corner_quality_level` *float, optional* - Parameter characterizing the minimal accepted quality of image corners. The parameter value is multiplied by the best corner quality measure, which is the minimal eigenvalue (see cornerMinEigenVal in cv2 docs) or the Harris function response (see cornerHarris in cv2 docs). The corners with the quality measure less than the product are rejected. For example, if the best corner has the quality measure = 1500, and the qualityLevel=0.01, then all the corners with the quality measure less than 15 are rejected. Defaults to 0.3.
 - `corner_min_distance` *int, optional* - Minimum possible Euclidean distance between the returned corners. Defaults to 7.
@@ -94,4 +94,4 @@ Renders a sparse optical flow video of the input video file using `cv2.calcOptic
 
 #### Returns
 
-- `MgObject` - A new MgObject pointing to the output video file.
+- `MgVideo` - A new MgVideo pointing to the output video file.

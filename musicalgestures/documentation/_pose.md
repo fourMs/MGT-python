@@ -55,4 +55,4 @@ Outputs the predictions in a text file containing the normalized x and y coordin
 
 #### Returns
 
-- `MgObject` - An MgObject pointing to the output video.
+- `MgVideo` - An MgVideo pointing to the output video.

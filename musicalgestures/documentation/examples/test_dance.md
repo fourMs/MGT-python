@@ -6,4 +6,4 @@
 
 #### Attributes
 
-- `mg` - CREATE MODULE OBJECT: Here is an example call to create an mg Object, using loads of parameters: `musicalgestures.MgObject('../dance.avi', startt...`
+- `mg` - CREATE MODULE OBJECT: Here is an example call to create an MgVideo, using loads of parameters: `musicalgestures.MgVideo('../dance.avi', startti...`

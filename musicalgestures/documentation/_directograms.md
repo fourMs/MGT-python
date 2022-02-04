@@ -3,28 +3,38 @@
 > Auto-generated documentation for [_directograms](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_directograms.py) module.
 
 - [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Directograms
+    - [directogram](#directogram)
     - [mg_directograms](#mg_directograms)
+
+## directogram
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_directograms.py#L14)
+
+```python
+def directogram(optical_flow):
+```
 
 ## mg_directograms
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_directograms.py#L28)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_directograms.py#L30)
 
 ```python
 def mg_directograms(
-    self, 
-    title=None, 
-    filtertype='Adaptative', 
-    thresh=0.05, 
-    kernel_size=5, 
-    target_name=None, 
-    overwrite=False)
+    self,
+    title=None,
+    filtertype='Adaptative',
+    thresh=0.05,
+    kernel_size=5,
+    target_name=None,
+    overwrite=False,
 ):
 ```
 
 Compute a directogram to factor the magnitude of motion into different angles.
 Each columun of the directogram is computed as the weighted histogram (HISTOGRAM_BINS) of angles for the optical flow of an input frame.
 
-source: Abe Davis - [Visual Rhythm and Beat](http://www.abedavis.com/files/papers/VisualRhythm_Davis18.pdf) (section 4.1)
+Abe Davis - Visual Rhythm and Beat (section 4.1)
+source: http://www.abedavis.com/files/papers/VisualRhythm_Davis18.pdf
 
 #### Arguments
 

@@ -3,32 +3,54 @@
 > Auto-generated documentation for [_impacts](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_impacts.py) module.
 
 - [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Impacts
+    - [impact_detection](#impact_detection)
+    - [impact_envelope](#impact_envelope)
     - [mg_impacts](#mg_impacts)
+
+## impact_detection
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_impacts.py#L31)
+
+```python
+def impact_detection(envelopes, time, fps, local_mean=0.1, local_maxima=0.15):
+```
+
+## impact_envelope
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_impacts.py#L12)
+
+```python
+def impact_envelope(directogram, kernel_size=3):
+```
 
 ## mg_impacts
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_impacts.py#L46)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_impacts.py#L53)
 
 ```python
-mg_impacts(
-    self, 
-    title=None, 
-    detection=True, 
-    local_mean=0.1, 
-    local_maxima=0.15, 
-    filtertype='Adaptative', 
-    thresh=0.05, 
-    kernel_size=5, 
-    target_name=None, 
-    overwrite=False)
+def mg_impacts(
+    self,
+    title=None,
+    detection=True,
+    local_mean=0.1,
+    local_maxima=0.15,
+    filtertype='Adaptative',
+    thresh=0.05,
+    kernel_size=5,
+    target_name=None,
+    overwrite=False,
 ):
 ```
 
 Compute a visual analogue of an onset envelope, aslo known as an impact envelope (Abe Davis).
-This is computed by summing over positive entries in the columns of the directogram. This gives an impact envelope with precisely the same form as an onset envelope. To account for large outlying spikes that sometimes happen at shot boundaries (i.e., cuts), the 99th percentile of the impact envelope values are clipped to the 98th percentile. Then, the impact envelopes are normalized by their maximum to make calculations more consistent across video resolutions. Fianlly, the local mean of the impact envelopes are calculated using a 0.1-second window, and local maxima using a 0.15-second window. Impacts are defined as local maxima that are above their local mean by at least 10% of the envelope’s global maximum.
+This is computed by summing over positive entries in the columns of the directogram. This gives an impact envelope with precisely the same
+form as an onset envelope. To account for large outlying spikes that sometimes happen at shot boundaries (i.e., cuts), the 99th percentile
+of the impact envelope values are clipped to the 98th percentile. Then, the impact envelopes are normalized by their maximum to make calculations
+more consistent across video resolutions. Fianlly, the local mean of the impact envelopes are calculated using a 0.1-second window, and local maxima
+using a 0.15-second window. Impacts are defined as local maxima that are above their local mean by at least 10% of the envelope’s global maximum.
 
-source: Abe Davis - [Visual Rhythm and Beat](http://www.abedavis.com/files/papers/VisualRhythm_Davis18.pdf) (section 4.2 and 4.3)
- 
+Abe Davis - Visual Rhythm and Beat (section 4.2 and 4.3)
+source: http://www.abedavis.com/files/papers/VisualRhythm_Davis18.pdf
 
 #### Arguments
 
