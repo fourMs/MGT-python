@@ -49,8 +49,7 @@ of the impact envelope values are clipped to the 98th percentile. Then, the impa
 more consistent across video resolutions. Fianlly, the local mean of the impact envelopes are calculated using a 0.1-second window, and local maxima
 using a 0.15-second window. Impacts are defined as local maxima that are above their local mean by at least 10% of the envelope’s global maximum.
 
-Abe Davis - Visual Rhythm and Beat (section 4.2 and 4.3)
-source: http://www.abedavis.com/files/papers/VisualRhythm_Davis18.pdf
+Source: Abe Davis -- [Visual Rhythm and Beat](http://www.abedavis.com/files/papers/VisualRhythm_Davis18.pdf) (section 4.2 and 4.3)
 
 #### Arguments
 

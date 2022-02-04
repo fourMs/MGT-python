@@ -33,8 +33,7 @@ def mg_directograms(
 Compute a directogram to factor the magnitude of motion into different angles.
 Each columun of the directogram is computed as the weighted histogram (HISTOGRAM_BINS) of angles for the optical flow of an input frame.
 
-Abe Davis - Visual Rhythm and Beat (section 4.1)
-source: http://www.abedavis.com/files/papers/VisualRhythm_Davis18.pdf
+Source: Abe Davis -- [Visual Rhythm and Beat](http://www.abedavis.com/files/papers/VisualRhythm_Davis18.pdf) (section 4.1)
 
 #### Arguments
 
