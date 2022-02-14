@@ -1,6 +1,7 @@
 import cv2
 import os
 import numpy as np
+from numba import jit
 from scipy.signal import medfilt2d
 import matplotlib.pyplot as plt
 import musicalgestures
@@ -8,14 +9,12 @@ from musicalgestures._directograms import directogram
 from musicalgestures._utils import MgProgressbar, MgFigure, convert_to_avi, generate_outfilename
 from musicalgestures._filter import filter_frame
 
-
-def impact_envelope(directogram, kernel_size=3):
+def impact_envelope(directogram, kernel_size=5):
 
     # Apply a median filter to the directogram using a local window-size given by kernel_size
     filtered_directogram = medfilt2d(directogram, kernel_size)
     flux = np.zeros(directogram.shape)
-    flux[1:, :] = (filtered_directogram -
-                   np.roll(filtered_directogram, 1, axis=0))[1:, :]
+    flux[1:, :] = (filtered_directogram - np.roll(filtered_directogram, 1, axis=0))[1:, :]
     flux[flux < 0] = 0.0
 
     impact_envelope = flux.sum(axis=1)
@@ -27,7 +26,7 @@ def impact_envelope(directogram, kernel_size=3):
 
     return impact_envelope
 
-
+@jit(nopython=True)
 def impact_detection(envelopes, time, fps, local_mean=0.1, local_maxima=0.15):
 
     global_max = envelopes.max()
@@ -38,14 +37,12 @@ def impact_detection(envelopes, time, fps, local_mean=0.1, local_maxima=0.15):
     impact = []
 
     for i in range(max_window_delta + 4, len(time) - max_window_delta - 4):
-        local_mean_window = (envelopes[i - mean_window_delta:i].mean() +
-                             envelopes[i+1:i+1 + mean_window_delta].mean()) / 2
-        local_max_window = max(
-            envelopes[i - max_window_delta:i].max(), envelopes[i+1:i+1 + max_window_delta].max())
+        local_mean_window = (envelopes[i - mean_window_delta:i].mean() + envelopes[i+1:i+1 + mean_window_delta].mean()) / 2
+        local_max_window = max(envelopes[i - max_window_delta:i].max(), envelopes[i+1:i+1 + max_window_delta].max())
 
         current = envelopes[i]
         if current > local_max_window and (current - local_mean_window) > 0.1 * global_max:
-            impact.append(i/fps)  # convert impacts to seconds
+            impact.append(i)
 
     return impact
 

@@ -1,19 +1,29 @@
 import cv2
 import os
 import numpy as np
-from scipy.signal import medfilt2d
+from numba import jit
 import matplotlib.pyplot as plt
 from matplotlib import colors
+
 import musicalgestures
 from musicalgestures._filter import filter_frame
 from musicalgestures._utils import MgProgressbar, MgFigure, convert_to_avi, generate_outfilename
 
 HISTOGRAM_BINS = np.linspace(-np.pi, np.pi, 100)
 
+@jit(nopython=True)
+def matrix3D_norm(matrix):
+    n, m, o = matrix.shape
+    norm = np.zeros((n,m))
 
+    for i in np.arange(n):
+        for j in np.arange(m):
+            norm[i][j] = np.sqrt(np.sum(np.abs(matrix[i][j]) ** 2)) # Frobenius norm
+    return norm
+
+@jit(nopython=True)
 def directogram(optical_flow):
-
-    norms = np.linalg.norm(optical_flow, axis=2)  # norm of the matrix
+    norms = matrix3D_norm(optical_flow)  # norm of the matrix
     # Compute angles for the optical flow of the input frame
     angles = np.arctan2(optical_flow[:, :, 1], optical_flow[:, :, 0])
     # Return the indices of the histogram bins to which each value in the angles array belongs
@@ -25,7 +35,6 @@ def directogram(optical_flow):
             directogram[angle_indicators[y, x]] += norms[y, x]
 
     return directogram
-
 
 def mg_directograms(self, title=None, filtertype='Adaptative', thresh=0.05, kernel_size=5, target_name=None, overwrite=False):
     """
@@ -63,8 +72,6 @@ def mg_directograms(self, title=None, filtertype='Adaptative', thresh=0.05, kern
 
     vidcap = cv2.VideoCapture(filename)
     fps = int(vidcap.get(cv2.CAP_PROP_FPS))
-    width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
 
     pb = MgProgressbar(total=length, prefix='Rendering directogram:')
@@ -84,17 +91,14 @@ def mg_directograms(self, title=None, filtertype='Adaptative', thresh=0.05, kern
             next_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
             if filtertype == 'Adaptative':
-                next_frame = cv2.adaptiveThreshold(
-                    next_frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+                next_frame = cv2.adaptiveThreshold(next_frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
             else:
                 # Frame Thresholding: apply threshold filter and median filter (of `kernel_size`x`kernel_size`) to the frame.
-                next_frame = filter_frame(
-                    next_frame, filtertype, thresh, kernel_size)
+                next_frame = filter_frame(next_frame, filtertype, thresh, kernel_size)
 
             # Renders a dense optical flow video of the input video file using `cv2.calcOpticalFlowFarneback()`.
             # The description of the matching parameters are taken from the cv2 documentation.
-            optical_flow = cv2.calcOpticalFlowFarneback(
-                prev_frame, next_frame, None, 0.5, 3, 15, 3, 5, 1.2, 0)
+            optical_flow = cv2.calcOpticalFlowFarneback(prev_frame, next_frame, None, 0.5, 3, 15, 3, 5, 1.2, 0)
             directograms.append(directogram(optical_flow))
             directogram_times[i] = len(directograms) / fps
             prev_frame = next_frame
