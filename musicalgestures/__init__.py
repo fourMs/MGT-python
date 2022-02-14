@@ -89,6 +89,7 @@ class MgVideo:
     from musicalgestures._motionvideo import mg_motionvideo as motionvideo
     from musicalgestures._videograms import videograms_ffmpeg as videograms
     from musicalgestures._directograms import mg_directograms as directograms
+    from musicalgestures._warping import mg_warping_audiovisual_beats as warping_audiovisual_beats
     from musicalgestures._impacts import mg_impacts as impacts
     from musicalgestures._audio import mg_audio_spectrogram
     from musicalgestures._audio import mg_audio_descriptors
