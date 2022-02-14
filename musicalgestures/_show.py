@@ -222,6 +222,15 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                 raise FileNotFoundError(
                     "There is no known pose video for this file.")
 
+        elif key.lower() == 'warping':
+            if "warping_audiovisual_beats" in keys:
+                filename = self.warping_audiovisual_beats.filename
+                show(file=filename, width=window_width,
+                     height=window_height, mode=mode, title=f'Warped Audiovisual Video | {filename}', parent=self)
+            else:
+                raise FileNotFoundError(
+                    "There is no known warping audiovisual beats for this file.")
+
         else:
             print("Unknown shorthand.\n",
                   "For images, try 'mgx', 'mgy', 'vgx', 'vgy', 'average' or 'plot'.\n",
