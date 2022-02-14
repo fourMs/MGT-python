@@ -44,7 +44,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
         if mode.lower() == 'windowed':
             from musicalgestures._utils import wrap_str
             # cmd = f'ffplay "{file}" -x {width} -y {height} -window_title "{title}"'
-            cmd = f'ffplay {wrap_str(file)} -x {width} -y {height} -window_title {wrap_str(title)}'
+            cmd = f'ffplay {wrap_str(file)} -window_title {wrap_str(title)} -x {width} -y {height}'
             # show_async(cmd)
             show_in_new_process(cmd)
 
