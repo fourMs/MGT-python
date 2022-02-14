@@ -4,19 +4,30 @@
 
 - [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Directograms
     - [directogram](#directogram)
+    - [matrix3D_norm](#matrix3d_norm)
     - [mg_directograms](#mg_directograms)
 
 ## directogram
 
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_directograms.py#L24)
+
+```python
+@jit(nopython=True)
+def directogram(optical_flow):
+```
+
+## matrix3D_norm
+
 [[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_directograms.py#L14)
 
 ```python
-def directogram(optical_flow):
+@jit(nopython=True)
+def matrix3D_norm(matrix):
 ```
 
 ## mg_directograms
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_directograms.py#L30)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_directograms.py#L39)
 
 ```python
 def mg_directograms(

@@ -92,8 +92,10 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                     display(Video(video_to_display,
                             width=video_width, height=video_height))
                 else:
+                    video_to_display = os.path.relpath(
+                        video_to_display, os.getcwd()).replace('\\', '/')
                     display(Video(video_to_display, width=video_width,
-                            height=video_height, embed=True))
+                            height=video_height))
 
         else:
             print(

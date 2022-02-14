@@ -27,6 +27,7 @@ Full list of [Musicalgestures](README.md#musicalgestures-index) project modules.
 - [Videoadjust](_videoadjust.md#videoadjust)
 - [Videograms](_videograms.md#videograms)
 - [Videoreader](_videoreader.md#videoreader)
+- [Warping](_warping.md#warping)
 - [Examples](examples\index.md#examples)
     - [Test Dance](examples\test_dance.md#test-dance)
     - [Test Pianist](examples\test_pianist.md#test-pianist)

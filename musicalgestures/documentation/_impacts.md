@@ -9,9 +9,10 @@
 
 ## impact_detection
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_impacts.py#L31)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_impacts.py#L29)
 
 ```python
+@jit(nopython=True)
 def impact_detection(envelopes, time, fps, local_mean=0.1, local_maxima=0.15):
 ```
 
@@ -20,12 +21,12 @@ def impact_detection(envelopes, time, fps, local_mean=0.1, local_maxima=0.15):
 [[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_impacts.py#L12)
 
 ```python
-def impact_envelope(directogram, kernel_size=3):
+def impact_envelope(directogram, kernel_size=5):
 ```
 
 ## mg_impacts
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_impacts.py#L53)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_impacts.py#L50)
 
 ```python
 def mg_impacts(
