@@ -6,6 +6,7 @@ import soundfile as sf
 import subprocess
 from numba import jit
 
+import musicalgestures
 from musicalgestures._directograms import mg_directograms
 from musicalgestures._impacts import impact_envelope
 from musicalgestures._utils import MgProgressbar, generate_outfilename
@@ -197,3 +198,9 @@ def mg_warping_audiovisual_beats(self, audio_file, speed=(0.5,2), data=None, fil
     pb.progress(125)
     os.remove(temp_file_name)
     pb.progress(130)
+
+    # save motion video as warping_audiovisual_beats for parent MgVideo
+    # we have to do this here since we are not using mg_warping_audiovisual_beats (that would normally save the result itself)
+    self.warping_audiovisual_beats = musicalgestures.MgVideo(target_name, color=self.color, returned_by_process=True)
+
+    return self.warping_audiovisual_beats
