@@ -112,9 +112,8 @@ def mg_directograms(self, title=None, filtertype='Adaptative', thresh=0.05, kern
 
     vidcap.release()
 
+    # Create and save the figure
     fig, ax = plt.subplots(figsize=(12, 4), dpi=300)
-
-    # make sure background is white
     fig.patch.set_facecolor('white')
     fig.patch.set_alpha(1)
 
@@ -123,9 +122,10 @@ def mg_directograms(self, title=None, filtertype='Adaptative', thresh=0.05, kern
         title = os.path.basename(f'Directogram (filter type: {filtertype})')
 
     fig.suptitle(title, fontsize=16)
-
-    ax.pcolormesh(directogram_times, HISTOGRAM_BINS, np.array(
-        directograms).T, norm=colors.PowerNorm(gamma=1.0/2.0))
+    
+    ax.imshow(np.array(directograms).T, extent=[directogram_times.min(), directogram_times.max(), 
+    HISTOGRAM_BINS.min(), HISTOGRAM_BINS.max()], norm=colors.PowerNorm(gamma=1.0/2.0), aspect='auto')
+    
     ax.set_ylabel('Angle [Radians]')
     ax.set_xlabel('Time [Seconds]')
 
@@ -141,7 +141,7 @@ def mg_directograms(self, title=None, filtertype='Adaptative', thresh=0.05, kern
     plt.savefig(target_name, format='png', transparent=False)
     plt.close()
 
-    # create MgFigure
+    # Create MgFigure
     data = {
         "FPS": fps,
         "path": self.of,
