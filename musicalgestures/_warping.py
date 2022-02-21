@@ -9,7 +9,7 @@ from numba import jit
 import musicalgestures
 from musicalgestures._directograms import mg_directograms
 from musicalgestures._impacts import impact_envelope
-from musicalgestures._utils import MgProgressbar, generate_outfilename
+from musicalgestures._utils import MgProgressbar, generate_outfilename, wrap_str
 
 @jit(nopython=True)
 def beats_diff(beats, media):
@@ -140,7 +140,7 @@ def mg_warping_audiovisual_beats(self, audio_file, speed=(0.5,2), data=None, fil
         os.remove(target_name)
 
     pb.progress(85)        
-    temp_file_name = target_name + '_temp.avi'
+    temp_file_name = of + '_temp.avi'
     filename = of + '.avi'
 
     pb.progress(90)
@@ -192,10 +192,11 @@ def mg_warping_audiovisual_beats(self, audio_file, speed=(0.5,2), data=None, fil
     audio_file = extended_file_name
 
     pb.progress(115)
-    cmd = f'ffmpeg -i {temp_file_name} -i {audio_file} -c:v copy -c:a aac -strict experimental -t {video_beats_sync[-1] / fps} {target_name}'
+    cmd = f'ffmpeg -i {temp_file_name} -i {audio_file} -c:v copy -c:a aac -strict experimental -t {video_beats_sync[-1] / fps} {wrap_str(target_name)}'
+    
     pb.progress(120)
-    subprocess.call(cmd, shell=True)
-    pb.progress(125)
+    subprocess.check_call(cmd, shell=True) 
+    pb.progress(125)   
     os.remove(temp_file_name)
     pb.progress(130)
 
