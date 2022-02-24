@@ -19,6 +19,25 @@ def beats_diff(beats, media):
     return beats_diff
 
 def mg_warping_audiovisual_beats(self, audio_file, speed=(0.5,2), data=None, filtertype='Adaptative', thresh=0.05, kernel_size=5, target_name=None, overwrite=False):
+    """
+    Warp audio beats with visual beats (patterns of motion that can be shifted in time to control visual rhythm).
+    Visual beats are warped after computing a directogram which factors the magnitude of motion in the video into different angles.
+
+    Source: Abe Davis -- [Visual Rhythm and Beat](http://www.abedavis.com/files/papers/VisualRhythm_Davis18.pdf) (section 5)
+
+    Args:
+        audio_file (str): Path to the audio file.
+        speed (tuple, optional): Speed's change between the audiovisual beats which can be adjusted to slow down or speed up the visual rhythms. Defaults to (0.5,2).
+        data (array_like, optional): Computed directogram data can be added separately to avoid the directogram processing time (which can be quite long). Defaults to None.
+        filtertype (str, optional): 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. 'Adaptative' perform adaptative threshold as the weighted sum of 11 neighborhood pixels where weights are a Gaussian window. Defaults to 'Adaptative'.
+        thresh (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
+        kernel_size (int, optional): Size of structuring element. Defaults to 5.
+        target_name (str, optional): Target output name for the directogram. Defaults to None (which assumes that the input filename with the suffix "_dg" should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+
+    Returns:
+        MgVideo: A MgVideo as warping_audiovisual_beats for parent MgVideo
+    """
 
     # COMPUTE DIRECTOGRAMS ------------------------------------------------------------------------------------------------------
 
@@ -32,7 +51,7 @@ def mg_warping_audiovisual_beats(self, audio_file, speed=(0.5,2), data=None, fil
         vidcap = cv2.VideoCapture(self.filename)
         fps = int(vidcap.get(cv2.CAP_PROP_FPS))
 
-    # COMPUTE VISUAL AND AUDIO BEATS --------------------------------------------------------------------------------------------
+    # COMPUTE AUDIO AND VISUAL BEATS --------------------------------------------------------------------------------------------
 
     pb = MgProgressbar(total=130, prefix='Warping audiovisual beats:')
     pb.progress(0)
@@ -49,69 +68,68 @@ def mg_warping_audiovisual_beats(self, audio_file, speed=(0.5,2), data=None, fil
     pb.progress(20)
     audio_beats = librosa.beat.beat_track(onset_envelope=onset_envelopes,sr=sr, hop_length=512, trim=False, units='samples')
     pb.progress(25)
-    video_beats = librosa.beat.beat_track(onset_envelope=impact_envelopes,sr=fps, hop_length=1.0, trim=False, units='samples')
+    visual_beats = librosa.beat.beat_track(onset_envelope=impact_envelopes,sr=fps, hop_length=1.0, trim=False, units='samples')
 
-    # WARP VISUAL AND AUDIO BEATS -----------------------------------------------------------------------------------------------
+    # WARP AUDIO AND VISUAL BEATS -----------------------------------------------------------------------------------------------
 
     audio_differences = beats_diff(audio_beats[1], signal)
     pb.progress(30)
-    video_differences = beats_diff(video_beats[1], np.ndarray.flatten(directograms))
+    visual_differences = beats_diff(visual_beats[1], np.ndarray.flatten(directograms))
     pb.progress(35)
 
     # Asserting if the arrays have equal shape and elements
     assert np.array_equal(audio_beats[1], np.cumsum(audio_differences[:-1]))
-    assert np.array_equal(video_beats[1], np.cumsum(video_differences[:-1]))
+    assert np.array_equal(visual_beats[1], np.cumsum(visual_differences[:-1]))
 
     pb.progress(40)
     audio_diff_size = audio_differences.size
     audio_differences_sync = []
-    video_differences_sync = []
+    visual_differences_sync = []
 
-    # Loop through each audio and video beat difference index
+    # Loop through each audio and visual beat difference index
     pb.progress(45)
-    audio_index, video_index = 0, 0
+    audio_index, visual_index = 0, 0
     audio_diff = audio_differences[audio_index]
-    video_diff = video_differences[video_index]
+    visual_diff = visual_differences[visual_index]
 
     pb.progress(50)
     while True:
 
-        # Converting beat differences to time
-        video_time = video_diff / fps
+        # Convert beat differences to time
         audio_time = audio_diff / sr
+        visual_time = visual_diff / fps
 
-        speed_change = video_time / audio_time
+        speed_change = visual_time / audio_time
 
-        # If the video beat difference is too short, we check the next index
+        # If the visual beat difference is too short, we check the next index
         if speed_change < speed[0]:
-            video_index += 1
-            if video_index == video_differences.shape[0]:
+            visual_index += 1
+            if visual_index == visual_differences.shape[0]:
                 break
-            video_diff = video_differences[video_index]
+            visual_diff = visual_differences[visual_index]
 
         # If the audio beat difference is too short, we check the next index
         elif speed[1] < speed_change:   
             audio_index += 1
-            # Iterate continuously over the audio indexes until video indexes reach the size of the video differences array
+            # Iterate continuously over the audio indexes until visual indexes reach the size of the visual differences array
             audio_diff += audio_differences[audio_index % audio_diff_size]
 
         else:
             audio_index += 1
-            video_index += 1
+            visual_index += 1
             audio_differences_sync.append(audio_diff)
-            video_differences_sync.append(video_diff)
-
-            if video_index == video_differences.shape[0]:
+            visual_differences_sync.append(visual_diff)
+            if visual_index == visual_differences.shape[0]:
                 break
             audio_diff = audio_differences[audio_index % audio_diff_size]
-            video_diff = video_differences[video_index]
+            visual_diff = visual_differences[visual_index]
 
     pb.progress(55)
     audio_beats_sync = np.cumsum(audio_differences_sync[:-1])
     pb.progress(60)
-    video_beats_sync = np.cumsum(video_differences_sync[:-1])
+    visual_beats_sync = np.cumsum(visual_differences_sync[:-1])
        
-    # CONVERT VIDEO AND AUDIO ---------------------------------------------------------------------------------------------------
+    # RENDER AUDIOVISUAL BEATS --------------------------------------------------------------------------------------------------
     pb.progress(65)
     of, fex = os.path.splitext(self.filename)
 
@@ -153,18 +171,18 @@ def mg_warping_audiovisual_beats(self, audio_file, speed=(0.5,2), data=None, fil
     if ret == True:
 
         # Iterate through each output frame until the final beat is reached
-        last_audio_beat, last_video_beat = 0, 0
+        last_audio_beat, last_visual_beat = 0, 0
         input_frame_index = 0
 
-        for audio_beat, video_beat in zip(audio_beats_sync, video_beats_sync):
+        for audio_beat, visual_beat in zip(audio_beats_sync, visual_beats_sync):
             # Output time range
             audio_start_time = last_audio_beat / sr
             audio_end_time = audio_beat / sr
             # Input time range
-            video_start_time = last_video_beat / fps
-            video_end_time = video_beat / fps
+            visual_start_time = last_visual_beat / fps
+            visual_end_time = visual_beat / fps
             # Conversion multiplier
-            multiplier = (video_end_time - video_start_time) / (audio_end_time - audio_start_time)
+            multiplier = (visual_end_time - visual_start_time) / (audio_end_time - audio_start_time)
 
             # Iterate through every output frame in the current beat range
             output_start_index = int(np.ceil(audio_start_time * fps))
@@ -173,7 +191,7 @@ def mg_warping_audiovisual_beats(self, audio_file, speed=(0.5,2), data=None, fil
             for output_index in range(output_start_index, output_end_index + 1):
 
                 output_time = output_index / fps
-                input_time = (output_time - audio_start_time) * multiplier + video_start_time
+                input_time = (output_time - audio_start_time) * multiplier + visual_start_time
                 input_index = round(input_time * fps)
 
                 while input_frame_index < input_index:
@@ -181,9 +199,9 @@ def mg_warping_audiovisual_beats(self, audio_file, speed=(0.5,2), data=None, fil
                     input_frame_index += 1
                 output_stream.write(frame)
 
-            last_audio_beat, last_video_beat = audio_beat, video_beat
+            last_audio_beat, last_visual_beat = audio_beat, visual_beat
 
-    # Close video stream
+    # Close visual stream
     pb.progress(105)
     output_stream.release()
     pb.progress(110)
@@ -192,7 +210,7 @@ def mg_warping_audiovisual_beats(self, audio_file, speed=(0.5,2), data=None, fil
     audio_file = extended_file_name
 
     pb.progress(115)
-    cmd = f'ffmpeg -i {temp_file_name} -i {audio_file} -c:v copy -c:a aac -strict experimental -t {video_beats_sync[-1] / fps} {wrap_str(target_name)}'
+    cmd = f'ffmpeg -i {temp_file_name} -i {audio_file} -c:v copy -c:a aac -strict experimental -t {visual_beats_sync[-1] / fps} {wrap_str(target_name)}'
     
     pb.progress(120)
     subprocess.check_call(cmd, shell=True) 
@@ -200,7 +218,7 @@ def mg_warping_audiovisual_beats(self, audio_file, speed=(0.5,2), data=None, fil
     os.remove(temp_file_name)
     pb.progress(130)
 
-    # save motion video as warping_audiovisual_beats for parent MgVideo
+    # save warped video as warping_audiovisual_beats for parent MgVideo
     # we have to do this here since we are not using mg_warping_audiovisual_beats (that would normally save the result itself)
     self.warping_audiovisual_beats = musicalgestures.MgVideo(target_name, color=self.color, returned_by_process=True)
 

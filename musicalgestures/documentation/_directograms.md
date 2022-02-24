@@ -57,4 +57,4 @@ Source: Abe Davis -- [Visual Rhythm and Beat](http://www.abedavis.com/files/pape
 
 #### Returns
 
-- `MgFigure` - An MgFigure object referring to the internal figure and its data.
+- `MgFigure` - A MgFigure object referring to the internal figure and its data.

@@ -42,7 +42,6 @@ def mg_directograms(self, title=None, filtertype='Adaptative', thresh=0.05, kern
     Each columun of the directogram is computed as the weighted histogram (HISTOGRAM_BINS) of angles for the optical flow of an input frame.
 
     Source: Abe Davis -- [Visual Rhythm and Beat](http://www.abedavis.com/files/papers/VisualRhythm_Davis18.pdf) (section 4.1)
-    
 
     Args:
         title (str, optional): Optionally add title to the figure. Defaults to None, which uses 'Directogram' as a title. Defaults to None.
@@ -53,7 +52,7 @@ def mg_directograms(self, title=None, filtertype='Adaptative', thresh=0.05, kern
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
-        MgFigure: An MgFigure object referring to the internal figure and its data.
+        MgFigure: A MgFigure object referring to the internal figure and its data.
     """
 
     of, fex = os.path.splitext(self.filename)
