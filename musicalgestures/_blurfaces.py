@@ -9,6 +9,19 @@ from musicalgestures._centerface import CenterFace
 from musicalgestures._utils import MgProgressbar, convert_to_avi, generate_outfilename, wrap_str
 
 def scaling_mask(x1, y1, x2, y2, mask_scale=1.0):
+
+    """scaling_mask
+
+    Args:
+        x1 ([type]): [description]
+        y1 ([type]): [description]
+        x2 ([type]): [description]
+        y2 ([type]): [description]
+        mask_scale (float, optional): [description]. Defaults to 1.0.
+
+    Returns:
+        [type]: [description]
+    """
     s = mask_scale - 1.0
     h, w = y2 - y1, x2 - x1
     y1 -= h * s
@@ -18,6 +31,22 @@ def scaling_mask(x1, y1, x2, y2, mask_scale=1.0):
     return np.round([x1, y1, x2, y2]).astype(int)
 
 def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=True, draw_scores=False, color=(0, 0, 0), target_name=None, overwrite=False):
+
+    """mg_blurfaces
+
+    Args:
+        mask (str, optional): [description]. Defaults to 'blur'.
+        mask_image ([type], optional): [description]. Defaults to None.
+        mask_scale (float, optional): [description]. Defaults to 1.0.
+        ellipse (bool, optional): [description]. Defaults to True.
+        draw_scores (bool, optional): [description]. Defaults to False.
+        color (tuple, optional): [description]. Defaults to (0, 0, 0).
+        target_name ([type], optional): [description]. Defaults to None.
+        overwrite (bool, optional): [description]. Defaults to False.
+
+    Returns:
+        [type]: [description]
+    """
 
     of, fex = os.path.splitext(self.filename)
 
