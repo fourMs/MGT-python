@@ -32,6 +32,7 @@ setup(
         'matplotlib',
         'opencv-python',
         'scipy',
+        'scikit-image',
         'librosa',
         'ipython>=7.12'
     ],
