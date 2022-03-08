@@ -51,4 +51,4 @@ Source: Abe Davis -- [Visual Rhythm and Beat](http://www.abedavis.com/files/pape
 
 #### Returns
 
-- `MgVideo` - A MgVideo as warping_audiovisual_beats for parent MgVideo
+- `MgVideo` - A MgVideo as warp_audiovisual_beats for parent MgVideo

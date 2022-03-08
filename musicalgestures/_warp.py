@@ -36,7 +36,7 @@ def mg_warp_audiovisual_beats(self, audio_file, speed=(0.5,2), data=None, filter
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
-        MgVideo: A MgVideo as warping_audiovisual_beats for parent MgVideo
+        MgVideo: A MgVideo as warp_audiovisual_beats for parent MgVideo
     """
 
     # COMPUTE DIRECTOGRAMS ------------------------------------------------------------------------------------------------------
