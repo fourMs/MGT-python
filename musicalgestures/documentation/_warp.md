@@ -1,26 +1,26 @@
-# Warping
+# Warp
 
-> Auto-generated documentation for [_warping](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_warping.py) module.
+> Auto-generated documentation for [_warp](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_warp.py) module.
 
-- [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Warping
+- [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Warp
     - [beats_diff](#beats_diff)
-    - [mg_warping_audiovisual_beats](#mg_warping_audiovisual_beats)
+    - [mg_warp_audiovisual_beats](#mg_warp_audiovisual_beats)
 
 ## beats_diff
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_warping.py#L14)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_warp.py#L14)
 
 ```python
 @jit(nopython=True)
 def beats_diff(beats, media):
 ```
 
-## mg_warping_audiovisual_beats
+## mg_warp_audiovisual_beats
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_warping.py#L21)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_warp.py#L21)
 
 ```python
-def mg_warping_audiovisual_beats(
+def mg_warp_audiovisual_beats(
     self,
     audio_file,
     speed=(0.5, 2),
