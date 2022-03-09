@@ -71,7 +71,6 @@ def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=Tru
         target_name = generate_outfilename(target_name)
     if os.path.isfile(target_name):
         os.remove(target_name)       
-    temp_file_name = of + '_temp.avi'
 
     vidcap = cv2.VideoCapture(filename)
     fps = int(vidcap.get(cv2.CAP_PROP_FPS))
@@ -82,7 +81,7 @@ def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=Tru
     centerface = CenterFace()
 
     ret, frame = vidcap.read()
-    output_stream = cv2.VideoWriter(temp_file_name, cv2.VideoWriter_fourcc(*'mp4v'), fps, (frame.shape[1], frame.shape[0]))
+    output_stream = cv2.VideoWriter(target_name, cv2.VideoWriter_fourcc(*'mp4v'), fps, (frame.shape[1], frame.shape[0]))
 
     i = 0
 
@@ -154,10 +153,6 @@ def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=Tru
 
     output_stream.release()
     vidcap.release()
-
-    cmd = f'ffmpeg -i {temp_file_name} -c:v copy -c:a aac -strict experimental {wrap_str(target_name)}'
-    subprocess.check_call(cmd, shell=True)   
-    os.remove(temp_file_name)
 
     # save warped video as warping_audiovisual_beats for parent MgVideo
     # we have to do this here since we are not using mg_warping_audiovisual_beats (that would normally save the result itself)
