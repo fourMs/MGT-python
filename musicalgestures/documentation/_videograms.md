@@ -1,13 +1,13 @@
 # Videograms
 
-> Auto-generated documentation for [_videograms](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_videograms.py) module.
+> Auto-generated documentation for [_videograms](https://github.com/fourMs/MGT-python/blob/main/_videograms.py) module.
 
 - [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Videograms
     - [videograms_ffmpeg](#videograms_ffmpeg)
 
 ## videograms_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_videograms.py#L10)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_videograms.py#L10)
 
 ```python
 def videograms_ffmpeg(

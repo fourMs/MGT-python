@@ -218,8 +218,8 @@ def mg_warp_audiovisual_beats(self, audio_file, speed=(0.5,2), data=None, filter
     os.remove(temp_file_name)
     pb.progress(130)
 
-    # save warped video as warping_audiovisual_beats for parent MgVideo
-    # we have to do this here since we are not using mg_warping_audiovisual_beats (that would normally save the result itself)
+    # Save warped video as warp_audiovisual_beats for parent MgVideo
+    # we have to do this here since we are not using mg_warp_audiovisual_beats (that would normally save the result itself)
     self.warp_audiovisual_beats = musicalgestures.MgVideo(target_name, color=self.color, returned_by_process=True)
 
     return self.warp_audiovisual_beats

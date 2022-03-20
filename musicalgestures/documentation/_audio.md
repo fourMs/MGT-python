@@ -1,6 +1,6 @@
 # Audio
 
-> Auto-generated documentation for [_audio](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py) module.
+> Auto-generated documentation for [_audio](https://github.com/fourMs/MGT-python/blob/main/_audio.py) module.
 
 - [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Audio
     - [Audio](#audio)
@@ -15,7 +15,7 @@
 
 ## Audio
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L22)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_audio.py#L22)
 
 ```python
 class Audio():
@@ -26,7 +26,7 @@ Class container for audio analysis processes.
 
 ### Audio().descriptors
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L210)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_audio.py#L210)
 
 ```python
 def descriptors(
@@ -62,7 +62,7 @@ Renders a figure of plots showing spectral/loudness descriptors, including RMS e
 
 ### Audio().spectrogram
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L107)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_audio.py#L107)
 
 ```python
 def spectrogram(
@@ -98,7 +98,7 @@ Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
 ### Audio().tempogram
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L348)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_audio.py#L348)
 
 ```python
 def tempogram(
@@ -134,7 +134,7 @@ Renders a figure with a plots of onset strength and tempogram of the video/audio
 
 ### Audio().waveform
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L38)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_audio.py#L38)
 
 ```python
 def waveform(
@@ -164,7 +164,7 @@ Renders a figure showing the waveform of the video/audio file.
 
 ## mg_audio_descriptors
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L629)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_audio.py#L629)
 
 ```python
 def mg_audio_descriptors(
@@ -202,7 +202,7 @@ Renders a figure of plots showing spectral/loudness descriptors, including RMS e
 
 ## mg_audio_spectrogram
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L518)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_audio.py#L518)
 
 ```python
 def mg_audio_spectrogram(
@@ -240,7 +240,7 @@ Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
 ## mg_audio_tempogram
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L773)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_audio.py#L773)
 
 ```python
 def mg_audio_tempogram(
@@ -278,7 +278,7 @@ Renders a figure with a plots of onset strength and tempogram of the video/audio
 
 ## mg_audio_waveform
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L441)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_audio.py#L441)
 
 ```python
 def mg_audio_waveform(

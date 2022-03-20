@@ -1,13 +1,13 @@
 # Filter
 
-> Auto-generated documentation for [_filter](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_filter.py) module.
+> Auto-generated documentation for [_filter](https://github.com/fourMs/MGT-python/blob/main/_filter.py) module.
 
 - [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Filter
     - [filter_frame](#filter_frame)
 
 ## filter_frame
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_filter.py#L6)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_filter.py#L6)
 
 ```python
 def filter_frame(motion_frame, filtertype, thresh, kernel_size):

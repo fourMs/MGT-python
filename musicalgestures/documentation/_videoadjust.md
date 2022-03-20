@@ -1,6 +1,6 @@
 # Videoadjust
 
-> Auto-generated documentation for [_videoadjust](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_videoadjust.py) module.
+> Auto-generated documentation for [_videoadjust](https://github.com/fourMs/MGT-python/blob/main/_videoadjust.py) module.
 
 - [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Videoadjust
     - [contrast_brightness_ffmpeg](#contrast_brightness_ffmpeg)
@@ -8,7 +8,7 @@
 
 ## contrast_brightness_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_videoadjust.py#L6)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_videoadjust.py#L6)
 
 ```python
 def contrast_brightness_ffmpeg(
@@ -36,7 +36,7 @@ Applies contrast and brightness adjustments on the source video using ffmpeg.
 
 ## skip_frames_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_videoadjust.py#L61)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_videoadjust.py#L61)
 
 ```python
 def skip_frames_ffmpeg(filename, skip=0, target_name=None, overwrite=False):

@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import os
+
 from musicalgestures._utils import MgImage, MgProgressbar, convert_to_avi, generate_outfilename
 
 
