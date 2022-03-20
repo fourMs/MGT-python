@@ -11,7 +11,7 @@ class CenterFace(object):
         module_path = os.path.abspath(os.path.dirname(musicalgestures.__file__))
         
         self.landmarks = landmarks
-        self.net = cv2.dnn.readNetFromONNX(module_path + 'models/centerface.onnx')
+        self.net = cv2.dnn.readNetFromONNX(module_path + '/models/centerface.onnx')
         self.img_h_new, self.img_w_new, self.scale_h, self.scale_w = 0, 0, 0, 0
 
     def __call__(self, img, height, width, threshold=0.5):
