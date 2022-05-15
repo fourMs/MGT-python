@@ -6,7 +6,6 @@ import asyncio
 from musicalgestures._utils import MgProgressbar, get_length, get_widthheight, get_first_frame_as_image, get_box_video_ratio, roundup, crop_ffmpeg, wrap_str, unwrap_str, in_colab
 from musicalgestures._filter import filter_frame
 
-
 def find_motion_box_ffmpeg(filename, motion_box_thresh=0.1, motion_box_margin=12):
     """
     Helper function to find the area of motion in a video, using ffmpeg.
@@ -95,6 +94,73 @@ def find_motion_box_ffmpeg(filename, motion_box_thresh=0.1, motion_box_margin=12
         process.wait()
         raise KeyboardInterrupt
 
+def cropping_window(filename):
+
+    def draw_rectangle(event, x, y, flags, param):
+        # grab references to the global variables
+        global ref_point, crop
+
+        # if the left mouse button was clicked, record the starting
+        # (x, y) coordinates and indicate that cropping is being performed
+        if event == cv2.EVENT_LBUTTONDOWN:
+            ref_point = [(x, y)]
+
+        # check to see if the left mouse button was released
+        elif event == cv2.EVENT_LBUTTONUP:
+            # record the ending (x, y) coordinates and indicate that
+            # the cropping operation is finished
+            ref_point.append((x, y))
+
+            # draw a rectangle around the region of interest
+            cv2.rectangle(frame, ref_point[0], ref_point[1], (0, 255, 0), 2)
+            cv2.imshow('Draw rectangle and press "c" to crop or "r" to reset the window', frame)
+
+    # Load the video, get the first frame and setup the mouse callback function
+    cap = cv2.VideoCapture(filename)
+    cv2.namedWindow('Draw rectangle and press "c" to crop or "r" to reset the window')
+    cv2.setMouseCallback('Draw rectangle and press "c" to crop or "r" to reset the window', draw_rectangle)
+        
+    # keep looping until the 'c' key is pressed
+    firstFrame = True
+    while True: 
+        ret, frame = cap.read()  
+        clone = frame.copy()
+        
+        print('Draw rectangle with the mouse and press "c" to crop or "r" to reset the window')
+        while firstFrame: 
+            # display the first frame and wait for a keypress
+            cv2.imshow('Draw rectangle and press "c" to crop or "r" to reset the window', frame)
+            key = cv2.waitKey(1) & 0xFF
+
+            # press 'r' to reset the window
+            if key == ord("r"):
+                frame = clone.copy()            
+            # if the 'c' key is pressed, break from the loop
+            elif key == ord("c"):
+                firstFrame = False       
+                break
+        break
+
+    # close all open windows
+    cv2.destroyAllWindows()
+
+    y_start = ref_point[0][1]
+    y_stop = ref_point[1][1]
+    x_start = ref_point[0][0]
+    x_stop = ref_point[1][0] 
+
+    if x_stop < x_start:
+        temp = x_start
+        x_start = x_stop
+        x_stop = temp
+    if y_stop < y_start:
+        temp = y_start
+        y_start = y_stop
+        y_stop = temp
+
+    w, h, x, y = x_stop - x_start, y_stop - y_start, x_start, y_start
+
+    return w, h, x, y
 
 def mg_cropvideo_ffmpeg(
         filename,
@@ -118,42 +184,47 @@ def mg_cropvideo_ffmpeg(
         str: Path to the cropped video.
     """
 
-    global w, h, x, y
+    global x, y, w, h
 
-    pb = MgProgressbar(total=get_length(filename),
-                       prefix='Rendering cropped video:')
+    pb = MgProgressbar(total=get_length(filename), prefix='Rendering cropped video:')
 
     if crop_movement.lower() == 'manual':
         if not in_colab():
 
-            scale_ratio = get_box_video_ratio(filename)
-            width, height = get_widthheight(filename)
-            scaled_width, scaled_height = [
-                int(elem * scale_ratio) for elem in [width, height]]
-            first_frame_as_image = get_first_frame_as_image(
-                filename, pict_format='.jpg')
+            # scale_ratio = get_box_video_ratio(filename)
+            # width, height = get_widthheight(filename)
+            # scaled_width, scaled_height = [int(elem * scale_ratio) for elem in [width, height]]
+            # first_frame_as_image = get_first_frame_as_image(filename, pict_format='.jpg')
 
             # Cropping UI moved to another subprocess to avoid cv2.waitKey crashing Python with segmentation fault on Linux in Terminal
             import threading
-            x = threading.Thread(target=run_cropping_window, args=(
-                first_frame_as_image, scale_ratio, scaled_width, scaled_height))
+            import queue
+
+            que = queue.Queue()
+            t = threading.Thread(target=lambda q, arg1:q.put(cropping_window(arg1)), args=(que, filename))
+
+            t.start()
+            t.join()
+
+            w, h, x, y = que.get()
+
+            # x = threading.Thread(target=run_cropping_window, args=(first_frame_as_image, scale_ratio, scaled_width, scaled_height))
             # run_cropping_window(first_frame_as_image, scale_ratio, scaled_width, scaled_height)
-            x.start()
-            x.join()
+            # x.start()
+            # x.join()
 
         else:
             x, y, w, h = manual_text_input()
 
     elif crop_movement.lower() == 'auto':
-        w, h, x, y = find_motion_box_ffmpeg(
-            filename, motion_box_thresh=motion_box_thresh, motion_box_margin=motion_box_margin)
+        w, h, x, y = find_motion_box_ffmpeg(filename, motion_box_thresh=motion_box_thresh, motion_box_margin=motion_box_margin)
 
     cropped_video = crop_ffmpeg(filename, w, h, x, y, target_name=target_name, overwrite=overwrite)
 
-    if crop_movement.lower() == 'manual':
-        cv2.destroyAllWindows()
-        if not in_colab():
-            os.remove(first_frame_as_image)
+    # if crop_movement.lower() == 'manual':
+    #     cv2.destroyAllWindows()
+    #     if not in_colab():
+    #         os.remove(first_frame_as_image)
 
     return cropped_video
 
@@ -176,7 +247,6 @@ async def async_subprocess(command):
 
     if stderr:
         print(f'[stderr]\n{stderr.decode()}')
-
 
 def run_cropping_window(imgpath, scale_ratio, scaled_width, scaled_height):
 
@@ -201,7 +271,6 @@ def run_cropping_window(imgpath, scale_ratio, scaled_width, scaled_height):
         tsk = loop.create_task(async_subprocess(command))
     else:
         asyncio.run(async_subprocess(command))
-
 
 def manual_text_input():
     """
