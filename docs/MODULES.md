@@ -1,0 +1,37 @@
+# Mgt-python Modules
+
+> Auto-generated documentation modules index.
+
+Full list of [Mgt-python](README.md#mgt-python) project modules.
+
+- [MGT-python](README.md#mgt-python)
+- [Musicalgestures](musicalgestures/index.md#musicalgestures)
+    - [Audio](musicalgestures/_audio.md#audio)
+    - [Average](musicalgestures/_average.md#average)
+    - [Blurfaces](musicalgestures/_blurfaces.md#blurfaces)
+    - [CenterFace](musicalgestures/_centerface.md#centerface)
+    - [Centroid](musicalgestures/_centroid.md#centroid)
+    - [Cropping Window](musicalgestures/_cropping_window.md#cropping-window)
+    - [Cropvideo](musicalgestures/_cropvideo.md#cropvideo)
+    - [Directograms](musicalgestures/_directograms.md#directograms)
+    - [Filter](musicalgestures/_filter.md#filter)
+    - [Flow](musicalgestures/_flow.md#flow)
+    - [Grid](musicalgestures/_grid.md#grid)
+    - [History](musicalgestures/_history.md#history)
+    - [Impacts](musicalgestures/_impacts.md#impacts)
+    - [Input Test](musicalgestures/_input_test.md#input-test)
+    - [MgList](musicalgestures/_mglist.md#mglist)
+    - [Motionvideo](musicalgestures/_motionvideo.md#motionvideo)
+    - [Motionvideo Mp Render](musicalgestures/_motionvideo_mp_render.md#motionvideo-mp-render)
+    - [Motionvideo Mp Run](musicalgestures/_motionvideo_mp_run.md#motionvideo-mp-run)
+    - [Pose](musicalgestures/_pose.md#pose)
+    - [Show](musicalgestures/_show.md#show)
+    - [Show Window](musicalgestures/_show_window.md#show-window)
+    - [Utils](musicalgestures/_utils.md#utils)
+    - [Videoadjust](musicalgestures/_videoadjust.md#videoadjust)
+    - [Videograms](musicalgestures/_videograms.md#videograms)
+    - [Videoreader](musicalgestures/_videoreader.md#videoreader)
+    - [Warp](musicalgestures/_warp.md#warp)
+    - [Examples](musicalgestures/examples/index.md#examples)
+        - [Test Dance](musicalgestures/examples/test_dance.md#test-dance)
+        - [Test Pianist](musicalgestures/examples/test_pianist.md#test-pianist)
