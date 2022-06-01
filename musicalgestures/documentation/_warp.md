@@ -1,6 +1,6 @@
 # Warp
 
-> Auto-generated documentation for [_warp](https://github.com/fourMs/MGT-python/blob/main/_warp.py) module.
+> Auto-generated documentation for [_warp](https://github.com/fourMs/MGT-python/blob/master/_warp.py) module.
 
 - [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Warp
     - [beats_diff](#beats_diff)
@@ -8,7 +8,7 @@
 
 ## beats_diff
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_warp.py#L14)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/_warp.py#L14)
 
 ```python
 @jit(nopython=True)
@@ -17,7 +17,7 @@ def beats_diff(beats, media):
 
 ## mg_warp_audiovisual_beats
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_warp.py#L21)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/_warp.py#L21)
 
 ```python
 def mg_warp_audiovisual_beats(

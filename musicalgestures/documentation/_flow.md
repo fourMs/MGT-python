@@ -1,6 +1,6 @@
 # Flow
 
-> Auto-generated documentation for [_flow](https://github.com/fourMs/MGT-python/blob/main/_flow.py) module.
+> Auto-generated documentation for [_flow](https://github.com/fourMs/MGT-python/blob/master/_flow.py) module.
 
 - [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Flow
     - [Flow](#flow)
@@ -9,7 +9,7 @@
 
 ## Flow
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_flow.py#L9)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/_flow.py#L9)
 
 ```python
 class Flow():
@@ -20,7 +20,7 @@ Class container for the sparse and dense optical flow processes.
 
 ### Flow().dense
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_flow.py#L29)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/_flow.py#L29)
 
 ```python
 def dense(
@@ -60,7 +60,7 @@ Renders a dense optical flow video of the input video file using `cv2.calcOptica
 
 ### Flow().sparse
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_flow.py#L159)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/_flow.py#L159)
 
 ```python
 def sparse(

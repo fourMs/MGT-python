@@ -38,13 +38,13 @@ def impact_detection(envelopes, time, fps, local_mean=0.1, local_maxima=0.15):
 
     for i in range(max_window_delta + 4, len(time) - max_window_delta - 4):
         local_mean_window = (envelopes[i - mean_window_delta:i].mean() + envelopes[i+1:i+1 + mean_window_delta].mean()) / 2
-        local_max_window = max(envelopes[i - max_window_delta:i].max(), envelopes[i+1:i+1 + max_window_delta].max())
+        local_max_window = max(envelopes[i - max_window_delta:i].max(), envelopes[i+1:i+1 + max_window_delta].max()) 
 
         current = envelopes[i]
         if current > local_max_window and (current - local_mean_window) > 0.1 * global_max:
             impact.append(i)
 
-    return impact
+    return impact 
 
 
 def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.15, filtertype='Adaptative', thresh=0.05, kernel_size=5, target_name=None, overwrite=False):
@@ -136,8 +136,8 @@ def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.
 
     # Compute impact envelopes and impact detection
     impact_envelopes = impact_envelope(np.array(directograms))
-    impacts = impact_detection(impact_envelopes, directogram_times,
-                               fps, local_mean=local_mean, local_maxima=local_maxima)
+    impacts = np.array(impact_detection(impact_envelopes, directogram_times,
+                               fps, local_mean=local_mean, local_maxima=local_maxima)) / fps # convert to seconds
 
     fig, ax = plt.subplots(figsize=(12, 4), dpi=300)
 

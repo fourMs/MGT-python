@@ -15,6 +15,7 @@ Full list of [Musicalgestures](README.md#musicalgestures-index) project modules.
 - [Directograms](_directograms.md#directograms)
 - [Filter](_filter.md#filter)
 - [Flow](_flow.md#flow)
+- [Grid](_grid.md#grid)
 - [History](_history.md#history)
 - [Impacts](_impacts.md#impacts)
 - [Input Test](_input_test.md#input-test)

@@ -1,6 +1,6 @@
 # Examples
 
-> Auto-generated documentation for [examples](https://github.com/fourMs/MGT-python/blob/main/examples/__init__.py) module.
+> Auto-generated documentation for [examples](https://github.com/fourMs/MGT-python/blob/master/examples/__init__.py) module.
 
 - [Musicalgestures](../README.md#musicalgestures-index) / [Modules](../MODULES.md#musicalgestures-modules) / Examples
     - Modules

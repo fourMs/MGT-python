@@ -91,6 +91,7 @@ class MgVideo:
     from musicalgestures._warp import mg_warp_audiovisual_beats as warp_audiovisual_beats
     from musicalgestures._blurfaces import mg_blurfaces as blur_faces
     from musicalgestures._impacts import mg_impacts as impacts
+    from musicalgestures._grid import mg_grid as grid
     from musicalgestures._audio import mg_audio_spectrogram
     from musicalgestures._audio import mg_audio_descriptors
     from musicalgestures._motionvideo import plot_motion_metrics

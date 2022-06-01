@@ -1,6 +1,6 @@
 # Pose
 
-> Auto-generated documentation for [_pose](https://github.com/fourMs/MGT-python/blob/main/_pose.py) module.
+> Auto-generated documentation for [_pose](https://github.com/fourMs/MGT-python/blob/master/_pose.py) module.
 
 - [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Pose
     - [download_model](#download_model)
@@ -8,7 +8,7 @@
 
 ## download_model
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_pose.py#L344)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/_pose.py#L344)
 
 ```python
 def download_model(modeltype):
@@ -18,7 +18,7 @@ Helper function to automatically download model (.caffemodel) files.
 
 ## pose
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_pose.py#L13)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/_pose.py#L13)
 
 ```python
 def pose(

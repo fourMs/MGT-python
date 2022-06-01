@@ -1,6 +1,6 @@
 # Videoreader
 
-> Auto-generated documentation for [_videoreader](https://github.com/fourMs/MGT-python/blob/main/_videoreader.py) module.
+> Auto-generated documentation for [_videoreader](https://github.com/fourMs/MGT-python/blob/master/_videoreader.py) module.
 
 - [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Videoreader
     - [ReadError](#readerror)
@@ -8,7 +8,7 @@
 
 ## ReadError
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_videoreader.py#L9)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/_videoreader.py#L9)
 
 ```python
 class ReadError(Exception):
@@ -18,7 +18,7 @@ Base class for file read errors.
 
 ## mg_videoreader
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_videoreader.py#L14)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/_videoreader.py#L14)
 
 ```python
 def mg_videoreader(

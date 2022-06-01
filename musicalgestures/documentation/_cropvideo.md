@@ -1,9 +1,10 @@
 # Cropvideo
 
-> Auto-generated documentation for [_cropvideo](https://github.com/fourMs/MGT-python/blob/main/_cropvideo.py) module.
+> Auto-generated documentation for [_cropvideo](https://github.com/fourMs/MGT-python/blob/master/_cropvideo.py) module.
 
 - [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Cropvideo
     - [async_subprocess](#async_subprocess)
+    - [cropping_window](#cropping_window)
     - [find_motion_box_ffmpeg](#find_motion_box_ffmpeg)
     - [manual_text_input](#manual_text_input)
     - [mg_cropvideo_ffmpeg](#mg_cropvideo_ffmpeg)
@@ -11,15 +12,23 @@
 
 ## async_subprocess
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_cropvideo.py#L161)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/_cropvideo.py#L232)
 
 ```python
 async def async_subprocess(command):
 ```
 
+## cropping_window
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/_cropvideo.py#L97)
+
+```python
+def cropping_window(filename):
+```
+
 ## find_motion_box_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_cropvideo.py#L10)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/_cropvideo.py#L9)
 
 ```python
 def find_motion_box_ffmpeg(
@@ -50,7 +59,7 @@ Helper function to find the area of motion in a video, using ffmpeg.
 
 ## manual_text_input
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_cropvideo.py#L206)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/_cropvideo.py#L275)
 
 ```python
 def manual_text_input():
@@ -65,7 +74,7 @@ In this case we can't display the windowed cropping UI, so we ask for the values
 
 ## mg_cropvideo_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_cropvideo.py#L99)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/_cropvideo.py#L165)
 
 ```python
 def mg_cropvideo_ffmpeg(
@@ -95,7 +104,7 @@ Crops the video using ffmpeg.
 
 ## run_cropping_window
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_cropvideo.py#L181)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/_cropvideo.py#L251)
 
 ```python
 def run_cropping_window(imgpath, scale_ratio, scaled_width, scaled_height):

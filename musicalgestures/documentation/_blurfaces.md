@@ -1,6 +1,6 @@
 # Blurfaces
 
-> Auto-generated documentation for [_blurfaces](https://github.com/fourMs/MGT-python/blob/main/_blurfaces.py) module.
+> Auto-generated documentation for [_blurfaces](https://github.com/fourMs/MGT-python/blob/master/_blurfaces.py) module.
 
 - [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / Blurfaces
     - [mg_blurfaces](#mg_blurfaces)
@@ -8,7 +8,7 @@
 
 ## mg_blurfaces
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_blurfaces.py#L32)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/_blurfaces.py#L32)
 
 ```python
 def mg_blurfaces(
@@ -49,7 +49,7 @@ Credits: `centerface.onnx` (original) and `centerface.py` are based on https://g
 
 ## scaling_mask
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_blurfaces.py#L10)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/_blurfaces.py#L10)
 
 ```python
 def scaling_mask(x1, y1, x2, y2, mask_scale=1.0):

@@ -1,6 +1,6 @@
 # CenterFace
 
-> Auto-generated documentation for [_centerface](https://github.com/fourMs/MGT-python/blob/main/_centerface.py) module.
+> Auto-generated documentation for [_centerface](https://github.com/fourMs/MGT-python/blob/master/_centerface.py) module.
 
 - [Musicalgestures](README.md#musicalgestures-index) / [Modules](MODULES.md#musicalgestures-modules) / CenterFace
     - [CenterFace](#centerface)
@@ -12,7 +12,7 @@
 
 ## CenterFace
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_centerface.py#L4)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/_centerface.py#L7)
 
 ```python
 class CenterFace(object):
@@ -21,7 +21,7 @@ class CenterFace(object):
 
 ### CenterFace().decode
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_centerface.py#L48)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/_centerface.py#L53)
 
 ```python
 def decode(heatmap, scale, offset, landmark, size, threshold=0.1):
@@ -29,7 +29,7 @@ def decode(heatmap, scale, offset, landmark, size, threshold=0.1):
 
 ### CenterFace().inference_opencv
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_centerface.py#L16)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/_centerface.py#L21)
 
 ```python
 def inference_opencv(img, threshold):
@@ -37,7 +37,7 @@ def inference_opencv(img, threshold):
 
 ### CenterFace().nms
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_centerface.py#L82)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/_centerface.py#L87)
 
 ```python
 def nms(boxes, scores, nms_thresh):
@@ -45,7 +45,7 @@ def nms(boxes, scores, nms_thresh):
 
 ### CenterFace().postprocess
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_centerface.py#L30)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/_centerface.py#L35)
 
 ```python
 def postprocess(heatmap, lms, offset, scale, threshold):
@@ -53,7 +53,7 @@ def postprocess(heatmap, lms, offset, scale, threshold):
 
 ### CenterFace().transform
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/main/_centerface.py#L25)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/_centerface.py#L30)
 
 ```python
 def transform(h, w):
