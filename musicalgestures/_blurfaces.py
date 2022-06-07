@@ -2,6 +2,7 @@ import os
 import cv2
 import numpy as np
 import skimage.draw
+import pandas as pd
 
 import musicalgestures
 from musicalgestures._centerface import CenterFace
@@ -29,7 +30,7 @@ def scaling_mask(x1, y1, x2, y2, mask_scale=1.0):
     x2 += w * scale
     return np.round([x1, y1, x2, y2]).astype(int)
 
-def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=True, draw_scores=False, coordinates=False, color=(0, 0, 0), target_name=None, overwrite=False):
+def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=True, draw_scores=False, save_data=True, data_format='csv', color=(0, 0, 0), target_name=None, overwrite=False):
     """
     Automatic anonymization of faces in videos. 
     This function works by first detecting all human faces in each video frame and then applying an anonymization filter 
@@ -43,7 +44,8 @@ def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=Tru
         mask_scale (float, optional): Scale factor for face masks, to make sure that the masks cover the complete face. Defaults to 1.0.
         ellipse (bool, optional): Mask faces with blurred ellipses. Defaults to True.
         draw_scores (bool, optional): Draw detection faceness scores onto outputs (a score between 0 and 1 that roughly corresponds to the detector's confidence that something is a face). Defaults to False.
-        coordinates (bool, optional): A list of intergers corresponding to the scaled coordinates of the face masks (x1, y1, x2, y2) for each frame. When set to True the function returns two variables: the coordinates list and the MgVideo object. Defaults to False.
+        save_data (bool, optional): Whether we save the scaled coordinates of the face mask (x1, y1, x2, y2) for each frame to a file. Defaults to True
+        data_format (str, optional): Specifies format of blur_faces-data. Accepted values are 'csv', 'tsv' and 'txt'. For multiple output formats, use list, eg. ['csv', 'txt']. Defaults to 'csv'.
         color (tuple, optional): Customized color of the rectangle boxes. Defaults to black (0, 0, 0).
         target_name (str, optional): Target output name for the directogram. Defaults to None (which assumes that the input filename with the suffix "_blurred" should be used).
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
@@ -150,7 +152,7 @@ def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=Tru
                 if draw_scores:
                     cv2.putText(frame, f'{score:.2f}', (x1 + 0, y1 - 20), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0, 255, 0))
 
-                if coordinates == True:
+                if save_data == True:
                     data.append([x1, y1, x2, y2])
 
             output_stream.write(frame)
@@ -168,9 +170,88 @@ def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=Tru
     # Save warped video as blur_faces for parent MgVideo
     # we have to do this here since we are not using mg_blurfaces (that would normally save the result itself)
     self.blur_faces = musicalgestures.MgVideo(target_name, color=self.color, returned_by_process=True)
-   
-    if coordinates == True:
-        return data, self.blur_faces
+
+    def save_txt(of, data, data_format, target_name=target_name, overwrite=overwrite):
+        """
+        Helper function to export pose estimation data as textfile(s).
+        """
+        def save_single_file(of, data, data_format, target_name=target_name, overwrite=overwrite):
+            """
+            Helper function to export pose estimation data as a textfile using pandas.
+            """
+
+            headers = ['x1', 'y1', 'x2', 'y2']
+            data_format = data_format.lower()
+
+            df = pd.DataFrame(data=data, columns=headers)
+
+            if data_format == "tsv":
+
+                if target_name == None:
+                    target_name = of + '.tsv'
+                else:
+                    # take name, but enforce tsv
+                    target_name = os.path.splitext(target_name)[0] + '.tsv'
+                if not overwrite:
+                    target_name = generate_outfilename(target_name)
+
+                with open(target_name, 'wb') as f:
+                    head_str = ''
+                    for head in headers:
+                        head_str += head + '\t'
+                    head_str += '\n'
+                    f.write(head_str.encode())
+                    fmt_list = ['%.0f' for item in range(len(headers))]
+                    np.savetxt(f, df.values, delimiter='\t', fmt=fmt_list)
+
+            elif data_format == "csv":
+
+                if target_name == None:
+                    target_name = of + '.csv'
+                else:
+                    # take name, but enforce csv
+                    target_name = os.path.splitext(target_name)[0] + '.csv'
+                if not overwrite:
+                    target_name = generate_outfilename(target_name)
+
+                df.to_csv(target_name, index=None)
+
+            elif data_format == "txt":
+
+                if target_name == None:
+                    target_name = of + '.txt'
+                else:
+                    # take name, but enforce txt
+                    target_name = os.path.splitext(target_name)[0] + '.txt'
+                if not overwrite:
+                    target_name = generate_outfilename(target_name)
+
+                with open(target_name, 'wb') as f:
+                    head_str = ''
+                    for head in headers:
+                        head_str += head + ' '
+                    head_str += '\n'
+                    f.write(head_str.encode())
+                    fmt_list = ['%.0f' for item in range(len(headers))]
+                    np.savetxt(f, df.values, delimiter=' ', fmt=fmt_list)
+            elif data_format not in ["tsv", "csv", "txt"]:
+                print(f"Invalid data format: '{data_format}'.\nFalling back to '.csv'.")
+                save_single_file(of, data, "csv", target_name=target_name, overwrite=overwrite)
+
+        if type(data_format) == str:
+            save_single_file(of, data, data_format, target_name=target_name, overwrite=overwrite)
+
+        elif type(data_format) == list:
+            if all([item.lower() in ["csv", "tsv", "txt"] for item in data_format]):
+                data_format = list(set(data_format))
+                [save_single_file(of, data, item, target_name=target_name, overwrite=overwrite)
+                 for item in data_format]
+            else:
+                print(f"Unsupported formats in {data_format}.\nFalling back to '.csv'.")
+                save_single_file(of, data, "csv", target_name=target_name, overwrite=overwrite)
+
+    if save_data:    
+        return self.blur_faces, save_txt(of, data, data_format, target_name=target_name, overwrite=overwrite)
     else:
         return self.blur_faces
     
