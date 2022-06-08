@@ -4,7 +4,9 @@ import os
 from matplotlib import pyplot as plt
 from IPython.display import Image, display
 # try:
-from IPython.display import Video
+# from IPython.display import Video
+from IPython.display import HTML
+from base64 import b64encode
 # except:
 #     from IPython.core.display import Video
 # from base64 import b64encode
@@ -89,13 +91,30 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                 if file_dir == cwd:
                     video_to_display = os.path.relpath(
                         video_to_display, os.getcwd()).replace('\\', '/')
-                    display(Video(video_to_display,
-                            width=video_width, height=video_height))
+
+                    mp4 = open(video_to_display,'rb').read()
+                    data_url = "data:video/mp4;base64," + b64encode(mp4).decode()
+                    HTML(f"""
+                    <video width={video_width} height={video_height} controls>
+                        <source src="%s" type="video/mp4">
+                    </video>
+                    """ % data_url)
+                    # display(Video(video_to_display,
+                    #         width=video_width, height=video_height))
                 else:
                     video_to_display = os.path.relpath(
                         video_to_display, os.getcwd()).replace('\\', '/')
-                    display(Video(video_to_display, width=video_width,
-                            height=video_height))
+
+                    mp4 = open(video_to_display,'rb').read()
+                    data_url = "data:video/mp4;base64," + b64encode(mp4).decode()
+                    HTML(f"""
+                    <video width={video_width} height={video_height} controls>
+                        <source src="%s" type="video/mp4">
+                    </video>
+                    """ % data_url)
+
+                    # display(Video(video_to_display, width=video_width,
+                    #         height=video_height))
 
         else:
             print(
