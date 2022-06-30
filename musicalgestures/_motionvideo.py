@@ -173,7 +173,7 @@ def mg_motionplots(
         kernel_size (int, optional): Size of structuring element. Defaults to 5.
         unit (str, optional): Unit in QoM plot. Accepted values are 'seconds' or 'samples'. Defaults to 'seconds'.
         title (str, optional): Optionally add title to the plot. Defaults to None, which uses the file name as a title.
-        target_name (str, optional): Target output name for the plot. Defaults to None (which assumes that the input filename with the suffix "_motion_com_qom" should be used).
+        target_name (str, optional): Target output name for the plot. Defaults to None (which assumes that the input filename with the suffix "_motion_com_aom_qom" should be used).
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
@@ -181,7 +181,7 @@ def mg_motionplots(
     """
 
     if target_name == None:
-        target_name = self.of + '_motion_com_qom.png'
+        target_name = self.of + '_motion_com_aom_qom.png'
     if not overwrite:
         target_name = generate_outfilename(target_name)
 
@@ -308,7 +308,7 @@ def mg_motion(
         save_motiongrams (bool, optional): If True, outputs motiongrams. Defaults to True.
         save_video (bool, optional): If True, outputs the motion video. Defaults to True.
         target_name_video (str, optional): Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).
-        target_name_plot (str, optional): Target output name for the plot. Defaults to None (which assumes that the input filename with the suffix "_motion_com_qom" should be used).
+        target_name_plot (str, optional): Target output name for the plot. Defaults to None (which assumes that the input filename with the suffix "_motion_com_aom_qom" should be used).
         target_name_data (str, optional): Target output name for the data. Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).
         target_name_mgx (str, optional): Target output name for the vertical motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgx" should be used).
         target_name_mgy (str, optional): Target output name for the horizontal motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgy" should be used).
@@ -436,27 +436,28 @@ def mg_motion(
                         out.write(motion_frame_rgb.astype(np.uint8))
 
                 if save_plot | save_data:
-
                     # Area of Motion (AoM)
                     aombite = []
                     # Convert to gray scale
                     gray= cv2.cvtColor(motion_frame_rgb.astype(np.uint8), cv2.COLOR_BGR2GRAY)
-                    # Dilate motion frame to make differences more visible for contour detection
-                    dilated = cv2.dilate(gray, np.ones((5,5)), iterations=4)
-                    contours, hierarchy = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)  
+                    # Apply adaptative threshold on the video frame to make differences more visible for contour detection
+                    thresh = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 51, 2)
+                    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)  
                     # Get the largest contour to average the area of motion
-                    if len(contours) > 0:
+                    if len(contours) != 0:
                         largest = contours[0]
                         for contour in contours:
                             if cv2.contourArea(contour) > cv2.contourArea(largest):
-                                largest = contour       
-                            (x, y, w, h) = cv2.boundingRect(largest)
-                        
-                    # Append and normalize coordinates of the area of motion
-                    aombite.append([x/self.width, y/self.height, (x+w)/self.width,(y+h)/self.height])
+                                largest = contour  
+                        (x, y, w, h) = cv2.boundingRect(largest) 
+                        # Append and normalize coordinates of the area of motion
+                        aombite.append([x/self.width, y/self.height, (x+w)/self.width,(y+h)/self.height])
+                    else:
+                        aombite.append([0,0,0,0])
 
                     # Centroid of Motion (CoM) and Quantity of Motion (QoM)
                     combite, qombite = centroid(motion_frame_rgb.astype(np.uint8), self.width, self.height)
+
                     if ii == 0:
                         time = frame2ms(ii, self.fps)
                         com = combite.reshape(1, 2)
@@ -527,7 +528,7 @@ def mg_motion(
             if plot_title == None:
                 plot_title = os.path.basename(of + fex)
             # save plot as an MgImage at motion_plot for parent MgVideo
-            self.motion_plot = MgImage(plot_motion_metrics(of, self.fps, com, qom, self.width,
+            self.motion_plot = MgImage(plot_motion_metrics(of, self.fps, aom, com, qom, self.width,
                                        self.height, unit, plot_title, target_name_plot=target_name_plot, overwrite=overwrite))
 
         # resetting numpy warnings for dividing by 0
@@ -559,25 +560,39 @@ def mg_motion(
         return self
 
 
-def plot_motion_metrics(of, fps, com, qom, width, height, unit, title, target_name_plot, overwrite):
+def plot_motion_metrics(of, fps, aom, com, qom, width, height, unit, title, target_name_plot, overwrite):
     """
     Helper function to plot the centroid and quantity of motion using matplotlib.
     """
     plt.rc('text', usetex=False)
     # plt.rc('font', family='serif')
-    fig = plt.figure(figsize=(12, 6))
+    fig = plt.figure(figsize=(18, 6))
     fig.patch.set_facecolor('white')
     fig.patch.set_alpha(1)
     # add title
     fig.suptitle(title, fontsize=16)
-    ax = fig.add_subplot(1, 2, 1)
+
+    # Centroid of motion (CoM)
+    ax = fig.add_subplot(1, 3, 1)
     ax.scatter(com[:, 0]/width, com[:, 1]/height, s=2)
     ax.set_xlim((0, 1))
     ax.set_ylim((0, 1))
     ax.set_xlabel('Pixels normalized')
     ax.set_ylabel('Pixels normalized')
     ax.set_title('Centroid of motion')
-    ax = fig.add_subplot(1, 2, 2)
+
+    # Area of motion (AoM)
+    ax = fig.add_subplot(1, 3, 2)
+    ax.scatter(aom[:, 0], aom[:, 1], c='C0', s=2)
+    ax.scatter(aom[:, 2], aom[:, 3], c='C0', s=2)
+    ax.set_xlim((0, 1))
+    ax.set_ylim((0, 1))
+    ax.set_xlabel('Pixels normalized')
+    ax.set_ylabel('Pixels normalized')
+    ax.set_title('Area of motion')
+
+    # Quantity of motion (QoM)
+    ax = fig.add_subplot(1, 3, 3)
     if unit.lower() == 'seconds':
         ax.set_xlabel('Time[seconds]')
     else:
@@ -588,7 +603,7 @@ def plot_motion_metrics(of, fps, com, qom, width, height, unit, title, target_na
     ax.bar(np.arange(len(qom)-1)/fps, qom[1:]/(width*height))
 
     if target_name_plot == None:
-        target_name_plot = of + '_motion_com_qom.png'
+        target_name_plot = of + '_motion_com_aom_qom.png'
     else:
         # enforce png
         target_name_plot = os.path.splitext(target_name_plot)[0] + '.png'
