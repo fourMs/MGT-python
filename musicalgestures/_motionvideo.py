@@ -355,7 +355,8 @@ def mg_motion(
             gramx = np.zeros([1, self.width, 3])
             gramy = np.zeros([self.height, 1, 3])
         if save_data | save_plot:
-            time = np.array([])  # time in ms
+            time = np.array([]) # time in ms
+            aom = np.array([])  # area of motion
             qom = np.array([])  # quantity of motion
             com = np.array([])  # centroid of motion
 
@@ -424,8 +425,7 @@ def mg_motion(
                         gramx = np.append(gramx, movement_x, axis=0)
 
                 if self.color == False:
-                    motion_frame = cv2.cvtColor(
-                        motion_frame, cv2.COLOR_GRAY2BGR)
+                    motion_frame = cv2.cvtColor(motion_frame, cv2.COLOR_GRAY2BGR)
                     motion_frame_rgb = motion_frame
 
                 if save_video:
@@ -436,16 +436,37 @@ def mg_motion(
                         out.write(motion_frame_rgb.astype(np.uint8))
 
                 if save_plot | save_data:
-                    combite, qombite = centroid(motion_frame_rgb.astype(
-                        np.uint8), self.width, self.height)
+
+                    # Area of Motion (AoM)
+                    aombite = []
+                    # Convert to gray scale
+                    gray= cv2.cvtColor(motion_frame_rgb.astype(np.uint8), cv2.COLOR_BGR2GRAY)
+                    # Dilate motion frame to make differences more visible for contour detection
+                    dilated = cv2.dilate(gray, np.ones((5,5)), iterations=4)
+                    contours, hierarchy = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)  
+                    # Get the largest contour to average the area of motion
+                    if len(contours) > 0:
+                        largest = contours[0]
+                        for contour in contours:
+                            if cv2.contourArea(contour) > cv2.contourArea(largest):
+                                largest = contour       
+                            (x, y, w, h) = cv2.boundingRect(largest)
+                        
+                    # Append and normalize coordinates of the area of motion
+                    aombite.append([x/self.width, y/self.height, (x+w)/self.width,(y+h)/self.height])
+
+                    # Centroid of Motion (CoM) and Quantity of Motion (QoM)
+                    combite, qombite = centroid(motion_frame_rgb.astype(np.uint8), self.width, self.height)
                     if ii == 0:
                         time = frame2ms(ii, self.fps)
                         com = combite.reshape(1, 2)
                         qom = qombite
+                        aom = np.array(aombite).reshape(1, 4)
                     else:
                         time = np.append(time, frame2ms(ii, self.fps))
                         com = np.append(com, combite.reshape(1, 2), axis=0)
                         qom = np.append(qom, qombite)
+                        aom = np.append(aom, np.array(aombite).reshape(1, 4), axis=0)
             else:
                 pb.progress(self.length)
                 break
@@ -499,7 +520,7 @@ def mg_motion(
             self.motiongram_y = MgImage(target_name_mgy)
 
         if save_data:
-            save_txt(of, time, com, qom, self.width, self.height, data_format,
+            save_txt(of, time, aom, com, qom, self.width, self.height, data_format,
                      target_name_data=target_name_data, overwrite=overwrite)
 
         if save_plot:
@@ -579,17 +600,18 @@ def plot_motion_metrics(of, fps, com, qom, width, height, unit, title, target_na
     return target_name_plot
 
 
-def save_txt(of, time, com, qom, width, height, data_format, target_name_data, overwrite):
+def save_txt(of, time, aom, com, qom, width, height, data_format, target_name_data, overwrite):
     """
     Helper function to export motion data as textfile(s).
     """
-    def save_single_file(of, time, com, qom, width, height, data_format, target_name_data, overwrite):
+    def save_single_file(of, time, aom, com, qom, width, height, data_format, target_name_data, overwrite):
         """
         Helper function to export motion data as a textfile using pandas.
         """
         data_format = data_format.lower()
         df = pd.DataFrame({'Time': time, 'Qom': qom, 'ComX': com.transpose()[
-                          0]/width, 'ComY': com.transpose()[1]/height})
+                          0]/width, 'ComY': com.transpose()[1]/height, 
+                          'AomX1': aom.transpose()[0], 'AomY1': aom.transpose()[1], 'AomX2': aom.transpose()[2], 'AomY2': aom.transpose()[3]})
 
         if data_format == "tsv":
 
@@ -597,15 +619,13 @@ def save_txt(of, time, com, qom, width, height, data_format, target_name_data, o
                 target_name_data = of+'_motion.tsv'
             else:
                 # take name, but enforce tsv
-                target_name_data = os.path.splitext(
-                    target_name_data)[0] + '.tsv'
+                target_name_data = os.path.splitext(target_name_data)[0] + '.tsv'
             if not overwrite:
                 target_name_data = generate_outfilename(target_name_data)
 
             with open(target_name_data, 'wb') as f:
-                f.write(b'Time\tQom\tComX\tComY\n')
-                np.savetxt(f, df.values, delimiter='\t',
-                           fmt=['%d', '%d', '%.15f', '%.15f'])
+                f.write(b'Time\tQom\tComX\tComY\tAomX1\tAomY1\tAomX2\tAomY2\n')
+                np.savetxt(f, df.values, delimiter='\t',fmt=['%d', '%d', '%.15f', '%.15f', '%.15f', '%.15f', '%.15f', '%.15f'])
 
         elif data_format == "csv":
 
@@ -613,8 +633,7 @@ def save_txt(of, time, com, qom, width, height, data_format, target_name_data, o
                 target_name_data = of+'_motion.csv'
             else:
                 # take name, but enforce csv
-                target_name_data = os.path.splitext(
-                    target_name_data)[0] + '.csv'
+                target_name_data = os.path.splitext(target_name_data)[0] + '.csv'
             if not overwrite:
                 target_name_data = generate_outfilename(target_name_data)
 
@@ -626,33 +645,32 @@ def save_txt(of, time, com, qom, width, height, data_format, target_name_data, o
                 target_name_data = of+'_motion.txt'
             else:
                 # take name, but enforce txt
-                target_name_data = os.path.splitext(
-                    target_name_data)[0] + '.txt'
+                target_name_data = os.path.splitext(target_name_data)[0] + '.txt'
             if not overwrite:
                 target_name_data = generate_outfilename(target_name_data)
 
             with open(target_name_data, 'wb') as f:
-                f.write(b'Time Qom ComX ComY\n')
+                f.write(b'Time Qom ComX ComY AomX1 AomY1 AomX2 AomY2\n')
                 np.savetxt(f, df.values, delimiter=' ',
-                           fmt=['%d', '%d', '%.15f', '%.15f'])
+                           fmt=['%d', '%d', '%.15f', '%.15f', '%.15f', '%.15f', '%.15f', '%.15f'])
 
         elif data_format not in ["tsv", "csv", "txt"]:
             print(
                 f"Invalid data format: '{data_format}'.\nFalling back to '.csv'.")
-            save_single_file(of, time, com, qom, width, height, "csv",
+            save_single_file(of, time, aom, com, qom, width, height, "csv",
                              target_name_data=target_name_data, overwrite=overwrite)
 
     if type(data_format) == str:
-        save_single_file(of, time, com, qom, width, height, data_format,
+        save_single_file(of, time, aom, com, qom, width, height, data_format,
                          target_name_data=target_name_data, overwrite=overwrite)
 
     elif type(data_format) == list:
         if all([item.lower() in ["csv", "tsv", "txt"] for item in data_format]):
             data_format = list(set(data_format))
-            [save_single_file(of, time, com, qom, width, height, item, target_name_data=target_name_data, overwrite=overwrite)
+            [save_single_file(of, time, aom, com, qom, width, height, item, target_name_data=target_name_data, overwrite=overwrite)
              for item in data_format]
         else:
             print(
                 f"Unsupported formats in {data_format}.\nFalling back to '.csv'.")
-            save_single_file(of, time, com, qom, width, height, "csv",
+            save_single_file(of, time, aom, com, qom, width, height, "csv",
                              target_name_data=target_name_data, overwrite=overwrite)
