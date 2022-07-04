@@ -63,7 +63,7 @@ centroid of motion for each frame with timecodes in milliseconds.
 - `save_motiongrams` *bool, optional* - If True, outputs motiongrams. Defaults to True.
 - `save_video` *bool, optional* - If True, outputs the motion video. Defaults to True.
 - `target_name_video` *str, optional* - Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).
-- `target_name_plot` *str, optional* - Target output name for the plot. Defaults to None (which assumes that the input filename with the suffix "_motion_com_qom" should be used).
+- `target_name_plot` *str, optional* - Target output name for the plot. Defaults to None (which assumes that the input filename with the suffix "_motion_com_aom_qom" should be used).
 - `target_name_data` *str, optional* - Target output name for the data. Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).
 - `target_name_mgx` *str, optional* - Target output name for the vertical motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgx" should be used).
 - `target_name_mgy` *str, optional* - Target output name for the horizontal motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgy" should be used).
@@ -173,7 +173,7 @@ Shortcut for [mg_motion](#mg_motion) to only render motion plots.
 - `kernel_size` *int, optional* - Size of structuring element. Defaults to 5.
 - `unit` *str, optional* - Unit in QoM plot. Accepted values are 'seconds' or 'samples'. Defaults to 'seconds'.
 - `title` *str, optional* - Optionally add title to the plot. Defaults to None, which uses the file name as a title.
-- `target_name` *str, optional* - Target output name for the plot. Defaults to None (which assumes that the input filename with the suffix "_motion_com_qom" should be used).
+- `target_name` *str, optional* - Target output name for the plot. Defaults to None (which assumes that the input filename with the suffix "_motion_com_aom_qom" should be used).
 - `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
 #### Returns
@@ -217,12 +217,13 @@ Shortcut to only render the motion video. Uses musicalgestures._utils.motionvide
 
 ## plot_motion_metrics
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L541)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L563)
 
 ```python
 def plot_motion_metrics(
     of,
     fps,
+    aom,
     com,
     qom,
     width,
@@ -238,12 +239,13 @@ Helper function to plot the centroid and quantity of motion using matplotlib.
 
 ## save_txt
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L582)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L620)
 
 ```python
 def save_txt(
     of,
     time,
+    aom,
     com,
     qom,
     width,

@@ -7,12 +7,11 @@
 
 ## mg_grid
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_grid.py#L6)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_grid.py#L7)
 
 ```python
 def mg_grid(
     self,
-    nth_frame=10,
     height=300,
     rows=3,
     cols=3,
@@ -27,7 +26,6 @@ Generates frame strip video preview using ffmpeg.
 
 #### Arguments
 
-- `nth_frame` *int, optional* - Select one frame every nth frames. Defaults to 10.
 - `height` *int, optional* - Frame height, width is adjusted automatically to keep the correct aspect ratio. Defaults to 300.
 - `rows` *int, optional* - Number of rows of the grid. Defaults to 3.
 - `cols` *int, optional* - Number of columns of the grid. Defaults to 3.
