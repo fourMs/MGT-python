@@ -61,7 +61,7 @@ If you use this toolbox in your research, please cite this article:
 
 ## Credits
 
-Developers: [Frida Furmyr](https://github.com/fridafu), [Marcus Widmer](https://github.com/marcuswidmer), [Balint Laczko](https://github.com/balintlaczko), [Alexander Refsum Jensenius](https://github.com/alexarje/)
+Developers: [Balint Laczko](https://github.com/balintlaczko), [Joachim Poutaraud](https://github.com/joachimpoutaraud), [Frida Furmyr](https://github.com/fridafu), [Marcus Widmer](https://github.com/marcuswidmer), [Alexander Refsum Jensenius](https://github.com/alexarje/)
 
 ## License
 
