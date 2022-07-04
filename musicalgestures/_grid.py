@@ -1,14 +1,14 @@
 import os
+import cv2
 import musicalgestures
 import matplotlib.pyplot as plt
 from musicalgestures._utils import MgImage, generate_outfilename, ffmpeg_cmd, get_length
 
-def mg_grid(self, nth_frame=10, height=300, rows=3, cols=3, padding=0, margin=0, target_name=None, overwrite=False):
+def mg_grid(self, height=300, rows=3, cols=3, padding=0, margin=0, target_name=None, overwrite=False):
     """
     Generates frame strip video preview using ffmpeg.
 
     Args:
-        nth_frame (int, optional): Select one frame every nth frames. Defaults to 10.
         height (int, optional): Frame height, width is adjusted automatically to keep the correct aspect ratio. Defaults to 300.
         rows (int, optional): Number of rows of the grid. Defaults to 3.
         cols (int, optional): Number of columns of the grid. Defaults to 3.
@@ -29,6 +29,11 @@ def mg_grid(self, nth_frame=10, height=300, rows=3, cols=3, padding=0, margin=0,
         target_name = of + '_grid.png'
     if not overwrite:
         target_name = generate_outfilename(target_name)
+
+    # Get the number of frames
+    cap = cv2.VideoCapture(self.filename)
+    nb_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    nth_frame = int(nb_frames / (rows*cols))
 
     # Define the grid specifications
     grid = f"select=not(mod(n\,{nth_frame})),scale=-1:{height},tile={cols}x{rows}:padding={padding}:margin={margin}"

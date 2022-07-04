@@ -566,41 +566,43 @@ def plot_motion_metrics(of, fps, aom, com, qom, width, height, unit, title, targ
     """
     plt.rc('text', usetex=False)
     # plt.rc('font', family='serif')
-    fig = plt.figure(figsize=(18, 6))
+    fig = plt.figure(figsize=(12, 8))
     fig.patch.set_facecolor('white')
     fig.patch.set_alpha(1)
     # add title
     fig.suptitle(title, fontsize=16)
 
     # Centroid of motion (CoM)
-    ax = fig.add_subplot(1, 3, 1)
+    ax = fig.add_subplot(2, 2, 1)
     ax.scatter(com[:, 0]/width, com[:, 1]/height, s=2)
     ax.set_xlim((0, 1))
     ax.set_ylim((0, 1))
     ax.set_xlabel('Pixels normalized')
     ax.set_ylabel('Pixels normalized')
-    ax.set_title('Centroid of motion')
+    ax.set_title('Centroid of motion (CoM)')
 
     # Area of motion (AoM)
-    ax = fig.add_subplot(1, 3, 2)
+    ax = fig.add_subplot(2, 2, 2)
     ax.scatter(aom[:, 0], aom[:, 1], c='C0', s=2)
     ax.scatter(aom[:, 2], aom[:, 3], c='C0', s=2)
     ax.set_xlim((0, 1))
     ax.set_ylim((0, 1))
     ax.set_xlabel('Pixels normalized')
     ax.set_ylabel('Pixels normalized')
-    ax.set_title('Area of motion')
+    ax.set_title('Area of motion (AoM)')
 
     # Quantity of motion (QoM)
-    ax = fig.add_subplot(1, 3, 3)
+    ax = fig.add_subplot(2, 2, (3,4))
     if unit.lower() == 'seconds':
         ax.set_xlabel('Time[seconds]')
     else:
         ax.set_xlabel('Time[samples]')
         fps = 1
     ax.set_ylabel('Pixels normalized')
-    ax.set_title('Quantity of motion')
+    ax.set_title('Quantity of motion (QoM)')
     ax.bar(np.arange(len(qom)-1)/fps, qom[1:]/(width*height))
+
+    plt.tight_layout()
 
     if target_name_plot == None:
         target_name_plot = of + '_motion_com_aom_qom.png'
