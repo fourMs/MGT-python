@@ -6,7 +6,7 @@ import pandas as pd
 
 import musicalgestures
 from musicalgestures._centerface import CenterFace
-from musicalgestures._utils import MgProgressbar, convert_to_avi, generate_outfilename
+from musicalgestures._utils import MgProgressbar, convert_to_avi, generate_outfilename, frame2ms
 
 def scaling_mask(x1, y1, x2, y2, mask_scale=1.0):
     """
@@ -44,7 +44,7 @@ def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=Tru
         mask_scale (float, optional): Scale factor for face masks, to make sure that the masks cover the complete face. Defaults to 1.0.
         ellipse (bool, optional): Mask faces with blurred ellipses. Defaults to True.
         draw_scores (bool, optional): Draw detection faceness scores onto outputs (a score between 0 and 1 that roughly corresponds to the detector's confidence that something is a face). Defaults to False.
-        save_data (bool, optional): Whether we save the scaled coordinates of the face mask (x1, y1, x2, y2) for each frame to a file. Defaults to True
+        save_data (bool, optional): Whether to save the scaled coordinates of the face mask (time, x1, y1, x2, y2) for each frame to a file. Defaults to True.
         data_format (str, optional): Specifies format of blur_faces-data. Accepted values are 'csv', 'tsv' and 'txt'. For multiple output formats, use list, eg. ['csv', 'txt']. Defaults to 'csv'.
         color (tuple, optional): Customized color of the rectangle boxes. Defaults to black (0, 0, 0).
         target_name (str, optional): Target output name for the directogram. Defaults to None (which assumes that the input filename with the suffix "_blurred" should be used).
@@ -153,7 +153,8 @@ def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=Tru
                     cv2.putText(frame, f'{score:.2f}', (x1 + 0, y1 - 20), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0, 255, 0))
 
                 if save_data == True:
-                    data.append([x1, y1, x2, y2])
+                    time = frame2ms(i, self.fps)
+                    data.append([time, x1, y1, x2, y2])
 
             output_stream.write(frame)
 
@@ -180,7 +181,7 @@ def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=Tru
             Helper function to export pose estimation data as a textfile using pandas.
             """
 
-            headers = ['x1', 'y1', 'x2', 'y2']
+            headers = ['time (ms)', 'x1', 'y1', 'x2', 'y2']
             data_format = data_format.lower()
 
             df = pd.DataFrame(data=data, columns=headers)
