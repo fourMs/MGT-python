@@ -315,9 +315,10 @@ class Audio:
         ax[0].legend(loc='upper right')
 
         plt.tight_layout()
-        plt.savefig(target_name, format='png', transparent=False)
 
-        if not autoshow:
+        if autoshow:
+            plt.savefig(target_name, format='png', transparent=False)
+        else:
             plt.close()
 
         # create MgFigure

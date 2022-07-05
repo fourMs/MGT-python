@@ -1,15 +1,18 @@
 import musicalgestures
+import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
+import matplotlib
 import cv2
 import os
+import librosa 
 import numpy as np
 import pandas as pd
 from scipy.signal import medfilt2d
 from musicalgestures._centroid import centroid
-from musicalgestures._utils import extract_wav, embed_audio_in_video, frame2ms, MgProgressbar, MgImage, convert_to_avi, get_length, get_widthheight, motionvideo_ffmpeg, generate_outfilename  # ,motiongrams_ffmpeg
+from musicalgestures._utils import extract_wav, embed_audio_in_video, frame2ms, MgProgressbar, MgFigure, MgImage, has_audio, convert_to_avi, get_length, get_widthheight, motionvideo_ffmpeg, generate_outfilename  # ,motiongrams_ffmpeg
 from musicalgestures._filter import filter_frame
 from musicalgestures._mglist import MgList
-
+from musicalgestures._audio import mg_audio_descriptors
 
 def mg_motiongrams(
         self,
@@ -159,6 +162,7 @@ def mg_motionplots(
         thresh=0.05,
         blur='None',
         kernel_size=5,
+        audio_descriptors=False,
         unit='seconds',
         title=None,
         target_name=None,
@@ -192,6 +196,7 @@ def mg_motionplots(
         blur=blur,
         kernel_size=kernel_size,
         unit=unit,
+        audio_descriptors=audio_descriptors,
         save_data=False,
         save_motiongrams=False,
         save_plot=True,
@@ -274,6 +279,7 @@ def mg_motion(
         inverted_motiongram=False,
         unit='seconds',
         equalize_motiongram=True,
+        audio_descriptors=False,
         save_plot=True,
         plot_title=None,
         save_data=True,
@@ -333,6 +339,9 @@ def mg_motion(
                 self.as_avi = musicalgestures.MgVideo(file_as_avi)
             # point of and fex to the avi version
             of, fex = self.as_avi.of, self.as_avi.fex
+
+        if audio_descriptors:
+            audio_descriptors = self
 
         vidcap = cv2.VideoCapture(of+fex)
         ret, frame = vidcap.read()
@@ -528,8 +537,9 @@ def mg_motion(
             if plot_title == None:
                 plot_title = os.path.basename(of + fex)
             # save plot as an MgImage at motion_plot for parent MgVideo
-            self.motion_plot = MgImage(plot_motion_metrics(of, self.fps, aom, com, qom, self.width,
+            self.motion_plot = MgImage(plot_motion_metrics(of, self.fps, aom, com, qom, audio_descriptors, self.width,
                                        self.height, unit, plot_title, target_name_plot=target_name_plot, overwrite=overwrite))
+              
 
         # resetting numpy warnings for dividing by 0
         np.seterr(divide='warn', invalid='warn')
@@ -560,20 +570,65 @@ def mg_motion(
         return self
 
 
-def plot_motion_metrics(of, fps, aom, com, qom, width, height, unit, title, target_name_plot, overwrite):
+def plot_motion_metrics(of, fps, aom, com, qom, audio_descriptors, width, height, unit, title, target_name_plot, overwrite):
     """
     Helper function to plot the centroid and quantity of motion using matplotlib.
     """
     plt.rc('text', usetex=False)
-    # plt.rc('font', family='serif')
-    fig = plt.figure(figsize=(12, 8))
+    fig = plt.figure(figsize=(12, 8), dpi=300)
     fig.patch.set_facecolor('white')
     fig.patch.set_alpha(1)
     # add title
     fig.suptitle(title, fontsize=16)
+    # plt.rc('font', family='serif')
+    gs = gridspec.GridSpec(2, 2)
+
+    # Adding audio descriptors
+    if audio_descriptors != False:
+
+        fig = plt.figure(figsize=(12, 16), dpi=300)
+        fig.patch.set_facecolor('white')
+        fig.patch.set_alpha(1)
+        # add title
+        fig.suptitle(title, fontsize=16)
+
+        descriptors = audio_descriptors.audio.descriptors(autoshow=False).data
+        gs = gridspec.GridSpec(5, 2)
+
+        freq_ticks = [elem*100 for elem in range(10)]
+        freq_ticks = [250]
+        freq = 500
+        while freq < descriptors['sr']/2:
+            freq_ticks.append(freq)
+            freq *= 1.5
+
+        freq_ticks = [round(elem, -1) for elem in freq_ticks]
+        freq_ticks_labels = [str(round(elem/1000, 1)) +
+                             'k' if elem > 1000 else int(round(elem)) for elem in freq_ticks]
+
+        times = librosa.times_like(descriptors['cent'], sr=descriptors['sr'], n_fft=2048, hop_length=descriptors['hop_size'])
+
+        ax = plt.subplot(gs[2, :])
+        ax.semilogy(times, descriptors['rms'][0], label='RMS Energy')
+        ax.legend(loc='upper right')
+
+        ax = plt.subplot(gs[3, :])
+        ax.plot(times, descriptors['flatness'].T, label='Flatness', color='y')
+        ax.legend(loc='upper right')
+
+        ax = plt.subplot(gs[4, :])
+        # get rid of "default" ticks
+        ax.yaxis.set_minor_locator(matplotlib.ticker.NullLocator())
+        ax.set(yticks=(freq_ticks))
+        ax.set(yticklabels=(freq_ticks_labels))
+        ax.fill_between(times, descriptors['cent'][0] - descriptors['spec_bw'][0], descriptors['cent'][0] + descriptors['spec_bw'][0], alpha=0.5, label='Centroid +- bandwidth')
+        ax.plot(times, descriptors['cent'].T, label='Centroid', color='y')
+        ax.plot(times, descriptors['rolloff'][0], label='Roll-off frequency (0.99)')
+        ax.plot(times, descriptors['rolloff_min'][0], color='r',label='Roll-off frequency (0.01)')
+        ax.legend(loc='upper right')
 
     # Centroid of motion (CoM)
-    ax = fig.add_subplot(2, 2, 1)
+    ax = plt.subplot(gs[0, 0])
     ax.scatter(com[:, 0]/width, com[:, 1]/height, s=2)
     ax.set_xlim((0, 1))
     ax.set_ylim((0, 1))
@@ -582,7 +637,7 @@ def plot_motion_metrics(of, fps, aom, com, qom, width, height, unit, title, targ
     ax.set_title('Centroid of motion (CoM)')
 
     # Area of motion (AoM)
-    ax = fig.add_subplot(2, 2, 2)
+    ax = plt.subplot(gs[0, 1])
     ax.scatter(aom[:, 0], aom[:, 1], c='C0', s=2)
     ax.scatter(aom[:, 2], aom[:, 3], c='C0', s=2)
     ax.set_xlim((0, 1))
@@ -592,7 +647,7 @@ def plot_motion_metrics(of, fps, aom, com, qom, width, height, unit, title, targ
     ax.set_title('Area of motion (AoM)')
 
     # Quantity of motion (QoM)
-    ax = fig.add_subplot(2, 2, (3,4))
+    ax = plt.subplot(gs[1, :])
     if unit.lower() == 'seconds':
         ax.set_xlabel('Time[seconds]')
     else:
