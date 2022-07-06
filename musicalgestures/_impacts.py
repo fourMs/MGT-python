@@ -96,7 +96,7 @@ def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.
     pb = MgProgressbar(total=length, prefix='Rendering impact envelopes:')
 
     directograms = []
-    directogram_times = np.zeros((length-1,))
+    directogram_times = []
     ret, frame = vidcap.read()
     prev_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -114,15 +114,14 @@ def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.
                     next_frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
             else:
                 # Frame Thresholding: apply threshold filter and median filter (of `kernel_size`x`kernel_size`) to the frame.
-                next_frame = filter_frame(
-                    next_frame, filtertype, thresh, kernel_size)
+                next_frame = filter_frame(next_frame, filtertype, thresh, kernel_size)
 
             # Renders a dense optical flow video of the input video file using `cv2.calcOpticalFlowFarneback()`.
             # The description of the matching parameters are taken from the cv2 documentation.
             optical_flow = cv2.calcOpticalFlowFarneback(
                 prev_frame, next_frame, None, 0.5, 3, 15, 3, 5, 1.2, 0)
             directograms.append(directogram(optical_flow))
-            directogram_times[i] = len(directograms) / fps
+            directogram_times.append(len(directograms) / fps) 
             prev_frame = next_frame
 
         else:
@@ -136,8 +135,7 @@ def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.
 
     # Compute impact envelopes and impact detection
     impact_envelopes = impact_envelope(np.array(directograms))
-    impacts = np.array(impact_detection(impact_envelopes, directogram_times,
-                               fps, local_mean=local_mean, local_maxima=local_maxima)) / fps # convert to seconds
+    impacts = np.array(impact_detection(impact_envelopes, np.array(directogram_times), fps, local_mean=local_mean, local_maxima=local_maxima)) / fps # convert to seconds
 
     fig, ax = plt.subplots(figsize=(12, 4), dpi=300)
 
