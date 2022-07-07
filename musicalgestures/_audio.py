@@ -35,7 +35,7 @@ class Audio:
         self.of, self.fex = os.path.splitext(filename)
 
 
-    def waveform(self, mono=False, dpi=300, autoshow=True, title=None, target_name=None, overwrite=False):
+    def waveform(self, mono=False, dpi=300, autoshow=True, raw=False, title=None, target_name=None, overwrite=False):
         """
         Renders a figure showing the waveform of the video/audio file.
 
@@ -43,6 +43,7 @@ class Audio:
             mono (bool, optional): Convert the signal to mono. Defaults to False.
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+            raw (bool, optional): Whether to show labels and ticks on the plot. Defaults to False.
             title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_waveform.png" should be used).
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
@@ -78,10 +79,14 @@ class Audio:
             title = os.path.basename(self.filename)
         fig.suptitle(title, fontsize=16)
 
-        librosa.display.waveplot(y, sr=sr, ax=ax)
-
+        librosa.display.waveshow(y, sr=sr, ax=ax)
         plt.tight_layout()
 
+        if raw:
+            fig.patch.set_visible(False)
+            fig.suptitle('')
+            ax.axis('off')
+            
         plt.savefig(target_name, format='png', transparent=False)
 
         if not autoshow:
@@ -104,7 +109,7 @@ class Audio:
 
         return mgf
 
-    def spectrogram(self, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True, title=None, target_name=None, overwrite=False):
+    def spectrogram(self, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True, raw=False, title=None, target_name=None, overwrite=False):
         """
         Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
@@ -115,6 +120,7 @@ class Audio:
             power (float, optional): The steepness of the curve for the color mapping. Defaults to 2.
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+            raw (bool, optional): Whether to show labels and ticks on the plot. Defaults to False.
             title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_spectrogram.png" should be used).
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
@@ -153,11 +159,10 @@ class Audio:
             title = os.path.basename(self.filename)
         fig.suptitle(title, fontsize=16)
 
-        img = librosa.display.specshow(librosa.power_to_db(
-            S, ref=np.max, top_db=120), sr=sr, y_axis='mel', fmax=sr/2, x_axis='time', hop_length=hop_size, ax=ax)
+        img = librosa.display.specshow(librosa.power_to_db(S, ref=np.max, top_db=120), sr=sr, y_axis='mel', fmax=sr/2, x_axis='time', hop_length=hop_size, ax=ax)
 
         colorbar_ticks = range(-120, 1, 10)
-        fig.colorbar(img, format='%+2.0f dB', ticks=colorbar_ticks)
+        cb = fig.colorbar(img, format='%+2.0f dB', ticks=colorbar_ticks)
 
         # get rid of "default" ticks
         ax.yaxis.set_minor_locator(matplotlib.ticker.NullLocator())
@@ -183,6 +188,12 @@ class Audio:
         ax.set(yticklabels=(freq_ticks_labels))
 
         plt.tight_layout()
+
+        if raw:
+            fig.patch.set_visible(False)
+            fig.suptitle('')
+            ax.axis('off')
+            cb.remove()
 
         plt.savefig(target_name, format='png', transparent=False)
 
@@ -390,7 +401,7 @@ class Audio:
         tempo = librosa.beat.tempo(
             onset_envelope=oenv, sr=sr, hop_length=hop_size)[0]
 
-        fig, ax = plt.subplots(nrows=2, figsize=(10, 6), dpi=dpi, sharex=True)
+        fig, ax = plt.subplots(nrows=2, figsize=(12, 6), dpi=dpi, sharex=True)
 
         # make sure background is white
         fig.patch.set_facecolor('white')
@@ -439,7 +450,7 @@ class Audio:
 
         return mgf
 
-def mg_audio_waveform(filename=None, mono=False, dpi=300, autoshow=True, title=None, target_name=None, overwrite=False):
+def mg_audio_waveform(filename=None, mono=False, dpi=300, autoshow=True, raw=False, title=None, target_name=None, overwrite=False):
     """
     Renders a figure showing the waveform of the video/audio file.
 
@@ -448,6 +459,7 @@ def mg_audio_waveform(filename=None, mono=False, dpi=300, autoshow=True, title=N
         mono (bool, optional): Convert the signal to mono. Defaults to False.
         dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
         autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+        raw (bool, optional): Whether to show labels and ticks on the plot. Defaults to False.
         title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title. Defaults to None.
         target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_waveform.png" should be used).
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
@@ -489,9 +501,14 @@ def mg_audio_waveform(filename=None, mono=False, dpi=300, autoshow=True, title=N
         title = os.path.basename(filename)
     fig.suptitle(title, fontsize=16)
 
-    librosa.display.waveplot(y, sr=sr, ax=ax)
+    librosa.display.waveshow(y, sr=sr, ax=ax)
 
     plt.tight_layout()
+
+    if raw:
+        fig.patch.set_visible(False)
+        fig.suptitle('')
+        ax.axis('off')
 
     plt.savefig(target_name, format='png', transparent=False)
 
@@ -516,7 +533,7 @@ def mg_audio_waveform(filename=None, mono=False, dpi=300, autoshow=True, title=N
     return mgf
 
 
-def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True, title=None, target_name=None, overwrite=False):
+def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True, raw=False, title=None, target_name=None, overwrite=False):
     """
     Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
@@ -528,6 +545,7 @@ def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters
         power (float, optional): The steepness of the curve for the color mapping. Defaults to 2.
         dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
         autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+        raw (bool, optional): Whether to show labels and ticks on the plot. Defaults to False.
         title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title.
         target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_spectrogram.png" should be used).
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
@@ -576,7 +594,7 @@ def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters
         S, ref=np.max, top_db=120), sr=sr, y_axis='mel', fmax=sr/2, x_axis='time', hop_length=hop_size, ax=ax)
 
     colorbar_ticks = range(-120, 1, 10)
-    fig.colorbar(img, format='%+2.0f dB', ticks=colorbar_ticks)
+    cb = fig.colorbar(img, format='%+2.0f dB', ticks=colorbar_ticks)
 
     # get rid of "default" ticks
     ax.yaxis.set_minor_locator(matplotlib.ticker.NullLocator())
@@ -602,6 +620,12 @@ def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters
     ax.set(yticklabels=(freq_ticks_labels))
 
     plt.tight_layout()
+
+    if raw:
+        fig.patch.set_visible(False)
+        fig.suptitle('')
+        ax.axis('off')
+        cb.remove()
 
     plt.savefig(target_name, format='png', transparent=False)
 
@@ -822,7 +846,7 @@ def mg_audio_tempogram(filename=None, window_size=4096, overlap=8, mel_filters=5
     tempo = librosa.beat.tempo(
         onset_envelope=oenv, sr=sr, hop_length=hop_size)[0]
 
-    fig, ax = plt.subplots(nrows=2, figsize=(10, 6), dpi=dpi, sharex=True)
+    fig, ax = plt.subplots(nrows=2, figsize=(12, 6), dpi=dpi, sharex=True)
 
     # make sure background is white
     fig.patch.set_facecolor('white')
