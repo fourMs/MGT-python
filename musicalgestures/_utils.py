@@ -1059,6 +1059,44 @@ class NoStreamError(FFprobeError):
 class NoDurationError(FFprobeError):
     pass
 
+def metadata(filename):
+    """
+    Returns metadata about video/audio/format file using ffprobe.
+
+    Args:
+        filename (str): Path to the video file to measure.
+
+    Returns:
+        str: decoded ffprobe output (stdout) as a list containing three dictionaries for video, audio and format metadata.
+    """
+
+    import subprocess
+    cmd = ["ffprobe", "-loglevel", "0", "-show_format", "-show_streams", filename]
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8")
+    try:
+        out, err = process.communicate(timeout=10)
+    except subprocess.TimeoutExpired:
+        process.kill()
+    out, err = process.communicate()
+    splitted = out.split('\n')
+
+    info = []
+    # Retrieve information and export it in a dictionary
+    for i, metadata in enumerate(splitted):
+        if metadata == "[STREAM]" or metadata == "[FORMAT]":        
+            info.append(dict())
+            i +=1
+        elif metadata == "[/STREAM]" or metadata == "[/FORMAT]" or metadata == "":
+            i +=1
+        else:
+            key, value = splitted[i].split('=')
+            info[-1][key] = value
+
+    video = info[0]
+    audio = info[1]
+    format = info[2]
+
+    return video, audio, format
 
 def ffprobe(filename):
     """
@@ -1076,7 +1114,7 @@ def ffprobe(filename):
         command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
     try:
         out, err = process.communicate(timeout=10)
-    except TimeoutExpired:
+    except subprocess.TimeoutExpired:
         process.kill()
         out, err = process.communicate()
 
@@ -1194,7 +1232,7 @@ def get_framecount(filename, fast=True):
         command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
     try:
         out, err = process.communicate(timeout=10)
-    except TimeoutExpired:
+    except subprocess.TimeoutExpired:
         process.kill()
         out, err = process.communicate()
 

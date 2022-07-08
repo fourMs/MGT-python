@@ -4,7 +4,7 @@ from musicalgestures._videoreader import mg_videoreader
 from musicalgestures._flow import Flow
 from musicalgestures._audio import Audio
 from musicalgestures._mglist import MgList
-from musicalgestures._utils import MgImage, MgFigure
+from musicalgestures._utils import MgImage, MgFigure, metadata
 
 class MgVideo:
     """
@@ -51,7 +51,7 @@ class MgVideo:
             color (bool, optional): If False, converts the video to grayscale and sets every method in grayscale mode. Defaults to True.
             contrast (int, optional): Applies +/- 100 contrast to video. Defaults to 0.
             brightness (int, optional): Applies +/- 100 brightness to video. Defaults to 0.
-            crop (str, optional): If 'manual', opens a window displaying the first frame of the input video file, where the user can draw a rectangle to which cropping is applied. If 'auto' the cropping function attempts to determine the area of significant motion and applies the cropping to that area. Defaults to 'None'.
+            crop (str, optional): If 'manual', opens a window displaying the first frame of the input video file, where the user can draw a rectangle to which cropping is applied. If 'auto' the cropping function attempts to determine the area of significant motion and applies the cropping to that area. Defaults to 'None'. 
             keep_all (bool, optional): If True, preserves an output video file after each used preprocessing stage. Defaults to False.
             returned_by_process (bool, optional): This parameter is only for internal use, do not use it. Defaults to False.
         """
@@ -103,12 +103,23 @@ class MgVideo:
     from musicalgestures._pose import pose
 
     def test_input(self):
-        """ Gives feedback to user if initialization from input went wrong. """
-        mg_input_test(self.filename, self.filtertype,
-                      self.thresh, self.starttime, self.endtime, self.blur, self.skip)
+        """Gives feedback to user if initialization from input went wrong."""
+        mg_input_test(self.filename, self.filtertype, self.thresh, self.starttime, self.endtime, self.blur, self.skip)
+
+    def info(self, type='video'):
+        """Retrieves the information related to video, audio and format."""
+        video, audio, format = metadata(self.filename)
+        if type == 'video':
+            return video
+        elif type == 'audio':
+            return audio
+        elif type == 'format':
+            return format
+        else:
+            return video, audio, format
 
     def get_video(self):
-        """ Creates a video attribute to the Musical Gestures object with the given correct settings. """
+        """Creates a video attribute to the Musical Gestures object with the given correct settings."""
         self.length, self.width, self.height, self.fps, self.endtime, self.of, self.fex, self.has_audio = mg_videoreader(
             filename=self.filename,
             starttime=self.starttime,
@@ -137,6 +148,5 @@ class Examples:
         self.dance = module_path + "/dance.avi"
         self.pianist = module_path + "/examples/pianist.avi"
         self.notebook = module_path + "/MusicalGesturesToolbox.ipynb"
-
 
 examples = Examples()

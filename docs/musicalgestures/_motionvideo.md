@@ -13,7 +13,7 @@
 
 ## mg_motion
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L267)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L272)
 
 ```python
 def mg_motion(
@@ -26,6 +26,7 @@ def mg_motion(
     inverted_motiongram=False,
     unit='seconds',
     equalize_motiongram=True,
+    audio_descriptors=False,
     save_plot=True,
     plot_title=None,
     save_data=True,
@@ -75,7 +76,7 @@ centroid of motion for each frame with timecodes in milliseconds.
 
 ## mg_motiondata
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L87)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L90)
 
 ```python
 def mg_motiondata(
@@ -108,7 +109,7 @@ Shortcut for [mg_motion](#mg_motion) to only render motion data.
 
 ## mg_motiongrams
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L14)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L17)
 
 ```python
 def mg_motiongrams(
@@ -147,7 +148,7 @@ Shortcut for [mg_motion](#mg_motion) to only render motiongrams.
 
 ## mg_motionplots
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L156)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L159)
 
 ```python
 def mg_motionplots(
@@ -156,6 +157,7 @@ def mg_motionplots(
     thresh=0.05,
     blur='None',
     kernel_size=5,
+    audio_descriptors=False,
     unit='seconds',
     title=None,
     target_name=None,
@@ -182,7 +184,7 @@ Shortcut for [mg_motion](#mg_motion) to only render motion plots.
 
 ## mg_motionvideo
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L207)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L212)
 
 ```python
 def mg_motionvideo(
@@ -217,7 +219,7 @@ Shortcut to only render the motion video. Uses musicalgestures._utils.motionvide
 
 ## plot_motion_metrics
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L563)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L573)
 
 ```python
 def plot_motion_metrics(
@@ -226,6 +228,7 @@ def plot_motion_metrics(
     aom,
     com,
     qom,
+    audio_descriptors,
     width,
     height,
     unit,
@@ -239,7 +242,7 @@ Helper function to plot the centroid and quantity of motion using matplotlib.
 
 ## save_txt
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L620)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L675)
 
 ```python
 def save_txt(

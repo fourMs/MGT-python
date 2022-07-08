@@ -6,6 +6,7 @@
     - [Examples](#examples)
     - [MgVideo](#mgvideo)
         - [MgVideo().get_video](#mgvideoget_video)
+        - [MgVideo().info](#mgvideoinfo)
         - [MgVideo().test_input](#mgvideotest_input)
     - Modules
         - [Audio](_audio.md#audio)
@@ -38,7 +39,7 @@
 
 ## Examples
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L132)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L143)
 
 ```python
 class Examples():
@@ -82,13 +83,23 @@ These preprocesses will apply upon creating the MgVideo. Further processes are a
 
 ### MgVideo().get_video
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L110)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L121)
 
 ```python
 def get_video():
 ```
 
 Creates a video attribute to the Musical Gestures object with the given correct settings.
+
+### MgVideo().info
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L109)
+
+```python
+def info(type='video'):
+```
+
+Retrieves the information related to video, audio and format.
 
 ### MgVideo().test_input
 

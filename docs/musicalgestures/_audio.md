@@ -26,7 +26,7 @@ Class container for audio analysis processes.
 
 ### Audio().descriptors
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L210)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L221)
 
 ```python
 def descriptors(
@@ -62,7 +62,7 @@ Renders a figure of plots showing spectral/loudness descriptors, including RMS e
 
 ### Audio().spectrogram
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L107)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L112)
 
 ```python
 def spectrogram(
@@ -72,6 +72,7 @@ def spectrogram(
     power=2,
     dpi=300,
     autoshow=True,
+    raw=False,
     title=None,
     target_name=None,
     overwrite=False,
@@ -88,6 +89,7 @@ Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 - `power` *float, optional* - The steepness of the curve for the color mapping. Defaults to 2.
 - `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
 - `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
+- `raw` *bool, optional* - Whether to show labels and ticks on the plot. Defaults to False.
 - `title` *str, optional* - Optionally add title to the figure. Defaults to None, which uses the file name as a title.
 - `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_spectrogram.png" should be used).
 - `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
@@ -98,7 +100,7 @@ Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
 ### Audio().tempogram
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L348)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L360)
 
 ```python
 def tempogram(
@@ -141,6 +143,7 @@ def waveform(
     mono=False,
     dpi=300,
     autoshow=True,
+    raw=False,
     title=None,
     target_name=None,
     overwrite=False,
@@ -154,6 +157,7 @@ Renders a figure showing the waveform of the video/audio file.
 - `mono` *bool, optional* - Convert the signal to mono. Defaults to False.
 - `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
 - `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
+- `raw` *bool, optional* - Whether to show labels and ticks on the plot. Defaults to False.
 - `title` *str, optional* - Optionally add title to the figure. Defaults to None, which uses the file name as a title. Defaults to None.
 - `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_waveform.png" should be used).
 - `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
@@ -164,7 +168,7 @@ Renders a figure showing the waveform of the video/audio file.
 
 ## mg_audio_descriptors
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L629)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L654)
 
 ```python
 def mg_audio_descriptors(
@@ -202,7 +206,7 @@ Renders a figure of plots showing spectral/loudness descriptors, including RMS e
 
 ## mg_audio_spectrogram
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L518)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L536)
 
 ```python
 def mg_audio_spectrogram(
@@ -213,6 +217,7 @@ def mg_audio_spectrogram(
     power=2,
     dpi=300,
     autoshow=True,
+    raw=False,
     title=None,
     target_name=None,
     overwrite=False,
@@ -230,6 +235,7 @@ Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 - `power` *float, optional* - The steepness of the curve for the color mapping. Defaults to 2.
 - `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
 - `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
+- `raw` *bool, optional* - Whether to show labels and ticks on the plot. Defaults to False.
 - `title` *str, optional* - Optionally add title to the figure. Defaults to None, which uses the file name as a title.
 - `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_spectrogram.png" should be used).
 - `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
@@ -240,7 +246,7 @@ Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
 ## mg_audio_tempogram
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L773)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L798)
 
 ```python
 def mg_audio_tempogram(
@@ -278,7 +284,7 @@ Renders a figure with a plots of onset strength and tempogram of the video/audio
 
 ## mg_audio_waveform
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L441)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L453)
 
 ```python
 def mg_audio_waveform(
@@ -286,6 +292,7 @@ def mg_audio_waveform(
     mono=False,
     dpi=300,
     autoshow=True,
+    raw=False,
     title=None,
     target_name=None,
     overwrite=False,
@@ -300,6 +307,7 @@ Renders a figure showing the waveform of the video/audio file.
 - `mono` *bool, optional* - Convert the signal to mono. Defaults to False.
 - `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
 - `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
+- `raw` *bool, optional* - Whether to show labels and ticks on the plot. Defaults to False.
 - `title` *str, optional* - Optionally add title to the figure. Defaults to None, which uses the file name as a title. Defaults to None.
 - `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_waveform.png" should be used).
 - `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
