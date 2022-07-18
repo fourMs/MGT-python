@@ -87,19 +87,23 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                 cwd = os.getcwd().replace('\\', '/')
                 file_dir = os.path.dirname(video_to_display).replace('\\', '/')
                 if file_dir == cwd:
-                    video_to_display = os.path.relpath(
-                        video_to_display, os.getcwd()).replace('\\', '/')
-                    display(Video(video_to_display,
-                            width=video_width, height=video_height))
+                    try:
+                        video_to_display = os.path.relpath(video_to_display, os.getcwd()).replace('\\', '/')
+                        display(Video(video_to_display,width=video_width, height=video_height))
+                    except ValueError:
+                        video_to_display = os.path.abspath(video_to_display, os.getcwd()).replace('\\', '/')
+                        display(Video(video_to_display, width=video_width,height=video_height))
                 else:
-                    video_to_display = os.path.relpath(
-                        video_to_display, os.getcwd()).replace('\\', '/')
-                    display(Video(video_to_display, width=video_width,
-                            height=video_height))
+                    try:
+                        video_to_display = os.path.relpath(video_to_display, os.getcwd()).replace('\\', '/')
+                        display(Video(video_to_display, width=video_width,
+                                height=video_height))
+                    except ValueError:
+                        video_to_display = os.path.abspath(video_to_display, os.getcwd()).replace('\\', '/')
+                        display(Video(video_to_display, width=video_width,height=video_height))
 
         else:
-            print(
-                f'Unrecognized mode: "{mode}". Try "windowed" or "notebook".')
+            print(f'Unrecognized mode: "{mode}". Try "windowed" or "notebook".')
 
     if window_title == None:
         window_title = self.filename
