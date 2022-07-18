@@ -1072,9 +1072,10 @@ def metadata(filename):
 
     import subprocess
     cmd = ["ffprobe", "-loglevel", "0", "-show_format", "-show_streams", filename]
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8")
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
     try:
         out, err = process.communicate(timeout=10)
+        splitted = out.split('\n')
     except subprocess.TimeoutExpired:
         process.kill()
     out, err = process.communicate()
