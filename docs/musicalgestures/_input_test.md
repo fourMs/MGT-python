@@ -49,6 +49,7 @@ def mg_input_test(
     endtime,
     blur,
     skip,
+    frames,
 ):
 ```
 
@@ -63,6 +64,7 @@ Gives feedback to user if initialization from input went wrong.
 - `endtime` *int/float* - Trims the video until this end time (s).
 - `blur` *str* - 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise.
 - `skip` *int* - Every n frames to discard. `skip=0` keeps all frames, `skip=1` skips every other frame.
+- `frames` *int* - Specify a fixed target number of frames to extract from the video.
 
 #### Raises
 

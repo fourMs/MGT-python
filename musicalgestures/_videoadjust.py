@@ -97,3 +97,35 @@ def skip_frames_ffmpeg(filename, skip=0, target_name=None, overwrite=False):
     ffmpeg_cmd(cmd, get_length(filename), pb_prefix='Skipping frames:')
 
     return target_name
+
+def fixed_frames_ffmpeg(filename, frames=0, target_name=None, overwrite=False):
+
+    if frames == 0:
+        return
+
+    import os
+
+    of, fex = os.path.splitext(filename)
+
+    cap = cv2.VideoCapture(filename)
+    nb_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    pts_ratio = frames / nb_frames
+    atempo_ratio = 1 / pts_ratio
+
+    if target_name == None:
+         target_name = of + '_fixed' + fex
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
+
+    if has_audio(filename):
+        cmd = ['ffmpeg', '-y', '-i', filename, '-filter_complex',
+               f'[0:v]setpts={pts_ratio}*PTS[v];[0:a]atempo={atempo_ratio}[a]', '-map', '[v]', '-map', '[a]', '-q:v', '3', '-shortest', target_name]
+    else:
+        cmd = ['ffmpeg', '-y', '-i', filename, '-filter_complex',
+               f'[0:v]setpts={pts_ratio}*PTS[v]', '-map', '[v]', '-q:v', '3', target_name]
+
+    ffmpeg_cmd(cmd, get_length(filename), pb_prefix='Fixing frames:')
+
+    return target_name
+

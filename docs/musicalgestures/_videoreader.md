@@ -26,6 +26,7 @@ def mg_videoreader(
     starttime=0,
     endtime=0,
     skip=0,
+    frames=0,
     rotate=0,
     contrast=0,
     brightness=0,
@@ -39,6 +40,7 @@ def mg_videoreader(
 Reads in a video file, and optionally apply several different processes on it. These include:
 - trimming,
 - skipping,
+- fixing,
 - rotating,
 - applying brightness and contrast,
 - cropping,
@@ -50,6 +52,7 @@ Reads in a video file, and optionally apply several different processes on it. T
 - `starttime` *int/float, optional* - Trims the video from this start time (s). Defaults to 0.
 - `endtime` *int/float, optional* - Trims the video until this end time (s). Defaults to 0 (which will make the algorithm use the full length of the input video instead).
 - `skip` *int, optional* - Time-shrinks the video by skipping (discarding) every n frames determined by `skip`. Defaults to 0.
+- `frames` *int, optional* - Specify a fixed target number of frames to extract from the video. Defaults to 0.
 - `rotate` *int/float, optional* - Rotates the video by a `rotate` degrees. Defaults to 0.
 - `contrast` *int/float, optional* - Applies +/- 100 contrast to video. Defaults to 0.
 - `brightness` *int/float, optional* - Applies +/- 100 brightness to video. Defaults to 0.

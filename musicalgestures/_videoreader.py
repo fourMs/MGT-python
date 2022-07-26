@@ -1,7 +1,7 @@
 import cv2
 import os
 import numpy as np
-from musicalgestures._videoadjust import skip_frames_ffmpeg, contrast_brightness_ffmpeg
+from musicalgestures._videoadjust import skip_frames_ffmpeg, fixed_frames_ffmpeg, contrast_brightness_ffmpeg
 from musicalgestures._cropvideo import mg_cropvideo_ffmpeg
 from musicalgestures._utils import has_audio, convert_to_avi, rotate_video, convert_to_grayscale, extract_subclip, get_length, get_fps, get_framecount, get_widthheight
 
@@ -16,6 +16,7 @@ def mg_videoreader(
         starttime=0,
         endtime=0,
         skip=0,
+        frames=0,
         rotate=0,
         contrast=0,
         brightness=0,
@@ -27,6 +28,7 @@ def mg_videoreader(
     Reads in a video file, and optionally apply several different processes on it. These include:
     - trimming,
     - skipping,
+    - fixing,
     - rotating,
     - applying brightness and contrast,
     - cropping,
@@ -37,6 +39,7 @@ def mg_videoreader(
         starttime (int/float, optional): Trims the video from this start time (s). Defaults to 0.
         endtime (int/float, optional): Trims the video until this end time (s). Defaults to 0 (which will make the algorithm use the full length of the input video instead).
         skip (int, optional): Time-shrinks the video by skipping (discarding) every n frames determined by `skip`. Defaults to 0.
+        frames (int, optional): Specify a fixed target number of frames to extract from the video. Defaults to 0.
         rotate (int/float, optional): Rotates the video by a `rotate` degrees. Defaults to 0.
         contrast (int/float, optional): Applies +/- 100 contrast to video. Defaults to 0.
         brightness (int/float, optional): Applies +/- 100 brightness to video. Defaults to 0.
@@ -61,6 +64,7 @@ def mg_videoreader(
 
     trimming = False
     skipping = False
+    fixing = False
     rotating = False
     cbing = False
     cropping = False
@@ -81,6 +85,15 @@ def mg_videoreader(
         of = os.path.splitext(tmp_path)[0]
         skipping = True
 
+    if frames != 0:
+        tmp_path = fixed_frames_ffmpeg(of + fex, frames)
+        if not keep_all and (skipping or trimming):
+            os.remove(of+fex)
+
+        # of = of + '_skip'
+        of = os.path.splitext(tmp_path)[0]
+        fixing = True
+
     length = get_framecount(of+fex)
     fps = get_fps(of+fex)
 
@@ -90,7 +103,7 @@ def mg_videoreader(
 
     if rotate != 0:
         tmp_path = rotate_video(of + fex, rotate)
-        if not keep_all and (skipping or trimming):
+        if not keep_all and (fixing or skipping or trimming):
             os.remove(of + fex)
         of = os.path.splitext(tmp_path)[0]
         # of = of + '_rot'
@@ -100,7 +113,7 @@ def mg_videoreader(
     if contrast != 0 or brightness != 0:
         tmp_path = contrast_brightness_ffmpeg(of+fex, contrast=contrast, brightness=brightness)
 
-        if not keep_all and (rotating or skipping or trimming):
+        if not keep_all and (rotating or fixing or skipping or trimming):
             os.remove(of + fex)
         # of = of + '_cb'
         of = os.path.splitext(tmp_path)[0]
@@ -110,7 +123,7 @@ def mg_videoreader(
     if crop.lower() != 'none':
         tmp_path = mg_cropvideo_ffmpeg(of+fex, crop_movement=crop)
 
-        if not keep_all and (cbing or rotating or skipping or trimming):
+        if not keep_all and (cbing or rotating or fixing or skipping or trimming):
             os.remove(of + fex)
         of = os.path.splitext(tmp_path)[0]
         # of = of + '_crop'
@@ -118,10 +131,11 @@ def mg_videoreader(
 
     if color == False and returned_by_process == False:
         tmp_path = convert_to_grayscale(of + fex)
-        if not keep_all and (cropping or cbing or rotating or skipping or trimming):
+        if not keep_all and (cropping or cbing or rotating or fixing or skipping or trimming):
             os.remove(of + fex)
         of = os.path.splitext(tmp_path)[0]
 
     width, height = get_widthheight(of+fex)
     video_has_audio_track = has_audio(of+fex)
+
     return length, width, height, fps, endtime, of, fex, video_has_audio_track

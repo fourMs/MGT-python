@@ -15,7 +15,7 @@ class InputError(Error):
         self.message = message
 
 
-def mg_input_test(filename, filtertype, thresh, starttime, endtime, blur, skip):
+def mg_input_test(filename, filtertype, thresh, starttime, endtime, blur, skip, frames):
     """
     Gives feedback to user if initialization from input went wrong.
 
@@ -27,6 +27,7 @@ def mg_input_test(filename, filtertype, thresh, starttime, endtime, blur, skip):
         endtime (int/float): Trims the video until this end time (s).
         blur (str): 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise.
         skip (int): Every n frames to discard. `skip=0` keeps all frames, `skip=1` skips every other frame.
+        frames (int): Specify a fixed target number of frames to extract from the video. 
 
     Raises:
         InputError: If the types or options are wrong in the input.
@@ -57,6 +58,10 @@ def mg_input_test(filename, filtertype, thresh, starttime, endtime, blur, skip):
 
         if not isinstance(skip, int):
             msg = 'Please specify a skip as an integer of frames you wish to skip (Max = N frames).'
+            raise InputError(msg)
+        
+        if not isinstance(frames, int):
+            msg = 'Please specify a frames as an integer of fixed frames you wish to keep.'
             raise InputError(msg)
 
     else:

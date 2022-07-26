@@ -4,6 +4,7 @@
 
 - [Mgt-python](../README.md#mgt-python) / [Modules](../MODULES.md#mgt-python-modules) / [Musicalgestures](index.md#musicalgestures) / Videoadjust
     - [contrast_brightness_ffmpeg](#contrast_brightness_ffmpeg)
+    - [fixed_frames_ffmpeg](#fixed_frames_ffmpeg)
     - [skip_frames_ffmpeg](#skip_frames_ffmpeg)
 
 ## contrast_brightness_ffmpeg
@@ -33,6 +34,19 @@ Applies contrast and brightness adjustments on the source video using ffmpeg.
 #### Returns
 
 - `str` - Path to the output video.
+
+## fixed_frames_ffmpeg
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_videoadjust.py#L101)
+
+```python
+def fixed_frames_ffmpeg(
+    filename,
+    frames=0,
+    target_name=None,
+    overwrite=False,
+):
+```
 
 ## skip_frames_ffmpeg
 

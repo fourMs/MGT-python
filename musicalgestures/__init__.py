@@ -29,6 +29,7 @@ class MgVideo:
             endtime=0,
             blur='None',
             skip=0,
+            frames=0,
             rotate=0,
             color=True,
             contrast=0,
@@ -47,6 +48,7 @@ class MgVideo:
             endtime (int or float, optional): Trims the video until this end time (s). Defaults to 0 (which means the full length).
             blur (str, optional): The `blur` parameter for the `motion()` method. 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
             skip (int, optional): Time-shrinks the video by skipping (discarding) every n frames determined by `skip`. Defaults to 0.
+            frames (int, optional): Specify a fixed target number of frames to extract from the video. Defaults to 0.
             rotate (int, optional): Rotates the video by a `rotate` degrees. Defaults to 0.
             color (bool, optional): If False, converts the video to grayscale and sets every method in grayscale mode. Defaults to True.
             contrast (int, optional): Applies +/- 100 contrast to video. Defaults to 0.
@@ -65,6 +67,7 @@ class MgVideo:
         self.starttime = starttime
         self.endtime = endtime
         self.skip = skip
+        self.frames = frames
         self.filtertype = filtertype
         self.thresh = thresh
         self.blur = blur
@@ -104,7 +107,7 @@ class MgVideo:
 
     def test_input(self):
         """Gives feedback to user if initialization from input went wrong."""
-        mg_input_test(self.filename, self.filtertype, self.thresh, self.starttime, self.endtime, self.blur, self.skip)
+        mg_input_test(self.filename, self.filtertype, self.thresh, self.starttime, self.endtime, self.blur, self.skip, self.frames)
 
     def info(self, type='video'):
         """Retrieves the information related to video, audio and format."""
@@ -125,6 +128,7 @@ class MgVideo:
             starttime=self.starttime,
             endtime=self.endtime,
             skip=self.skip,
+            frames=self.frames,
             rotate=self.rotate,
             contrast=self.contrast,
             brightness=self.brightness,
