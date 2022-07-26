@@ -4,9 +4,14 @@ import numpy as np
 import skimage.draw
 import pandas as pd
 
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import matplotlib as mpl
+
 import musicalgestures
 from musicalgestures._centerface import CenterFace
-from musicalgestures._utils import MgProgressbar, convert_to_avi, generate_outfilename, frame2ms
+from musicalgestures._utils import MgProgressbar, MgImage, convert_to_avi, generate_outfilename, frame2ms
 
 def scaling_mask(x1, y1, x2, y2, mask_scale=1.0):
     """
@@ -30,7 +35,38 @@ def scaling_mask(x1, y1, x2, y2, mask_scale=1.0):
     x2 += w * scale
     return np.round([x1, y1, x2, y2]).astype(int)
 
-def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=True, draw_scores=False, save_data=True, data_format='csv', color=(0, 0, 0), target_name=None, overwrite=False):
+def centroid_mask(data):
+    centroid = np.zeros((data.shape[0], 2))
+    for i, coordinates in enumerate(data):
+        # Compute the centroid of the mask using the mask's coordinates (x1,y1,x2,y2)
+        centroid[i][0] = (coordinates[1] + coordinates[3]) / 2 
+        centroid[i][1] = (coordinates[2] + coordinates[4]) / 2
+
+    center_x = centroid[:,0] 
+    center_y = centroid[:,1]        
+    return center_x, center_y
+    
+def heatmap_data(data, resolution, data_min, data_max):
+    diff = data_max - data_min
+    heatmap_data = (data - data_min) / diff * resolution
+    return heatmap_data
+
+def nearest_neighbours(x, y, width, height, resolution, n_neighbours):
+    image = np.zeros([resolution, resolution])
+
+    extent = [0, width, 0, height]
+    heatmap_x = heatmap_data(x, resolution, extent[0], extent[1])
+    heatmap_y = heatmap_data(y, resolution, extent[2], extent[3]) 
+    
+    for x in range(resolution):
+        for y in range(resolution):
+            xp = (heatmap_x - x)
+            yp = (heatmap_y - y)
+            d = np.sqrt(xp**2 + yp**2)
+            image[y][x] = 1 / np.sum(d[np.argpartition(d.ravel(), n_neighbours)[:n_neighbours]])
+    return image, extent
+
+def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=True, draw_heatmap=False, neighbours=32, resolution=250, draw_scores=False, save_data=True, data_format='csv', color=(0, 0, 0), target_name=None, overwrite=False):
     """
     Automatic anonymization of faces in videos. 
     This function works by first detecting all human faces in each video frame and then applying an anonymization filter 
@@ -43,11 +79,14 @@ def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=Tru
         mask_image (str, optional): Anonymization image path which can be used for masking face regions. This can be activated by specifying 'image' in the mask parameter. Defaults to None.
         mask_scale (float, optional): Scale factor for face masks, to make sure that the masks cover the complete face. Defaults to 1.0.
         ellipse (bool, optional): Mask faces with blurred ellipses. Defaults to True.
+        draw_heatmap (bool, optional): Draw heatmap of the detected faces using the centroid of the face mask. Defaults to False.
+        neighbours (int, optional): Number of neighbours for smoothing the heatmap image. Defaults to 32.
+        resolution (int, optional): Number of pixel resolution for the heatmap visualization. Defaults to 250.
         draw_scores (bool, optional): Draw detection faceness scores onto outputs (a score between 0 and 1 that roughly corresponds to the detector's confidence that something is a face). Defaults to False.
-        save_data (bool, optional): Whether to save the scaled coordinates of the face mask (time, x1, y1, x2, y2) for each frame to a file. Defaults to True.
-        data_format (str, optional): Specifies format of blur_faces-data. Accepted values are 'csv', 'tsv' and 'txt'. For multiple output formats, use list, eg. ['csv', 'txt']. Defaults to 'csv'.
+        save_data (bool, optional): Whether to save the scaled coordinates of the face mask (time (ms), x1, y1, x2, y2) for each frame to a file. Defaults to True.
+        data_format (str, optional): Specifies format of blur_faces-data. Accepted values are 'csv', 'tsv' and 'txt'. For multiple output formats, use list, e.g. ['csv', 'txt']. Defaults to 'csv'.
         color (tuple, optional): Customized color of the rectangle boxes. Defaults to black (0, 0, 0).
-        target_name (str, optional): Target output name for the directogram. Defaults to None (which assumes that the input filename with the suffix "_blurred" should be used).
+        target_name (str, optional): Target output name. Defaults to None (which assumes that the input filename with the suffix "_blurred" should be used).
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
@@ -81,6 +120,8 @@ def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=Tru
     vidcap = cv2.VideoCapture(filename)
     fps = int(vidcap.get(cv2.CAP_PROP_FPS))
     length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
+    width  = vidcap.get(cv2.CAP_PROP_FRAME_WIDTH)
+    height = vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT)
 
     pb = MgProgressbar(total=length, prefix='Blurring faces:')
 
@@ -142,19 +183,20 @@ def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=Tru
                     if mask_image.shape[2] == 3:  # RGB
                         frame[y1:y2, x1:x2] = resized_mask_image
                     elif mask_image.shape[2] == 4:  # RGBA
-                        frame[y1:y2, x1:x2] = frame[y1:y2, x1:x2] * (1 - resized_mask_image[:, :, 3:] / 255) + resized_mask_image[:, :, :3] * (resized_mask_image[:, :, 3:] / 255)
-                
+                        frame[y1:y2, x1:x2] = frame[y1:y2, x1:x2] * (1 - resized_mask_image[:, :, 3:] / 255) + resized_mask_image[:, :, :3] * (resized_mask_image[:, :, 3:] / 255)  
+
                 # Mask nothing
                 elif mask == 'none':
                     pass
+                
+                # Draw heatmap of the detected faces using the centroid of the face mask.
+                if draw_heatmap or save_data:
+                    time = frame2ms(i, self.fps)
+                    data.append([time, x1, y1, x2, y2])
 
                 # Draw the faceness score (between 0 and 1) that roughly corresponds to the detector's confidence that something is a face.
                 if draw_scores:
                     cv2.putText(frame, f'{score:.2f}', (x1 + 0, y1 - 20), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0, 255, 0))
-
-                if save_data == True:
-                    time = frame2ms(i, self.fps)
-                    data.append([time, x1, y1, x2, y2])
 
             output_stream.write(frame)
 
@@ -251,8 +293,44 @@ def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=Tru
                 print(f"Unsupported formats in {data_format}.\nFalling back to '.csv'.")
                 save_single_file(of, data, "csv", target_name=target_name, overwrite=overwrite)
 
-    if save_data:    
-        return self.blur_faces, save_txt(of, data, data_format, target_name=target_name, overwrite=overwrite)
+    if save_data:  
+        save_txt(of, data, data_format, target_name=target_name, overwrite=overwrite)  
+        return self.blur_faces, np.asarray(data)
+
+    if draw_heatmap:
+
+        target_name = os.path.splitext(target_name)[0] + '.png'
+        if not overwrite:
+            target_name = generate_outfilename(target_name)
+
+        # Approximately update font and plot size with frame size
+        plt.rcParams.update({'font.size': int((height/fps))})  
+        fig, ax = plt.subplots(figsize=(int(width/fps), int(height/fps))) 
+        # make sure background is white
+        fig.patch.set_facecolor('white')
+        fig.patch.set_alpha(1)  
+
+        center_x, center_y = centroid_mask(np.asarray(data))
+        im, extent = nearest_neighbours(center_x, center_y, width, height, resolution, neighbours)
+
+        ax.imshow(im, extent=extent, cmap=cm.jet)
+        ax.set_title(f"Heatmap of face detection (neighbours={neighbours})")
+        ax.set_xlabel("Video width (pixels)")
+        ax.set_ylabel("Video height (pixels)")
+        ax.set_xlim(extent[0], extent[1])
+        ax.set_ylim(extent[2], extent[3])
+
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes("right", size="5%", pad="3%")
+        normalizer = mpl.colors.Normalize(vmin=0, vmax=1)
+        fig.colorbar(mpl.cm.ScalarMappable(norm=normalizer, cmap=cm.jet), cax=cax)
+
+        plt.tight_layout()
+        plt.savefig(target_name, format='png', transparent=False)
+        plt.close()
+
+        return MgImage(target_name)
+
     else:
         return self.blur_faces
     
