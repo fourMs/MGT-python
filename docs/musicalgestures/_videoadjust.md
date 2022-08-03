@@ -9,7 +9,7 @@
 
 ## contrast_brightness_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_videoadjust.py#L6)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_videoadjust.py#L8)
 
 ```python
 def contrast_brightness_ffmpeg(
@@ -37,7 +37,7 @@ Applies contrast and brightness adjustments on the source video using ffmpeg.
 
 ## fixed_frames_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_videoadjust.py#L101)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_videoadjust.py#L98)
 
 ```python
 def fixed_frames_ffmpeg(
@@ -48,9 +48,23 @@ def fixed_frames_ffmpeg(
 ):
 ```
 
+Specify a fixed target number frames to extract from the video.
+To extract only keyframes from the video, set the parameter keyframes to True.
+
+#### Arguments
+
+- `filename` *str* - Path to the video to process.
+- `frames` *int), optional* - Number frames to extract from the video. If set to -1, it will only extract the keyframes of the video. Defaults to 0.
+- `target_name` *str, optional* - Defaults to None (which assumes that the input filename with the suffix "_fixed" should be used).
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+
+#### Returns
+
+- `str` - Path to the output video.
+
 ## skip_frames_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_videoadjust.py#L61)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_videoadjust.py#L60)
 
 ```python
 def skip_frames_ffmpeg(filename, skip=0, target_name=None, overwrite=False):

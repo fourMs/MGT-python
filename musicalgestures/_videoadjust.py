@@ -1,6 +1,8 @@
 import numpy as np
 import cv2
-from musicalgestures._utils import scale_num, scale_array, MgProgressbar, get_length, ffmpeg_cmd, has_audio, generate_outfilename
+import os
+import musicalgestures
+from musicalgestures._utils import scale_num, scale_array, MgProgressbar, get_length, ffmpeg_cmd, has_audio, generate_outfilename, convert_to_mp4
 
 
 def contrast_brightness_ffmpeg(filename, contrast=0, brightness=0, target_name=None, overwrite=False):
@@ -19,9 +21,6 @@ def contrast_brightness_ffmpeg(filename, contrast=0, brightness=0, target_name=N
     """
     if contrast == 0 and brightness == 0:
         return
-
-    import os
-    import numpy as np
 
     of, fex = os.path.splitext(filename)
 
@@ -75,8 +74,6 @@ def skip_frames_ffmpeg(filename, skip=0, target_name=None, overwrite=False):
     if skip == 0:
         return
 
-    import os
-
     of, fex = os.path.splitext(filename)
 
     pts_ratio = 1 / (skip+1)
@@ -99,24 +96,52 @@ def skip_frames_ffmpeg(filename, skip=0, target_name=None, overwrite=False):
     return target_name
 
 def fixed_frames_ffmpeg(filename, frames=0, target_name=None, overwrite=False):
+    """
+    Specify a fixed target number frames to extract from the video. 
+    To extract only keyframes from the video, set the parameter keyframes to True.
 
-    if frames == 0:
-        return
+    Args:
+        filename (str): Path to the video to process.
+        frames (int), optional): Number frames to extract from the video. If set to -1, it will only extract the keyframes of the video. Defaults to 0.
+        target_name (str, optional): Defaults to None (which assumes that the input filename with the suffix "_fixed" should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
 
-    import os
-
+    Returns:
+        str: Path to the output video.
+    """
     of, fex = os.path.splitext(filename)
 
-    cap = cv2.VideoCapture(filename)
-    nb_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-
-    pts_ratio = frames / nb_frames
-    atempo_ratio = 1 / pts_ratio
+    if fex != '.mp4':
+        # Convert video to mp4
+        filename = convert_to_mp4(of + fex, overwrite=overwrite)
+        of, fex = os.path.splitext(filename)
 
     if target_name == None:
          target_name = of + '_fixed' + fex
     if not overwrite:
         target_name = generate_outfilename(target_name)
+
+    cap = cv2.VideoCapture(filename)
+    nb_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
+
+    pts_ratio = frames / nb_frames
+    atempo_ratio = 1 / pts_ratio
+
+    if frames == 0:
+        return
+
+    # Extract only keyframes
+    if frames == -1:
+        cmd = ['ffmpeg', '-y', '-discard', 'nokey', '-i', filename, '-c', 'copy', 'temp.264'] 
+        ffmpeg_cmd(cmd, get_length(filename), pb_prefix='Extracting keyframes:')
+        cmd = ['ffmpeg', '-y', '-r', str(fps), '-i', 'temp.264', '-c', 'copy', target_name]
+        ffmpeg_cmd(cmd, get_length(filename), pb_prefix='Encoding temporary video file:') 
+
+        # Remove temporary video file
+        os.remove('temp.264')
+
+        return target_name
 
     if has_audio(filename):
         cmd = ['ffmpeg', '-y', '-i', filename, '-filter_complex',
