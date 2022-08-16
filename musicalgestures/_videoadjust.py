@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 import os
 import musicalgestures
-from musicalgestures._utils import scale_num, scale_array, MgProgressbar, get_length, ffmpeg_cmd, has_audio, generate_outfilename, convert_to_mp4
+from musicalgestures._utils import scale_num, scale_array, MgProgressbar, get_length, ffmpeg_cmd, has_audio, generate_outfilename, convert_to_mp4, convert_to_avi
 
 
 def contrast_brightness_ffmpeg(filename, contrast=0, brightness=0, target_name=None, overwrite=False):
@@ -75,6 +75,11 @@ def skip_frames_ffmpeg(filename, skip=0, target_name=None, overwrite=False):
         return
 
     of, fex = os.path.splitext(filename)
+
+    if fex != '.avi':
+        # Convert video to mp4
+        filename = convert_to_avi(of + fex, overwrite=overwrite)
+        of, fex = os.path.splitext(filename)
 
     pts_ratio = 1 / (skip+1)
     atempo_ratio = skip+1

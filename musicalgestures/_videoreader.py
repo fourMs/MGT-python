@@ -82,7 +82,7 @@ def mg_videoreader(
             os.remove(of+fex)
 
         # of = of + '_skip'
-        of = os.path.splitext(tmp_path)[0]
+        of, fex = os.path.splitext(tmp_path)
         skipping = True
 
     if frames != 0:
