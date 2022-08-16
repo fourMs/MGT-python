@@ -75,11 +75,7 @@ def skip_frames_ffmpeg(filename, skip=0, target_name=None, overwrite=False):
         return
 
     of, fex = os.path.splitext(filename)
-
-    if fex != '.avi':
-        # Convert video to mp4
-        filename = convert_to_avi(of + fex, overwrite=overwrite)
-        of, fex = os.path.splitext(filename)
+    fex = '.avi'
 
     pts_ratio = 1 / (skip+1)
     atempo_ratio = skip+1
