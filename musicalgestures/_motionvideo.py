@@ -592,9 +592,64 @@ def plot_motion_metrics(of, fps, aom, com, qom, audio_descriptors, width, height
         fig.patch.set_alpha(1)
         # add title
         fig.suptitle(title, fontsize=16)
-
         descriptors = audio_descriptors.audio.descriptors(autoshow=False).data
         gs = gridspec.GridSpec(6, 2)
+
+    # Centroid of motion (CoM)
+    ax0 = fig.add_subplot(gs[0, 0])
+    ax0.scatter(com[:, 0]/width, com[:, 1]/height, s=2)
+    ax0.set_xlim((0, 1))
+    ax0.set_ylim((0, 1))
+    ax0.set_xlabel('Pixels normalized')
+    ax0.set_ylabel('Pixels normalized')
+    ax0.set_title('Centroid of motion (CoM)')
+
+    # Area of motion (AoM)
+    ax0 = fig.add_subplot(gs[0, 1])
+    ax0.scatter(aom[:, 0], aom[:, 1], c='C0', s=2)
+    ax0.scatter(aom[:, 2], aom[:, 3], c='C0', s=2)
+    ax0.set_xlim((0, 1))
+    ax0.set_ylim((0, 1))
+    ax0.set_xlabel('Pixels normalized')
+    ax0.set_ylabel('Pixels normalized')
+    ax0.set_title('Area of motion (AoM)')
+
+    # Quantity of motion (QoM)
+    def adjacent_values(vals, q1, q3):
+        upper_adjacent_value = q3 + (q3 - q1) * 1.5
+        upper_adjacent_value = np.clip(upper_adjacent_value, q3, vals[-1])
+
+        lower_adjacent_value = q1 - (q3 - q1) * 1.5
+        lower_adjacent_value = np.clip(lower_adjacent_value, vals[0], q1)
+        return lower_adjacent_value, upper_adjacent_value
+
+    ax1 = fig.add_subplot(gs[1, :])
+    ax1.set_title('Quantity of motion (QoM)')
+    ax1.violinplot([qom[1:]/(max(qom[1:]))], showmeans=False, showmedians=True, showextrema=True, vert=False)
+
+    quartile1, medians, quartile3 = np.percentile([qom[1:]/(max(qom[1:]))], [25, 50, 75], axis=1)
+    whiskers = np.array([adjacent_values(sorted_array, q1, q3) for sorted_array, q1, q3 in zip([qom[1:]/(max(qom[1:]))], quartile1, quartile3)])
+    whiskers_min, whiskers_max = whiskers[:, 0], whiskers[:, 1]
+
+    inds = np.arange(1, len(medians) + 1)
+    ax1.scatter(medians, inds, marker='o', color='white', s=60, zorder=3)
+    ax1.hlines(inds, quartile1, quartile3, color='k', linestyle='-', lw=8)
+    ax1.hlines(inds, whiskers_min, whiskers_max, color='k', linestyle='-', lw=1)
+    ax1.set_xlabel('Pixels normalized')
+    ax1.set_yticks([])
+    ax1.set_yticklabels([])
+
+    ax2 = fig.add_subplot(gs[2, :])
+    if unit.lower() == 'seconds':
+        ax2.set_xlabel('Time [seconds]')
+    else:
+        ax2.set_xlabel('Time [samples]')
+        fps = 1
+    ax2.set_ylabel('Pixels normalized')
+    ax2.bar(np.arange(len(qom)-1)/fps, qom[1:]/(max(qom[1:])))
+
+    # Plotting audio descriptors
+    if audio_descriptors:
 
         freq_ticks = [elem*100 for elem in range(10)]
         freq_ticks = [250]
@@ -612,85 +667,29 @@ def plot_motion_metrics(of, fps, aom, com, qom, audio_descriptors, width, height
         if unit.lower() == 'samples':
             times = times*descriptors['sr']
 
-        ax = plt.subplot(gs[3, :])
-        ax.set_title('Audio descriptors')
-        ax.semilogy(times, descriptors['rms'][0], label='RMS Energy')
-        ax.legend(loc='upper right')
+        ax3 = fig.add_subplot(gs[3, :], sharex=ax2)
+        ax3.set_title('Audio descriptors')
+        ax3.semilogy(times, descriptors['rms'][0], label='RMS Energy')
+        ax3.legend(loc='upper right')
 
-        ax = plt.subplot(gs[4, :])
-        ax.plot(times, descriptors['flatness'].T, label='Flatness', color='y')
-        ax.legend(loc='upper right')
+        ax4 = fig.add_subplot(gs[4, :], sharex=ax2)
+        ax4.plot(times, descriptors['flatness'].T, label='Flatness', color='y')
+        ax4.legend(loc='upper right')
 
-        ax = plt.subplot(gs[5, :])
-        # get rid of "default" ticks
-        ax.yaxis.set_minor_locator(matplotlib.ticker.NullLocator())
-        ax.set(yticks=(freq_ticks))
-        ax.set(yticklabels=(freq_ticks_labels))
-        ax.fill_between(times, descriptors['cent'][0] - descriptors['spec_bw'][0], descriptors['cent'][0] + descriptors['spec_bw'][0], alpha=0.5, label='Centroid +- bandwidth')
-        ax.plot(times, descriptors['cent'].T, label='Centroid', color='y')
-        ax.plot(times, descriptors['rolloff'][0], label='Roll-off frequency (0.99)')
-        ax.plot(times, descriptors['rolloff_min'][0], color='r',label='Roll-off frequency (0.01)')
-        ax.legend(loc='upper right')
+        ax5 = fig.add_subplot(gs[5, :], sharex=ax2)
+        ax5.set_ylabel('Frequency [Hz]')
+        ax5.fill_between(times, descriptors['cent'][0] - descriptors['spec_bw'][0], descriptors['cent'][0] + descriptors['spec_bw'][0], alpha=0.5, label='Centroid +- bandwidth')
+        ax5.plot(times, descriptors['cent'].T, label='Centroid', color='y')
+        ax5.plot(times, descriptors['rolloff'][0], label='Roll-off frequency (0.99)')
+        ax5.plot(times, descriptors['rolloff_min'][0], color='r',label='Roll-off frequency (0.01)')
+        ax5.legend(loc='upper right')
 
         if unit.lower() == 'seconds':
-            ax.set_xlabel('Time[seconds]')
+            ax5.set_xlabel('Time [seconds]')
         else:
-            ax.set_xlabel('Time[samples]')
+            ax5.set_xlabel('Time [samples]')
 
-    # Centroid of motion (CoM)
-    ax = plt.subplot(gs[0, 0])
-    ax.scatter(com[:, 0]/width, com[:, 1]/height, s=2)
-    ax.set_xlim((0, 1))
-    ax.set_ylim((0, 1))
-    ax.set_xlabel('Pixels normalized')
-    ax.set_ylabel('Pixels normalized')
-    ax.set_title('Centroid of motion (CoM)')
-
-    # Area of motion (AoM)
-    ax = plt.subplot(gs[0, 1])
-    ax.scatter(aom[:, 0], aom[:, 1], c='C0', s=2)
-    ax.scatter(aom[:, 2], aom[:, 3], c='C0', s=2)
-    ax.set_xlim((0, 1))
-    ax.set_ylim((0, 1))
-    ax.set_xlabel('Pixels normalized')
-    ax.set_ylabel('Pixels normalized')
-    ax.set_title('Area of motion (AoM)')
-
-    # Quantity of motion (QoM)
-    def adjacent_values(vals, q1, q3):
-        upper_adjacent_value = q3 + (q3 - q1) * 1.5
-        upper_adjacent_value = np.clip(upper_adjacent_value, q3, vals[-1])
-
-        lower_adjacent_value = q1 - (q3 - q1) * 1.5
-        lower_adjacent_value = np.clip(lower_adjacent_value, vals[0], q1)
-        return lower_adjacent_value, upper_adjacent_value
-
-    ax = plt.subplot(gs[1, :])
-    ax.set_title('Quantity of motion (QoM)')
-    ax.violinplot([qom[1:]/(max(qom[1:]))], showmeans=False, showmedians=True, showextrema=True, vert=False)
-
-    quartile1, medians, quartile3 = np.percentile([qom[1:]/(max(qom[1:]))], [25, 50, 75], axis=1)
-    whiskers = np.array([adjacent_values(sorted_array, q1, q3) for sorted_array, q1, q3 in zip([qom[1:]/(max(qom[1:]))], quartile1, quartile3)])
-    whiskers_min, whiskers_max = whiskers[:, 0], whiskers[:, 1]
-
-    inds = np.arange(1, len(medians) + 1)
-    ax.scatter(medians, inds, marker='o', color='white', s=60, zorder=3)
-    ax.hlines(inds, quartile1, quartile3, color='k', linestyle='-', lw=8)
-    ax.hlines(inds, whiskers_min, whiskers_max, color='k', linestyle='-', lw=1)
-    ax.set_xlabel('Pixels normalized')
-    ax.set_yticks([])
-    ax.set_yticklabels([])
-
-    ax = plt.subplot(gs[2, :])
-    if unit.lower() == 'seconds':
-        ax.set_xlabel('Time[seconds]')
-    else:
-        ax.set_xlabel('Time[samples]')
-        fps = 1
-    ax.set_ylabel('Pixels normalized')
-    ax.bar(np.arange(len(qom)-1)/fps, qom[1:]/(max(qom[1:])))
-
-    plt.tight_layout()
+    fig.tight_layout()
 
     if target_name_plot == None:
         target_name_plot = of + '_motion_com_aom_qom.png'
