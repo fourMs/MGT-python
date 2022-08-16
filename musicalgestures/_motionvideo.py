@@ -175,6 +175,7 @@ def mg_motionplots(
         thresh (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
         blur (str, optional): 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
         kernel_size (int, optional): Size of structuring element. Defaults to 5.
+        audio_descriptors (bool, optional): Whether to plot motion plots together with audio descriptors in order to see possible correlations in the data. Deflauts to False.
         unit (str, optional): Unit in QoM plot. Accepted values are 'seconds' or 'samples'. Defaults to 'seconds'.
         title (str, optional): Optionally add title to the plot. Defaults to None, which uses the file name as a title.
         target_name (str, optional): Target output name for the plot. Defaults to None (which assumes that the input filename with the suffix "_motion_com_aom_qom" should be used).
@@ -581,10 +582,10 @@ def plot_motion_metrics(of, fps, aom, com, qom, audio_descriptors, width, height
     # add title
     fig.suptitle(title, fontsize=16)
     # plt.rc('font', family='serif')
-    gs = gridspec.GridSpec(2, 2)
+    gs = gridspec.GridSpec(3, 2)
 
     # Adding audio descriptors
-    if audio_descriptors != False:
+    if audio_descriptors:
 
         fig = plt.figure(figsize=(12, 16), dpi=300)
         fig.patch.set_facecolor('white')
@@ -593,7 +594,7 @@ def plot_motion_metrics(of, fps, aom, com, qom, audio_descriptors, width, height
         fig.suptitle(title, fontsize=16)
 
         descriptors = audio_descriptors.audio.descriptors(autoshow=False).data
-        gs = gridspec.GridSpec(5, 2)
+        gs = gridspec.GridSpec(6, 2)
 
         freq_ticks = [elem*100 for elem in range(10)]
         freq_ticks = [250]
@@ -608,15 +609,19 @@ def plot_motion_metrics(of, fps, aom, com, qom, audio_descriptors, width, height
 
         times = librosa.times_like(descriptors['cent'], sr=descriptors['sr'], n_fft=2048, hop_length=descriptors['hop_size'])
 
-        ax = plt.subplot(gs[2, :])
+        if unit.lower() == 'samples':
+            times = times*descriptors['sr']
+
+        ax = plt.subplot(gs[3, :])
+        ax.set_title('Audio descriptors')
         ax.semilogy(times, descriptors['rms'][0], label='RMS Energy')
         ax.legend(loc='upper right')
 
-        ax = plt.subplot(gs[3, :])
+        ax = plt.subplot(gs[4, :])
         ax.plot(times, descriptors['flatness'].T, label='Flatness', color='y')
         ax.legend(loc='upper right')
 
-        ax = plt.subplot(gs[4, :])
+        ax = plt.subplot(gs[5, :])
         # get rid of "default" ticks
         ax.yaxis.set_minor_locator(matplotlib.ticker.NullLocator())
         ax.set(yticks=(freq_ticks))
@@ -626,6 +631,11 @@ def plot_motion_metrics(of, fps, aom, com, qom, audio_descriptors, width, height
         ax.plot(times, descriptors['rolloff'][0], label='Roll-off frequency (0.99)')
         ax.plot(times, descriptors['rolloff_min'][0], color='r',label='Roll-off frequency (0.01)')
         ax.legend(loc='upper right')
+
+        if unit.lower() == 'seconds':
+            ax.set_xlabel('Time[seconds]')
+        else:
+            ax.set_xlabel('Time[samples]')
 
     # Centroid of motion (CoM)
     ax = plt.subplot(gs[0, 0])
@@ -647,15 +657,38 @@ def plot_motion_metrics(of, fps, aom, com, qom, audio_descriptors, width, height
     ax.set_title('Area of motion (AoM)')
 
     # Quantity of motion (QoM)
+    def adjacent_values(vals, q1, q3):
+        upper_adjacent_value = q3 + (q3 - q1) * 1.5
+        upper_adjacent_value = np.clip(upper_adjacent_value, q3, vals[-1])
+
+        lower_adjacent_value = q1 - (q3 - q1) * 1.5
+        lower_adjacent_value = np.clip(lower_adjacent_value, vals[0], q1)
+        return lower_adjacent_value, upper_adjacent_value
+
     ax = plt.subplot(gs[1, :])
+    ax.set_title('Quantity of motion (QoM)')
+    ax.violinplot([qom[1:]/(max(qom[1:]))], showmeans=False, showmedians=True, showextrema=True, vert=False)
+
+    quartile1, medians, quartile3 = np.percentile([qom[1:]/(max(qom[1:]))], [25, 50, 75], axis=1)
+    whiskers = np.array([adjacent_values(sorted_array, q1, q3) for sorted_array, q1, q3 in zip([qom[1:]/(max(qom[1:]))], quartile1, quartile3)])
+    whiskers_min, whiskers_max = whiskers[:, 0], whiskers[:, 1]
+
+    inds = np.arange(1, len(medians) + 1)
+    ax.scatter(medians, inds, marker='o', color='white', s=60, zorder=3)
+    ax.hlines(inds, quartile1, quartile3, color='k', linestyle='-', lw=8)
+    ax.hlines(inds, whiskers_min, whiskers_max, color='k', linestyle='-', lw=1)
+    ax.set_xlabel('Pixels normalized')
+    ax.set_yticks([])
+    ax.set_yticklabels([])
+
+    ax = plt.subplot(gs[2, :])
     if unit.lower() == 'seconds':
         ax.set_xlabel('Time[seconds]')
     else:
         ax.set_xlabel('Time[samples]')
         fps = 1
     ax.set_ylabel('Pixels normalized')
-    ax.set_title('Quantity of motion (QoM)')
-    ax.bar(np.arange(len(qom)-1)/fps, qom[1:]/(width*height))
+    ax.bar(np.arange(len(qom)-1)/fps, qom[1:]/(max(qom[1:])))
 
     plt.tight_layout()
 
@@ -668,6 +701,7 @@ def plot_motion_metrics(of, fps, aom, com, qom, audio_descriptors, width, height
         target_name_plot = generate_outfilename(target_name_plot)
 
     plt.savefig(target_name_plot, format='png', transparent=False)
+    plt.close()
 
     return target_name_plot
 
