@@ -65,8 +65,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                     keys = parent.__dict__.keys()
                     if "as_mp4" not in keys:
                         from musicalgestures._utils import convert_to_mp4
-                        print(
-                            'Only mp4, webm and ogg videos are supported in notebook mode.')
+                        print('Only mp4, webm and ogg videos are supported in notebook mode.')
                         video_to_display = convert_to_mp4(file)
                         # register converted video as_mp4 for parent MgVideo
                         parent.as_mp4 = musicalgestures.MgVideo(
@@ -77,8 +76,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                     video_to_display = file
 
                 # check width and height of video, if they are bigger than "appropriate", limit their dimensions
-                video_width, video_height = musicalgestures._utils.get_widthheight(
-                    video_to_display)
+                video_width, video_height = musicalgestures._utils.get_widthheight(video_to_display)
                 video_width = video_width if video_width <= width else width
                 video_height = video_height if video_height <= height else height
 
@@ -141,6 +139,18 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             else:
                 raise FileNotFoundError(
                     "There is no known horizontal videogram for this file.")
+
+        elif key.lower() == 'ssm':
+            if "ssm" in keys:
+                filename = self.ssm.image
+                if len(filename) == 2:
+                    show(file=filename[0], width=window_width, height=window_height, mode=mode, title=f'Horizontal SSM | {filename}', parent=self)
+                    show(file=filename[1], width=window_width, height=window_height, mode=mode, title=f'Vertical SSM | {filename}', parent=self)
+                else:    
+                    show(file=filename, width=window_width, height=window_height, mode=mode, title=f'Self-Similarity Matrix | {filename}', parent=self)
+            else:
+                raise FileNotFoundError(
+                    "There is no known self-smilarity matrix for this file.")
 
         elif key.lower() == 'vgy':
             if "videogram_y" in keys:
@@ -246,9 +256,11 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                 raise FileNotFoundError(
                     "There is no known blur faces video for this file.")
 
+
+
         else:
             print("Unknown shorthand.\n",
-                  "For images, try 'mgx', 'mgy', 'vgx', 'vgy', 'average' or 'plot'.\n",
+                  "For images, try 'mgx', 'mgy', 'vgx', 'vgy', 'ssmx','ssmy', 'average' or 'plot'.\n",
                   "For videos try 'motion', 'history', 'motionhistory', 'sparse', 'dense', 'pose', 'warp' or 'blur'.")
 
     else:

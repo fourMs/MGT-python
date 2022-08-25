@@ -1,18 +1,17 @@
 import musicalgestures
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
-import matplotlib
 import cv2
 import os
 import librosa 
 import numpy as np
 import pandas as pd
-from scipy.signal import medfilt2d
+
 from musicalgestures._centroid import centroid
-from musicalgestures._utils import extract_wav, embed_audio_in_video, frame2ms, MgProgressbar, MgFigure, MgImage, has_audio, convert_to_avi, get_length, get_widthheight, motionvideo_ffmpeg, generate_outfilename  # ,motiongrams_ffmpeg
+from musicalgestures._utils import extract_wav, embed_audio_in_video, frame2ms, MgProgressbar, MgFigure, MgImage, convert_to_avi, motionvideo_ffmpeg, generate_outfilename  # ,motiongrams_ffmpeg
 from musicalgestures._filter import filter_frame
 from musicalgestures._mglist import MgList
-from musicalgestures._audio import mg_audio_descriptors
+
 
 def mg_motiongrams(
         self,
@@ -83,6 +82,7 @@ def mg_motiongrams(
         target_name_mgx=target_name_mgx,
         target_name_mgy=target_name_mgy,
         overwrite=overwrite)
+
     # mg_motion also saves the motiongrams as MgImages to self.motiongram_x and self.motiongram_y of the parent MgVideo
     return MgList(MgImage(out_x), MgImage(out_y))
 
@@ -490,10 +490,8 @@ def mg_motion(
                 # Normalize before converting to uint8 to keep precision
                 gramx = gramx/gramx.max()*255
                 gramy = gramy/gramy.max()*255
-                gramx = cv2.cvtColor(gramx.astype(
-                    np.uint8), cv2.COLOR_GRAY2BGR)
-                gramy = cv2.cvtColor(gramy.astype(
-                    np.uint8), cv2.COLOR_GRAY2BGR)
+                gramx = cv2.cvtColor(gramx.astype(np.uint8), cv2.COLOR_GRAY2BGR)
+                gramy = cv2.cvtColor(gramy.astype(np.uint8), cv2.COLOR_GRAY2BGR)
 
             gramx = (gramx-gramx.min())/(gramx.max()-gramx.min())*255.0
             gramy = (gramy-gramy.min())/(gramy.max()-gramy.min())*255.0
@@ -510,21 +508,23 @@ def mg_motion(
                 gramy = cv2.cvtColor(gramy_hsv, cv2.COLOR_HSV2BGR)
 
             if target_name_mgx == None:
-                target_name_mgx = of+'_mgx.png'
+                target_name_mgx = of + '_mgx.png'
             if target_name_mgy == None:
-                target_name_mgy = of+'_mgy.png'
+                target_name_mgy = of + '_mgy.png'
             if not overwrite:
                 target_name_mgx = generate_outfilename(target_name_mgx)
                 target_name_mgy = generate_outfilename(target_name_mgy)
 
             if inverted_motiongram:
-                cv2.imwrite(target_name_mgx, cv2.bitwise_not(
-                    gramx.astype(np.uint8)))
-                cv2.imwrite(target_name_mgy, cv2.bitwise_not(
-                    gramy.astype(np.uint8)))
+                cv2.imwrite(target_name_mgx, cv2.bitwise_not(gramx.astype(np.uint8)))
+                cv2.imwrite(target_name_mgy, cv2.bitwise_not(gramy.astype(np.uint8)))
             else:
                 cv2.imwrite(target_name_mgx, gramx.astype(np.uint8))
                 cv2.imwrite(target_name_mgy, gramy.astype(np.uint8))
+
+            # save motiongrams data and convert to grayscale for processing motiongrams Self-Similarity Matrices (SSMs)
+            data = (cv2.cvtColor(gramx.astype(np.uint8), cv2.COLOR_BGR2GRAY), cv2.cvtColor(gramy.astype(np.uint8), cv2.COLOR_BGR2GRAY))
+            self.ssm = MgFigure(figure=None, figure_type='video.ssm', data=data, layers=None, image=(target_name_mgx, target_name_mgy))
 
             # save rendered motiongrams as MgImages into parent MgVideo
             self.motiongram_x = MgImage(target_name_mgx)
@@ -541,7 +541,6 @@ def mg_motion(
             self.motion_plot = MgImage(plot_motion_metrics(of, self.fps, aom, com, qom, audio_descriptors, self.width,
                                        self.height, unit, plot_title, target_name_plot=target_name_plot, overwrite=overwrite))
               
-
         # resetting numpy warnings for dividing by 0
         np.seterr(divide='warn', invalid='warn')
 
@@ -556,8 +555,8 @@ def mg_motion(
                 os.remove(source_audio)
             # return musicalgestures.MgVideo(destination_video, color=self.color, returned_by_process=True)
             # save rendered motion video as the motion_video of the parent MgVideo
-            self.motion_video = musicalgestures.MgVideo(
-                destination_video, color=self.color, returned_by_process=True)
+            self.motion_video = musicalgestures.MgVideo(destination_video, color=self.color, returned_by_process=True)
+
             return self.motion_video
         # if we don't save the motion video, just return the MgVideo the motion() was called upon
         else:
