@@ -127,11 +127,12 @@ def mg_ssm(
         
         ax0 = fig.add_subplot(gs[0])
         ax0.xaxis.set_major_locator(MaxNLocator(8))
-        ax0.set_title('Vertical motiongram: ' + self.filename)
+        ax0.set_title('Vertical motiongram: ' + os.path.basename(self.of + self.fex))
         ax0.invert_yaxis()
         img0 = ax0.imshow(X, aspect='auto', cmap=cmap)
         fig.colorbar(img0, ax=ax0, aspect=15)
         ax0.set_xlabel('')
+
 
         ax1 = fig.add_subplot(gs[1:])
         ax1.xaxis.set_major_locator(MaxNLocator(8))
@@ -153,7 +154,7 @@ def mg_ssm(
 
         ax0 = fig.add_subplot(gs[0])
         ax0.xaxis.set_major_locator(MaxNLocator(8))
-        ax0.set_title('Horizontal motiongram: ' + self.filename)
+        ax0.set_title('Horizontal motiongram: ' + os.path.basename(self.of + self.fex))
         ax0.invert_yaxis()
         img0 = ax0.imshow(Y, aspect='auto', cmap=cmap)
         fig.colorbar(img0, ax=ax0, aspect=15)
@@ -203,7 +204,7 @@ def mg_ssm(
         gs = gridspec.GridSpec(4, 1)
 
         ax0 = fig.add_subplot(gs[0])
-        ax0.set_title('Spectrogram: ' + self.filename)
+        ax0.set_title('Spectrogram: ' + os.path.basename(self.of + self.fex))
         img0 = librosa.display.specshow(librosa.amplitude_to_db(X, ref=np.max), y_axis='linear', x_axis='time', ax=ax0, cmap=cmap, sr=sr, win_length=frame_length, hop_length=hop_length)
         fig.colorbar(img0, ax=ax0, format="%+2.f dB")
         ax0.xaxis.set_major_formatter(formatter)
@@ -257,7 +258,7 @@ def mg_ssm(
         gs = gridspec.GridSpec(4, 1)
 
         ax0 = fig.add_subplot(gs[0])
-        ax0.set_title('Chromagram: ' + self.filename)
+        ax0.set_title('Chromagram: ' + os.path.basename(self.of + self.fex))
         img0 = librosa.display.specshow(X, y_axis='chroma', x_axis='time', ax=ax0, cmap=cmap, sr=sr, win_length=frame_length, hop_length=hop_length)
         ax0.xaxis.set_major_locator(MaxNLocator(8))
         # Normalize colorbar
@@ -318,7 +319,7 @@ def mg_ssm(
         gs = gridspec.GridSpec(4, 1)
 
         ax0 = fig.add_subplot(gs[0])
-        ax0.set_title('Tempogram: ' + self.filename)
+        ax0.set_title('Tempogram: ' + os.path.basename(self.of + self.fex))
         img0 = librosa.display.specshow(X, y_axis='tempo', x_axis='time', ax=ax0, cmap=cmap, sr=sr, win_length=frame_length, hop_length=hop_length)
         fig.colorbar(img0, ax=ax0)
         ax0.axhline(tempo, color='w', linestyle='--', alpha=1, label='Estimated tempo={:g}'.format(tempo))
