@@ -5,8 +5,7 @@ import pytest
 
 @pytest.fixture(scope="class")
 def testvideo_avi(tmp_path_factory):
-    target_name = str(tmp_path_factory.mktemp("data")).replace(
-        "\\", "/") + "/testvideo.avi"
+    target_name = str(tmp_path_factory.mktemp("data")).replace("\\", "/") + "/testvideo.avi"
     testvideo_avi = musicalgestures._utils.extract_subclip(
         musicalgestures.examples.dance, 5, 6, target_name=target_name)
     return testvideo_avi
