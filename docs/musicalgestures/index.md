@@ -30,6 +30,7 @@
         - [Pose](_pose.md#pose)
         - [Show](_show.md#show)
         - [Show Window](_show_window.md#show-window)
+        - [Ssm](_ssm.md#ssm)
         - [Utils](_utils.md#utils)
         - [Videoadjust](_videoadjust.md#videoadjust)
         - [Videograms](_videograms.md#videograms)
@@ -39,7 +40,7 @@
 
 ## Examples
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L147)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L148)
 
 ```python
 class Examples():
@@ -84,7 +85,7 @@ These preprocesses will apply upon creating the MgVideo. Further processes are a
 
 ### MgVideo().get_video
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L124)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L125)
 
 ```python
 def get_video():
@@ -94,7 +95,7 @@ Creates a video attribute to the Musical Gestures object with the given correct 
 
 ### MgVideo().info
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L112)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L113)
 
 ```python
 def info(type='video'):
@@ -104,7 +105,7 @@ Retrieves the information related to video, audio and format.
 
 ### MgVideo().test_input
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L108)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L109)
 
 ```python
 def test_input():

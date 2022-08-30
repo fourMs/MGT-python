@@ -37,7 +37,7 @@ Applies contrast and brightness adjustments on the source video using ffmpeg.
 
 ## fixed_frames_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_videoadjust.py#L98)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_videoadjust.py#L99)
 
 ```python
 def fixed_frames_ffmpeg(

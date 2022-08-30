@@ -13,7 +13,7 @@
 
 ## mg_motion
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L272)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L273)
 
 ```python
 def mg_motion(
@@ -109,7 +109,7 @@ Shortcut for [mg_motion](#mg_motion) to only render motion data.
 
 ## mg_motiongrams
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L17)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L16)
 
 ```python
 def mg_motiongrams(
@@ -173,6 +173,7 @@ Shortcut for [mg_motion](#mg_motion) to only render motion plots.
 - `thresh` *float, optional* - Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
 - `blur` *str, optional* - 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
 - `kernel_size` *int, optional* - Size of structuring element. Defaults to 5.
+- `audio_descriptors` *bool, optional* - Whether to plot motion plots together with audio descriptors in order to see possible correlations in the data. Deflauts to False.
 - `unit` *str, optional* - Unit in QoM plot. Accepted values are 'seconds' or 'samples'. Defaults to 'seconds'.
 - `title` *str, optional* - Optionally add title to the plot. Defaults to None, which uses the file name as a title.
 - `target_name` *str, optional* - Target output name for the plot. Defaults to None (which assumes that the input filename with the suffix "_motion_com_aom_qom" should be used).
@@ -184,7 +185,7 @@ Shortcut for [mg_motion](#mg_motion) to only render motion plots.
 
 ## mg_motionvideo
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L212)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L213)
 
 ```python
 def mg_motionvideo(
@@ -242,7 +243,7 @@ Helper function to plot the centroid and quantity of motion using matplotlib.
 
 ## save_txt
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L675)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L707)
 
 ```python
 def save_txt(

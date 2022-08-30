@@ -27,6 +27,7 @@ Full list of [Mgt-python](README.md#mgt-python) project modules.
     - [Pose](musicalgestures/_pose.md#pose)
     - [Show](musicalgestures/_show.md#show)
     - [Show Window](musicalgestures/_show_window.md#show-window)
+    - [Ssm](musicalgestures/_ssm.md#ssm)
     - [Utils](musicalgestures/_utils.md#utils)
     - [Videoadjust](musicalgestures/_videoadjust.md#videoadjust)
     - [Videograms](musicalgestures/_videograms.md#videograms)
