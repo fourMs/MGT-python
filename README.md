@@ -4,12 +4,6 @@ The Musical Gestures Toolbox for Python is a collection of tools for visualizati
 
 ![MGT python](https://raw.githubusercontent.com/fourMs/MGT-python/master/musicalgestures/documentation/figures/promo/ipython_example.gif)
 
-Watch a 10-minute introduction to the toolbox: 
-
-[![Video](https://www.uio.no/ritmo/english/research/labs/fourms/software/musicalgesturestoolbox/mgt-python/video/nordicsmc2021-thumbnail.png)](https://youtu.be/tZVX_lDFrwc)
-
-MGT can generate both dynamic and static visualizations of video files, including motion videos, history videos, average images, motiongrams, and videograms. It can also extract various features from video files, including the quantity, centroid, and area of motion. The toolbox also integrates well with other libraries, such as OpenPose for skeleton tracking, and Librosa for audio analysis. All the features are described in the [wiki](https://github.com/fourMs/MGT-python/wiki).
-
 ## Test Usage
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fourMs/MGT-python/blob/master/musicalgestures/MusicalGesturesToolbox.ipynb)
@@ -23,6 +17,15 @@ The standard installation via pip: paste and execute the following code in the T
 `pip install musicalgestures`
 
 MGT is developed in Python 3 and relies on FFmpeg and OpenCV. See [the wiki](https://github.com/fourMs/MGT-python/wiki#installation) for more details on the installation process.
+
+## Description
+
+Watch a 10-minute introduction to the toolbox: 
+
+[![Video](https://www.uio.no/ritmo/english/research/labs/fourms/software/musicalgesturestoolbox/mgt-python/video/nordicsmc2021-thumbnail.png)](https://youtu.be/tZVX_lDFrwc)
+
+MGT can generate both dynamic and static visualizations of video files, including motion videos, history videos, average images, motiongrams, and videograms. It can also extract various features from video files, including the quantity, centroid, and area of motion. The toolbox also integrates well with other libraries, such as OpenPose for skeleton tracking, and Librosa for audio analysis. All the features are described in the [wiki](https://github.com/fourMs/MGT-python/wiki).
+
 
 ## History
 
