@@ -1,38 +1,14 @@
 # MGT-python
 
-The Musical Gestures Toolbox for Python is a collection of tools for video visualization and video analysis.
+The Musical Gestures Toolbox for Python is a collection of tools for visualization and analysis of audio and video.
 
 ![MGT python](https://raw.githubusercontent.com/fourMs/MGT-python/master/musicalgestures/documentation/figures/promo/ipython_example.gif)
 
+## Usage
 
-## About
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fourMs/MGT-python/blob/master/musicalgestures/MusicalGesturesToolbox.ipynb)
 
-Videos can be used to develop new visualisations to be used for analysis. The aim of creating such alternate displays from video recordings is to uncover features, structures and similarities within the material itself, and in relation to, for example, score material. Three useful visualisation techniques here are motion images, motion history images and motiongrams.
-
-MGT can generate both dynamic and static visualizations, as well as some quantitative data:
-
-- dynamic visualisations (video files)
-    - motion videos
-    - motion history videos
-- static visualisations (images)
-    - motion average images
-    - motiongrams
-    - videograms
-- motion data (csv files)
-    - quantity of motion
-    - centroid of motion
-    - area of motion
-
-## Description
-
-Watch 10-minute intro video to the toolbox: 
-
-[![Video](https://www.uio.no/ritmo/english/research/labs/fourms/software/musicalgesturestoolbox/mgt-python/video/nordicsmc2021-thumbnail.png)](https://youtu.be/tZVX_lDFrwc)
-
-## Installation
-
-
-### Windows, OSX and Linux
+The easiest way to get started is to take a look at the Jupyter notebook [MotionGesturesToolbox.ipynb](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/MusicalGesturesToolbox.ipynb), which shows examples of the usage of the toolbox.
 
 The standard installation via pip: paste and execute the following code in the Terminal (OSX, Linux) or the PowerShell (Windows):
 
@@ -40,11 +16,14 @@ The standard installation via pip: paste and execute the following code in the T
 
 MGT is developed in Python 3 and relies on FFmpeg and OpenCV. See [the wiki](https://github.com/fourMs/MGT-python/wiki#installation) for more details on the installation process.
 
-## Usage
+## Description
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fourMs/MGT-python/blob/master/musicalgestures/MusicalGesturesToolbox.ipynb)
+Watch a 10-minute introduction to the toolbox: 
 
-The Jupyter notebook [MotionGesturesToolbox.ipynb](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/MusicalGesturesToolbox.ipynb) shows examples of the usage of the toolbox.
+[![Video](https://www.uio.no/ritmo/english/research/labs/fourms/software/musicalgesturestoolbox/mgt-python/video/nordicsmc2021-thumbnail.png)](https://youtu.be/tZVX_lDFrwc)
+
+MGT can generate both dynamic and static visualizations of video files, including motion videos, history videos, average images, motiongrams, and videograms. It can also extract various features from video files, including the quantity, centroid, and area of motion. The toolbox also integrates well with other libraries, such as OpenPose for skeleton tracking, and Librosa for audio analysis. All the features are described in the [wiki](https://github.com/fourMs/MGT-python/wiki).
+
 
 ## History
 
@@ -56,7 +35,7 @@ The software is currently maintained by the [fourMs lab](https://github.com/four
 
 If you use this toolbox in your research, please cite this article:
 
-- Laczkó, B., & Jensenius, A. R. (2021). [Reflections on the Development of the Musical Gestures Toolbox for Python](https://nordicsmc.create.aau.dk/wp-content/NordicSMC/Nordic_SMC_2021_paper_38.pdf). Proceedings of the Nordic Sound and Music Computing Conference.
+- Laczkó, B., & Jensenius, A. R. (2021). [Reflections on the Development of the Musical Gestures Toolbox for Python](https://nordicsmc.create.aau.dk/wp-content/NordicSMC/Nordic_SMC_2021_paper_38.pdf). *Proceedings of the Nordic Sound and Music Computing Conference*, Copenhagen.
 
 
 ## Credits
