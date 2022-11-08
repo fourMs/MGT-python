@@ -283,12 +283,13 @@ def mg_motion(
 
         if save_video:
             video_out.release()
+            destination_video = target_name_video
             if self.has_audio:
                 source_audio = extract_wav(of + fex)
-                embed_audio_in_video(source_audio, target_name_video)
+                embed_audio_in_video(source_audio, destination_video)
                 os.remove(source_audio)
             # Save rendered motion video as the motion_video of the parent MgVideo
-            self.motion_video = musicalgestures.MgVideo(target_name_video, color=self.color, returned_by_process=True)
+            self.motion_video = musicalgestures.MgVideo(destination_video, color=self.color, returned_by_process=True)
 
             return self.motion_video
         else:
