@@ -6,7 +6,7 @@ import cv2
 import sys
 # import musicalgestures
 from musicalgestures._utils import frame2ms
-from musicalgestures._centroid import centroid
+from musicalgestures._motionanalysis import centroid
 from musicalgestures._filter import filter_frame
 import socket
 

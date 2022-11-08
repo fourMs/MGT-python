@@ -682,6 +682,21 @@ def convert_to_grayscale(filename, target_name=None, overwrite=False):
                pb_prefix='Converting to grayscale:')
     return target_name
 
+def transform_frame(out, height, width, color):
+    import numpy
+
+    # transform the bytes read into a numpy array
+    frame =  numpy.frombuffer(out, dtype='uint8')
+    try:
+        if color:
+            frame = frame.reshape((height,width,3)) # height, width, channels
+        else:
+            frame = frame.reshape((height,width)) # height, width
+    except ValueError:
+        pass
+    
+    return frame
+
 
 def framediff_ffmpeg(filename, target_name=None, color=True, overwrite=False):
     """
@@ -791,67 +806,24 @@ def motionvideo_ffmpeg(
     """
 
     import os
-    import matplotlib
+    from musicalgestures._filter import filter_frame_ffmpeg
+
     of, fex = os.path.splitext(filename)
 
     cmd = ['ffmpeg', '-y', '-i', filename]
-    cmd_filter = ''
+    # cmd_filter = ''
 
     if target_name == None:
         target_name = of + '_motion' + fex
     if not overwrite:
         target_name = generate_outfilename(target_name)
 
+    cmd, cmd_filter = filter_frame_ffmpeg(filename, cmd, color, blur, filtertype, threshold, kernel_size, use_median, invert=invert)
+    # remove last comma after previous filter
+    cmd_filter = cmd_filter[: -1]
+
     pass_if_containers_match(filename, target_name)
-
     cmd_end = ['-q:v', '3', "-c:a", "copy", target_name]
-
-    # set color mode
-    if color == True:
-        pixformat = 'gbrp'
-    else:
-        pixformat = 'gray'
-    cmd_filter += f'format={pixformat},'
-
-    # set blur
-    if blur.lower() == 'average':
-        cmd_filter += 'avgblur=sizeX=10:sizeY=10,'
-
-    # set frame difference
-    if filtertype.lower() == 'regular':
-        cmd_filter += 'tblend=all_mode=difference[diff],'
-    else:
-        cmd_filter += 'tblend=all_mode=difference,'
-
-    width, height = get_widthheight(filename)
-
-    thresh_color = matplotlib.colors.to_hex([threshold, threshold, threshold])
-    thresh_color = '0x' + thresh_color[1:]
-
-    # set threshold
-    if filtertype.lower() == 'regular':
-        cmd += ['-f', 'lavfi', '-i', f'color={thresh_color},scale={width}:{height}',
-                '-f', 'lavfi', '-i', f'color=black,scale={width}:{height}']
-        cmd_filter += '[0:v][1][2][diff]threshold,'
-    elif filtertype.lower() == 'binary':
-        cmd += ['-f', 'lavfi', '-i', f'color={thresh_color},scale={width}:{height}', '-f', 'lavfi', '-i',
-                f'color=black,scale={width}:{height}', '-f', 'lavfi', '-i', f'color=white,scale={width}:{height}']
-        cmd_filter += 'threshold,'
-    elif filtertype.lower() == 'blob':
-        # cmd_filter += 'erosion,' # erosion is always 3x3 so we will hack it with a median filter with percentile=0 which will pick minimum values
-        cmd_filter += f'median=radius={kernel_size}:percentile=0,'
-
-    # set median
-    if use_median and filtertype.lower() != 'blob':  # makes no sense to median-filter the eroded video
-        cmd_filter += f'median=radius={kernel_size},'
-
-    # set invert
-    if invert:
-        cmd_filter += 'negate'
-    else:
-        # remove last comma after previous filter
-        cmd_filter = cmd_filter[: -1]
-
     cmd += ['-filter_complex', cmd_filter] + cmd_end
 
     ffmpeg_cmd(cmd, get_length(filename), pb_prefix='Rendering motion video:')
@@ -893,7 +865,8 @@ def motiongrams_ffmpeg(
     """
 
     import os
-    import matplotlib
+    from musicalgestures._filter import filter_frame_ffmpeg
+
     of, fex = os.path.splitext(filename)
 
     if target_name_x == None:
@@ -908,57 +881,15 @@ def motiongrams_ffmpeg(
     pass_if_container_is(".png", target_name_y)
 
     cmd = ['ffmpeg', '-y', '-i', filename]
-    cmd_filter = ''
 
     width, height = get_widthheight(filename)
     framecount = get_framecount(filename)
 
-    cmd_end_y = ['-aspect', f'{framecount}:{height}',
-                 '-frames', '1', target_name_y]
-    cmd_end_x = ['-aspect', f'{width}:{framecount}',
-                 '-frames', '1', target_name_x]
+    cmd_end_y = ['-aspect', f'{framecount}:{height}', '-frames', '1', target_name_y]
+    cmd_end_x = ['-aspect', f'{width}:{framecount}', '-frames', '1', target_name_x]
 
-    # set color mode
-    if color == True:
-        pixformat = 'gbrp'
-    else:
-        pixformat = 'gray'
-    cmd_filter += f'format={pixformat},'
-
-    # set blur
-    if blur.lower() == 'average':
-        cmd_filter += 'avgblur=sizeX=10:sizeY=10,'
-
-    # set frame difference
-    if filtertype.lower() == 'regular':
-        cmd_filter += 'tblend=all_mode=difference[diff],'
-    else:
-        cmd_filter += 'tblend=all_mode=difference,'
-
-    thresh_color = matplotlib.colors.to_hex([threshold, threshold, threshold])
-    thresh_color = '0x' + thresh_color[1:]
-
-    # set threshold
-    if threshold > 0:
-        if filtertype.lower() == 'regular':
-            cmd += ['-f', 'lavfi', '-i', f'color={thresh_color},scale={width}:{height}',
-                    '-f', 'lavfi', '-i', f'color=black,scale={width}:{height}']
-            cmd_filter += '[0:v][1][2][diff]threshold,'
-        elif filtertype.lower() == 'binary':
-            cmd += ['-f', 'lavfi', '-i', f'color={thresh_color},scale={width}:{height}', '-f', 'lavfi', '-i',
-                    f'color=black,scale={width}:{height}', '-f', 'lavfi', '-i', f'color=white,scale={width}:{height}']
-            cmd_filter += 'threshold,'
-        elif filtertype.lower() == 'blob':
-            # cmd_filter += 'erosion,' # erosion is always 3x3 so we will hack it with a median filter with percentile=0 which will pick minimum values
-            cmd_filter += f'median=radius={kernel_size}:percentile=0,'
-
-    # set median
-    if use_median and filtertype.lower() != 'blob':  # makes no sense to median-filter the eroded video
-        cmd_filter += f'median=radius={kernel_size},'
-
-    # set invert
-    if invert:
-        cmd_filter += 'negate,'
+    cmd, cmd_filter = filter_frame_ffmpeg(filename, cmd, color, blur, filtertype, threshold, kernel_size, use_median, invert=invert)
+    cmd_filter += 'atadenoise=s=129,' # apply adaptive temporal averaging denoiser every 129 frames
 
     cmd_filter_y = cmd_filter + \
         f'scale=1:{height},tile={framecount}x1,normalize=independence=0'
@@ -970,10 +901,8 @@ def motiongrams_ffmpeg(
     cmd_y = cmd + ['-filter_complex', cmd_filter_y] + cmd_end_y
     cmd_x = cmd + ['-filter_complex', cmd_filter_x] + cmd_end_x
 
-    ffmpeg_cmd(cmd_x, get_length(filename),
-               pb_prefix='Rendering horizontal motiongram:', stream=False)
-    ffmpeg_cmd(cmd_y, get_length(filename),
-               pb_prefix='Rendering vertical motiongram:', stream=False)
+    ffmpeg_cmd(cmd_x, get_length(filename), pb_prefix='Rendering horizontal motiongram:', stream=False)
+    ffmpeg_cmd(cmd_y, get_length(filename), pb_prefix='Rendering vertical motiongram:', stream=False)
 
     return target_name_x, target_name_y
 

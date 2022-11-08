@@ -2,7 +2,7 @@ import cv2
 import os
 import numpy as np
 from scipy.signal import medfilt2d
-from musicalgestures._centroid import centroid
+from musicalgestures._motionanalysis import centroid
 from musicalgestures._filter import filter_frame
 from musicalgestures._utils import mg_progressbar, extract_wav, embed_audio_in_video
 import musicalgestures

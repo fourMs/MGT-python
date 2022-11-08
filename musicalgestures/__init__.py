@@ -98,7 +98,7 @@ class MgVideo:
     from musicalgestures._grid import mg_grid as grid
     from musicalgestures._audio import mg_audio_spectrogram
     from musicalgestures._audio import mg_audio_descriptors
-    from musicalgestures._motionvideo import plot_motion_metrics
+    from musicalgestures._motionvideo import save_analysis
     # from musicalgestures._cropvideo import mg_cropvideo, find_motion_box, find_total_motion_box
     from musicalgestures._show import mg_show as show
     from musicalgestures._history import history_ffmpeg as history

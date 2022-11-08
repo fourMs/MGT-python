@@ -1,5 +1,5 @@
 import numpy as np
-from musicalgestures._centroid import *
+from musicalgestures._motionanalysis import *
 
 
 class Test_Centroid:

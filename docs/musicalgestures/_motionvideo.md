@@ -8,12 +8,12 @@
     - [mg_motiongrams](#mg_motiongrams)
     - [mg_motionplots](#mg_motionplots)
     - [mg_motionvideo](#mg_motionvideo)
-    - [plot_motion_metrics](#plot_motion_metrics)
+    - [save_analysis](#save_analysis)
     - [save_txt](#save_txt)
 
 ## mg_motion
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L273)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L19)
 
 ```python
 def mg_motion(
@@ -22,10 +22,13 @@ def mg_motion(
     thresh=0.05,
     blur='None',
     kernel_size=5,
+    use_median=False,
+    unit='seconds',
+    atadenoise=False,
+    motion_analysis='all',
     inverted_motionvideo=False,
     inverted_motiongram=False,
-    unit='seconds',
-    equalize_motiongram=True,
+    equalize_motiongram=False,
     audio_descriptors=False,
     save_plot=True,
     plot_title=None,
@@ -53,9 +56,12 @@ centroid of motion for each frame with timecodes in milliseconds.
 - `thresh` *float, optional* - Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
 - `blur` *str, optional* - 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
 - `kernel_size` *int, optional* - Size of structuring element. Defaults to 5.
+- `use_median` *bool, optional* - If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
+- `unit` *str, optional* - Unit in QoM plot. Accepted values are 'seconds' or 'samples'. Defaults to 'seconds'.
+- `atadenoise` *bool, optional* - If True, applies an adaptive temporal averaging denoiser every 129 frames. Defaults to False.
+- `motion_analysis` *str, optional* - Specify which motion analysis to process or all. 'AoM' renders the Area of Motion. 'CoM' renders the Centroid of Motion. 'QoM' renders the Quantity of Motion. 'all' renders all the motion analysis available. Defaults to 'all'.
 - `inverted_motionvideo` *bool, optional* - If True, inverts colors of the motion video. Defaults to False.
 - `inverted_motiongram` *bool, optional* - If True, inverts colors of the motiongrams. Defaults to False.
-- `unit` *str, optional* - Unit in QoM plot. Accepted values are 'seconds' or 'samples'. Defaults to 'seconds'.
 - `equalize_motiongram` *bool, optional* - If True, converts the motiongrams to hsv-color space and flattens the value channel (v). Defaults to True.
 - `save_plot` *bool, optional* - If True, outputs motion-plot. Defaults to True.
 - `plot_title` *str, optional* - Optionally add title to the plot. Defaults to None, which uses the file name as a title.
@@ -76,7 +82,7 @@ centroid of motion for each frame with timecodes in milliseconds.
 
 ## mg_motiondata
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L90)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L429)
 
 ```python
 def mg_motiondata(
@@ -85,6 +91,9 @@ def mg_motiondata(
     thresh=0.05,
     blur='None',
     kernel_size=5,
+    atadenoise=False,
+    use_median=False,
+    motion_analysis='all',
     data_format='csv',
     target_name=None,
     overwrite=False,
@@ -99,6 +108,9 @@ Shortcut for [mg_motion](#mg_motion) to only render motion data.
 - `thresh` *float, optional* - Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
 - `blur` *str, optional* - 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
 - `kernel_size` *int, optional* - Size of structuring element. Defaults to 5.
+- `atadenoise` *bool, optional* - If True, applies an adaptive temporal averaging denoiser every 129 frames. Defaults to False.
+- `use_median` *bool, optional* - If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
+- `motion_analysis` *str, optional* - Specify which motion analysis to process or all. 'AoM' renders the Area of Motion. 'CoM' renders the Centroid of Motion. 'QoM' renders the Quantity of Motion. 'all' renders all the motion analysis available. Defaults to 'all'.
 - `data_format` *str/list, optional* - Specifies format of motion-data. Accepted values are 'csv', 'tsv' and 'txt'. For multiple output formats, use list, eg. ['csv', 'txt']. Defaults to 'csv'.
 - `target_name` *str, optional* - Target output name for the data. Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).
 - `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
@@ -109,7 +121,7 @@ Shortcut for [mg_motion](#mg_motion) to only render motion data.
 
 ## mg_motiongrams
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L16)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L304)
 
 ```python
 def mg_motiongrams(
@@ -118,6 +130,7 @@ def mg_motiongrams(
     thresh=0.05,
     blur='None',
     use_median=False,
+    atadenoise=True,
     kernel_size=5,
     inverted_motiongram=False,
     equalize_motiongram=True,
@@ -135,6 +148,7 @@ Shortcut for [mg_motion](#mg_motion) to only render motiongrams.
 - `thresh` *float, optional* - Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
 - `blur` *str, optional* - 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
 - `use_median` *bool, optional* - If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
+- `atadenoise` *bool, optional* - If True, applies an adaptive temporal averaging denoiser every 129 frames. Defaults to True.
 - `kernel_size` *int, optional* - Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
 - `inverted_motiongram` *bool, optional* - If True, inverts colors of the motiongrams. Defaults to False.
 - `equalize_motiongram` *bool, optional* - If True, converts the motiongrams to hsv-color space and flattens the value channel (v). Defaults to True.
@@ -148,7 +162,7 @@ Shortcut for [mg_motion](#mg_motion) to only render motiongrams.
 
 ## mg_motionplots
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L159)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L507)
 
 ```python
 def mg_motionplots(
@@ -157,6 +171,9 @@ def mg_motionplots(
     thresh=0.05,
     blur='None',
     kernel_size=5,
+    use_median=False,
+    atadenoise=False,
+    motion_analysis='all',
     audio_descriptors=False,
     unit='seconds',
     title=None,
@@ -173,6 +190,9 @@ Shortcut for [mg_motion](#mg_motion) to only render motion plots.
 - `thresh` *float, optional* - Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
 - `blur` *str, optional* - 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
 - `kernel_size` *int, optional* - Size of structuring element. Defaults to 5.
+- `use_median` *bool, optional* - If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
+- `atadenoise` *bool, optional* - If True, applies an adaptive temporal averaging denoiser every 129 frames. Defaults to False.
+- `motion_analysis` *str, optional* - Specify which motion analysis to process or all. 'AoM' renders the Area of Motion. 'CoM' renders the Centroid of Motion. 'QoM' renders the Quantity of Motion. 'all' renders all the motion analysis available. Defaults to 'all'.
 - `audio_descriptors` *bool, optional* - Whether to plot motion plots together with audio descriptors in order to see possible correlations in the data. Deflauts to False.
 - `unit` *str, optional* - Unit in QoM plot. Accepted values are 'seconds' or 'samples'. Defaults to 'seconds'.
 - `title` *str, optional* - Optionally add title to the plot. Defaults to None, which uses the file name as a title.
@@ -185,7 +205,7 @@ Shortcut for [mg_motion](#mg_motion) to only render motion plots.
 
 ## mg_motionvideo
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L213)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L371)
 
 ```python
 def mg_motionvideo(
@@ -218,17 +238,18 @@ Shortcut to only render the motion video. Uses musicalgestures._utils.motionvide
 
 - `MgVideo` - A new MgVideo pointing to the output '_motion' video file.
 
-## plot_motion_metrics
+## save_analysis
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L573)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L570)
 
 ```python
-def plot_motion_metrics(
+def save_analysis(
     of,
     fps,
     aom,
     com,
     qom,
+    motion_analysis,
     audio_descriptors,
     width,
     height,
@@ -239,11 +260,11 @@ def plot_motion_metrics(
 ):
 ```
 
-Helper function to plot the centroid and quantity of motion using matplotlib.
+Helper function to plot the motion data using matplotlib.
 
 ## save_txt
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L707)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L776)
 
 ```python
 def save_txt(
@@ -252,6 +273,7 @@ def save_txt(
     aom,
     com,
     qom,
+    motion_analysis,
     width,
     height,
     data_format,

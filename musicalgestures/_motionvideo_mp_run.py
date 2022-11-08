@@ -1,5 +1,5 @@
 from musicalgestures._utils import ffmpeg_cmd, generate_outfilename, get_length, wrap_str, convert_to_avi, MgProgressbar, extract_wav, embed_audio_in_video, MgImage
-from musicalgestures._motionvideo import save_txt, plot_motion_metrics
+from musicalgestures._motionvideo import save_txt, save_analysis
 import subprocess
 import tempfile
 import shutil
@@ -256,7 +256,7 @@ def mg_motion_mp(
         if plot_title == None:
             plot_title = os.path.basename(of + fex)
         # save plot as an MgImage at motion_plot for parent MgVideo
-        self.motion_plot = MgImage(plot_motion_metrics(of, self.fps, com, qom, self.width,
+        self.motion_plot = MgImage(save_analysis(of, self.fps, com, qom, self.width,
                                    self.height, unit, plot_title, target_name_plot=target_name_plot, overwrite=overwrite))
 
     if save_video:

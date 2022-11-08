@@ -4,10 +4,11 @@
 
 - [Mgt-python](../README.md#mgt-python) / [Modules](../MODULES.md#mgt-python-modules) / [Musicalgestures](index.md#musicalgestures) / Filter
     - [filter_frame](#filter_frame)
+    - [filter_frame_ffmpeg](#filter_frame_ffmpeg)
 
 ## filter_frame
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_filter.py#L6)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_filter.py#L8)
 
 ```python
 def filter_frame(motion_frame, filtertype, thresh, kernel_size):
@@ -25,3 +26,21 @@ Applies a threshold filter and then a median filter (of `kernel_size`x`kernel_si
 #### Returns
 
 - `np.array(uint8)` - The filtered frame.
+
+## filter_frame_ffmpeg
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_filter.py#L32)
+
+```python
+def filter_frame_ffmpeg(
+    filename,
+    cmd,
+    color,
+    blur,
+    filtertype,
+    threshold,
+    kernel_size,
+    use_median,
+    invert=False,
+):
+```
