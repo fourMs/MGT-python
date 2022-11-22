@@ -4,6 +4,7 @@ import numpy as np
 import math
 import weakref
 import matplotlib.pyplot as plt
+from scipy.stats import entropy
 
 import musicalgestures
 from musicalgestures._utils import MgFigure, extract_wav, embed_audio_in_video, MgProgressbar, convert_to_avi, generate_outfilename
@@ -190,11 +191,14 @@ class Flow:
             fig.suptitle(title, fontsize=16)
 
             time = np.linspace(0, len(xvel)/fps, len(xvel))
+            acceleration = self.get_acceleration(xvel, fps)
+            acceleration_entropy = entropy(acceleration)
 
-            ax.plot(time, xvel)
+            ax.plot(time, xvel, label=f'Average acceleration: {round(np.mean(acceleration),2)} m/s\nEntropy of acceleration: {round(acceleration_entropy,3)}')
             ax.set_xlabel('Time [Seconds]')
             ax.set_ylabel('Velocity [Meters]')
             ax.margins(x=0)
+            ax.legend(handlelength=0, handletextpad=0, fancybox=True)
 
             fig.tight_layout()
 
@@ -242,6 +246,15 @@ class Flow:
 
             return self.parent().flow_dense_video
 
+    def get_acceleration(self, velocity, fps):
+
+        acceleration = np.zeros(len(velocity))
+        velocity = np.abs(velocity)
+        
+        for i in range(len(acceleration)-1):
+            acceleration[i] = ((velocity[i+1] + velocity[i]) - velocity[i]) / (1/fps)
+            
+        return acceleration[:-1]
 
     def get_velocity(self, flow, sum_flow_pixels, flow_shape, distance_meters, timestep_seconds, move_step, angle_of_view):
 
@@ -257,7 +270,6 @@ class Flow:
         pixels_per_meter = distance_pixels / distance_meters
 
         return velocity_pixels_per_second / pixels_per_meter
-
 
     def sparse(
             self,
