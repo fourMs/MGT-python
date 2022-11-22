@@ -3,9 +3,10 @@ import cv2
 import numpy as np
 import math
 import weakref
+import matplotlib.pyplot as plt
 
 import musicalgestures
-from musicalgestures._utils import extract_wav, embed_audio_in_video, MgProgressbar, convert_to_avi, generate_outfilename
+from musicalgestures._utils import MgFigure, extract_wav, embed_audio_in_video, MgProgressbar, convert_to_avi, generate_outfilename
 
 
 class Flow:
@@ -41,8 +42,8 @@ class Flow:
             velocity=False,
             distance=None, 
             timestep=1,
-            move_step=16, 
-            perspective_angle=0, 
+            move_step=1, 
+            angle_of_view=0, 
             scaledown=1,      
             skip_empty=False,
             target_name=None,
@@ -60,10 +61,10 @@ class Flow:
             poly_sigma (float, optional): The standard deviation of the Gaussian that is used to smooth derivatives used as a basis for the polynomial expansion. For `poly_n=5`, you can set `poly_sigma=1.1`, for `poly_n=7`, a good value would be `poly_sigma=1.5`. Defaults to 1.2.
             flags (int, optional): Operation flags that can be a combination of the following: - **OPTFLOW_USE_INITIAL_FLOW** uses the input flow as an initial flow approximation. - **OPTFLOW_FARNEBACK_GAUSSIAN** uses the Gaussian \\f$\\texttt{winsize}\\times\\texttt{winsize}\\f$ filter instead of a box filter of the same size for optical flow estimation. Usually, this option gives z more accurate flow than with a box filter, at the cost of lower speed. Normally, `winsize` for a Gaussian window should be set to a larger value to achieve the same level of robustness. Defaults to 0.
             velocity (bool, optional): Whether to compute optical flow velocity or not. Defaults to False.
-            distance (int, optional): Distance in meters to image (focal length) for returning flow in meters per second. Defualts to None.
+            distance (int, optional): Distance in meters to image (focal length) for returning flow in meters per second. Defaults to None.
             timestep (int, optional): Time step in seconds for returning flow in meters per second. Defaults to 1.
-            move_step (int, optional): step size in pixels for sampling the flow image. Defaults to 16.
-            perspective_angle (int, optional): perspective angle of camera, for reporting flow in meters per second. Defaults to 0.
+            move_step (int, optional): step size in pixels for sampling the flow image. Defaults to 1.
+            angle_of_view (int, optional): angle of view of camera, for reporting flow in meters per second. Defaults to 0.
             scaledown (int, optional): factor to scaledown frame size of the video. Defaults to 1.
             skip_empty (bool, optional): If True, repeats previous frame in the output when encounters an empty frame. Defaults to False.
             target_name (str, optional): Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_flow_dense" should be used).
@@ -141,8 +142,8 @@ class Flow:
                             ysum += fy
                             
                     # Compute average velocity of pixels by dividing the cumulative sum of optical flow vectors by timesteps        
-                    xvel.append(self.get_velocity(flow, xsum, flow.shape[1], distance, timestep, move_step, perspective_angle))
-                    yvel.append(self.get_velocity(flow, ysum, flow.shape[0], distance, timestep, move_step, perspective_angle))
+                    xvel.append(self.get_velocity(flow, xsum, flow.shape[1], distance, timestep, move_step, angle_of_view))
+                    yvel.append(self.get_velocity(flow, ysum, flow.shape[0], distance, timestep, move_step, angle_of_view))
 
                 else:
                     mag, ang = cv2.cartToPolar(flow[..., 0], flow[..., 1])
@@ -177,7 +178,54 @@ class Flow:
             ii += 1
 
         if velocity:
-            return xvel, yvel
+
+            fig, ax = plt.subplots(figsize=(12, 4), dpi=300)
+
+            # make sure background is white
+            fig.patch.set_facecolor('white')
+            fig.patch.set_alpha(1)
+
+            # add title
+            title = 'Dense optical flow velocity: ' + os.path.basename(of + fex)
+            fig.suptitle(title, fontsize=16)
+
+            time = np.linspace(0, len(xvel)/fps, len(xvel))
+
+            ax.plot(time, xvel)
+            ax.set_xlabel('Time [Seconds]')
+            ax.set_ylabel('Velocity [Meters]')
+            ax.margins(x=0)
+
+            fig.tight_layout()
+
+            if target_name == None:
+                target_name = of + '_velocity.png'
+
+            else:
+                # enforce png
+                target_name = os.path.splitext(target_name)[0] + '.png'
+            if not overwrite:
+                target_name = generate_outfilename(target_name)
+
+            plt.savefig(target_name, format='png', transparent=False)
+            plt.close()
+
+            # create MgFigure
+            data = {
+                "FPS": fps,
+                "path": of,
+                "xvel": xvel,
+                "yvel": yvel,
+            }
+
+            mgf = MgFigure(
+                figure=fig,
+                figure_type='video.velocity',
+                data=data,
+                layers=None,
+                image=target_name)
+
+            return mgf
         
         else:
             out.release()
@@ -195,17 +243,17 @@ class Flow:
             return self.parent().flow_dense_video
 
 
-    def get_velocity(self, flow, sum_flow_pixels, flow_shape, distance_meters, timestep_seconds, move_step, perspective_angle):
+    def get_velocity(self, flow, sum_flow_pixels, flow_shape, distance_meters, timestep_seconds, move_step, angle_of_view):
 
         pixel_count = (flow.shape[0] * flow.shape[1]) / move_step**2
         average_velocity_pixels_per_second = (sum_flow_pixels / pixel_count / timestep_seconds)
 
-        return (self.velocity_meters_per_second(average_velocity_pixels_per_second, flow_shape, distance_meters, perspective_angle)
-                if perspective_angle and distance_meters else average_velocity_pixels_per_second)
+        return (self.velocity_meters_per_second(average_velocity_pixels_per_second, flow_shape, distance_meters, angle_of_view)
+                if angle_of_view and distance_meters else average_velocity_pixels_per_second)
 
-    def velocity_meters_per_second(self, velocity_pixels_per_second, flow_shape, distance_meters, perspective_angle):
+    def velocity_meters_per_second(self, velocity_pixels_per_second, flow_shape, distance_meters, angle_of_view):
 
-        distance_pixels = ((flow_shape / 2) / math.tan(perspective_angle / 2))
+        distance_pixels = ((flow_shape / 2) / math.tan(angle_of_view / 2))
         pixels_per_meter = distance_pixels / distance_meters
 
         return velocity_pixels_per_second / pixels_per_meter
