@@ -194,7 +194,7 @@ class Flow:
             acceleration = self.get_acceleration(xvel, fps)
             acceleration_entropy = entropy(acceleration)
 
-            ax.plot(time, xvel, label=f'Average acceleration: {round(np.mean(acceleration),2)} m/s\nEntropy of acceleration: {round(acceleration_entropy,3)}')
+            ax.plot(time, xvel, label=f'Average acceleration: {round(np.mean(acceleration),3)} m/s\nEntropy of acceleration: {round(acceleration_entropy,3)}')
             ax.set_xlabel('Time [Seconds]')
             ax.set_ylabel('Velocity [Meters]')
             ax.margins(x=0)
