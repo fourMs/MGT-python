@@ -19,7 +19,7 @@ def mg_subtract(
         target_name=None,
         overwrite=False):
     """
-    Renders horizontal and vertical motiongrams using ffmpeg. 
+    Renders background subtraction using ffmpeg. 
 
     Args:
         color (bool, optional): If False the input is converted to grayscale at the start of the process. This can significantly reduce render time. Defaults to True.
@@ -35,7 +35,7 @@ def mg_subtract(
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
-        str: Path to the output horizontal motiongram.
+        MgVideo: A MgVideo as subtract for parent MgVideo
     """
 
     of, fex = os.path.splitext(self.filename)
