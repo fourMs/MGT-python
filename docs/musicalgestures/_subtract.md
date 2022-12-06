@@ -26,7 +26,7 @@ def mg_subtract(
 ):
 ```
 
-Renders horizontal and vertical motiongrams using ffmpeg.
+Renders background subtraction using ffmpeg.
 
 #### Arguments
 
@@ -44,4 +44,4 @@ Renders horizontal and vertical motiongrams using ffmpeg.
 
 #### Returns
 
-- `str` - Path to the output horizontal motiongram.
+- `MgVideo` - A MgVideo as subtract for parent MgVideo
