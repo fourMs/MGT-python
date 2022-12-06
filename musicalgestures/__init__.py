@@ -89,6 +89,7 @@ class MgVideo:
     from musicalgestures._motionvideo import mg_motiondata as motiondata
     from musicalgestures._motionvideo import mg_motionplots as motionplots
     from musicalgestures._motionvideo import mg_motionvideo as motionvideo
+    from musicalgestures._subtract import mg_subtract as subtract
     from musicalgestures._ssm import mg_ssm as ssm
     from musicalgestures._videograms import videograms_ffmpeg as videograms
     from musicalgestures._directograms import mg_directograms as directograms

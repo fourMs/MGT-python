@@ -5,13 +5,14 @@
 - [Mgt-python](../README.md#mgt-python) / [Modules](../MODULES.md#mgt-python-modules) / [Musicalgestures](index.md#musicalgestures) / Flow
     - [Flow](#flow)
         - [Flow().dense](#flowdense)
+        - [Flow().get_acceleration](#flowget_acceleration)
         - [Flow().get_velocity](#flowget_velocity)
         - [Flow().sparse](#flowsparse)
         - [Flow().velocity_meters_per_second](#flowvelocity_meters_per_second)
 
 ## Flow
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L12)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L13)
 
 ```python
 class Flow():
@@ -22,7 +23,7 @@ Class container for the sparse and dense optical flow processes.
 
 ### Flow().dense
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L32)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L33)
 
 ```python
 def dense(
@@ -72,9 +73,17 @@ Renders a dense optical flow video of the input video file using `cv2.calcOptica
 
 - `MgVideo` - A new MgVideo pointing to the output video file.
 
+### Flow().get_acceleration
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L249)
+
+```python
+def get_acceleration(velocity, fps):
+```
+
 ### Flow().get_velocity
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L246)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L259)
 
 ```python
 def get_velocity(
@@ -90,7 +99,7 @@ def get_velocity(
 
 ### Flow().sparse
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L262)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L274)
 
 ```python
 def sparse(
@@ -128,7 +137,7 @@ Renders a sparse optical flow video of the input video file using `cv2.calcOptic
 
 ### Flow().velocity_meters_per_second
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L254)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L267)
 
 ```python
 def velocity_meters_per_second(
