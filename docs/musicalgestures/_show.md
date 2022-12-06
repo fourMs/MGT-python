@@ -35,7 +35,7 @@ General method to show an image or video file either in a window, or inline in a
 
 ## show_in_new_process
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_show.py#L274)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_show.py#L280)
 
 ```python
 def show_in_new_process(command):

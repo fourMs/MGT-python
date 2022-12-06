@@ -25,6 +25,7 @@ Full list of [Mgt-python](README.md#mgt-python) project modules.
     - [Motionvideo Mp Render](musicalgestures/_motionvideo_mp_render.md#motionvideo-mp-render)
     - [Motionvideo Mp Run](musicalgestures/_motionvideo_mp_run.md#motionvideo-mp-run)
     - [Pose](musicalgestures/_pose.md#pose)
+    - [Show](musicalgestures/_show.md#show)
     - [Show Window](musicalgestures/_show_window.md#show-window)
     - [Ssm](musicalgestures/_ssm.md#ssm)
     - [Subtract](musicalgestures/_subtract.md#subtract)
