@@ -139,8 +139,8 @@ class MgVideo:
             returned_by_process=self.returned_by_process,
             keep_all=self.keep_all)
 
-        # Convert GoPro files extensions (low-resolution video and thumbnail) to mp4
-        if self.fex == '.lrv' or self.fex == '.thm':
+        # Convert non-mp4 and avi files extensions (e.g. low-resolution video and thumbnail) to mp4
+        if self.fex != '.mp4' or self.fex != '.avi':
             # Create one converted version and register it to the MgVideo 
             filename = convert_to_mp4(self.of + self.fex, overwrite=True)
             # point of and fex to the mp4 version
