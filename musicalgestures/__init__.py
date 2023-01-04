@@ -4,7 +4,7 @@ from musicalgestures._videoreader import mg_videoreader
 from musicalgestures._flow import Flow
 from musicalgestures._audio import Audio
 from musicalgestures._mglist import MgList
-from musicalgestures._utils import MgImage, MgFigure, metadata
+from musicalgestures._utils import MgImage, MgFigure, metadata, convert_to_mp4
 
 class MgVideo:
     """
@@ -138,6 +138,13 @@ class MgVideo:
             color=self.color,
             returned_by_process=self.returned_by_process,
             keep_all=self.keep_all)
+
+        # Convert GoPro files extensions (low-resolution video and thumbnail) to mp4
+        if self.fex == '.lrv' or self.fex == '.thm':
+            # Create one converted version and register it to the MgVideo 
+            filename = convert_to_mp4(self.of + self.fex, overwrite=True)
+            # point of and fex to the mp4 version
+            self.of, self.fex = os.path.splitext(filename)
 
         # update filename after the processes
         self.filename = self.of + self.fex

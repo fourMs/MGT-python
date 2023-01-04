@@ -10,10 +10,9 @@ import subprocess
 from threading import Thread
 
 from musicalgestures._motionanalysis import centroid, area
-from musicalgestures._utils import extract_wav, transform_frame, embed_audio_in_video, frame2ms, MgProgressbar, MgFigure, MgImage, motionvideo_ffmpeg, generate_outfilename
+from musicalgestures._utils import extract_wav, transform_frame, convert_to_avi, embed_audio_in_video, frame2ms, MgProgressbar, MgFigure, MgImage, motionvideo_ffmpeg, generate_outfilename
 from musicalgestures._filter import filter_frame_ffmpeg
 from musicalgestures._mglist import MgList
-
 
 
 def mg_motion(
@@ -116,11 +115,11 @@ def mg_motion(
             com = np.array([])  # centroid of motion
 
         if save_video:
+            # Enforce avi writing video for cv2 compatibility on all platforms
             if target_name_video == None:
-                target_name_video = of + '_motion' + fex
-            # enforce avi
+                target_name_video = of + '_motion.avi'
             else:
-                target_name_video = os.path.splitext(target_name_video)[0] + fex
+                target_name_video = os.path.splitext(target_name_video)[0] + '.avi'
             if not overwrite:
                 target_name_video = generate_outfilename(target_name_video)
 
