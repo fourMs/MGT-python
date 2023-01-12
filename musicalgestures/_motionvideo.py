@@ -89,7 +89,7 @@ def mg_motion(
         cmd, cmd_filter = filter_frame_ffmpeg(self.filename, cmd, self.color, blur, filtertype, thresh, kernel_size, use_median)
         
         if atadenoise:
-            # Apply adaptive temporal averaging denoiser every 129 frames
+            # Apply an adaptive temporal averaging denoiser every 129 frames
             cmd_filter += 'atadenoise=s=129'
         else:
             # Remove last comma after previous filter
