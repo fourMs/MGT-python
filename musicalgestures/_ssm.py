@@ -189,7 +189,7 @@ def mg_ssm(
         x, sr = librosa.load(self.filename, sr=sr)
         frame_length = 512
         hop_length = 128
-        spectrogram = np.abs(librosa.stft(x, win_length=frame_length, hop_length=hop_length))
+        spectrogram = np.abs(librosa.stft(x, n_fft=frame_length, hop_length=hop_length))
 
         pb.progress(self.length)
 
@@ -205,7 +205,7 @@ def mg_ssm(
 
         ax0 = fig.add_subplot(gs[0])
         ax0.set_title('Spectrogram: ' + os.path.basename(self.of + self.fex))
-        img0 = librosa.display.specshow(librosa.amplitude_to_db(X, ref=np.max), y_axis='linear', x_axis='time', ax=ax0, cmap=cmap, sr=sr, win_length=frame_length, hop_length=hop_length)
+        img0 = librosa.display.specshow(librosa.amplitude_to_db(X, ref=np.max), y_axis='linear', x_axis='time', ax=ax0, cmap=cmap, sr=sr, n_fft=frame_length, hop_length=hop_length)
         fig.colorbar(img0, ax=ax0, format="%+2.f dB")
         ax0.xaxis.set_major_formatter(formatter)
         ax0.xaxis.set_major_locator(MaxNLocator(8))
@@ -242,8 +242,8 @@ def mg_ssm(
         x, sr = librosa.load(self.filename, sr=sr)
         frame_length = 512
         hop_length = 128
-        spectrogram = np.abs(librosa.stft(x, win_length=frame_length, hop_length=hop_length))
-        chromagram = librosa.feature.chroma_stft(S=spectrogram, sr=sr, hop_length=hop_length, win_length=frame_length)
+        spectrogram = np.abs(librosa.stft(x, n_fft=frame_length, hop_length=hop_length))
+        chromagram = librosa.feature.chroma_stft(S=spectrogram, sr=sr, hop_length=hop_length, n_fft=frame_length)
 
         pb.progress(self.length)
 
@@ -259,7 +259,7 @@ def mg_ssm(
 
         ax0 = fig.add_subplot(gs[0])
         ax0.set_title('Chromagram: ' + os.path.basename(self.of + self.fex))
-        img0 = librosa.display.specshow(X, y_axis='chroma', x_axis='time', ax=ax0, cmap=cmap, sr=sr, win_length=frame_length, hop_length=hop_length)
+        img0 = librosa.display.specshow(X, y_axis='chroma', x_axis='time', ax=ax0, cmap=cmap, sr=sr, n_fft=frame_length, hop_length=hop_length)
         ax0.xaxis.set_major_locator(MaxNLocator(8))
         # Normalize colorbar
         norm = mpl.colors.Normalize(vmin=0, vmax=1.0)
@@ -320,7 +320,7 @@ def mg_ssm(
 
         ax0 = fig.add_subplot(gs[0])
         ax0.set_title('Tempogram: ' + os.path.basename(self.of + self.fex))
-        img0 = librosa.display.specshow(X, y_axis='tempo', x_axis='time', ax=ax0, cmap=cmap, sr=sr, win_length=frame_length, hop_length=hop_length)
+        img0 = librosa.display.specshow(X, y_axis='tempo', x_axis='time', ax=ax0, cmap=cmap, sr=sr, n_fft=frame_length, hop_length=hop_length)
         fig.colorbar(img0, ax=ax0)
         ax0.axhline(tempo, color='w', linestyle='--', alpha=1, label='Estimated tempo={:g}'.format(tempo))
         ax0.xaxis.set_major_locator(MaxNLocator(8))

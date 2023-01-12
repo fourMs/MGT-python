@@ -10,9 +10,10 @@ import subprocess
 from threading import Thread
 
 from musicalgestures._motionanalysis import centroid, area
-from musicalgestures._utils import extract_wav, transform_frame, convert_to_avi, embed_audio_in_video, frame2ms, MgProgressbar, MgFigure, MgImage, motionvideo_ffmpeg, generate_outfilename
+from musicalgestures._utils import extract_wav, transform_frame, embed_audio_in_video, frame2ms, MgProgressbar, MgFigure, MgImage, motionvideo_ffmpeg, generate_outfilename
 from musicalgestures._filter import filter_frame_ffmpeg
 from musicalgestures._mglist import MgList
+
 
 
 def mg_motion(
@@ -85,10 +86,7 @@ def mg_motion(
         # Define ffmpeg command start and end
         cmd = ['ffmpeg', '-y', '-i', self.filename]
         # Filter video frames using ffmpeg
-        if inverted_motionvideo | inverted_motiongram:
-            cmd, cmd_filter = filter_frame_ffmpeg(self.filename, cmd, self.color, blur, filtertype, thresh, kernel_size, use_median, invert=True)
-        else:
-            cmd, cmd_filter = filter_frame_ffmpeg(self.filename, cmd, self.color, blur, filtertype, thresh, kernel_size, use_median)
+        cmd, cmd_filter = filter_frame_ffmpeg(self.filename, cmd, self.color, blur, filtertype, thresh, kernel_size, use_median)
         
         if atadenoise:
             # Apply adaptive temporal averaging denoiser every 129 frames
@@ -97,7 +95,7 @@ def mg_motion(
             # Remove last comma after previous filter
             cmd_filter = cmd_filter[: -1]
 
-        cmd_end = ['-f', 'image2pipe', '-pix_fmt', 'rgb24','-vcodec', 'rawvideo', '-']
+        cmd_end = ['-f', 'image2pipe', '-pix_fmt', 'rgb24', '-vcodec', 'rawvideo', '-']
         cmd += ['-filter_complex', cmd_filter] + cmd_end 
 
         if save_motiongrams:
@@ -115,11 +113,11 @@ def mg_motion(
             com = np.array([])  # centroid of motion
 
         if save_video:
-            # Enforce avi writing video for cv2 compatibility on all platforms
             if target_name_video == None:
-                target_name_video = of + '_motion.avi'
+                target_name_video = of + '_motion' + fex
+            # enforce avi
             else:
-                target_name_video = os.path.splitext(target_name_video)[0] + '.avi'
+                target_name_video = os.path.splitext(target_name_video)[0] + fex
             if not overwrite:
                 target_name_video = generate_outfilename(target_name_video)
 
