@@ -82,7 +82,7 @@ centroid of motion for each frame with timecodes in milliseconds.
 
 ## mg_motiondata
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L430)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L427)
 
 ```python
 def mg_motiondata(
@@ -121,7 +121,7 @@ Shortcut for [mg_motion](#mg_motion) to only render motion data.
 
 ## mg_motiongrams
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L305)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L302)
 
 ```python
 def mg_motiongrams(
@@ -162,7 +162,7 @@ Shortcut for [mg_motion](#mg_motion) to only render motiongrams.
 
 ## mg_motionplots
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L508)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L505)
 
 ```python
 def mg_motionplots(
@@ -205,7 +205,7 @@ Shortcut for [mg_motion](#mg_motion) to only render motion plots.
 
 ## mg_motionvideo
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L372)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L369)
 
 ```python
 def mg_motionvideo(
@@ -240,7 +240,7 @@ Shortcut to only render the motion video. Uses musicalgestures._utils.motionvide
 
 ## save_analysis
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L571)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L568)
 
 ```python
 def save_analysis(
@@ -264,7 +264,7 @@ Helper function to plot the motion data using matplotlib.
 
 ## save_txt
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L777)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L774)
 
 ```python
 def save_txt(
