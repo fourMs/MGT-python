@@ -139,8 +139,9 @@ class MgVideo:
             returned_by_process=self.returned_by_process,
             keep_all=self.keep_all)
 
-        # Convert non-mp4 and avi files extensions (e.g. low-resolution video and thumbnail) to mp4
-        if self.fex != '.mp4' or self.fex != '.avi':
+        # Convert eventual low-resolution video and thumbnail to mp4
+        video_formats = ['.avi', '.mp4', '.mov', '.mkv', '.mpg', '.mpeg', '.webm', '.ogg', '.ts', '.wmv', '.3gp']
+        if self.fex not in video_formats:
             # Create one converted version and register it to the MgVideo 
             filename = convert_to_mp4(self.of + self.fex, overwrite=True)
             # point of and fex to the mp4 version

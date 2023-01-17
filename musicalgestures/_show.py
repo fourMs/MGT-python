@@ -2,12 +2,12 @@
 # import numpy as np
 import os
 from matplotlib import pyplot as plt
-from IPython.display import Image, display
+from IPython.display import Image, display, HTML
 # try:
 from IPython.display import Video
 # except:
 #     from IPython.core.display import Video
-# from base64 import b64encode
+from base64 import b64encode
 import musicalgestures
 # from musicalgestures._utils import get_widthheight
 
@@ -49,10 +49,12 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             show_in_new_process(cmd)
 
         elif mode.lower() == 'notebook':
+            from musicalgestures._utils import in_colab
             video_formats = ['.avi', '.mp4', '.mov', '.mkv', '.mpg',
                              '.mpeg', '.webm', '.ogg', '.ts', '.wmv', '.3gp']
             image_formats = ['.jpg', '.png', '.jpeg', '.tiff', '.gif', '.bmp']
-            file_extension = os.path.splitext(file)[1].lower()
+            
+            of, file_extension = os.path.splitext(file)
 
             if file_extension in video_formats:
                 file_type = 'video'
@@ -60,16 +62,18 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                 file_type = 'image'
             if file_type == 'image':
                 display(Image(file))
+                
             elif file_type == 'video':
                 if file_extension not in ['.mp4', '.webm', '.ogg']:
                     keys = parent.__dict__.keys()
+                    
                     if "as_mp4" not in keys:
                         from musicalgestures._utils import convert_to_mp4
                         print('Only mp4, webm and ogg videos are supported in notebook mode.')
                         video_to_display = convert_to_mp4(file)
                         # register converted video as_mp4 for parent MgVideo
-                        parent.as_mp4 = musicalgestures.MgVideo(
-                            video_to_display)
+                        parent.as_mp4 = musicalgestures.MgVideo(video_to_display)
+                        
                     else:
                         video_to_display = parent.as_mp4.filename
                 else:
@@ -84,21 +88,38 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                 # and if it is somewhere else, we need to embed it to make it work (neither absolute nor relative paths seem to work without embedding)
                 cwd = os.getcwd().replace('\\', '/')
                 file_dir = os.path.dirname(video_to_display).replace('\\', '/')
+                                
+                def colab_display(video_to_display, video_width, video_height):
+                  video_file = open(video_to_display, "r+b").read()
+                  video_url = f"data:video/mp4;base64,{b64encode(video_file).decode()}"
+                  return HTML(f"""<video width={video_width} height={video_height} controls><source src="{video_url}"></video>""")
+
                 if file_dir == cwd:
                     try:
                         video_to_display = os.path.relpath(video_to_display, os.getcwd()).replace('\\', '/')
-                        display(Video(video_to_display,width=video_width, height=video_height))
+                        if in_colab():
+                            display(colab_display(video_to_display, video_width, video_height))
+                        else:
+                            display(Video(video_to_display,width=video_width, height=video_height))
                     except ValueError:
                         video_to_display = os.path.abspath(video_to_display, os.getcwd()).replace('\\', '/')
-                        display(Video(video_to_display, width=video_width,height=video_height))
+                        if in_colab():
+                            display(colab_display(video_to_display, video_width, video_height))
+                        else:
+                            display(Video(video_to_display, width=video_width, height=video_height))
                 else:
                     try:
                         video_to_display = os.path.relpath(video_to_display, os.getcwd()).replace('\\', '/')
-                        display(Video(video_to_display, width=video_width,
-                                height=video_height))
+                        if in_colab():
+                            display(colab_display(video_to_display, video_width, video_height))
+                        else:
+                            display(Video(video_to_display, width=video_width, height=video_height))
                     except ValueError:
                         video_to_display = os.path.abspath(video_to_display, os.getcwd()).replace('\\', '/')
-                        display(Video(video_to_display, width=video_width,height=video_height))
+                        if in_colab():
+                            display(colab_display(video_to_display, video_width, video_height))
+                        else:
+                            display(Video(video_to_display, width=video_width,height=video_height))
 
         else:
             print(f'Unrecognized mode: "{mode}". Try "windowed" or "notebook".')
