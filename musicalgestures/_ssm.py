@@ -5,6 +5,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from matplotlib.ticker import MaxNLocator
+from matplotlib.ticker import FuncFormatter
 import librosa 
 import librosa.display
 
@@ -28,10 +29,13 @@ def smooth_downsample_feature_sequence(X, sr, filt_len=41, down_sampling=10, w_t
         X_smooth (np.ndarray): Smoothed and downsampled feature sequence.
         sr_feature (scalar): Sampling rate of `X_smooth`.
     """
-    def formatter(x, pos):
+    
+    def inside(x, pos):
         del pos
         down_sampling = 10
         return str(round(x*down_sampling, 1))
+        
+    formatter = FuncFormatter(inside)
 
     filt_kernel = np.expand_dims(signal.get_window(w_type, filt_len), axis=0)
     X_smooth = signal.convolve(X, filt_kernel, mode='same') / filt_len
@@ -205,7 +209,7 @@ def mg_ssm(
 
         ax0 = fig.add_subplot(gs[0])
         ax0.set_title('Spectrogram: ' + os.path.basename(self.of + self.fex))
-        img0 = librosa.display.specshow(librosa.amplitude_to_db(X, ref=np.max), y_axis='linear', x_axis='time', ax=ax0, cmap=cmap, sr=sr, n_fft=frame_length, hop_length=hop_length)
+        img0 = librosa.display.specshow(librosa.amplitude_to_db(X, ref=np.max), y_axis='linear', x_axis='time', cmap=cmap, sr=sr, hop_length=hop_length)
         fig.colorbar(img0, ax=ax0, format="%+2.f dB")
         ax0.xaxis.set_major_formatter(formatter)
         ax0.xaxis.set_major_locator(MaxNLocator(8))
@@ -259,12 +263,12 @@ def mg_ssm(
 
         ax0 = fig.add_subplot(gs[0])
         ax0.set_title('Chromagram: ' + os.path.basename(self.of + self.fex))
-        img0 = librosa.display.specshow(X, y_axis='chroma', x_axis='time', ax=ax0, cmap=cmap, sr=sr, n_fft=frame_length, hop_length=hop_length)
+        ax0.xaxis.set_major_formatter(formatter)
         ax0.xaxis.set_major_locator(MaxNLocator(8))
+        img0 = librosa.display.specshow(X, y_axis='chroma', x_axis='time', cmap=cmap, sr=sr, hop_length=hop_length)
         # Normalize colorbar
         norm = mpl.colors.Normalize(vmin=0, vmax=1.0)
         fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax0, aspect=15)
-        ax0.xaxis.set_major_formatter(formatter)
         ax0.set_xlabel('')
         
         ax1 = fig.add_subplot(gs[1:])
@@ -320,8 +324,11 @@ def mg_ssm(
 
         ax0 = fig.add_subplot(gs[0])
         ax0.set_title('Tempogram: ' + os.path.basename(self.of + self.fex))
-        img0 = librosa.display.specshow(X, y_axis='tempo', x_axis='time', ax=ax0, cmap=cmap, sr=sr, n_fft=frame_length, hop_length=hop_length)
-        fig.colorbar(img0, ax=ax0)
+        img0 = librosa.display.specshow(X, y_axis='tempo', x_axis='time', cmap=cmap, sr=sr, hop_length=hop_length)
+        
+        # Normalize colorbar
+        norm = mpl.colors.Normalize(vmin=0, vmax=1.0)
+        fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax0, aspect=15)
         ax0.axhline(tempo, color='w', linestyle='--', alpha=1, label='Estimated tempo={:g}'.format(tempo))
         ax0.xaxis.set_major_locator(MaxNLocator(8))
         ax0.xaxis.set_major_formatter(formatter)
@@ -338,7 +345,8 @@ def mg_ssm(
         ax1.invert_yaxis()
         ax1.set_xlabel('Time [seconds]')
         ax1.set_ylabel('Time [seconds]')
-        fig.colorbar(img1, ax=ax1, aspect=50)
+        norm = mpl.colors.Normalize(vmin=0, vmax=1.0)
+        fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax1, aspect=50)
         fig.tight_layout()
 
         self.ssm = MgFigure(figure=fig, figure_type='audio.ssm', data=X_ssm, layers=None, image=target_name)
