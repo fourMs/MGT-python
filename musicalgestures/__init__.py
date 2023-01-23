@@ -146,9 +146,9 @@ class MgVideo:
             filename = convert_to_mp4(self.of + self.fex, overwrite=True)
             # point of and fex to the mp4 version
             self.of, self.fex = os.path.splitext(filename)
-
-        # update filename after the processes
-        self.filename = self.of + self.fex
+        else:
+            # update filename after the processes
+            self.filename = self.of + self.fex
 
     def __repr__(self):
         return f"MgVideo('{self.filename}')"
