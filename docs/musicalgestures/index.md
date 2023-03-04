@@ -41,7 +41,7 @@
 
 ## Examples
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L156)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L158)
 
 ```python
 class Examples():

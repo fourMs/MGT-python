@@ -8,7 +8,7 @@
 
 ## mg_ssm
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_ssm.py#L43)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_ssm.py#L47)
 
 ```python
 def mg_ssm(
@@ -53,7 +53,7 @@ SSMs can be computed over different input features such as 'motiongrams', 'spect
 
 ## smooth_downsample_feature_sequence
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_ssm.py#L16)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_ssm.py#L17)
 
 ```python
 def smooth_downsample_feature_sequence(

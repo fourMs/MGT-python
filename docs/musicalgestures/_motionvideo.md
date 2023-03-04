@@ -82,7 +82,7 @@ centroid of motion for each frame with timecodes in milliseconds.
 
 ## mg_motiondata
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L427)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L415)
 
 ```python
 def mg_motiondata(
@@ -162,7 +162,7 @@ Shortcut for [mg_motion](#mg_motion) to only render motiongrams.
 
 ## mg_motionplots
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L505)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L493)
 
 ```python
 def mg_motionplots(
@@ -240,7 +240,7 @@ Shortcut to only render the motion video. Uses musicalgestures._utils.motionvide
 
 ## save_analysis
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L568)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L556)
 
 ```python
 def save_analysis(
@@ -264,7 +264,7 @@ Helper function to plot the motion data using matplotlib.
 
 ## save_txt
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L774)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo.py#L762)
 
 ```python
 def save_txt(

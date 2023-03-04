@@ -8,7 +8,7 @@
 
 ## area
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionanalysis.py#L41)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionanalysis.py#L42)
 
 ```python
 def area(motion_frame, height, width):
@@ -22,7 +22,7 @@ def area(motion_frame, height, width):
 def centroid(image, width, height):
 ```
 
-Computes the centroid of an image or frame.
+Computes the centroid and quantity of motion in an image or frame.
 
 #### Arguments
 
