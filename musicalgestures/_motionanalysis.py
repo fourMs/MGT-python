@@ -4,7 +4,7 @@ import numpy as np
 
 def centroid(image, width, height):
     """
-    Computes the centroid of an image or frame.
+    Computes the centroid and quantity of motion in an image or frame.
 
     Args:
         image (np.array(uint8)): The input image matrix for the centroid estimation function.
@@ -20,6 +20,7 @@ def centroid(image, width, height):
 
     x = np.arange(width)
     y = np.arange(height)
+    # Calculates the sum of the pixels in the input image
     qom = cv2.sumElems(image)[0]
     mx = np.mean(image, axis=0)
     my = np.mean(image, axis=1)

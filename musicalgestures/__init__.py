@@ -141,7 +141,8 @@ class MgVideo:
 
         # Convert eventual low-resolution video and thumbnail to mp4
         video_formats = ['.avi', '.mp4', '.mov', '.mkv', '.mpg', '.mpeg', '.webm', '.ogg', '.ts', '.wmv', '.3gp']
-        if self.fex not in video_formats:
+        image_formats = ['.gif', '.jpeg', '.jpg', '.jfif', '.pjpeg', '.png', '.svg', '.webp', '.avif', '.apng']
+        if self.fex not in video_formats and self.fex not in image_formats:
             # Create one converted version and register it to the MgVideo 
             filename = convert_to_mp4(self.of + self.fex, overwrite=True)
             # point of and fex to the mp4 version

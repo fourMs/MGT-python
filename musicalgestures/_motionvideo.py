@@ -392,19 +392,7 @@ def mg_motionvideo(
     Returns:
         MgVideo: A new MgVideo pointing to the output '_motion' video file.
     """
-    # return mg_motion(
-    #     self,
-    #     filtertype=filtertype,
-    #     thresh=thresh,
-    #     blur=blur,
-    #     kernel_size=kernel_size,
-    #     use_median=use_median,
-    #     inverted_motionvideo=inverted_motionvideo,
-    #     save_data=False,
-    #     save_motiongrams=False,
-    #     save_plot=False,
-    #     save_video=True)
-    
+
     motionvideo = motionvideo_ffmpeg(
         filename=self.filename,
         color=self.color,
@@ -786,9 +774,9 @@ def save_txt(of, time, aom, com, qom, motion_analysis, width, height, data_forma
         elif motion_analysis.lower() == 'com':
             df = pd.DataFrame({'Time': time, 'ComX': com.transpose()[0]/width, 'ComY': com.transpose()[1]/height})
         elif motion_analysis.lower() == 'qom':
-            df = pd.DataFrame({'Time': time, 'Qom': qom}) 
+            df = pd.DataFrame({'Time': time, 'Qom': qom/max(qom)}) 
         elif motion_analysis.lower() == 'all':
-            df = pd.DataFrame({'Time': time, 'Qom': qom, 'ComX': com.transpose()[0]/width, 'ComY': com.transpose()[1]/height, 
+            df = pd.DataFrame({'Time': time, 'Qom': qom/max(qom), 'ComX': com.transpose()[0]/width, 'ComY': com.transpose()[1]/height, 
                           'AomX1': aom.transpose()[0], 'AomY1': aom.transpose()[1], 'AomX2': aom.transpose()[2], 'AomY2': aom.transpose()[3]})
 
         if data_format == "tsv":
