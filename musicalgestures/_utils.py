@@ -988,46 +988,6 @@ class NoStreamError(FFprobeError):
 class NoDurationError(FFprobeError):
     pass
 
-def metadata(filename):
-    """
-    Returns metadata about video/audio/format file using ffprobe.
-
-    Args:
-        filename (str): Path to the video file to measure.
-
-    Returns:
-        str: decoded ffprobe output (stdout) as a list containing three dictionaries for video, audio and format metadata.
-    """
-
-    import subprocess
-    cmd = ["ffprobe", "-loglevel", "0", "-show_format", "-show_streams", filename]
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
-    try:
-        out, err = process.communicate(timeout=10)
-        splitted = out.split('\n')
-    except subprocess.TimeoutExpired:
-        process.kill()
-    out, err = process.communicate()
-    splitted = out.split('\n')
-
-    info = []
-    # Retrieve information and export it in a dictionary
-    for i, metadata in enumerate(splitted):
-        if metadata == "[STREAM]" or metadata == "[FORMAT]":        
-            info.append(dict())
-            i +=1
-        elif metadata == "[/STREAM]" or metadata == "[/FORMAT]" or metadata == "":
-            i +=1
-        else:
-            key, value = splitted[i].split('=')
-            info[-1][key] = value
-
-    video = info[0]
-    audio = info[1]
-    format = info[2]
-
-    return video, audio, format
-
 def ffprobe(filename):
     """
     Returns info about video/audio file using FFprobe.
@@ -1056,6 +1016,51 @@ def ffprobe(filename):
         else:
             return out
 
+def get_metadata(filename):
+    """
+    Returns metadata about video/audio/format file using ffprobe.
+
+    Args:
+        filename (str): Path to the video file to measure.
+
+    Returns:
+        str: decoded ffprobe output (stdout) as a list containing three dictionaries for video, audio and format metadata.
+    """
+
+    import subprocess
+    # Get streams and format information (https://ffmpeg.org/ffprobe.html)
+    cmd = ["ffprobe", "-loglevel", "0", "-show_streams", "-show_format", filename]
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+    try:
+        out, err = process.communicate(timeout=10)
+        splitted = out.split('\n')
+    except subprocess.TimeoutExpired:
+        process.kill()
+    out, err = process.communicate()
+    splitted = out.split('\n')
+
+    metadata = []
+    # Retrieve information and export it in a dictionary
+    for i, info in enumerate(splitted):
+        if info == "[STREAM]" or info == "[SIDE_DATA]" or info == "[FORMAT]":        
+            metadata.append(dict())
+            i +=1
+        elif info == "[/STREAM]" or info == "[/SIDE_DATA]" or info == "[/FORMAT]" or info == "":
+            i +=1
+        else:
+            try:
+                key, value = splitted[i].split('=')
+                metadata[-1][key] = value
+            except ValueError:
+                key = splitted[i]
+                metadata[-1][key] = ''
+
+    if len(metadata) > 3: 
+        # Merge video stream with side data dictionary
+        metadata[0] = {**metadata[0], **metadata[1]}
+        metadata.pop(1)
+
+    return metadata
 
 def get_widthheight(filename):
     """
@@ -1073,15 +1078,28 @@ def get_widthheight(filename):
     video_stream = None
     at_line = -1
     while video_stream == None:
-        video_stream = out_array[at_line] if out_array[at_line].find(
-            "Video:") != -1 else None
+        video_stream = out_array[at_line] if out_array[at_line].find("Video:") != -1 else None
+
+        if out_array[at_line].find("displaymatrix:") != -1:
+            import re
+            rotation = [d for d in re.findall("\d+\.\d+", out_array[at_line])]
+
         at_line -= 1
         if at_line < -len(out_array):
-            raise NoStreamError(
-                "No video stream found. (Is this a video file?)")
-    width = int(video_stream.split('x')[-2].split(' ')[-1])
-    height = int(video_stream.split(
-        'x')[-1].split(',')[0].split(' ')[0])
+            raise NoStreamError("No video stream found. (Is this a video file?)")
+
+    try:
+        if int(float(rotation[0])) == 90:
+            # If the video has been rotated for 90°, we need to invert width and height
+            width = int(video_stream.split('x')[-1].split(',')[0].split(' ')[0])
+            height = int(video_stream.split('x')[-2].split(' ')[-1])
+        else:
+            width = int(video_stream.split('x')[-2].split(' ')[-1])
+            height = int(video_stream.split('x')[-1].split(',')[0].split(' ')[0])
+    except:
+        width = int(video_stream.split('x')[-2].split(' ')[-1])
+        height = int(video_stream.split('x')[-1].split(',')[0].split(' ')[0])
+
     return width, height
 
 

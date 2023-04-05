@@ -4,7 +4,7 @@ from musicalgestures._videoreader import mg_videoreader
 from musicalgestures._flow import Flow
 from musicalgestures._audio import Audio
 from musicalgestures._mglist import MgList
-from musicalgestures._utils import MgImage, MgFigure, metadata, convert_to_mp4
+from musicalgestures._utils import MgImage, MgFigure, get_metadata, convert_to_mp4
 
 class MgVideo:
     """
@@ -80,6 +80,7 @@ class MgVideo:
         self.returned_by_process = returned_by_process
         self.test_input()
         self.get_video()
+        self.info()
         self.flow = Flow(self, self.filename, self.color, self.has_audio)
         self.audio = Audio(self.filename)
 
@@ -113,15 +114,16 @@ class MgVideo:
 
     def info(self, type='video'):
         """Retrieves the information related to video, audio and format."""
-        video, audio, format = metadata(self.filename)
+        info = get_metadata(self.filename)
+
         if type == 'video':
-            return video
+            return info[0]
         elif type == 'audio':
-            return audio
+            return info[1]
         elif type == 'format':
-            return format
+            return info[2]
         else:
-            return video, audio, format
+            return info
 
     def get_video(self):
         """Creates a video attribute to the Musical Gestures object with the given correct settings."""
