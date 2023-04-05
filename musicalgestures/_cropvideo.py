@@ -94,31 +94,39 @@ def find_motion_box_ffmpeg(filename, motion_box_thresh=0.1, motion_box_margin=12
         process.wait()
         raise KeyboardInterrupt
 
+drawing = False # True if mouse is pressed
+xi, yi = -1, -1
+
 def cropping_window(filename):
 
     def draw_rectangle(event, x, y, flags, param):
         # grab references to the global variables
-        global ref_point, crop
+        global ref_point, crop, drawing, xi, yi
 
-        # if the left mouse button was clicked, record the starting
-        # (x, y) coordinates and indicate that cropping is being performed
+        # check if the left mouse button is clicked
         if event == cv2.EVENT_LBUTTONDOWN:
+            # record the starting (x, y) coordinates 
             ref_point = [(x, y)]
+            drawing = True
+            xi, yi = x, y
+            
+        elif event == cv2.EVENT_MOUSEMOVE and drawing:
+            copy = frame.copy()
+            cv2.rectangle(copy, (xi, yi), (x, y), (0,255,0), 5)
+            cv2.imshow('Draw rectangle with the mouse. Press "c" to crop or "r" to reset the window', copy)
 
-        # check to see if the left mouse button was released
+        # check if the left mouse button is released
         elif event == cv2.EVENT_LBUTTONUP:
-            # record the ending (x, y) coordinates and indicate that
-            # the cropping operation is finished
+            # record the ending (x, y) coordinates
             ref_point.append((x, y))
-
+            drawing = False
             # draw a rectangle around the region of interest
-            cv2.rectangle(frame, ref_point[0], ref_point[1], (0, 255, 0), 2)
-            cv2.imshow('Draw rectangle and press "c" to crop or "r" to reset the window', frame)
+            cv2.rectangle(frame, ref_point[0], ref_point[1], (0, 255, 0), 5)
 
     # Load the video, get the first frame and setup the mouse callback function
     cap = cv2.VideoCapture(filename)
-    cv2.namedWindow('Draw rectangle and press "c" to crop or "r" to reset the window')
-    cv2.setMouseCallback('Draw rectangle and press "c" to crop or "r" to reset the window', draw_rectangle)
+    cv2.namedWindow('Draw rectangle with the mouse. Press "c" to crop or "r" to reset the window', cv2.WINDOW_NORMAL)
+    cv2.setMouseCallback('Draw rectangle with the mouse. Press "c" to crop or "r" to reset the window', draw_rectangle)
         
     # keep looping until the 'c' key is pressed
     firstFrame = True
@@ -126,19 +134,19 @@ def cropping_window(filename):
         ret, frame = cap.read()  
         clone = frame.copy()
         
-        print('Draw rectangle with the mouse and press "c" to crop or "r" to reset the window')
+        print('Draw rectangle with the mouse. Press "c" to crop or "r" to reset the window')
         while firstFrame: 
             # display the first frame and wait for a keypress
-            cv2.imshow('Draw rectangle and press "c" to crop or "r" to reset the window', frame)
+            cv2.imshow('Draw rectangle with the mouse. Press "c" to crop or "r" to reset the window', frame)
             key = cv2.waitKey(1) & 0xFF
-
-            # press 'r' to reset the window
-            if key == ord("r"):
-                frame = clone.copy()            
+            
             # if the 'c' key is pressed, break from the loop
-            elif key == ord("c"):
+            if key == ord("c"):
                 firstFrame = False       
                 break
+            # press 'r' to reset the window
+            elif key == ord("r"):
+                frame = clone.copy()
         break
 
     # close all open windows
@@ -159,7 +167,6 @@ def cropping_window(filename):
         y_stop = temp
 
     w, h, x, y = x_stop - x_start, y_stop - y_start, x_start, y_start
-
     return w, h, x, y
 
 def mg_cropvideo_ffmpeg(
@@ -206,7 +213,7 @@ def mg_cropvideo_ffmpeg(
             t.start()
             t.join()
 
-            w, h, x, y = que.get()
+            w, h, x, y = que.get()          
 
             # x = threading.Thread(target=run_cropping_window, args=(first_frame_as_image, scale_ratio, scaled_width, scaled_height))
             # run_cropping_window(first_frame_as_image, scale_ratio, scaled_width, scaled_height)
