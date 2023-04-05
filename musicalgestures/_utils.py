@@ -637,6 +637,7 @@ def rotate_video(filename, angle, target_name=None, overwrite=False):
 
     import os
     import math
+    import numpy as np
     of, fex = os.path.splitext(filename)
 
     if not target_name:
@@ -646,8 +647,14 @@ def rotate_video(filename, angle, target_name=None, overwrite=False):
 
     pass_if_containers_match(filename, target_name)
 
-    cmds = ['ffmpeg', '-y', '-i', filename, "-vf",
-            f"rotate={math.radians(angle)}", "-q:v", "3", "-c:a", "copy", target_name]
+    if np.abs(angle) == 90 or np.abs(angle) == 180:
+        # Rotate video without encoding for faster computation
+        cmds = ['ffmpeg', '-y', '-i', filename, 
+                '-metadata:s:v:0', f'rotate={angle}', '-codec', 'copy', target_name]
+    else:
+        # Rotate video with encoding
+        cmds = ['ffmpeg', '-y', '-i', filename, "-vf", 
+                f"rotate={math.radians(angle)}", "-q:v", "3", "-c:a", "copy", target_name]
     ffmpeg_cmd(cmds, get_length(filename),
                pb_prefix=f"Rotating video by {angle} degrees:")
     return target_name
@@ -1392,12 +1399,10 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, strea
     command = ['ffmpeg', '-hide_banner'] + command[1:]
 
     if print_cmd:
-        print()
         if type(command) == list:
             print(' '.join(command))
         else:
             print(command)
-        print()
 
     process = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
