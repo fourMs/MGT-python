@@ -44,7 +44,7 @@ class Audio:
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
             raw (bool, optional): Whether to show labels and ticks on the plot. Defaults to False.
-            title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title. Defaults to None.
+            title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_waveform.png" should be used).
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
@@ -76,6 +76,8 @@ class Audio:
 
         # add title
         if title == None:
+            title = ''
+        if title == 'filename':
             title = os.path.basename(self.filename)
         fig.suptitle(title, fontsize=16)
 
@@ -121,7 +123,7 @@ class Audio:
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
             raw (bool, optional): Whether to show labels and ticks on the plot. Defaults to False.
-            title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title.
+            title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_spectrogram.png" should be used).
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
@@ -156,6 +158,8 @@ class Audio:
 
         # add title
         if title == None:
+            title = ''
+        if title == 'filename':
             title = os.path.basename(self.filename)
         fig.suptitle(title, fontsize=16)
 
@@ -229,7 +233,7 @@ class Audio:
             power (float, optional): The steepness of the curve for the color mapping. Defaults to 2.
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
-            title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title.
+            title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_descriptors.png" should be used).
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
@@ -276,6 +280,8 @@ class Audio:
 
         # add title
         if title == None:
+            title = ''
+        if title == 'filename':
             title = os.path.basename(self.filename)
         fig.suptitle(title, fontsize=16)
 
@@ -368,7 +374,7 @@ class Audio:
             power (float, optional): The steepness of the curve for the color mapping. Defaults to 2.
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
-            title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title.
+            title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_tempogram.png" should be used).
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
@@ -409,6 +415,8 @@ class Audio:
 
         # add title
         if title == None:
+            title = ''
+        if title == 'filename':
             title = os.path.basename(self.filename)
         fig.suptitle(title, fontsize=16)
 
@@ -460,7 +468,7 @@ def mg_audio_waveform(filename=None, mono=False, dpi=300, autoshow=True, raw=Fal
         dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
         autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
         raw (bool, optional): Whether to show labels and ticks on the plot. Defaults to False.
-        title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title. Defaults to None.
+        title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
         target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_waveform.png" should be used).
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
@@ -498,6 +506,8 @@ def mg_audio_waveform(filename=None, mono=False, dpi=300, autoshow=True, raw=Fal
 
     # add title
     if title == None:
+        title = ''
+    if title == 'filename':
         title = os.path.basename(filename)
     fig.suptitle(title, fontsize=16)
 
@@ -546,7 +556,7 @@ def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters
         dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
         autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
         raw (bool, optional): Whether to show labels and ticks on the plot. Defaults to False.
-        title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title.
+        title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
         target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_spectrogram.png" should be used).
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
@@ -587,6 +597,8 @@ def mg_audio_spectrogram(filename=None, window_size=4096, overlap=8, mel_filters
 
     # add title
     if title == None:
+        title = ''
+    if title == 'filename':
         title = os.path.basename(filename)
     fig.suptitle(title, fontsize=16)
 
@@ -663,7 +675,7 @@ def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters
         power (float, optional): The steepness of the curve for the color mapping. Defaults to 2.
         dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
         autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
-        title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title.
+        title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
         target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_descriptors.png" should be used).
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
@@ -717,6 +729,8 @@ def mg_audio_descriptors(filename=None, window_size=4096, overlap=8, mel_filters
 
     # add title
     if title == None:
+        title = ''
+    if title == 'filename':
         title = os.path.basename(filename)
     fig.suptitle(title, fontsize=16)
 
@@ -807,7 +821,7 @@ def mg_audio_tempogram(filename=None, window_size=4096, overlap=8, mel_filters=5
         power (float, optional): The steepness of the curve for the color mapping. Defaults to 2.
         dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
         autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
-        title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title.
+        title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
         target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_tempogram.png" should be used).
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
@@ -854,6 +868,8 @@ def mg_audio_tempogram(filename=None, window_size=4096, overlap=8, mel_filters=5
 
     # add title
     if title == None:
+        title = ''
+    if title == 'filename':
         title = os.path.basename(filename)
     fig.suptitle(title, fontsize=16)
 

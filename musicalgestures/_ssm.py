@@ -72,7 +72,7 @@ def mg_ssm(
         cmap (str, optional): A Colormap instance or registered colormap name. The colormap maps the C values to colors. Defaults to 'gray_r'.
         use_median (bool, optional): If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
         kernel_size (int, optional):  Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
-        title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title. Defaults to None.
+        title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
         target_name ([type], optional): Target output name for the SSM. Defaults to None.
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
@@ -134,6 +134,8 @@ def mg_ssm(
         ax0 = fig.add_subplot(gs[0])
         ax0.xaxis.set_major_locator(MaxNLocator(8))
         if title == None:
+            title = ''
+        if title == 'filename':
             title = 'Vertical motiongram: ' + os.path.basename(self.of + self.fex)
         ax0.set_title(title)
         ax0.invert_yaxis()
@@ -162,6 +164,8 @@ def mg_ssm(
         ax0 = fig.add_subplot(gs[0])
         ax0.xaxis.set_major_locator(MaxNLocator(8))
         if title == None:
+            title = ''
+        if title == 'filename':
             title = 'Horizontal motiongram: ' + os.path.basename(self.of + self.fex)
         ax0.set_title(title)
         ax0.invert_yaxis()
@@ -214,6 +218,8 @@ def mg_ssm(
 
         ax0 = fig.add_subplot(gs[0])
         if title == None:
+            title = ''
+        if title == 'filename':
             title = 'Spectrogram: ' + os.path.basename(self.of + self.fex)
         ax0.set_title(title)
         img0 = librosa.display.specshow(librosa.amplitude_to_db(X, ref=np.max), y_axis='linear', x_axis='time', cmap=cmap, sr=sr, hop_length=hop_length)
@@ -270,6 +276,8 @@ def mg_ssm(
 
         ax0 = fig.add_subplot(gs[0])
         if title == None:
+            title = ''
+        if title == 'filename':
             title = 'Chromagram: ' + os.path.basename(self.of + self.fex)
         ax0.set_title(title)
         ax0.xaxis.set_major_formatter(formatter)
@@ -333,6 +341,8 @@ def mg_ssm(
 
         ax0 = fig.add_subplot(gs[0])
         if title == None:
+            title = ''
+        if title == 'filename':
             title = 'Tempogram: ' + os.path.basename(self.of + self.fex)
         ax0.set_title(title)
         img0 = librosa.display.specshow(X, y_axis='tempo', x_axis='time', cmap=cmap, sr=sr, hop_length=hop_length)
