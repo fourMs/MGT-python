@@ -255,7 +255,7 @@ def mg_motion(
 
             # save motiongrams data and convert to grayscale for processing motiongrams Self-Similarity Matrices (SSMs)
             data = (cv2.cvtColor(gramx.astype(np.uint8), cv2.COLOR_RGB2GRAY), cv2.cvtColor(gramy.astype(np.uint8), cv2.COLOR_RGB2GRAY))
-            self.ssm = MgFigure(figure=None, figure_type='video.ssm', data=data, layers=None, image=(target_name_mgx, target_name_mgy))
+            self.ssm_fig = MgFigure(figure=None, figure_type='video.ssm', data=data, layers=None, image=(target_name_mgx, target_name_mgy))
 
             # save rendered motiongrams as MgImages into parent MgVideo
             self.motiongram_x = MgImage(target_name_mgx)

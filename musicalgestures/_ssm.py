@@ -55,6 +55,7 @@ def mg_ssm(
         cmap='gray_r',
         use_median=False,
         kernel_size=5,
+        title=None,
         target_name=None,
         overwrite=False):
     """
@@ -71,6 +72,7 @@ def mg_ssm(
         cmap (str, optional): A Colormap instance or registered colormap name. The colormap maps the C values to colors. Defaults to 'gray_r'.
         use_median (bool, optional): If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
         kernel_size (int, optional):  Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
+        title (str, optional): Optionally add title to the figure. Defaults to None, which uses the file name as a title. Defaults to None.
         target_name ([type], optional): Target output name for the SSM. Defaults to None.
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
@@ -117,8 +119,8 @@ def mg_ssm(
         pb = MgProgressbar(total=self.length, prefix='Rendering self-similarity matrices:')
 
         # Normalize feature sequence        
-        X = librosa.util.normalize(self.ssm.data[0].astype('float64'), norm=norm, threshold=threshold)
-        Y = librosa.util.normalize(self.ssm.data[1].astype('float64'), norm=norm, threshold=threshold)
+        X = librosa.util.normalize(self.ssm_fig.data[0].astype('float64'), norm=norm, threshold=threshold)
+        Y = librosa.util.normalize(self.ssm_fig.data[1].astype('float64'), norm=norm, threshold=threshold)
         # Compute SSM using dot product
         X_ssm = np.dot(np.transpose(X), X)
         Y_ssm = np.dot(np.transpose(Y), Y)
@@ -131,12 +133,13 @@ def mg_ssm(
         
         ax0 = fig.add_subplot(gs[0])
         ax0.xaxis.set_major_locator(MaxNLocator(8))
-        ax0.set_title('Vertical motiongram: ' + os.path.basename(self.of + self.fex))
+        if title == None:
+            title = 'Vertical motiongram: ' + os.path.basename(self.of + self.fex)
+        ax0.set_title(title)
         ax0.invert_yaxis()
         img0 = ax0.imshow(X, aspect='auto', cmap=cmap)
         fig.colorbar(img0, ax=ax0, aspect=15)
         ax0.set_xlabel('')
-
 
         ax1 = fig.add_subplot(gs[1:])
         ax1.xaxis.set_major_locator(MaxNLocator(8))
@@ -158,7 +161,9 @@ def mg_ssm(
 
         ax0 = fig.add_subplot(gs[0])
         ax0.xaxis.set_major_locator(MaxNLocator(8))
-        ax0.set_title('Horizontal motiongram: ' + os.path.basename(self.of + self.fex))
+        if title == None:
+            title = 'Horizontal motiongram: ' + os.path.basename(self.of + self.fex)
+        ax0.set_title(title)
         ax0.invert_yaxis()
         img0 = ax0.imshow(Y, aspect='auto', cmap=cmap)
         fig.colorbar(img0, ax=ax0, aspect=15)
@@ -208,7 +213,9 @@ def mg_ssm(
         gs = gridspec.GridSpec(4, 1)
 
         ax0 = fig.add_subplot(gs[0])
-        ax0.set_title('Spectrogram: ' + os.path.basename(self.of + self.fex))
+        if title == None:
+            title = 'Spectrogram: ' + os.path.basename(self.of + self.fex)
+        ax0.set_title(title)
         img0 = librosa.display.specshow(librosa.amplitude_to_db(X, ref=np.max), y_axis='linear', x_axis='time', cmap=cmap, sr=sr, hop_length=hop_length)
         fig.colorbar(img0, ax=ax0, format="%+2.f dB")
         ax0.xaxis.set_major_formatter(formatter)
@@ -228,7 +235,7 @@ def mg_ssm(
         fig.colorbar(img1, ax=ax1, aspect=50, format="%+2.f dB")
         fig.tight_layout()
 
-        self.ssm = MgFigure(figure=fig, figure_type='audio.ssm', data=X_ssm, layers=None, image=target_name)
+        self.mg_ssm = MgFigure(figure=fig, figure_type='audio.ssm', data=X_ssm, layers=None, image=target_name)
 
         plt.savefig(target_name, format='png', facecolor='white', transparent=False)
         plt.close()
@@ -262,7 +269,9 @@ def mg_ssm(
         gs = gridspec.GridSpec(4, 1)
 
         ax0 = fig.add_subplot(gs[0])
-        ax0.set_title('Chromagram: ' + os.path.basename(self.of + self.fex))
+        if title == None:
+            title = 'Chromagram: ' + os.path.basename(self.of + self.fex)
+        ax0.set_title(title)
         ax0.xaxis.set_major_formatter(formatter)
         ax0.xaxis.set_major_locator(MaxNLocator(8))
         img0 = librosa.display.specshow(X, y_axis='chroma', x_axis='time', cmap=cmap, sr=sr, hop_length=hop_length)
@@ -286,7 +295,7 @@ def mg_ssm(
         fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax1, aspect=50)
         fig.tight_layout()
 
-        self.ssm = MgFigure(figure=fig, figure_type='audio.ssm', data=X_ssm, layers=None, image=target_name)
+        self.ssm_fig = MgFigure(figure=fig, figure_type='audio.ssm', data=X_ssm, layers=None, image=target_name)
 
         plt.savefig(target_name, format='png', facecolor='white', transparent=False)
         plt.close()
@@ -323,7 +332,9 @@ def mg_ssm(
         gs = gridspec.GridSpec(4, 1)
 
         ax0 = fig.add_subplot(gs[0])
-        ax0.set_title('Tempogram: ' + os.path.basename(self.of + self.fex))
+        if title == None:
+            title = 'Tempogram: ' + os.path.basename(self.of + self.fex)
+        ax0.set_title(title)
         img0 = librosa.display.specshow(X, y_axis='tempo', x_axis='time', cmap=cmap, sr=sr, hop_length=hop_length)
         
         # Normalize colorbar
@@ -349,7 +360,7 @@ def mg_ssm(
         fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax1, aspect=50)
         fig.tight_layout()
 
-        self.ssm = MgFigure(figure=fig, figure_type='audio.ssm', data=X_ssm, layers=None, image=target_name)
+        self.ssm_fig = MgFigure(figure=fig, figure_type='audio.ssm', data=X_ssm, layers=None, image=target_name)
 
         plt.savefig(target_name, format='png', facecolor='white', transparent=False)
         plt.close()

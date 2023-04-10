@@ -162,8 +162,8 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                     "There is no known horizontal videogram for this file.")
 
         elif key.lower() == 'ssm':
-            if "ssm" in keys:
-                filename = self.ssm.image
+            if "ssm_fig" in keys:
+                filename = self.ssm_fig.image
                 if len(filename) == 2:
                     show(file=filename[0], width=window_width, height=window_height, mode=mode, title=f'Horizontal SSM | {filename}', parent=self)
                     show(file=filename[1], width=window_width, height=window_height, mode=mode, title=f'Vertical SSM | {filename}', parent=self)
