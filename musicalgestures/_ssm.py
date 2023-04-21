@@ -57,6 +57,7 @@ def mg_ssm(
         cmap='gray_r',
         use_median=False,
         kernel_size=5,
+        invert_yaxis=True,
         title=None,
         target_name=None,
         overwrite=False):
@@ -74,6 +75,7 @@ def mg_ssm(
         cmap (str, optional): A Colormap instance or registered colormap name. The colormap maps the C values to colors. Defaults to 'gray_r'.
         use_median (bool, optional): If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
         kernel_size (int, optional):  Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
+        invert_axis (bool, optional): Whether to invert the y axis of the SSM. Defaults to True.
         title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
         target_name ([type], optional): Target output name for the SSM. Defaults to None.
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
@@ -140,7 +142,8 @@ def mg_ssm(
         if title == 'filename':
             title = 'Vertical motiongram: ' + os.path.basename(self.of + self.fex)
         ax0.set_title(title)
-        ax0.invert_yaxis()
+        if invert_yaxis:
+            ax0.invert_yaxis()
         img0 = ax0.imshow(X, aspect='auto', cmap=cmap)
         fig.colorbar(img0, ax=ax0, aspect=15)
         ax0.set_xlabel('')
@@ -149,7 +152,8 @@ def mg_ssm(
         ax1.xaxis.set_major_locator(MaxNLocator(8))
         ax1.yaxis.set_major_locator(MaxNLocator(8))
         img1 = ax1.imshow(X_ssm, aspect='auto', cmap=cmap)
-        ax1.invert_yaxis()
+        if invert_yaxis:
+            ax1.invert_yaxis()
         ax1.set_xlabel('Time [frames]')
         ax1.set_ylabel('Time [frames]')
         # Normalize colobar
@@ -179,7 +183,8 @@ def mg_ssm(
         ax1.xaxis.set_major_locator(MaxNLocator(8))
         ax1.yaxis.set_major_locator(MaxNLocator(8))
         img1 = ax1.imshow(Y_ssm, aspect='auto', cmap=cmap)
-        ax1.invert_yaxis()
+        if invert_yaxis:
+            ax1.invert_yaxis()
         ax1.set_xlabel('Time [frames]')
         ax1.set_ylabel('Time [frames]')
         # Normalize colorbar
@@ -309,7 +314,6 @@ def mg_ssm(
         X = librosa.util.normalize(X.astype('float64'), norm=norm, threshold=threshold)
         # Compute SSM using dot product
         X_ssm = np.dot(np.transpose(X), X)
-
        # Plotting SSM for spectrogram
         fig = plt.figure(figsize=(8,8))
         gs = gridspec.GridSpec(4, 1)
@@ -322,6 +326,7 @@ def mg_ssm(
         ax0.set_title(title)
         img0 = librosa.display.specshow(librosa.amplitude_to_db(X, ref=np.max), y_axis='linear', x_axis='time', cmap=cmap, sr=sr, hop_length=hop_length)
         fig.colorbar(img0, ax=ax0, format="%+2.f dB")
+        # Format ticks
         ax0.xaxis.set_major_formatter(formatter)
         ax0.xaxis.set_major_locator(MaxNLocator(8))
         ax0.set_xlabel('')
@@ -333,7 +338,8 @@ def mg_ssm(
         right = spectrogram.shape[1] * hop_length / sr + (frame_length / sr) / 2
 
         img1 = ax1.imshow(librosa.amplitude_to_db(X_ssm, ref=np.max), aspect='auto', cmap=cmap, extent=[left,right,right,left])
-        ax1.invert_yaxis()
+        if invert_yaxis:
+            ax1.invert_yaxis()
         ax1.set_xlabel('Time [seconds]')
         ax1.set_ylabel('Time [seconds]')
         fig.colorbar(img1, ax=ax1, aspect=50, format="%+2.f dB")
@@ -378,9 +384,11 @@ def mg_ssm(
         if title == 'filename':
             title = 'Chromagram: ' + os.path.basename(self.of + self.fex)
         ax0.set_title(title)
+        img0 = librosa.display.specshow(X, y_axis='chroma', x_axis='time', cmap=cmap, sr=sr, hop_length=hop_length)
+
+        # Format ticks
         ax0.xaxis.set_major_formatter(formatter)
         ax0.xaxis.set_major_locator(MaxNLocator(8))
-        img0 = librosa.display.specshow(X, y_axis='chroma', x_axis='time', cmap=cmap, sr=sr, hop_length=hop_length)
         # Normalize colorbar
         norm = mpl.colors.Normalize(vmin=0, vmax=1.0)
         fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax0, aspect=15)
@@ -393,7 +401,8 @@ def mg_ssm(
         right = chromagram.shape[1] * hop_length / sr + (frame_length / sr) / 2
 
         img1 = ax1.imshow(X_ssm, aspect='auto', cmap=cmap, extent=[left,right,right,left])
-        ax1.invert_yaxis()
+        if invert_yaxis:
+            ax1.invert_yaxis()
         ax1.set_xlabel('Time [seconds]')
         ax1.set_ylabel('Time [seconds]')
         # Normalize colorbar
@@ -461,7 +470,8 @@ def mg_ssm(
         right = tempogram.shape[1] * hop_length / sr + (frame_length / sr) / 2
 
         img1 = ax1.imshow(X_ssm, aspect='auto', cmap=cmap, extent=[left,right,right,left])
-        ax1.invert_yaxis()
+        if invert_yaxis:
+            ax1.invert_yaxis()
         ax1.set_xlabel('Time [seconds]')
         ax1.set_ylabel('Time [seconds]')
         norm = mpl.colors.Normalize(vmin=0, vmax=1.0)
