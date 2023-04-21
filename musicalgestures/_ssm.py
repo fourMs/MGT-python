@@ -66,7 +66,7 @@ def mg_ssm(
     SSMs can be computed over different input features such as 'motiongrams', 'spectrogram', 'chromagram' and 'tempogram'.
 
     Args:
-        features (str, optional): Defines the type of features on which to compute SSM. Possible to compute SSM on 'motiongrams', 'spectrogram', 'chromagram' and 'tempogram'. Defaults to 'motiongrams'.
+        features (str, optional): Defines the type of features on which to compute SSM. Possible to compute SSM on 'motiongrams', 'videograms', 'spectrogram', 'chromagram' and 'tempogram'. Defaults to 'motiongrams'.
         filtertype (str, optional): 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
         thresh (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
         blur (str, optional): 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
