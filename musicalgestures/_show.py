@@ -161,6 +161,15 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                 raise FileNotFoundError(
                     "There is no known horizontal videogram for this file.")
 
+        elif key.lower() == 'vgy':
+            if "videogram_y" in keys:
+                filename = self.videogram_y.filename
+                show(file=filename, width=window_width,
+                     height=window_height, mode=mode, title=f'Vertical Videogram | {filename}', parent=self)
+            else:
+                raise FileNotFoundError(
+                    "There is no known vertical videogram for this file.")
+            
         elif key.lower() == 'ssm':
             if "ssm_fig" in keys:
                 filename = self.ssm_fig.image
@@ -172,15 +181,6 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             else:
                 raise FileNotFoundError(
                     "There is no known self-smilarity matrix for this file.")
-
-        elif key.lower() == 'vgy':
-            if "videogram_y" in keys:
-                filename = self.videogram_y.filename
-                show(file=filename, width=window_width,
-                     height=window_height, mode=mode, title=f'Vertical Videogram | {filename}', parent=self)
-            else:
-                raise FileNotFoundError(
-                    "There is no known vertical videogram for this file.")
 
         elif key.lower() == 'average':
             if "average_image" in keys:

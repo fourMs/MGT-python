@@ -1,4 +1,5 @@
 import os
+import cv2
 import numpy as np
 from scipy import signal
 import matplotlib as mpl
@@ -11,6 +12,7 @@ import librosa.display
 
 import musicalgestures
 from musicalgestures._motionvideo import mg_motiongrams
+from musicalgestures._videograms import videograms_ffmpeg
 from musicalgestures._mglist import MgList
 from musicalgestures._utils import MgProgressbar, MgImage, MgFigure, has_audio, generate_outfilename 
 
@@ -190,6 +192,102 @@ def mg_ssm(
 
         # mg_ssm also saves the motiongrams SSM as MgImages to self.motiongram_x and self.motiongram_y of the parent MgVideo
         return MgList(MgImage(out_x), MgImage(out_y))
+    
+    elif features == 'videograms':
+        out_x, out_y = None, None
+        target_name_vgx = os.path.splitext(target_name)[0] + '_vgx.png'
+        target_name_vgy = os.path.splitext(target_name)[0] + '_vgy.png'
+
+        if not overwrite:
+            out_x = generate_outfilename(target_name_vgx)
+            out_y = generate_outfilename(target_name_vgy)
+        else:
+            out_x, out_y = target_name_vgx, target_name_vgy
+
+        videograms = videograms_ffmpeg(self,
+                                       target_name_x=out_x,
+                                       target_name_y=out_y,
+                                       overwrite=True)
+
+        pb = MgProgressbar(total=self.length, prefix='Rendering self-similarity matrices:')
+
+        # Load videograms and normalize them
+        vgx = cv2.cvtColor(cv2.imread(videograms[0].filename), cv2.COLOR_RGB2GRAY)
+        vgy = cv2.cvtColor(cv2.imread(videograms[1].filename), cv2.COLOR_RGB2GRAY)
+
+        X = librosa.util.normalize(vgx.astype('float64'), norm=norm, threshold=threshold)
+        Y = librosa.util.normalize(vgy.astype('float64'), norm=norm, threshold=threshold)
+        # Compute SSM using dot product
+        X_ssm = np.dot(np.transpose(X), X)
+        Y_ssm = np.dot(np.transpose(Y), Y)
+
+        pb.progress(self.length)
+    
+       # Plotting Self-Similarity Matrices for motiongrams
+        fig = plt.figure(figsize=(8,8))
+        gs = gridspec.GridSpec(4, 1)
+        
+        ax0 = fig.add_subplot(gs[0])
+        ax0.xaxis.set_major_locator(MaxNLocator(8))
+        if title == None:
+            title = ''
+        if title == 'filename':
+            title = 'Vertical videogram: ' + os.path.basename(self.of + self.fex)
+        ax0.set_title(title)
+        ax0.invert_yaxis()
+        img0 = ax0.imshow(X, aspect='auto', cmap=cmap)
+        fig.colorbar(img0, ax=ax0, aspect=15)
+        ax0.set_xlabel('')
+
+        ax1 = fig.add_subplot(gs[1:])
+        ax1.xaxis.set_major_locator(MaxNLocator(8))
+        ax1.yaxis.set_major_locator(MaxNLocator(8))
+        img1 = ax1.imshow(X_ssm, aspect='auto', cmap=cmap)
+        ax1.invert_yaxis()
+        ax1.set_xlabel('Time [frames]')
+        ax1.set_ylabel('Time [frames]')
+        # Normalize colobar
+        norm = mpl.colors.Normalize(vmin=0, vmax=1.0)
+        fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax1, aspect=50)
+        fig.tight_layout()
+
+        plt.savefig(out_x, format='png', facecolor='white', transparent=False)
+        plt.close()
+
+        fig = plt.figure(figsize=(8,8))
+        gs = gridspec.GridSpec(4, 1)
+
+        ax0 = fig.add_subplot(gs[0])
+        ax0.xaxis.set_major_locator(MaxNLocator(8))
+        if title == None:
+            title = ''
+        if title == 'filename':
+            title = 'Horizontal videogram: ' + os.path.basename(self.of + self.fex)
+        ax0.set_title(title)
+        ax0.invert_yaxis()
+        img0 = ax0.imshow(Y, aspect='auto', cmap=cmap)
+        fig.colorbar(img0, ax=ax0, aspect=15)
+        ax0.set_xlabel('')
+
+        ax1 = fig.add_subplot(gs[1:])
+        ax1.xaxis.set_major_locator(MaxNLocator(8))
+        ax1.yaxis.set_major_locator(MaxNLocator(8))
+        img1 = ax1.imshow(Y_ssm, aspect='auto', cmap=cmap)
+        ax1.invert_yaxis()
+        ax1.set_xlabel('Time [frames]')
+        ax1.set_ylabel('Time [frames]')
+        # Normalize colorbar
+        norm = mpl.colors.Normalize(vmin=0, vmax=1.0)
+        fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax1, aspect=50)
+        fig.tight_layout()
+
+        self.ssm_fig = MgFigure(figure=None, figure_type='video.ssm', data=(vgx, vgy), layers=None, image=(target_name_vgx, target_name_vgy))
+
+        plt.savefig(out_y, format='png', facecolor='white', transparent=False)
+        plt.close()
+
+        # mg_ssm also saves the motiongrams SSM as MgImages to self.motiongram_x and self.motiongram_y of the parent MgVideo
+        return MgList(MgImage(out_x), MgImage(out_y))
 
     elif features == 'spectrogram':
         pb = MgProgressbar(total=self.length, prefix='Rendering spectrogram SSM:')
@@ -241,7 +339,7 @@ def mg_ssm(
         fig.colorbar(img1, ax=ax1, aspect=50, format="%+2.f dB")
         fig.tight_layout()
 
-        self.mg_ssm = MgFigure(figure=fig, figure_type='audio.ssm', data=X_ssm, layers=None, image=target_name)
+        self.ssm_fig = MgFigure(figure=fig, figure_type='audio.ssm', data=X_ssm, layers=None, image=target_name)
 
         plt.savefig(target_name, format='png', facecolor='white', transparent=False)
         plt.close()
@@ -378,7 +476,7 @@ def mg_ssm(
         return MgImage(target_name)
 
     else:
-        print(f'Unrecognized feature: "{features}". Try "motiongrams", "spectrogram", "chromagram" or "tempogram".')
+        print(f'Unrecognized feature: "{features}". Try "motiongrams", "videograms, "spectrogram", "chromagram" or "tempogram".')
 
 
 
