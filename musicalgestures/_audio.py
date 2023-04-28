@@ -4,8 +4,7 @@ import librosa.display
 import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
-from musicalgestures._utils import MgImage, MgFigure, get_length, has_audio, generate_outfilename
-import musicalgestures
+from musicalgestures._utils import MgImage, MgFigure, get_length, generate_outfilename, get_metadata, has_audio
 
 # preventing librosa-matplotlib deadlock
 plt.plot()
@@ -24,18 +23,19 @@ class Audio:
     Class container for audio analysis processes.
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename, skip):
         """
         Initializes the Audio class.
 
         Args:
-            filename (str): Path to the video file. Passed by the parent MgObject.
+            filename (str): Path to the video file. Passed by the parent MgVideo.
         """
         self.filename = filename
         self.of, self.fex = os.path.splitext(filename)
+        self.skip = skip
 
 
-    def waveform(self, mono=False, dpi=300, sr=22050, autoshow=True, raw=False, title=None, target_name=None, overwrite=False):
+    def waveform(self, mono=False, dpi=300, sr=22050, autoshow=True, raw=False, original_time=True, title=None, target_name=None, overwrite=False):
         """
         Renders a figure showing the waveform of the video/audio file.
 
@@ -45,6 +45,7 @@ class Audio:
             sr (int, optional): Sampling rate of the audio file. Defaults to 22050.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
             raw (bool, optional): Whether to show labels and ticks on the plot. Defaults to False.
+            original_time (bool, optional): Whether to plot original time or not. This parameter can be useful if the file has been shortened beforehand (e.g. skip). Defaults to True.
             title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_waveform.png" should be used).
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
@@ -66,7 +67,6 @@ class Audio:
             target_name = generate_outfilename(target_name)
 
         y, sr = librosa.load(self.filename, sr=sr, mono=mono)
-
         length = get_length(self.filename)
 
         fig, ax = plt.subplots(figsize=(12, 4), dpi=dpi)
@@ -83,6 +83,26 @@ class Audio:
         fig.suptitle(title, fontsize=16)
 
         librosa.display.waveshow(y, sr=sr, ax=ax)
+        
+        if self.skip != 0 and original_time:
+            ax.xaxis.set_major_locator(plt.MaxNLocator(10))
+            ax.xaxis.set_major_locator(plt.FixedLocator(ax.get_xticks().tolist()))
+            # Hack to get original duration from file
+            original_duration = float(get_metadata(self.filename)[2]['TAG:title']) 
+            # We need to insert an additional zero at the beginning of the array for visualization
+            time = list(np.insert(np.round(np.linspace(0, original_duration, 10), 2), 0, 0, axis=0))
+            for i, v in enumerate(time):
+                if original_duration > 3600:
+                    if v > 60:
+                        minutes, sec = divmod(v, 60)
+                        hour, minutes = divmod(minutes, 60)
+                        time[i] = '%d.%02d.%02d' % (hour, minutes, sec)
+                else:
+                    if v > 60:
+                        minutes, sec = divmod(v, 60)
+                        time[i] = '%02d.%02d' % (minutes, sec)
+            ax.set_xticklabels(time)
+
         plt.tight_layout()
 
         if raw:
@@ -112,7 +132,7 @@ class Audio:
 
         return mgf
 
-    def spectrogram(self, window_size=2048, overlap=4, mel_filters=512, power=2, dpi=300, sr=22050, autoshow=True, raw=False, title=None, target_name=None, overwrite=False):
+    def spectrogram(self, window_size=2048, overlap=4, mel_filters=512, power=2, dpi=300, sr=22050, autoshow=True, raw=False, original_time=True, title=None, target_name=None, overwrite=False):
         """
         Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
@@ -125,6 +145,7 @@ class Audio:
             sr (int, optional): Sampling rate of the audio file. Defaults to 22050.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
             raw (bool, optional): Whether to show labels and ticks on the plot. Defaults to False.
+            original_time (bool, optional): Whether to plot original time or not. This parameter can be useful if the file has been shortened beforehand (e.g. skip). Defaults to True.
             title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_spectrogram.png" should be used).
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
@@ -193,6 +214,25 @@ class Audio:
         ax.set(yticks=(freq_ticks))
         ax.set(yticklabels=(freq_ticks_labels))
 
+        if self.skip != 0 and original_time:
+            ax.xaxis.set_major_locator(plt.MaxNLocator(10))
+            ax.xaxis.set_major_locator(plt.FixedLocator(ax.get_xticks().tolist()))
+            # Hack to get original duration from file
+            original_duration = float(get_metadata(self.filename)[2]['TAG:title']) 
+            # We need to insert an additional zero at the beginning of the array for visualization
+            time = list(np.insert(np.round(np.linspace(0, original_duration, 10), 2), 0, 0, axis=0))
+            for i, v in enumerate(time):
+                if original_duration > 3600:
+                    if v > 60:
+                        minutes, sec = divmod(v, 60)
+                        hour, minutes = divmod(minutes, 60)
+                        time[i] = '%d.%02d.%02d' % (hour, minutes, sec)
+                else:
+                    if v > 60:
+                        minutes, sec = divmod(v, 60)
+                        time[i] = '%02d.%02d' % (minutes, sec)
+            ax.set_xticklabels(time)
+
         plt.tight_layout()
 
         if raw:
@@ -224,7 +264,7 @@ class Audio:
 
         return mgf
 
-    def tempogram(self, window_size=2048, overlap=4, mel_filters=512, power=2, dpi=300, sr=22050, autoshow=True, title=None, target_name=None, overwrite=False):
+    def tempogram(self, window_size=2048, overlap=4, mel_filters=512, power=2, dpi=300, sr=22050, autoshow=True, raw=False, original_time=True, title=None, target_name=None, overwrite=False):
         """
         Renders a figure with a plots of onset strength and tempogram of the video/audio file.
 
@@ -236,6 +276,8 @@ class Audio:
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             sr (int, optional): Sampling rate of the audio file. Defaults to 22050.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+            raw (bool, optional): Whether to show labels and ticks on the plot. Defaults to False.
+            original_time (bool, optional): Whether to plot original time or not. This parameter can be useful if the file has been shortened beforehand (e.g. skip). Defaults to True.
             title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_tempogram.png" should be used).
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
@@ -295,6 +337,30 @@ class Audio:
         ax[1].legend(loc='upper right')
         ax[1].set(title='Tempogram')
 
+        if self.skip != 0 and original_time:
+            ax[1].xaxis.set_major_locator(plt.MaxNLocator(10))
+            ax[1].xaxis.set_major_locator(plt.FixedLocator(ax[1].get_xticks().tolist()))
+            # Hack to get original duration from file
+            original_duration = float(get_metadata(self.filename)[2]['TAG:title']) 
+            # We need to insert an additional zero at the beginning of the array for visualization
+            time = list(np.insert(np.round(np.linspace(0, original_duration, 10), 2), 0, 0, axis=0))
+            for i, v in enumerate(time):
+                if original_duration > 3600:
+                    if v > 60:
+                        minutes, sec = divmod(v, 60)
+                        hour, minutes = divmod(minutes, 60)
+                        time[i] = '%d.%02d.%02d' % (hour, minutes, sec)
+                else:
+                    if v > 60:
+                        minutes, sec = divmod(v, 60)
+                        time[i] = '%02d.%02d' % (minutes, sec)
+            ax[1].set_xticklabels(time)
+
+        if raw:
+            fig.patch.set_visible(False)
+            fig.suptitle('')
+            ax.axis('off')
+
         plt.savefig(target_name, format='png', transparent=False)
 
         if not autoshow:
@@ -320,7 +386,7 @@ class Audio:
 
         return mgf
     
-    def hpss(self, window_size=2048, overlap=4, n_mels=128, fmin=0.0, fmax=None, kernel_size=31, margin=(1.0,5.0), power=2.0, mask=False, residual=False, dpi=300, sr=22050, autoshow=True, title=None, target_name=None, overwrite=False):
+    def hpss(self, window_size=2048, overlap=4, n_mels=128, fmin=0.0, fmax=None, kernel_size=31, margin=(1.0,5.0), power=2.0, mask=False, residual=False, dpi=300, sr=22050, autoshow=True, original_time=True, title=None, target_name=None, overwrite=False):
         """
         Renders a figure with a plots of harmonic and percussive components of the audio file.
 
@@ -338,6 +404,7 @@ class Audio:
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             sr (int, optional): Sampling rate of the audio file. Defaults to 22050.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+            original_time (bool, optional): Whether to plot original time or not. This parameter can be useful if the file has been shortened beforehand (e.g. skip). Defaults to True.
             title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_tempogram.png" should be used).
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
@@ -392,12 +459,50 @@ class Audio:
                                 )
         ax[1].set(title='Percussive')
 
+        if self.skip != 0 and original_time:
+            ax[1].xaxis.set_major_locator(plt.MaxNLocator(10))
+            ax[1].xaxis.set_major_locator(plt.FixedLocator(ax[1].get_xticks().tolist()))
+            # Hack to get original duration from file
+            original_duration = float(get_metadata(self.filename)[2]['TAG:title']) 
+            # We need to insert an additional zero at the beginning of the array for visualization
+            time = list(np.insert(np.round(np.linspace(0, original_duration, 10), 2), 0, 0, axis=0))
+            for i, v in enumerate(time):
+                if original_duration > 3600:
+                    if v > 60:
+                        minutes, sec = divmod(v, 60)
+                        hour, minutes = divmod(minutes, 60)
+                        time[i] = '%d.%02d.%02d' % (hour, minutes, sec)
+                else:
+                    if v > 60:
+                        minutes, sec = divmod(v, 60)
+                        time[i] = '%02d.%02d' % (minutes, sec)
+            ax[1].set_xticklabels(time)
+
         if residual:
             R = D - (H + P)
             librosa.display.specshow(librosa.amplitude_to_db(np.abs(R), ref=np.max(np.abs(D))), 
                         sr=sr, hop_length=hop_size, x_axis='time', y_axis='mel', cmap='magma', ax=ax[2]
                         )
             ax[2].set(title='Residual')
+
+            if self.skip != 0 and original_time:
+                ax[2].xaxis.set_major_locator(plt.MaxNLocator(10))
+                ax[2].xaxis.set_major_locator(plt.FixedLocator(ax[2].get_xticks().tolist()))
+                # Hack to get original duration from file
+                original_duration = float(get_metadata(self.filename)[2]['TAG:title']) 
+                # We need to insert an additional zero at the beginning of the array for visualization
+                time = list(np.insert(np.round(np.linspace(0, original_duration, 10), 2), 0, 0, axis=0))
+                for i, v in enumerate(time):
+                    if original_duration > 3600:
+                        if v > 60:
+                            minutes, sec = divmod(v, 60)
+                            hour, minutes = divmod(minutes, 60)
+                            time[i] = '%d.%02d.%02d' % (hour, minutes, sec)
+                    else:
+                        if v > 60:
+                            minutes, sec = divmod(v, 60)
+                            time[i] = '%02d.%02d' % (minutes, sec)
+                ax[2].set_xticklabels(time)
 
         plt.tight_layout()
         plt.savefig(target_name, format='png', transparent=False)
@@ -425,7 +530,7 @@ class Audio:
         return mgf
 
 
-    def descriptors(self, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True, title=None, target_name=None, overwrite=False):
+    def descriptors(self, window_size=4096, overlap=8, mel_filters=512, power=2, dpi=300, autoshow=True, original_time=True, title=None, target_name=None, overwrite=False):
         """
         Renders a figure of plots showing spectral/loudness descriptors, including RMS energy, spectral flatness, centroid, bandwidth, rolloff of the video/audio file.
 
@@ -436,6 +541,7 @@ class Audio:
             power (float, optional): The steepness of the curve for the color mapping. Defaults to 2.
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+            original_time (bool, optional): Whether to plot original time or not. This parameter can be useful if the file has been shortened beforehand (e.g. skip). Defaults to True.
             title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_descriptors.png" should be used).
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
@@ -533,6 +639,25 @@ class Audio:
         ax[0].semilogy(times, rms[0], label='RMS Energy')
         # ax[0].legend(loc='upper left', bbox_to_anchor=(1, 1))
         ax[0].legend(loc='upper right')
+
+        if self.skip != 0 and original_time:
+            ax[2].xaxis.set_major_locator(plt.MaxNLocator(10))
+            ax[2].xaxis.set_major_locator(plt.FixedLocator(ax[2].get_xticks().tolist()))
+            # Hack to get original duration from file
+            original_duration = float(get_metadata(self.filename)[2]['TAG:title']) 
+            # We need to insert an additional zero at the beginning of the array for visualization
+            time = list(np.insert(np.round(np.linspace(0, original_duration, 10), 2), 0, 0, axis=0))
+            for i, v in enumerate(time):
+                if original_duration > 3600:
+                    if v > 60:
+                        minutes, sec = divmod(v, 60)
+                        hour, minutes = divmod(minutes, 60)
+                        time[i] = '%d.%02d.%02d' % (hour, minutes, sec)
+                else:
+                    if v > 60:
+                        minutes, sec = divmod(v, 60)
+                        time[i] = '%02d.%02d' % (minutes, sec)
+            ax[2].set_xticklabels(time)
 
         plt.tight_layout()
 

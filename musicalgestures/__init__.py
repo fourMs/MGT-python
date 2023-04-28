@@ -4,7 +4,7 @@ from musicalgestures._videoreader import mg_videoreader
 from musicalgestures._flow import Flow
 from musicalgestures._audio import Audio
 from musicalgestures._mglist import MgList
-from musicalgestures._utils import MgImage, MgFigure, get_metadata, convert_to_mp4
+from musicalgestures._utils import MgImage, MgFigure, get_metadata, convert_to_mp4, get_length
 
 class MgVideo:
     """
@@ -82,7 +82,7 @@ class MgVideo:
         self.get_video()
         self.info()
         self.flow = Flow(self, self.filename, self.color, self.has_audio)
-        self.audio = Audio(self.filename)
+        self.audio = Audio(self.filename, self.skip) 
 
     from musicalgestures._motionvideo import mg_motion as motion
     from musicalgestures._motionvideo_mp_run import mg_motion_mp as motion_mp
@@ -155,7 +155,6 @@ class MgVideo:
 
     def __repr__(self):
         return f"MgVideo('{self.filename}')"
-
 
 class Examples:
     def __init__(self):
