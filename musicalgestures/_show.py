@@ -298,24 +298,24 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
     return self
 
 
-def show_in_new_process(command):
+def show_in_new_process(cmd):
     import subprocess
-    # import time
     import sys
-    import platform
-    from musicalgestures._utils import wrap_str
-    module_path = os.path.realpath(os.path.dirname(
-        musicalgestures.__file__)).replace('\\', '/')
-    the_system = platform.system()
-    pythonkw = "python"
-    if the_system != "Windows":
-        pythonkw += "3"
-    pyfile = wrap_str(module_path + '/_show_window.py')
-    cmd = [pythonkw, pyfile, wrap_str(command)]
-    # print(cmd)
+
+    # import platform
+    # from musicalgestures._utils import wrap_str
+    # module_path = os.path.realpath(os.path.dirname(musicalgestures.__file__)).replace('\\', '/')
+
+    # the_system = platform.system()
+    # pythonkw = "python"
+    
+    # if the_system != "Windows":
+    #     pythonkw += "3"
+    # pyfile = wrap_str(module_path + '/_show_window.py')
+    # cmd = [pythonkw, pyfile, wrap_str(cmd)]
+    
     with open(os.devnull, 'r+b', 0) as DEVNULL:
-        process = subprocess.Popen(
-            cmd, stdin=DEVNULL, stdout=DEVNULL, stderr=DEVNULL, close_fds=True)
+        process = subprocess.Popen(cmd, stdin=DEVNULL, stdout=DEVNULL, stderr=DEVNULL, close_fds=True)
     # time.sleep(1)
     if process.poll():
         sys.exit(process.returncode)
