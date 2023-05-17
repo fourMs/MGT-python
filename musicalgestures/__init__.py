@@ -2,11 +2,15 @@ import os
 from musicalgestures._input_test import mg_input_test
 from musicalgestures._videoreader import mg_videoreader
 from musicalgestures._flow import Flow
-from musicalgestures._audio import Audio
-from musicalgestures._mglist import MgList
-from musicalgestures._utils import MgImage, MgFigure, get_metadata, convert_to_mp4, get_length
+from musicalgestures._audio import MgAudio 
+from musicalgestures._utils import get_metadata, convert_to_mp4
 
-class MgVideo:
+import warnings
+# Suppress cryptography module's warnings
+from cryptography.utils import CryptographyDeprecationWarning
+warnings.filterwarnings("ignore", category=CryptographyDeprecationWarning)
+
+class MgVideo(MgAudio):
     """
     This is the class for working with video files in the Musical Gestures Toolbox.
     There is a set of preprocessing tools you can use when you load a video, such as:
@@ -36,7 +40,13 @@ class MgVideo:
             brightness=0,
             crop='None',
             keep_all=False,
-            returned_by_process=False):
+            returned_by_process=False,
+            # Audio parameters
+            mono=False,
+            sr=22050,
+            n_fft=2048, 
+            hop_length=512,
+            ):
         """
         Initializes Musical Gestures data structure from a video file, and applies preprocesses if desired.
 
@@ -59,9 +69,9 @@ class MgVideo:
         """
 
         self.filename = filename
-        # name of file without extension (only-filename)
+        # Name of file without extension (only-filename)
         self.of = os.path.splitext(self.filename)[0]
-        # file extension
+        # File extension
         self.fex = os.path.splitext(self.filename)[1]
         self.color = color
         self.starttime = starttime
@@ -82,7 +92,11 @@ class MgVideo:
         self.get_video()
         self.info()
         self.flow = Flow(self, self.filename, self.color, self.has_audio)
-        self.audio = Audio(self.filename, self.skip) 
+        # Audio parameters
+        self.mono = mono
+        self.sr = sr
+        self.n_fft = n_fft
+        self.hop_length = hop_length
 
     from musicalgestures._motionvideo import mg_motion as motion
     from musicalgestures._motionvideo_mp_run import mg_motion_mp as motion_mp
@@ -98,8 +112,6 @@ class MgVideo:
     from musicalgestures._blurfaces import mg_blurfaces as blur_faces
     from musicalgestures._impacts import mg_impacts as impacts
     from musicalgestures._grid import mg_grid as grid
-    from musicalgestures._audio import mg_audio_spectrogram
-    from musicalgestures._audio import mg_audio_descriptors
     from musicalgestures._motionvideo import save_analysis
     # from musicalgestures._cropvideo import mg_cropvideo, find_motion_box, find_total_motion_box
     from musicalgestures._show import mg_show as show
@@ -155,6 +167,7 @@ class MgVideo:
 
     def __repr__(self):
         return f"MgVideo('{self.filename}')"
+
 
 class Examples:
     def __init__(self):
