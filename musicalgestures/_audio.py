@@ -23,7 +23,6 @@ class MgAudio:
     def __init__(
             self, 
             filename,
-            mono=True,
             sr=22050,
             n_fft=2048, 
             hop_length=512,
@@ -33,14 +32,13 @@ class MgAudio:
 
         Args:
             filename (str): Path to the audio file. Passed by the parent MgAudio.
-            mono (bool, optional): Convert the signal to mono. Defaults to False.
             sr (int, optional): Sampling rate of the audio file. Defaults to 22050.
             n_fft (int, optional): Length of the FFT window. Defaults to 2048.
             hop_length (int, optional): Number of samples between successive frames. Defaults to 512.
         """
+        
         self.filename = filename
         self.of, self.fex = os.path.splitext(filename)
-        self.mono = mono
         self.sr = sr
         self.n_fft = n_fft
         self.hop_length = hop_length
@@ -109,7 +107,7 @@ class MgAudio:
         if not overwrite:
             target_name = generate_outfilename(target_name)
 
-        y, sr = librosa.load(self.filename, sr=self.sr, mono=self.mono)
+        y, sr = librosa.load(self.filename, sr=self.sr)
         length = get_length(self.filename)
 
         fig, ax = plt.subplots(figsize=(12, 4), dpi=dpi)
@@ -159,12 +157,14 @@ class MgAudio:
 
         return mgf
 
-    def spectrogram(self, mel_filters=128, power=2, dpi=300, autoshow=True, raw=False, original_time=False, title=None, target_name=None, overwrite=False):
+    def spectrogram(self, fmin=0.0, fmax=None, n_mels=128, power=2, dpi=300, autoshow=True, raw=False, original_time=False, title=None, target_name=None, overwrite=False):
         """
         Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
         Args:
-            mel_filters (int, optional): The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 128.
+            n_mels (int, optional): The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 128.
+            fmin (float, optional): Lowest frequency (in Hz). Defaults to 0.0.
+            fmax (float, optional): Highest frequency (in Hz). Defaults to None, use fmax = sr / 2.0.
             power (float, optional): The steepness of the curve for the color mapping. Defaults to 2.
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
@@ -193,7 +193,7 @@ class MgAudio:
         y, sr = librosa.load(self.filename, sr=self.sr)
 
         S = librosa.feature.melspectrogram(
-            y=y, sr=sr, n_mels=mel_filters, fmax=sr/2, n_fft=self.n_fft, hop_length=self.hop_length, power=power)
+            y=y, sr=sr, n_mels=n_mels, n_fft=self.n_fft, hop_length=self.hop_length, power=power, fmin=fmin, fmax=fmax)
 
         fig, ax = plt.subplots(figsize=(12, 6), dpi=dpi)
 
@@ -209,7 +209,8 @@ class MgAudio:
         fig.suptitle(title, fontsize=16)
 
         # Display spectrogram
-        img = librosa.display.specshow(librosa.power_to_db(S, ref=np.max, top_db=120), sr=sr, y_axis='mel', fmin=0.0, fmax=sr/2, x_axis='time', hop_length=self.hop_length, ax=ax)
+        img = librosa.display.specshow(librosa.power_to_db(S, ref=np.max, top_db=120), 
+                                       sr=sr, y_axis='mel', fmin=fmin, fmax=fmax, x_axis='time', hop_length=self.hop_length, ax=ax)
 
         colorbar_ticks = range(-120, 1, 10)
         cb = fig.colorbar(img, format='%+2.0f dB', ticks=colorbar_ticks)
@@ -299,7 +300,7 @@ class MgAudio:
         if not overwrite:
             target_name = generate_outfilename(target_name)
 
-        y, sr = librosa.load(self.filename, sr=self.sr, mono=self.mono)
+        y, sr = librosa.load(self.filename, sr=self.sr)
 
         oenv = librosa.onset.onset_strength(y=y, sr=sr, hop_length=self.hop_length)
 
@@ -378,7 +379,7 @@ class MgAudio:
         Args:
             n_mels (int, optional): Number of Mel bands to generate. Defaults to 128.
             fmin (float, optional): Lowest frequency (in Hz). Defaults to 0.0.
-            fmax (float, optional): Highest frequency (in Hz). Defaults to None, use fmax = sr / 2.0
+            fmax (float, optional): Highest frequency (in Hz). Defaults to None, use fmax = sr / 2.0.
             kernel_size (int or tuple, optional): Kernel size(s) for the median filters. If tuple, the first value specifies the width of the harmonic filter, and the second value specifies the width of the percussive filter. Defaults to 31.
             margin (float or tuple, optional): Margin size(s) for the masks (as described in this [paper](https://archives.ismir.net/ismir2014/paper/000127.pdf)). If tuple, the first value specifies the margin of the harmonic mask, and the second value specifies the margin of the percussive mask. Defaults to (1.0,5.0).
             power (float, optional): Exponent for the Wiener filter when constructing soft mask matrices. Defaults to 2.0.
@@ -407,7 +408,7 @@ class MgAudio:
         if not overwrite:
             target_name = generate_outfilename(target_name)
 
-        y, sr = librosa.load(self.filename, sr=self.sr, mono=self.mono)
+        y, sr = librosa.load(self.filename, sr=self.sr)
         D = librosa.feature.melspectrogram(y=y, sr=sr, n_fft=self.n_fft, hop_length=self.hop_length, n_mels=n_mels, fmin=fmin, fmax=fmax)
 
         # Separate into harmonic and percussive components
@@ -430,12 +431,12 @@ class MgAudio:
         fig.suptitle(title, fontsize=16)
 
         librosa.display.specshow(librosa.amplitude_to_db(np.abs(H), ref=np.max(np.abs(D))), 
-                                sr=sr, hop_length=self.hop_length, x_axis='time', y_axis='mel', cmap='magma', ax=ax[0]
+                                sr=sr, hop_length=self.hop_length, fmin=fmin, fmax=fmax, x_axis='time', y_axis='mel', cmap='magma', ax=ax[0]
                                 )
         ax[0].set(title='Harmonic')
 
         librosa.display.specshow(librosa.amplitude_to_db(np.abs(P), ref=np.max(np.abs(D))), 
-                                sr=sr, hop_length=self.hop_length, x_axis='time', y_axis='mel', cmap='magma', ax=ax[1]
+                                sr=sr, hop_length=self.hop_length, fmin=fmin, fmax=fmax, x_axis='time', y_axis='mel', cmap='magma', ax=ax[1]
                                 )
         ax[1].set(title='Percussive')
 
@@ -446,7 +447,7 @@ class MgAudio:
         if residual:
             R = D - (H + P)
             librosa.display.specshow(librosa.amplitude_to_db(np.abs(R), ref=np.max(np.abs(D))), 
-                        sr=sr, hop_length=self.hop_length, x_axis='time', y_axis='mel', cmap='magma', ax=ax[2]
+                        sr=sr, hop_length=self.hop_length, fmin=fmin, fmax=fmax, x_axis='time', y_axis='mel', cmap='magma', ax=ax[2]
                         )
             ax[2].set(title='Residual')
 
@@ -480,12 +481,14 @@ class MgAudio:
         return mgf
 
 
-    def descriptors(self, mel_filters=512, power=2, dpi=300, autoshow=True, original_time=False, title=None, target_name=None, overwrite=False):
+    def descriptors(self, n_mels=128, fmin=0.0, fmax=None, power=2, dpi=300, autoshow=True, original_time=False, title=None, target_name=None, overwrite=False):
         """
         Renders a figure of plots showing spectral/loudness descriptors, including RMS energy, spectral flatness, centroid, bandwidth, rolloff of the video/audio file.
 
         Args:
-            mel_filters (int, optional): The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 512.
+            n_mels (int, optional): The number of mel filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 128.
+            fmin (float, optional): Lowest frequency (in Hz). Defaults to 0.0.
+            fmax (float, optional): Highest frequency (in Hz). Defaults to None, use fmax = sr / 2.0
             power (float, optional): The steepness of the curve for the color mapping. Defaults to 2.
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
@@ -509,7 +512,7 @@ class MgAudio:
         if not overwrite:
             target_name = generate_outfilename(target_name)
 
-        y, sr = librosa.load(self.filename, sr=self.sr, mono=self.mono)
+        y, sr = librosa.load(self.filename, sr=self.sr)
 
         cent = librosa.feature.spectral_centroid(
             y=y, sr=sr, n_fft=self.n_fft, hop_length=self.hop_length)
@@ -523,9 +526,9 @@ class MgAudio:
             y=y, sr=sr, n_fft=self.n_fft, hop_length=self.hop_length, roll_percent=0.01)
         rms = librosa.feature.rms(
             y=y, frame_length=self.n_fft, hop_length=self.hop_length)
-
+        
         S = librosa.feature.melspectrogram(
-            y=y, sr=sr, n_mels=mel_filters, fmax=sr/2, n_fft=self.n_fft, hop_length=self.hop_length, power=power)
+            y=y, sr=sr, n_mels=n_mels, n_fft=self.n_fft, hop_length=self.hop_length, power=power, fmin=fmin, fmax=fmax)
 
         fig, ax = plt.subplots(figsize=(12, 8), dpi=dpi, nrows=3, sharex=True)
 
@@ -541,7 +544,7 @@ class MgAudio:
         fig.suptitle(title, fontsize=16)
 
         img = librosa.display.specshow(librosa.power_to_db(
-            S, ref=np.max, top_db=120), sr=sr, y_axis='mel', fmax=sr/2, x_axis='time', hop_length=self.hop_length, ax=ax[2])
+            S, ref=np.max, top_db=120), sr=sr, y_axis='mel', fmin=fmin, fmax=fmax, x_axis='time', hop_length=self.hop_length, ax=ax[2])
 
         # get rid of "default" ticks
         ax[2].yaxis.set_minor_locator(matplotlib.ticker.NullLocator())

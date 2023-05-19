@@ -5,14 +5,10 @@ from musicalgestures._flow import Flow
 from musicalgestures._audio import MgAudio 
 from musicalgestures._utils import get_metadata, convert_to_mp4
 
-import warnings
-# Suppress cryptography module's warnings
-from cryptography.utils import CryptographyDeprecationWarning
-warnings.filterwarnings("ignore", category=CryptographyDeprecationWarning)
 
 class MgVideo(MgAudio):
     """
-    This is the class for working with video files in the Musical Gestures Toolbox.
+    This is the class for working with video files in the Musical Gestures Toolbox. It inherites from the class MgAudio for working with audio files as well.
     There is a set of preprocessing tools you can use when you load a video, such as:
     - trimming: to extract a section of the video,
     - skipping: to shrink the video by skipping N frames after keeping one,
@@ -27,6 +23,7 @@ class MgVideo(MgAudio):
     def __init__(
             self,
             filename,
+            # Video parameters
             filtertype='Regular',
             thresh=0.05,
             starttime=0,
@@ -42,7 +39,6 @@ class MgVideo(MgAudio):
             keep_all=False,
             returned_by_process=False,
             # Audio parameters
-            mono=False,
             sr=22050,
             n_fft=2048, 
             hop_length=512,
@@ -66,13 +62,17 @@ class MgVideo(MgAudio):
             crop (str, optional): If 'manual', opens a window displaying the first frame of the input video file, where the user can draw a rectangle to which cropping is applied. If 'auto' the cropping function attempts to determine the area of significant motion and applies the cropping to that area. Defaults to 'None'. 
             keep_all (bool, optional): If True, preserves an output video file after each used preprocessing stage. Defaults to False.
             returned_by_process (bool, optional): This parameter is only for internal use, do not use it. Defaults to False.
+
+            sr (int, optional): Sampling rate of the audio file. Defaults to 22050.
+            n_fft (int, optional): Length of the FFT window. Defaults to 2048.
+            hop_length (int, optional): Number of samples between successive frames. Defaults to 512.
         """
 
         self.filename = filename
         # Name of file without extension (only-filename)
         self.of = os.path.splitext(self.filename)[0]
-        # File extension
         self.fex = os.path.splitext(self.filename)[1]
+        # Video parameters
         self.color = color
         self.starttime = starttime
         self.endtime = endtime
@@ -93,10 +93,10 @@ class MgVideo(MgAudio):
         self.info()
         self.flow = Flow(self, self.filename, self.color, self.has_audio)
         # Audio parameters
-        self.mono = mono
         self.sr = sr
         self.n_fft = n_fft
         self.hop_length = hop_length
+        self.audio = MgAudio(self.filename, self.sr, self.n_fft, self.hop_length)
 
     from musicalgestures._motionvideo import mg_motion as motion
     from musicalgestures._motionvideo_mp_run import mg_motion_mp as motion_mp
