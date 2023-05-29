@@ -8,7 +8,7 @@
 
 ## mg_ssm
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_ssm.py#L47)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_ssm.py#L49)
 
 ```python
 def mg_ssm(
@@ -22,6 +22,8 @@ def mg_ssm(
     cmap='gray_r',
     use_median=False,
     kernel_size=5,
+    invert_yaxis=True,
+    title=None,
     target_name=None,
     overwrite=False,
 ):
@@ -32,7 +34,7 @@ SSMs can be computed over different input features such as 'motiongrams', 'spect
 
 #### Arguments
 
-- `features` *str, optional* - Defines the type of features on which to compute SSM. Possible to compute SSM on 'motiongrams', 'spectrogram', 'chromagram' and 'tempogram'. Defaults to 'motiongrams'.
+- `features` *str, optional* - Defines the type of features on which to compute SSM. Possible to compute SSM on 'motiongrams', 'videograms', 'spectrogram', 'chromagram' and 'tempogram'. Defaults to 'motiongrams'.
 - `filtertype` *str, optional* - 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
 - `thresh` *float, optional* - Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
 - `blur` *str, optional* - 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
@@ -41,6 +43,8 @@ SSMs can be computed over different input features such as 'motiongrams', 'spect
 - `cmap` *str, optional* - A Colormap instance or registered colormap name. The colormap maps the C values to colors. Defaults to 'gray_r'.
 - `use_median` *bool, optional* - If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
 - `kernel_size` *int, optional* - Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
+- `invert_axis` *bool, optional* - Whether to invert the y axis of the SSM. Defaults to True.
+- `title` *str, optional* - Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
 - `target_name` *[type], optional* - Target output name for the SSM. Defaults to None.
 - `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
@@ -53,7 +57,7 @@ SSMs can be computed over different input features such as 'motiongrams', 'spect
 
 ## smooth_downsample_feature_sequence
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_ssm.py#L17)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_ssm.py#L19)
 
 ```python
 def smooth_downsample_feature_sequence(

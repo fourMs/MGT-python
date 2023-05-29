@@ -41,7 +41,7 @@
 
 ## Examples
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L158)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L172)
 
 ```python
 class Examples():
@@ -53,7 +53,7 @@ class Examples():
 [[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L9)
 
 ```python
-class MgVideo():
+class MgVideo(MgAudio):
     def __init__(
         filename,
         filtertype='Regular',
@@ -70,10 +70,13 @@ class MgVideo():
         crop='None',
         keep_all=False,
         returned_by_process=False,
+        sr=22050,
+        n_fft=2048,
+        hop_length=512,
     ):
 ```
 
-This is the class for working with video files in the Musical Gestures Toolbox.
+This is the class for working with video files in the Musical Gestures Toolbox. It inherites from the class MgAudio for working with audio files as well.
 There is a set of preprocessing tools you can use when you load a video, such as:
 - trimming: to extract a section of the video,
 - skipping: to shrink the video by skipping N frames after keeping one,
@@ -84,9 +87,13 @@ There is a set of preprocessing tools you can use when you load a video, such as
 
 These preprocesses will apply upon creating the MgVideo. Further processes are available as class methods.
 
+#### See also
+
+- [MgAudio](_audio.md#mgaudio)
+
 ### MgVideo().get_video
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L126)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L140)
 
 ```python
 def get_video():
@@ -96,7 +103,7 @@ Creates a video attribute to the Musical Gestures object with the given correct 
 
 ### MgVideo().info
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L114)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L127)
 
 ```python
 def info(type='video'):
@@ -106,7 +113,7 @@ Retrieves the information related to video, audio and format.
 
 ### MgVideo().test_input
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L110)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L123)
 
 ```python
 def test_input():
