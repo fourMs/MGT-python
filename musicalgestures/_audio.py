@@ -42,6 +42,9 @@ class MgAudio:
         self.sr = sr
         self.n_fft = n_fft
         self.hop_length = hop_length
+        self.length = get_length(self.filename)
+
+    from musicalgestures._ssm import mg_ssm as ssm
 
     def format_time(self, ax):
             """
@@ -108,7 +111,6 @@ class MgAudio:
             target_name = generate_outfilename(target_name)
 
         y, sr = librosa.load(self.filename, sr=self.sr)
-        length = get_length(self.filename)
 
         fig, ax = plt.subplots(figsize=(12, 4), dpi=dpi)
 
@@ -145,7 +147,7 @@ class MgAudio:
             "sr": sr,
             "of": self.of,
             "y": y,
-            "length": length
+            "length": self.length
         }
 
         mgf = MgFigure(
@@ -219,8 +221,7 @@ class MgAudio:
         ax.yaxis.set_minor_locator(matplotlib.ticker.NullLocator())
 
         # ax.set(title=os.path.basename(self.filename))
-        length = get_length(self.filename)
-        plot_xticks = np.arange(0, length+0.1, length/20)
+        plot_xticks = np.arange(0, self.length+0.1, self.length/20)
         ax.set(xticks=plot_xticks)
 
         freq_ticks = [elem*100 for elem in range(10)]
@@ -259,7 +260,7 @@ class MgAudio:
             "sr": sr,
             "of": self.of,
             "S": S,
-            "length": length
+            "length": self.length
         }
 
         mgf = MgFigure(
@@ -550,8 +551,7 @@ class MgAudio:
         ax[2].yaxis.set_minor_locator(matplotlib.ticker.NullLocator())
 
         # ax[0].set(title=os.path.basename(self.filename))
-        length = get_length(self.filename)
-        plot_xticks = np.arange(0, length+0.1, length/20)
+        plot_xticks = np.arange(0, self.length+0.1, self.length/20)
         ax[2].set(xticks=plot_xticks)
 
         freq_ticks = [elem*100 for elem in range(10)]
@@ -606,7 +606,7 @@ class MgAudio:
             "of": self.of,
             "times": times,
             "S": S,
-            "length": length,
+            "length": self.length,
             "cent": cent,
             "spec_bw": spec_bw,
             "rolloff": rolloff,
