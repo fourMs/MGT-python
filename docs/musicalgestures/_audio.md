@@ -24,7 +24,7 @@ Class container for audio analysis processes.
 
 ### MgAudio().descriptors
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L484)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L485)
 
 ```python
 def descriptors(
@@ -62,7 +62,7 @@ Renders a figure of plots showing spectral/loudness descriptors, including RMS e
 
 ### MgAudio().format_time
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L46)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L49)
 
 ```python
 def format_time(ax):
@@ -76,7 +76,7 @@ Format time for audio plotting of video file. This is useful if one wants to plo
 
 ### MgAudio().hpss
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L375)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L376)
 
 ```python
 def hpss(
@@ -122,7 +122,7 @@ margin (float or tuple, optional): Margin size(s) for the masks (as described in
 
 ### MgAudio().spectrogram
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L160)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L162)
 
 ```python
 def spectrogram(
@@ -162,7 +162,7 @@ Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
 ### MgAudio().tempogram
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L274)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L275)
 
 ```python
 def tempogram(
@@ -194,7 +194,7 @@ Renders a figure with a plots of onset strength and tempogram of the video/audio
 
 ### MgAudio().waveform
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L80)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L83)
 
 ```python
 def waveform(
