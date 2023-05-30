@@ -14,7 +14,7 @@ import musicalgestures
 from musicalgestures._motionvideo import mg_motiongrams
 from musicalgestures._videograms import videograms_ffmpeg
 from musicalgestures._mglist import MgList
-from musicalgestures._utils import MgProgressbar, MgImage, MgFigure, has_audio, generate_outfilename 
+from musicalgestures._utils import MgProgressbar, MgImage, MgFigure, has_audio, generate_outfilename, get_widthheight
 
 def smooth_downsample_feature_sequence(X, sr, filt_len=41, down_sampling=10, w_type='boxcar'):
     """
@@ -97,6 +97,14 @@ def mg_ssm(
         target_name = generate_outfilename(target_name)
 
     if features == 'motiongrams':
+        # Make sure the file is a video file
+        if self.__class__.__name__ == 'MgAudio':
+            try:
+                width, height = get_widthheight(self.filename)
+            except:
+                print(f'The "{features}" parameter works only on video files. Try "spectrogram", "chromagram" or "tempogram".')
+                return
+
         out_x, out_y = None, None
         target_name_mgx = os.path.splitext(target_name)[0] + '_mgx.png'
         target_name_mgy = os.path.splitext(target_name)[0] + '_mgy.png'
@@ -199,6 +207,14 @@ def mg_ssm(
         return MgList(MgImage(out_x), MgImage(out_y))
     
     elif features == 'videograms':
+        # Make sure the file is a video file
+        if self.__class__.__name__ == 'MgAudio':
+            try:
+                width, height = get_widthheight(self.filename)
+            except:
+                print(f'The "{features}" parameter works only on video files. Try "spectrogram", "chromagram" or "tempogram".')
+                return
+            
         out_x, out_y = None, None
         target_name_vgx = os.path.splitext(target_name)[0] + '_vgx.png'
         target_name_vgy = os.path.splitext(target_name)[0] + '_vgy.png'
