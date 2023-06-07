@@ -45,6 +45,24 @@ def smooth_downsample_feature_sequence(X, sr, filt_len=41, down_sampling=10, w_t
     sr_feature = sr / down_sampling
     return X_smooth, sr_feature, formatter
 
+def slow_dot(X, Y, length):
+    """
+    Low-memory implementation of dot product
+    """
+
+    pb = MgProgressbar(total=length, prefix='Rendering self-similarity matrices:')
+
+    if X.shape[0] > 5000:
+        S = np.empty([X.shape[0], Y.shape[1]])
+        for i in range(X.shape[0]):
+            for j in range(Y.shape[1]):
+                S[i,j] = np.dot(X[i,:], Y[:,j])
+            pb.progress(i)
+            i += 1
+    else:
+        S = np.dot(X, Y)
+        pb.progress(length)
+    return S
 
 def mg_ssm(
         self,
@@ -128,16 +146,12 @@ def mg_ssm(
             target_name_mgy=out_y,
             overwrite=True)
 
-        pb = MgProgressbar(total=self.length, prefix='Rendering self-similarity matrices:')
-
         # Normalize feature sequence        
-        X = librosa.util.normalize(self.ssm_fig.data[0].astype('float64'), norm=norm, threshold=threshold)
-        Y = librosa.util.normalize(self.ssm_fig.data[1].astype('float64'), norm=norm, threshold=threshold)
+        X = librosa.util.normalize(self.ssm_fig.data[0].astype('float32'), norm=norm, threshold=threshold)
+        Y = librosa.util.normalize(self.ssm_fig.data[1].astype('float32'), norm=norm, threshold=threshold)
         # Compute SSM using dot product
-        X_ssm = np.dot(np.transpose(X), X)
-        Y_ssm = np.dot(np.transpose(Y), Y)
-
-        pb.progress(self.length)
+        X_ssm = slow_dot(np.transpose(X), X, self.length)
+        Y_ssm = slow_dot(np.transpose(Y), Y, self.length)
     
        # Plotting Self-Similarity Matrices for motiongrams
         fig = plt.figure(figsize=(8,8))
@@ -236,13 +250,11 @@ def mg_ssm(
         vgx = cv2.cvtColor(cv2.imread(videograms[0].filename), cv2.COLOR_RGB2GRAY)
         vgy = cv2.cvtColor(cv2.imread(videograms[1].filename), cv2.COLOR_RGB2GRAY)
 
-        X = librosa.util.normalize(vgx.astype('float64'), norm=norm, threshold=threshold)
-        Y = librosa.util.normalize(vgy.astype('float64'), norm=norm, threshold=threshold)
+        X = librosa.util.normalize(vgx.astype('float32'), norm=norm, threshold=threshold)
+        Y = librosa.util.normalize(vgy.astype('float32'), norm=norm, threshold=threshold)
         # Compute SSM using dot product
-        X_ssm = np.dot(np.transpose(X), X)
-        Y_ssm = np.dot(np.transpose(Y), Y)
-
-        pb.progress(self.length)
+        X_ssm = slow_dot(np.transpose(X), X, self.length)
+        Y_ssm = slow_dot(np.transpose(Y), Y, self.length)
     
        # Plotting Self-Similarity Matrices for motiongrams
         fig = plt.figure(figsize=(8,8))
@@ -311,8 +323,6 @@ def mg_ssm(
         return MgList(MgImage(out_x), MgImage(out_y))
 
     elif features == 'spectrogram':
-        pb = MgProgressbar(total=self.length, prefix='Rendering spectrogram SSM:')
-
         if not has_audio(self.filename):
             print('The video has no audio track.')
             return
@@ -323,13 +333,11 @@ def mg_ssm(
         hop_length = 128
         spectrogram = np.abs(librosa.stft(x, n_fft=frame_length, hop_length=hop_length))
 
-        pb.progress(self.length)
-
         X, sr_X, formatter = smooth_downsample_feature_sequence(spectrogram, sr/hop_length)
         # Normalize columns of the feature sequence
-        X = librosa.util.normalize(X.astype('float64'), norm=norm, threshold=threshold)
+        X = librosa.util.normalize(X.astype('float32'), norm=norm, threshold=threshold)
         # Compute SSM using dot product
-        X_ssm = np.dot(np.transpose(X), X)
+        X_ssm = slow_dot(np.transpose(X), X, self.length)
        # Plotting SSM for spectrogram
         fig = plt.figure(figsize=(8,8))
         gs = gridspec.GridSpec(4, 1)
@@ -369,8 +377,6 @@ def mg_ssm(
         return MgImage(target_name)
 
     elif features == 'chromagram':
-        pb = MgProgressbar(total=self.length, prefix='Rendering chromagram SSM:')
-
         if not has_audio(self.filename):
             print('The video has no audio track.')
             return
@@ -382,13 +388,11 @@ def mg_ssm(
         spectrogram = np.abs(librosa.stft(x, n_fft=frame_length, hop_length=hop_length))
         chromagram = librosa.feature.chroma_stft(S=spectrogram, sr=sr, hop_length=hop_length, n_fft=frame_length)
 
-        pb.progress(self.length)
-
         X, sr_X, formatter = smooth_downsample_feature_sequence(chromagram, sr/hop_length)
         # Normalize feature sequence 
-        X = librosa.util.normalize(X.astype('float64'), norm=norm, threshold=threshold)
+        X = librosa.util.normalize(X.astype('float32'), norm=norm, threshold=threshold)
         # Compute SSM using dot product
-        X_ssm = np.dot(np.transpose(X), X)
+        X_ssm = slow_dot(np.transpose(X), X, self.length)
 
        # Plotting SSM for chromagram
         fig = plt.figure(figsize=(8,8))
@@ -434,8 +438,6 @@ def mg_ssm(
         return MgImage(target_name)
 
     elif features == 'tempogram':
-        pb = MgProgressbar(total=self.length, prefix='Rendering tempogram SSM:')
-
         if not has_audio(self.filename):
             print('The video has no audio track.')
             return
@@ -450,13 +452,11 @@ def mg_ssm(
         # Estimate the global tempo for display purposes
         tempo = librosa.beat.tempo(onset_envelope=oenv, sr=sr, hop_length=hop_length)[0]
 
-        pb.progress(self.length)
-
         X, sr_X, formatter = smooth_downsample_feature_sequence(tempogram, sr/hop_length)
         # Normalize feature sequence
-        X = librosa.util.normalize(X.astype('float64'), norm=norm, threshold=threshold)
+        X = librosa.util.normalize(X.astype('float32'), norm=norm, threshold=threshold)
         # Compute SSM using dot product
-        X_ssm = np.dot(np.transpose(X), X)
+        X_ssm = slow_dot(np.transpose(X), X, self.length)
 
        # Plotting SSM for tempogram
         fig = plt.figure(figsize=(8,8))
