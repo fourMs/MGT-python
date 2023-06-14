@@ -177,7 +177,7 @@ def history_cv2(self, filename=None, history_length=10, weights=1, target_name=N
             if self.color == False:
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-            frame = (np.array(frame)).astype(np.float64)
+            frame = (np.array(frame)).astype(np.float32)
 
             if len(history) > 0:
                 #history_total = frame/(len(history)+1)

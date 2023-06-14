@@ -39,7 +39,7 @@ def mg_average_image(self, filename=None, normalize=True, target_name=None, over
     length = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
     if self.color == False:
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    average = frame.astype(np.float)/length
+    average = frame.astype(np.float32)/length
     pb = MgProgressbar(total=length, prefix='Rendering average image:')
     ii = 0
     while(video.isOpened()):
@@ -48,7 +48,7 @@ def mg_average_image(self, filename=None, normalize=True, target_name=None, over
             if self.color == False:
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             frame = np.array(frame)
-            frame = frame.astype(np.float)
+            frame = frame.astype(np.float32)
             average += frame/length
         else:
             pb.progress(length)
