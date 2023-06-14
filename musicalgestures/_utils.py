@@ -609,12 +609,14 @@ def extract_subclip(filename, t1, t2, target_name=None, overwrite=False):
                "-ss", "%0.2f" % start,
                "-i", filename,
                "-t", "%0.2f" % (end-start),
+               "-max_muxing_queue_size", "9999",
                "-map", "0", target_name]
     else:
         cmd = ['ffmpeg', "-y",
                "-ss", "%0.2f" % start,
                "-i", filename,
                "-t", "%0.2f" % (end-start),
+               "-max_muxing_queue_size", "9999",
                "-map", "0", "-codec", "copy", target_name]
 
     ffmpeg_cmd(cmd, length, pb_prefix='Trimming:')
