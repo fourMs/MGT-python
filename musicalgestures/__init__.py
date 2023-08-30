@@ -98,27 +98,27 @@ class MgVideo(MgAudio):
         self.hop_length = hop_length
         self.audio = MgAudio(self.filename, self.sr, self.n_fft, self.hop_length)
 
-    from musicalgestures._motionvideo import mg_motion as motion
-    from musicalgestures._motionvideo_mp_run import mg_motion_mp as motion_mp
-    from musicalgestures._motionvideo import mg_motiongrams as motiongrams
-    from musicalgestures._motionvideo import mg_motiondata as motiondata
-    from musicalgestures._motionvideo import mg_motionplots as motionplots
-    from musicalgestures._motionvideo import mg_motionvideo as motionvideo
-    from musicalgestures._subtract import mg_subtract as subtract
-    from musicalgestures._ssm import mg_ssm as ssm
-    from musicalgestures._videograms import videograms_ffmpeg as videograms
-    from musicalgestures._directograms import mg_directograms as directograms
-    from musicalgestures._warp import mg_warp_audiovisual_beats as warp_audiovisual_beats
-    from musicalgestures._blurfaces import mg_blurfaces as blur_faces
-    from musicalgestures._impacts import mg_impacts as impacts
-    from musicalgestures._grid import mg_grid as grid
-    from musicalgestures._motionvideo import save_analysis
-    # from musicalgestures._cropvideo import mg_cropvideo, find_motion_box, find_total_motion_box
-    from musicalgestures._show import mg_show as show
-    from musicalgestures._history import history_ffmpeg as history
-    from musicalgestures._history import history_cv2
-    from musicalgestures._blend import mg_blend_image as blend
-    from musicalgestures._pose import pose
+        from musicalgestures._motionvideo import mg_motion as motion
+        from musicalgestures._motionvideo_mp_run import mg_motion_mp as motion_mp
+        from musicalgestures._motionvideo import mg_motiongrams as motiongrams
+        from musicalgestures._motionvideo import mg_motiondata as motiondata
+        from musicalgestures._motionvideo import mg_motionplots as motionplots
+        from musicalgestures._motionvideo import mg_motionvideo as motionvideo
+        from musicalgestures._subtract import mg_subtract as subtract
+        from musicalgestures._ssm import mg_ssm as ssm
+        from musicalgestures._videograms import videograms_ffmpeg as videograms
+        from musicalgestures._directograms import mg_directograms as directograms
+        from musicalgestures._warp import mg_warp_audiovisual_beats as warp_audiovisual_beats
+        from musicalgestures._blurfaces import mg_blurfaces as blur_faces
+        from musicalgestures._impacts import mg_impacts as impacts
+        from musicalgestures._grid import mg_grid as grid
+        from musicalgestures._motionvideo import save_analysis
+        # from musicalgestures._cropvideo import mg_cropvideo, find_motion_box, find_total_motion_box
+        from musicalgestures._show import mg_show as show
+        from musicalgestures._history import history_ffmpeg as history
+        from musicalgestures._history import history_cv2
+        from musicalgestures._blend import mg_blend_image as blend
+        from musicalgestures._pose import pose
 
     def test_input(self):
         """Gives feedback to user if initialization from input went wrong."""
@@ -167,6 +167,11 @@ class MgVideo(MgAudio):
 
     def __repr__(self):
         return f"MgVideo('{self.filename}')"
+    
+    ########## HACK TO REMOVE IN THE FUTURE ##########
+    def average(self):
+        print("From musicalgestures v1.3.0, the function `average` is no longer available. You can use `blend(component_mode='average')` instead. More information can be found in the documentation: https://github.com/fourMs/MGT-python/wiki/4-%E2%80%90-Video%E2%80%90based-Processes#blend")
+    ##################################################
 
 
 class Examples:
