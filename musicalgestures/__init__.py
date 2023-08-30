@@ -117,7 +117,7 @@ class MgVideo(MgAudio):
     from musicalgestures._show import mg_show as show
     from musicalgestures._history import history_ffmpeg as history
     from musicalgestures._history import history_cv2
-    from musicalgestures._average import mg_average_image as average
+    from musicalgestures._blend import mg_blend_image as blend
     from musicalgestures._pose import pose
 
     def test_input(self):

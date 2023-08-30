@@ -10,7 +10,7 @@
         - [MgVideo().test_input](#mgvideotest_input)
     - Modules
         - [Audio](_audio.md#audio)
-        - [Average](_average.md#average)
+        - [Blend](_blend.md#blend)
         - [Blurfaces](_blurfaces.md#blurfaces)
         - [CenterFace](_centerface.md#centerface)
         - [Cropping Window](_cropping_window.md#cropping-window)

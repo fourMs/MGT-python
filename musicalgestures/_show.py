@@ -19,7 +19,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
 
     Args:
         filename (str, optional): If given, `mg_show` will show this file instead of what it inherits from its parent object. Defaults to None.
-        key (str, optional): If given, `mg_show` will search for file names corresponding to certain processes you have previously rendered on your source. It is meant to be a shortcut, so you don't have to remember the exact name (and path) of eg. a motion video corresponding to your source in your MgVideo, but you rather just use `MgVideo('path/to/vid.mp4').show(key='motion')`. Accepted values are 'mgx', 'mgy', 'vgx', 'vgy', 'average', 'plot', 'motion', 'history', 'motionhistory', 'sparse', and 'dense'. Defaults to None.
+        key (str, optional): If given, `mg_show` will search for file names corresponding to certain processes you have previously rendered on your source. It is meant to be a shortcut, so you don't have to remember the exact name (and path) of eg. a motion video corresponding to your source in your MgVideo, but you rather just use `MgVideo('path/to/vid.mp4').show(key='motion')`. Accepted values are 'mgx', 'mgy', 'vgx', 'vgy', 'blend', 'plot', 'motion', 'history', 'motionhistory', 'sparse', and 'dense'. Defaults to None.
         mode (str, optional): Whether to show things in a separate window or inline in the jupyter notebook. Accepted values are 'windowed' and 'notebook'. Defaults to 'windowed'.
         window_width (int, optional): The width of the window. Defaults to 640.
         window_height (int, optional): The height of the window. Defaults to 480.
@@ -182,14 +182,14 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                 raise FileNotFoundError(
                     "There is no known self-smilarity matrix for this file.")
 
-        elif key.lower() == 'average':
-            if "average_image" in keys:
-                filename = self.average_image.filename
+        elif key.lower() == 'blend':
+            if "blend_image" in keys:
+                filename = self.blend_image.filename
                 show(file=filename, width=window_width,
-                     height=window_height, mode=mode, title=f'Average Image | {filename}', parent=self)
+                     height=window_height, mode=mode, title=f'Blended Image | {filename}', parent=self)
             else:
                 raise FileNotFoundError(
-                    "There is no known average image for this file.")
+                    "There is no known blended image for this file.")
         elif key.lower() == 'plot':
             # filename = self.of + '_motion_com_qom.png'
             if "motion_plot" in keys:
@@ -287,7 +287,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
 
         else:
             print("Unknown shorthand.\n",
-                  "For images, try 'mgx', 'mgy', 'vgx', 'vgy', 'ssmx','ssmy', 'average' or 'plot'.\n",
+                  "For images, try 'mgx', 'mgy', 'vgx', 'vgy', 'ssmx','ssmy', 'blend' or 'plot'.\n",
                   "For videos try 'motion', 'history', 'motionhistory', 'sparse', 'dense', 'pose', 'warp', 'blur' or 'subtract'.")
 
     else:

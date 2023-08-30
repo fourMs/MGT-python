@@ -4,11 +4,12 @@
 
 - [Mgt-python](../README.md#mgt-python) / [Modules](../MODULES.md#mgt-python-modules) / [Musicalgestures](index.md#musicalgestures) / Ssm
     - [mg_ssm](#mg_ssm)
+    - [slow_dot](#slow_dot)
     - [smooth_downsample_feature_sequence](#smooth_downsample_feature_sequence)
 
 ## mg_ssm
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_ssm.py#L49)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_ssm.py#L67)
 
 ```python
 def mg_ssm(
@@ -54,6 +55,16 @@ SSMs can be computed over different input features such as 'motiongrams', 'spect
 - `MgList` - An MgList pointing to the output SSM images (as MgImages).
 # else:
 - `MgImage` - An MgImage to the output SSM.
+
+## slow_dot
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_ssm.py#L48)
+
+```python
+def slow_dot(X, Y, length):
+```
+
+Low-memory implementation of dot product
 
 ## smooth_downsample_feature_sequence
 
