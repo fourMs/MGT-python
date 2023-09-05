@@ -49,8 +49,8 @@ def mg_subtract(
     width, height = self.width, self.height
 
     if bg_img == None:
-        # Render average image of the video file for background subtraction
-        bg_img = musicalgestures.MgVideo(self.filename).average().filename
+        # Render an average image of the video file for background subtraction
+        bg_img = musicalgestures.MgVideo(self.filename).blend(component_mode='average').filename
     else:
         # Check if background image extension is .png or not
         pass_if_container_is(".png", bg_img)

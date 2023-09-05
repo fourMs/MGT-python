@@ -3,7 +3,7 @@ from musicalgestures._input_test import mg_input_test
 from musicalgestures._videoreader import mg_videoreader
 from musicalgestures._flow import Flow
 from musicalgestures._audio import MgAudio 
-from musicalgestures._utils import get_metadata, convert_to_mp4
+from musicalgestures._utils import get_metadata, convert, convert_to_mp4, get_framecount
 
 
 class MgVideo(MgAudio):
@@ -88,15 +88,15 @@ class MgVideo(MgAudio):
         self.keep_all = keep_all
         self.has_audio = None
         self.returned_by_process = returned_by_process
+        # Audio parameters
+        self.sr = sr
+        self.n_fft = n_fft
+        self.hop_length = hop_length 
+        
         self.test_input()
         self.get_video()
         self.info()
         self.flow = Flow(self, self.filename, self.color, self.has_audio)
-        # Audio parameters
-        self.sr = sr
-        self.n_fft = n_fft
-        self.hop_length = hop_length
-        self.audio = MgAudio(self.filename, self.sr, self.n_fft, self.hop_length)
 
     from musicalgestures._motionvideo import mg_motion as motion
     from musicalgestures._motionvideo_mp_run import mg_motion_mp as motion_mp
@@ -140,27 +140,42 @@ class MgVideo(MgAudio):
     def get_video(self):
         """Creates a video attribute to the Musical Gestures object with the given correct settings."""
         self.length, self.width, self.height, self.fps, self.endtime, self.of, self.fex, self.has_audio = mg_videoreader(
-            filename=self.filename,
-            starttime=self.starttime,
-            endtime=self.endtime,
-            skip=self.skip,
-            frames=self.frames,
-            rotate=self.rotate,
-            contrast=self.contrast,
-            brightness=self.brightness,
-            crop=self.crop,
-            color=self.color,
-            returned_by_process=self.returned_by_process,
-            keep_all=self.keep_all)
+        filename=self.filename,
+        starttime=self.starttime,
+        endtime=self.endtime,
+        skip=self.skip,
+        frames=self.frames,
+        rotate=self.rotate,
+        contrast=self.contrast,
+        brightness=self.brightness,
+        crop=self.crop,
+        color=self.color,
+        returned_by_process=self.returned_by_process,
+        keep_all=self.keep_all)
 
-        # Convert eventual low-resolution video and thumbnail to mp4
+        # Check if there is audio in the video file
+        if self.has_audio:
+            self.audio = MgAudio(self.filename, self.sr, self.n_fft, self.hop_length)
+
+        # Convert eventual low-resolution video or image
         video_formats = ['.avi', '.mp4', '.mov', '.mkv', '.mpg', '.mpeg', '.webm', '.ogg', '.ts', '.wmv', '.3gp']
-        image_formats = ['.gif', '.jpeg', '.jpg', '.jfif', '.pjpeg', '.png', '.svg', '.webp', '.avif', '.apng']
-        if self.fex not in video_formats and self.fex not in image_formats:
-            # Create one converted version and register it to the MgVideo 
-            filename = convert_to_mp4(self.of + self.fex, overwrite=True)
-            # point of and fex to the mp4 version
-            self.of, self.fex = os.path.splitext(filename)
+        if self.fex not in video_formats:
+            # Check if it is an image file
+            if get_framecount(self.filename) == 1: 
+                image_formats = ['.gif', '.jpeg', '.jpg', '.jfif', '.pjpeg', '.png', '.svg', '.webp', '.avif', '.apng']
+                if self.fex not in image_formats:
+                    # Create one converted version and register it to the MgVideo 
+                    filename = convert(self.of + self.fex, self.of + self.fex + '.png', overwrite=True)
+                    # point of and fex to the png version
+                    self.of, self.fex = os.path.splitext(filename)
+                else:
+                    # update filename after the processes
+                    self.filename = self.of + self.fex 
+            else:
+                # Create one converted version and register it to the MgVideo 
+                filename = convert_to_mp4(self.of + self.fex, overwrite=True)
+                # point of and fex to the mp4 version
+                self.of, self.fex = os.path.splitext(filename)
         else:
             # update filename after the processes
             self.filename = self.of + self.fex
