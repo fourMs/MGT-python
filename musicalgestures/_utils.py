@@ -1204,7 +1204,7 @@ def get_framecount(filename, fast=True):
                 return get_framecount(filename, fast=False)
             else:
                 raise FFprobeError(
-                    "Could not count frames. (Is this a video file?)")
+                    "Could not count frames. (Is this a video file?) If you are working with audio file use MgAudio instead.")
         else:
             return int(out)
 
@@ -1213,7 +1213,7 @@ def get_framecount(filename, fast=True):
             return get_framecount(filename, fast=False)
         else:
             raise FFprobeError(
-                "Could not count frames. (Is this a video file?)")
+                "Could not count frames. (Is this a video file?). If you are working with audio file use MgAudio instead.")
 
 
 def get_fps(filename):

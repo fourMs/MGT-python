@@ -53,10 +53,10 @@ class MgAudio:
             Args:
                 ax (str, optional): Axis of the figure.
             """
-            # Get original duration from file
+            # Get original duration from video file
             try:
                 original_duration = float(get_metadata(self.filename)[2]['TAG:title'])
-            except KeyError:
+            except:
                 return 
             
             time = np.round(np.linspace(0, original_duration, 10), 2)
