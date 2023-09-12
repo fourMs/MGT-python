@@ -153,10 +153,6 @@ class MgVideo(MgAudio):
         returned_by_process=self.returned_by_process,
         keep_all=self.keep_all)
 
-        # Check if there is audio in the video file
-        if self.has_audio:
-            self.audio = MgAudio(self.filename, self.sr, self.n_fft, self.hop_length)
-
         # Convert eventual low-resolution video or image
         video_formats = ['.avi', '.mp4', '.mov', '.mkv', '.mpg', '.mpeg', '.webm', '.ogg', '.ts', '.wmv', '.3gp']
         if self.fex not in video_formats:
@@ -179,6 +175,10 @@ class MgVideo(MgAudio):
         else:
             # update filename after the processes
             self.filename = self.of + self.fex
+
+        # Check if there is audio in the video file
+        if self.has_audio:
+            self.audio = MgAudio(self.filename, self.sr, self.n_fft, self.hop_length)
 
     def __repr__(self):
         return f"MgVideo('{self.filename}')"

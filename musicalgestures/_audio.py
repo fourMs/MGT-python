@@ -46,7 +46,7 @@ class MgAudio:
 
     from musicalgestures._ssm import mg_ssm as ssm
 
-    def format_time(self, ax):
+    def format_time(self, ax, format=True):
             """
             Format time for audio plotting of video file. This is useful if one wants to plot the original time of the video when frames have been skipped beforehand.
 
@@ -55,30 +55,26 @@ class MgAudio:
             """
             # Get original duration from video file
             try:
-                original_duration = float(get_metadata(self.filename)[2]['TAG:title'])
+                if format:
+                    original_duration = float(get_metadata(self.filename)[2]['TAG:title'])
+                else:
+                    original_duration = float(get_metadata(self.filename)[2]['duration'])
             except:
                 return 
             
             time = np.round(np.linspace(0, original_duration, 10), 2)
-            ax.xaxis.set_major_locator(ticker.MaxNLocator(len(time)))
-
-            # Insert an additional zero at the beginning of the array for visualization
-            time = np.insert(time, 0, 0, axis=0) 
 
             for i, v in enumerate(time):
                 if original_duration > 3600:
-                    if v > 60:
-                        minutes, sec = divmod(v, 60)
-                        hour, minutes = divmod(minutes, 60)
-                        time[i] = '%d.%02d.%02d' % (hour, minutes, sec)
+                    minutes, sec = divmod(v, 60)
+                    hour, minutes = divmod(minutes, 60)
+                    time[i] = '%d.%02d.%02d' % (hour, minutes, sec)
                 else:
-                    if v > 60:
-                        minutes, sec = divmod(v, 60)
-                        time[i] = '%02d.%02d' % (minutes, sec)
+                    minutes, sec = divmod(v, 60)
+                    time[i] = '%02d.%02d' % (minutes, sec)
 
-
-            ax.xaxis.set_major_formatter(ticker.FixedFormatter(list(time)))           
-
+            ax.xaxis.set_major_locator(ticker.MaxNLocator(prune='both', nbins=10))
+            ax.xaxis.set_major_formatter(ticker.FixedFormatter(list(map(lambda x: str(x).replace('.', ':'), list(time)))))  
 
     def waveform(self, dpi=300, autoshow=True, raw=False, original_time=True, title=None, target_name=None, overwrite=False):
         """
@@ -89,7 +85,7 @@ class MgAudio:
             sr (int, optional): Sampling rate of the audio file. Defaults to 22050.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
             raw (bool, optional): Whether to show labels and ticks on the plot. Defaults to False.
-            original_time (bool, optional): Whether to plot original time or not. This parameter can be useful if the file has been shortened beforehand (e.g. skip). Defaults to True.
+            original_time (bool, optional): Whether to plot original time or not. This parameter can be useful if the video file has been shortened beforehand (e.g. skip). Defaults to True.
             title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_waveform.png" should be used).
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
@@ -113,9 +109,7 @@ class MgAudio:
         y, sr = librosa.load(self.filename, sr=self.sr)
 
         fig, ax = plt.subplots(figsize=(12, 4), dpi=dpi)
-
-        # make sure background is white
-        fig.patch.set_facecolor('white')
+        fig.patch.set_facecolor('white') # make sure background is white
         fig.patch.set_alpha(1)
 
         # add title
@@ -128,8 +122,7 @@ class MgAudio:
         librosa.display.waveshow(y, sr=sr, ax=ax)
         
         # Adapt audio file plotting when skipping frames of a video file
-        if original_time:
-            self.format_time(ax)
+        self.format_time(ax, original_time)
 
         if raw:
             fig.patch.set_visible(False)
@@ -171,7 +164,7 @@ class MgAudio:
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
             raw (bool, optional): Whether to show labels and ticks on the plot. Defaults to False.
-            original_time (bool, optional): Whether to plot original time or not. This parameter can be useful if the file has been shortened beforehand (e.g. skip). Defaults to False.
+            original_time (bool, optional): Whether to plot original time or not. This parameter can be useful if the video file has been shortened beforehand (e.g. skip). Defaults to False.
             title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_spectrogram.png" should be used).
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
@@ -197,10 +190,8 @@ class MgAudio:
         S = librosa.feature.melspectrogram(
             y=y, sr=sr, n_mels=n_mels, n_fft=self.n_fft, hop_length=self.hop_length, power=power, fmin=fmin, fmax=fmax)
 
-        fig, ax = plt.subplots(figsize=(12, 6), dpi=dpi)
-
-        # Make sure background is white
-        fig.patch.set_facecolor('white')
+        fig, ax = plt.subplots(figsize=(12, 4), dpi=dpi)
+        fig.patch.set_facecolor('white') # make sure background is white
         fig.patch.set_alpha(1)
 
         # Add title
@@ -239,8 +230,7 @@ class MgAudio:
         ax.set(yticklabels=(freq_ticks_labels))
 
         # Adapt the plotting of the audio file's time when skipping frames of a video file
-        if original_time:
-            self.format_time(ax)
+        self.format_time(ax, original_time)
 
         if raw:
             fig.patch.set_visible(False)
@@ -280,7 +270,7 @@ class MgAudio:
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
             raw (bool, optional): Whether to show labels and ticks on the plot. Defaults to False.
-            original_time (bool, optional): Whether to plot original time or not. This parameter can be useful if the file has been shortened beforehand (e.g. skip). Defaults to False.
+            original_time (bool, optional): Whether to plot original time or not. This parameter can be useful if the video file has been shortened beforehand (e.g. skip). Defaults to False.
             title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_tempogram.png" should be used).
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
@@ -312,10 +302,8 @@ class MgAudio:
         tempo = librosa.beat.tempo(
             onset_envelope=oenv, sr=sr, hop_length=self.hop_length)[0]
 
-        fig, ax = plt.subplots(nrows=2, figsize=(12, 6), dpi=dpi, sharex=True)
-
-        # make sure background is white
-        fig.patch.set_facecolor('white')
+        fig, ax = plt.subplots(nrows=2, figsize=(12, 4), dpi=dpi, sharex=True)
+        fig.patch.set_facecolor('white') # make sure background is white
         fig.patch.set_alpha(1)
 
         # add title
@@ -339,8 +327,7 @@ class MgAudio:
         ax[1].set(title='Tempogram')
 
         # Adapt the plotting of the audio file's time when skipping frames of a video file
-        if original_time:
-            self.format_time(ax[1])
+        self.format_time(ax[1], original_time)
 
         if raw:
             fig.patch.set_visible(False)
@@ -373,11 +360,12 @@ class MgAudio:
 
         return mgf
     
-    def hpss(self, n_mels=128, fmin=0.0, fmax=None, kernel_size=31, margin=(1.0,5.0), power=2.0, mask=False, residual=False, dpi=300, autoshow=True, original_time=False, title=None, target_name=None, overwrite=False):
+    def hpss(self, dim=2, n_mels=128, fmin=0.0, fmax=None, kernel_size=31, margin=(1.0,5.0), power=2.0, mask=False, residual=False, dpi=300, autoshow=True, original_time=False, title=None, target_name=None, overwrite=False):
         """
         Renders a figure with a plots of harmonic and percussive components of the audio file.
 
         Args:
+            dim (str, optional): Whether to plot hpss in one (i.e. waveform) or two (i.e. spectrogram) dimensions. Defaults to 2.
             n_mels (int, optional): Number of Mel bands to generate. Defaults to 128.
             fmin (float, optional): Lowest frequency (in Hz). Defaults to 0.0.
             fmax (float, optional): Highest frequency (in Hz). Defaults to None, use fmax = sr / 2.0.
@@ -388,7 +376,7 @@ class MgAudio:
             residual (bool, optional): Whether to return residual components of the audio file or not. Defaults to False.
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
-            original_time (bool, optional): Whether to plot original time or not. This parameter can be useful if the file has been shortened beforehand (e.g. skip). Defaults to False.
+            original_time (bool, optional): Whether to plot original time or not. This parameter can be useful if the video file has been shortened beforehand (e.g. skip). Defaults to False.
             title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_tempogram.png" should be used).
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
@@ -410,18 +398,44 @@ class MgAudio:
             target_name = generate_outfilename(target_name)
 
         y, sr = librosa.load(self.filename, sr=self.sr)
-        D = librosa.feature.melspectrogram(y=y, sr=sr, n_fft=self.n_fft, hop_length=self.hop_length, n_mels=n_mels, fmin=fmin, fmax=fmax)
-
-        # Separate into harmonic and percussive components
-        H, P = librosa.decompose.hpss(D, kernel_size=kernel_size, margin=margin, power=power, mask=mask)
-
-        if residual:
-            fig, ax = plt.subplots(nrows=3, figsize=(12, 8), dpi=dpi, sharex=True)
+        if dim == 2:
+            D = librosa.feature.melspectrogram(y=y, sr=sr, n_fft=self.n_fft, hop_length=self.hop_length, n_mels=n_mels, fmin=fmin, fmax=fmax)
+            # Separate into harmonic and percussive components
+            H, P = librosa.decompose.hpss(D, kernel_size=kernel_size, margin=margin, power=power, mask=mask)
+        elif dim == 1:
+            h, p = librosa.effects.hpss(y)
         else:
-            fig, ax = plt.subplots(nrows=2, figsize=(12, 6), dpi=dpi, sharex=True)
+            print('MgAudio.hpss() can only be computed on 1 (i.e. waveform) or 2 (i.e. spectrogram) dimensions.')
+            return
 
-        # make sure background is white
-        fig.patch.set_facecolor('white')
+        if dim == 2:
+            if residual:
+                fig, ax = plt.subplots(nrows=3, figsize=(12, 8), dpi=dpi, sharex=True)
+            else:
+                fig, ax = plt.subplots(nrows=2, figsize=(12, 6), dpi=dpi, sharex=True)
+
+            # Display spectrograms
+            librosa.display.specshow(
+                librosa.amplitude_to_db(np.abs(H), ref=np.max(np.abs(D))), sr=sr, hop_length=self.hop_length, 
+                fmin=fmin, fmax=fmax, x_axis='time', y_axis='mel', cmap='magma', ax=ax[0]
+                                )
+            librosa.display.specshow(
+                librosa.amplitude_to_db(np.abs(P), ref=np.max(np.abs(D))), sr=sr, hop_length=self.hop_length, 
+                fmin=fmin, fmax=fmax, x_axis='time', y_axis='mel', cmap='magma', ax=ax[1]
+                                )
+            ax[0].set(title='Harmonic')
+            ax[1].set(title='Percussive')
+
+        else:
+            fig, ax = plt.subplots(figsize=(12, 4), dpi=dpi, sharex=True)
+            librosa.display.waveshow(
+                h, sr=sr, alpha=0.5, label='Harmonic'
+                                     )
+            librosa.display.waveshow(
+                p, sr=sr, alpha=0.5, label='Percussive'
+                                     )
+
+        fig.patch.set_facecolor('white') # make sure background is white
         fig.patch.set_alpha(1)
 
         # add title
@@ -431,46 +445,59 @@ class MgAudio:
             title = os.path.basename(self.filename)
         fig.suptitle(title, fontsize=16)
 
-        librosa.display.specshow(librosa.amplitude_to_db(np.abs(H), ref=np.max(np.abs(D))), 
-                                sr=sr, hop_length=self.hop_length, fmin=fmin, fmax=fmax, x_axis='time', y_axis='mel', cmap='magma', ax=ax[0]
-                                )
-        ax[0].set(title='Harmonic')
+        if residual:
+            if dim == 2:
+                R = D - (H + P)
+                librosa.display.specshow(
+                    librosa.amplitude_to_db(np.abs(R), ref=np.max(np.abs(D))), sr=sr, hop_length=self.hop_length, 
+                    fmin=fmin, fmax=fmax, x_axis='time', y_axis='mel', cmap='magma', ax=ax[2]
+                            )
+                ax[2].set(title='Residual')
 
-        librosa.display.specshow(librosa.amplitude_to_db(np.abs(P), ref=np.max(np.abs(D))), 
-                                sr=sr, hop_length=self.hop_length, fmin=fmin, fmax=fmax, x_axis='time', y_axis='mel', cmap='magma', ax=ax[1]
-                                )
-        ax[1].set(title='Percussive')
+            else:
+                r = y - (h + p)
+                librosa.display.waveshow(
+                    r, sr=sr, alpha=0.5, label='Residual'
+                                     )
 
         # Adapt the plotting of the audio file's time when skipping frames of a video file
-        if original_time:
-            self.format_time(ax[1])
-
-        if residual:
-            R = D - (H + P)
-            librosa.display.specshow(librosa.amplitude_to_db(np.abs(R), ref=np.max(np.abs(D))), 
-                        sr=sr, hop_length=self.hop_length, fmin=fmin, fmax=fmax, x_axis='time', y_axis='mel', cmap='magma', ax=ax[2]
-                        )
-            ax[2].set(title='Residual')
-
-            # Adapt the plotting of the audio file's time when skipping frames of a video file
-            if original_time:
-                self.format_time(ax[2])
+        if dim == 2:
+            if residual:
+                self.format_time(ax[2], original_time)
+            else:
+                self.format_time(ax[1], original_time)
+        else:
+            self.format_time(ax, original_time)
 
         plt.tight_layout()
         plt.savefig(target_name, format='png', transparent=False)
+
+        if dim == 1:
+            # Add labels to plot
+            plt.legend()
 
         if not autoshow:
             plt.close()
 
         # create MgFigure
-        data = {
-            "hop_size": self.hop_length,
-            "sr": sr,
-            "of": self.of,
-            "mel_spectrogram": D,
-            "harmonic": H,
-            "percussive": P,
-        }
+        if dim == 2:
+            data = {
+                "hop_size": self.hop_length,
+                "sr": sr,
+                "of": self.of,
+                "mel_spectrogram": D,
+                "harmonic": H,
+                "percussive": P,
+            }
+        else:
+            data = {
+                "hop_size": self.hop_length,
+                "sr": sr,
+                "of": self.of,
+                "waveform": y,
+                "harmonic": h,
+                "percussive": p,
+            }
 
         mgf = MgFigure(
             figure=fig,
@@ -590,8 +617,7 @@ class MgAudio:
         ax[0].legend(loc='upper right')
 
         # Adapt the plotting of the audio file's time when skipping frames of a video file
-        if original_time:
-            self.format_time(ax[2])
+        self.format_time(ax[2], original_time)
         
         plt.tight_layout()
         if autoshow:
