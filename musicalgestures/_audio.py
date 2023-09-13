@@ -62,19 +62,22 @@ class MgAudio:
             except:
                 return 
             
-            time = np.round(np.linspace(0, original_duration, 10), 2)
+            time = np.round(np.linspace(0, original_duration, 10), 1)
 
             for i, v in enumerate(time):
                 if original_duration > 3600:
                     minutes, sec = divmod(v, 60)
                     hour, minutes = divmod(minutes, 60)
                     time[i] = '%d.%02d.%02d' % (hour, minutes, sec)
-                else:
+                if original_duration > 60:
                     minutes, sec = divmod(v, 60)
                     time[i] = '%02d.%02d' % (minutes, sec)
 
             ax.xaxis.set_major_locator(ticker.MaxNLocator(prune='both', nbins=10))
-            ax.xaxis.set_major_formatter(ticker.FixedFormatter(list(map(lambda x: str(x).replace('.', ':'), list(time)))))  
+            if original_duration > 60:
+                ax.xaxis.set_major_formatter(ticker.FixedFormatter(list(map(lambda x: str(x).replace('.', ':'), list(time)))))
+            else:  
+                ax.xaxis.set_major_formatter(ticker.FixedFormatter(list(time)))
 
     def waveform(self, dpi=300, autoshow=True, raw=False, original_time=True, title=None, target_name=None, overwrite=False):
         """
@@ -152,7 +155,7 @@ class MgAudio:
 
         return mgf
 
-    def spectrogram(self, fmin=0.0, fmax=None, n_mels=128, power=2, dpi=300, autoshow=True, raw=False, original_time=False, title=None, target_name=None, overwrite=False):
+    def spectrogram(self, fmin=0.0, fmax=None, n_mels=128, power=2.0, top_db=80.0, dpi=300, autoshow=True, raw=False, original_time=False, title=None, target_name=None, overwrite=False):
         """
         Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
@@ -161,6 +164,7 @@ class MgAudio:
             fmin (float, optional): Lowest frequency (in Hz). Defaults to 0.0.
             fmax (float, optional): Highest frequency (in Hz). Defaults to None, use fmax = sr / 2.0.
             power (float, optional): The steepness of the curve for the color mapping. Defaults to 2.
+            top_db (float, optional): threshold the output at top_db below the peak: max(20 * log10(S/ref)) - top_db. Defaults to 80.0.
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
             raw (bool, optional): Whether to show labels and ticks on the plot. Defaults to False.
@@ -202,7 +206,7 @@ class MgAudio:
         fig.suptitle(title, fontsize=16)
 
         # Display spectrogram
-        img = librosa.display.specshow(librosa.power_to_db(S, ref=np.max, top_db=120), 
+        img = librosa.display.specshow(librosa.power_to_db(S, ref=np.max, top_db=top_db), 
                                        sr=sr, y_axis='mel', fmin=fmin, fmax=fmax, x_axis='time', hop_length=self.hop_length, ax=ax)
 
         colorbar_ticks = range(-120, 1, 10)
@@ -360,7 +364,7 @@ class MgAudio:
 
         return mgf
     
-    def hpss(self, dim=2, n_mels=128, fmin=0.0, fmax=None, kernel_size=31, margin=(1.0,5.0), power=2.0, mask=False, residual=False, dpi=300, autoshow=True, original_time=False, title=None, target_name=None, overwrite=False):
+    def hpss(self, dim=2, n_mels=128, fmin=0.0, fmax=None, kernel_size=31, margin=(1.0,5.0), power=2.0, top_db=80.0, mask=False, residual=False, dpi=300, autoshow=True, original_time=False, title=None, target_name=None, overwrite=False):
         """
         Renders a figure with a plots of harmonic and percussive components of the audio file.
 
@@ -372,6 +376,7 @@ class MgAudio:
             kernel_size (int or tuple, optional): Kernel size(s) for the median filters. If tuple, the first value specifies the width of the harmonic filter, and the second value specifies the width of the percussive filter. Defaults to 31.
             margin (float or tuple, optional): Margin size(s) for the masks (as described in this [paper](https://archives.ismir.net/ismir2014/paper/000127.pdf)). If tuple, the first value specifies the margin of the harmonic mask, and the second value specifies the margin of the percussive mask. Defaults to (1.0,5.0).
             power (float, optional): Exponent for the Wiener filter when constructing soft mask matrices. Defaults to 2.0.
+            top_db (float, optional): threshold the output at top_db below the peak: max(20 * log10(S/ref)) - top_db. Defaults to 80.0.
             mask (bool, optional): Return the masking matrices instead of components. Defaults to False.
             residual (bool, optional): Whether to return residual components of the audio file or not. Defaults to False.
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
@@ -416,11 +421,11 @@ class MgAudio:
 
             # Display spectrograms
             librosa.display.specshow(
-                librosa.amplitude_to_db(np.abs(H), ref=np.max(np.abs(D))), sr=sr, hop_length=self.hop_length, 
+                librosa.amplitude_to_db(np.abs(H), ref=np.max(np.abs(D)), top_db=top_db), sr=sr, hop_length=self.hop_length, 
                 fmin=fmin, fmax=fmax, x_axis='time', y_axis='mel', cmap='magma', ax=ax[0]
                                 )
             librosa.display.specshow(
-                librosa.amplitude_to_db(np.abs(P), ref=np.max(np.abs(D))), sr=sr, hop_length=self.hop_length, 
+                librosa.amplitude_to_db(np.abs(P), ref=np.max(np.abs(D)), top_db=top_db), sr=sr, hop_length=self.hop_length, 
                 fmin=fmin, fmax=fmax, x_axis='time', y_axis='mel', cmap='magma', ax=ax[1]
                                 )
             ax[0].set(title='Harmonic')
@@ -449,7 +454,7 @@ class MgAudio:
             if dim == 2:
                 R = D - (H + P)
                 librosa.display.specshow(
-                    librosa.amplitude_to_db(np.abs(R), ref=np.max(np.abs(D))), sr=sr, hop_length=self.hop_length, 
+                    librosa.amplitude_to_db(np.abs(R), ref=np.max(np.abs(D)), top_db=top_db), sr=sr, hop_length=self.hop_length, 
                     fmin=fmin, fmax=fmax, x_axis='time', y_axis='mel', cmap='magma', ax=ax[2]
                             )
                 ax[2].set(title='Residual')
