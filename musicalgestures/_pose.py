@@ -75,7 +75,7 @@ def pose(
     # Check if .caffemodel file exists, download if necessary
     if not os.path.exists(weightsFile):
         print('Could not find weights file. Do you want to download it (~200MB)? (y/n)')
-        answer = input()
+        answer = input()[0] 
         if answer.lower() == 'n':
             print('Ok. Exiting...')
             return musicalgestures.MgVideo(self.filename, color=self.color, returned_by_process=True)
