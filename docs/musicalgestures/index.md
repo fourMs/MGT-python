@@ -5,6 +5,7 @@
 - [Mgt-python](../README.md#mgt-python) / [Modules](../MODULES.md#mgt-python-modules) / Musicalgestures
     - [Examples](#examples)
     - [MgVideo](#mgvideo)
+        - [MgVideo().average](#mgvideoaverage)
         - [MgVideo().get_video](#mgvideoget_video)
         - [MgVideo().info](#mgvideoinfo)
         - [MgVideo().test_input](#mgvideotest_input)
@@ -41,7 +42,7 @@
 
 ## Examples
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L172)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L193)
 
 ```python
 class Examples():
@@ -90,6 +91,14 @@ These preprocesses will apply upon creating the MgVideo. Further processes are a
 #### See also
 
 - [MgAudio](_audio.md#mgaudio)
+
+### MgVideo().average
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L187)
+
+```python
+def average(filename=None, normalize=True, target_name=None, overwrite=False):
+```
 
 ### MgVideo().get_video
 

@@ -24,7 +24,7 @@ Class container for audio analysis processes.
 
 ### MgAudio().descriptors
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L485)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L517)
 
 ```python
 def descriptors(
@@ -65,7 +65,7 @@ Renders a figure of plots showing spectral/loudness descriptors, including RMS e
 [[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L49)
 
 ```python
-def format_time(ax):
+def format_time(ax, format=True):
 ```
 
 Format time for audio plotting of video file. This is useful if one wants to plot the original time of the video when frames have been skipped beforehand.
@@ -76,16 +76,18 @@ Format time for audio plotting of video file. This is useful if one wants to plo
 
 ### MgAudio().hpss
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L376)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L367)
 
 ```python
 def hpss(
+    dim=2,
     n_mels=128,
     fmin=0.0,
     fmax=None,
     kernel_size=31,
     margin=(1.0, 5.0),
     power=2.0,
+    top_db=80.0,
     mask=False,
     residual=False,
     dpi=300,
@@ -101,17 +103,19 @@ Renders a figure with a plots of harmonic and percussive components of the audio
 
 #### Arguments
 
+- `dim` *str, optional* - Whether to plot hpss in one (i.e. waveform) or two (i.e. spectrogram) dimensions. Defaults to 2.
 - `n_mels` *int, optional* - Number of Mel bands to generate. Defaults to 128.
 - `fmin` *float, optional* - Lowest frequency (in Hz). Defaults to 0.0.
 - `fmax` *float, optional* - Highest frequency (in Hz). Defaults to None, use fmax = sr / 2.0.
 kernel_size (int or tuple, optional): Kernel size(s) for the median filters. If tuple, the first value specifies the width of the harmonic filter, and the second value specifies the width of the percussive filter. Defaults to 31.
 margin (float or tuple, optional): Margin size(s) for the masks (as described in this [paper](https://archives.ismir.net/ismir2014/paper/000127.pdf)). If tuple, the first value specifies the margin of the harmonic mask, and the second value specifies the margin of the percussive mask. Defaults to (1.0,5.0).
 - `power` *float, optional* - Exponent for the Wiener filter when constructing soft mask matrices. Defaults to 2.0.
+- `top_db` *float, optional* - threshold the output at top_db below the peak: max(20 * log10(S/ref)) - top_db. Defaults to 80.0.
 - `mask` *bool, optional* - Return the masking matrices instead of components. Defaults to False.
 - `residual` *bool, optional* - Whether to return residual components of the audio file or not. Defaults to False.
 - `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
 - `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
-- `original_time` *bool, optional* - Whether to plot original time or not. This parameter can be useful if the file has been shortened beforehand (e.g. skip). Defaults to False.
+- `original_time` *bool, optional* - Whether to plot original time or not. This parameter can be useful if the video file has been shortened beforehand (e.g. skip). Defaults to False.
 - `title` *str, optional* - Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
 - `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_tempogram.png" should be used).
 - `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
@@ -122,14 +126,15 @@ margin (float or tuple, optional): Margin size(s) for the masks (as described in
 
 ### MgAudio().spectrogram
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L162)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L158)
 
 ```python
 def spectrogram(
     fmin=0.0,
     fmax=None,
     n_mels=128,
-    power=2,
+    power=2.0,
+    top_db=80.0,
     dpi=300,
     autoshow=True,
     raw=False,
@@ -148,10 +153,11 @@ Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 - `fmin` *float, optional* - Lowest frequency (in Hz). Defaults to 0.0.
 - `fmax` *float, optional* - Highest frequency (in Hz). Defaults to None, use fmax = sr / 2.0.
 - `power` *float, optional* - The steepness of the curve for the color mapping. Defaults to 2.
+- `top_db` *float, optional* - threshold the output at top_db below the peak: max(20 * log10(S/ref)) - top_db. Defaults to 80.0.
 - `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
 - `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
 - `raw` *bool, optional* - Whether to show labels and ticks on the plot. Defaults to False.
-- `original_time` *bool, optional* - Whether to plot original time or not. This parameter can be useful if the file has been shortened beforehand (e.g. skip). Defaults to False.
+- `original_time` *bool, optional* - Whether to plot original time or not. This parameter can be useful if the video file has been shortened beforehand (e.g. skip). Defaults to False.
 - `title` *str, optional* - Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
 - `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_spectrogram.png" should be used).
 - `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
@@ -162,7 +168,7 @@ Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
 ### MgAudio().tempogram
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L275)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L269)
 
 ```python
 def tempogram(
@@ -183,7 +189,7 @@ Renders a figure with a plots of onset strength and tempogram of the video/audio
 - `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
 - `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
 - `raw` *bool, optional* - Whether to show labels and ticks on the plot. Defaults to False.
-- `original_time` *bool, optional* - Whether to plot original time or not. This parameter can be useful if the file has been shortened beforehand (e.g. skip). Defaults to False.
+- `original_time` *bool, optional* - Whether to plot original time or not. This parameter can be useful if the video file has been shortened beforehand (e.g. skip). Defaults to False.
 - `title` *str, optional* - Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
 - `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_tempogram.png" should be used).
 - `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
@@ -194,7 +200,7 @@ Renders a figure with a plots of onset strength and tempogram of the video/audio
 
 ### MgAudio().waveform
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L83)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L82)
 
 ```python
 def waveform(
@@ -216,7 +222,7 @@ Renders a figure showing the waveform of the video/audio file.
 - `sr` *int, optional* - Sampling rate of the audio file. Defaults to 22050.
 - `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
 - `raw` *bool, optional* - Whether to show labels and ticks on the plot. Defaults to False.
-- `original_time` *bool, optional* - Whether to plot original time or not. This parameter can be useful if the file has been shortened beforehand (e.g. skip). Defaults to True.
+- `original_time` *bool, optional* - Whether to plot original time or not. This parameter can be useful if the video file has been shortened beforehand (e.g. skip). Defaults to True.
 - `title` *str, optional* - Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
 - `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_waveform.png" should be used).
 - `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.

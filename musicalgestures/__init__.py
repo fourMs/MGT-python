@@ -195,7 +195,7 @@ class Examples:
         module_path = os.path.realpath(
             os.path.dirname(__file__)).replace("\\", "/")
         # module_path = os.path.abspath(os.path.dirname(__file__))
-        self.dance = module_path + "/dance.avi"
+        self.dance = module_path + "/dancer.avi"
         self.pianist = module_path + "/examples/pianist.avi"
         self.notebook = module_path + "/MusicalGesturesToolbox.ipynb"
 
