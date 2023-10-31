@@ -13,7 +13,7 @@
 
 ## MgAudio
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L18)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L20)
 
 ```python
 class MgAudio():
@@ -24,7 +24,7 @@ Class container for audio analysis processes.
 
 ### MgAudio().descriptors
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L517)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L553)
 
 ```python
 def descriptors(
@@ -62,10 +62,10 @@ Renders a figure of plots showing spectral/loudness descriptors, including RMS e
 
 ### MgAudio().format_time
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L49)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L51)
 
 ```python
-def format_time(ax, format=True):
+def format_time(ax, original_time=True, original_duration=None):
 ```
 
 Format time for audio plotting of video file. This is useful if one wants to plot the original time of the video when frames have been skipped beforehand.
@@ -73,10 +73,12 @@ Format time for audio plotting of video file. This is useful if one wants to plo
 #### Arguments
 
 - `ax` *str, optional* - Axis of the figure.
+- `original_time` *bool, optional* - Whether to get the original time for audio plotting or not. Defaults to True.
+- `original_duration` *bool, optional* - Whether to add the original duration of the file to be formatted manually. Defaults to None.
 
 ### MgAudio().hpss
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L367)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L403)
 
 ```python
 def hpss(
@@ -126,7 +128,7 @@ margin (float or tuple, optional): Margin size(s) for the masks (as described in
 
 ### MgAudio().spectrogram
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L158)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L194)
 
 ```python
 def spectrogram(
@@ -168,7 +170,7 @@ Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
 ### MgAudio().tempogram
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L269)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L305)
 
 ```python
 def tempogram(
@@ -200,13 +202,19 @@ Renders a figure with a plots of onset strength and tempogram of the video/audio
 
 ### MgAudio().waveform
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L82)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L89)
 
 ```python
 def waveform(
     dpi=300,
     autoshow=True,
     raw=False,
+    colored=False,
+    image_width=2500,
+    image_height=500,
+    fmin=500,
+    fmax=None,
+    cmap='freesound',
     original_time=True,
     title=None,
     target_name=None,
@@ -219,9 +227,14 @@ Renders a figure showing the waveform of the video/audio file.
 #### Arguments
 
 - `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
-- `sr` *int, optional* - Sampling rate of the audio file. Defaults to 22050.
 - `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
 - `raw` *bool, optional* - Whether to show labels and ticks on the plot. Defaults to False.
+- `colored` *bool, optional* - Whether to create a colored waveform image (freesound-style) from an audio input file. Defauts to False.
+- `image_width` *int, optional* - Number of pixels for the colored waveform image width. Defaults to 2500.
+- `image_height` *int, optional* - Number of pixels for the colored waveform image height. Defaults to 500.
+- `fmin` *int, optional* - Minimum frequency for computing spectral centroid for the colored waveform image. Defaults to 500.
+- `fmax` *int, optional* - Maximum frequency for computing spectral centroid for the colored waveform image. Defaults to None (i.e. Nyquist frequency).
+- `cmap` *str, optional* - Colormap used for coloring the waveform, all colormaps included with matplotlib can be used. Defaults to 'freesound'.
 - `original_time` *bool, optional* - Whether to plot original time or not. This parameter can be useful if the video file has been shortened beforehand (e.g. skip). Defaults to True.
 - `title` *str, optional* - Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
 - `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_waveform.png" should be used).

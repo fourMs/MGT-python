@@ -14,6 +14,7 @@
         - [Blend](_blend.md#blend)
         - [Blurfaces](_blurfaces.md#blurfaces)
         - [CenterFace](_centerface.md#centerface)
+        - [Colored](_colored.md#colored)
         - [Cropping Window](_cropping_window.md#cropping-window)
         - [Cropvideo](_cropvideo.md#cropvideo)
         - [Directograms](_directograms.md#directograms)

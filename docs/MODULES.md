@@ -10,6 +10,7 @@ Full list of [Mgt-python](README.md#mgt-python) project modules.
     - [Blend](musicalgestures/_blend.md#blend)
     - [Blurfaces](musicalgestures/_blurfaces.md#blurfaces)
     - [CenterFace](musicalgestures/_centerface.md#centerface)
+    - [Colored](musicalgestures/_colored.md#colored)
     - [Cropping Window](musicalgestures/_cropping_window.md#cropping-window)
     - [Cropvideo](musicalgestures/_cropvideo.md#cropvideo)
     - [Directograms](musicalgestures/_directograms.md#directograms)
