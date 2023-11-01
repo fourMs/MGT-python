@@ -8,26 +8,19 @@ import soundfile as sf
 from musicalgestures._utils import convert
 
 
-def get_max_level(filename, buffer_size):
-    max_level = 0
+def min_max_level(filename):
     audio_file = sf.SoundFile(filename, 'r')
-    n_samples = audio_file.frames # total number of samples in audio file
+    samples = audio_file.read()
 
-    while n_samples:
-        to_read = min(buffer_size, n_samples)
-        try:
-            samples = audio_file.read(to_read)
-        except RuntimeError: # this can happen with a broken header
-            break
-            
-        # Convert to mono by selecting left channel only
-        if audio_file.channels > 1:
-            samples = samples[:,0]          
-        max_level = max(max_level, np.abs(samples).max())
-        n_samples -= to_read
+    # Convert to mono by selecting left channel only
+    if audio_file.channels > 1:
+        samples = samples[:,0] 
+
+    min_level = min(samples)       
+    max_level = max(samples)
 
     audio_file.close()
-    return max_level
+    return min_level, max_level
 
 class MgAudioProcessor(object):
     def __init__(
@@ -71,11 +64,8 @@ class MgAudioProcessor(object):
         self.clip = lambda val, low, high: min(high, max(low, val))
         
         self.window = window_function(self.n_fft)
-        # Figure out what the maximum value is for an FFT doing the FFT of a DC signal
-        max_fft = (np.abs(np.fft.rfft(np.ones(self.n_fft) * self.window))).max()
-        # Set the scale to normalized audio and normalized FFT
-        max_level = get_max_level(filename, buffer_size=self.n_fft)
-        self.scale = 1.0 / max_level / max_fft if max_level > 0 else 1
+        # Get the minimum and maximum audio levels
+        self.min_level, self.max_level = min_max_level(filename)
 
     def read_samples(self, start, size, resize_if_less=False):
         """ 

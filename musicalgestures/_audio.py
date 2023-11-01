@@ -156,7 +156,7 @@ class MgAudio:
             ax.imshow(y.image.astype('uint8'), interpolation='nearest')
             # Replace yticks with values between -1 and 1 for practicalities
             ax.yaxis.set_major_locator(ticker.LinearLocator(numticks=len(ax.get_yticks())))
-            ax.yaxis.set_major_formatter(ticker.FixedFormatter(list(np.round(np.linspace(1,-1, len(ax.get_yticks())),1))))
+            ax.yaxis.set_major_formatter(ticker.FixedFormatter(list(np.round(np.linspace(processor.max_level,processor.min_level, len(ax.get_yticks())),1))))
         else:
             # Adapt audio file plotting when skipping frames of a video file
             self.format_time(ax, original_time=original_time)
