@@ -96,7 +96,7 @@ def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=Tru
 
     of, fex = os.path.splitext(self.filename)
     # Define ffmpeg command start and end
-    cmd = ['ffmpeg', '-y', '-i', self.filename, '-f', 'image2pipe', '-pix_fmt', 'rgb24', '-vcodec', 'rawvideo', '-']
+    cmd = ['ffmpeg', '-y', '-i', self.filename, '-f', 'image2pipe', '-pix_fmt', 'bgr24', '-vcodec', 'rawvideo', '-']
     
     if target_name == None:
         target_name = of + '_blurred.avi'
@@ -130,9 +130,9 @@ def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=Tru
             pb.progress(self.length)
             break
 
-        # Transform the bytes read into a numpy array and convert to RGB
+        # Transform the bytes read into a numpy array
         frame = transform_frame(out, self.height, self.width, self.color)
-        frame = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2RGB) # copy frame for writing it
+        frame = frame.copy() # copy frame for writing it
         
         h, w = frame.shape[:2]
         dets, lms = centerface(frame, h, w, threshold=0.2)

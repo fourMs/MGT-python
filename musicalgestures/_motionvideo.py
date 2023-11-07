@@ -95,7 +95,7 @@ def mg_motion(
             # Remove last comma after previous filter
             cmd_filter = cmd_filter[: -1]
 
-        cmd_end = ['-f', 'image2pipe', '-pix_fmt', 'rgb24', '-vcodec', 'rawvideo', '-']
+        cmd_end = ['-f', 'image2pipe', '-pix_fmt', 'bgr24', '-vcodec', 'rawvideo', '-']
         cmd += ['-filter_complex', cmd_filter] + cmd_end 
 
         if save_motiongrams:
@@ -143,8 +143,6 @@ def mg_motion(
 
             # Transform the bytes read into a numpy array
             motion_frame = transform_frame(out, self.height, self.width, self.color)
-            if self.color: # Convert BGR to RGB
-                motion_frame = cv2.cvtColor(motion_frame.astype(np.uint8), cv2.COLOR_BGR2RGB)
 
             if save_data | save_plot:
                 if motion_analysis.lower() == 'aom':
