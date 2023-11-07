@@ -10,7 +10,7 @@ import subprocess
 from threading import Thread
 
 from musicalgestures._motionanalysis import centroid, area
-from musicalgestures._utils import extract_wav, transform_frame, embed_audio_in_video, frame2ms, MgProgressbar, MgFigure, MgImage, motionvideo_ffmpeg, generate_outfilename
+from musicalgestures._utils import extract_wav, transform_frame, embed_audio_in_video, frame2ms, ffmpeg_cmd, MgProgressbar, MgFigure, MgImage, motionvideo_ffmpeg, generate_outfilename
 from musicalgestures._filter import filter_frame_ffmpeg
 from musicalgestures._mglist import MgList
 
@@ -94,9 +94,7 @@ def mg_motion(
         else:
             # Remove last comma after previous filter
             cmd_filter = cmd_filter[: -1]
-
-        cmd_end = ['-f', 'image2pipe', '-pix_fmt', 'bgr24', '-vcodec', 'rawvideo', '-']
-        cmd += ['-filter_complex', cmd_filter] + cmd_end 
+        cmd += ['-filter_complex', cmd_filter] 
 
         if save_motiongrams:
             if self.color:
@@ -125,9 +123,10 @@ def mg_motion(
 
         pgbar_text = 'Rendering motion' + ", ".join(np.array(["-video", "-grams", "-plots", "-data"])[
             np.array([save_video, save_motiongrams, save_plot, save_data])]) + ":" 
+        pb = MgProgressbar(total=self.length, prefix=pgbar_text)  
 
-        pb = MgProgressbar(total=self.length, prefix=pgbar_text) 
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, bufsize=-1) 
+        # Pipe video with FFmpeg for reading frame by frame        
+        process = ffmpeg_cmd(cmd, total_time=self.length, pipe='read')
 
         i = 0
 

@@ -690,10 +690,10 @@ def convert_to_grayscale(filename, target_name=None, overwrite=False):
     return target_name
 
 def transform_frame(out, height, width, color):
-    import numpy
+    import numpy as np
 
     # transform the bytes read into a numpy array
-    frame =  numpy.frombuffer(out, dtype='uint8')
+    frame =  np.frombuffer(out, dtype='uint8')
     try:
         if color:
             frame = frame.reshape((height,width,3)) # height, width, channels
@@ -827,7 +827,7 @@ def motionvideo_ffmpeg(
 
     cmd, cmd_filter = filter_frame_ffmpeg(filename, cmd, color, blur, filtertype, threshold, kernel_size, use_median, invert=invert)
     # remove last comma after previous filter
-    cmd_filter = cmd_filter[: -1]
+    cmd_filter = cmd_filter[:-1]
 
     pass_if_containers_match(filename, target_name)
     cmd_end = ['-q:v', '3', "-c:a", "copy", target_name]
@@ -1377,7 +1377,7 @@ class FFmpegError(Exception):
         self.message = message
 
 
-def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, stream=True):
+def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, stream=True, pipe=None):
     """
     Run an ffmpeg command in a subprocess and show progress using an MgProgressbar.
 
@@ -1387,6 +1387,7 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, strea
         pb_prefix (str, optional): The prefix for the progress bar. Defaults to 'Progress'.
         print_cmd (bool, optional): Whether to print the full ffmpeg command to the console before executing it. Good for debugging. Defaults to False.
         stream (bool, optional): Whether to have a continuous output stream or just (the last) one. Defaults to True (continuous stream).
+        pipe (str, optional): Whether to pipe video frames from FFmpeg to numpy array. Possible to read the video frame by frame with pipe='read' or to load video in memory with pipe='load'. Defaults to None.
 
     Raises:
         KeyboardInterrupt: If the user stops the process.
@@ -1404,47 +1405,59 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, strea
         else:
             print(command)
 
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
-    returncode = None
-    all_out = ''
+    if pipe == 'read':
+        # Define ffmpeg command and read frame by frame
+        command = command + ['-f', 'image2pipe', '-pix_fmt', 'bgr24', '-vcodec', 'rawvideo', '-']
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, bufsize=-1)
+        return process
 
-    try:
-        while True:
+    elif pipe == 'load':
+        # Define ffmpeg command and load all frames
+        command = command + ['-f', 'image2pipe', '-pix_fmt', 'bgr24', '-vcodec', 'rawvideo', '-']
+        process = subprocess.run(command, stdout=subprocess.PIPE, bufsize=-1)
+        return process
 
-            if stream:
-                out = process.stdout.readline()
-            else:
-                out = process.stdout.read()
-            all_out += out
+    else:
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+        returncode = None
+        all_out = ''
 
-            if out == '':
-                process.wait()
-                returncode = process.returncode
-                break
-
-            elif out.startswith('frame='):
-                try:
-                    out_list = out.split()
-                    time_ind = [elem.startswith('time=') for elem in out_list].index(True)
-                    time_str = out_list[time_ind][5:]
-                    time_sec = str2sec(time_str)
-                    pb.progress(time_sec)
-                except ValueError:
-                    # New version of FFmpeg outputs N/A values
-                    pass
-
-        if returncode in [None, 0]:
-            pb.progress(total_time)
-        else:
-            raise FFmpegError(all_out)
-
-    except KeyboardInterrupt:
         try:
-            process.terminate()
-        except OSError:
-            pass
-        process.wait()
-        raise KeyboardInterrupt
+            while True:
+                if stream:
+                    out = process.stdout.readline()
+                else:
+                    out = process.stdout.read()
+                all_out += out
+
+                if out == '':
+                    process.wait()
+                    returncode = process.returncode
+                    break
+
+                elif out.startswith('frame='):
+                    try:
+                        out_list = out.split()
+                        time_ind = [elem.startswith('time=') for elem in out_list].index(True)
+                        time_str = out_list[time_ind][5:]
+                        time_sec = str2sec(time_str)
+                        pb.progress(time_sec)
+                    except ValueError:
+                        # New version of FFmpeg outputs N/A values
+                        pass
+
+            if returncode in [None, 0]:
+                pb.progress(total_time)
+            else:
+                raise FFmpegError(all_out)
+
+        except KeyboardInterrupt:
+            try:
+                process.terminate()
+            except OSError:
+                pass
+            process.wait()
+            raise KeyboardInterrupt
 
 
 def str2sec(time_string):

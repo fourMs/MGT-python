@@ -12,7 +12,8 @@ import matplotlib as mpl
 
 import musicalgestures
 from musicalgestures._centerface import CenterFace
-from musicalgestures._utils import MgProgressbar, MgImage, embed_audio_in_video, extract_wav, transform_frame, generate_outfilename, frame2ms
+from musicalgestures._filter import filter_frame_ffmpeg
+from musicalgestures._utils import MgProgressbar, MgImage, embed_audio_in_video, extract_wav, transform_frame, generate_outfilename, frame2ms, ffmpeg_cmd
 
 def scaling_mask(x1, y1, x2, y2, mask_scale=1.0):
     """
@@ -67,7 +68,20 @@ def nearest_neighbours(x, y, width, height, resolution, n_neighbours):
             image[y][x] = 1 / np.sum(d[np.argpartition(d.ravel(), n_neighbours)[:n_neighbours]])
     return image, extent
 
-def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=True, draw_heatmap=False, neighbours=32, resolution=250, draw_scores=False, save_data=True, data_format='csv', color=(0, 0, 0), target_name=None, overwrite=False):
+def mg_blurfaces(self, 
+                 mask='blur', 
+                 mask_image=None, 
+                 mask_scale=1.0, 
+                 ellipse=True, 
+                 draw_heatmap=False, 
+                 neighbours=32, 
+                 resolution=250, 
+                 draw_scores=False, 
+                 save_data=True, 
+                 data_format='csv', 
+                 color=(0, 0, 0), 
+                 target_name=None, 
+                 overwrite=False):
     """
     Automatic anonymization of faces in videos. 
     This function works by first detecting all human faces in each video frame and then applying an anonymization filter 
@@ -95,8 +109,6 @@ def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=Tru
     """
 
     of, fex = os.path.splitext(self.filename)
-    # Define ffmpeg command start and end
-    cmd = ['ffmpeg', '-y', '-i', self.filename, '-f', 'image2pipe', '-pix_fmt', 'bgr24', '-vcodec', 'rawvideo', '-']
     
     if target_name == None:
         target_name = of + '_blurred.avi'
@@ -109,14 +121,16 @@ def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=Tru
         os.remove(target_name)       
 
     pb = MgProgressbar(total=self.length, prefix='Blurring faces:')
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, bufsize=-1)
 
     # Create an instance of the CenterFace class
     centerface = CenterFace()
     output_stream = cv2.VideoWriter(target_name, cv2.VideoWriter_fourcc('M','J','P','G'), self.fps, (self.width, self.height))
-
     # Create an empty list to append the mask coordinates
     data = []
+
+    # Define ffmpeg command start and end
+    cmd = ['ffmpeg', '-y', '-i', self.filename]
+    process = ffmpeg_cmd(cmd, total_time=self.length, pipe='read')
 
     i = 0
 

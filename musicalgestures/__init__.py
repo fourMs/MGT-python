@@ -1,10 +1,11 @@
 import os
+import numpy as np
 from musicalgestures._input_test import mg_input_test
 from musicalgestures._videoreader import mg_videoreader
 from musicalgestures._flow import Flow
 from musicalgestures._audio import MgAudio 
 from musicalgestures._mglist import MgList
-from musicalgestures._utils import MgImage, MgFigure, get_metadata, convert, convert_to_mp4, get_framecount
+from musicalgestures._utils import MgImage, MgFigure, get_metadata, convert, convert_to_mp4, get_framecount, ffmpeg_cmd
 
 
 class MgVideo(MgAudio):
@@ -189,6 +190,22 @@ class MgVideo(MgAudio):
         print("From musicalgestures v1.3.0, the function `average` is no longer available. Use the function `blend(component_mode='average')` instead. More information can be found in the documentation: https://github.com/fourMs/MGT-python/wiki/4-%E2%80%90-Video%E2%80%90based-Processes#blend")
         return self.blend(component_mode='average')
     ##################################################
+
+    def numpy(self):
+        "Pipe all video frames from FFmpeg to numpy array"
+        # Define ffmpeg command and pipe it
+        cmd = ['ffmpeg', '-y', '-i', self.filename]
+        process = ffmpeg_cmd(cmd, total_time=self.length, pipe='load')
+
+        try:
+            if self.color:
+                array = np.frombuffer(process.stdout, dtype=np.uint8).reshape(-1, self.height, self.width, 3)
+            else:
+                array = np.frombuffer(process.stdout, dtype=np.uint8).reshape(-1, self.height, self.width)
+        except ValueError:
+            pass
+
+        return array
 
 
 class Examples:
