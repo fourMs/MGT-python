@@ -42,10 +42,9 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             if in_colab():
                 mode = 'notebook'
         if mode.lower() == 'windowed':
-            from musicalgestures._utils import wrap_str
-            # cmd = f'ffplay "{file}" -x {width} -y {height} -window_title "{title}"'
-            cmd = f'ffplay {wrap_str(file)} -window_title {wrap_str(title)} -x {width} -y {height}'
-            # show_async(cmd)
+            # from musicalgestures._utils import wrap_str
+            # cmd = f'ffplay {wrap_str(file)} -window_title {wrap_str(title)} -x {width} -y {height}'
+            cmd = ' '.join(map(str, ['ffplay', file, '-window_title', title, '-x', width, '-y', height]))
             show_in_new_process(cmd)
 
         elif mode.lower() == 'notebook':
