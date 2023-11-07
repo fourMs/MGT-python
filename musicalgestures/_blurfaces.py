@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import skimage.draw
 import pandas as pd
+import subprocess
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.pyplot as plt
@@ -11,7 +12,7 @@ import matplotlib as mpl
 
 import musicalgestures
 from musicalgestures._centerface import CenterFace
-from musicalgestures._utils import MgProgressbar, MgImage, convert_to_avi, generate_outfilename, frame2ms
+from musicalgestures._utils import MgProgressbar, MgImage, embed_audio_in_video, extract_wav, transform_frame, generate_outfilename, frame2ms
 
 def scaling_mask(x1, y1, x2, y2, mask_scale=1.0):
     """
@@ -94,18 +95,8 @@ def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=Tru
     """
 
     of, fex = os.path.splitext(self.filename)
-
-    if fex != '.avi':
-        # First check if there already is a converted version, if not create one and register it to self
-        if "as_avi" not in self.__dict__.keys():
-            file_as_avi = convert_to_avi(of + fex, overwrite=overwrite)
-            # register it as the avi version for the file
-            self.as_avi = musicalgestures.MgVideo(file_as_avi)
-        # Point of and fex to the avi version
-        of, fex = self.as_avi.of, self.as_avi.fex
-        filename = of + fex
-    else:
-        filename = self.filename
+    # Define ffmpeg command start and end
+    cmd = ['ffmpeg', '-y', '-i', self.filename, '-f', 'image2pipe', '-pix_fmt', 'rgb24', '-vcodec', 'rawvideo', '-']
     
     if target_name == None:
         target_name = of + '_blurred.avi'
@@ -117,98 +108,103 @@ def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=Tru
     if os.path.isfile(target_name):
         os.remove(target_name)       
 
-    vidcap = cv2.VideoCapture(filename)
-    fps = int(vidcap.get(cv2.CAP_PROP_FPS))
-    length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
-    width  = vidcap.get(cv2.CAP_PROP_FRAME_WIDTH)
-    height = vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-
-    pb = MgProgressbar(total=length, prefix='Blurring faces:')
+    pb = MgProgressbar(total=self.length, prefix='Blurring faces:')
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, bufsize=-1)
 
     # Create an instance of the CenterFace class
     centerface = CenterFace()
-
-    ret, frame = vidcap.read()
-    output_stream = cv2.VideoWriter(target_name, cv2.VideoWriter_fourcc(*'mp4v'), fps, (frame.shape[1], frame.shape[0]))
+    output_stream = cv2.VideoWriter(target_name, cv2.VideoWriter_fourcc('M','J','P','G'), self.fps, (self.width, self.height))
 
     # Create an empty list to append the mask coordinates
     data = []
 
     i = 0
 
-    while vidcap.isOpened():
-
-        ret, frame = vidcap.read()
-       
-        if ret == True:
-
-            h, w = frame.shape[:2]
-            dets, lms = centerface(frame, h, w, threshold=0.2)
-
-            for x, det in enumerate(dets):
-
-                boxes, score = det[:4], det[4]
-                x1, y1, x2, y2 = boxes.astype(int)
-                x1, y1, x2, y2 = scaling_mask(x1, y1, x2, y2, mask_scale)
-                # Clip bounding boxes coordinates to valid frame region
-                y1, y2 = max(0, y1), min(frame.shape[0] - 1, y2)
-                x1, x2 = max(0, x1), min(frame.shape[1] - 1, x2)
-
-                # Mask faces with rectangles
-                if mask == 'rectangle':
-                    # Color is set to black by default but can be changed using the color parameter.
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), color, -1)
-
-                # Mask faces with blurred rectangles
-                elif mask == 'blur':
-                    bf = 2  # blur factor (number of pixels in each dimension that the face will be reduced to)
-                    blurred_box = cv2.blur(frame[y1:y2, x1:x2], (abs(x2 - x1) // bf, abs(y2 - y1) // bf))
-                    # Mask faces with blurred ellipses
-                    if ellipse:
-                        roibox = frame[y1:y2, x1:x2]
-                        # Get y and x coordinate lists of the bounding ellipse
-                        ey, ex = skimage.draw.ellipse((y2 - y1) // 2, (x2 - x1) // 2, (y2 - y1) // 2, (x2 - x1) // 2)
-                        roibox[ey, ex] = blurred_box[ey, ex]
-                        frame[y1:y2, x1:x2] = roibox
-                    else:
-                        frame[y1:y2, x1:x2] = blurred_box
-
-                # Mask faces with an image
-                elif mask == 'image':
-                    target_size = (x2 - x1, y2 - y1)
-                    # Reading image with opencv
-                    mask_image = cv2.imread(mask_image, cv2.IMREAD_UNCHANGED)
-                    # Resizing with the target size
-                    resized_mask_image = cv2.resize(mask_image, target_size)
-                    if mask_image.shape[2] == 3:  # RGB
-                        frame[y1:y2, x1:x2] = resized_mask_image
-                    elif mask_image.shape[2] == 4:  # RGBA
-                        frame[y1:y2, x1:x2] = frame[y1:y2, x1:x2] * (1 - resized_mask_image[:, :, 3:] / 255) + resized_mask_image[:, :, :3] * (resized_mask_image[:, :, 3:] / 255)  
-
-                # Mask nothing
-                elif mask == 'none':
-                    pass
-                
-                # Draw heatmap of the detected faces using the centroid of the face mask.
-                if draw_heatmap or save_data:
-                    time = frame2ms(i, self.fps)
-                    data.append([time, x1, y1, x2, y2])
-
-                # Draw the faceness score (between 0 and 1) that roughly corresponds to the detector's confidence that something is a face.
-                if draw_scores:
-                    cv2.putText(frame, f'{score:.2f}', (x1 + 0, y1 - 20), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0, 255, 0))
-
-            output_stream.write(frame)
-
+    while True:
+        # Read frame-by-frame
+        if self.color:
+            out = process.stdout.read(self.width*self.height*3)
         else:
-            pb.progress(length)
+            out = process.stdout.read(self.width*self.height)
+        if out == b'':
+            pb.progress(self.length)
             break
-       
+
+        # Transform the bytes read into a numpy array and convert to RGB
+        frame = transform_frame(out, self.height, self.width, self.color)
+        frame = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2RGB) # copy frame for writing it
+        
+        h, w = frame.shape[:2]
+        dets, lms = centerface(frame, h, w, threshold=0.2)
+
+        for x, det in enumerate(dets):
+            boxes, score = det[:4], det[4]
+            x1, y1, x2, y2 = boxes.astype(int)
+            x1, y1, x2, y2 = scaling_mask(x1, y1, x2, y2, mask_scale)
+            # Clip bounding boxes coordinates to valid frame region
+            y1, y2 = max(0, y1), min(frame.shape[0] - 1, y2)
+            x1, x2 = max(0, x1), min(frame.shape[1] - 1, x2)
+
+            # Mask faces with rectangles
+            if mask == 'rectangle':
+                # Color is set to black by default but can be changed using the color parameter.
+                cv2.rectangle(frame, (x1, y1), (x2, y2), color, -1)
+
+            # Mask faces with blurred rectangles
+            elif mask == 'blur':
+                bf = 2  # blur factor (number of pixels in each dimension that the face will be reduced to)
+                blurred_box = cv2.blur(frame[y1:y2, x1:x2], (abs(x2 - x1) // bf, abs(y2 - y1) // bf))
+                # Mask faces with blurred ellipses
+                if ellipse:
+                    roibox = frame[y1:y2, x1:x2]
+                    # Get y and x coordinate lists of the bounding ellipse
+                    ey, ex = skimage.draw.ellipse((y2 - y1) // 2, (x2 - x1) // 2, (y2 - y1) // 2, (x2 - x1) // 2)
+                    roibox[ey, ex] = blurred_box[ey, ex]
+                    frame[y1:y2, x1:x2] = roibox
+                else:
+                    frame[y1:y2, x1:x2] = blurred_box
+
+            # Mask faces with an image
+            elif mask == 'image':
+                target_size = (x2 - x1, y2 - y1)
+                # Reading image with opencv
+                mask_image = cv2.imread(mask_image, cv2.IMREAD_UNCHANGED)
+                # Resizing with the target size
+                resized_mask_image = cv2.resize(mask_image, target_size)
+                if mask_image.shape[2] == 3:  # RGB
+                    frame[y1:y2, x1:x2] = resized_mask_image
+                elif mask_image.shape[2] == 4:  # RGBA
+                    frame[y1:y2, x1:x2] = frame[y1:y2, x1:x2] * (1 - resized_mask_image[:, :, 3:] / 255) + resized_mask_image[:, :, :3] * (resized_mask_image[:, :, 3:] / 255)  
+
+            # Mask nothing
+            elif mask == 'none':
+                pass
+            
+            # Draw heatmap of the detected faces using the centroid of the face mask.
+            if draw_heatmap or save_data:
+                time = frame2ms(i, self.fps)
+                data.append([time, x1, y1, x2, y2])
+
+            # Draw the faceness score (between 0 and 1) that roughly corresponds to the detector's confidence that something is a face.
+            if draw_scores:
+                cv2.putText(frame, f'{score:.2f}', (x1 + 0, y1 - 20), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0, 255, 0))
+
+        output_stream.write(frame)
+    
+        # Flush the buffer
+        process.stdout.flush()
         pb.progress(i)
         i += 1
 
+    # Terminate the process
+    process.terminate()
     output_stream.release()
-    vidcap.release()
+
+    if self.has_audio:
+        # Embed audio in the video file
+        source_audio = extract_wav(of + fex)
+        embed_audio_in_video(source_audio, target_name)
+        os.remove(source_audio)
 
     # Save warped video as blur_faces for parent MgVideo
     # we have to do this here since we are not using mg_blurfaces (that would normally save the result itself)
@@ -229,7 +225,6 @@ def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=Tru
             df = pd.DataFrame(data=data, columns=headers)
 
             if data_format == "tsv":
-
                 if target_name == None:
                     target_name = of + '.tsv'
                 else:
@@ -248,7 +243,6 @@ def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=Tru
                     np.savetxt(f, df.values, delimiter='\t', fmt=fmt_list)
 
             elif data_format == "csv":
-
                 if target_name == None:
                     target_name = of + '.csv'
                 else:
@@ -256,11 +250,9 @@ def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=Tru
                     target_name = os.path.splitext(target_name)[0] + '.csv'
                 if not overwrite:
                     target_name = generate_outfilename(target_name)
-
                 df.to_csv(target_name, index=None)
 
             elif data_format == "txt":
-
                 if target_name == None:
                     target_name = of + '.txt'
                 else:
@@ -277,6 +269,7 @@ def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=Tru
                     f.write(head_str.encode())
                     fmt_list = ['%.0f' for item in range(len(headers))]
                     np.savetxt(f, df.values, delimiter=' ', fmt=fmt_list)
+
             elif data_format not in ["tsv", "csv", "txt"]:
                 print(f"Invalid data format: '{data_format}'.\nFalling back to '.csv'.")
                 save_single_file(of, data, "csv", target_name=target_name, overwrite=overwrite)
@@ -295,23 +288,22 @@ def mg_blurfaces(self, mask='blur', mask_image=None, mask_scale=1.0, ellipse=Tru
 
     if save_data:  
         save_txt(of, data, data_format, target_name=target_name, overwrite=overwrite)  
-        return self.blur_faces, np.asarray(data)
+        return self.blur_faces
 
     if draw_heatmap:
-
         target_name = os.path.splitext(target_name)[0] + '.png'
         if not overwrite:
             target_name = generate_outfilename(target_name)
 
         # Approximately update font and plot size with frame size
-        plt.rcParams.update({'font.size': int((height/fps))})  
-        fig, ax = plt.subplots(figsize=(int(width/fps), int(height/fps))) 
+        plt.rcParams.update({'font.size': int((self.height/self.fps))})  
+        fig, ax = plt.subplots(figsize=(int(self.width/self.fps), int(self.height/self.fps))) 
         # make sure background is white
         fig.patch.set_facecolor('white')
         fig.patch.set_alpha(1)  
 
         center_x, center_y = centroid_mask(np.asarray(data))
-        im, extent = nearest_neighbours(center_x, center_y, width, height, resolution, neighbours)
+        im, extent = nearest_neighbours(center_x, center_y, self.width, self.height, resolution, neighbours)
 
         ax.imshow(im, extent=extent, cmap=cm.jet)
         ax.set_title(f"Heatmap of face detection (neighbours={neighbours})")
