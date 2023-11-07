@@ -172,6 +172,58 @@ class MgProgressbar():
     def __repr__(self):
         return "MgProgressbar"
 
+class MgImage():
+    """
+    Class for handling images in the Musical Gestures Toolbox.
+    """
+
+    def __init__(self, filename):
+        """
+        Initializes the MgImage object.
+
+        Args:
+            filename (str): The path to the image file to load.
+        """
+        self.filename = filename
+        import os
+        self.of = os.path.splitext(self.filename)[0]
+        self.fex = os.path.splitext(self.filename)[1]
+    from musicalgestures._show import mg_show as show
+
+    def __repr__(self):
+        return f"MgImage('{self.filename}')"
+
+
+class MgFigure():
+    """
+    Class for working with figures and plots within the Musical Gestures Toolbox.
+    """
+
+    def __init__(self, figure=None, figure_type=None, data=None, layers=None, image=None):
+        """
+        Initializes the MgFigure object.
+
+        Args:
+            figure (matplotlib.pyplot.figure, optional): The internal figure. Defaults to None.
+            figure_type (str, optional): A keyword describing the type of the figure, such as "audio.spectrogram", "audio.tempogram", "audio.descriptors", "layers", etc. Defaults to None.
+            data (dictionary, optional): The dictionary containing all the necessary variables, lists and (typically) NumPy arrays necessary to rebuild each subplot in the figure. Defaults to None.
+            layers (list, optional): This is only relevant if the MgFigure instance is of "layers" type, which indicates that it is a composit of several MgFigures and/or MgImages. In this case the layers list should contain all the child instances (MgFigures, MgImages, or MgLists of these) which are included in this MgFigure and are displayed as subplots. Defaults to None.
+            image (str, optional): Path to the image file (the rendered figure). Defaults to None.
+        """
+        self.figure = figure
+        self.figure_type = figure_type
+        self.data = data
+        self.layers = layers
+        self.image = image
+
+    def __repr__(self):
+        return f"MgFigure(figure_type='{self.figure_type}')"
+
+    def show(self):
+        """
+        Shows the internal matplotlib.pyplot.figure.
+        """
+        return self.figure
 
 def roundup(num, modulo_num):
     """
@@ -333,60 +385,6 @@ def frame2ms(frame, fps):
     """
 
     return round(frame / fps * 1000)
-
-
-class MgImage():
-    """
-    Class for handling images in the Musical Gestures Toolbox.
-    """
-
-    def __init__(self, filename):
-        """
-        Initializes the MgImage object.
-
-        Args:
-            filename (str): The path to the image file to load.
-        """
-        self.filename = filename
-        import os
-        self.of = os.path.splitext(self.filename)[0]
-        self.fex = os.path.splitext(self.filename)[1]
-    from musicalgestures._show import mg_show as show
-
-    def __repr__(self):
-        return f"MgImage('{self.filename}')"
-
-
-class MgFigure():
-    """
-    Class for working with figures and plots within the Musical Gestures Toolbox.
-    """
-
-    def __init__(self, figure=None, figure_type=None, data=None, layers=None, image=None):
-        """
-        Initializes the MgFigure object.
-
-        Args:
-            figure (matplotlib.pyplot.figure, optional): The internal figure. Defaults to None.
-            figure_type (str, optional): A keyword describing the type of the figure, such as "audio.spectrogram", "audio.tempogram", "audio.descriptors", "layers", etc. Defaults to None.
-            data (dictionary, optional): The dictionary containing all the necessary variables, lists and (typically) NumPy arrays necessary to rebuild each subplot in the figure. Defaults to None.
-            layers (list, optional): This is only relevant if the MgFigure instance is of "layers" type, which indicates that it is a composit of several MgFigures and/or MgImages. In this case the layers list should contain all the child instances (MgFigures, MgImages, or MgLists of these) which are included in this MgFigure and are displayed as subplots. Defaults to None.
-            image (str, optional): Path to the image file (the rendered figure). Defaults to None.
-        """
-        self.figure = figure
-        self.figure_type = figure_type
-        self.data = data
-        self.layers = layers
-        self.image = image
-
-    def __repr__(self):
-        return f"MgFigure(figure_type='{self.figure_type}')"
-
-    def show(self):
-        """
-        Shows the internal matplotlib.pyplot.figure.
-        """
-        return self.figure
 
 
 class WrongContainer(Exception):
@@ -1406,8 +1404,7 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, strea
         else:
             print(command)
 
-    process = subprocess.Popen(
-        command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
     returncode = None
     all_out = ''
 
@@ -1419,17 +1416,22 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, strea
             else:
                 out = process.stdout.read()
             all_out += out
+
             if out == '':
                 process.wait()
                 returncode = process.returncode
                 break
+
             elif out.startswith('frame='):
-                out_list = out.split()
-                time_ind = [elem.startswith('time=')
-                            for elem in out_list].index(True)
-                time_str = out_list[time_ind][5:]
-                time_sec = str2sec(time_str)
-                pb.progress(time_sec)
+                try:
+                    out_list = out.split()
+                    time_ind = [elem.startswith('time=') for elem in out_list].index(True)
+                    time_str = out_list[time_ind][5:]
+                    time_sec = str2sec(time_str)
+                    pb.progress(time_sec)
+                except ValueError:
+                    # New version of FFmpeg outputs N/A values
+                    pass
 
         if returncode in [None, 0]:
             pb.progress(total_time)
