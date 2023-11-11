@@ -92,7 +92,7 @@ class CenterFace(object):
         areas = (x2 - x1 + 1) * (y2 - y1 + 1)
         order = np.argsort(scores)[::-1]
         num_detections = boxes.shape[0]
-        suppressed = np.zeros((num_detections,), dtype=np.bool)
+        suppressed = np.zeros((num_detections,), dtype=bool)
 
         keep = []
         for _i in range(num_detections):
