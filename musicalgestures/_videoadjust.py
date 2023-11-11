@@ -135,13 +135,12 @@ def fixed_frames_ffmpeg(filename, frames=0, target_name=None, overwrite=False):
 
     # Extract only keyframes
     if frames == -1:
-        cmd = ['ffmpeg', '-y', '-discard', 'nokey', '-i', filename, '-c', 'copy', 'temp.264'] 
+        cmd = ['ffmpeg', '-y', '-discard', 'nokey', '-i', filename, '-c', 'copy', 'temp.h264'] 
         ffmpeg_cmd(cmd, get_length(filename), pb_prefix='Extracting keyframes:')
-        cmd = ['ffmpeg', '-y', '-r', str(fps), '-i', 'temp.264', '-c', 'copy', target_name]
+        cmd = ['ffmpeg', '-y', '-r', str(fps), '-f', 'h264', '-i', 'temp.h264', '-c', 'copy', target_name]
         ffmpeg_cmd(cmd, get_length(filename), pb_prefix='Encoding temporary video file:') 
-
-        # Remove temporary video file
-        os.remove('temp.264')
+        # Remove temporary h264 video file
+        os.remove('temp.h264')
 
         return target_name
 
