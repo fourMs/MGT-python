@@ -213,7 +213,6 @@ def pose(
         if self.has_audio:
             source_audio = extract_wav(of + fex)
             embed_audio_in_video(source_audio, destination_video)
-            os.remove(source_audio)
 
     def save_txt(of, width, height, model, data, data_format, target_name_data, overwrite):
         """
@@ -397,6 +396,7 @@ def download_model(modeltype):
         else:
             command = 'sudo -S bash ' + command
             command += f' {target_folder_coco}'
+
         pb_prefix = 'Downloading COCO model:'
     elif modeltype.lower() == 'body_25':
         command = body_25_script

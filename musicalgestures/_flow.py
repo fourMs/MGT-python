@@ -238,7 +238,6 @@ class Flow:
             if self.has_audio:
                 source_audio = extract_wav(of + fex)
                 embed_audio_in_video(source_audio, destination_video)
-                os.remove(source_audio)
 
             # save result at flow_dense_video at parent MgVideo
             self.parent().flow_dense_video = musicalgestures.MgVideo(
@@ -410,7 +409,6 @@ class Flow:
         if self.has_audio:
             source_audio = extract_wav(of + fex)
             embed_audio_in_video(source_audio, destination_video)
-            os.remove(source_audio)
 
         # save result at flow_sparse_video at parent MgVideo
         self.parent().flow_sparse_video = musicalgestures.MgVideo(

@@ -217,7 +217,6 @@ def history_cv2(self, filename=None, history_length=10, weights=1, target_name=N
     if self.has_audio:
         source_audio = extract_wav(self.of + self.fex)
         embed_audio_in_video(source_audio, destination_video)
-        os.remove(source_audio)
 
     self.history_video = musicalgestures.MgVideo(
         destination_video, color=self.color, returned_by_process=True)

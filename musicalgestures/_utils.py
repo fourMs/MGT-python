@@ -977,9 +977,9 @@ def extract_wav(filename, target_name=None, overwrite=False):
         print(f'{filename} is already in .wav container.')
         return filename
 
-    cmds = ' '.join(['ffmpeg', '-y', '-i', wrap_str(filename), "-acodec",
-                     "pcm_s16le", wrap_str(target_name)])
-    os.system(cmds)
+    cmd = ['ffmpeg', '-y', '-i', wrap_str(filename), "-acodec",
+                     "pcm_s16le", wrap_str(target_name)]
+    ffmpeg_cmd(cmd)
     return target_name
 
 
@@ -1329,9 +1329,9 @@ def audio_dilate(filename, dilation_ratio=1, target_name=None, overwrite=False):
 
     pass_if_containers_match(filename, target_name)
 
-    cmds = ' '.join(['ffmpeg', '-y', '-i', wrap_str(filename), '-codec:a', 'pcm_s16le',
-                     '-filter:a', 'atempo=' + str(dilation_ratio), wrap_str(target_name)])
-    os.system(cmds)
+    cmd = ['ffmpeg', '-y', '-i', wrap_str(filename), '-codec:a', 'pcm_s16le',
+                     '-filter:a', 'atempo=' + str(dilation_ratio), wrap_str(target_name)]
+    ffmpeg_cmd(cmd)
     return target_name
 
 
@@ -1350,24 +1350,18 @@ def embed_audio_in_video(source_audio, destination_video, dilation_ratio=1):
 
     # dilate audio file if necessary (ie. when skipping)
     if dilation_ratio != 1:
-        audio_to_embed = audio_dilate(
-            source_audio, dilation_ratio)  # creates '_dilated.wav'
-        dilated = True
+        audio_to_embed = audio_dilate(source_audio, dilation_ratio)  # creates '_dilated.wav'
     else:
         audio_to_embed = source_audio
-        dilated = False
 
     # embed audio in video
     outname = of + '_w_audio' + fex
-    cmds = ' '.join(['ffmpeg', '-y', '-i', wrap_str(destination_video), '-i', wrap_str(audio_to_embed), '-c:v',
-                     'copy', '-map', '0:v:0', '-map', '1:a:0', '-shortest', wrap_str(outname)])
-    os.system(cmds)  # creates '_w_audio.avi'
-
-    # cleanup:
-    # if we needed to create an additional (dilated) audio file, delete it
-    if dilated:
-        os.remove(audio_to_embed)
-    # replace (silent) destination_video with the one with the embedded audio
+    cmd = ['ffmpeg', '-y', '-i', wrap_str(destination_video), '-i', wrap_str(audio_to_embed), '-c:v',
+                     'copy', '-map', '0:v:0', '-map', '1:a:0', '-shortest', wrap_str(outname)]
+    
+    ffmpeg_cmd(cmd) # creates '_w_audio.avi'
+    # replace destination_video with the one with the embedded audio
+    os.remove(audio_to_embed)
     os.remove(destination_video)
     os.rename(outname, destination_video)
 
@@ -1377,14 +1371,14 @@ class FFmpegError(Exception):
         self.message = message
 
 
-def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, stream=True, pipe=None):
+def ffmpeg_cmd(command, total_time=None, pb_prefix=None, print_cmd=False, stream=True, pipe=None):
     """
     Run an ffmpeg command in a subprocess and show progress using an MgProgressbar.
 
     Args:
         command (list): The ffmpeg command to execute as a list. Eg. ['ffmpeg', '-y', '-i', 'myVid.mp4', 'myVid.mov']
-        total_time (float): The length of the output. Needed mainly for the progress bar.
-        pb_prefix (str, optional): The prefix for the progress bar. Defaults to 'Progress'.
+        total_time (float, optional): The length of the output. Needed for the progress bar. Defaults to None.
+        pb_prefix (str, optional): The prefix for the progress bar. If set to None it won't use the progress bar. Defaults to 'Progress'.
         print_cmd (bool, optional): Whether to print the full ffmpeg command to the console before executing it. Good for debugging. Defaults to False.
         stream (bool, optional): Whether to have a continuous output stream or just (the last) one. Defaults to True (continuous stream).
         pipe (str, optional): Whether to pipe video frames from FFmpeg to numpy array. Possible to read the video frame by frame with pipe='read' or to load video in memory with pipe='load'. Defaults to None.
@@ -1394,10 +1388,12 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, strea
         FFmpegError: If the ffmpeg process was unsuccessful.
     """
     import subprocess
-    pb = MgProgressbar(total=total_time, prefix=pb_prefix)
+
+    if pb_prefix != None:
+        pb = MgProgressbar(total=total_time, prefix=pb_prefix)
 
     # hide banner
-    command = ['ffmpeg', '-hide_banner'] + command[1:]
+    command = ['ffmpeg', '-hide_banner', '-loglevel', 'quiet'] + command[1:]
 
     if print_cmd:
         if type(command) == list:
@@ -1422,7 +1418,7 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, strea
         returncode = None
         all_out = ''
 
-        try:
+        if pb_prefix == None:
             while True:
                 if stream:
                     out = process.stdout.readline()
@@ -1434,30 +1430,43 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, strea
                     process.wait()
                     returncode = process.returncode
                     break
-
-                elif out.startswith('frame='):
-                    try:
-                        out_list = out.split()
-                        time_ind = [elem.startswith('time=') for elem in out_list].index(True)
-                        time_str = out_list[time_ind][5:]
-                        time_sec = str2sec(time_str)
-                        pb.progress(time_sec)
-                    except ValueError:
-                        # New version of FFmpeg outputs N/A values
-                        pass
-
-            if returncode in [None, 0]:
-                pb.progress(total_time)
-            else:
-                raise FFmpegError(all_out)
-
-        except KeyboardInterrupt:
+        else:
             try:
-                process.terminate()
-            except OSError:
-                pass
-            process.wait()
-            raise KeyboardInterrupt
+                while True:
+                    if stream:
+                        out = process.stdout.readline()
+                    else:
+                        out = process.stdout.read()
+                    all_out += out
+
+                    if out == '':
+                        process.wait()
+                        returncode = process.returncode
+                        break
+
+                    elif out.startswith('frame='):
+                        try:
+                            out_list = out.split()
+                            time_ind = [elem.startswith('time=') for elem in out_list].index(True)
+                            time_str = out_list[time_ind][5:]
+                            time_sec = str2sec(time_str)
+                            pb.progress(time_sec)
+                        except ValueError:
+                            # New version of FFmpeg outputs N/A values
+                            pass
+
+                if returncode in [None, 0]:
+                    pb.progress(total_time)
+                else:
+                    raise FFmpegError(all_out)
+
+            except KeyboardInterrupt:
+                try:
+                    process.terminate()
+                except OSError:
+                    pass
+                process.wait()
+                raise KeyboardInterrupt
 
 
 def str2sec(time_string):
