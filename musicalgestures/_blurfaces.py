@@ -218,6 +218,8 @@ def mg_blurfaces(self,
         # Embed audio in the video file
         source_audio = extract_wav(of + fex)
         embed_audio_in_video(source_audio, target_name)
+        os.remove(source_audio)
+
     # Save warped video as blur_faces for parent MgVideo
     # we have to do this here since we are not using mg_blurfaces (that would normally save the result itself)
     self.blur_faces = musicalgestures.MgVideo(target_name, color=self.color, returned_by_process=True)
