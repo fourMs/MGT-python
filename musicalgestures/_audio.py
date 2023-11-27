@@ -25,7 +25,7 @@ class MgAudio:
     def __init__(
             self, 
             filename,
-            sr=22050,
+            sr=None,
             n_fft=2048, 
             hop_length=512,
             ):
@@ -34,19 +34,28 @@ class MgAudio:
 
         Args:
             filename (str): Path to the audio file. Passed by the parent MgAudio.
-            sr (int, optional): Sampling rate of the audio file. Defaults to 22050.
+            sr (int, optional): Sampling rate of the audio file. Possible to specify a target sampling rate. Defaults to None (i.e. original sampling rate).
             n_fft (int, optional): Length of the FFT window. Defaults to 2048.
             hop_length (int, optional): Number of samples between successive frames. Defaults to 512.
         """
         
         self.filename = filename
         self.of, self.fex = os.path.splitext(filename)
-        self.sr = sr
+        if sr == None:
+            self.sr = librosa.get_samplerate(self.filename)
+        else:
+            self.sr = sr
         self.n_fft = n_fft
         self.hop_length = hop_length
         self.length = get_length(self.filename)
 
     from musicalgestures._ssm import mg_ssm as ssm
+
+    def numpy(self):
+        "Read the original file of the MgAudio object as a numpy array using librosa."
+        self.y, self.sr = librosa.load(self.filename, sr=self.sr)
+        return self.y
+
 
     def format_time(self, ax, original_time=True, original_duration=None):
             """
@@ -156,7 +165,13 @@ class MgAudio:
             ax.imshow(y.image.astype('uint8'), interpolation='nearest')
             # Replace yticks with values between -1 and 1 for practicalities
             ax.yaxis.set_major_locator(ticker.LinearLocator(numticks=len(ax.get_yticks())))
-            ax.yaxis.set_major_formatter(ticker.FixedFormatter(list(np.round(np.linspace(processor.max_level,processor.min_level, len(ax.get_yticks())),1))))
+
+            if abs(processor.max_level) < 0.1 or abs(processor.min_level) < 0.1:
+                ax.yaxis.set_major_formatter(ticker.FixedFormatter(list(np.round(np.linspace(processor.max_level, processor.min_level, len(ax.get_yticks())),2))))
+            else:
+                print(abs(processor.max_level), abs(processor.min_level))
+                ax.yaxis.set_major_formatter(ticker.FixedFormatter(list(np.round(np.linspace(processor.max_level, processor.min_level, len(ax.get_yticks())),1))))
+
         else:
             # Adapt audio file plotting when skipping frames of a video file
             self.format_time(ax, original_time=original_time)
@@ -167,7 +182,7 @@ class MgAudio:
             fig.suptitle('')
             ax.axis('off')
 
-        fig.tight_layout()    
+        fig.tight_layout()
         plt.savefig(target_name, format='png', transparent=False)
 
         if not autoshow:
