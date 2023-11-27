@@ -44,13 +44,14 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
         if mode.lower() == 'windowed':
             # from musicalgestures._utils import wrap_str
             # cmd = f'ffplay {wrap_str(file)} -window_title {wrap_str(title)} -x {width} -y {height}'
-            cmd = ' '.join(map(str, ['ffplay', file, '-window_title', title, '-x', width, '-y', height]))
-            show_in_new_process(cmd)
+
+            video_to_display = os.path.realpath(file)
+            cmd = ' '.join(map(str, ['ffplay', video_to_display, '-window_title', title, '-x', width, '-y', height]))
+            show_in_new_process(cmd)            
 
         elif mode.lower() == 'notebook':
             from musicalgestures._utils import in_colab
-            video_formats = ['.avi', '.mp4', '.mov', '.mkv', '.mpg',
-                             '.mpeg', '.webm', '.ogg', '.ts', '.wmv', '.3gp']
+            video_formats = ['.avi', '.mp4', '.mov', '.mkv', '.mpg', '.mpeg', '.webm', '.ogg', '.ts', '.wmv', '.3gp']
             image_formats = ['.jpg', '.png', '.jpeg', '.tiff', '.gif', '.bmp']
             
             of, file_extension = os.path.splitext(file)
