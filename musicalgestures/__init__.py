@@ -25,6 +25,9 @@ class MgVideo(MgAudio):
     def __init__(
             self,
             filename,
+            array=None,
+            fps=None,
+            path=None,
             # Video parameters
             filtertype='Regular',
             thresh=0.05,
@@ -50,6 +53,9 @@ class MgVideo(MgAudio):
 
         Args:
             filename (str): Path to the video file.
+            array (np.ndarray, optional): Generates an MgVideo object from a video array. Defauts to None.
+            fps (float, optional): The frequency at which consecutive images from the video array are captured or displayed. Defauts to None.
+            path (str, optional): Path to save the output video file generated from a video array. Defaults to None.
             filtertype (str, optional): The `filtertype` parameter for the `motion()` method. `Regular` turns all values below `thresh` to 0. `Binary` turns all values below `thresh` to 0, above `thresh` to 1. `Blob` removes individual pixels with erosion method. Defaults to 'Regular'.
             thresh (float, optional): The `thresh` parameter for the `motion()` method. Eliminates pixel values less than given threshold. A number in the range of 0 to 1. Defaults to 0.05.
             starttime (int or float, optional): Trims the video from this start time (s). Defaults to 0.
@@ -64,13 +70,16 @@ class MgVideo(MgAudio):
             crop (str, optional): If 'manual', opens a window displaying the first frame of the input video file, where the user can draw a rectangle to which cropping is applied. If 'auto' the cropping function attempts to determine the area of significant motion and applies the cropping to that area. Defaults to 'None'. 
             keep_all (bool, optional): If True, preserves an output video file after each used preprocessing stage. Defaults to False.
             returned_by_process (bool, optional): This parameter is only for internal use, do not use it. Defaults to False.
-
+            
             sr (int, optional): Sampling rate of the audio file. Defaults to 22050.
             n_fft (int, optional): Length of the FFT window. Defaults to 2048.
             hop_length (int, optional): Number of samples between successive frames. Defaults to 512.
         """
 
         self.filename = filename
+        self.array = array
+        self.fps = fps
+        self.path = path
         # Name of file without extension (only-filename)
         self.of = os.path.splitext(self.filename)[0]
         self.fex = os.path.splitext(self.filename)[1]
@@ -94,9 +103,16 @@ class MgVideo(MgAudio):
         self.sr = sr
         self.n_fft = n_fft
         self.hop_length = hop_length 
-        
+
         self.test_input()
-        self.get_video()
+
+        if all(arg is not None for arg in [self.array, self.fps]):
+            if self.path is None:
+                self.path = os.getcwd()
+            self.from_numpy(self.array, self.fps, self.path)
+        else:
+            self.get_video()
+
         self.info()
         self.flow = Flow(self, self.filename, self.color, self.has_audio)
 
@@ -124,7 +140,7 @@ class MgVideo(MgAudio):
 
     def test_input(self):
         """Gives feedback to user if initialization from input went wrong."""
-        mg_input_test(self.filename, self.filtertype, self.thresh, self.starttime, self.endtime, self.blur, self.skip, self.frames)
+        mg_input_test(self.filename, self.array, self.fps, self.filtertype, self.thresh, self.starttime, self.endtime, self.blur, self.skip, self.frames)
 
     def info(self, type='video'):
         """Retrieves the information related to video, audio and format."""
@@ -192,6 +208,8 @@ class MgVideo(MgAudio):
     ##################################################
 
     def numpy(self):
+        import subprocess
+
         "Pipe all video frames from FFmpeg to numpy array"
         # Define ffmpeg command and pipe it
         cmd = ['ffmpeg', '-y', '-i', self.filename]
@@ -205,7 +223,27 @@ class MgVideo(MgAudio):
         except ValueError:
             pass
 
-        return array
+        return array, self.fps
+    
+    def from_numpy(self, array, fps, output_path):
+        import subprocess
+
+        # enforce avi
+        of, fex = os.path.splitext(self.filename)
+        self.filename = of + '.avi'
+        output_path = os.path.join(output_path, self.filename)
+        process = None
+        for frame in array:
+            if process is None:
+                cmd =['ffmpeg', '-y', '-s', '%dx%d' % (frame.shape[1], frame.shape[0]), '-r', str(fps),
+                    '-c:v', 'rawvideo', '-f', 'rawvideo', '-pix_fmt', 'bgr24', '-i', '-', output_path]
+                process = subprocess.Popen(cmd, stdin=subprocess.PIPE)
+            process.stdin.write(frame.tostring())
+        process.stdin.close()
+        process.wait()
+
+        # Save generated musicalgestures video as the video of the parent MgVideo
+        return self.get_video()
 
 
 class Examples:

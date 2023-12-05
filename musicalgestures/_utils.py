@@ -977,8 +977,7 @@ def extract_wav(filename, target_name=None, overwrite=False):
         print(f'{filename} is already in .wav container.')
         return filename
 
-    cmds = ' '.join(['ffmpeg', '-loglevel', 'quiet', '-y', '-i', wrap_str(filename), "-acodec",
-                     "pcm_s16le", wrap_str(target_name)])
+    cmds = ' '.join(['ffmpeg', '-loglevel', 'quiet', '-y', '-i', wrap_str(filename), "-acodec", "pcm_s16le", wrap_str(target_name)])
     os.system(cmds)
     return target_name
 
@@ -1407,13 +1406,13 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, strea
 
     if pipe == 'read':
         # Define ffmpeg command and read frame by frame
-        command = command + ['-f', 'image2pipe', '-pix_fmt', 'bgr24', '-vcodec', 'rawvideo', '-']
+        command = command + ['-f', 'image2pipe', '-pix_fmt', 'bgr24', '-vcodec', 'rawvideo', '-preset', 'ultrafast', '-']
         process = subprocess.Popen(command, stdout=subprocess.PIPE, bufsize=-1)
         return process
 
     elif pipe == 'load':
         # Define ffmpeg command and load all frames
-        command = command + ['-f', 'image2pipe', '-pix_fmt', 'bgr24', '-vcodec', 'rawvideo', '-']
+        command = command + ['-f', 'image2pipe', '-pix_fmt', 'bgr24', '-vcodec', 'rawvideo', '-preset', 'ultrafast', '-']
         process = subprocess.run(command, stdout=subprocess.PIPE, bufsize=-1)
         return process
 

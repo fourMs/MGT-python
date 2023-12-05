@@ -15,12 +15,14 @@ class InputError(Error):
         self.message = message
 
 
-def mg_input_test(filename, filtertype, thresh, starttime, endtime, blur, skip, frames):
+def mg_input_test(filename, array, fps, filtertype, thresh, starttime, endtime, blur, skip, frames):
     """
     Gives feedback to user if initialization from input went wrong.
 
     Args:
         filename (str): Path to the input video file.
+        array (np.ndarray, optional): Generates an MgVideo object from a video array. Defauts to None.
+        fps (float, optional): The frequency at which consecutive images from the video array are captured or displayed. Defauts to None.
         filtertype (str): 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method.
         thresh (float): A number in the range of 0 to 1. Eliminates pixel values less than given threshold.
         starttime (int/float): Trims the video from this start time (s).
@@ -36,6 +38,11 @@ def mg_input_test(filename, filtertype, thresh, starttime, endtime, blur, skip, 
     filenametest = type(filename) == str
 
     if filenametest:
+        if array is not None:
+            if fps is None:
+                msg = 'Please specify frame per second (fps) parameter for generating video from array.'
+                raise InputError(msg)
+
         if filtertype.lower() not in ['regular', 'binary', 'blob']:
             msg = 'Please specify a filter type as str: "Regular", "Binary" or "Blob"'
             raise InputError(msg)

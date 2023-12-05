@@ -1,10 +1,9 @@
-import os
+import os, subprocess
 import cv2
-import musicalgestures
-import matplotlib.pyplot as plt
+import numpy as np
 from musicalgestures._utils import MgImage, generate_outfilename, ffmpeg_cmd, get_length
 
-def mg_grid(self, height=300, rows=3, cols=3, padding=0, margin=0, target_name=None, overwrite=False):
+def mg_grid(self, height=300, rows=3, cols=3, padding=0, margin=0, target_name=None, overwrite=False, return_array=False):
     """
     Generates frame strip video preview using ffmpeg.
 
@@ -16,6 +15,7 @@ def mg_grid(self, height=300, rows=3, cols=3, padding=0, margin=0, target_name=N
         margin (int, optional): Margin size for the grid. Defaults to 0.
         target_name ([type], optional): Target output name for the grid image. Defaults to None.
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+        return_array (bool, optional): Whether to return an array of not. If set to False the function writes the grid image to disk. Defaults to False.
 
     Returns:
         MgImage: An MgImage object referring to the internal grid image.
@@ -36,13 +36,24 @@ def mg_grid(self, height=300, rows=3, cols=3, padding=0, margin=0, target_name=N
     nth_frame = int(nb_frames / (rows*cols))
 
     # Define the grid specifications
-    grid = f"select=not(mod(n\,{nth_frame})),scale=-1:{height},tile={cols}x{rows}:padding={padding}:margin={margin}"
-    
-    # Declare the ffmpeg command
-    cmd = ['ffmpeg', '-i', self.filename, '-y', '-frames', '1', '-q:v', '0', '-vf', grid, target_name]
-    ffmpeg_cmd(cmd, get_length(self.filename), pb_prefix='Rendering video frame grid:')
-    
-    # Initialize the MgImage object
-    img = MgImage(target_name)
+    width = int((float(self.width) / self.height) * height)
+    grid = f"select=not(mod(n\,{nth_frame})),scale={width}:{height},tile={cols}x{rows}:padding={padding}:margin={margin}"
 
-    return img
+    # Declare the ffmpeg commands
+    if return_array:
+        cmd = ['ffmpeg', '-y', '-i', self.filename, '-frames', '1', '-q:v', '0', '-vf', grid]
+        process = ffmpeg_cmd(cmd, get_length(self.filename), pb_prefix='Rendering video frame grid:', pipe='load')
+
+        if self.color:
+            array = np.frombuffer(process.stdout, dtype=np.uint8).reshape([-1, height*rows, int(width*cols), 3])
+        else:
+            array = np.frombuffer(process.stdout, dtype=np.uint8).reshape(-1, height*rows, int(width*cols))
+
+        return array
+    else:
+        cmd = ['ffmpeg', '-i', self.filename, '-y', '-frames', '1', '-q:v', '0', '-vf', grid, target_name]
+        ffmpeg_cmd(cmd, get_length(self.filename), pb_prefix='Rendering video frame grid:')
+        # Initialize the MgImage object
+        img = MgImage(target_name)
+
+        return img
