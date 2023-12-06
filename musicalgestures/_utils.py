@@ -659,7 +659,6 @@ def rotate_video(filename, angle, target_name=None, overwrite=False):
                pb_prefix=f"Rotating video by {angle} degrees:")
     return target_name
 
-
 def convert_to_grayscale(filename, target_name=None, overwrite=False):
     """
     Converts a video to grayscale using ffmpeg.
@@ -685,25 +684,8 @@ def convert_to_grayscale(filename, target_name=None, overwrite=False):
 
     cmds = ['ffmpeg', '-y', '-i', filename, '-vf',
             'hue=s=0', "-q:v", "3", "-c:a", "copy", target_name]
-    ffmpeg_cmd(cmds, get_length(filename),
-               pb_prefix='Converting to grayscale:')
+    ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Converting to grayscale:')
     return target_name
-
-def transform_frame(out, height, width, color):
-    import numpy as np
-
-    # transform the bytes read into a numpy array
-    frame =  np.frombuffer(out, dtype='uint8')
-    try:
-        if color:
-            frame = frame.reshape((height,width,3)) # height, width, channels
-        else:
-            frame = frame.reshape((height,width)) # height, width
-    except ValueError:
-        pass
-    
-    return frame
-
 
 def framediff_ffmpeg(filename, target_name=None, color=True, overwrite=False):
     """
@@ -1349,8 +1331,7 @@ def embed_audio_in_video(source_audio, destination_video, dilation_ratio=1):
 
     # dilate audio file if necessary (ie. when skipping)
     if dilation_ratio != 1:
-        audio_to_embed = audio_dilate(
-            source_audio, dilation_ratio)  # creates '_dilated.wav'
+        audio_to_embed = audio_dilate(source_audio, dilation_ratio)  # creates '_dilated.wav'
         dilated = True
     else:
         audio_to_embed = source_audio
@@ -1358,8 +1339,12 @@ def embed_audio_in_video(source_audio, destination_video, dilation_ratio=1):
 
     # embed audio in video
     outname = of + '_w_audio' + fex
-    cmds = ' '.join(['ffmpeg', '-loglevel', 'quiet', '-y', '-i', wrap_str(destination_video), '-i', wrap_str(audio_to_embed), '-c:v',
-                     'copy', '-map', '0:v:0', '-map', '1:a:0', '-shortest', wrap_str(outname)])
+
+    cmds = ' '.join(['ffmpeg', '-hide_banner', '-loglevel', 'quiet', '-y', 
+                     '-i', wrap_str(destination_video), '-i', wrap_str(audio_to_embed), 
+                     '-c:v', 'copy', '-map', '0:v:0', '-map', '1:a:0', 
+                     '-shortest', wrap_str(outname)])
+    
     os.system(cmds)  # creates '_w_audio.avi'
 
     # cleanup:

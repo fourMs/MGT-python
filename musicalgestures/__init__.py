@@ -107,12 +107,9 @@ class MgVideo(MgAudio):
         self.test_input()
 
         if all(arg is not None for arg in [self.array, self.fps]):
-            if self.path is None:
-                self.path = os.getcwd()
-            self.from_numpy(self.array, self.fps, self.path)
-        else:
-            self.get_video()
-
+            self.from_numpy(self.array, self.fps)
+        
+        self.get_video()
         self.info()
         self.flow = Flow(self, self.filename, self.color, self.has_audio)
 
@@ -218,29 +215,31 @@ class MgVideo(MgAudio):
 
         return array, self.fps
     
-    def from_numpy(self, array, fps, output_path):
+    def from_numpy(self, array, fps, target_name=None):
         import subprocess
 
-        # enforce avi
-        of, fex = os.path.splitext(self.filename)
-        self.filename = of + '.avi'
-        output_path = os.path.join(output_path, self.filename)
+        if target_name is not None:
+            self.filename = os.path.splitext(target_name)[0] + self.fex
+
+        if self.path is not None:
+            target_name = os.path.join(self.path, self.filename)
+        else:
+            target_name = self.filename
+
         process = None
         for frame in array:
             if process is None:
                 cmd =['ffmpeg', '-hide_banner', '-loglevel', 'quiet', '-y', 
-                      '-s', '%dx%d' % (frame.shape[1], frame.shape[0]), '-r', str(fps),
-                      '-c:v', 'rawvideo', '-f', 'rawvideo', '-pix_fmt', 'bgr24', 
-                      '-i', '-', output_path]
-                
-                # process = ffmpeg_cmd(cmd, total_time=self.length)
+                      '-s', '{}x{}'.format(frame.shape[1], frame.shape[0]), '-r', str(fps),
+                      '-f', 'rawvideo', '-pix_fmt', 'bgr24', '-vcodec', 'rawvideo', 
+                      '-i', '-', '-vcodec', 'libx264', '-pix_fmt', 'yuv420p', target_name]
+
                 process = subprocess.Popen(cmd, stdin=subprocess.PIPE)
-            process.stdin.write(frame.tostring())
+            process.stdin.write(frame.astype(np.uint8))
         process.stdin.close()
         process.wait()
 
-        # Save generated musicalgestures video as the video of the parent MgVideo
-        return self.get_video()
+        return
 
 
 class Examples:

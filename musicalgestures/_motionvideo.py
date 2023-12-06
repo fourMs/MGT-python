@@ -10,7 +10,7 @@ import subprocess
 from threading import Thread
 
 from musicalgestures._motionanalysis import centroid, area
-from musicalgestures._utils import extract_wav, transform_frame, embed_audio_in_video, frame2ms, ffmpeg_cmd, MgProgressbar, MgFigure, MgImage, motionvideo_ffmpeg, generate_outfilename
+from musicalgestures._utils import extract_wav, embed_audio_in_video, frame2ms, ffmpeg_cmd, MgProgressbar, MgFigure, MgImage, motionvideo_ffmpeg, generate_outfilename
 from musicalgestures._filter import filter_frame_ffmpeg
 from musicalgestures._mglist import MgList
 
@@ -97,12 +97,8 @@ def mg_motion(
         cmd += ['-filter_complex', cmd_filter] 
 
         if save_motiongrams:
-            if self.color:
-                gramx = np.zeros([1, self.width, 3]).astype(np.uint8)
-                gramy = np.zeros([self.height, 1, 3]).astype(np.uint8)
-            else:
-                gramx = np.zeros([1, self.width]).astype(np.uint8)
-                gramy = np.zeros([self.height, 1]).astype(np.uint8)  
+            gramx = np.zeros([1, self.width, 3]).astype(np.uint8)
+            gramy = np.zeros([self.height, 1, 3]).astype(np.uint8) 
 
         if save_data | save_plot:      
             time = np.array([]) # time in ms
@@ -111,7 +107,7 @@ def mg_motion(
             com = np.array([])  # centroid of motion
 
         if save_video:
-            if target_name_video == None:
+            if target_name_video is None:
                 target_name_video = of + '_motion' + fex
             # enforce avi
             else:
@@ -119,7 +115,8 @@ def mg_motion(
             if not overwrite:
                 target_name_video = generate_outfilename(target_name_video)
 
-            video_out = cv2.VideoWriter(target_name_video, cv2.VideoWriter_fourcc('M','J','P','G'), self.fps, (self.width, self.height))
+            video_out = []
+            # video_out = cv2.VideoWriter(target_name_video, cv2.VideoWriter_fourcc(*'XVID'), self.fps, (self.width, self.height))
 
         pgbar_text = 'Rendering motion' + ", ".join(np.array(["-video", "-grams", "-plots", "-data"])[
             np.array([save_video, save_motiongrams, save_plot, save_data])]) + ":" 
@@ -132,16 +129,14 @@ def mg_motion(
 
         while True:
             # Read frame-by-frame
-            if self.color:
-                out = process.stdout.read(self.width*self.height*3)
-            else:
-                out = process.stdout.read(self.width*self.height)
+            out = process.stdout.read(self.width*self.height*3)
+
             if out == b'':
                 pb.progress(self.length)
                 break
 
             # Transform the bytes read into a numpy array
-            motion_frame = transform_frame(out, self.height, self.width, self.color)
+            motion_frame = np.frombuffer(out, dtype=np.uint8).reshape([self.height, self.width, 3]) # height, width, channels
 
             if save_data | save_plot:
                 if motion_analysis.lower() == 'aom':
@@ -183,26 +178,24 @@ def mg_motion(
                         aom = np.append(aom, np.array(aombite).reshape(1, 4), axis=0)
 
             if save_motiongrams:
-                if self.color:
-                    movement_y = np.mean(motion_frame, axis=1).reshape(self.height, 1, 3).astype(np.uint8)
-                    movement_x = np.mean(motion_frame, axis=0).reshape(1, self.width, 3).astype(np.uint8)
-                else:
-                    movement_y = np.mean(motion_frame, axis=1).reshape(self.height, 1).astype(np.uint8)
-                    movement_x = np.mean(motion_frame, axis=0).reshape(1, self.width).astype(np.uint8)
+                movement_y = np.mean(motion_frame, axis=1).reshape(self.height, 1, 3).astype(np.uint8)
+                movement_x = np.mean(motion_frame, axis=0).reshape(1, self.width, 3).astype(np.uint8)
 
                 gramy = np.append(gramy, movement_y, axis=1).astype(np.uint8)
                 gramx = np.append(gramx, movement_x, axis=0).astype(np.uint8)
 
             if save_video:
-                def save(motion_frame, video_out, inverted_motionvideo):
-                    if inverted_motionvideo:
-                        video_out.write(cv2.bitwise_not(motion_frame.astype(np.uint8)))
-                    else:
-                        video_out.write(motion_frame.astype(np.uint8))
+                video_out.append(motion_frame.astype(np.uint8))
 
-                # Start threading for processing motion video        
-                t1 = Thread(target=save, args=(motion_frame, video_out, inverted_motionvideo))
-                t1.start()
+                # def save(motion_frame, video_out, inverted_motionvideo):
+                #     if inverted_motionvideo:
+                #         video_out.write(cv2.bitwise_not(motion_frame.astype(np.uint8)))
+                #     else:
+                #         video_out.write(motion_frame.astype(np.uint8))
+
+                # # Start threading for processing motion video        
+                # t1 = Thread(target=save, args=(motion_frame, video_out, inverted_motionvideo))
+                # t1.start()
             
             # Flush the buffer
             process.stdout.flush()
@@ -213,14 +206,6 @@ def mg_motion(
         process.terminate()
 
         if save_motiongrams:
-
-            if self.color == False:
-                # Normalize before converting to uint8 to keep precision
-                gramx = gramx/gramx.max()*255
-                gramy = gramy/gramy.max()*255
-                gramx = cv2.cvtColor(gramx.astype(np.uint8), cv2.COLOR_GRAY2RGB)
-                gramy = cv2.cvtColor(gramy.astype(np.uint8), cv2.COLOR_GRAY2RGB)
-
             gramx = (gramx-gramx.min())/(gramx.max()-gramx.min())*255.0
             gramy = (gramy-gramy.min())/(gramy.max()-gramy.min())*255.0
 
@@ -276,18 +261,20 @@ def mg_motion(
         np.seterr(divide='warn', invalid='warn')
 
         if save_video:
-            video_out.release()
-            destination_video = target_name_video
+            # Write array as a video file with FFmpeg
+            video_out = self.from_numpy(array=np.array(video_out), fps=self.fps, target_name=target_name_video)
+            
             if self.has_audio:
                 source_audio = extract_wav(of + fex)
-                embed_audio_in_video(source_audio, destination_video)
+                embed_audio_in_video(source_audio, target_name_video)
                 os.remove(source_audio)
-            # Save rendered motion video as the motion_video of the parent MgVideo
-            self.motion_video = musicalgestures.MgVideo(destination_video, color=self.color, returned_by_process=True)
+                
+            # Save generated musicalgestures video as the video of the parent MgVideo
+            self.motion_video = musicalgestures.MgVideo(filename=target_name_video, returned_by_process=True)
 
             return self.motion_video
+        
         else:
-            # Return musicalgestures.MgVideo(of + fex, color=self.color, returned_by_process=True)
             return self
 
     else:

@@ -13,7 +13,7 @@ import matplotlib as mpl
 import musicalgestures
 from musicalgestures._centerface import CenterFace
 from musicalgestures._filter import filter_frame_ffmpeg
-from musicalgestures._utils import MgProgressbar, MgImage, embed_audio_in_video, extract_wav, transform_frame, generate_outfilename, frame2ms, ffmpeg_cmd
+from musicalgestures._utils import MgProgressbar, MgImage, embed_audio_in_video, extract_wav, generate_outfilename, frame2ms, ffmpeg_cmd
 
 def scaling_mask(x1, y1, x2, y2, mask_scale=1.0):
     """
@@ -145,7 +145,7 @@ def mg_blurfaces(self,
             break
 
         # Transform the bytes read into a numpy array
-        frame = transform_frame(out, self.height, self.width, self.color)
+        frame = np.frombuffer(out, dtype=np.uint8).reshape([self.height, self.width, 3]) # height, width, channels
         frame = frame.copy() # copy frame for writing it
         
         h, w = frame.shape[:2]
