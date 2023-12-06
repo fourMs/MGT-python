@@ -208,20 +208,13 @@ class MgVideo(MgAudio):
     ##################################################
 
     def numpy(self):
-        import subprocess
-
         "Pipe all video frames from FFmpeg to numpy array"
+
         # Define ffmpeg command and pipe it
         cmd = ['ffmpeg', '-y', '-i', self.filename]
         process = ffmpeg_cmd(cmd, total_time=self.length, pipe='load')
-
-        try:
-            if self.color:
-                array = np.frombuffer(process.stdout, dtype=np.uint8).reshape(-1, self.height, self.width, 3)
-            else:
-                array = np.frombuffer(process.stdout, dtype=np.uint8).reshape(-1, self.height, self.width)
-        except ValueError:
-            pass
+        # Convert bytes to array
+        array = np.frombuffer(process.stdout, dtype=np.uint8).reshape(-1, self.height, self.width, 3)
 
         return array, self.fps
     
@@ -235,8 +228,12 @@ class MgVideo(MgAudio):
         process = None
         for frame in array:
             if process is None:
-                cmd =['ffmpeg', '-y', '-s', '%dx%d' % (frame.shape[1], frame.shape[0]), '-r', str(fps),
-                    '-c:v', 'rawvideo', '-f', 'rawvideo', '-pix_fmt', 'bgr24', '-i', '-', output_path]
+                cmd =['ffmpeg', '-hide_banner', '-loglevel', 'quiet', '-y', 
+                      '-s', '%dx%d' % (frame.shape[1], frame.shape[0]), '-r', str(fps),
+                      '-c:v', 'rawvideo', '-f', 'rawvideo', '-pix_fmt', 'bgr24', 
+                      '-i', '-', output_path]
+                
+                # process = ffmpeg_cmd(cmd, total_time=self.length)
                 process = subprocess.Popen(cmd, stdin=subprocess.PIPE)
             process.stdin.write(frame.tostring())
         process.stdin.close()
