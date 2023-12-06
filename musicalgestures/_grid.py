@@ -45,7 +45,7 @@ def mg_grid(self, height=300, rows=3, cols=3, padding=0, margin=0, target_name=N
         process = ffmpeg_cmd(cmd, get_length(self.filename), pb_prefix='Rendering video frame grid:', pipe='load')
 
         # Convert bytes to array and convert from BGR to RGB
-        array = np.frombuffer(process.stdout, dtype=np.uint8).reshape([-1, height*rows, int(width*cols), 3])[...,::-1] 
+        array = np.frombuffer(process.stdout, dtype=np.uint8).reshape([height*rows, int(width*cols), 3])[...,::-1] 
 
         return array
     else:
