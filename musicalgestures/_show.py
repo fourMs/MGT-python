@@ -9,7 +9,6 @@ from IPython.display import Video
 #     from IPython.core.display import Video
 from base64 import b64encode
 import musicalgestures
-from musicalgestures._utils import in_colab, convert_to_mp4
 # from musicalgestures._utils import get_widthheight
 
 
@@ -40,7 +39,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
         """
 
         # Check's if the environment is a Google Colab document
-        if in_colab():
+        if musicalgestures._utils.in_colab():
             mode = 'notebook'
 
         if mode.lower() == 'windowed':
@@ -70,7 +69,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                     
                     if "as_mp4" not in keys:
                         print('Only mp4, webm and ogg videos are supported in notebook mode.')
-                        video_to_display = convert_to_mp4(file)
+                        video_to_display = musicalgestures._utils.convert_to_mp4(file)
                         # register converted video as_mp4 for parent MgVideo
                         parent.as_mp4 = musicalgestures.MgVideo(video_to_display)
                     else:
