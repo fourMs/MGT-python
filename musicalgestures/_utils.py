@@ -1371,16 +1371,17 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, strea
         pb_prefix (str, optional): The prefix for the progress bar. Defaults to 'Progress'.
         print_cmd (bool, optional): Whether to print the full ffmpeg command to the console before executing it. Good for debugging. Defaults to False.
         stream (bool, optional): Whether to have a continuous output stream or just (the last) one. Defaults to True (continuous stream).
-        pipe (str, optional): Whether to pipe video frames from FFmpeg to numpy array. Possible to read the video frame by frame with pipe='read' or to load video in memory with pipe='load'. Defaults to None.
+        pipe (str, optional): Whether to pipe video frames from FFmpeg to numpy array. Possible to read the video frame by frame with pipe='read', to load video in memory with pipe='load', or to write the frames of a numpy array to a video file with pipe='write'. Defaults to None.
 
     Raises:
         KeyboardInterrupt: If the user stops the process.
         FFmpegError: If the ffmpeg process was unsuccessful.
     """
     import subprocess
+
     pb = MgProgressbar(total=total_time, prefix=pb_prefix)
 
-    # hide banner
+    # Hide banner and quiet report printing
     command = ['ffmpeg', '-hide_banner', '-loglevel', 'quiet'] + command[1:]
 
     if print_cmd:
@@ -1396,9 +1397,14 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, strea
         return process
 
     elif pipe == 'load':
-        # Define ffmpeg command and load all frames
+        # Define ffmpeg command and load all video frames in memory
         command = command + ['-f', 'image2pipe', '-pix_fmt', 'bgr24', '-vcodec', 'rawvideo', '-preset', 'ultrafast', '-']
         process = subprocess.run(command, stdout=subprocess.PIPE, bufsize=-1)
+        return process
+    
+    elif pipe == 'write':
+        # Write the frames of a numpy array to a video file
+        process = subprocess.Popen(command, stdin=subprocess.PIPE, bufsize=-1)
         return process
 
     else:

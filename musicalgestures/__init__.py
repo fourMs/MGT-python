@@ -104,6 +104,7 @@ class MgVideo(MgAudio):
         self.n_fft = n_fft
         self.hop_length = hop_length 
 
+        # Check input and if FFmpeg is properly installed
         self.test_input()
 
         if all(arg is not None for arg in [self.array, self.fps]):
@@ -188,7 +189,7 @@ class MgVideo(MgAudio):
                 # point of and fex to the mp4 version
                 self.of, self.fex = os.path.splitext(filename)
         else:
-            # update filename after the processes
+            # Update filename after the processes
             self.filename = self.of + self.fex
 
         # Check if there is audio in the video file
@@ -207,10 +208,10 @@ class MgVideo(MgAudio):
     def numpy(self):
         "Pipe all video frames from FFmpeg to numpy array"
 
-        # Define ffmpeg command and pipe it
+        # Define ffmpeg command and load all the video frames in memory
         cmd = ['ffmpeg', '-y', '-i', self.filename]
         process = ffmpeg_cmd(cmd, total_time=self.length, pipe='load')
-        # Convert bytes to array
+        # Convert bytes to numpy array
         array = np.frombuffer(process.stdout, dtype=np.uint8).reshape(-1, self.height, self.width, 3)
 
         return array, self.fps
@@ -229,12 +230,10 @@ class MgVideo(MgAudio):
         process = None
         for frame in array:
             if process is None:
-                cmd =['ffmpeg', '-hide_banner', '-loglevel', 'quiet', '-y', 
-                      '-s', '{}x{}'.format(frame.shape[1], frame.shape[0]), '-r', str(fps),
-                      '-f', 'rawvideo', '-pix_fmt', 'bgr24', '-vcodec', 'rawvideo', 
+                cmd =['ffmpeg', '-y', '-s', '{}x{}'.format(frame.shape[1], frame.shape[0]), 
+                      '-r', str(fps), '-f', 'rawvideo', '-pix_fmt', 'bgr24', '-vcodec', 'rawvideo', 
                       '-i', '-', '-vcodec', 'libx264', '-pix_fmt', 'yuv420p', target_name]
-
-                process = subprocess.Popen(cmd, stdin=subprocess.PIPE)
+                process = ffmpeg_cmd(cmd, total_time=array.shape[0], pipe='write')
             process.stdin.write(frame.astype(np.uint8))
         process.stdin.close()
         process.wait()
