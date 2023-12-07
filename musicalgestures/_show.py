@@ -9,6 +9,7 @@ from IPython.display import Video
 #     from IPython.core.display import Video
 from base64 import b64encode
 import musicalgestures
+from musicalgestures._utils import in_colab, convert_to_mp4
 # from musicalgestures._utils import get_widthheight
 
 
@@ -37,10 +38,11 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             mode (str, optional): 'windowed' will use ffplay (in a separate window), while 'notebook' will use Image or Video from IPython.display. Defaults to 'windowed'.
             title (str, optional): The title of the window. Defaults to 'Untitled'.
         """
-        if mode.lower() == 'windowed':
-            from musicalgestures._utils import in_colab
-            if in_colab():
-                mode = 'notebook'
+
+        # Check's if the environment is a Google Colab document
+        if in_colab():
+            mode = 'notebook'
+
         if mode.lower() == 'windowed':
             # from musicalgestures._utils import wrap_str
             # cmd = f'ffplay {wrap_str(file)} -window_title {wrap_str(title)} -x {width} -y {height}'
@@ -50,7 +52,6 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             show_in_new_process(cmd)            
 
         elif mode.lower() == 'notebook':
-            from musicalgestures._utils import in_colab
             video_formats = ['.avi', '.mp4', '.mov', '.mkv', '.mpg', '.mpeg', '.webm', '.ogg', '.ts', '.wmv', '.3gp']
             image_formats = ['.jpg', '.png', '.jpeg', '.tiff', '.gif', '.bmp']
             
@@ -60,20 +61,18 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                 file_type = 'video'
             elif file_extension in image_formats:
                 file_type = 'image'
+            
             if file_type == 'image':
-                display(Image(file))
-                
+                display(Image(file))    
             elif file_type == 'video':
                 if file_extension not in ['.mp4', '.webm', '.ogg']:
                     keys = parent.__dict__.keys()
                     
                     if "as_mp4" not in keys:
-                        from musicalgestures._utils import convert_to_mp4
                         print('Only mp4, webm and ogg videos are supported in notebook mode.')
                         video_to_display = convert_to_mp4(file)
                         # register converted video as_mp4 for parent MgVideo
                         parent.as_mp4 = musicalgestures.MgVideo(video_to_display)
-                        
                     else:
                         video_to_display = parent.as_mp4.filename
                 else:
@@ -190,6 +189,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             else:
                 raise FileNotFoundError(
                     "There is no known blended image for this file.")
+            
         elif key.lower() == 'plot':
             # filename = self.of + '_motion_com_qom.png'
             if "motion_plot" in keys:
@@ -274,7 +274,6 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                 show(file=filename, width=window_width,
                      height=window_height, mode=mode, title=f'Blur Faces Video | {filename}', parent=self)
 
-
         elif key.lower() == 'subtract':
             if "subtract" in keys:
                 filename = self.subtract.filename
@@ -282,8 +281,6 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                      height=window_height, mode=mode, title=f'Background Subtraction Video | {filename}', parent=self)
             else:
                 raise FileNotFoundError("There is no known subtract video for this file.")
-
-
 
         else:
             print("Unknown shorthand.\n",
