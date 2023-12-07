@@ -1,3 +1,5 @@
+import subprocess
+
 class Error(Exception):
     """Base class for exceptions in this module."""
     pass
@@ -34,6 +36,13 @@ def mg_input_test(filename, array, fps, filtertype, thresh, starttime, endtime, 
     Raises:
         InputError: If the types or options are wrong in the input.
     """
+
+    # Check if FFmpeg is installed
+    try:
+        subprocess.check_call(['ffmpeg', '-version'])
+    except:
+        msg = 'FFmpeg must be installed and accessible via the path environment variable.\nMore information on how to install FFmpeg: https://github.com/fourMs/MGT-python/wiki/0-%E2%80%90-Installation'
+        raise InputError(msg)
 
     filenametest = type(filename) == str
 
