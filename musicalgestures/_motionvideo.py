@@ -96,6 +96,7 @@ def mg_motion(
             cmd_filter = cmd_filter[: -1]
         cmd += ['-filter_complex', cmd_filter] 
 
+
         if save_motiongrams:
             gramx = np.zeros([1, self.width, 3]).astype(np.uint8)
             gramy = np.zeros([self.height, 1, 3]).astype(np.uint8) 
@@ -115,18 +116,15 @@ def mg_motion(
             if not overwrite:
                 target_name_video = generate_outfilename(target_name_video)
 
-            video_out = []
-            # video_out = cv2.VideoWriter(target_name_video, cv2.VideoWriter_fourcc(*'XVID'), self.fps, (self.width, self.height))
-
         pgbar_text = 'Rendering motion' + ", ".join(np.array(["-video", "-grams", "-plots", "-data"])[
             np.array([save_video, save_motiongrams, save_plot, save_data])]) + ":" 
         pb = MgProgressbar(total=self.length, prefix=pgbar_text)  
 
         # Pipe video with FFmpeg for reading frame by frame        
         process = ffmpeg_cmd(cmd, total_time=self.length, pipe='read')
+        video_out = None
 
         i = 0
-
         while True:
             # Read frame-by-frame
             out = process.stdout.read(self.width*self.height*3)
@@ -185,24 +183,25 @@ def mg_motion(
                 gramx = np.append(gramx, movement_x, axis=0).astype(np.uint8)
 
             if save_video:
-                video_out.append(motion_frame.astype(np.uint8))
+                if video_out is None:
+                    cmd =['ffmpeg', '-y', '-s', '{}x{}'.format(motion_frame.shape[1], motion_frame.shape[0]), 
+                        '-r', str(self.fps), '-f', 'rawvideo', '-pix_fmt', 'bgr24', '-vcodec', 'rawvideo', 
+                        '-i', '-', '-vcodec', 'libx264', '-pix_fmt', 'yuv420p', target_name_video]
+                    video_out = ffmpeg_cmd(cmd, total_time=self.length, pipe='write')
 
-                # def save(motion_frame, video_out, inverted_motionvideo):
-                #     if inverted_motionvideo:
-                #         video_out.write(cv2.bitwise_not(motion_frame.astype(np.uint8)))
-                #     else:
-                #         video_out.write(motion_frame.astype(np.uint8))
-
-                # # Start threading for processing motion video        
-                # t1 = Thread(target=save, args=(motion_frame, video_out, inverted_motionvideo))
-                # t1.start()
+                if inverted_motionvideo:
+                    video_out.stdin.write(cv2.bitwise_not(motion_frame.astype(np.uint8)))
+                else:
+                    video_out.stdin.write(motion_frame.astype(np.uint8))
             
             # Flush the buffer
             process.stdout.flush()
             pb.progress(i)
             i += 1
 
-        # Terminate the process
+        # Terminate the processes
+        video_out.stdin.close()
+        video_out.wait()
         process.terminate()
 
         if save_motiongrams:
@@ -257,13 +256,11 @@ def mg_motion(
             self.motion_plot = MgImage(save_analysis(of, self.fps, aom, com, qom, motion_analysis, audio_descriptors, self.width,
                                         self.height, unit, plot_title, target_name_plot=target_name_plot, overwrite=overwrite))
                 
-        # resetting numpy warnings for dividing by 0
+        # Resetting numpy warnings for dividing by 0
         np.seterr(divide='warn', invalid='warn')
 
         if save_video:
-            # Write array as a video file with FFmpeg
-            video_out = self.from_numpy(array=np.array(video_out), fps=self.fps, target_name=target_name_video)
-            
+            # Check if the original video fil has audio
             if self.has_audio:
                 source_audio = extract_wav(of + fex)
                 embed_audio_in_video(source_audio, target_name_video)
@@ -271,7 +268,6 @@ def mg_motion(
                 
             # Save generated musicalgestures video as the video of the parent MgVideo
             self.motion_video = musicalgestures.MgVideo(filename=target_name_video, returned_by_process=True)
-
             return self.motion_video
         
         else:
