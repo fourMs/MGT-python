@@ -10,11 +10,11 @@ The easiest way to get started is to take a look at the Jupyter notebook [Musica
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fourMs/MGT-python/blob/master/musicalgestures/MusicalGesturesToolbox.ipynb)
 
-The standard installation via pip: paste and execute the following code in the Terminal (OSX, Linux) or the PowerShell (Windows):
+The standard installation via `pip`: paste and execute the following code in the Terminal (OSX, Linux) or the PowerShell (Windows):
 
 `pip install musicalgestures`
 
-MGT is developed in Python 3 and relies on FFmpeg and OpenCV. See [the wiki](https://github.com/fourMs/MGT-python/wiki#installation) for more details on the installation process.
+MGT is developed in Python 3 and relies on `FFmpeg` and `OpenCV`. See the [wiki documentation](https://github.com/fourMs/MGT-python/wiki#installation) for more details on the installation process.
 
 ## Description
 
