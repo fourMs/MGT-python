@@ -70,8 +70,8 @@ def mg_info(self, type=None, autoshow=True, overwrite=False):
             ax.set_xlabel('Frame index')
             ax.set_ylabel('Size (bytes)')
             fig.tight_layout()
-
-        return df
+        else:
+            return df
 
     else:
         for i, info in enumerate(splitted):
