@@ -1004,52 +1004,6 @@ def ffprobe(filename):
         else:
             return out
 
-def get_metadata(filename):
-    """
-    Returns metadata about video/audio/format file using ffprobe.
-
-    Args:
-        filename (str): Path to the video file to measure.
-
-    Returns:
-        str: decoded ffprobe output (stdout) as a list containing three dictionaries for video, audio and format metadata.
-    """
-
-    import subprocess
-    # Get streams and format information (https://ffmpeg.org/ffprobe.html)
-    cmd = ["ffprobe", "-loglevel", "0", "-show_streams", "-show_format", filename]
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
-    try:
-        out, err = process.communicate(timeout=10)
-        splitted = out.split('\n')
-    except subprocess.TimeoutExpired:
-        process.kill()
-    out, err = process.communicate()
-    splitted = out.split('\n')
-
-    metadata = []
-    # Retrieve information and export it in a dictionary
-    for i, info in enumerate(splitted):
-        if info == "[STREAM]" or info == "[SIDE_DATA]" or info == "[FORMAT]":        
-            metadata.append(dict())
-            i +=1
-        elif info == "[/STREAM]" or info == "[/SIDE_DATA]" or info == "[/FORMAT]" or info == "":
-            i +=1
-        else:
-            try:
-                key, value = splitted[i].split('=')
-                metadata[-1][key] = value
-            except ValueError:
-                key = splitted[i]
-                metadata[-1][key] = ''
-
-    if len(metadata) > 3: 
-        # Merge video stream with side data dictionary
-        metadata[0] = {**metadata[0], **metadata[1]}
-        metadata.pop(1)
-
-    return metadata
-
 def get_widthheight(filename):
     """
     Gets the width and height of a video using FFprobe.

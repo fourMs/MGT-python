@@ -6,7 +6,8 @@ import matplotlib.ticker as ticker
 import matplotlib
 import numpy as np
 
-from musicalgestures._utils import MgFigure, get_length, generate_outfilename, get_metadata, has_audio
+from musicalgestures._utils import MgFigure, get_length, generate_outfilename, has_audio
+from musicalgestures._info import mg_info as info
 from musicalgestures._colored import MgAudioProcessor, MgWaveformImage
 
 # preventing librosa-matplotlib deadlock
@@ -72,9 +73,9 @@ class MgAudio:
                     original_duration = original_duration
                 else:
                     if original_time:
-                        original_duration = float(get_metadata(self.filename)[2]['TAG:title'])
+                        original_duration = float(info(self.filename)[2]['TAG:title'])
                     else:
-                        original_duration = float(get_metadata(self.filename)[2]['duration'])
+                        original_duration = float(info(self.filename)[2]['duration'])
             except:
                 return 
 

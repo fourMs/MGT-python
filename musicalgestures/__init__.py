@@ -5,7 +5,7 @@ from musicalgestures._videoreader import mg_videoreader
 from musicalgestures._flow import Flow
 from musicalgestures._audio import MgAudio 
 from musicalgestures._mglist import MgList
-from musicalgestures._utils import MgImage, MgFigure, get_metadata, convert, convert_to_mp4, get_framecount, ffmpeg_cmd
+from musicalgestures._utils import MgImage, MgFigure, convert, convert_to_mp4, get_framecount, ffmpeg_cmd
 
 
 class MgVideo(MgAudio):
@@ -111,7 +111,6 @@ class MgVideo(MgAudio):
             self.from_numpy(self.array, self.fps)
         
         self.get_video()
-        self.info()
         self.flow = Flow(self, self.filename, self.color, self.has_audio)
 
     from musicalgestures._motionvideo import mg_motion as motion
@@ -131,6 +130,7 @@ class MgVideo(MgAudio):
     from musicalgestures._motionvideo import save_analysis
     # from musicalgestures._cropvideo import mg_cropvideo, find_motion_box, find_total_motion_box
     from musicalgestures._show import mg_show as show
+    from musicalgestures._info import mg_info as info
     from musicalgestures._history import history_ffmpeg as history
     from musicalgestures._history import history_cv2
     from musicalgestures._blend import mg_blend_image as blend
@@ -139,19 +139,6 @@ class MgVideo(MgAudio):
     def test_input(self):
         """Gives feedback to user if initialization from input went wrong."""
         mg_input_test(self.filename, self.array, self.fps, self.filtertype, self.thresh, self.starttime, self.endtime, self.blur, self.skip, self.frames)
-
-    def info(self, type='video'):
-        """Retrieves the information related to video, audio and format."""
-        info = get_metadata(self.filename)
-
-        if type == 'video':
-            return info[0]
-        elif type == 'audio':
-            return info[1]
-        elif type == 'format':
-            return info[2]
-        else:
-            return info
 
     def get_video(self):
         """Creates a video attribute to the Musical Gestures object with the given correct settings."""
