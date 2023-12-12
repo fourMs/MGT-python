@@ -1,15 +1,18 @@
-import subprocess
+import os, subprocess
 import pandas as pd
 from matplotlib import pyplot as plt
 
+from musicalgestures._utils import convert_to_mp4
 
-def mg_info(self, type=None, plot=True):
+
+def mg_info(self, type=None, autoshow=True, overwrite=False):
     """
     Returns info about video/audio/format file using ffprobe.
 
     Args:
         type (str, optional): Type of information to retrieve. Possible choice are 'audio', 'video', 'format' or 'frame'. Defaults to None (which gives info about video, audio and format).
-        plot (bool, optional): Whether to plot the I/P/B frames of the video file or not. The type argument needs to be set to 'frame'. Defaults to True.
+        autoshow (bool, optional): Whether to show the I/P/B frames figure automatically. Defaults to True. NB: The type argument needs to be set to 'frame'.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
 
     Returns:
         str: decoded ffprobe output (stdout) as a list containing three dictionaries for video, audio and format metadata.
@@ -18,6 +21,10 @@ def mg_info(self, type=None, plot=True):
     # Get streams and format information (https://ffmpeg.org/ffprobe.html)
     cmd = ["ffprobe", "-hide_banner", "-loglevel", "quiet", "-show_streams", "-show_format", self.filename]
     if type == 'frame':
+        if self.fex != '.mp4':
+            # Convert video file to mp4 
+            self.filename = convert_to_mp4(self.of + self.fex, overwrite=overwrite)
+            self.of, self.fex = os.path.splitext(self.filename)
         cmd = ["ffprobe", "-hide_banner", "-loglevel", "quiet", "-v", "error", "-select_streams", "v:0", "-show_entries", "frame=pkt_size, pict_type", self.filename]
     
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
@@ -52,15 +59,19 @@ def mg_info(self, type=None, plot=True):
         
         df = pd.DataFrame.from_dict(ipb_frames)
 
-        if plot:
+        if autoshow:
             fig, ax = plt.subplots(figsize=(12,4), dpi=300)
+            fig.patch.set_facecolor('white') # make sure background is white
+            fig.patch.set_alpha(1)
+
             for i, (label, series) in enumerate(df.groupby('type')):
                 plot_frames(series, label, index=i)
             ax.legend(title='Frame')
             ax.set_xlabel('Frame index')
             ax.set_ylabel('Size (bytes)')
-        else:
-            return df
+            fig.tight_layout()
+
+        return df
 
     else:
         for i, info in enumerate(splitted):
