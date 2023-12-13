@@ -1285,6 +1285,8 @@ def quality_metrics(original, processed, metric=None):
             print(splitted[index].split("] ")[1])
         elif isinstance(item, str) and re.search('PSNR', item):
             print(splitted[index].split("] ")[1])
+        elif isinstance(item, str) and re.search('Conversion failed', item):
+            print(splitted[index])
 
 
 def audio_dilate(filename, dilation_ratio=1, target_name=None, overwrite=False):
