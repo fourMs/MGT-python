@@ -66,7 +66,12 @@ def mg_info(self, type=None, autoshow=True, overwrite=False):
 
             for i, (label, series) in enumerate(df.groupby('type')):
                 plot_frames(series, label, index=i)
-            ax.legend(title='Frame')
+
+            # Get handles and labels
+            handles, labels = plt.gca().get_legend_handles_labels()
+            order = [1,2,0] # specify order of items in legend       
+            # Add legend to plot
+            ax.legend([handles[idx] for idx in order],[labels[idx] for idx in order]) 
             ax.set_xlabel('Frame index')
             ax.set_ylabel('Size (bytes)')
             fig.tight_layout()
@@ -112,4 +117,4 @@ def plot_frames(df, label, color_list=['#636EFA','#00CC96','#EF553B'], index=0):
     xs = df['frame index']
     ys = df['size (bytes)']
     # Plot the bar plot
-    plt.bar(xs, ys, label=label, width=1, color=color_list[index])
+    plt.bar(xs, ys, label=label + '-Frames', width=1, color=color_list[index])
