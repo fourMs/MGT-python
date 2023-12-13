@@ -6,8 +6,7 @@ import os
 import librosa 
 import numpy as np
 import pandas as pd
-import subprocess
-from threading import Thread
+import subprocess, re
 
 from musicalgestures._motionanalysis import centroid, area
 from musicalgestures._utils import extract_wav, embed_audio_in_video, frame2ms, ffmpeg_cmd, MgProgressbar, MgFigure, MgImage, motionvideo_ffmpeg, generate_outfilename
@@ -95,7 +94,6 @@ def mg_motion(
             # Remove last comma after previous filter
             cmd_filter = cmd_filter[: -1]
         cmd += ['-filter_complex', cmd_filter] 
-
 
         if save_motiongrams:
             gramx = np.zeros([1, self.width, 3]).astype(np.uint8)
@@ -531,6 +529,19 @@ def mg_motionplots(
 
     # mg_motion also saves the plot as an MgImage to self.motion_plot of the parent MgVideo
     return MgImage(target_name)
+
+def mg_motionscore(self):
+    # Obtain the average vmaf motion score of a video using FFmpeg
+    cmd = ['ffmpeg', '-i', self.filename, '-vf', 'vmafmotion', '-f', 'null', '-']
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+    out, _ = process.communicate()
+    splitted = out.split('\n')
+
+    for index, item in enumerate(splitted):
+        if isinstance(item, str) and re.search('VMAF', item):
+            vmafmotion = float(re.findall(r'\d+\.\d+', splitted[index].split("] ")[1])[0])
+            return print('Average VMAF motion score:', vmafmotion)
+    print('VMAF motion score is not available.')
 
 
 def save_analysis(of, fps, aom, com, qom, motion_analysis, audio_descriptors, width, height, unit, title, target_name_plot, overwrite):

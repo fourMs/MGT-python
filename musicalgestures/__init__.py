@@ -114,11 +114,12 @@ class MgVideo(MgAudio):
         self.flow = Flow(self, self.filename, self.color, self.has_audio)
 
     from musicalgestures._motionvideo import mg_motion as motion
-    from musicalgestures._motionvideo_mp_run import mg_motion_mp as motion_mp
     from musicalgestures._motionvideo import mg_motiongrams as motiongrams
     from musicalgestures._motionvideo import mg_motiondata as motiondata
     from musicalgestures._motionvideo import mg_motionplots as motionplots
     from musicalgestures._motionvideo import mg_motionvideo as motionvideo
+    from musicalgestures._motionvideo import mg_motionscore as motionscore
+    from musicalgestures._motionvideo_mp_run import mg_motion_mp as motion_mp
     from musicalgestures._subtract import mg_subtract as subtract
     from musicalgestures._ssm import mg_ssm as ssm
     from musicalgestures._videograms import videograms_ffmpeg as videograms
