@@ -1240,6 +1240,53 @@ def get_box_video_ratio(filename, box_width=800, box_height=600):
     return smallest_ratio
 
 
+def quality_metrics(original, processed, metric=None):
+    """
+    Compute video quality metrics between two video files for comparing the quality of video codecs or measuring the efficacy of encoding configuration.
+    Possible to compute three major video quality metrics used for objective evaluation, namely:
+    
+    - PSNR: It is the most commonly used video quality metric. But it has the lowest predictive value, so the results are inconsistent. 
+      Used by major platforms like Netflix and Facebook to compare different codecs and for similar use cases. Overall usage is declining.
+    - SSIM: Mostly used by technical experts like codec researchers and compression engineers. 
+      Usage is declining steadily. However, it has a higher predictive value than PSNR.
+    - VMAF: Introduced first by Netflix but then converted into an open-source asset. VMAF is easily accessible and widely used. 
+      Designed specifically for evaluating the video quality of streams encoded for multiple-resolution rungs.
+
+    Args:
+        original (str): Path to the original/reference video file.
+        processed (str): Path to the processed/distorted video file.
+        metric (str, optional): Type of quality metric to compute ('vmaf', 'ssim', or 'psnr'). Defaults to None (which computes all the metrics).
+    
+    """
+    import subprocess, re
+
+    if metric is None: # compute all the video quality metrics (VMAF, SSIM and PSNR)
+        cmd = ['ffmpeg', '-i', processed, '-i', original, '-lavfi', 'libvmaf', '-lavfi', "[0][1]ssim;[0][1]psnr", '-f', 'null', '-']
+    elif metric == 'vmaf'.lower(): # compute the VMAF score
+        cmd = ['ffmpeg', '-i', processed, '-i', original, '-lavfi', 'libvmaf', '-f', 'null', '-']
+    elif metric == 'ssim'.lower(): # compute the SSIM score
+        cmd = ['ffmpeg', '-i', processed, '-i', original, '-lavfi', 'ssim', '-f', 'null', '-']
+    elif metric == 'psnr'.lower(): # compute the PSNR score
+        cmd = ['ffmpeg', '-i', processed, '-i', original, '-lavfi', 'psnr', '-f', 'null', '-']
+    else:
+        print(f"The metric {metric} is not available in the toolbox. Please refer to the following metrics 'vmaf', 'ssim' or 'psnr'.")
+        return
+
+    # Run the FFmpeg command using subprocess
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+    out, _ = process.communicate() # read data from stdout and stderr, until end-of-file is reached
+    splitted = out.split('\n') # split output
+
+    # Check if string is present in each string in the list using enumerate
+    for index, item in enumerate(splitted):
+        if isinstance(item, str) and re.search('VMAF', item):
+            print(splitted[index].split("] ")[1])
+        elif isinstance(item, str) and re.search('SSIM', item):
+            print(splitted[index].split("] ")[1])
+        elif isinstance(item, str) and re.search('PSNR', item):
+            print(splitted[index].split("] ")[1])
+
+
 def audio_dilate(filename, dilation_ratio=1, target_name=None, overwrite=False):
     """
     Time-stretches or -shrinks (dilates) an audio file using ffmpeg.
