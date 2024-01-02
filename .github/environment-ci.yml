@@ -15,7 +15,6 @@ dependencies:
   - ipython>=7.12
 
   # optional, but required for testing
-  - pytest-mpl
-  - pytest-cov
   - pytest
+  - pytest-cov
   - ffmpeg
