@@ -11,6 +11,11 @@ jobs:
 
     steps:  
       - uses: actions/checkout@v3  
+
+      - name: Install FFmpeg and FFprobe
+        uses: FedericoCarboni/setup-ffmpeg@v2
+        id: setup-ffmpeg
+
       - name: Set up Python ${{ matrix.python-version }}  
         uses: actions/setup-python@v4  
         with:  
@@ -23,13 +28,11 @@ jobs:
       - name: Lint with Ruff  
         run: |  
           pip install ruff  
-          ruff --format=github --target-version=py310 .  
+          ruff --output-format=github  
         continue-on-error: true  
 
-      - name: Test with pytest  
-        run: |  
+      - name: Test with pytest
+        shell: bash -l {0}
+        run: |
           pip install pytest pytest-cov
-          coverage run -m pytest  -v -s  
-      - name: Generate Coverage Report  
-        run: |  
-          coverage report -m
+          python -m pytest --import-mode=append tests/
