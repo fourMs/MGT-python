@@ -1,8 +1,4 @@
 import musicalgestures
-import os
-
-print(os.getcwd())
-
 
 # CREATE MODULE OBJECT: Here is an example call to create an MgVideo, using loads of parameters
 mg = musicalgestures.MgVideo('./dancer.avi', starttime=2,

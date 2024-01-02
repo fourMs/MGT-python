@@ -23,8 +23,8 @@ jobs:
     - uses: actions/checkout@v3
     - uses: FedericoCarboni/setup-ffmpeg@v2
       id: setup-ffmpeg
-      with:
-        submodules: true
+    - run: ffmpeg -version
+    - run: ffprobe -version
 
     - name: Install Conda environment
       uses: conda-incubator/setup-miniconda@v3
