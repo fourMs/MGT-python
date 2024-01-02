@@ -1,0 +1,35 @@
+name: Run Test with Pytest
+
+on: [push]
+
+jobs:  
+  build:  
+    runs-on: ubuntu-latest  
+    strategy:  
+      matrix:  
+        python-version: ["3.10"] 
+
+    steps:  
+      - uses: actions/checkout@v3  
+      - name: Set up Python ${{ matrix.python-version }}  
+        uses: actions/setup-python@v4  
+        with:  
+          python-version: ${{ matrix.python-version }}  
+
+      - name: Install musicalgestures
+        shell: bash -l {0}
+        run: python -m pip install musicalgestures
+
+      - name: Lint with Ruff  
+        run: |  
+          pip install ruff  
+          ruff --format=github --target-version=py310 .  
+        continue-on-error: true  
+
+      - name: Test with pytest  
+        run: |  
+          pip install pytest pytest-cov
+          coverage run -m pytest  -v -s  
+      - name: Generate Coverage Report  
+        run: |  
+          coverage report -m

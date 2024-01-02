@@ -9,7 +9,7 @@ on:
     - master
 
 jobs:
-  test:
+  build:
     name: "Python ${{ matrix.python-version }} on ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
 
@@ -21,7 +21,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - uses: FedericoCarboni/setup-ffmpeg@v2
+    - name: Install FFmpeg and FFprobe
+      uses: FedericoCarboni/setup-ffmpeg@v2
       id: setup-ffmpeg
 
     - name: Install Conda environment
@@ -44,4 +45,4 @@ jobs:
       shell: bash -l {0}
       run: |
         pip install pytest pytest-cov
-        python -m pytest
+        python -m pytest --import-mode=append tests/
