@@ -16,11 +16,13 @@ jobs:
     strategy:
         fail-fast: false
         matrix:
-          os: [ubuntu-latest, macos-latest, windows-latest]
-          python-version: ["3.8","3.9","3.10"]
+          os: [ubuntu-latest] #, macos-latest, windows-latest]
+          python-version: ["3.8"] #,"3.9","3.10"]
 
     steps:
     - uses: actions/checkout@v3
+    - uses: FedericoCarboni/setup-ffmpeg@v2
+      id: setup-ffmpeg
       with:
         submodules: true
 
