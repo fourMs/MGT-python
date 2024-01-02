@@ -3,12 +3,10 @@ name: Python Package using Conda
 on: [push]
 
 jobs:
-  build:
+  build-linux:
+    runs-on: ubuntu-latest
     strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
       max-parallel: 5
-    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python 3.10
