@@ -29,7 +29,9 @@ def testvideo_avi_silent(tmp_path_factory):
 
 class Test_Audio:
     def test_init(self):
-        my_audio = MgAudio(musicalgestures.examples.dance)
+        my_audio = Audio("testfile.avi")
+        assert my_audio.filename == "testfile.avi"
+        assert my_audio.of == "testfile"
         assert my_audio.fex == ".avi"
 
 class Test_Audio_Waveform:
