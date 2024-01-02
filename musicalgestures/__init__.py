@@ -4,8 +4,7 @@ from musicalgestures._input_test import mg_input_test
 from musicalgestures._videoreader import mg_videoreader
 from musicalgestures._flow import Flow
 from musicalgestures._audio import MgAudio 
-from musicalgestures._mglist import MgList
-from musicalgestures._utils import MgImage, MgFigure, convert, convert_to_mp4, get_framecount, ffmpeg_cmd
+from musicalgestures._utils import convert, convert_to_mp4, get_framecount, ffmpeg_cmd
 
 
 class MgVideo(MgAudio):
@@ -205,8 +204,6 @@ class MgVideo(MgAudio):
         return array, self.fps
     
     def from_numpy(self, array, fps, target_name=None):
-        import subprocess
-
         if target_name is not None:
             self.filename = os.path.splitext(target_name)[0] + self.fex
 

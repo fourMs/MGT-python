@@ -10,12 +10,12 @@ from musicalgestures._utils import MgFigure, get_length, generate_outfilename, h
 from musicalgestures._info import mg_info as info
 from musicalgestures._colored import MgAudioProcessor, MgWaveformImage
 
+import warnings
+warnings.filterwarnings("ignore")
+
 # preventing librosa-matplotlib deadlock
 plt.plot()
 plt.close()
-
-import warnings
-warnings.filterwarnings("ignore")
 
 
 class MgAudio:
@@ -42,7 +42,7 @@ class MgAudio:
         
         self.filename = filename
         self.of, self.fex = os.path.splitext(filename)
-        if sr == None:
+        if sr is None:
             self.sr = librosa.get_samplerate(self.filename)
         else:
             self.sr = sr
@@ -69,7 +69,7 @@ class MgAudio:
             """
             # Get original duration from video file
             try:
-                if original_duration != None:
+                if original_duration is not None:
                     original_duration = original_duration
                 else:
                     if original_time:
@@ -123,7 +123,7 @@ class MgAudio:
             print('The video has no audio track.')
             return
 
-        if target_name == None:
+        if target_name is None:
             target_name = self.of + '_waveform.png'
         else:
             #enforce png
@@ -153,7 +153,7 @@ class MgAudio:
         fig.patch.set_alpha(1)
 
         # add title
-        if title == None:
+        if title is None:
             title = ''
         if title == 'filename':
             title = os.path.basename(self.filename)
@@ -233,7 +233,7 @@ class MgAudio:
             print('The video has no audio track.')
             return
 
-        if target_name == None:
+        if target_name is None:
             target_name = self.of + '_spectrogram.png'
         else:
             # enforce png
@@ -251,7 +251,7 @@ class MgAudio:
         fig.patch.set_alpha(1)
 
         # Add title
-        if title == None:
+        if title is None:
             title = ''
         if title == 'filename':
             title = os.path.basename(self.filename)
@@ -339,7 +339,7 @@ class MgAudio:
             print('The video has no audio track.')
             return
 
-        if target_name == None:
+        if target_name is None:
             target_name = self.of + '_tempogram.png'
         else:
             #enforce png
@@ -363,7 +363,7 @@ class MgAudio:
         fig.patch.set_alpha(1)
 
         # add title
-        if title == None:
+        if title is None:
             title = ''
         if title == 'filename':
             title = os.path.basename(self.filename)
@@ -446,7 +446,7 @@ class MgAudio:
             print('The video has no audio track.')
             return
 
-        if target_name == None:
+        if target_name is None:
             target_name = self.of + '_hpss.png'
         else:
             #enforce png
@@ -496,7 +496,7 @@ class MgAudio:
         fig.patch.set_alpha(1)
 
         # add title
-        if title == None:
+        if title is None:
             title = ''
         if title == 'filename':
             title = os.path.basename(self.filename)
@@ -589,7 +589,7 @@ class MgAudio:
             print('The video has no audio track.')
             return
 
-        if target_name == None:
+        if target_name is None:
             target_name = self.of + '_descriptors.png'
         else:
             #enforce png
@@ -622,13 +622,13 @@ class MgAudio:
         fig.patch.set_alpha(1)
 
         # add title
-        if title == None:
+        if title is None:
             title = ''
         if title == 'filename':
             title = os.path.basename(self.filename)
         fig.suptitle(title, fontsize=16)
 
-        img = librosa.display.specshow(librosa.power_to_db(
+        librosa.display.specshow(librosa.power_to_db(
             S, ref=np.max, top_db=120), sr=sr, y_axis='mel', fmin=fmin, fmax=fmax, x_axis='time', hop_length=self.hop_length, ax=ax[2])
 
         # get rid of "default" ticks
