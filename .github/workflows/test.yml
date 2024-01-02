@@ -31,9 +31,9 @@ jobs:
           ruff --output-format=github  
         continue-on-error: true  
 
-      ############ TODO ############
-      # - name: Test with pytest
-      #   shell: bash -l {0}
-      #   run: |
-      #     pip install pytest pytest-cov
-      #     python -m pytest --import-mode=append tests/
+      ########### TODO ############
+      - name: Test with pytest
+        shell: bash -l {0}
+        run: |
+          pip install pytest pytest-cov
+          python -m pytest 
