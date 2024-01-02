@@ -1,0 +1,21 @@
+name: musicalgestures-dev
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  # required
+  - pip
+  - numpy
+  - pandas
+  - matplotlib
+  - opencv-python
+  - scipy
+  - scikit-image
+  - librosa
+  - ipython>=7.12
+
+  # optional, but required for testing
+  - pytest-mpl
+  - pytest-cov
+  - pytest
+  - ffmpeg
