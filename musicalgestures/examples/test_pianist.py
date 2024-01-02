@@ -1,7 +1,7 @@
 import musicalgestures
 
 # CREATE MODULE OBJECT: Here is an example call to create an MgVideo, using loads of parameters
-mg = musicalgestures.MgVideo('pianist.avi', color=False, crop='auto', skip=3)
+mg = musicalgestures.MgVideo(musicalgestures.example.pianist, color=False, crop='auto', skip=3)
 # USE MODULE METHOD: To run the motionvideo analysis, run the function using your video object,
 # then create the motion history by chaining the history() function onto the result of the previous (motion) function
 mg.motion(inverted_motionvideo=True, inverted_motiongram=True,
