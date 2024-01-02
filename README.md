@@ -1,4 +1,5 @@
 # MGT-python
+[![CI](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml/badge.svg)](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml)
 
 The Musical Gestures Toolbox for Python is a collection of tools for visualization and analysis of audio and video.
 
