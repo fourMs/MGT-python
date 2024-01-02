@@ -10,6 +10,9 @@ on:
 
 jobs:
   test:
+    name: "Python ${{ matrix.python-version }} on ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
+
       strategy:
           fail-fast: false
           matrix:
@@ -18,30 +21,27 @@ jobs:
             channel-priority: "strict"
             envfile: ".github/environment-ci.yml"
 
-    name: "Python ${{ matrix.python-version }} on ${{ matrix.os }}"
-    runs-on: ${{ matrix.os }}
+      steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
 
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        submodules: true
+      - name: Install Conda environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: ${{ matrix.python-version }}
 
-    - name: Install Conda environment
-      uses: conda-incubator/setup-miniconda@v3
-      with:
-        auto-update-conda: true
-        python-version: ${{ matrix.python-version }}
+      - name: Conda info
+        shell: bash -l {0}
+        run: |
+          conda info -a
+          conda list
 
-    - name: Conda info
-      shell: bash -l {0}
-      run: |
-        conda info -a
-        conda list
+      - name: Install musicalgestures
+        shell: bash -l {0}
+        run: python -m pip install musicalgestures
 
-    - name: Install musicalgestures
-      shell: bash -l {0}
-      run: python -m pip install musicalgestures
-
-    - name: Run pytest
-      shell: bash -l {0}
-      run: pytest
+      - name: Run pytest
+        shell: bash -l {0}
+        run: pytest
