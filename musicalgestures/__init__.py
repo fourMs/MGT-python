@@ -182,6 +182,8 @@ class MgVideo(MgAudio):
         # Check if there is audio in the video file
         if self.has_audio:
             self.audio = MgAudio(self.filename, self.sr, self.n_fft, self.hop_length)
+        else:
+            self.audio = None
 
     def __repr__(self):
         return f"MgVideo('{self.filename}')"

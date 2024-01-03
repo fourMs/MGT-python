@@ -247,15 +247,15 @@ class MgAudio:
             y=y, sr=sr, n_mels=n_mels, n_fft=self.n_fft, hop_length=self.hop_length, power=power, fmin=fmin, fmax=fmax)
 
         fig, ax = plt.subplots(figsize=(12, 4), dpi=dpi)
-        fig.patch.set_facecolor('white') # make sure background is white
-        fig.patch.set_alpha(1)
-
         # Add title
         if title is None:
             title = ''
         if title == 'filename':
             title = os.path.basename(self.filename)
         fig.suptitle(title, fontsize=16)
+        
+        fig.patch.set_facecolor('white') # make sure background is white
+        fig.patch.set_alpha(1)
 
         # Display spectrogram
         img = librosa.display.specshow(librosa.power_to_db(S, ref=np.max, top_db=top_db), 
@@ -592,7 +592,7 @@ class MgAudio:
         if target_name is None:
             target_name = self.of + '_descriptors.png'
         else:
-            #enforce png
+            # enforce png
             target_name = os.path.splitext(target_name)[0] + '.png'
         if not overwrite:
             target_name = generate_outfilename(target_name)
@@ -614,19 +614,18 @@ class MgAudio:
         
         S = librosa.feature.melspectrogram(
             y=y, sr=sr, n_mels=n_mels, n_fft=self.n_fft, hop_length=self.hop_length, power=power, fmin=fmin, fmax=fmax)
-
+        
         fig, ax = plt.subplots(figsize=(12, 8), dpi=dpi, nrows=3, sharex=True)
-
-        # make sure background is white
-        fig.patch.set_facecolor('white')
-        fig.patch.set_alpha(1)
-
         # add title
         if title is None:
             title = ''
         if title == 'filename':
             title = os.path.basename(self.filename)
         fig.suptitle(title, fontsize=16)
+
+        # make sure background is white
+        fig.patch.set_facecolor('white')
+        fig.patch.set_alpha(1)
 
         librosa.display.specshow(librosa.power_to_db(
             S, ref=np.max, top_db=120), sr=sr, y_axis='mel', fmin=fmin, fmax=fmax, x_axis='time', hop_length=self.hop_length, ax=ax[2])
@@ -677,9 +676,9 @@ class MgAudio:
         self.format_time(ax[2], original_time)
         
         plt.tight_layout()
-        if autoshow:
-            plt.savefig(target_name, format='png', transparent=False)
-        else:
+        plt.savefig(target_name, format='png', transparent=False)
+
+        if not autoshow:
             plt.close()
 
         # create MgFigure
