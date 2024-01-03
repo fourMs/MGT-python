@@ -1,39 +1,39 @@
-# name: Run Test with Pytest
+name: Run Test with Pytest
 
-# on: [push]
+on: [push]
 
-# jobs:  
-#   build:  
-#     runs-on: ubuntu-latest  
-#     strategy:  
-#       matrix:  
-#         python-version: ["3.10"] 
+jobs:  
+  build:  
+    runs-on: ubuntu-latest  
+    strategy:  
+      matrix:  
+        python-version: ["3.10"] 
 
-#     steps:  
-#       - uses: actions/checkout@v3  
+    steps:  
+      - uses: actions/checkout@v3  
 
-#       - name: Install FFmpeg and FFprobe
-#         uses: FedericoCarboni/setup-ffmpeg@v2
-#         id: setup-ffmpeg
+      - name: Install FFmpeg and FFprobe
+        uses: FedericoCarboni/setup-ffmpeg@v2
+        id: setup-ffmpeg
 
-#       - name: Set up Python ${{ matrix.python-version }}  
-#         uses: actions/setup-python@v4  
-#         with:  
-#           python-version: ${{ matrix.python-version }}  
+      - name: Set up Python ${{ matrix.python-version }}  
+        uses: actions/setup-python@v4  
+        with:  
+          python-version: ${{ matrix.python-version }}  
 
-#       - name: Install musicalgestures
-#         shell: bash -l {0}
-#         run: python -m pip install musicalgestures
+      - name: Install musicalgestures
+        shell: bash -l {0}
+        run: python -m pip install musicalgestures
 
-#       - name: Lint with Ruff  
-#         run: |  
-#           pip install ruff  
-#           ruff --output-format=github  
-#         continue-on-error: true  
+      - name: Lint with Ruff  
+        run: |  
+          pip install ruff  
+          ruff --output-format=github  
+        continue-on-error: true  
 
-      ########### TODO ############
-      # - name: Test with pytest
-      #   shell: bash -l {0}
-      #   run: |
-      #     pip install pytest
-      #     python -m pytest -v
+      ########## TODO ############
+      - name: Test with pytest
+        shell: bash -l {0}
+        run: |
+          pip install pytest
+          python -m pytest -v

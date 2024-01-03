@@ -1,8 +1,8 @@
 # MGT-python
 [![PyPi version](https://badgen.net/pypi/v/musicalgestures/)](https://pypi.org/project/musicalgestures)
 [![GitHub license](https://img.shields.io/github/license/fourMs/MGT-python.svg)](https://github.com/fourMs/MGT-python/blob/master/LICENSE)
-[![Github all releases](https://img.shields.io/github/downloads/fourMs/MGT-python/total.svg)]()
 [![CI](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml/badge.svg)](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml)
+[![Documentation Status](https://readthedocs.org/projects/mgt-python/badge/?version=latest)](https://mgt-python.readthedocs.io/en/latest/?badge=latest)
 
 The Musical Gestures Toolbox for Python is a collection of tools for visualization and analysis of audio and video.
 
