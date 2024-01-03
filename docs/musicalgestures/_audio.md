@@ -7,24 +7,25 @@
         - [MgAudio().descriptors](#mgaudiodescriptors)
         - [MgAudio().format_time](#mgaudioformat_time)
         - [MgAudio().hpss](#mgaudiohpss)
+        - [MgAudio().numpy](#mgaudionumpy)
         - [MgAudio().spectrogram](#mgaudiospectrogram)
         - [MgAudio().tempogram](#mgaudiotempogram)
         - [MgAudio().waveform](#mgaudiowaveform)
 
 ## MgAudio
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L20)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L21)
 
 ```python
 class MgAudio():
-    def __init__(filename, sr=22050, n_fft=2048, hop_length=512):
+    def __init__(filename, sr=None, n_fft=2048, hop_length=512):
 ```
 
 Class container for audio analysis processes.
 
 ### MgAudio().descriptors
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L553)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L569)
 
 ```python
 def descriptors(
@@ -62,7 +63,7 @@ Renders a figure of plots showing spectral/loudness descriptors, including RMS e
 
 ### MgAudio().format_time
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L51)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L61)
 
 ```python
 def format_time(ax, original_time=True, original_duration=None):
@@ -78,7 +79,7 @@ Format time for audio plotting of video file. This is useful if one wants to plo
 
 ### MgAudio().hpss
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L403)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L419)
 
 ```python
 def hpss(
@@ -126,9 +127,19 @@ margin (float or tuple, optional): Margin size(s) for the masks (as described in
 
 - `MgFigure` - An MgFigure object referring to the internal figure and its data.
 
+### MgAudio().numpy
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L55)
+
+```python
+def numpy():
+```
+
+Read the original file of the MgAudio object as a numpy array using librosa.
+
 ### MgAudio().spectrogram
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L194)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L210)
 
 ```python
 def spectrogram(
@@ -170,7 +181,7 @@ Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
 ### MgAudio().tempogram
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L305)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L321)
 
 ```python
 def tempogram(
@@ -202,7 +213,7 @@ Renders a figure with a plots of onset strength and tempogram of the video/audio
 
 ### MgAudio().waveform
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L89)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L99)
 
 ```python
 def waveform(

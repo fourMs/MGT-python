@@ -5,6 +5,12 @@
 # Required
 version: 2
 
+# Set the version of Python and other tools you might need
+build:
+  os: ubuntu-latest
+  tools:
+    python: "3.11"
+
 # Build documentation with MkDocs
 mkdocs:
   configuration: "mkdocs.yml"

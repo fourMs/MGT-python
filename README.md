@@ -1,4 +1,7 @@
 # MGT-python
+[![PyPi version](https://badgen.net/pypi/v/musicalgestures/)](https://pypi.org/project/musicalgestures)
+[![GitHub license](https://img.shields.io/github/license/fourMs/MGT-python.svg)](https://github.com/fourMs/MGT-python/blob/master/LICENSE)
+[![Github all releases](https://img.shields.io/github/downloads/fourMs/MGT-python/total.svg)](https://GitHub.com/fourMs/MGT-python/releases/)
 [![CI](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml/badge.svg)](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml)
 
 The Musical Gestures Toolbox for Python is a collection of tools for visualization and analysis of audio and video.
@@ -23,7 +26,7 @@ Watch a 10-minute introduction to the toolbox:
 
 [![Video](https://www.uio.no/ritmo/english/research/labs/fourms/software/musicalgesturestoolbox/mgt-python/video/nordicsmc2021-thumbnail.png)](https://youtu.be/tZVX_lDFrwc)
 
-MGT can generate both dynamic and static visualizations of video files, including motion videos, history videos, average images, motiongrams, and videograms. It can also extract various features from video files, including the quantity, centroid, and area of motion. The toolbox also integrates well with other libraries, such as OpenPose for skeleton tracking, and Librosa for audio analysis. All the features are described in the [wiki](https://github.com/fourMs/MGT-python/wiki).
+MGT can generate both dynamic and static visualizations of video files, including motion videos, history videos, average images, motiongrams, and videograms. It can also extract various features from video files, including the quantity, centroid, and area of motion. The toolbox also integrates well with other libraries, such as OpenPose for skeleton tracking, and Librosa for audio analysis. All the features are described in the [wiki documentation](https://github.com/fourMs/MGT-python/wiki).
 
 
 ## History
@@ -36,7 +39,7 @@ The software is currently maintained by the [fourMs lab](https://github.com/four
 
 If you use this toolbox in your research, please cite this article:
 
-- Laczkó, B., & Jensenius, A. R. (2021). [Reflections on the Development of the Musical Gestures Toolbox for Python](https://nordicsmc.create.aau.dk/wp-content/NordicSMC/Nordic_SMC_2021_paper_38.pdf). *Proceedings of the Nordic Sound and Music Computing Conference*, Copenhagen.
+- Laczkó, B., & Jensenius, A. R. (2021). [Reflections on the Development of the Musical Gestures Toolbox for Python](https://www.duo.uio.no/bitstream/handle/10852/89331/Laczk%25C3%25B3_et_al_2021_Reflections_on_the_Development_of_the.pdf?sequence=2&isAllowed=y). *Proceedings of the Nordic Sound and Music Computing Conference*, Copenhagen.
 
 
 ## Credits

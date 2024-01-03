@@ -6,8 +6,9 @@
     - [Examples](#examples)
     - [MgVideo](#mgvideo)
         - [MgVideo().average](#mgvideoaverage)
+        - [MgVideo().from_numpy](#mgvideofrom_numpy)
         - [MgVideo().get_video](#mgvideoget_video)
-        - [MgVideo().info](#mgvideoinfo)
+        - [MgVideo().numpy](#mgvideonumpy)
         - [MgVideo().test_input](#mgvideotest_input)
     - Modules
         - [Audio](_audio.md#audio)
@@ -23,6 +24,7 @@
         - [Grid](_grid.md#grid)
         - [History](_history.md#history)
         - [Impacts](_impacts.md#impacts)
+        - [Info](_info.md#info)
         - [Input Test](_input_test.md#input-test)
         - [MgList](_mglist.md#mglist)
         - [Motionanalysis](_motionanalysis.md#motionanalysis)
@@ -39,11 +41,10 @@
         - [Videograms](_videograms.md#videograms)
         - [Videoreader](_videoreader.md#videoreader)
         - [Warp](_warp.md#warp)
-        - [Examples](examples/index.md#examples)
 
 ## Examples
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L193)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L231)
 
 ```python
 class Examples():
@@ -52,12 +53,15 @@ class Examples():
 
 ## MgVideo
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L9)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L10)
 
 ```python
 class MgVideo(MgAudio):
     def __init__(
         filename,
+        array=None,
+        fps=None,
+        path=None,
         filtertype='Regular',
         thresh=0.05,
         starttime=0,
@@ -95,15 +99,23 @@ These preprocesses will apply upon creating the MgVideo. Further processes are a
 
 ### MgVideo().average
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L187)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L192)
 
 ```python
 def average(filename=None, normalize=True, target_name=None, overwrite=False):
 ```
 
+### MgVideo().from_numpy
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L208)
+
+```python
+def from_numpy(array, fps, target_name=None):
+```
+
 ### MgVideo().get_video
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L140)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L143)
 
 ```python
 def get_video():
@@ -111,19 +123,19 @@ def get_video():
 
 Creates a video attribute to the Musical Gestures object with the given correct settings.
 
-### MgVideo().info
+### MgVideo().numpy
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L127)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L197)
 
 ```python
-def info(type='video'):
+def numpy():
 ```
 
-Retrieves the information related to video, audio and format.
+Pipe all video frames from FFmpeg to numpy array
 
 ### MgVideo().test_input
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L123)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L139)
 
 ```python
 def test_input():

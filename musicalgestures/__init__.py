@@ -187,12 +187,6 @@ class MgVideo(MgAudio):
 
     def __repr__(self):
         return f"MgVideo('{self.filename}')"
-    
-    ########## HACK TO REMOVE IN THE FUTURE ##########
-    def average(self, filename=None, normalize=True, target_name=None, overwrite=False):
-        print("From musicalgestures v1.3.0, the function `average` is no longer available. Use the function `blend(component_mode='average')` instead. More information can be found in the documentation: https://github.com/fourMs/MGT-python/wiki/4-%E2%80%90-Video%E2%80%90based-Processes#blend")
-        return self.blend(component_mode='average')
-    ##################################################
 
     def numpy(self):
         "Pipe all video frames from FFmpeg to numpy array"

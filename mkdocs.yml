@@ -1,5 +1,6 @@
-site_name: "Mgt-python"
+site_name: "MGT-python"
 repo_url: "https://github.com/fourMs/MGT-python/"
+site_url: "https://fourms.github.io/MGT-python"
 site_dir: "site"
 docs_dir: "docs"
 

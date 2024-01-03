@@ -7,7 +7,7 @@
 
 ## mg_grid
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_grid.py#L7)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_grid.py#L6)
 
 ```python
 def mg_grid(
@@ -19,6 +19,7 @@ def mg_grid(
     margin=0,
     target_name=None,
     overwrite=False,
+    return_array=False,
 ):
 ```
 
@@ -33,6 +34,7 @@ Generates frame strip video preview using ffmpeg.
 - `margin` *int, optional* - Margin size for the grid. Defaults to 0.
 - `target_name` *[type], optional* - Target output name for the grid image. Defaults to None.
 - `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+- `return_array` *bool, optional* - Whether to return an array of not. If set to False the function writes the grid image to disk. Defaults to False.
 
 #### Returns
 

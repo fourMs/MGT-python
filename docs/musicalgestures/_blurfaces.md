@@ -11,7 +11,7 @@
 
 ## centroid_mask
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_blurfaces.py#L38)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_blurfaces.py#L40)
 
 ```python
 def centroid_mask(data):
@@ -19,7 +19,7 @@ def centroid_mask(data):
 
 ## heatmap_data
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_blurfaces.py#L49)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_blurfaces.py#L51)
 
 ```python
 def heatmap_data(data, resolution, data_min, data_max):
@@ -27,7 +27,7 @@ def heatmap_data(data, resolution, data_min, data_max):
 
 ## mg_blurfaces
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_blurfaces.py#L69)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_blurfaces.py#L71)
 
 ```python
 def mg_blurfaces(
@@ -76,7 +76,7 @@ Credits: `centerface.onnx` (original) and `centerface.py` are based on https://g
 
 ## nearest_neighbours
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_blurfaces.py#L54)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_blurfaces.py#L56)
 
 ```python
 def nearest_neighbours(x, y, width, height, resolution, n_neighbours):
@@ -84,7 +84,7 @@ def nearest_neighbours(x, y, width, height, resolution, n_neighbours):
 
 ## scaling_mask
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_blurfaces.py#L16)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_blurfaces.py#L18)
 
 ```python
 def scaling_mask(x1, y1, x2, y2, mask_scale=1.0):

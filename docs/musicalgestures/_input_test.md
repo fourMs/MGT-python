@@ -9,7 +9,7 @@
 
 ## Error
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_input_test.py#L1)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_input_test.py#L3)
 
 ```python
 class Error(Exception):
@@ -19,7 +19,7 @@ Base class for exceptions in this module.
 
 ## InputError
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_input_test.py#L6)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_input_test.py#L8)
 
 ```python
 class InputError(Error):
@@ -38,11 +38,13 @@ Exception raised for errors in the input.
 
 ## mg_input_test
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_input_test.py#L18)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_input_test.py#L20)
 
 ```python
 def mg_input_test(
     filename,
+    array,
+    fps,
     filtertype,
     thresh,
     starttime,
@@ -58,6 +60,8 @@ Gives feedback to user if initialization from input went wrong.
 #### Arguments
 
 - `filename` *str* - Path to the input video file.
+- `array` *np.ndarray, optional* - Generates an MgVideo object from a video array. Defauts to None.
+- `fps` *float, optional* - The frequency at which consecutive images from the video array are captured or displayed. Defauts to None.
 - `filtertype` *str* - 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method.
 - `thresh` *float* - A number in the range of 0 to 1. Eliminates pixel values less than given threshold.
 - `starttime` *int/float* - Trims the video from this start time (s).

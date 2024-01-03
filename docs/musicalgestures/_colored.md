@@ -10,11 +10,11 @@
     - [MgWaveformImage](#mgwaveformimage)
         - [MgWaveformImage().draw_peaks](#mgwaveformimagedraw_peaks)
         - [MgWaveformImage().interpolate_colors](#mgwaveformimageinterpolate_colors)
-    - [get_max_level](#get_max_level)
+    - [min_max_level](#min_max_level)
 
 ## MgAudioProcessor
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_colored.py#L32)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_colored.py#L25)
 
 ```python
 class MgAudioProcessor(object):
@@ -29,7 +29,7 @@ class MgAudioProcessor(object):
 
 ### MgAudioProcessor().peaks
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_colored.py#L144)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_colored.py#L134)
 
 ```python
 def peaks(start_seek, end_seek, block_size=1024):
@@ -41,7 +41,7 @@ it returns (min, max) else the other way around.
 
 ### MgAudioProcessor().read_samples
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_colored.py#L80)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_colored.py#L70)
 
 ```python
 def read_samples(start, size, resize_if_less=False):
@@ -52,7 +52,7 @@ samples are read, resize the array to size and fill with zeros
 
 ### MgAudioProcessor().spectral_centroid
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_colored.py#L128)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_colored.py#L118)
 
 ```python
 def spectral_centroid(seek_point):
@@ -62,7 +62,7 @@ Starting at seek_point to read n_fft samples and calculate the spectral centroid
 
 ## MgWaveformImage
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_colored.py#L178)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_colored.py#L168)
 
 ```python
 class MgWaveformImage(object):
@@ -71,7 +71,7 @@ class MgWaveformImage(object):
 
 ### MgWaveformImage().draw_peaks
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_colored.py#L204)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_colored.py#L194)
 
 ```python
 def draw_peaks(x, peaks, spectral_centroid):
@@ -81,7 +81,7 @@ Draw 2 peaks at x using the spectral_centroid for color
 
 ### MgWaveformImage().interpolate_colors
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_colored.py#L215)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_colored.py#L205)
 
 ```python
 def interpolate_colors(colors, flat=False, num_colors=256):
@@ -92,10 +92,10 @@ the first one. If flatten is True a list of numbers will be returned. If
 False, a list of (r,g,b) tuples. num_colors is the number of colors wanted
 in the final list
 
-## get_max_level
+## min_max_level
 
 [[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_colored.py#L11)
 
 ```python
-def get_max_level(filename, buffer_size):
+def min_max_level(filename):
 ```
