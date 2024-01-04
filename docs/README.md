@@ -4,8 +4,8 @@
 
 [![PyPi version](https://badgen.net/pypi/v/musicalgestures/)](https://pypi.org/project/musicalgestures)
 [![GitHub license](https://img.shields.io/github/license/fourMs/MGT-python.svg)](https://github.com/fourMs/MGT-python/blob/master/LICENSE)
-[![Github all releases](https://img.shields.io/github/downloads/fourMs/MGT-python/total.svg)](https://GitHub.com/fourMs/MGT-python/releases/)
 [![CI](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml/badge.svg)](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml)
+[![Documentation Status](https://readthedocs.org/projects/mgt-python/badge/?version=latest)](https://mgt-python.readthedocs.io/en/latest/?badge=latest)
 
 Full Mgt-python project documentation can be found in [Modules](MODULES.md#mgt-python-modules)
 

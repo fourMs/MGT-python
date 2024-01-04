@@ -5,7 +5,6 @@
 - [Mgt-python](../README.md#mgt-python) / [Modules](../MODULES.md#mgt-python-modules) / Musicalgestures
     - [Examples](#examples)
     - [MgVideo](#mgvideo)
-        - [MgVideo().average](#mgvideoaverage)
         - [MgVideo().from_numpy](#mgvideofrom_numpy)
         - [MgVideo().get_video](#mgvideoget_video)
         - [MgVideo().numpy](#mgvideonumpy)
@@ -44,7 +43,7 @@
 
 ## Examples
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L231)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L225)
 
 ```python
 class Examples():
@@ -97,17 +96,9 @@ These preprocesses will apply upon creating the MgVideo. Further processes are a
 
 - [MgAudio](_audio.md#mgaudio)
 
-### MgVideo().average
-
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L192)
-
-```python
-def average(filename=None, normalize=True, target_name=None, overwrite=False):
-```
-
 ### MgVideo().from_numpy
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L208)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L202)
 
 ```python
 def from_numpy(array, fps, target_name=None):
@@ -125,7 +116,7 @@ Creates a video attribute to the Musical Gestures object with the given correct 
 
 ### MgVideo().numpy
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L197)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L191)
 
 ```python
 def numpy():
