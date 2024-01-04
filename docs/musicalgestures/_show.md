@@ -8,7 +8,7 @@
 
 ## mg_show
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_show.py#L15)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_show.py#L14)
 
 ```python
 def mg_show(
@@ -35,7 +35,7 @@ General method to show an image or video file either in a window, or inline in a
 
 ## show_in_new_process
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_show.py#L297)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_show.py#L296)
 
 ```python
 def show_in_new_process(cmd):

@@ -43,7 +43,7 @@
 
 ## Examples
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L225)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L226)
 
 ```python
 class Examples():
@@ -52,7 +52,7 @@ class Examples():
 
 ## MgVideo
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L10)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L11)
 
 ```python
 class MgVideo(MgAudio):
@@ -98,7 +98,7 @@ These preprocesses will apply upon creating the MgVideo. Further processes are a
 
 ### MgVideo().from_numpy
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L202)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L203)
 
 ```python
 def from_numpy(array, fps, target_name=None):
@@ -106,7 +106,7 @@ def from_numpy(array, fps, target_name=None):
 
 ### MgVideo().get_video
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L143)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L144)
 
 ```python
 def get_video():
@@ -116,7 +116,7 @@ Creates a video attribute to the Musical Gestures object with the given correct 
 
 ### MgVideo().numpy
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L191)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L192)
 
 ```python
 def numpy():
@@ -126,7 +126,7 @@ Pipe all video frames from FFmpeg to numpy array
 
 ### MgVideo().test_input
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L139)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L140)
 
 ```python
 def test_input():
