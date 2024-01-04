@@ -9,7 +9,7 @@ from IPython.display import Video
 #     from IPython.core.display import Video
 from base64 import b64encode
 import musicalgestures
-# from musicalgestures._utils import get_widthheight
+from musicalgestures._utils import in_colab
 
 
 def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, window_height=480, window_title=None):
@@ -39,7 +39,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
         """
 
         # Check's if the environment is a Google Colab document
-        if musicalgestures._utils.in_colab():
+        if in_colab():
             mode = 'notebook'
 
         if mode.lower() == 'windowed':
