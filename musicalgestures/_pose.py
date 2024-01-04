@@ -3,7 +3,7 @@ import cv2
 import os
 import numpy as np
 import pandas as pd
-from musicalgestures._utils import MgProgressbar, convert_to_avi, extract_wav, embed_audio_in_video, roundup, frame2ms, generate_outfilename, in_colab
+from musicalgestures._utils import MgProgressbar, convert_to_avi, extract_wav, embed_audio_in_video, roundup, frame2ms, generate_outfilename, in_colab, ffmpeg_cmd
 import musicalgestures
 import itertools
 
@@ -116,18 +116,10 @@ def pose(
     else:
         filename = self.filename
 
-    vidcap = cv2.VideoCapture(filename)
-    ret, frame = vidcap.read()
+    inWidth = int(roundup(self.width/downsampling_factor, 2))
+    inHeight = int(roundup(self.height/downsampling_factor, 2))
 
-    fps = int(vidcap.get(cv2.CAP_PROP_FPS))
-    width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
-
-    inWidth = int(roundup(width/downsampling_factor, 2))
-    inHeight = int(roundup(height/downsampling_factor, 2))
-
-    pb = MgProgressbar(total=length, prefix='Rendering pose estimation video:')
+    pb = MgProgressbar(total=self.length, prefix='Rendering pose estimation video:')
 
     if save_video:
         if target_name_video == None:
@@ -137,83 +129,98 @@ def pose(
             target_name_video = os.path.splitext(target_name_video) + fex
         if not overwrite:
             target_name_video = generate_outfilename(target_name_video)
-        fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-        out = cv2.VideoWriter(target_name_video, fourcc, fps, (width, height))
+            
+    # Pipe video with FFmpeg for reading frame by frame
+    cmd = ['ffmpeg', '-y', '-i', filename] # define ffmpeg command        
+    process = ffmpeg_cmd(cmd, total_time=self.length, pipe='read')
+    video_out = None
 
     ii = 0
     data = []
 
-    while(vidcap.isOpened()):
-        ret, frame = vidcap.read()
-        if ret:
+    while True:
+        # Read frame-by-frame
+        out = process.stdout.read(self.width*self.height*3)
 
-            inpBlob = cv2.dnn.blobFromImage(
-                frame, 1.0 / 255, (inWidth, inHeight), (0, 0, 0), swapRB=False, crop=False)
-
-            net.setInput(inpBlob)
-
-            output = net.forward()
-
-            H = output.shape[2]
-            W = output.shape[3]
-            points = []
-
-            for i in range(nPoints):
-
-                # confidence map of corresponding body's part.
-                probMap = output[0, i, :, :]
-
-                # Find global maxima of the probMap.
-                minVal, prob, minLoc, point = cv2.minMaxLoc(probMap)
-
-                # Scale the point to fit on the original image
-                x = (width * point[0]) / W
-                y = (height * point[1]) / H
-
-                if prob > threshold:
-                    points.append((int(x), int(y)))
-
-                else:
-                    points.append(None)
-
-            if save_data:
-                time = frame2ms(ii, fps)
-                points_list = [[list(point)[0]/width, list(point)[1]/height, ] if point != None else [
-                    0, 0] for point in points]
-                points_list_flat = itertools.chain.from_iterable(points_list)
-                datapoint = [time]
-                datapoint += points_list_flat
-                data.append(datapoint)
-
-            for pair in POSE_PAIRS:
-                partA = pair[0]
-                partB = pair[1]
-
-                if points[partA] and points[partB]:
-                    cv2.line(frame, points[partA], points[partB],
-                             (0, 255, 255), 2, lineType=cv2.LINE_AA)
-                    cv2.circle(
-                        frame, points[partA], 4, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
-                    cv2.circle(
-                        frame, points[partB], 4, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
-
-            if save_video:
-                out.write(frame.astype(np.uint8))
-
-        else:
-            pb.progress(length)
+        if out == b'':
+            pb.progress(self.length)
             break
 
+        # Transform the bytes read into a numpy array
+        frame = np.frombuffer(out, dtype=np.uint8).reshape([self.height, self.width, 3]) # height, width, channels
+
+        inpBlob = cv2.dnn.blobFromImage(frame, 1.0 / 255, (inWidth, inHeight), (0, 0, 0), swapRB=False, crop=False)
+        net.setInput(inpBlob)
+        output = net.forward()
+
+        H = output.shape[2]
+        W = output.shape[3]
+        points = []
+
+        for i in range(nPoints):
+
+            # confidence map of corresponding body's part.
+            probMap = output[0, i, :, :]
+
+            # Find global maxima of the probMap.
+            minVal, prob, minLoc, point = cv2.minMaxLoc(probMap)
+
+            # Scale the point to fit on the original image
+            x = (self.width * point[0]) / W
+            y = (self.height * point[1]) / H
+
+            if prob > threshold:
+                points.append((int(x), int(y)))
+
+            else:
+                points.append(None)
+
+        if save_data:
+            time = frame2ms(ii, self.fps)
+            points_list = [[list(point)[0]/self.width, list(point)[1]/self.height, ] if point != None else [
+                0, 0] for point in points]
+            points_list_flat = itertools.chain.from_iterable(points_list)
+            datapoint = [time]
+            datapoint += points_list_flat
+            data.append(datapoint)
+
+        for pair in POSE_PAIRS:
+            partA = pair[0]
+            partB = pair[1]
+
+            if points[partA] and points[partB]:
+                cv2.line(frame, points[partA], points[partB],
+                            (0, 255, 255), 2, lineType=cv2.LINE_AA)
+                cv2.circle(
+                    frame, points[partA], 4, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
+                cv2.circle(
+                    frame, points[partB], 4, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
+
+        if save_video:
+            if video_out is None:
+                cmd =['ffmpeg', '-y', '-s', '{}x{}'.format(frame.shape[1], frame.shape[0]), 
+                    '-r', str(self.fps), '-f', 'rawvideo', '-pix_fmt', 'bgr24', '-vcodec', 'rawvideo', 
+                    '-i', '-', '-vcodec', 'libx264', '-pix_fmt', 'yuv420p', target_name_video]
+                video_out = ffmpeg_cmd(cmd, total_time=self.length, pipe='write')
+
+            video_out.stdin.write(frame.astype(np.uint8))
+            
+        # Flush the buffer
+        process.stdout.flush()
         pb.progress(ii)
         ii += 1
 
+    # Terminate the processes
     if save_video:
-        out.release()
-        destination_video = target_name_video
+        video_out.stdin.close()
+        video_out.wait()
+        # Check if the original video fil has audio
         if self.has_audio:
             source_audio = extract_wav(of + fex)
-            embed_audio_in_video(source_audio, destination_video)
+            embed_audio_in_video(source_audio, target_name_video)
             os.remove(source_audio)
+
+    process.terminate()
 
     def save_txt(of, width, height, model, data, data_format, target_name_data, overwrite):
         """
@@ -328,13 +335,12 @@ def pose(
                                  target_name_data=target_name_data, overwrite=overwrite)
 
     if save_data:
-        save_txt(of, width, height, model, data, data_format,
+        save_txt(of, self.width, self.height, model, data, data_format,
                  target_name_data=target_name_data, overwrite=overwrite)
 
     if save_video:
         # save result as pose_video for parent MgVideo
-        self.pose_video = musicalgestures.MgVideo(
-            destination_video, color=self.color, returned_by_process=True)
+        self.pose_video = musicalgestures.MgVideo(target_name_video, color=self.color, returned_by_process=True)
         return self.pose_video
     else:
         # otherwise just return the parent MgVideo

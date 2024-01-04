@@ -4,7 +4,8 @@ from musicalgestures._input_test import mg_input_test
 from musicalgestures._videoreader import mg_videoreader
 from musicalgestures._flow import Flow
 from musicalgestures._audio import MgAudio 
-from musicalgestures._utils import convert, convert_to_mp4, get_framecount, ffmpeg_cmd
+from musicalgestures._utils import  MgFigure, MgImage, convert, convert_to_mp4, get_framecount, ffmpeg_cmd
+from musicalgestures._mglist import MgList
 
 
 class MgVideo(MgAudio):

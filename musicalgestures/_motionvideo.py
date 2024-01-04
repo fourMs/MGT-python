@@ -198,8 +198,9 @@ def mg_motion(
             i += 1
 
         # Terminate the processes
-        video_out.stdin.close()
-        video_out.wait()
+        if save_video:
+            video_out.stdin.close()
+            video_out.wait()
         process.terminate()
 
         if save_motiongrams:
