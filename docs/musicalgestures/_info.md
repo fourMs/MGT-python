@@ -28,7 +28,7 @@ Returns info about video/audio/format file using ffprobe.
 
 ## plot_frames
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_info.py#L116)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_info.py#L114)
 
 ```python
 def plot_frames(
