@@ -101,14 +101,12 @@ def mg_info(self, type=None, autoshow=True, overwrite=False):
         # Create a pandas dataframe
         df = pd.DataFrame.from_dict(frame)
 
-        # Rename codec type column
-        df["codec_type"] = ['video', 'audio', 'format']
-        column = df.pop('codec_type')
-        df.insert(0, column.name, column)
+        df.insert(0, 'codec_type', df.pop('codec_type')) # move codec type column
         df.pop('index') # remove index column
+        df = df[df.codec_type.notna()] # remove rows with nan values in codec_type column
 
         if type is not None:
-            return df[df["codec_type"] == type]
+            return df[df.codec_type == type]
         else:
             return df
 
