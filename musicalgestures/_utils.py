@@ -1388,7 +1388,7 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, strea
     command = ['ffmpeg', '-hide_banner', '-loglevel', 'quiet'] + command[1:]
 
     if print_cmd:
-        if type(command) == list:
+        if isinstance(command, list):
             print(' '.join(command))
         else:
             print(command)
