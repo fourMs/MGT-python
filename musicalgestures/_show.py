@@ -47,10 +47,10 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
 
             video_to_display = os.path.realpath(file)
             cmd = ' '.join(map(str, ['ffplay', video_to_display, '-window_title', title, '-x', width, '-y', height]))
-            show_in_new_process(cmd)            
+            show_in_new_process(cmd)      
 
         elif mode.lower() == 'notebook':
-            video_formats = ['.avi', '.mp4', '.mov', '.mkv', '.mpg', '.mpeg', '.webm', '.ogg', '.ts', '.wmv', '.3gp']
+            video_formats = ['.avi', '.mp4', '.mov', '.mkv', '.mpg', '.mpeg', '.webm', '.ogg', '.ts', '.wmv', '.3gp', '.lrv', '.insv', '.360', '.glv']
             image_formats = ['.jpg', '.png', '.jpeg', '.tiff', '.gif', '.bmp']
             
             of, file_extension = os.path.splitext(file)
