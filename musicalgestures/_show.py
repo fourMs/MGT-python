@@ -54,6 +54,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             image_formats = ['.jpg', '.png', '.jpeg', '.tiff', '.gif', '.bmp']
             
             of, file_extension = os.path.splitext(file)
+            of, file_extension = of.lower(), file_extension.lower()
 
             if file_extension in video_formats:
                 file_type = 'video'
