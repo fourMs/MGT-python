@@ -11,7 +11,7 @@ from base64 import b64encode
 import musicalgestures
 
 
-def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, window_height=480, window_title=None):
+def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, window_height=480, window_title=None, **ipython_kwargs):
     # def mg_show(self, filename=None, mode='windowed', window_width=640, window_height=480, window_title=None):
     """
     General method to show an image or video file either in a window, or inline in a jupyter notebook.
@@ -23,9 +23,10 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
         window_width (int, optional): The width of the window. Defaults to 640.
         window_height (int, optional): The height of the window. Defaults to 480.
         window_title (str, optional): The title of the window. If None, the title of the window will be the file name. Defaults to None.
+        ipython_kwargs (dict, optional): Additional arguments for IPython.display.Image or IPython.display.Video. Defaults to None.
     """
 
-    def show(file, width=640, height=480, mode='windowed', title='Untitled', parent=None):
+    def show(file, width=640, height=480, mode='windowed', title='Untitled', parent=None, **ipython_kwargs):
         """
         Helper function which actually does the "showing".
 
@@ -35,6 +36,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             height (int, optional): The height of the window. Defaults to 480.
             mode (str, optional): 'windowed' will use ffplay (in a separate window), while 'notebook' will use Image or Video from IPython.display. Defaults to 'windowed'.
             title (str, optional): The title of the window. Defaults to 'Untitled'.
+            ipython_kwargs (dict, optional): Additional arguments for IPython.display.Image or IPython.display.Video. Defaults to None.
         """
 
         # Check's if the environment is a Google Colab document
@@ -54,7 +56,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             image_formats = ['.jpg', '.png', '.jpeg', '.tiff', '.gif', '.bmp']
             
             of, file_extension = os.path.splitext(file)
-            of, file_extension = of.lower(), file_extension.lower()
+            file_extension = file_extension.lower()
 
             if file_extension in video_formats:
                 file_type = 'video'
@@ -86,7 +88,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                 # and if it is somewhere else, we need to embed it to make it work (neither absolute nor relative paths seem to work without embedding)
                 cwd = os.getcwd().replace('\\', '/')
                 file_dir = os.path.dirname(video_to_display).replace('\\', '/')
-                                
+
                 def colab_display(video_to_display, video_width, video_height):
                   video_file = open(video_to_display, "r+b").read()
                   video_url = f"data:video/mp4;base64,{b64encode(video_file).decode()}"
@@ -98,26 +100,26 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                         if musicalgestures._utils.in_colab():
                             display(colab_display(video_to_display, video_width, video_height))
                         else:
-                            display(Video(video_to_display,width=video_width, height=video_height))
+                            display(Video(video_to_display,width=video_width, height=video_height, **ipython_kwargs))
                     except ValueError:
                         video_to_display = os.path.abspath(video_to_display, os.getcwd()).replace('\\', '/')
                         if musicalgestures._utils.in_colab():
                             display(colab_display(video_to_display, video_width, video_height))
                         else:
-                            display(Video(video_to_display, width=video_width, height=video_height))
+                            display(Video(video_to_display, width=video_width, height=video_height, **ipython_kwargs))
                 else:
                     try:
                         video_to_display = os.path.relpath(video_to_display, os.getcwd()).replace('\\', '/')
                         if musicalgestures._utils.in_colab():
                             display(colab_display(video_to_display, video_width, video_height))
                         else:
-                            display(Video(video_to_display, width=video_width, height=video_height))
+                            display(Video(video_to_display, width=video_width, height=video_height, **ipython_kwargs))
                     except ValueError:
                         video_to_display = os.path.abspath(video_to_display, os.getcwd()).replace('\\', '/')
                         if musicalgestures._utils.in_colab():
                             display(colab_display(video_to_display, video_width, video_height))
                         else:
-                            display(Video(video_to_display, width=video_width,height=video_height))
+                            display(Video(video_to_display, width=video_width,height=video_height, **ipython_kwargs))
 
         else:
             print(f'Unrecognized mode: "{mode}". Try "windowed" or "notebook".')
@@ -130,13 +132,13 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
         if key == None:
             filename = self.filename
             show(file=filename, width=window_width,
-                 height=window_height, mode=mode, title=window_title, parent=self)
+                 height=window_height, mode=mode, title=window_title, parent=self, **ipython_kwargs)
 
         elif key.lower() == 'mgx':
             if "motiongram_x" in keys:
                 filename = self.motiongram_x.filename
                 show(file=filename, width=window_width,
-                     height=window_height, mode=mode, title=f'Horizontal Motiongram | {filename}', parent=self)
+                     height=window_height, mode=mode, title=f'Horizontal Motiongram | {filename}', parent=self, **ipython_kwargs)
             else:
                 raise FileNotFoundError(
                     "There is no known horizontal motiongram for this file.")
@@ -145,7 +147,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             if "motiongram_y" in keys:
                 filename = self.motiongram_y.filename
                 show(file=filename, width=window_width,
-                     height=window_height, mode=mode, title=f'Vertical Motiongram | {filename}', parent=self)
+                     height=window_height, mode=mode, title=f'Vertical Motiongram | {filename}', parent=self, **ipython_kwargs)
             else:
                 raise FileNotFoundError(
                     "There is no known vertical motiongram for this file.")
@@ -154,7 +156,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             if "videogram_x" in keys:
                 filename = self.videogram_x.filename
                 show(file=filename, width=window_width,
-                     height=window_height, mode=mode, title=f'Horizontal Videogram | {filename}', parent=self)
+                     height=window_height, mode=mode, title=f'Horizontal Videogram | {filename}', parent=self, **ipython_kwargs)
             else:
                 raise FileNotFoundError(
                     "There is no known horizontal videogram for this file.")
@@ -163,7 +165,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             if "videogram_y" in keys:
                 filename = self.videogram_y.filename
                 show(file=filename, width=window_width,
-                     height=window_height, mode=mode, title=f'Vertical Videogram | {filename}', parent=self)
+                     height=window_height, mode=mode, title=f'Vertical Videogram | {filename}', parent=self, **ipython_kwargs)
             else:
                 raise FileNotFoundError(
                     "There is no known vertical videogram for this file.")
@@ -172,10 +174,10 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             if "ssm_fig" in keys:
                 filename = self.ssm_fig.image
                 if len(filename) == 2:
-                    show(file=filename[0], width=window_width, height=window_height, mode=mode, title=f'Horizontal SSM | {filename}', parent=self)
-                    show(file=filename[1], width=window_width, height=window_height, mode=mode, title=f'Vertical SSM | {filename}', parent=self)
+                    show(file=filename[0], width=window_width, height=window_height, mode=mode, title=f'Horizontal SSM | {filename}', parent=self, **ipython_kwargs)
+                    show(file=filename[1], width=window_width, height=window_height, mode=mode, title=f'Vertical SSM | {filename}', parent=self, **ipython_kwargs)
                 else:    
-                    show(file=filename, width=window_width, height=window_height, mode=mode, title=f'Self-Similarity Matrix | {filename}', parent=self)
+                    show(file=filename, width=window_width, height=window_height, mode=mode, title=f'Self-Similarity Matrix | {filename}', parent=self, **ipython_kwargs)
             else:
                 raise FileNotFoundError(
                     "There is no known self-smilarity matrix for this file.")
@@ -184,7 +186,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             if "blend_image" in keys:
                 filename = self.blend_image.filename
                 show(file=filename, width=window_width,
-                     height=window_height, mode=mode, title=f'Blended Image | {filename}', parent=self)
+                     height=window_height, mode=mode, title=f'Blended Image | {filename}', parent=self, **ipython_kwargs)
             else:
                 raise FileNotFoundError(
                     "There is no known blended image for this file.")
@@ -194,7 +196,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             if "motion_plot" in keys:
                 filename = self.motion_plot.filename
                 show(file=filename, width=window_width,
-                     height=window_height, mode=mode, title=f'Centroid and Quantity of Motion | {filename}', parent=self)
+                     height=window_height, mode=mode, title=f'Centroid and Quantity of Motion | {filename}', parent=self, **ipython_kwargs)
             else:
                 raise FileNotFoundError(
                     "There is no known motion plot for this file.")
@@ -203,7 +205,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             if "motion_video" in keys:
                 filename = self.motion_video.filename
                 show(file=filename, width=window_width,
-                     height=window_height, mode=mode, title=f'Motion Video | {filename}', parent=self)
+                     height=window_height, mode=mode, title=f'Motion Video | {filename}', parent=self, **ipython_kwargs)
             else:
                 raise FileNotFoundError(
                     "There is no known motion video for this file.")
@@ -212,7 +214,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             if "history_video" in keys:
                 filename = self.history_video.filename
                 show(file=filename, width=window_width,
-                     height=window_height, mode=mode, title=f'History Video | {filename}', parent=self)
+                     height=window_height, mode=mode, title=f'History Video | {filename}', parent=self, **ipython_kwargs)
             else:
                 raise FileNotFoundError(
                     "There is no known history video for this file.")
@@ -223,7 +225,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                 if "history_video" in motion_video_keys:
                     filename = self.motion_vide.history_video.filename
                     show(file=filename, width=window_width,
-                         height=window_height, mode=mode, title=f'Motion History Video | {filename}', parent=self)
+                         height=window_height, mode=mode, title=f'Motion History Video | {filename}', parent=self, **ipython_kwargs)
                 else:
                     raise FileNotFoundError(
                         "There is no known motion history video for this file.")
@@ -235,7 +237,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             if "flow_sparse_video" in keys:
                 filename = self.flow_sparse_video.filename
                 show(file=filename, width=window_width,
-                     height=window_height, mode=mode, title=f'Sparse Optical Flow Video | {filename}', parent=self)
+                     height=window_height, mode=mode, title=f'Sparse Optical Flow Video | {filename}', parent=self, **ipython_kwargs)
             else:
                 raise FileNotFoundError(
                     "There is no known sparse optial flow video for this file.")
@@ -244,7 +246,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             if "flow_dense_video" in keys:
                 filename = self.flow_dense_video.filename
                 show(file=filename, width=window_width,
-                     height=window_height, mode=mode, title=f'Dense Optical Flow Video | {filename}', parent=self)
+                     height=window_height, mode=mode, title=f'Dense Optical Flow Video | {filename}', parent=self, **ipython_kwargs)
             else:
                 raise FileNotFoundError(
                     "There is no known dense optial flow video for this file.")
@@ -253,7 +255,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             if "pose_video" in keys:
                 filename = self.pose_video.filename
                 show(file=filename, width=window_width,
-                     height=window_height, mode=mode, title=f'Pose Video | {filename}', parent=self)
+                     height=window_height, mode=mode, title=f'Pose Video | {filename}', parent=self, **ipython_kwargs)
             else:
                 raise FileNotFoundError(
                     "There is no known pose video for this file.")
@@ -262,7 +264,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             if "warp_audiovisual_beats" in keys:
                 filename = self.warp_audiovisual_beats.filename
                 show(file=filename, width=window_width,
-                     height=window_height, mode=mode, title=f'Warp Audiovisual Video | {filename}', parent=self)
+                     height=window_height, mode=mode, title=f'Warp Audiovisual Video | {filename}', parent=self, **ipython_kwargs)
             else:
                 raise FileNotFoundError(
                     "There is no known warp audiovisual beats video for this file.")
@@ -271,13 +273,13 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             if "blur_faces" in keys:
                 filename = self.blur_faces.filename
                 show(file=filename, width=window_width,
-                     height=window_height, mode=mode, title=f'Blur Faces Video | {filename}', parent=self)
+                     height=window_height, mode=mode, title=f'Blur Faces Video | {filename}', parent=self, **ipython_kwargs)
 
         elif key.lower() == 'subtract':
             if "subtract" in keys:
                 filename = self.subtract.filename
                 show(file=filename, width=window_width,
-                     height=window_height, mode=mode, title=f'Background Subtraction Video | {filename}', parent=self)
+                     height=window_height, mode=mode, title=f'Background Subtraction Video | {filename}', parent=self, **ipython_kwargs)
             else:
                 raise FileNotFoundError("There is no known subtract video for this file.")
 
@@ -288,7 +290,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
 
     else:
         show(file=filename, width=window_width,
-             height=window_height, mode=mode, title=window_title, parent=self)
+             height=window_height, mode=mode, title=window_title, parent=self, **ipython_kwargs)
     # show(file=filename, width=window_width, height=window_height, mode=mode, title=window_title)
 
     return self
