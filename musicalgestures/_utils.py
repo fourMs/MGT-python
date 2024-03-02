@@ -1,3 +1,6 @@
+import os
+import glob
+
 class MgProgressbar():
     """
     Calls in a loop to create terminal progress bar.
@@ -1519,3 +1522,24 @@ def in_colab():
     except NameError:
         result = False
     return result
+
+
+def in_ipynb():
+    """
+    Check if the environment is a Jupyter notebook.
+    Taken from https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-is-executed-in-the-ipython-notebook.
+
+    Returns:
+        bool: True if the environment is a Jupyter notebook, otherwise False.
+    """
+    try:
+        shell = get_ipython().__class__.__name__
+        if shell == 'ZMQInteractiveShell':
+            return True   # Jupyter notebook or qtconsole
+        elif shell == 'TerminalInteractiveShell':
+            return False  # Terminal running IPython
+        else:
+            return False  # Other type (?)
+    except NameError:
+        return False      # Probably standard Python interpreter
+

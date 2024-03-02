@@ -42,6 +42,8 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
         # Check's if the environment is a Google Colab document
         if musicalgestures._utils.in_colab():
             mode = 'notebook'
+        elif musicalgestures._utils.in_ipynb():
+            mode = 'notebook'
 
         if mode.lower() == 'windowed':
             # from musicalgestures._utils import wrap_str
