@@ -1,6 +1,3 @@
-import os
-import glob
-
 class MgProgressbar():
     """
     Calls in a loop to create terminal progress bar.
@@ -1007,7 +1004,7 @@ def ffprobe(filename):
         else:
             return out
 
-def get_widthheight(filename):
+def get_widthheight(filename: str) -> tuple[int, int]:
     """
     Gets the width and height of a video using FFprobe.
 
@@ -1074,7 +1071,7 @@ def has_audio(filename):
         return True
 
 
-def get_length(filename):
+def get_length(filename: str) -> float:
     """
     Gets the length (in seconds) of a video using FFprobe.
 
@@ -1445,7 +1442,7 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, strea
             if returncode in [None, 0]:
                 pb.progress(total_time)
             else:
-                raise FFmpegError(all_out)
+                raise FFmpegError(f"return code: {returncode}"+all_out)
 
         except KeyboardInterrupt:
             try:
@@ -1543,3 +1540,77 @@ def in_ipynb():
     except NameError:
         return False      # Probably standard Python interpreter
 
+
+class FilesNotMatchError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
+def merge_videos(
+    media_paths: list, target_name: str = None, overwrite: bool = False
+) -> str:
+    """
+    Merges a list of video files into a single video file using ffmpeg.
+
+    Args:
+        media_paths (list): List of paths to the video files to merge.
+        target_name (str, optional): The name of the output video. Defaults to None (which assumes that the input filename with the suffix "_merged" should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+
+    Returns:
+        str: Path to the output video.
+    """
+
+    if len(media_paths) == 0:
+        raise ValueError("The list of media paths is empty.")
+    elif len(media_paths) == 1:
+        return media_paths[0]
+
+    import os
+    from musicalgestures._utils import generate_outfilename
+
+    # check if all media files have the same container, same resolution and same fps
+    try:
+        for media in media_paths:
+            pass_if_containers_match(media, media_paths[0])
+            assert get_widthheight(media) == get_widthheight(media_paths[0])
+            assert get_fps(media) == get_fps(media_paths[0])
+    except WrongContainer:
+        raise FilesNotMatchError("All media files must be in the same container.")
+    except AssertionError:
+        raise FilesNotMatchError("All media files must have the same resolution and fps.")
+
+    # set target name, a new file in the same directory as the first media file
+    of, fex = os.path.splitext(media_paths[0])
+    of = os.path.abspath(of)
+    # create a tmp .txt file for concat
+    txt_path = os.path.join(os.path.dirname(media_paths[0]), "tmp.txt")
+    with open(os.path.join(txt_path), "w") as f:
+        for media in media_paths:
+            f.write(f"file '{os.path.abspath(media)}'\n")
+
+    # set target name, a new file in the same directory as the first media file
+    if fex.lower() not in [".mp4", ".mov", ".avi"]:
+        fex = ".mp4"
+    if target_name == None:
+        target_name = of + "_merged" + fex.lower()
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
+
+    total_length = sum([get_length(media) for media in media_paths])
+
+    cmd = [
+        "ffmpeg",
+        "-y" if overwrite else "-n",
+        "-f", "concat",
+        "-safe", "0",
+        "-i", txt_path,
+        "-c", "copy",
+        target_name,
+    ]
+    ffmpeg_cmd(cmd, total_length, pb_prefix="Merging videos:", print_cmd=True)
+
+    # remove tmp.txt
+    os.remove(txt_path)
+
+    return target_name
