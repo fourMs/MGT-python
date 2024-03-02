@@ -1,4 +1,5 @@
 import os
+import glob
 import numpy as np
 from musicalgestures._input_test import mg_input_test
 from musicalgestures._videoreader import mg_videoreader
@@ -9,6 +10,7 @@ from musicalgestures._utils import (
     convert_to_mp4,
     get_framecount,
     ffmpeg_cmd,
+    merge_videos,
 )
 
 
@@ -28,7 +30,7 @@ class MgVideo(MgAudio):
 
     def __init__(
         self,
-        filename,
+        filename: str|list[str],
         array=None,
         fps=None,
         path=None,
@@ -56,7 +58,7 @@ class MgVideo(MgAudio):
         Initializes Musical Gestures data structure from a video file, and applies preprocesses if desired.
 
         Args:
-            filename (str): Path to the video file.
+            filename (str|list[str]): Path to the video file. If input is a list, will merge all videos into one.
             array (np.ndarray, optional): Generates an MgVideo object from a video array. Defauts to None.
             fps (float, optional): The frequency at which consecutive images from the video array are captured or displayed. Defauts to None.
             path (str, optional): Path to save the output video file generated from a video array. Defaults to None.
@@ -80,7 +82,12 @@ class MgVideo(MgAudio):
             hop_length (int, optional): Number of samples between successive frames. Defaults to 512.
         """
 
-        self.filename = filename
+        # if filename is a list, merge all videos into one
+        if isinstance(filename, list):
+            self.filename = merge_videos(filename)
+        else:
+            self.filename = filename
+
         self.array = array
         self.fps = fps
         self.path = path
