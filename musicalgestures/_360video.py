@@ -41,16 +41,49 @@ class Projection(Enum):
     octahedron = 28  # Octahedron projection.
     cylindricalea = 29
 
+    equirectangular = 30  # extra option for equirectangular
+    erp = 31
+
     def __str__(self):
-        return self.name
+        # collapse all aliases of erp
+        if self.name in ["equirectangular", "erp", "e"]:
+            return "equirect"
+        else:
+            return self.name
+
+    def __eq__(self, other):
+        # collapse all aliases of erp
+        if self.name in ["equirectangular", "erp", "e", "equirect"] and other.name in [
+            "equirectangular",
+            "erp",
+            "e",
+            "equirect",
+        ]:
+            return True
+        elif self == other:
+            return True
+        else:
+            return False
 
 
 # TODO: add settings for cameras and files
 CAMERA = {
-    "gopro max": {},
-    "insta360 x3": {},
-    "garmin virb 360": {},
-    "ricoh theta xs00": {},
+    "gopro max": {
+        "ext": "360",
+        "projection": Projection.eac,
+    },
+    "insta360 x3": {
+        "ext": "insv",
+        "projection": Projection.fisheye,
+    },
+    "garmin virb 360": {
+        "ext": "MP4",
+        "projection": Projection.erp,
+    },
+    "ricoh theta xs00": {
+        "ext": "MP4",
+        "projection": Projection.erp,
+    },
 }
 
 
@@ -62,25 +95,19 @@ class Mg360Video(MgVideo):
     def __init__(
         self,
         filename: str,
-        projection: str,
+        projection: str | Projection,
         camera: str = None,
         **kwargs,
     ):
         """
         Args:
             filename (str): Path to the video file.
-            projection (str): Projection type.
+            projection (str, Projection): Projection type.
             camera (str): Camera type.
         """
         super().__init__(filename, **kwargs)
         self.filename = os.path.abspath(self.filename)
-
-        try:
-            self.projection = Projection[projection.lower()]
-        except KeyError:
-            raise ValueError(
-                f"Projection type '{projection}' not recognized. See `Projection` for available options."
-            )
+        self.projection = self._parse_projection(projection)
 
         if camera is None:
             self.camera = None
@@ -89,7 +116,7 @@ class Mg360Video(MgVideo):
         else:
             raise Warning(f"Camera type '{camera}' not recognized.")
 
-        # override self.show() with extra ipython kwarg embed=True
+        # override self.show() with extra ipython_kwarg embed=True
         self.show = partial(self.show, embed=True)
 
     def convert_projection(
@@ -101,20 +128,16 @@ class Mg360Video(MgVideo):
             target_projection (Projection): Target projection.
             options (dict[str, str], optional): Options for the conversion. Defaults to None.
         """
+        target_projection = self._parse_projection(target_projection)
+
         if target_projection == self.projection:
+            print(f"{self} is already in target projection {target_projection}.")
             return
         else:
             output_name = generate_outfilename(
                 f"{self.filename.split('.')[0]}_{target_projection}.mp4"
             )
-            # convert str to Projection
-            if isinstance(target_projection, str):
-                try:
-                    target_projection = Projection[target_projection.lower()]
-                except KeyError:
-                    raise ValueError(
-                        f"Projection type '{target_projection}' not recognized. See `Projection` for available options."
-                    )
+
             # parse options
             if options:
                 options = "".join([f"{k}={v}:" for k, v in options])
@@ -143,3 +166,22 @@ class Mg360Video(MgVideo):
                 pb_prefix=f"Converting projection to {target_projection}:",
             )
             self.filename = output_name
+            self.projection = target_projection
+
+    def _parse_projection(self, projection: str | Projection):
+        """
+        Parse projection type.
+        Args:
+            projection (str): Projection type.
+        """
+        if isinstance(projection, str):
+            try:
+                return Projection[projection.lower()]
+            except KeyError:
+                raise ValueError(
+                    f"Projection type '{projection}' not recognized. See `Projection` for available options."
+                )
+        elif isinstance(projection, Projection):
+            return projection
+        else:
+            raise TypeError(f"Unsupported projection type: '{type(projection)}'.")
