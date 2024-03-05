@@ -60,7 +60,7 @@ class Projection(Enum):
             "equirect",
         ]:
             return True
-        elif self == other:
+        elif self.name == other.name:
             return True
         else:
             return False
@@ -120,13 +120,17 @@ class Mg360Video(MgVideo):
         self.show = partial(self.show, embed=True)
 
     def convert_projection(
-        self, target_projection: Projection | str, options: dict[str, str] = None
+        self,
+        target_projection: Projection | str,
+        options: dict[str, str] = None,
+        print_cmd: bool = False,
     ):
         """
         Convert the video to a different projection.
         Args:
             target_projection (Projection): Target projection.
             options (dict[str, str], optional): Options for the conversion. Defaults to None.
+            print_cmd (bool, optional): Print the ffmpeg command. Defaults to False.
         """
         target_projection = self._parse_projection(target_projection)
 
@@ -140,7 +144,7 @@ class Mg360Video(MgVideo):
 
             # parse options
             if options:
-                options = "".join([f"{k}={v}:" for k, v in options])
+                options = "".join([f"{k}={options[k]}:" for k in options])[:-1]
                 cmds = [
                     "ffmpeg",
                     "-i",
@@ -164,6 +168,7 @@ class Mg360Video(MgVideo):
                 cmds,
                 get_length(self.filename),
                 pb_prefix=f"Converting projection to {target_projection}:",
+                print_cmd=print_cmd,
             )
             self.filename = output_name
             self.projection = target_projection
