@@ -568,6 +568,58 @@ def cast_into_avi(filename, target_name=None, overwrite=False):
     return target_name
 
 
+def extract_frame(
+    filename: str,
+    frame: int=None,
+    time: str=None,
+    target_name: str=None,
+    overwrite: bool=False,
+    )-> str:
+    """
+    Extracts a single frame from a video using ffmpeg.
+
+    Args:
+        filename (str): Path to the input video file.
+        frame (int): The frame number to extract.
+        time (str): The time in HH:MM:ss.ms where to extract the frame from.
+        target_name (str, optional): The name for the output file. If None, the name will be \<input name\>FRAME\<frame number\>.\<file extension\>. Defaults to None.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+    """
+
+    import os
+    if frame is not None and time is not None:
+        raise ValueError("frame and time cannot be both not None.")
+    if frame is None and time is None:
+        raise ValueError("frame and time cannot be both None.")
+
+    name, ext = os.path.splitext(filename)
+    if not target_name:
+        if frame is not None:
+            target_name = f"{name}_frame_{str(frame)}.png"
+        elif time is not None:
+            target_name = f"{name}_time_{time}.png"
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
+
+    if frame is not None:
+        cmds = ['ffmpeg',
+                '-y' if overwrite else "-n",
+                '-i', filename,
+                "-vf", f"select='eq(n\,{frame})'",
+                "-vframes", "1",
+                target_name]
+    elif time is not None:
+        cmds = ['ffmpeg',
+                '-y' if overwrite else "-n",
+                '-i', filename,
+                "-ss", f"{time}",
+                "-frames:v", "1",
+                target_name]
+    ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Extracting frame:')
+
+    return target_name
+
+
 def extract_subclip(filename, t1, t2, target_name=None, overwrite=False):
     """
     Extracts a section of the video using ffmpeg.
