@@ -1547,7 +1547,7 @@ class FilesNotMatchError(Exception):
 
 
 def merge_videos(
-    media_paths: list, target_name: str = None, overwrite: bool = False
+    media_paths: list, target_name: str = None, overwrite: bool = False, print_cmd: bool = False
 ) -> str:
     """
     Merges a list of video files into a single video file using ffmpeg.
@@ -1589,9 +1589,11 @@ def merge_videos(
         for media in media_paths:
             f.write(f"file '{os.path.abspath(media)}'\n")
 
-    # set target name, a new file in the same directory as the first media file
+    # if files are in certain containers, remain the same;
+    # otherwise, convert to .mkv
     if fex.lower() not in [".mp4", ".mov", ".avi"]:
-        fex = ".mp4"
+        fex = ".mkv"
+    # set target name, a new file in the same directory as the first media file
     if target_name == None:
         target_name = of + "_merged" + fex.lower()
     if not overwrite:
@@ -1608,7 +1610,7 @@ def merge_videos(
         "-c", "copy",
         target_name,
     ]
-    ffmpeg_cmd(cmd, total_length, pb_prefix="Merging videos:", print_cmd=True)
+    ffmpeg_cmd(cmd, total_length, pb_prefix="Merging videos:", print_cmd=print_cmd)
 
     # remove tmp.txt
     os.remove(txt_path)
