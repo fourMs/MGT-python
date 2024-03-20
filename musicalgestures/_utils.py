@@ -568,6 +568,62 @@ def cast_into_avi(filename, target_name=None, overwrite=False):
     return target_name
 
 
+def extract_frame(
+    filename: str,
+    frame: int=None,
+    time: str|float=None,
+    target_name: str=None,
+    overwrite: bool=False,
+    )-> str:
+    """
+    Extracts a single frame from a video using ffmpeg.
+
+    Args:
+        filename (str): Path to the input video file.
+        frame (int): The frame number to extract.
+        time (str|float): The time in HH:MM:ss.ms where to extract the frame from. If float, it is interpreted as seconds from the start of the video.
+        target_name (str, optional): The name for the output file. If None, the name will be \<input name\>FRAME\<frame number\>.\<file extension\>. Defaults to None.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+    """
+
+    import os
+    import datetime
+    if frame is not None and time is not None:
+        raise ValueError("frame and time cannot be both not None.")
+    if frame is None and time is None:
+        raise ValueError("frame and time cannot be both None.")
+
+    name, ext = os.path.splitext(filename)
+    if not target_name:
+        if frame is not None:
+            target_name = f"{name}_frame_{str(frame)}.png"
+        elif time is not None:
+            time = time if isinstance(time, str) else datetime.datetime.fromtimestamp(time-3600).strftime('%H:%M:%S.%f')
+            target_name = f"{name}_time_{time}.png"
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
+
+    if frame is not None:
+        cmds = ['ffmpeg',
+                '-y' if overwrite else "-n",
+                '-i', filename,
+                "-vf", f"select='eq(n\,{frame})'",
+                "-vsync", "0",
+                # "-vframes", "1",
+                target_name]
+    elif time is not None:
+        cmds = ['ffmpeg',
+                '-y' if overwrite else "-n",
+                '-i', filename,
+                "-vf", f"select='eq(t\,{time})'",
+                "-vsync", "0",
+                # "-vframes", "1",
+                target_name]
+    ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Extracting frame:')
+
+    return target_name
+
+
 def extract_subclip(filename, t1, t2, target_name=None, overwrite=False):
     """
     Extracts a section of the video using ffmpeg.
@@ -1004,7 +1060,7 @@ def ffprobe(filename):
         else:
             return out
 
-def get_widthheight(filename):
+def get_widthheight(filename: str) -> tuple[int, int]:
     """
     Gets the width and height of a video using FFprobe.
 
@@ -1071,7 +1127,7 @@ def has_audio(filename):
         return True
 
 
-def get_length(filename):
+def get_length(filename: str) -> float:
     """
     Gets the length (in seconds) of a video using FFprobe.
 
@@ -1388,7 +1444,7 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, strea
     command = ['ffmpeg', '-hide_banner', '-loglevel', 'quiet'] + command[1:]
 
     if print_cmd:
-        if type(command) == list:
+        if isinstance(command, list):
             print(' '.join(command))
         else:
             print(command)
@@ -1442,7 +1498,7 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, strea
             if returncode in [None, 0]:
                 pb.progress(total_time)
             else:
-                raise FFmpegError(all_out)
+                raise FFmpegError(f"return code: {returncode}"+all_out)
 
         except KeyboardInterrupt:
             try:
@@ -1519,3 +1575,100 @@ def in_colab():
     except NameError:
         result = False
     return result
+
+
+def in_ipynb():
+    """
+    Check if the environment is a Jupyter notebook.
+    Taken from https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-is-executed-in-the-ipython-notebook.
+
+    Returns:
+        bool: True if the environment is a Jupyter notebook, otherwise False.
+    """
+    try:
+        shell = get_ipython().__class__.__name__
+        if shell == 'ZMQInteractiveShell':
+            return True   # Jupyter notebook or qtconsole
+        elif shell == 'TerminalInteractiveShell':
+            return False  # Terminal running IPython
+        else:
+            return False  # Other type (?)
+    except NameError:
+        return False      # Probably standard Python interpreter
+
+
+class FilesNotMatchError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
+def merge_videos(
+    media_paths: list, target_name: str = None, overwrite: bool = False, print_cmd: bool = False
+) -> str:
+    """
+    Merges a list of video files into a single video file using ffmpeg.
+
+    Args:
+        media_paths (list): List of paths to the video files to merge.
+        target_name (str, optional): The name of the output video. Defaults to None (which assumes that the input filename with the suffix "_merged" should be used).
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+
+    Returns:
+        str: Path to the output video.
+    """
+
+    if len(media_paths) == 0:
+        raise ValueError("The list of media paths is empty.")
+    elif len(media_paths) == 1:
+        return media_paths[0]
+
+    import os
+    from musicalgestures._utils import generate_outfilename
+
+    # check if all media files have the same container, same resolution and same fps
+    try:
+        for media in media_paths:
+            pass_if_containers_match(media, media_paths[0])
+            assert get_widthheight(media) == get_widthheight(media_paths[0])
+            assert get_fps(media) == get_fps(media_paths[0])
+    except WrongContainer:
+        raise FilesNotMatchError("All media files must be in the same container.")
+    except AssertionError:
+        raise FilesNotMatchError("All media files must have the same resolution and fps.")
+
+    # set target name, a new file in the same directory as the first media file
+    of, fex = os.path.splitext(media_paths[0])
+    of = os.path.abspath(of)
+    # create a tmp .txt file for concat
+    txt_path = os.path.join(os.path.dirname(media_paths[0]), "tmp.txt")
+    with open(os.path.join(txt_path), "w") as f:
+        for media in media_paths:
+            f.write(f"file '{os.path.abspath(media)}'\n")
+
+    # if files are in certain containers, remain the same;
+    # otherwise, convert to .mkv
+    if fex.lower() not in [".mp4", ".mov", ".avi"]:
+        fex = ".mkv"
+    # set target name, a new file in the same directory as the first media file
+    if target_name == None:
+        target_name = of + "_merged" + fex.lower()
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
+
+    total_length = sum([get_length(media) for media in media_paths])
+
+    cmd = [
+        "ffmpeg",
+        "-y" if overwrite else "-n",
+        "-f", "concat",
+        "-safe", "0",
+        "-i", txt_path,
+        "-c", "copy",
+        target_name,
+    ]
+    ffmpeg_cmd(cmd, total_length, pb_prefix="Merging videos:", print_cmd=print_cmd)
+
+    # remove tmp.txt
+    os.remove(txt_path)
+
+    return target_name
