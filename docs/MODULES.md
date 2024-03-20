@@ -5,6 +5,7 @@
 Full list of [Mgt-python](README.md#mgt-python) project modules.
 
 - [MGT-python](README.md#mgt-python)
+    - [360video](musicalgestures/_360video.md#360video)
 - [Musicalgestures](musicalgestures/index.md#musicalgestures)
     - [Audio](musicalgestures/_audio.md#audio)
     - [Blend](musicalgestures/_blend.md#blend)
@@ -32,6 +33,7 @@ Full list of [Mgt-python](README.md#mgt-python) project modules.
     - [Ssm](musicalgestures/_ssm.md#ssm)
     - [Subtract](musicalgestures/_subtract.md#subtract)
     - [Utils](musicalgestures/_utils.md#utils)
+    - [Video](musicalgestures/_video.md#video)
     - [Videoadjust](musicalgestures/_videoadjust.md#videoadjust)
     - [Videograms](musicalgestures/_videograms.md#videograms)
     - [Videoreader](musicalgestures/_videoreader.md#videoreader)

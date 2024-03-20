@@ -5,6 +5,7 @@
 - [Mgt-python](../README.md#mgt-python) / [Modules](../MODULES.md#mgt-python-modules) / [Musicalgestures](index.md#musicalgestures) / Utils
     - [FFmpegError](#ffmpegerror)
     - [FFprobeError](#ffprobeerror)
+    - [FilesNotMatchError](#filesnotmatcherror)
     - [MgFigure](#mgfigure)
         - [MgFigure().show](#mgfigureshow)
     - [MgImage](#mgimage)
@@ -26,6 +27,7 @@
     - [convert_to_webm](#convert_to_webm)
     - [crop_ffmpeg](#crop_ffmpeg)
     - [embed_audio_in_video](#embed_audio_in_video)
+    - [extract_frame](#extract_frame)
     - [extract_subclip](#extract_subclip)
     - [extract_wav](#extract_wav)
     - [ffmpeg_cmd](#ffmpeg_cmd)
@@ -42,6 +44,8 @@
     - [get_widthheight](#get_widthheight)
     - [has_audio](#has_audio)
     - [in_colab](#in_colab)
+    - [in_ipynb](#in_ipynb)
+    - [merge_videos](#merge_videos)
     - [motiongrams_ffmpeg](#motiongrams_ffmpeg)
     - [motionvideo_ffmpeg](#motionvideo_ffmpeg)
     - [pass_if_container_is](#pass_if_container_is)
@@ -58,7 +62,7 @@
 
 ## FFmpegError
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1362)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1418)
 
 ```python
 class FFmpegError(Exception):
@@ -67,10 +71,19 @@ class FFmpegError(Exception):
 
 ## FFprobeError
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L967)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1023)
 
 ```python
 class FFprobeError(Exception):
+    def __init__(message):
+```
+
+## FilesNotMatchError
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1600)
+
+```python
+class FilesNotMatchError(Exception):
     def __init__(message):
 ```
 
@@ -183,7 +196,7 @@ Progresses the progress bar to the next step.
 
 ## NoDurationError
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L976)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1032)
 
 ```python
 class NoDurationError(FFprobeError):
@@ -195,7 +208,7 @@ class NoDurationError(FFprobeError):
 
 ## NoStreamError
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L972)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1028)
 
 ```python
 class NoStreamError(FFprobeError):
@@ -216,7 +229,7 @@ class WrongContainer(Exception):
 
 ## audio_dilate
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1292)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1348)
 
 ```python
 def audio_dilate(
@@ -324,7 +337,7 @@ Converts a video to one with .avi extension using ffmpeg.
 
 ## convert_to_grayscale
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L662)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L718)
 
 ```python
 def convert_to_grayscale(filename, target_name=None, overwrite=False):
@@ -384,7 +397,7 @@ Converts a video to one with .webm extension using ffmpeg.
 
 ## crop_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L899)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L955)
 
 ```python
 def crop_ffmpeg(filename, w, h, x, y, target_name=None, overwrite=False):
@@ -408,7 +421,7 @@ Crops a video using ffmpeg.
 
 ## embed_audio_in_video
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1322)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1378)
 
 ```python
 def embed_audio_in_video(source_audio, destination_video, dilation_ratio=1):
@@ -422,9 +435,33 @@ Embeds an audio file as the audio channel of a video file using ffmpeg.
 - `destination_video` *str* - Path to the video file to embed the audio file in.
 - `dilation_ratio` *float, optional* - The source file's length divided by the resulting file's length. Defaults to 1.
 
-## extract_subclip
+## extract_frame
 
 [[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L571)
+
+```python
+def extract_frame(
+    filename: str,
+    frame: int = None,
+    time: str | float = None,
+    target_name: str = None,
+    overwrite: bool = False,
+) -> str:
+```
+
+Extracts a single frame from a video using ffmpeg.
+
+#### Arguments
+
+- `filename` *str* - Path to the input video file.
+- `frame` *int* - The frame number to extract.
+- `time` *str|float* - The time in HH:MM:ss.ms where to extract the frame from. If float, it is interpreted as seconds from the start of the video.
+- `target_name` *str, optional* - The name for the output file. If None, the name will be \<input name\>FRAME\<frame number\>.\<file extension\>. Defaults to None.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+
+## extract_subclip
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L627)
 
 ```python
 def extract_subclip(filename, t1, t2, target_name=None, overwrite=False):
@@ -446,7 +483,7 @@ Extracts a section of the video using ffmpeg.
 
 ## extract_wav
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L935)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L991)
 
 ```python
 def extract_wav(filename, target_name=None, overwrite=False):
@@ -466,7 +503,7 @@ Extracts audio from video into a .wav file via ffmpeg.
 
 ## ffmpeg_cmd
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1367)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1423)
 
 ```python
 def ffmpeg_cmd(
@@ -497,7 +534,7 @@ Run an ffmpeg command in a subprocess and show progress using an MgProgressbar.
 
 ## ffprobe
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L979)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1035)
 
 ```python
 def ffprobe(filename):
@@ -534,7 +571,7 @@ Converts frames to milliseconds.
 
 ## framediff_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L690)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L746)
 
 ```python
 def framediff_ffmpeg(filename, target_name=None, color=True, overwrite=False):
@@ -574,7 +611,7 @@ filename if necessary by appending an integer, like "_0" or "_1", etc to the fil
 
 ## get_box_video_ratio
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1217)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1273)
 
 ```python
 def get_box_video_ratio(filename, box_width=800, box_height=600):
@@ -594,7 +631,7 @@ Gets the box-to-video ratio between an arbitrarily defind box and the video dime
 
 ## get_first_frame_as_image
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1185)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1241)
 
 ```python
 def get_first_frame_as_image(
@@ -620,7 +657,7 @@ Extracts the first frame of a video and saves it as an image using ffmpeg.
 
 ## get_fps
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1152)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1208)
 
 ```python
 def get_fps(filename):
@@ -656,7 +693,7 @@ frame (numpy array): A frame extracted by `cv2.VideoCapture().read()`.
 
 ## get_framecount
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1102)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1158)
 
 ```python
 def get_framecount(filename, fast=True):
@@ -674,10 +711,10 @@ Returns the number of frames in a video using FFprobe.
 
 ## get_length
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1074)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1130)
 
 ```python
-def get_length(filename):
+def get_length(filename: str) -> float:
 ```
 
 Gets the length (in seconds) of a video using FFprobe.
@@ -692,10 +729,10 @@ Gets the length (in seconds) of a video using FFprobe.
 
 ## get_widthheight
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1007)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1063)
 
 ```python
-def get_widthheight(filename):
+def get_widthheight(filename: str) -> tuple[int, int]:
 ```
 
 Gets the width and height of a video using FFprobe.
@@ -711,7 +748,7 @@ Gets the width and height of a video using FFprobe.
 
 ## has_audio
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1048)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1104)
 
 ```python
 def has_audio(filename):
@@ -729,7 +766,7 @@ Checks if video has audio track using FFprobe.
 
 ## in_colab
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1509)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1565)
 
 ```python
 def in_colab():
@@ -741,9 +778,49 @@ Check's if the environment is a Google Colab document.
 
 - `bool` - True if the environment is a Colab document, otherwise False.
 
+## in_ipynb
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1580)
+
+```python
+def in_ipynb():
+```
+
+Check if the environment is a Jupyter notebook.
+Taken from https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-is-executed-in-the-ipython-notebook.
+
+#### Returns
+
+- `bool` - True if the environment is a Jupyter notebook, otherwise False.
+
+## merge_videos
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1605)
+
+```python
+def merge_videos(
+    media_paths: list,
+    target_name: str = None,
+    overwrite: bool = False,
+    print_cmd: bool = False,
+) -> str:
+```
+
+Merges a list of video files into a single video file using ffmpeg.
+
+#### Arguments
+
+- `media_paths` *list* - List of paths to the video files to merge.
+- `target_name` *str, optional* - The name of the output video. Defaults to None (which assumes that the input filename with the suffix "_merged" should be used).
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+
+#### Returns
+
+- `str` - Path to the output video.
+
 ## motiongrams_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L823)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L879)
 
 ```python
 def motiongrams_ffmpeg(
@@ -784,7 +861,7 @@ Renders horizontal and vertical motiongrams using ffmpeg.
 
 ## motionvideo_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L767)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L823)
 
 ```python
 def motionvideo_ffmpeg(
@@ -860,7 +937,7 @@ Checks if file extensions match between two files. If they do it passes, is they
 
 ## quality_metrics
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1243)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1299)
 
 ```python
 def quality_metrics(original, processed, metric=None):
@@ -884,7 +961,7 @@ Possible to compute three major video quality metrics used for objective evaluat
 
 ## rotate_video
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L624)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L680)
 
 ```python
 def rotate_video(filename, angle, target_name=None, overwrite=False):
@@ -966,7 +1043,7 @@ Scales a number linearly.
 
 ## str2sec
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1456)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1512)
 
 ```python
 def str2sec(time_string):
@@ -984,7 +1061,7 @@ Converts a time code string into seconds.
 
 ## threshold_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L723)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L779)
 
 ```python
 def threshold_ffmpeg(
@@ -1012,7 +1089,7 @@ Renders a pixel-thresholded video from the input using ffmpeg.
 
 ## unwrap_str
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1491)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1547)
 
 ```python
 def unwrap_str(string):
@@ -1030,7 +1107,7 @@ Unwraps a string from quotes.
 
 ## wrap_str
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1470)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1526)
 
 ```python
 def wrap_str(string, matchers=[' ', '(', ')']):
