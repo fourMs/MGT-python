@@ -1,7 +1,7 @@
 import os
 from enum import Enum
 from functools import partial
-from typing import Dict
+from typing import Dict, Union
 from musicalgestures._video import MgVideo
 from musicalgestures._utils import ffmpeg_cmd, get_length, generate_outfilename
 
@@ -96,7 +96,7 @@ class Mg360Video(MgVideo):
     def __init__(
         self,
         filename: str,
-        projection: str | Projection,
+        projection: Union[str, Projection],
         camera: str = None,
         **kwargs,
     ):
@@ -122,7 +122,7 @@ class Mg360Video(MgVideo):
 
     def convert_projection(
         self,
-        target_projection: Projection | str,
+        target_projection: Union[Projection, str],
         options: Dict[str, str] = None,
         print_cmd: bool = False,
     ):
@@ -174,7 +174,7 @@ class Mg360Video(MgVideo):
             self.filename = output_name
             self.projection = target_projection
 
-    def _parse_projection(self, projection: str | Projection):
+    def _parse_projection(self, projection: Union[str, Projection]):
         """
         Parse projection type.
         Args:
