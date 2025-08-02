@@ -158,6 +158,23 @@ class MgVideo(MgAudio):
     )
     from musicalgestures._pose import pose
 
+    def average(self, **kwargs):
+        """
+        Backward compatibility alias for blend(component_mode='average').
+        Creates an average image of all frames in the video.
+        
+        Args:
+            **kwargs: Additional arguments passed to blend method.
+                     Note: 'normalize' parameter is accepted for backward compatibility but ignored.
+        
+        Returns:
+            MgImage: A new MgImage pointing to the output average image file.
+        """
+        # Remove 'normalize' parameter if present (for backward compatibility)
+        # The current blend implementation doesn't support normalize
+        filtered_kwargs = {k: v for k, v in kwargs.items() if k != 'normalize'}
+        return self.blend(component_mode='average', **filtered_kwargs)
+
     def test_input(self):
         """Gives feedback to user if initialization from input went wrong."""
         mg_input_test(
