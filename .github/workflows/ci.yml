@@ -58,4 +58,4 @@ jobs:
       
     - name: Test basic import
       run: |
-        python -c "import musicalgestures; print('✅ MGT-python import successful on ${{ matrix.os }} Python ${{ matrix.python-version }}')"
+        python -c "import musicalgestures; print('MGT-python import successful on ${{ matrix.os }} Python ${{ matrix.python-version }}')"
