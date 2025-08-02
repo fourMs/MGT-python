@@ -9,7 +9,7 @@
 
 ## Mg360Video
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_360video.py#L90)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_360video.py#L91)
 
 ```python
 class Mg360Video(MgVideo):
@@ -29,12 +29,12 @@ Class for 360 videos.
 
 ### Mg360Video().convert_projection
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_360video.py#L122)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_360video.py#L123)
 
 ```python
 def convert_projection(
     target_projection: Projection | str,
-    options: dict[str, str] = None,
+    options: Dict[str, str] = None,
     print_cmd: bool = False,
 ):
 ```
@@ -44,12 +44,12 @@ Convert the video to a different projection.
 #### Arguments
 
 - `target_projection` *Projection* - Target projection.
-options (dict[str, str], optional): Options for the conversion. Defaults to None.
+options (Dict[str, str], optional): Options for the conversion. Defaults to None.
 - `print_cmd` *bool, optional* - Print the ffmpeg command. Defaults to False.
 
 ## Projection
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_360video.py#L8)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_360video.py#L9)
 
 ```python
 class Projection(Enum):

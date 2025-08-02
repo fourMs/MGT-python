@@ -732,7 +732,7 @@ Gets the length (in seconds) of a video using FFprobe.
 [[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1065)
 
 ```python
-def get_widthheight(filename: str) -> tuple[int, int]:
+def get_widthheight(filename: str) -> Tuple[int, int]:
 ```
 
 Gets the width and height of a video using FFprobe.
