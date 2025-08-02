@@ -1,3 +1,5 @@
+from typing import Union
+
 class MgProgressbar():
     """
     Calls in a loop to create terminal progress bar.
@@ -571,7 +573,7 @@ def cast_into_avi(filename, target_name=None, overwrite=False):
 def extract_frame(
     filename: str,
     frame: int=None,
-    time: str|float=None,
+    time: Union[str, float]=None,
     target_name: str=None,
     overwrite: bool=False,
     )-> str:
@@ -581,7 +583,7 @@ def extract_frame(
     Args:
         filename (str): Path to the input video file.
         frame (int): The frame number to extract.
-        time (str|float): The time in HH:MM:ss.ms where to extract the frame from. If float, it is interpreted as seconds from the start of the video.
+        time (Union[str, float]): The time in HH:MM:ss.ms where to extract the frame from. If float, it is interpreted as seconds from the start of the video.
         target_name (str, optional): The name for the output file. If None, the name will be \<input name\>FRAME\<frame number\>.\<file extension\>. Defaults to None.
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
     """

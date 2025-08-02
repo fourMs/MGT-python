@@ -1,6 +1,7 @@
 import os
 import glob
 import numpy as np
+from typing import Union, List
 from musicalgestures._input_test import mg_input_test
 from musicalgestures._videoreader import mg_videoreader
 from musicalgestures._flow import Flow
@@ -32,7 +33,7 @@ class MgVideo(MgAudio):
 
     def __init__(
         self,
-        filename: str|list[str],
+        filename: Union[str, List[str]],
         array=None,
         fps=None,
         path=None,
@@ -60,7 +61,7 @@ class MgVideo(MgAudio):
         Initializes Musical Gestures data structure from a video file, and applies preprocesses if desired.
 
         Args:
-            filename (str|list[str]): Path to the video file. If input is a list, will merge all videos into one.
+            filename (Union[str, List[str]]): Path to the video file. If input is a list, will merge all videos into one.
             array (np.ndarray, optional): Generates an MgVideo object from a video array. Defauts to None.
             fps (float, optional): The frequency at which consecutive images from the video array are captured or displayed. Defauts to None.
             path (str, optional): Path to save the output video file generated from a video array. Defaults to None.
