@@ -1,8 +1,75 @@
-site_name: "MGT-python"
+site_name: "MGT-python: Musical Gestures Toolbox"
+site_description: "Musical Gestures Toolbox for Python - Tools for visualization and analysis of audio and video"
 repo_url: "https://github.com/fourMs/MGT-python/"
+edit_uri: "edit/master/docs/"
 site_dir: "site"
 docs_dir: "docs"
 
 theme:
-  name: readthedocs
-  include_sidebar: true
+  name: material
+  language: en
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.highlight
+    - content.code.copy
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: installation.md
+    - Quick Start: quickstart.md
+    - Examples: examples.md
+  - User Guide:
+    - Core Classes: user-guide/core-classes.md
+    - Video Processing: user-guide/video-processing.md
+    - Audio Analysis: user-guide/audio-analysis.md
+    - Motion Analysis: user-guide/motion-analysis.md
+    - Visualization: user-guide/visualization.md
+  - API Reference:
+    - musicalgestures/index.md
+    - Video: musicalgestures/_video.md
+    - Audio: musicalgestures/_audio.md
+    - Flow: musicalgestures/_flow.md
+    - 360 Video: musicalgestures/_360video.md
+    - Utils: musicalgestures/_utils.md
+    - Complete Reference: MODULES.md
+  - Development:
+    - Contributing: contributing.md
+    - Testing: testing.md
+    - Release Notes: releases.md
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [musicalgestures]
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: true
