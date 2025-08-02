@@ -13,12 +13,12 @@
 
 ## MgVideo
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L19)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L20)
 
 ```python
 class MgVideo(MgAudio):
     def __init__(
-        filename: str | list[str],
+        filename: Union[str, List[str]],
         array=None,
         fps=None,
         path=None,
@@ -59,7 +59,7 @@ These preprocesses will apply upon creating the MgVideo. Further processes are a
 
 ### MgVideo().average
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L161)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L162)
 
 ```python
 def average(**kwargs):
@@ -79,7 +79,7 @@ Creates an average image of all frames in the video.
 
 ### MgVideo().extract_frame
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L329)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L330)
 
 ```python
 def extract_frame(**kwargs):
@@ -101,7 +101,7 @@ see _utils.extract_frame for details.
 
 ### MgVideo().from_numpy
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L289)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L290)
 
 ```python
 def from_numpy(array, fps, target_name=None):
@@ -109,7 +109,7 @@ def from_numpy(array, fps, target_name=None):
 
 ### MgVideo().get_video
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L193)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L194)
 
 ```python
 def get_video():
@@ -119,7 +119,7 @@ Creates a video attribute to the Musical Gestures object with the given correct 
 
 ### MgVideo().numpy
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L276)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L277)
 
 ```python
 def numpy():
@@ -129,7 +129,7 @@ Pipe all video frames from FFmpeg to numpy array
 
 ### MgVideo().test_input
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L178)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L179)
 
 ```python
 def test_input():
