@@ -15,7 +15,7 @@
 class Mg360Video(MgVideo):
     def __init__(
         filename: str,
-        projection: str | Projection,
+        projection: Union[str, Projection],
         camera: str = None,
         **kwargs,
     ):
@@ -26,6 +26,7 @@ Class for 360 videos.
 #### See also
 
 - [MgVideo](_video.md#mgvideo)
+- [Projection](#projection)
 
 ### Mg360Video().convert_projection
 
@@ -33,7 +34,7 @@ Class for 360 videos.
 
 ```python
 def convert_projection(
-    target_projection: Projection | str,
+    target_projection: Union[Projection, str],
     options: Dict[str, str] = None,
     print_cmd: bool = False,
 ):
@@ -46,6 +47,10 @@ Convert the video to a different projection.
 - `target_projection` *Projection* - Target projection.
 options (Dict[str, str], optional): Options for the conversion. Defaults to None.
 - `print_cmd` *bool, optional* - Print the ffmpeg command. Defaults to False.
+
+#### See also
+
+- [Projection](#projection)
 
 ## Projection
 
