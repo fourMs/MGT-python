@@ -3,7 +3,7 @@
 [![PyPi version](https://badgen.net/pypi/v/musicalgestures/)](https://pypi.org/project/musicalgestures)
 [![GitHub license](https://img.shields.io/github/license/fourMs/MGT-python.svg)](https://github.com/fourMs/MGT-python/blob/master/LICENSE)
 [![CI](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml/badge.svg)](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml)
-[![Documentation Status](https://readthedocs.org/projects/mgt-python/badge/?version=latest)](https://mgt-python.readthedocs.io/en/latest/?badge=latest)
+[![Documentation](https://github.com/fourMs/MGT-python/actions/workflows/docs.yml/badge.svg)](https://fourms.github.io/MGT-python/)
 
 The **Musical Gestures Toolbox for Python** is a comprehensive collection of tools for visualization and analysis of audio and video, with a focus on motion capture and musical gesture analysis.
 
@@ -111,7 +111,7 @@ If you use MGT-python in your research, please cite:
 @software{mgt_python,
   title={Musical Gestures Toolbox for Python},
   author={University of Oslo fourMs Lab},
-  url={https://github.com/fourMs/MGT-python},
+  url={https://fourms.github.io/MGT-python/},
   version={1.3.2},
   year={2024}
 }

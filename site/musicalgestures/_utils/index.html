@@ -1,0 +1,5034 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Musical Gestures Toolbox for Python - Tools for visualization and analysis of audio and video">
+      
+      
+      
+        <link rel="canonical" href="https://fourms.github.io/MGT-python/musicalgestures/_utils/">
+      
+      
+        <link rel="prev" href="../_360video/">
+      
+      
+        <link rel="next" href="../../MODULES/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.16">
+    
+    
+      
+        <title>Utils - MGT-python: Musical Gestures Toolbox</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.7e37652d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#utils" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="MGT-python: Musical Gestures Toolbox" class="md-header__button md-logo" aria-label="MGT-python: Musical Gestures Toolbox" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            MGT-python: Musical Gestures Toolbox
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Utils
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/fourMs/MGT-python/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-guide/core-classes/" class="md-tabs__link">
+          
+  
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="MGT-python: Musical Gestures Toolbox" class="md-nav__button md-logo" aria-label="MGT-python: Musical Gestures Toolbox" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    MGT-python: Musical Gestures Toolbox
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/fourMs/MGT-python/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quick Start
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Examples
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    User Guide
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            User Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/core-classes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Core Classes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../_video/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Video
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../_audio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Audio
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../_flow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Flow
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../_360video/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    360 Video
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Utils
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Utils
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#ffmpegerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      FFmpegError
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ffprobeerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      FFprobeError
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#filesnotmatcherror" class="md-nav__link">
+    <span class="md-ellipsis">
+      FilesNotMatchError
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mgfigure" class="md-nav__link">
+    <span class="md-ellipsis">
+      MgFigure
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MgFigure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mgfigureshow" class="md-nav__link">
+    <span class="md-ellipsis">
+      MgFigure().show
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mgimage" class="md-nav__link">
+    <span class="md-ellipsis">
+      MgImage
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mgprogressbar" class="md-nav__link">
+    <span class="md-ellipsis">
+      MgProgressbar
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MgProgressbar">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mgprogressbaradjust_printlength" class="md-nav__link">
+    <span class="md-ellipsis">
+      MgProgressbar().adjust_printlength
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mgprogressbarget_now" class="md-nav__link">
+    <span class="md-ellipsis">
+      MgProgressbar().get_now
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MgProgressbar().get_now">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mgprogressbarover_time_limit" class="md-nav__link">
+    <span class="md-ellipsis">
+      MgProgressbar().over_time_limit
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MgProgressbar().over_time_limit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#returns_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mgprogressbarprogress" class="md-nav__link">
+    <span class="md-ellipsis">
+      MgProgressbar().progress
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MgProgressbar().progress">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nodurationerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      NoDurationError
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="NoDurationError">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      See also
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nostreamerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      NoStreamError
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="NoStreamError">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#see-also_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      See also
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#wrongcontainer" class="md-nav__link">
+    <span class="md-ellipsis">
+      WrongContainer
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#audio_dilate" class="md-nav__link">
+    <span class="md-ellipsis">
+      audio_dilate
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="audio_dilate">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cast_into_avi" class="md-nav__link">
+    <span class="md-ellipsis">
+      cast_into_avi
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="cast_into_avi">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#clamp" class="md-nav__link">
+    <span class="md-ellipsis">
+      clamp
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="clamp">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#convert" class="md-nav__link">
+    <span class="md-ellipsis">
+      convert
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="convert">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#convert_to_avi" class="md-nav__link">
+    <span class="md-ellipsis">
+      convert_to_avi
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="convert_to_avi">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#convert_to_grayscale" class="md-nav__link">
+    <span class="md-ellipsis">
+      convert_to_grayscale
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="convert_to_grayscale">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#convert_to_mp4" class="md-nav__link">
+    <span class="md-ellipsis">
+      convert_to_mp4
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="convert_to_mp4">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#convert_to_webm" class="md-nav__link">
+    <span class="md-ellipsis">
+      convert_to_webm
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="convert_to_webm">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#crop_ffmpeg" class="md-nav__link">
+    <span class="md-ellipsis">
+      crop_ffmpeg
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="crop_ffmpeg">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#embed_audio_in_video" class="md-nav__link">
+    <span class="md-ellipsis">
+      embed_audio_in_video
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="embed_audio_in_video">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extract_frame" class="md-nav__link">
+    <span class="md-ellipsis">
+      extract_frame
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="extract_frame">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extract_subclip" class="md-nav__link">
+    <span class="md-ellipsis">
+      extract_subclip
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="extract_subclip">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extract_wav" class="md-nav__link">
+    <span class="md-ellipsis">
+      extract_wav
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="extract_wav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ffmpeg_cmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      ffmpeg_cmd
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ffmpeg_cmd">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#raises" class="md-nav__link">
+    <span class="md-ellipsis">
+      Raises
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ffprobe" class="md-nav__link">
+    <span class="md-ellipsis">
+      ffprobe
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ffprobe">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#frame2ms" class="md-nav__link">
+    <span class="md-ellipsis">
+      frame2ms
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="frame2ms">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#framediff_ffmpeg" class="md-nav__link">
+    <span class="md-ellipsis">
+      framediff_ffmpeg
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="framediff_ffmpeg">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generate_outfilename" class="md-nav__link">
+    <span class="md-ellipsis">
+      generate_outfilename
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="generate_outfilename">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_box_video_ratio" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_box_video_ratio
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="get_box_video_ratio">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_first_frame_as_image" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_first_frame_as_image
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="get_first_frame_as_image">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_fps" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_fps
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="get_fps">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_frame_planecount" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_frame_planecount
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="get_frame_planecount">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_framecount" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_framecount
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="get_framecount">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_length" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_length
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="get_length">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_widthheight" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_widthheight
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="get_widthheight">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#has_audio" class="md-nav__link">
+    <span class="md-ellipsis">
+      has_audio
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="has_audio">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_26" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#in_colab" class="md-nav__link">
+    <span class="md-ellipsis">
+      in_colab
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="in_colab">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#returns_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#in_ipynb" class="md-nav__link">
+    <span class="md-ellipsis">
+      in_ipynb
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="in_ipynb">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#returns_26" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#merge_videos" class="md-nav__link">
+    <span class="md-ellipsis">
+      merge_videos
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="merge_videos">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_27" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_27" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#motiongrams_ffmpeg" class="md-nav__link">
+    <span class="md-ellipsis">
+      motiongrams_ffmpeg
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="motiongrams_ffmpeg">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_28" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_28" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#motionvideo_ffmpeg" class="md-nav__link">
+    <span class="md-ellipsis">
+      motionvideo_ffmpeg
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="motionvideo_ffmpeg">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_29" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_29" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pass_if_container_is" class="md-nav__link">
+    <span class="md-ellipsis">
+      pass_if_container_is
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pass_if_container_is">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_30" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#raises_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Raises
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pass_if_containers_match" class="md-nav__link">
+    <span class="md-ellipsis">
+      pass_if_containers_match
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pass_if_containers_match">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_31" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#raises_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Raises
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quality_metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      quality_metrics
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="quality_metrics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_32" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rotate_video" class="md-nav__link">
+    <span class="md-ellipsis">
+      rotate_video
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="rotate_video">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_33" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_30" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#roundup" class="md-nav__link">
+    <span class="md-ellipsis">
+      roundup
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="roundup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_34" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_31" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scale_array" class="md-nav__link">
+    <span class="md-ellipsis">
+      scale_array
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="scale_array">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_35" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_32" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scale_num" class="md-nav__link">
+    <span class="md-ellipsis">
+      scale_num
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="scale_num">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_36" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_33" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#str2sec" class="md-nav__link">
+    <span class="md-ellipsis">
+      str2sec
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="str2sec">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_37" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_34" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#threshold_ffmpeg" class="md-nav__link">
+    <span class="md-ellipsis">
+      threshold_ffmpeg
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="threshold_ffmpeg">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_38" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_35" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unwrap_str" class="md-nav__link">
+    <span class="md-ellipsis">
+      unwrap_str
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="unwrap_str">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_39" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_36" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#wrap_str" class="md-nav__link">
+    <span class="md-ellipsis">
+      wrap_str
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="wrap_str">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_40" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_37" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../MODULES/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Complete Reference
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Development
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Development
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Contributing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#ffmpegerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      FFmpegError
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ffprobeerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      FFprobeError
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#filesnotmatcherror" class="md-nav__link">
+    <span class="md-ellipsis">
+      FilesNotMatchError
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mgfigure" class="md-nav__link">
+    <span class="md-ellipsis">
+      MgFigure
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MgFigure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mgfigureshow" class="md-nav__link">
+    <span class="md-ellipsis">
+      MgFigure().show
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mgimage" class="md-nav__link">
+    <span class="md-ellipsis">
+      MgImage
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mgprogressbar" class="md-nav__link">
+    <span class="md-ellipsis">
+      MgProgressbar
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MgProgressbar">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mgprogressbaradjust_printlength" class="md-nav__link">
+    <span class="md-ellipsis">
+      MgProgressbar().adjust_printlength
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mgprogressbarget_now" class="md-nav__link">
+    <span class="md-ellipsis">
+      MgProgressbar().get_now
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MgProgressbar().get_now">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mgprogressbarover_time_limit" class="md-nav__link">
+    <span class="md-ellipsis">
+      MgProgressbar().over_time_limit
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MgProgressbar().over_time_limit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#returns_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mgprogressbarprogress" class="md-nav__link">
+    <span class="md-ellipsis">
+      MgProgressbar().progress
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MgProgressbar().progress">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nodurationerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      NoDurationError
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="NoDurationError">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      See also
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nostreamerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      NoStreamError
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="NoStreamError">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#see-also_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      See also
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#wrongcontainer" class="md-nav__link">
+    <span class="md-ellipsis">
+      WrongContainer
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#audio_dilate" class="md-nav__link">
+    <span class="md-ellipsis">
+      audio_dilate
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="audio_dilate">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cast_into_avi" class="md-nav__link">
+    <span class="md-ellipsis">
+      cast_into_avi
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="cast_into_avi">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#clamp" class="md-nav__link">
+    <span class="md-ellipsis">
+      clamp
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="clamp">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#convert" class="md-nav__link">
+    <span class="md-ellipsis">
+      convert
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="convert">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#convert_to_avi" class="md-nav__link">
+    <span class="md-ellipsis">
+      convert_to_avi
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="convert_to_avi">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#convert_to_grayscale" class="md-nav__link">
+    <span class="md-ellipsis">
+      convert_to_grayscale
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="convert_to_grayscale">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#convert_to_mp4" class="md-nav__link">
+    <span class="md-ellipsis">
+      convert_to_mp4
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="convert_to_mp4">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#convert_to_webm" class="md-nav__link">
+    <span class="md-ellipsis">
+      convert_to_webm
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="convert_to_webm">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#crop_ffmpeg" class="md-nav__link">
+    <span class="md-ellipsis">
+      crop_ffmpeg
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="crop_ffmpeg">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#embed_audio_in_video" class="md-nav__link">
+    <span class="md-ellipsis">
+      embed_audio_in_video
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="embed_audio_in_video">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extract_frame" class="md-nav__link">
+    <span class="md-ellipsis">
+      extract_frame
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="extract_frame">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extract_subclip" class="md-nav__link">
+    <span class="md-ellipsis">
+      extract_subclip
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="extract_subclip">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extract_wav" class="md-nav__link">
+    <span class="md-ellipsis">
+      extract_wav
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="extract_wav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ffmpeg_cmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      ffmpeg_cmd
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ffmpeg_cmd">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#raises" class="md-nav__link">
+    <span class="md-ellipsis">
+      Raises
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ffprobe" class="md-nav__link">
+    <span class="md-ellipsis">
+      ffprobe
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ffprobe">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#frame2ms" class="md-nav__link">
+    <span class="md-ellipsis">
+      frame2ms
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="frame2ms">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#framediff_ffmpeg" class="md-nav__link">
+    <span class="md-ellipsis">
+      framediff_ffmpeg
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="framediff_ffmpeg">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generate_outfilename" class="md-nav__link">
+    <span class="md-ellipsis">
+      generate_outfilename
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="generate_outfilename">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_box_video_ratio" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_box_video_ratio
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="get_box_video_ratio">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_first_frame_as_image" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_first_frame_as_image
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="get_first_frame_as_image">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_fps" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_fps
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="get_fps">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_frame_planecount" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_frame_planecount
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="get_frame_planecount">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_framecount" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_framecount
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="get_framecount">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_length" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_length
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="get_length">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_widthheight" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_widthheight
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="get_widthheight">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#has_audio" class="md-nav__link">
+    <span class="md-ellipsis">
+      has_audio
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="has_audio">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_26" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#in_colab" class="md-nav__link">
+    <span class="md-ellipsis">
+      in_colab
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="in_colab">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#returns_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#in_ipynb" class="md-nav__link">
+    <span class="md-ellipsis">
+      in_ipynb
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="in_ipynb">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#returns_26" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#merge_videos" class="md-nav__link">
+    <span class="md-ellipsis">
+      merge_videos
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="merge_videos">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_27" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_27" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#motiongrams_ffmpeg" class="md-nav__link">
+    <span class="md-ellipsis">
+      motiongrams_ffmpeg
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="motiongrams_ffmpeg">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_28" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_28" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#motionvideo_ffmpeg" class="md-nav__link">
+    <span class="md-ellipsis">
+      motionvideo_ffmpeg
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="motionvideo_ffmpeg">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_29" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_29" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pass_if_container_is" class="md-nav__link">
+    <span class="md-ellipsis">
+      pass_if_container_is
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pass_if_container_is">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_30" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#raises_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Raises
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pass_if_containers_match" class="md-nav__link">
+    <span class="md-ellipsis">
+      pass_if_containers_match
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pass_if_containers_match">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_31" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#raises_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Raises
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quality_metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      quality_metrics
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="quality_metrics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_32" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rotate_video" class="md-nav__link">
+    <span class="md-ellipsis">
+      rotate_video
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="rotate_video">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_33" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_30" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#roundup" class="md-nav__link">
+    <span class="md-ellipsis">
+      roundup
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="roundup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_34" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_31" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scale_array" class="md-nav__link">
+    <span class="md-ellipsis">
+      scale_array
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="scale_array">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_35" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_32" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scale_num" class="md-nav__link">
+    <span class="md-ellipsis">
+      scale_num
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="scale_num">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_36" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_33" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#str2sec" class="md-nav__link">
+    <span class="md-ellipsis">
+      str2sec
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="str2sec">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_37" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_34" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#threshold_ffmpeg" class="md-nav__link">
+    <span class="md-ellipsis">
+      threshold_ffmpeg
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="threshold_ffmpeg">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_38" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_35" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unwrap_str" class="md-nav__link">
+    <span class="md-ellipsis">
+      unwrap_str
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="unwrap_str">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_39" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_36" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#wrap_str" class="md-nav__link">
+    <span class="md-ellipsis">
+      wrap_str
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="wrap_str">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arguments_40" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arguments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returns_37" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/fourMs/MGT-python/edit/master/docs/musicalgestures/_utils.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/fourMs/MGT-python/raw/master/docs/musicalgestures/_utils.md" title="View source of this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
+    </a>
+  
+
+
+<h1 id="utils">Utils<a class="headerlink" href="#utils" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>Auto-generated documentation for <a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py">musicalgestures._utils</a> module.</p>
+</blockquote>
+<ul>
+<li><a href="../README.md#mgt-python">Mgt-python</a> / <a href="../../MODULES/#mgt-python-modules">Modules</a> / <a href="../#musicalgestures">Musicalgestures</a> / Utils<ul>
+<li><a href="#ffmpegerror">FFmpegError</a></li>
+<li><a href="#ffprobeerror">FFprobeError</a></li>
+<li><a href="#filesnotmatcherror">FilesNotMatchError</a></li>
+<li><a href="#mgfigure">MgFigure</a><ul>
+<li><a href="#mgfigureshow">MgFigure().show</a></li>
+</ul>
+</li>
+<li><a href="#mgimage">MgImage</a></li>
+<li><a href="#mgprogressbar">MgProgressbar</a><ul>
+<li><a href="#mgprogressbaradjust_printlength">MgProgressbar().adjust_printlength</a></li>
+<li><a href="#mgprogressbarget_now">MgProgressbar().get_now</a></li>
+<li><a href="#mgprogressbarover_time_limit">MgProgressbar().over_time_limit</a></li>
+<li><a href="#mgprogressbarprogress">MgProgressbar().progress</a></li>
+</ul>
+</li>
+<li><a href="#nodurationerror">NoDurationError</a></li>
+<li><a href="#nostreamerror">NoStreamError</a></li>
+<li><a href="#wrongcontainer">WrongContainer</a></li>
+<li><a href="#audio_dilate">audio_dilate</a></li>
+<li><a href="#cast_into_avi">cast_into_avi</a></li>
+<li><a href="#clamp">clamp</a></li>
+<li><a href="#convert">convert</a></li>
+<li><a href="#convert_to_avi">convert_to_avi</a></li>
+<li><a href="#convert_to_grayscale">convert_to_grayscale</a></li>
+<li><a href="#convert_to_mp4">convert_to_mp4</a></li>
+<li><a href="#convert_to_webm">convert_to_webm</a></li>
+<li><a href="#crop_ffmpeg">crop_ffmpeg</a></li>
+<li><a href="#embed_audio_in_video">embed_audio_in_video</a></li>
+<li><a href="#extract_frame">extract_frame</a></li>
+<li><a href="#extract_subclip">extract_subclip</a></li>
+<li><a href="#extract_wav">extract_wav</a></li>
+<li><a href="#ffmpeg_cmd">ffmpeg_cmd</a></li>
+<li><a href="#ffprobe">ffprobe</a></li>
+<li><a href="#frame2ms">frame2ms</a></li>
+<li><a href="#framediff_ffmpeg">framediff_ffmpeg</a></li>
+<li><a href="#generate_outfilename">generate_outfilename</a></li>
+<li><a href="#get_box_video_ratio">get_box_video_ratio</a></li>
+<li><a href="#get_first_frame_as_image">get_first_frame_as_image</a></li>
+<li><a href="#get_fps">get_fps</a></li>
+<li><a href="#get_frame_planecount">get_frame_planecount</a></li>
+<li><a href="#get_framecount">get_framecount</a></li>
+<li><a href="#get_length">get_length</a></li>
+<li><a href="#get_widthheight">get_widthheight</a></li>
+<li><a href="#has_audio">has_audio</a></li>
+<li><a href="#in_colab">in_colab</a></li>
+<li><a href="#in_ipynb">in_ipynb</a></li>
+<li><a href="#merge_videos">merge_videos</a></li>
+<li><a href="#motiongrams_ffmpeg">motiongrams_ffmpeg</a></li>
+<li><a href="#motionvideo_ffmpeg">motionvideo_ffmpeg</a></li>
+<li><a href="#pass_if_container_is">pass_if_container_is</a></li>
+<li><a href="#pass_if_containers_match">pass_if_containers_match</a></li>
+<li><a href="#quality_metrics">quality_metrics</a></li>
+<li><a href="#rotate_video">rotate_video</a></li>
+<li><a href="#roundup">roundup</a></li>
+<li><a href="#scale_array">scale_array</a></li>
+<li><a href="#scale_num">scale_num</a></li>
+<li><a href="#str2sec">str2sec</a></li>
+<li><a href="#threshold_ffmpeg">threshold_ffmpeg</a></li>
+<li><a href="#unwrap_str">unwrap_str</a></li>
+<li><a href="#wrap_str">wrap_str</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="ffmpegerror">FFmpegError<a class="headerlink" href="#ffmpegerror" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1418">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span> <span class="nc">FFmpegError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+</code></pre></div>
+<h2 id="ffprobeerror">FFprobeError<a class="headerlink" href="#ffprobeerror" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1023">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span> <span class="nc">FFprobeError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+</code></pre></div>
+<h2 id="filesnotmatcherror">FilesNotMatchError<a class="headerlink" href="#filesnotmatcherror" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1600">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span> <span class="nc">FilesNotMatchError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+</code></pre></div>
+<h2 id="mgfigure">MgFigure<a class="headerlink" href="#mgfigure" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L197">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span> <span class="nc">MgFigure</span><span class="p">():</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>        <span class="n">figure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>        <span class="n">figure_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>        <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>        <span class="n">layers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>        <span class="n">image</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="p">):</span>
+</code></pre></div>
+<p>Class for working with figures and plots within the Musical Gestures Toolbox.</p>
+<h3 id="mgfigureshow">MgFigure().show<a class="headerlink" href="#mgfigureshow" title="Permanent link">&para;</a></h3>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L222">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">def</span> <span class="nf">show</span><span class="p">():</span>
+</code></pre></div>
+<p>Shows the internal matplotlib.pyplot.figure.</p>
+<h2 id="mgimage">MgImage<a class="headerlink" href="#mgimage" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L175">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span> <span class="nc">MgImage</span><span class="p">():</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+</code></pre></div>
+<p>Class for handling images in the Musical Gestures Toolbox.</p>
+<h2 id="mgprogressbar">MgProgressbar<a class="headerlink" href="#mgprogressbar" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span> <span class="nc">MgProgressbar</span><span class="p">():</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>        <span class="n">total</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>        <span class="n">time_limit</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;Progress&#39;</span><span class="p">,</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>        <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;Complete&#39;</span><span class="p">,</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>        <span class="n">decimals</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>        <span class="n">length</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>        <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;█&#39;</span><span class="p">,</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    <span class="p">):</span>
+</code></pre></div>
+<p>Calls in a loop to create terminal progress bar.</p>
+<h3 id="mgprogressbaradjust_printlength">MgProgressbar().adjust_printlength<a class="headerlink" href="#mgprogressbaradjust_printlength" title="Permanent link">&para;</a></h3>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L62">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">def</span> <span class="nf">adjust_printlength</span><span class="p">():</span>
+</code></pre></div>
+<h3 id="mgprogressbarget_now">MgProgressbar().get_now<a class="headerlink" href="#mgprogressbarget_now" title="Permanent link">&para;</a></h3>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L42">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">def</span> <span class="nf">get_now</span><span class="p">():</span>
+</code></pre></div>
+<p>Gets the current time.</p>
+<h4 id="returns">Returns<a class="headerlink" href="#returns" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>datetime.datetime.timestamp</code> - The current time.</li>
+</ul>
+<h3 id="mgprogressbarover_time_limit">MgProgressbar().over_time_limit<a class="headerlink" href="#mgprogressbarover_time_limit" title="Permanent link">&para;</a></h3>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L52">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">def</span> <span class="nf">over_time_limit</span><span class="p">():</span>
+</code></pre></div>
+<p>Checks if we should redraw the progress bar at this moment.</p>
+<h4 id="returns_1">Returns<a class="headerlink" href="#returns_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>bool</code> - True if equal or more time has passed than <code>self.time_limit</code> since the last redraw.</li>
+</ul>
+<h3 id="mgprogressbarprogress">MgProgressbar().progress<a class="headerlink" href="#mgprogressbarprogress" title="Permanent link">&para;</a></h3>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L124">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">def</span> <span class="nf">progress</span><span class="p">(</span><span class="n">iteration</span><span class="p">):</span>
+</code></pre></div>
+<p>Progresses the progress bar to the next step.</p>
+<h4 id="arguments">Arguments<a class="headerlink" href="#arguments" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>iteration</code> <em>float</em> - The current iteration. For example, the 57th out of 100 steps, or 12.3s out of the total 60s.</li>
+</ul>
+<h2 id="nodurationerror">NoDurationError<a class="headerlink" href="#nodurationerror" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1032">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">class</span> <span class="nc">NoDurationError</span><span class="p">(</span><span class="n">FFprobeError</span><span class="p">):</span>
+</code></pre></div>
+<h4 id="see-also">See also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h4>
+<ul>
+<li><a href="#ffprobeerror">FFprobeError</a></li>
+</ul>
+<h2 id="nostreamerror">NoStreamError<a class="headerlink" href="#nostreamerror" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1028">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">class</span> <span class="nc">NoStreamError</span><span class="p">(</span><span class="n">FFprobeError</span><span class="p">):</span>
+</code></pre></div>
+<h4 id="see-also_1">See also<a class="headerlink" href="#see-also_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li><a href="#ffprobeerror">FFprobeError</a></li>
+</ul>
+<h2 id="wrongcontainer">WrongContainer<a class="headerlink" href="#wrongcontainer" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L390">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">class</span> <span class="nc">WrongContainer</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+</code></pre></div>
+<h2 id="audio_dilate">audio_dilate<a class="headerlink" href="#audio_dilate" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1348">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">def</span> <span class="nf">audio_dilate</span><span class="p">(</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    <span class="n">filename</span><span class="p">,</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    <span class="n">dilation_ratio</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    <span class="n">target_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="p">):</span>
+</code></pre></div>
+<p>Time-stretches or -shrinks (dilates) an audio file using ffmpeg.</p>
+<h4 id="arguments_1">Arguments<a class="headerlink" href="#arguments_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>filename</code> <em>str</em> - Path to the audio file to dilate.</li>
+<li><code>dilation_ratio</code> <em>float, optional</em> - The source file's length divided by the resulting file's length. Defaults to 1.</li>
+<li><code>target_name</code> <em>str, optional</em> - The name of the output video. Defaults to None (which assumes that the input filename with the suffix "_dilated" should be used).</li>
+<li><code>overwrite</code> <em>bool, optional</em> - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.</li>
+</ul>
+<h4 id="returns_2">Returns<a class="headerlink" href="#returns_2" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>str</code> - The path to the output audio file.</li>
+</ul>
+<h2 id="cast_into_avi">cast_into_avi<a class="headerlink" href="#cast_into_avi" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L544">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">def</span> <span class="nf">cast_into_avi</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">target_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+</code></pre></div>
+<p><em>Experimental</em>
+Casts a video into and .avi container using ffmpeg. Much faster than <a href="#convert_to_avi">convert_to_avi</a>,
+but does not always work well with cv2 or built-in video players.</p>
+<h4 id="arguments_2">Arguments<a class="headerlink" href="#arguments_2" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>filename</code> <em>str</em> - Path to the input video file.</li>
+<li><code>target_name</code> <em>str, optional</em> - Target filename as path. Defaults to None (which assumes that the input filename should be used).</li>
+<li><code>overwrite</code> <em>bool, optional</em> - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.</li>
+</ul>
+<h4 id="returns_3">Returns<a class="headerlink" href="#returns_3" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>str</code> - The path to the output '.avi' file.</li>
+</ul>
+<h2 id="clamp">clamp<a class="headerlink" href="#clamp" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L243">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">def</span> <span class="nf">clamp</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="p">):</span>
+</code></pre></div>
+<p>Clamps a number between a minimum and maximum value.</p>
+<h4 id="arguments_3">Arguments<a class="headerlink" href="#arguments_3" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>num</code> <em>float</em> - The number to clamp.</li>
+<li><code>min_value</code> <em>float</em> - The minimum allowed value.</li>
+<li><code>max_value</code> <em>float</em> - The maximum allowed value.</li>
+</ul>
+<h4 id="returns_4">Returns<a class="headerlink" href="#returns_4" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>float</code> - The clamped number.</li>
+</ul>
+<h2 id="convert">convert<a class="headerlink" href="#convert" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L429">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">target_name</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+</code></pre></div>
+<p>Converts a video to another format/container using ffmpeg.</p>
+<h4 id="arguments_4">Arguments<a class="headerlink" href="#arguments_4" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>filename</code> <em>str</em> - Path to the input video file to convert.</li>
+<li><code>target_name</code> <em>str</em> - Target filename as path.</li>
+<li><code>overwrite</code> <em>bool, optional</em> - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.</li>
+</ul>
+<h4 id="returns_5">Returns<a class="headerlink" href="#returns_5" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>str</code> - The path to the output file.</li>
+</ul>
+<h2 id="convert_to_avi">convert_to_avi<a class="headerlink" href="#convert_to_avi" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L457">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">def</span> <span class="nf">convert_to_avi</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">target_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+</code></pre></div>
+<p>Converts a video to one with .avi extension using ffmpeg.</p>
+<h4 id="arguments_5">Arguments<a class="headerlink" href="#arguments_5" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>filename</code> <em>str</em> - Path to the input video file to convert.</li>
+<li><code>target_name</code> <em>str, optional</em> - Target filename as path. Defaults to None (which assumes that the input filename should be used).</li>
+<li><code>overwrite</code> <em>bool, optional</em> - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.</li>
+</ul>
+<h4 id="returns_6">Returns<a class="headerlink" href="#returns_6" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>str</code> - The path to the output '.avi' file.</li>
+</ul>
+<h2 id="convert_to_grayscale">convert_to_grayscale<a class="headerlink" href="#convert_to_grayscale" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L718">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="k">def</span> <span class="nf">convert_to_grayscale</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">target_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+</code></pre></div>
+<p>Converts a video to grayscale using ffmpeg.</p>
+<h4 id="arguments_6">Arguments<a class="headerlink" href="#arguments_6" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>filename</code> <em>str</em> - Path to the input video file.</li>
+<li><code>target_name</code> <em>str, optional</em> - Target filename as path. Defaults to None (which assumes that the input filename with the suffix "_gray" should be used).</li>
+<li><code>overwrite</code> <em>bool, optional</em> - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.</li>
+</ul>
+<h4 id="returns_7">Returns<a class="headerlink" href="#returns_7" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>str</code> - The path to the grayscale video file.</li>
+</ul>
+<h2 id="convert_to_mp4">convert_to_mp4<a class="headerlink" href="#convert_to_mp4" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L486">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="k">def</span> <span class="nf">convert_to_mp4</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">target_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+</code></pre></div>
+<p>Converts a video to one with .mp4 extension using ffmpeg.</p>
+<h4 id="arguments_7">Arguments<a class="headerlink" href="#arguments_7" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>filename</code> <em>str</em> - Path to the input video file to convert.</li>
+<li><code>target_name</code> <em>str, optional</em> - Target filename as path. Defaults to None (which assumes that the input filename should be used).</li>
+<li><code>overwrite</code> <em>bool, optional</em> - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.</li>
+</ul>
+<h4 id="returns_8">Returns<a class="headerlink" href="#returns_8" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>str</code> - The path to the output '.mp4' file.</li>
+</ul>
+<h2 id="convert_to_webm">convert_to_webm<a class="headerlink" href="#convert_to_webm" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L515">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="k">def</span> <span class="nf">convert_to_webm</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">target_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+</code></pre></div>
+<p>Converts a video to one with .webm extension using ffmpeg.</p>
+<h4 id="arguments_8">Arguments<a class="headerlink" href="#arguments_8" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>filename</code> <em>str</em> - Path to the input video file to convert.</li>
+<li><code>target_name</code> <em>str, optional</em> - Target filename as path. Defaults to None (which assumes that the input filename should be used).</li>
+<li><code>overwrite</code> <em>bool, optional</em> - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.</li>
+</ul>
+<h4 id="returns_9">Returns<a class="headerlink" href="#returns_9" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>str</code> - The path to the output '.webm' file.</li>
+</ul>
+<h2 id="crop_ffmpeg">crop_ffmpeg<a class="headerlink" href="#crop_ffmpeg" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L955">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="k">def</span> <span class="nf">crop_ffmpeg</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">target_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+</code></pre></div>
+<p>Crops a video using ffmpeg.</p>
+<h4 id="arguments_9">Arguments<a class="headerlink" href="#arguments_9" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>filename</code> <em>str</em> - Path to the input video file.</li>
+<li><code>w</code> <em>int</em> - The desired width.</li>
+<li><code>h</code> <em>int</em> - The desired height.</li>
+<li><code>x</code> <em>int</em> - The horizontal coordinate of the top left pixel of the cropping rectangle.</li>
+<li><code>y</code> <em>int</em> - The vertical coordinate of the top left pixel of the cropping rectangle.</li>
+<li><code>target_name</code> <em>str, optional</em> - The name of the output video. Defaults to None (which assumes that the input filename with the suffix "_crop" should be used).</li>
+<li><code>overwrite</code> <em>bool, optional</em> - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.</li>
+</ul>
+<h4 id="returns_10">Returns<a class="headerlink" href="#returns_10" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>str</code> - Path to the output video.</li>
+</ul>
+<h2 id="embed_audio_in_video">embed_audio_in_video<a class="headerlink" href="#embed_audio_in_video" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1378">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="k">def</span> <span class="nf">embed_audio_in_video</span><span class="p">(</span><span class="n">source_audio</span><span class="p">,</span> <span class="n">destination_video</span><span class="p">,</span> <span class="n">dilation_ratio</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+</code></pre></div>
+<p>Embeds an audio file as the audio channel of a video file using ffmpeg.</p>
+<h4 id="arguments_10">Arguments<a class="headerlink" href="#arguments_10" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>source_audio</code> <em>str</em> - Path to the audio file to embed.</li>
+<li><code>destination_video</code> <em>str</em> - Path to the video file to embed the audio file in.</li>
+<li><code>dilation_ratio</code> <em>float, optional</em> - The source file's length divided by the resulting file's length. Defaults to 1.</li>
+</ul>
+<h2 id="extract_frame">extract_frame<a class="headerlink" href="#extract_frame" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L571">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="k">def</span> <span class="nf">extract_frame</span><span class="p">(</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>    <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>    <span class="n">frame</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>    <span class="n">time</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>    <span class="n">target_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>    <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</code></pre></div>
+<p>Extracts a single frame from a video using ffmpeg.</p>
+<h4 id="arguments_11">Arguments<a class="headerlink" href="#arguments_11" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>filename</code> <em>str</em> - Path to the input video file.</li>
+<li><code>frame</code> <em>int</em> - The frame number to extract.</li>
+<li><code>time</code> <em>str|float</em> - The time in HH:MM:ss.ms where to extract the frame from. If float, it is interpreted as seconds from the start of the video.</li>
+<li><code>target_name</code> <em>str, optional</em> - The name for the output file. If None, the name will be \&lt;input name&gt;FRAME\&lt;frame number&gt;.\&lt;file extension&gt;. Defaults to None.</li>
+<li><code>overwrite</code> <em>bool, optional</em> - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.</li>
+</ul>
+<h2 id="extract_subclip">extract_subclip<a class="headerlink" href="#extract_subclip" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L627">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="k">def</span> <span class="nf">extract_subclip</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">,</span> <span class="n">target_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+</code></pre></div>
+<p>Extracts a section of the video using ffmpeg.</p>
+<h4 id="arguments_12">Arguments<a class="headerlink" href="#arguments_12" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>filename</code> <em>str</em> - Path to the input video file.</li>
+<li><code>t1</code> <em>float</em> - The start of the section to extract in seconds.</li>
+<li><code>t2</code> <em>float</em> - The end of the section to extract in seconds.</li>
+<li><code>target_name</code> <em>str, optional</em> - The name for the output file. If None, the name will be \&lt;input name&gt;SUB\&lt;start time in ms&gt;_\&lt;end time in ms&gt;.\&lt;file extension&gt;. Defaults to None.</li>
+<li><code>overwrite</code> <em>bool, optional</em> - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.</li>
+</ul>
+<h4 id="returns_11">Returns<a class="headerlink" href="#returns_11" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>str</code> - Path to the extracted section as a video.</li>
+</ul>
+<h2 id="extract_wav">extract_wav<a class="headerlink" href="#extract_wav" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L991">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="k">def</span> <span class="nf">extract_wav</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">target_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+</code></pre></div>
+<p>Extracts audio from video into a .wav file via ffmpeg.</p>
+<h4 id="arguments_13">Arguments<a class="headerlink" href="#arguments_13" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>filename</code> <em>str</em> - Path to the video file from which the audio track shall be extracted.</li>
+<li><code>target_name</code> <em>str, optional</em> - The name of the output video. Defaults to None (which assumes that the input filename should be used).</li>
+<li><code>overwrite</code> <em>bool, optional</em> - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.</li>
+</ul>
+<h4 id="returns_12">Returns<a class="headerlink" href="#returns_12" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>str</code> - The path to the output audio file.</li>
+</ul>
+<h2 id="ffmpeg_cmd">ffmpeg_cmd<a class="headerlink" href="#ffmpeg_cmd" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1423">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="k">def</span> <span class="nf">ffmpeg_cmd</span><span class="p">(</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>    <span class="n">command</span><span class="p">,</span>
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>    <span class="n">total_time</span><span class="p">,</span>
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>    <span class="n">pb_prefix</span><span class="o">=</span><span class="s1">&#39;Progress&#39;</span><span class="p">,</span>
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a>    <span class="n">print_cmd</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a>    <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a>    <span class="n">pipe</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a><span class="p">):</span>
+</code></pre></div>
+<p>Run an ffmpeg command in a subprocess and show progress using an MgProgressbar.</p>
+<h4 id="arguments_14">Arguments<a class="headerlink" href="#arguments_14" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>command</code> <em>list</em> - The ffmpeg command to execute as a list. Eg. ['ffmpeg', '-y', '-i', 'myVid.mp4', 'myVid.mov']</li>
+<li><code>total_time</code> <em>float</em> - The length of the output. Needed mainly for the progress bar.</li>
+<li><code>pb_prefix</code> <em>str, optional</em> - The prefix for the progress bar. Defaults to 'Progress'.</li>
+<li><code>print_cmd</code> <em>bool, optional</em> - Whether to print the full ffmpeg command to the console before executing it. Good for debugging. Defaults to False.</li>
+<li><code>stream</code> <em>bool, optional</em> - Whether to have a continuous output stream or just (the last) one. Defaults to True (continuous stream).</li>
+<li><code>pipe</code> <em>str, optional</em> - Whether to pipe video frames from FFmpeg to numpy array. Possible to read the video frame by frame with pipe='read', to load video in memory with pipe='load', or to write the frames of a numpy array to a video file with pipe='write'. Defaults to None.</li>
+</ul>
+<h4 id="raises">Raises<a class="headerlink" href="#raises" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>KeyboardInterrupt</code> - If the user stops the process.</li>
+<li><code>FFmpegError</code> - If the ffmpeg process was unsuccessful.</li>
+</ul>
+<h2 id="ffprobe">ffprobe<a class="headerlink" href="#ffprobe" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1035">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="k">def</span> <span class="nf">ffprobe</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+</code></pre></div>
+<p>Returns info about video/audio file using FFprobe.</p>
+<h4 id="arguments_15">Arguments<a class="headerlink" href="#arguments_15" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>filename</code> <em>str</em> - Path to the video file to measure.</li>
+</ul>
+<h4 id="returns_13">Returns<a class="headerlink" href="#returns_13" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>str</code> - decoded FFprobe output (stdout) as one string.</li>
+</ul>
+<h2 id="frame2ms">frame2ms<a class="headerlink" href="#frame2ms" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L375">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="k">def</span> <span class="nf">frame2ms</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">fps</span><span class="p">):</span>
+</code></pre></div>
+<p>Converts frames to milliseconds.</p>
+<h4 id="arguments_16">Arguments<a class="headerlink" href="#arguments_16" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>frame</code> <em>int</em> - The index of the frame to be converted to milliseconds.</li>
+<li><code>fps</code> <em>int</em> - Frames per second.</li>
+</ul>
+<h4 id="returns_14">Returns<a class="headerlink" href="#returns_14" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>int</code> - The rounded millisecond value of the input frame index.</li>
+</ul>
+<h2 id="framediff_ffmpeg">framediff_ffmpeg<a class="headerlink" href="#framediff_ffmpeg" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L746">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="k">def</span> <span class="nf">framediff_ffmpeg</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">target_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+</code></pre></div>
+<p>Renders a frame difference video from the input using ffmpeg.</p>
+<h4 id="arguments_17">Arguments<a class="headerlink" href="#arguments_17" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>filename</code> <em>str</em> - Path to the input video file.</li>
+<li><code>target_name</code> <em>str, optional</em> - The name of the output video. Defaults to None (which assumes that the input filename with the suffix "_framediff" should be used).</li>
+<li><code>color</code> <em>bool, optional</em> - If False, the output will be grayscale. Defaults to True.</li>
+<li><code>overwrite</code> <em>bool, optional</em> - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.</li>
+</ul>
+<h4 id="returns_15">Returns<a class="headerlink" href="#returns_15" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>str</code> - Path to the output video.</li>
+</ul>
+<h2 id="generate_outfilename">generate_outfilename<a class="headerlink" href="#generate_outfilename" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L296">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="k">def</span> <span class="nf">generate_outfilename</span><span class="p">(</span><span class="n">requested_name</span><span class="p">):</span>
+</code></pre></div>
+<p>Returns a unique filepath to avoid overwriting existing files. Increments requested
+filename if necessary by appending an integer, like "_0" or "_1", etc to the file name.</p>
+<h4 id="arguments_18">Arguments<a class="headerlink" href="#arguments_18" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>requested_name</code> <em>str</em> - Requested file name as path string.</li>
+</ul>
+<h4 id="returns_16">Returns<a class="headerlink" href="#returns_16" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>str</code> - If file at requested_name is not present, then requested_name, else an incremented filename.</li>
+</ul>
+<h2 id="get_box_video_ratio">get_box_video_ratio<a class="headerlink" href="#get_box_video_ratio" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1273">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="k">def</span> <span class="nf">get_box_video_ratio</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">box_width</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span> <span class="n">box_height</span><span class="o">=</span><span class="mi">600</span><span class="p">):</span>
+</code></pre></div>
+<p>Gets the box-to-video ratio between an arbitrarily defind box and the video dimensions. Useful to fit windows into a certain area.</p>
+<h4 id="arguments_19">Arguments<a class="headerlink" href="#arguments_19" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>filename</code> <em>str</em> - Path to the input video file.</li>
+<li><code>box_width</code> <em>int, optional</em> - The width of the box to fit the video into.</li>
+<li><code>box_height</code> <em>int, optional</em> - The height of the box to fit the video into.</li>
+</ul>
+<h4 id="returns_17">Returns<a class="headerlink" href="#returns_17" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>int</code> - The smallest ratio (ie. the one to use for scaling the video window to fit into the box).</li>
+</ul>
+<h2 id="get_first_frame_as_image">get_first_frame_as_image<a class="headerlink" href="#get_first_frame_as_image" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1241">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="k">def</span> <span class="nf">get_first_frame_as_image</span><span class="p">(</span>
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a>    <span class="n">filename</span><span class="p">,</span>
+<a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a>    <span class="n">target_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a>    <span class="n">pict_format</span><span class="o">=</span><span class="s1">&#39;.png&#39;</span><span class="p">,</span>
+<a id="__codelineno-33-5" name="__codelineno-33-5" href="#__codelineno-33-5"></a>    <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-33-6" name="__codelineno-33-6" href="#__codelineno-33-6"></a><span class="p">):</span>
+</code></pre></div>
+<p>Extracts the first frame of a video and saves it as an image using ffmpeg.</p>
+<h4 id="arguments_20">Arguments<a class="headerlink" href="#arguments_20" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>filename</code> <em>str</em> - Path to the input video file.</li>
+<li><code>target_name</code> <em>str, optional</em> - The name for the output image. Defaults to None (which assumes that the input filename should be used).</li>
+<li><code>pict_format</code> <em>str, optional</em> - The format to use for the output image. Defaults to '.png'.</li>
+<li><code>overwrite</code> <em>bool, optional</em> - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.</li>
+</ul>
+<h4 id="returns_18">Returns<a class="headerlink" href="#returns_18" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>str</code> - Path to the output image file.</li>
+</ul>
+<h2 id="get_fps">get_fps<a class="headerlink" href="#get_fps" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1208">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="k">def</span> <span class="nf">get_fps</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+</code></pre></div>
+<p>Gets the FPS (frames per second) value of a video using FFprobe.</p>
+<h4 id="arguments_21">Arguments<a class="headerlink" href="#arguments_21" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>filename</code> <em>str</em> - Path to the video file to measure.</li>
+</ul>
+<h4 id="returns_19">Returns<a class="headerlink" href="#returns_19" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>float</code> - The FPS value of the input video file.</li>
+</ul>
+<h2 id="get_frame_planecount">get_frame_planecount<a class="headerlink" href="#get_frame_planecount" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L360">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="k">def</span> <span class="nf">get_frame_planecount</span><span class="p">(</span><span class="n">frame</span><span class="p">):</span>
+</code></pre></div>
+<p>Gets the planecount (color channel count) of a video frame.</p>
+<h4 id="arguments_22">Arguments<a class="headerlink" href="#arguments_22" title="Permanent link">&para;</a></h4>
+<p>frame (numpy array): A frame extracted by <code>cv2.VideoCapture().read()</code>.</p>
+<h4 id="returns_20">Returns<a class="headerlink" href="#returns_20" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>int</code> - The planecount of the input frame, 3 or 1.</li>
+</ul>
+<h2 id="get_framecount">get_framecount<a class="headerlink" href="#get_framecount" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1158">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="k">def</span> <span class="nf">get_framecount</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">fast</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+</code></pre></div>
+<p>Returns the number of frames in a video using FFprobe.</p>
+<h4 id="arguments_23">Arguments<a class="headerlink" href="#arguments_23" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>filename</code> <em>str</em> - Path to the video file to measure.</li>
+</ul>
+<h4 id="returns_21">Returns<a class="headerlink" href="#returns_21" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>int</code> - The number of frames in the input video file.</li>
+</ul>
+<h2 id="get_length">get_length<a class="headerlink" href="#get_length" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1130">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="k">def</span> <span class="nf">get_length</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+</code></pre></div>
+<p>Gets the length (in seconds) of a video using FFprobe.</p>
+<h4 id="arguments_24">Arguments<a class="headerlink" href="#arguments_24" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>filename</code> <em>str</em> - Path to the video file to measure.</li>
+</ul>
+<h4 id="returns_22">Returns<a class="headerlink" href="#returns_22" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>float</code> - The length of the input video file in seconds.</li>
+</ul>
+<h2 id="get_widthheight">get_widthheight<a class="headerlink" href="#get_widthheight" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1063">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a><span class="k">def</span> <span class="nf">get_widthheight</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+</code></pre></div>
+<p>Gets the width and height of a video using FFprobe.</p>
+<h4 id="arguments_25">Arguments<a class="headerlink" href="#arguments_25" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>filename</code> <em>str</em> - Path to the video file to measure.</li>
+</ul>
+<h4 id="returns_23">Returns<a class="headerlink" href="#returns_23" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>int</code> - The width of the input video file.</li>
+<li><code>int</code> - The height of the input video file.</li>
+</ul>
+<h2 id="has_audio">has_audio<a class="headerlink" href="#has_audio" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1104">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a><span class="k">def</span> <span class="nf">has_audio</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+</code></pre></div>
+<p>Checks if video has audio track using FFprobe.</p>
+<h4 id="arguments_26">Arguments<a class="headerlink" href="#arguments_26" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>filename</code> <em>str</em> - Path to the video file to check.</li>
+</ul>
+<h4 id="returns_24">Returns<a class="headerlink" href="#returns_24" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>bool</code> - True if <code>filename</code> has an audio track, False otherwise.</li>
+</ul>
+<h2 id="in_colab">in_colab<a class="headerlink" href="#in_colab" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1565">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a><span class="k">def</span> <span class="nf">in_colab</span><span class="p">():</span>
+</code></pre></div>
+<p>Check's if the environment is a Google Colab document.</p>
+<h4 id="returns_25">Returns<a class="headerlink" href="#returns_25" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>bool</code> - True if the environment is a Colab document, otherwise False.</li>
+</ul>
+<h2 id="in_ipynb">in_ipynb<a class="headerlink" href="#in_ipynb" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1580">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a><span class="k">def</span> <span class="nf">in_ipynb</span><span class="p">():</span>
+</code></pre></div>
+<p>Check if the environment is a Jupyter notebook.
+Taken from https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-is-executed-in-the-ipython-notebook.</p>
+<h4 id="returns_26">Returns<a class="headerlink" href="#returns_26" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>bool</code> - True if the environment is a Jupyter notebook, otherwise False.</li>
+</ul>
+<h2 id="merge_videos">merge_videos<a class="headerlink" href="#merge_videos" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1605">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a><span class="k">def</span> <span class="nf">merge_videos</span><span class="p">(</span>
+<a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a>    <span class="n">media_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+<a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a>    <span class="n">target_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-42-4" name="__codelineno-42-4" href="#__codelineno-42-4"></a>    <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-42-5" name="__codelineno-42-5" href="#__codelineno-42-5"></a>    <span class="n">print_cmd</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-42-6" name="__codelineno-42-6" href="#__codelineno-42-6"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</code></pre></div>
+<p>Merges a list of video files into a single video file using ffmpeg.</p>
+<h4 id="arguments_27">Arguments<a class="headerlink" href="#arguments_27" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>media_paths</code> <em>list</em> - List of paths to the video files to merge.</li>
+<li><code>target_name</code> <em>str, optional</em> - The name of the output video. Defaults to None (which assumes that the input filename with the suffix "_merged" should be used).</li>
+<li><code>overwrite</code> <em>bool, optional</em> - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.</li>
+</ul>
+<h4 id="returns_27">Returns<a class="headerlink" href="#returns_27" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>str</code> - Path to the output video.</li>
+</ul>
+<h2 id="motiongrams_ffmpeg">motiongrams_ffmpeg<a class="headerlink" href="#motiongrams_ffmpeg" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L879">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a><span class="k">def</span> <span class="nf">motiongrams_ffmpeg</span><span class="p">(</span>
+<a id="__codelineno-43-2" name="__codelineno-43-2" href="#__codelineno-43-2"></a>    <span class="n">filename</span><span class="p">,</span>
+<a id="__codelineno-43-3" name="__codelineno-43-3" href="#__codelineno-43-3"></a>    <span class="n">color</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-43-4" name="__codelineno-43-4" href="#__codelineno-43-4"></a>    <span class="n">filtertype</span><span class="o">=</span><span class="s1">&#39;regular&#39;</span><span class="p">,</span>
+<a id="__codelineno-43-5" name="__codelineno-43-5" href="#__codelineno-43-5"></a>    <span class="n">threshold</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+<a id="__codelineno-43-6" name="__codelineno-43-6" href="#__codelineno-43-6"></a>    <span class="n">blur</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span>
+<a id="__codelineno-43-7" name="__codelineno-43-7" href="#__codelineno-43-7"></a>    <span class="n">use_median</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-43-8" name="__codelineno-43-8" href="#__codelineno-43-8"></a>    <span class="n">kernel_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<a id="__codelineno-43-9" name="__codelineno-43-9" href="#__codelineno-43-9"></a>    <span class="n">invert</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-43-10" name="__codelineno-43-10" href="#__codelineno-43-10"></a>    <span class="n">target_name_x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-43-11" name="__codelineno-43-11" href="#__codelineno-43-11"></a>    <span class="n">target_name_y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-43-12" name="__codelineno-43-12" href="#__codelineno-43-12"></a>    <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-43-13" name="__codelineno-43-13" href="#__codelineno-43-13"></a><span class="p">):</span>
+</code></pre></div>
+<p>Renders horizontal and vertical motiongrams using ffmpeg.</p>
+<h4 id="arguments_28">Arguments<a class="headerlink" href="#arguments_28" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>filename</code> <em>str</em> - Path to the input video file.</li>
+<li><code>color</code> <em>bool, optional</em> - If False the input is converted to grayscale at the start of the process. This can significantly reduce render time. Defaults to True.</li>
+<li><code>filtertype</code> <em>str, optional</em> - 'Regular' turns all values below <code>thresh</code> to 0. 'Binary' turns all values below <code>thresh</code> to 0, above <code>thresh</code> to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.</li>
+<li><code>thresh</code> <em>float, optional</em> - Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.</li>
+<li><code>blur</code> <em>str, optional</em> - 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.</li>
+<li><code>use_median</code> <em>bool, optional</em> - If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.</li>
+<li><code>kernel_size</code> <em>int, optional</em> - Size of the median filter (if <code>use_median=True</code>) or the erosion filter (if <code>filtertype='blob'</code>). Defaults to 5.</li>
+<li><code>invert</code> <em>bool, optional</em> - If True, inverts colors of the motiongrams. Defaults to False.</li>
+<li><code>target_name_x</code> <em>str, optional</em> - Target output name for the motiongram on the X axis. Defaults to None (which assumes that the input filename with the suffix "_mgx_ffmpeg" should be used).</li>
+<li><code>target_name_y</code> <em>str, optional</em> - Target output name for the motiongram on the Y axis. Defaults to None (which assumes that the input filename with the suffix "_mgy_ffmpeg" should be used).</li>
+<li><code>overwrite</code> <em>bool, optional</em> - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.</li>
+</ul>
+<h4 id="returns_28">Returns<a class="headerlink" href="#returns_28" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>str</code> - Path to the output horizontal motiongram (_mgx).</li>
+<li><code>str</code> - Path to the output vertical motiongram (_mgy).</li>
+</ul>
+<h2 id="motionvideo_ffmpeg">motionvideo_ffmpeg<a class="headerlink" href="#motionvideo_ffmpeg" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L823">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a><span class="k">def</span> <span class="nf">motionvideo_ffmpeg</span><span class="p">(</span>
+<a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a>    <span class="n">filename</span><span class="p">,</span>
+<a id="__codelineno-44-3" name="__codelineno-44-3" href="#__codelineno-44-3"></a>    <span class="n">color</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-44-4" name="__codelineno-44-4" href="#__codelineno-44-4"></a>    <span class="n">filtertype</span><span class="o">=</span><span class="s1">&#39;regular&#39;</span><span class="p">,</span>
+<a id="__codelineno-44-5" name="__codelineno-44-5" href="#__codelineno-44-5"></a>    <span class="n">threshold</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+<a id="__codelineno-44-6" name="__codelineno-44-6" href="#__codelineno-44-6"></a>    <span class="n">blur</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span>
+<a id="__codelineno-44-7" name="__codelineno-44-7" href="#__codelineno-44-7"></a>    <span class="n">use_median</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-44-8" name="__codelineno-44-8" href="#__codelineno-44-8"></a>    <span class="n">kernel_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<a id="__codelineno-44-9" name="__codelineno-44-9" href="#__codelineno-44-9"></a>    <span class="n">invert</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-44-10" name="__codelineno-44-10" href="#__codelineno-44-10"></a>    <span class="n">target_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-44-11" name="__codelineno-44-11" href="#__codelineno-44-11"></a>    <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-44-12" name="__codelineno-44-12" href="#__codelineno-44-12"></a><span class="p">):</span>
+</code></pre></div>
+<p>Renders a motion video using ffmpeg.</p>
+<h4 id="arguments_29">Arguments<a class="headerlink" href="#arguments_29" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>filename</code> <em>str</em> - Path to the input video file.</li>
+<li><code>color</code> <em>bool, optional</em> - If False the input is converted to grayscale at the start of the process. This can significantly reduce render time. Defaults to True.</li>
+<li><code>filtertype</code> <em>str, optional</em> - 'Regular' turns all values below <code>thresh</code> to 0. 'Binary' turns all values below <code>thresh</code> to 0, above <code>thresh</code> to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.</li>
+<li><code>thresh</code> <em>float, optional</em> - Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.</li>
+<li><code>blur</code> <em>str, optional</em> - 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.</li>
+<li><code>use_median</code> <em>bool, optional</em> - If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.</li>
+<li><code>kernel_size</code> <em>int, optional</em> - Size of the median filter (if <code>use_median=True</code>) or the erosion filter (if <code>filtertype='blob'</code>). Defaults to 5.</li>
+<li><code>invert</code> <em>bool, optional</em> - If True, inverts colors of the motion video. Defaults to False.</li>
+<li><code>target_name</code> <em>str, optional</em> - Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).</li>
+<li><code>overwrite</code> <em>bool, optional</em> - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.</li>
+</ul>
+<h4 id="returns_29">Returns<a class="headerlink" href="#returns_29" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>str</code> - Path to the output video.</li>
+</ul>
+<h2 id="pass_if_container_is">pass_if_container_is<a class="headerlink" href="#pass_if_container_is" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L413">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a><span class="k">def</span> <span class="nf">pass_if_container_is</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
+</code></pre></div>
+<p>Checks if a file's extension matches a desired one. Passes if so, raises WrongContainer if not.</p>
+<h4 id="arguments_30">Arguments<a class="headerlink" href="#arguments_30" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>container</code> <em>str</em> - The container to match.</li>
+<li><code>file</code> <em>str</em> - Path to the file to inspect.</li>
+</ul>
+<h4 id="raises_1">Raises<a class="headerlink" href="#raises_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>WrongContainer</code> - If the file extension (container) matches the desired one.</li>
+</ul>
+<h2 id="pass_if_containers_match">pass_if_containers_match<a class="headerlink" href="#pass_if_containers_match" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L395">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a><span class="k">def</span> <span class="nf">pass_if_containers_match</span><span class="p">(</span><span class="n">file_1</span><span class="p">,</span> <span class="n">file_2</span><span class="p">):</span>
+</code></pre></div>
+<p>Checks if file extensions match between two files. If they do it passes, is they don't it raises WrongContainer exception.</p>
+<h4 id="arguments_31">Arguments<a class="headerlink" href="#arguments_31" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>file_1</code> <em>str</em> - First file in comparison.</li>
+<li><code>file_2</code> <em>str</em> - Second file in comparison.</li>
+</ul>
+<h4 id="raises_2">Raises<a class="headerlink" href="#raises_2" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>WrongContainer</code> - If file extensions (containers) mismatch.</li>
+</ul>
+<h2 id="quality_metrics">quality_metrics<a class="headerlink" href="#quality_metrics" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1299">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a><span class="k">def</span> <span class="nf">quality_metrics</span><span class="p">(</span><span class="n">original</span><span class="p">,</span> <span class="n">processed</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+</code></pre></div>
+<p>Compute video quality metrics between two video files for comparing the quality of video codecs or measuring the efficacy of encoding configuration.
+Possible to compute three major video quality metrics used for objective evaluation, namely:</p>
+<ul>
+<li>PSNR: It is the most commonly used video quality metric. But it has the lowest predictive value, so the results are inconsistent.
+  Used by major platforms like Netflix and Facebook to compare different codecs and for similar use cases. Overall usage is declining.</li>
+<li>SSIM: Mostly used by technical experts like codec researchers and compression engineers.
+  Usage is declining steadily. However, it has a higher predictive value than PSNR.</li>
+<li>VMAF: Introduced first by Netflix but then converted into an open-source asset. VMAF is easily accessible and widely used.
+  Designed specifically for evaluating the video quality of streams encoded for multiple-resolution rungs.</li>
+</ul>
+<h4 id="arguments_32">Arguments<a class="headerlink" href="#arguments_32" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>original</code> <em>str</em> - Path to the original/reference video file.</li>
+<li><code>processed</code> <em>str</em> - Path to the processed/distorted video file.</li>
+<li><code>metric</code> <em>str, optional</em> - Type of quality metric to compute ('vmaf', 'ssim', or 'psnr'). Defaults to None (which computes all the metrics).</li>
+</ul>
+<h2 id="rotate_video">rotate_video<a class="headerlink" href="#rotate_video" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L680">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a><span class="k">def</span> <span class="nf">rotate_video</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">target_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+</code></pre></div>
+<p>Rotates a video by an <code>angle</code> using ffmpeg.</p>
+<h4 id="arguments_33">Arguments<a class="headerlink" href="#arguments_33" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>filename</code> <em>str</em> - Path to the input video file.</li>
+<li><code>angle</code> <em>float</em> - The angle (in degrees) specifying the amount of rotation. Positive values rotate clockwise.</li>
+<li><code>target_name</code> <em>str, optional</em> - Target filename as path. Defaults to None (which assumes that the input filename with the suffix "_rot" should be used).</li>
+<li><code>overwrite</code> <em>bool, optional</em> - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.</li>
+</ul>
+<h4 id="returns_30">Returns<a class="headerlink" href="#returns_30" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>str</code> - The path to the rotated video file.</li>
+</ul>
+<h2 id="roundup">roundup<a class="headerlink" href="#roundup" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L228">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a><span class="k">def</span> <span class="nf">roundup</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">modulo_num</span><span class="p">):</span>
+</code></pre></div>
+<p>Rounds up a number to the next integer multiple of another.</p>
+<h4 id="arguments_34">Arguments<a class="headerlink" href="#arguments_34" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>num</code> <em>int</em> - The number to round up.</li>
+<li><code>modulo_num</code> <em>int</em> - The number whose next integer multiple we want.</li>
+</ul>
+<h4 id="returns_31">Returns<a class="headerlink" href="#returns_31" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>int</code> - The rounded-up number.</li>
+</ul>
+<h2 id="scale_array">scale_array<a class="headerlink" href="#scale_array" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L276">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a><span class="k">def</span> <span class="nf">scale_array</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">out_low</span><span class="p">,</span> <span class="n">out_high</span><span class="p">):</span>
+</code></pre></div>
+<p>Scales an array linearly.</p>
+<h4 id="arguments_35">Arguments<a class="headerlink" href="#arguments_35" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>array</code> <em>arraylike</em> - The array to be scaled.</li>
+<li><code>out_low</code> <em>float</em> - Minimum of output range.</li>
+<li><code>out_high</code> <em>float</em> - Maximum of output range.</li>
+</ul>
+<h4 id="returns_32">Returns<a class="headerlink" href="#returns_32" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>arraylike</code> - The scaled array.</li>
+</ul>
+<h2 id="scale_num">scale_num<a class="headerlink" href="#scale_num" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L258">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a><span class="k">def</span> <span class="nf">scale_num</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">in_low</span><span class="p">,</span> <span class="n">in_high</span><span class="p">,</span> <span class="n">out_low</span><span class="p">,</span> <span class="n">out_high</span><span class="p">):</span>
+</code></pre></div>
+<p>Scales a number linearly.</p>
+<h4 id="arguments_36">Arguments<a class="headerlink" href="#arguments_36" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>val</code> <em>float</em> - The value to be scaled.</li>
+<li><code>in_low</code> <em>float</em> - Minimum of input range.</li>
+<li><code>in_high</code> <em>float</em> - Maximum of input range.</li>
+<li><code>out_low</code> <em>float</em> - Minimum of output range.</li>
+<li><code>out_high</code> <em>float</em> - Maximum of output range.</li>
+</ul>
+<h4 id="returns_33">Returns<a class="headerlink" href="#returns_33" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>float</code> - The scaled number.</li>
+</ul>
+<h2 id="str2sec">str2sec<a class="headerlink" href="#str2sec" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1512">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a><span class="k">def</span> <span class="nf">str2sec</span><span class="p">(</span><span class="n">time_string</span><span class="p">):</span>
+</code></pre></div>
+<p>Converts a time code string into seconds.</p>
+<h4 id="arguments_37">Arguments<a class="headerlink" href="#arguments_37" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>time_string</code> <em>str</em> - The time code to convert. Eg. '01:33:42'.</li>
+</ul>
+<h4 id="returns_34">Returns<a class="headerlink" href="#returns_34" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>float</code> - The time code converted to seconds.</li>
+</ul>
+<h2 id="threshold_ffmpeg">threshold_ffmpeg<a class="headerlink" href="#threshold_ffmpeg" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L779">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a><span class="k">def</span> <span class="nf">threshold_ffmpeg</span><span class="p">(</span>
+<a id="__codelineno-53-2" name="__codelineno-53-2" href="#__codelineno-53-2"></a>    <span class="n">filename</span><span class="p">,</span>
+<a id="__codelineno-53-3" name="__codelineno-53-3" href="#__codelineno-53-3"></a>    <span class="n">threshold</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+<a id="__codelineno-53-4" name="__codelineno-53-4" href="#__codelineno-53-4"></a>    <span class="n">target_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-53-5" name="__codelineno-53-5" href="#__codelineno-53-5"></a>    <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-53-6" name="__codelineno-53-6" href="#__codelineno-53-6"></a>    <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-53-7" name="__codelineno-53-7" href="#__codelineno-53-7"></a><span class="p">):</span>
+</code></pre></div>
+<p>Renders a pixel-thresholded video from the input using ffmpeg.</p>
+<h4 id="arguments_38">Arguments<a class="headerlink" href="#arguments_38" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>filename</code> <em>str</em> - Path to the input video file.</li>
+<li><code>threshold</code> <em>float, optional</em> - The normalized pixel value to use as the threshold. Pixels below the threshold will turn black. Defaults to 0.1.</li>
+<li><code>target_name</code> <em>str, optional</em> - The name of the output video. Defaults to None (which assumes that the input filename with the suffix "_thresh" should be used).</li>
+<li><code>binary</code> <em>bool, optional</em> - If True, the pixels above the threshold will turn white. Defaults to False.</li>
+<li><code>overwrite</code> <em>bool, optional</em> - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.</li>
+</ul>
+<h4 id="returns_35">Returns<a class="headerlink" href="#returns_35" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>str</code> - Path to the output video.</li>
+</ul>
+<h2 id="unwrap_str">unwrap_str<a class="headerlink" href="#unwrap_str" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1547">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a><span class="k">def</span> <span class="nf">unwrap_str</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+</code></pre></div>
+<p>Unwraps a string from quotes.</p>
+<h4 id="arguments_39">Arguments<a class="headerlink" href="#arguments_39" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>string</code> <em>str</em> - The string to inspect.</li>
+</ul>
+<h4 id="returns_36">Returns<a class="headerlink" href="#returns_36" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>str</code> - The (unwrapped) string.</li>
+</ul>
+<h2 id="wrap_str">wrap_str<a class="headerlink" href="#wrap_str" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1526">[find in source code]</a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-55-1" name="__codelineno-55-1" href="#__codelineno-55-1"></a><span class="k">def</span> <span class="nf">wrap_str</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">matchers</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39;(&#39;</span><span class="p">,</span> <span class="s1">&#39;)&#39;</span><span class="p">]):</span>
+</code></pre></div>
+<p>Wraps a string in double quotes if it contains any of <code>matchers</code> - by default: space or parentheses.
+Useful when working with shell commands.</p>
+<h4 id="arguments_40">Arguments<a class="headerlink" href="#arguments_40" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>string</code> <em>str</em> - The string to inspect.</li>
+<li><code>matchers</code> <em>list, optional</em> - The list of characters to look for in the string. Defaults to [" ", "(", ")"].</li>
+</ul>
+<h4 id="returns_37">Returns<a class="headerlink" href="#returns_37" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>str</code> - The (wrapped) string.</li>
+</ul>
+
+
+
+
+
+
+
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="March 20, 2024 16:56:31 UTC">March 20, 2024</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Created">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 2, 2020 16:58:16 UTC">November 2, 2020</span>
+  </span>
+
+    
+    
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy", "content.action.edit", "content.action.view"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.50899def.min.js"></script>
+      
+    
+  </body>
+</html>
