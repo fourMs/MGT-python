@@ -151,6 +151,11 @@ class MgVideo(MgAudio):
     from musicalgestures._history import history_ffmpeg as history
     from musicalgestures._history import history_cv2
     from musicalgestures._blend import mg_blend_image as blend
+    from musicalgestures._frameaverage import (
+        mg_pixelarray as pixelarray,
+        mg_pixelarray_cv2 as pixelarray_cv2,
+        mg_pixelarray_stats as pixelarray_stats
+    )
     from musicalgestures._pose import pose
 
     def test_input(self):
