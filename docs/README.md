@@ -63,7 +63,7 @@ spectrogram = mv.audio.spectrogram()
 
 ## Documentation
 
-📚 **Complete documentation is available at: [https://mgt-python.readthedocs.io/](https://mgt-python.readthedocs.io/)**
+📚 **Complete documentation is available at: [https://fourms.github.io/MGT-python/](https://fourms.github.io/MGT-python/)**
 
 ### Quick Links
 
