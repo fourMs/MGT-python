@@ -17,6 +17,7 @@ Full list of [Mgt-python](README.md#mgt-python) project modules.
     - [Directograms](musicalgestures/_directograms.md#directograms)
     - [Filter](musicalgestures/_filter.md#filter)
     - [Flow](musicalgestures/_flow.md#flow)
+    - [Frameaverage](musicalgestures/_frameaverage.md#frameaverage)
     - [Grid](musicalgestures/_grid.md#grid)
     - [History](musicalgestures/_history.md#history)
     - [Impacts](musicalgestures/_impacts.md#impacts)

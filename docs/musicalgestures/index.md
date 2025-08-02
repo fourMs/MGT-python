@@ -16,6 +16,7 @@
         - [Directograms](_directograms.md#directograms)
         - [Filter](_filter.md#filter)
         - [Flow](_flow.md#flow)
+        - [Frameaverage](_frameaverage.md#frameaverage)
         - [Grid](_grid.md#grid)
         - [History](_history.md#history)
         - [Impacts](_impacts.md#impacts)
