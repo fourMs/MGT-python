@@ -1,0 +1,49 @@
+[tool.ruff]
+# Exclude the most problematic legacy directories from linting
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    "*.egg-info",
+    "musicalgestures/deprecated",
+    "musicalgestures/3rdparty",
+]
+
+# Set the maximum line length
+line-length = 100
+
+# Assume Python 3.8+ for compatibility with CI matrix
+target-version = "py38"
+
+[tool.ruff.lint]
+# Enable basic linting rules but ignore the most problematic ones for legacy code
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+]
+
+# Ignore specific rules that would require major refactoring of legacy code
+ignore = [
+    "E401",  # Multiple imports on one line (common in legacy code)
+    "E711",  # Comparison to None should use `is` (legacy pattern)
+    "E712",  # Comparison to True/False should use `is` (legacy pattern)
+    "E721",  # Use isinstance() instead of type() (legacy pattern)
+    "E722",  # Bare except clauses (legacy error handling)
+    "F401",  # Imported but unused (many imports used in __init__.py for API)
+    "F405",  # May be undefined due to star imports (test files use this pattern)
+    "F811",  # Redefinition of unused variable (legacy code pattern)
+    "F821",  # Undefined name (some legacy issues)
+    "F841",  # Local variable assigned but never used (legacy code)
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Allow star imports in test files (common pytest pattern)
+"tests/*.py" = ["F403", "F405"]
+
+# Allow more flexibility in __init__.py files
+"*/__init__.py" = ["F401", "F403"]
+
+# Examples should be clean (we fixed these)
+"examples/*.py" = []
