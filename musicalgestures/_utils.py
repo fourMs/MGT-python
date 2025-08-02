@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Tuple
 
 class MgProgressbar():
     """
@@ -1062,7 +1062,7 @@ def ffprobe(filename):
         else:
             return out
 
-def get_widthheight(filename: str) -> tuple[int, int]:
+def get_widthheight(filename: str) -> Tuple[int, int]:
     """
     Gets the width and height of a video using FFprobe.
 

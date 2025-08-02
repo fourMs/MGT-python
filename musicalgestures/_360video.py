@@ -1,6 +1,7 @@
 import os
 from enum import Enum
 from functools import partial
+from typing import Dict
 from musicalgestures._video import MgVideo
 from musicalgestures._utils import ffmpeg_cmd, get_length, generate_outfilename
 
@@ -122,14 +123,14 @@ class Mg360Video(MgVideo):
     def convert_projection(
         self,
         target_projection: Projection | str,
-        options: dict[str, str] = None,
+        options: Dict[str, str] = None,
         print_cmd: bool = False,
     ):
         """
         Convert the video to a different projection.
         Args:
             target_projection (Projection): Target projection.
-            options (dict[str, str], optional): Options for the conversion. Defaults to None.
+            options (Dict[str, str], optional): Options for the conversion. Defaults to None.
             print_cmd (bool, optional): Print the ffmpeg command. Defaults to False.
         """
         target_projection = self._parse_projection(target_projection)
