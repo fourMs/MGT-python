@@ -88,6 +88,17 @@ If you use this toolbox in your research, please cite this article:
 
 - Laczkó, B., & Jensenius, A. R. (2021). [Reflections on the Development of the Musical Gestures Toolbox for Python](https://www.duo.uio.no/bitstream/handle/10852/89331/Laczk%25C3%25B3_et_al_2021_Reflections_on_the_Development_of_the.pdf?sequence=2&isAllowed=y). *Proceedings of the Nordic Sound and Music Computing Conference*, Copenhagen.
 
+```bibtex
+@inproceedings{laczkoReflectionsDevelopmentMusical2021,
+    title = {Reflections on the Development of the Musical Gestures Toolbox for Python},
+    author = {Laczkó, Bálint and Jensenius, Alexander Refsum},
+    booktitle = {Proceedings of the Nordic Sound and Music Computing Conference},
+    year = {2021},
+    address = {Copenhagen},
+    url = {http://urn.nb.no/URN:NBN:no-91935}
+}
+```
+
 ## License
 
 This toolbox is released under the [GNU General Public License 3.0 license](https://www.gnu.org/licenses/gpl-3.0.en.html).
