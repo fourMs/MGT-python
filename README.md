@@ -63,6 +63,12 @@ v.audio.tempogram()
 - **Integration**: Works with NumPy, SciPy, and Matplotlib ecosystems
 - **Cross-platform**: Linux, macOS, Windows support
 
+## Presentation
+
+See this short video presentation made for the Nordic Sound and Music Computing Conference 2021: 
+
+[![nordicsmc2021-thumbnail_640](https://github.com/user-attachments/assets/150b1143-0730-4083-af52-8c062a080deb)](https://www.youtube.com/watch?v=tZVX_lDFrwc)
+
 ## Requirements
 
 - Python 3.7+
@@ -75,13 +81,12 @@ This toolbox builds on the [Musical Gestures Toolbox for Matlab](https://github.
 
 The software is currently maintained by the [fourMs lab](https://github.com/fourMs) at [RITMO Centre for Interdisciplinary Studies in Rhythm, Time and Motion](https://www.uio.no/ritmo/english/) at the University of Oslo.
 
-[![nordicsmc2021-thumbnail_640](https://github.com/user-attachments/assets/150b1143-0730-4083-af52-8c062a080deb)](https://www.youtube.com/watch?v=tZVX_lDFrwc)
 
 ## Reference
 
 If you use this toolbox in your research, please cite this article:
 
-- Laczkó, B., & Jensenius, A. R. (2021). [Reflections on the Development of the Musical Gestures Toolbox for Python](https://www.duo.uio.no/bitstream/handle/10852/89331/Laczk%25C3%25B3_et_al_2021_Reflections_on_the_Development_of_the.pdf?sequence=2&isAllowed=y). *Proceedings of the Nordic Sound and Music Computing Conference*, Copenhagen.
+- Laczkó, B., & Jensenius, A. R. (2021). [Reflections on the Development of the Musical Gestures Toolbox for Python](http://urn.nb.no/URN:NBN:no-91935). *Proceedings of the Nordic Sound and Music Computing Conference*, Copenhagen.
 
 ```bibtex
 @inproceedings{laczkoReflectionsDevelopmentMusical2021,
