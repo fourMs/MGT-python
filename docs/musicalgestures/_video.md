@@ -79,7 +79,7 @@ Creates an average image of all frames in the video.
 
 ### MgVideo().extract_frame
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L330)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L331)
 
 ```python
 def extract_frame(**kwargs):
@@ -101,7 +101,7 @@ see _utils.extract_frame for details.
 
 ### MgVideo().from_numpy
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L290)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L291)
 
 ```python
 def from_numpy(array, fps, target_name=None):
@@ -119,7 +119,7 @@ Creates a video attribute to the Musical Gestures object with the given correct 
 
 ### MgVideo().numpy
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L277)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L278)
 
 ```python
 def numpy():

@@ -230,6 +230,7 @@ class MgVideo(MgAudio):
             ".ts",
             ".wmv",
             ".3gp",
+            ".360",
         ]
         if self.fex not in video_formats:
             # Check if it is an image file

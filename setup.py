@@ -12,7 +12,7 @@ README = (HERE / "README.md").read_text()
 setup(
     name='musicalgestures',
     packages=['musicalgestures'],
-    version='v1.3.2',
+    version='v1.3.3',
     license='GNU General Public License v3 (GPLv3)',
     description='Musical Gestures Toolbox for Python',
     long_description=README,

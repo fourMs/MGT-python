@@ -1,7 +1,9 @@
 import os
+import subprocess
 from enum import Enum
-from functools import partial
 from typing import Dict, Union
+from pathlib import Path
+from functools import partial
 from musicalgestures._video import MgVideo
 from musicalgestures._utils import ffmpeg_cmd, get_length, generate_outfilename
 
@@ -44,6 +46,7 @@ class Projection(Enum):
 
     equirectangular = 30  # extra option for equirectangular
     erp = 31
+    gopro_360 = 32  # special gopro .360 format
 
     def __str__(self):
         # collapse all aliases of erp
@@ -125,6 +128,7 @@ class Mg360Video(MgVideo):
         target_projection: Union[Projection, str],
         options: Dict[str, str] = None,
         print_cmd: bool = False,
+        test: bool = False,
     ):
         """
         Convert the video to a different projection.
@@ -138,6 +142,48 @@ class Mg360Video(MgVideo):
         if target_projection == self.projection:
             print(f"{self} is already in target projection {target_projection}.")
             return
+        elif self.projection == Projection.gopro_360:
+            if test:
+                print(
+                    f"=> Test mode: would convert {self.filename} to {target_projection} with options {options}."
+                )
+
+            # use special gopro conversion scripts
+            assert target_projection in [
+                Projection.equirect,
+                Projection.equirectangular,
+                Projection.dfisheye,
+            ], (
+                f"Invalid target projection from gopro_360: {target_projection}, only equirect, equirectangular, and dfisheye are supported."
+            )
+
+            output_name = generate_outfilename(
+                f"{self.filename.split('.')[0]}_{target_projection}.mp4"
+            )
+            if target_projection == Projection.dfisheye:
+                script = "ffmpeg-convert-dual-fisheye.sh"
+            else:
+                script = "ffmpeg-convert-v3.sh"
+            script_path = Path(__file__).parent / "gopromax-conversion-tools/scripts" / script
+
+            cmds = [
+                script_path,
+                "-i",
+                self.filename,
+                "-n",
+                output_name,
+            ]
+            if options:
+                for k, v in options.items():
+                    cmds.append(k)
+                    cmds.append(v)
+
+            if test:
+                print(f"=> Command: {' '.join([str(cmd) for cmd in cmds])}")
+            subprocess.run(cmds)
+            self.filename = output_name
+            self.projection = target_projection
+
         else:
             output_name = generate_outfilename(
                 f"{self.filename.split('.')[0]}_{target_projection}.mp4"
@@ -191,3 +237,24 @@ class Mg360Video(MgVideo):
             return projection
         else:
             raise TypeError(f"Unsupported projection type: '{type(projection)}'.")
+
+
+## testing gopro_360 conversion
+if __name__ == "__main__":
+    video = Mg360Video("2023-01-01-GS010008.360", Projection.gopro_360)
+    video.convert_projection(
+        Projection.equirect,
+        options={"-r": "0:180:0", "-s": "00:01:10", "-t": "00:01:20"},
+        test=True,
+    )
+    print(f"=> Converted video path: {video.filename}")
+    print(f"=> Converted video projection: {video.projection}")
+
+    video = Mg360Video("2023-01-01-GS010008.360", Projection.gopro_360)
+    video.convert_projection(
+        Projection.dfisheye,
+        options={"-s": "00:01:10", "-t": "00:01:20"},
+        test=True,
+    )
+    print(f"=> Converted video path: {video.filename}")
+    print(f"=> Converted video projection: {video.projection}")
