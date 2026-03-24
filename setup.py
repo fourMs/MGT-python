@@ -23,7 +23,7 @@ setup(
     author='University of Oslo fourMs Lab',
     author_email='a.r.jensenius@imv.uio.no',
     url='https://github.com/fourMs/MGT-python',
-    download_url='https://github.com/fourMs/MGT-python/archive/v1.3.2.tar.gz',
+    download_url='https://github.com/fourMs/MGT-python/archive/v1.3.3.tar.gz',
     keywords=['Computer Vision', 'Motion Analysis',
               'Musical Gestures', 'Video-Analysis'],
     install_requires=[
