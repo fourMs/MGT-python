@@ -2,6 +2,12 @@
 
 Using StrEnum so that enum members compare equal to their string values,
 maintaining full backward compatibility with code that passes plain strings.
+All enumerations support case-insensitive construction:
+
+    >>> BlurType("average") == BlurType.AVERAGE
+    True
+    >>> BlurType("AVERAGE") == BlurType.AVERAGE
+    True
 """
 from __future__ import annotations
 
@@ -10,23 +16,27 @@ from enum import Enum
 
 # StrEnum is available from Python 3.11; provide a compatible shim for 3.10.
 if sys.version_info >= (3, 11):
-    from enum import StrEnum  # noqa: F401
+    from enum import StrEnum as _StrEnumBase
 else:
-    class StrEnum(str, Enum):  # type: ignore[no-redef]
+    class _StrEnumBase(str, Enum):  # type: ignore[no-redef]
         """Backward-compatible StrEnum for Python 3.10."""
         def __str__(self) -> str:
             return self.value
 
-        @classmethod
-        def _missing_(cls, value: object) -> "StrEnum | None":
-            if isinstance(value, str):
-                for member in cls:
-                    if member.value.lower() == value.lower():
-                        return member
-            return None
+
+class _MgEnum(_StrEnumBase):
+    """Private base class that adds case-insensitive lookup to all MGT enums."""
+
+    @classmethod
+    def _missing_(cls, value: object) -> "_MgEnum | None":
+        if isinstance(value, str):
+            for member in cls:
+                if member.value.lower() == value.lower():
+                    return member
+        return None
 
 
-class FilterType(StrEnum):
+class FilterType(_MgEnum):
     """Pixel-value filter applied to the frame-difference stream.
 
     Attributes
@@ -43,7 +53,7 @@ class FilterType(StrEnum):
     BLOB = "Blob"
 
 
-class BlurType(StrEnum):
+class BlurType(_MgEnum):
     """Spatial blur applied before the frame-difference computation.
 
     Attributes
@@ -57,7 +67,7 @@ class BlurType(StrEnum):
     AVERAGE = "Average"
 
 
-class CropMode(StrEnum):
+class CropMode(_MgEnum):
     """Video cropping strategy.
 
     Attributes
@@ -74,7 +84,7 @@ class CropMode(StrEnum):
     AUTO = "auto"
 
 
-class PoseModel(StrEnum):
+class PoseModel(_MgEnum):
     """Pose estimation skeleton model.
 
     Attributes
@@ -94,7 +104,7 @@ class PoseModel(StrEnum):
     MEDIAPIPE = "mediapipe"
 
 
-class PoseDevice(StrEnum):
+class PoseDevice(_MgEnum):
     """Compute backend for pose estimation inference.
 
     Attributes
@@ -108,7 +118,7 @@ class PoseDevice(StrEnum):
     GPU = "gpu"
 
 
-class DataFormat(StrEnum):
+class DataFormat(_MgEnum):
     """Output data file format.
 
     Attributes
