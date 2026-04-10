@@ -148,7 +148,7 @@ class MgFeatures:
         """Iterate over feature names."""
         return iter(self._data)
 
-    def __array__(self, dtype=None) -> np.ndarray:
+    def __array__(self, dtype=None, copy=None) -> np.ndarray:
         """Return a 2-D array of shape ``(n_features, n_samples)``."""
         arr = np.stack(list(self._data.values()), axis=0)
         return arr if dtype is None else arr.astype(dtype)
