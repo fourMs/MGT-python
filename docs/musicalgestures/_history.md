@@ -19,7 +19,7 @@ Base class for argument errors.
 
 ## history_cv2
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_history.py#L110)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_history.py#L111)
 
 ```python
 def history_cv2(
