@@ -167,8 +167,8 @@ class Flow:
                     gpu_next_frame.upload(next_frame)
                     gpu_flow_result = farneback_gpu.calc(gpu_prev_frame, gpu_next_frame, None)
                     flow = gpu_flow_result.download()
-                    # Swap references so gpu_next_frame becomes the next prev without
-                    # allocating a new GpuMat object each frame
+                    # Swap references so gpu_next_frame becomes gpu_prev_frame for the
+                    # next iteration without allocating a new GpuMat object each frame
                     gpu_prev_frame, gpu_next_frame = gpu_next_frame, gpu_prev_frame
                 else:
                     flow = cv2.calcOpticalFlowFarneback(prev_frame, next_frame, None, pyr_scale, levels, winsize, iterations, poly_n, poly_sigma, flags)
@@ -442,7 +442,8 @@ class Flow:
                     gpu_p1, gpu_st = lk_gpu.calc(gpu_old_gray, gpu_frame_gray, gpu_p0, None, None)
                     p1 = gpu_p1.download()
                     st = gpu_st.download()
-                    # Swap references to avoid allocating a new GpuMat each frame
+                    # Swap references so current frame becomes old frame for next
+                    # iteration, avoiding new GpuMat allocation each frame
                     gpu_old_gray, gpu_frame_gray = gpu_frame_gray, gpu_old_gray
                 else:
                     p1, st, err = cv2.calcOpticalFlowPyrLK(
