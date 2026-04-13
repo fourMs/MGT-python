@@ -55,6 +55,8 @@ v.pose(model='body_25', device='cpu')
 - `pose()` downloads OpenPose weights on first use if they are missing.
 - In notebooks and other non-interactive runs, missing pose weights are downloaded automatically when possible.
 - If `device='gpu'` is requested but OpenCV CUDA support is unavailable, `pose()` falls back to CPU execution.
+- `flow.dense()`, `flow.sparse()`, and `blur_faces()` use CPU by default (`use_gpu=False`). Set `use_gpu=True` to opt into CUDA acceleration with automatic CPU fallback.
+- `get_cuda_device_count()` is available to quickly check whether OpenCV sees CUDA devices.
 - `blur_faces()` returns the generated result object consistently, including when `save_data=True`.
 
 ### Try Online

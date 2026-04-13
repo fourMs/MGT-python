@@ -41,6 +41,7 @@
     - [get_frame_planecount](#get_frame_planecount)
     - [get_framecount](#get_framecount)
     - [get_length](#get_length)
+    - [get_cuda_device_count](#get_cuda_device_count)
     - [get_widthheight](#get_widthheight)
     - [has_audio](#has_audio)
     - [in_colab](#in_colab)
@@ -727,6 +728,20 @@ Gets the length (in seconds) of a video using FFprobe.
 
 - `float` - The length of the input video file in seconds.
 
+## get_cuda_device_count
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1649)
+
+```python
+def get_cuda_device_count():
+```
+
+Returns the number of CUDA-capable GPU devices visible to OpenCV.
+
+#### Returns
+
+- `int` - Number of available CUDA devices, or 0 if the OpenCV CUDA module is unavailable or no devices are detected.
+
 ## get_widthheight
 
 [[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1117)
@@ -766,7 +781,7 @@ Checks if video has audio track using FFprobe.
 
 ## in_colab
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1619)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1663)
 
 ```python
 def in_colab():

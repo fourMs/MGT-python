@@ -143,12 +143,30 @@ print(f"Descriptors: {descriptors}")
 ```python
 mv = mg.MgVideo(examples.dance)
 
-# Uses GPU if available, otherwise falls back to CPU automatically.
+# Explicit GPU request with CPU fallback when CUDA is unavailable.
 pose_video = mv.pose(model='mpi', device='gpu', downsampling_factor=2)
 pose_video.show(mode='notebook')
 ```
 
 On first use, pose estimation downloads the requested model weights if they are not already present.
+
+### 5. Optional GPU Acceleration
+
+```python
+mv = mg.MgVideo(examples.dance)
+
+# CPU is the default for flow and blur_faces.
+dense_cpu = mv.flow.dense()
+blur_cpu = mv.blur_faces()
+
+# Opt in to CUDA acceleration (falls back to CPU automatically).
+dense_gpu = mv.flow.dense(use_gpu=True)
+sparse_gpu = mv.flow.sparse(use_gpu=True)
+blur_gpu = mv.blur_faces(use_gpu=True)
+
+# Check CUDA availability reported by OpenCV.
+print(mg.get_cuda_device_count())
+```
 
 ## Working with Your Own Videos
 
