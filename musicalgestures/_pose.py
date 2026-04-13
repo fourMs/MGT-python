@@ -1,6 +1,7 @@
 
 import cv2
 import os
+import sys
 import numpy as np
 import pandas as pd
 from musicalgestures._utils import MgProgressbar, convert_to_avi, extract_wav, embed_audio_in_video, roundup, frame2ms, generate_outfilename, in_colab, ffmpeg_cmd
@@ -74,15 +75,25 @@ def pose(
 
     # Check if .caffemodel file exists, download if necessary
     if not os.path.exists(weightsFile):
-        print('Could not find weights file. Do you want to download it (~200MB)? (y/n)')
-        answer = input() 
-        if answer.lower() == 'n':
-            print('Ok. Exiting...')
-            return musicalgestures.MgVideo(self.filename, color=self.color, returned_by_process=True)
-        elif answer.lower() == 'y':
+        print('Could not find weights file.')
+        # Notebook/nbclient runs cannot satisfy input(), so auto-download in non-interactive mode.
+        if not sys.stdin or not sys.stdin.isatty():
+            print('Non-interactive session detected. Downloading model weights automatically (~200MB).')
             download_model(model)
         else:
-            print(f'Unrecognized answer "{answer}". Exiting...')
+            print('Do you want to download it (~200MB)? (y/n)')
+            answer = input()
+            if answer.lower() == 'n':
+                print('Ok. Exiting...')
+                return musicalgestures.MgVideo(self.filename, color=self.color, returned_by_process=True)
+            elif answer.lower() == 'y':
+                download_model(model)
+            else:
+                print(f'Unrecognized answer "{answer}". Exiting...')
+                return musicalgestures.MgVideo(self.filename, color=self.color, returned_by_process=True)
+
+        if not os.path.exists(weightsFile):
+            print('Model weights are still missing after download attempt. Exiting pose() call.')
             return musicalgestures.MgVideo(self.filename, color=self.color, returned_by_process=True)
 
     # Read the network into Memory
@@ -92,6 +103,15 @@ def pose(
     if in_colab() and device == 'gpu':
         print('Sorry, OpenCV GPU acceleration is not supported in Colab. Switching to CPU.')
         device = 'cpu'
+    elif device == 'gpu':
+        cuda_devices = 0
+        try:
+            cuda_devices = cv2.cuda.getCudaEnabledDeviceCount()
+        except Exception:
+            cuda_devices = 0
+        if cuda_devices <= 0:
+            print('OpenCV CUDA backend is unavailable. Switching to CPU.')
+            device = 'cpu'
 
     if device == "cpu":
         net.setPreferableBackend(cv2.dnn.DNN_TARGET_CPU)
@@ -147,7 +167,7 @@ def pose(
             break
 
         # Transform the bytes read into a numpy array
-        frame = np.frombuffer(out, dtype=np.uint8).reshape([self.height, self.width, 3]) # height, width, channels
+        frame = np.frombuffer(out, dtype=np.uint8).reshape([self.height, self.width, 3]).copy() # height, width, channels
 
         inpBlob = cv2.dnn.blobFromImage(frame, 1.0 / 255, (inWidth, inHeight), (0, 0, 0), swapRB=False, crop=False)
         net.setInput(inpBlob)
@@ -393,7 +413,7 @@ def download_model(modeltype):
         if the_system == 'Windows':
             command += f' {wget_win} {target_folder_mpi}'
         else:
-            command = 'sudo -S bash ' + command
+            command = 'bash ' + command
             command += f' {target_folder_mpi}'
         pb_prefix = 'Downloading MPI model:'
     elif modeltype.lower() == 'coco':
@@ -401,7 +421,7 @@ def download_model(modeltype):
         if the_system == 'Windows':
             command += f' {wget_win} {target_folder_coco}'
         else:
-            command = 'sudo -S bash ' + command
+            command = 'bash ' + command
             command += f' {target_folder_coco}'
         pb_prefix = 'Downloading COCO model:'
     elif modeltype.lower() == 'body_25':
@@ -409,27 +429,14 @@ def download_model(modeltype):
         if the_system == 'Windows':
             command += f' {wget_win} {target_folder_body_25}'
         else:
-            command = 'sudo -S bash ' + command
+            command = 'bash ' + command
             command += f' {target_folder_body_25}'
         pb_prefix = 'Downloading BODY_25 model:'
 
     pb = MgProgressbar(total=100, prefix=pb_prefix)
 
-    if the_system == 'Windows' or in_colab():
-        process = subprocess.Popen(
-            command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True, shell=True)
-    else:
-        try:
-            import getpass
-            username = getpass.getuser()
-            print(f'[sudo] password for {username}:')
-            p = getpass.getpass()
-            process = subprocess.Popen(
-                command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE, universal_newlines=True, shell=True)
-            process.stdin.write(p+'\n')
-            process.stdin.flush()
-        except Exception as error:
-            print('ERROR', error)
+    process = subprocess.Popen(
+        command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True, shell=True)
 
     try:
         i = 0

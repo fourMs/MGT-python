@@ -195,6 +195,27 @@ class MgImage():
     def __repr__(self):
         return f"MgImage('{self.filename}')"
 
+    def _repr_html_(self) -> str:
+        """Rich HTML display for Jupyter notebooks."""
+        import base64
+        import os
+        if not os.path.exists(self.filename):
+            return f"<i>MgImage('{self.filename}') – file not found</i>"
+        ext = self.fex.lower().lstrip('.')
+        mime = {'jpg': 'jpeg', 'jpeg': 'jpeg', 'png': 'png', 'gif': 'gif'}.get(ext, 'png')
+        with open(self.filename, 'rb') as f:
+            b64 = base64.b64encode(f.read()).decode('ascii')
+        return (
+            f'<div style="display:inline-block;text-align:center;">'
+            f'<img src="data:image/{mime};base64,{b64}" '
+            f'style="max-width:600px;max-height:400px;" />'
+            f'<br><small><code>{self.filename}</code></small></div>'
+        )
+
+    def _repr_mimebundle_(self, include=None, exclude=None) -> dict:
+        """MIME bundle for rich display environments."""
+        return {"text/html": self._repr_html_()}
+
 
 class MgFigure():
     """
@@ -226,6 +247,37 @@ class MgFigure():
         Shows the internal matplotlib.pyplot.figure.
         """
         return self.figure
+
+    def _repr_html_(self) -> str:
+        """Rich HTML display for Jupyter notebooks."""
+        import base64
+        import io
+        import os
+        if self.image and os.path.exists(self.image):
+            with open(self.image, 'rb') as f:
+                b64 = base64.b64encode(f.read()).decode('ascii')
+            return (
+                f'<div style="display:inline-block;text-align:center;">'
+                f'<img src="data:image/png;base64,{b64}" '
+                f'style="max-width:800px;max-height:600px;" />'
+                f'<br><small><code>MgFigure(type={self.figure_type!r})</code></small></div>'
+            )
+        elif self.figure is not None:
+            buf = io.BytesIO()
+            self.figure.savefig(buf, format='png', bbox_inches='tight')
+            buf.seek(0)
+            b64 = base64.b64encode(buf.read()).decode('ascii')
+            return (
+                f'<div style="display:inline-block;text-align:center;">'
+                f'<img src="data:image/png;base64,{b64}" '
+                f'style="max-width:800px;max-height:600px;" />'
+                f'<br><small><code>MgFigure(type={self.figure_type!r})</code></small></div>'
+            )
+        return f"<i>MgFigure(type={self.figure_type!r}) – no image available</i>"
+
+    def _repr_mimebundle_(self, include=None, exclude=None) -> dict:
+        """MIME bundle for rich display environments."""
+        return {"text/html": self._repr_html_()}
 
 def roundup(num, modulo_num):
     """

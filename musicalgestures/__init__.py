@@ -28,3 +28,32 @@ class Examples:
 
 
 examples = Examples()
+
+# --- Modern additions (v1.4.0) ---
+from musicalgestures._enums import (
+    FilterType,
+    BlurType,
+    CropMode,
+    PoseModel,
+    PoseDevice,
+    DataFormat,
+)
+from musicalgestures._exceptions import (
+    MgError,
+    MgInputError,
+    MgProcessingError,
+    MgIOError,
+    MgDependencyError,
+)
+from musicalgestures._logging import set_log_level
+from musicalgestures._features import MgFeatures
+from musicalgestures._stream import MgVideoReader
+from musicalgestures._pipeline import MgPipeline, MgStep
+from musicalgestures._dataset import MgDataset, MgCorpus, MediaItem
+from musicalgestures._pose_estimator import (
+    PoseEstimator,
+    PoseEstimatorResult,
+    MediaPipePoseEstimator,
+    OpenPosePoseEstimator,
+    get_pose_estimator,
+)
