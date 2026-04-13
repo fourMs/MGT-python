@@ -1,5 +1,31 @@
 from typing import Union, Tuple
 
+#: Module-level flag controlling whether progress bars are shown.
+#: Use :func:`show_progress` to change this setting.
+_SHOW_PROGRESS: bool = True
+
+
+def show_progress(enabled: bool) -> None:
+    """Enable or disable the MGT progress bars globally.
+
+    Disabling the progress bars is useful when running batch processing jobs or
+    when the output is captured by a logging framework where the repeated
+    ``\\r`` updates would clutter the log.
+
+    Args:
+        enabled (bool): Pass ``True`` to show progress bars (default behaviour)
+            or ``False`` to suppress them.
+
+    Examples:
+        >>> import musicalgestures as mg
+        >>> mg.show_progress(False)  # suppress all progress bars
+        >>> # … batch processing …
+        >>> mg.show_progress(True)   # re-enable for interactive use
+    """
+    global _SHOW_PROGRESS
+    _SHOW_PROGRESS = bool(enabled)
+
+
 class MgProgressbar():
     """
     Calls in a loop to create terminal progress bar.
@@ -131,6 +157,10 @@ class MgProgressbar():
             iteration (float): The current iteration. For example, the 57th out of 100 steps, or 12.3s out of the total 60s.
         """
         if self.finished:
+            return
+        if not _SHOW_PROGRESS:
+            if iteration >= self.total:
+                self.finished = True
             return
         import sys
         import shutil

@@ -14,6 +14,7 @@ from musicalgestures._utils import (
     ffmpeg_cmd,
     get_length,
     generate_outfilename,
+    show_progress,
 )
 from musicalgestures._mglist import MgList
 
