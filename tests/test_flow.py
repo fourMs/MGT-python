@@ -113,3 +113,33 @@ class Test_get_cuda_device_count:
         result = musicalgestures.get_cuda_device_count()
         assert isinstance(result, int)
         assert result >= 0
+
+
+class Test_blur_faces_gpu:
+    def test_use_gpu_false(self, testvideo_avi):
+        mg = musicalgestures.MgVideo(testvideo_avi)
+        result = mg.blur_faces(use_gpu=False, overwrite=True)
+        assert type(result) == musicalgestures.MgVideo
+        assert os.path.isfile(result.filename) == True
+
+    def test_use_gpu_true(self, testvideo_avi):
+        # use_gpu=True should work (falls back to CPU when CUDA is unavailable)
+        mg = musicalgestures.MgVideo(testvideo_avi)
+        result = mg.blur_faces(use_gpu=True, overwrite=True)
+        assert type(result) == musicalgestures.MgVideo
+        assert os.path.isfile(result.filename) == True
+
+
+class Test_pose_gpu:
+    def test_device_cpu(self, testvideo_avi):
+        mg = musicalgestures.MgVideo(testvideo_avi)
+        result = mg.pose(device='cpu', overwrite=True)
+        assert type(result) == musicalgestures.MgVideo
+        assert os.path.isfile(result.filename) == True
+
+    def test_device_gpu_fallback(self, testvideo_avi):
+        # device='gpu' should fall back to CPU when CUDA is unavailable
+        mg = musicalgestures.MgVideo(testvideo_avi)
+        result = mg.pose(device='gpu', overwrite=True)
+        assert type(result) == musicalgestures.MgVideo
+        assert os.path.isfile(result.filename) == True

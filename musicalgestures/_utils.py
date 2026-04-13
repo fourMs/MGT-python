@@ -1624,7 +1624,6 @@ def get_cuda_device_count():
         int: Number of available CUDA devices, or 0 if the OpenCV CUDA
              module is unavailable or no devices are detected.
     """
-    import cv2
     try:
         return cv2.cuda.getCudaEnabledDeviceCount()
     except Exception:
