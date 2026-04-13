@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import entropy
 
 import musicalgestures
-from musicalgestures._utils import MgFigure, extract_wav, embed_audio_in_video, MgProgressbar, convert_to_avi, generate_outfilename
+from musicalgestures._utils import MgFigure, extract_wav, embed_audio_in_video, MgProgressbar, convert_to_avi, generate_outfilename, ffmpeg_cmd
 
 
 class Flow:
@@ -111,8 +111,10 @@ class Flow:
             if not overwrite:
                 target_name = generate_outfilename(target_name)
 
-            fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-            out = cv2.VideoWriter(target_name, fourcc, fps, (width, height))
+            cmd = ['ffmpeg', '-y', '-s', '{}x{}'.format(width, height),
+                   '-r', str(fps), '-f', 'rawvideo', '-pix_fmt', 'bgr24', '-vcodec', 'rawvideo',
+                   '-i', '-', '-vcodec', 'mjpeg', '-q:v', '3', target_name]
+            out = ffmpeg_cmd(cmd, total_time=length, pipe='write')
 
         ret, frame1 = vidcap.read()
         prev_frame = cv2.cvtColor(cv2.resize(frame1, size), cv2.COLOR_BGR2GRAY)
@@ -154,14 +156,14 @@ class Flow:
 
                     if skip_empty:
                         if np.sum(rgb) > 0:
-                            out.write(rgb.astype(np.uint8))
+                            out.stdin.write(rgb.astype(np.uint8))
                         else:
                             if ii == 0:
-                                out.write(rgb.astype(np.uint8))
+                                out.stdin.write(rgb.astype(np.uint8))
                             else:
-                                out.write(prev_rgb.astype(np.uint8))
+                                out.stdin.write(prev_rgb.astype(np.uint8))
                     else:
-                        out.write(rgb.astype(np.uint8))
+                        out.stdin.write(rgb.astype(np.uint8))
 
                     if skip_empty:
                         if np.sum(rgb) > 0 or ii == 0:
@@ -232,7 +234,8 @@ class Flow:
             return mgf
         
         else:
-            out.release()
+            out.stdin.close()
+            out.wait()
             destination_video = target_name
 
             if self.has_audio:
@@ -321,7 +324,6 @@ class Flow:
 
         vidcap = cv2.VideoCapture(filename)
         ret, frame = vidcap.read()
-        fourcc = cv2.VideoWriter_fourcc(*'MJPG')
 
         fps = int(vidcap.get(cv2.CAP_PROP_FPS))
         width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -336,7 +338,10 @@ class Flow:
         if not overwrite:
             target_name = generate_outfilename(target_name)
 
-        out = cv2.VideoWriter(target_name, fourcc, fps, (width, height))
+        cmd = ['ffmpeg', '-y', '-s', '{}x{}'.format(width, height),
+               '-r', str(fps), '-f', 'rawvideo', '-pix_fmt', 'bgr24', '-vcodec', 'rawvideo',
+               '-i', '-', '-vcodec', 'mjpeg', '-q:v', '3', target_name]
+        out = ffmpeg_cmd(cmd, total_time=length, pipe='write')
 
         # params for ShiTomasi corner detection
         feature_params = dict(maxCorners=corner_max_corners,
@@ -390,7 +395,7 @@ class Flow:
 
                 img = cv2.add(frame, mask)
 
-                out.write(img.astype(np.uint8))
+                out.stdin.write(img.astype(np.uint8))
 
                 # Now update the previous frame and previous points
                 old_gray = frame_gray.copy()
@@ -403,7 +408,8 @@ class Flow:
             pb.progress(ii)
             ii += 1
 
-        out.release()
+        out.stdin.close()
+        out.wait()
 
         destination_video = target_name
 
