@@ -53,17 +53,18 @@ def history_ffmpeg(self, filename=None, history_length=10, weights=1, normalize=
             str_weights = ' '.join([str(weight) for weight in weights_map])
     elif type(weights) == str:
         weights_as_list = weights.split()
-        typecheck_list = [type(item) in [int, float]
-                          for item in weights_as_list]
-        if False in typecheck_list:
+        try:
+            weights_as_list = [float(item) for item in weights_as_list]
+        except ValueError:
             raise ParameterError(
                 'Found wrong type(s) in the list of weights. Use ints and floats.')
-        elif len(weights) > history_length:
+        if len(weights_as_list) > history_length:
             raise ParameterError(
                 'history_length must be greater than or equal to the number of weights specified in weights.')
         else:
             weights_map = np.ones(history_length - len(weights_as_list))
             weights_as_list.reverse()
+            weights_map = list(weights_map)
             weights_map += weights_as_list
             str_weights = ' '.join([str(weight) for weight in weights_map])
     else:
