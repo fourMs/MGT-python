@@ -69,7 +69,7 @@ class Flow:
             angle_of_view (int, optional): angle of view of camera, for reporting flow in meters per second. Defaults to 0.
             scaledown (int, optional): factor to scaledown frame size of the video. Defaults to 1.
             skip_empty (bool, optional): If True, repeats previous frame in the output when encounters an empty frame. Defaults to False.
-            use_gpu (bool, optional): Whether to attempt GPU (CUDA) acceleration using `cv2.cuda.FarnebackOpticalFlow`. Falls back to CPU automatically if CUDA is unavailable or the required OpenCV CUDA modules are not installed. Defaults to True.
+            use_gpu (bool, optional): Whether to attempt GPU (CUDA) acceleration using `cv2.cuda.FarnebackOpticalFlow`. When `True`, falls back to CPU automatically if CUDA is unavailable or the required OpenCV CUDA modules are not installed. When `False`, CPU processing is used unconditionally. Defaults to True.
             target_name (str, optional): Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_flow_dense" should be used).
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
@@ -145,6 +145,7 @@ class Flow:
 
         if _use_gpu:
             gpu_prev_frame = cv2.cuda_GpuMat()
+            gpu_next_frame = cv2.cuda_GpuMat()
             gpu_prev_frame.upload(prev_frame)
         
         prev_rgb = None
@@ -163,11 +164,12 @@ class Flow:
                 next_frame = cv2.cvtColor(cv2.resize(frame2, size), cv2.COLOR_BGR2GRAY)
 
                 if _use_gpu:
-                    gpu_next_frame = cv2.cuda_GpuMat()
                     gpu_next_frame.upload(next_frame)
                     gpu_flow_result = farneback_gpu.calc(gpu_prev_frame, gpu_next_frame, None)
                     flow = gpu_flow_result.download()
-                    gpu_prev_frame = gpu_next_frame
+                    # Swap references so gpu_next_frame becomes the next prev without
+                    # allocating a new GpuMat object each frame
+                    gpu_prev_frame, gpu_next_frame = gpu_next_frame, gpu_prev_frame
                 else:
                     flow = cv2.calcOpticalFlowFarneback(prev_frame, next_frame, None, pyr_scale, levels, winsize, iterations, poly_n, poly_sigma, flags)
 
@@ -335,7 +337,7 @@ class Flow:
             of_win_size (tuple, optional): Size of the search window at each pyramid level. Defaults to (15, 15).
             of_max_level (int, optional): 0-based maximal pyramid level number. If set to 0, pyramids are not used (single level), if set to 1, two levels are used, and so on. If pyramids are passed to input then the algorithm will use as many levels as pyramids have but no more than `maxLevel`. Defaults to 2.
             of_criteria (tuple, optional): Specifies the termination criteria of the iterative search algorithm (after the specified maximum number of iterations criteria.maxCount or when the search window moves by less than criteria.epsilon). Defaults to (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03).
-            use_gpu (bool, optional): Whether to attempt GPU (CUDA) acceleration using `cv2.cuda.SparsePyrLKOpticalFlow`. Falls back to CPU automatically if CUDA is unavailable or the required OpenCV CUDA modules are not installed. Defaults to True.
+            use_gpu (bool, optional): Whether to attempt GPU (CUDA) acceleration using `cv2.cuda.SparsePyrLKOpticalFlow`. When `True`, falls back to CPU automatically if CUDA is unavailable or the required OpenCV CUDA modules are not installed. When `False`, CPU processing is used unconditionally. Defaults to True.
             target_name (str, optional): Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_flow_sparse" should be used).
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
@@ -419,6 +421,7 @@ class Flow:
 
         if _use_gpu:
             gpu_old_gray = cv2.cuda_GpuMat()
+            gpu_frame_gray = cv2.cuda_GpuMat()
             gpu_old_gray.upload(old_gray)
             gpu_p0 = cv2.cuda_GpuMat()
             gpu_p0.upload(p0)
@@ -435,12 +438,12 @@ class Flow:
 
                 # calculate optical flow
                 if _use_gpu:
-                    gpu_frame_gray = cv2.cuda_GpuMat()
                     gpu_frame_gray.upload(frame_gray)
                     gpu_p1, gpu_st = lk_gpu.calc(gpu_old_gray, gpu_frame_gray, gpu_p0, None, None)
                     p1 = gpu_p1.download()
                     st = gpu_st.download()
-                    gpu_old_gray = gpu_frame_gray
+                    # Swap references to avoid allocating a new GpuMat each frame
+                    gpu_old_gray, gpu_frame_gray = gpu_frame_gray, gpu_old_gray
                 else:
                     p1, st, err = cv2.calcOpticalFlowPyrLK(
                         old_gray, frame_gray, p0, None, **lk_params)
@@ -470,7 +473,6 @@ class Flow:
                 old_gray = frame_gray.copy()
                 p0 = good_new.reshape(-1, 1, 2)
                 if _use_gpu:
-                    gpu_p0 = cv2.cuda_GpuMat()
                     gpu_p0.upload(p0)
 
             else:
