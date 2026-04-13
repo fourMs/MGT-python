@@ -192,24 +192,25 @@ class PoseEstimator(abc.ABC):
 
 
 class MediaPipePoseEstimator(PoseEstimator):
-    """Pose estimator backed by Google MediaPipe Pose.
+    """Pose estimator backed by Google MediaPipe Pose (Tasks API).
 
-    Requires the optional ``mediapipe`` package::
+    Requires the optional ``mediapipe>=0.10`` package::
 
         pip install musicalgestures[pose]
+
+    The first time you use a given complexity level the corresponding
+    ``.task`` model file (~8–28 MB) is downloaded from Google's model
+    storage and cached in ``musicalgestures/models/``.
 
     Parameters
     ----------
     model_complexity:
-        MediaPipe model complexity (0, 1, or 2).  Higher = more accurate
-        but slower.  Default: 1.
+        MediaPipe model complexity (0 = lite, 1 = full, 2 = heavy).
+        Higher values are more accurate but slower.  Default: 1.
     min_detection_confidence:
         Minimum confidence for initial body detection. Default: 0.5.
     min_tracking_confidence:
         Minimum confidence for landmark tracking. Default: 0.5.
-    static_image_mode:
-        If *True*, treat every frame as a static image (no tracking).
-        Default: False.
 
     Examples
     --------
@@ -220,22 +221,77 @@ class MediaPipePoseEstimator(PoseEstimator):
     >>> result.keypoints.shape  # (33, 3)  # doctest: +SKIP
     """
 
+    # Model download URLs for each complexity level
+    _MODEL_URLS: dict[int, str] = {
+        0: (
+            "https://storage.googleapis.com/mediapipe-models/"
+            "pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task"
+        ),
+        1: (
+            "https://storage.googleapis.com/mediapipe-models/"
+            "pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task"
+        ),
+        2: (
+            "https://storage.googleapis.com/mediapipe-models/"
+            "pose_landmarker/pose_landmarker_heavy/float16/1/pose_landmarker_heavy.task"
+        ),
+    }
+    _MODEL_NAMES: dict[int, str] = {
+        0: "pose_landmarker_lite.task",
+        1: "pose_landmarker_full.task",
+        2: "pose_landmarker_heavy.task",
+    }
+
     def __init__(
         self,
         model_complexity: int = 1,
         min_detection_confidence: float = 0.5,
         min_tracking_confidence: float = 0.5,
-        static_image_mode: bool = False,
     ) -> None:
         super().__init__(model=PoseModel.MEDIAPIPE, device=PoseDevice.CPU)
         self.model_complexity = model_complexity
         self.min_detection_confidence = min_detection_confidence
         self.min_tracking_confidence = min_tracking_confidence
-        self.static_image_mode = static_image_mode
-        self._pose = None  # lazy init
+        self._landmarker = None  # lazy init
+
+    def _get_model_path(self) -> Path:
+        """Return path to the cached model file, downloading if necessary."""
+        import musicalgestures as mg
+
+        module_dir = Path(mg.__file__).parent
+        models_dir = module_dir / "models"
+        models_dir.mkdir(exist_ok=True)
+
+        complexity = self.model_complexity
+        if complexity not in self._MODEL_NAMES:
+            logger.warning(
+                "model_complexity %d is not valid (0-2); defaulting to 1.",
+                complexity,
+            )
+            complexity = 1
+
+        model_path = models_dir / self._MODEL_NAMES[complexity]
+        if model_path.exists():
+            return model_path
+
+        url = self._MODEL_URLS[complexity]
+        logger.info("Downloading MediaPipe model from %s …", url)
+        print(f"Downloading MediaPipe pose model ({self._MODEL_NAMES[complexity]}) …")
+        try:
+            import urllib.request
+
+            urllib.request.urlretrieve(url, model_path)
+            logger.info("Model saved to %s", model_path)
+        except Exception as exc:
+            raise MgDependencyError(
+                f"Failed to download MediaPipe pose model from {url}. "
+                "Please download it manually and place it at: "
+                f"{model_path}"
+            ) from exc
+        return model_path
 
     def _ensure_initialized(self) -> None:
-        if self._pose is not None:
+        if self._landmarker is not None:
             return
         try:
             import mediapipe as mp
@@ -244,13 +300,25 @@ class MediaPipePoseEstimator(PoseEstimator):
                 "mediapipe is required for MediaPipePoseEstimator. "
                 "Install it with: pip install musicalgestures[pose]"
             ) from exc
-        self._pose = mp.solutions.pose.Pose(
-            static_image_mode=self.static_image_mode,
-            model_complexity=self.model_complexity,
-            min_detection_confidence=self.min_detection_confidence,
+
+        model_path = self._get_model_path()
+
+        BaseOptions = mp.tasks.BaseOptions
+        PoseLandmarker = mp.tasks.vision.PoseLandmarker
+        PoseLandmarkerOptions = mp.tasks.vision.PoseLandmarkerOptions
+        VisionRunningMode = mp.tasks.vision.RunningMode
+
+        options = PoseLandmarkerOptions(
+            base_options=BaseOptions(model_asset_path=str(model_path)),
+            running_mode=VisionRunningMode.IMAGE,
+            min_pose_detection_confidence=self.min_detection_confidence,
             min_tracking_confidence=self.min_tracking_confidence,
         )
-        logger.debug("MediaPipe Pose initialised (complexity=%d)", self.model_complexity)
+        self._landmarker = PoseLandmarker.create_from_options(options)
+        logger.debug(
+            "MediaPipe PoseLandmarker initialised (complexity=%d)",
+            self.model_complexity,
+        )
 
     @property
     def landmark_names(self) -> list[str]:
@@ -271,15 +339,17 @@ class MediaPipePoseEstimator(PoseEstimator):
         """
         self._ensure_initialized()
         import cv2
+        import mediapipe as mp
 
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        results = self._pose.process(rgb)
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
+        detection_result = self._landmarker.detect(mp_image)
 
         n = len(MEDIAPIPE_LANDMARK_NAMES)
         keypoints = np.zeros((n, 3), dtype=float)
 
-        if results.pose_landmarks:
-            for i, lm in enumerate(results.pose_landmarks.landmark):
+        if detection_result.pose_landmarks:
+            for i, lm in enumerate(detection_result.pose_landmarks[0]):
                 keypoints[i] = [lm.x, lm.y, lm.visibility]
 
         return PoseEstimatorResult(
@@ -289,9 +359,9 @@ class MediaPipePoseEstimator(PoseEstimator):
 
     def close(self) -> None:
         """Release MediaPipe resources."""
-        if self._pose is not None:
-            self._pose.close()
-            self._pose = None
+        if self._landmarker is not None:
+            self._landmarker.close()
+            self._landmarker = None
 
     def __del__(self) -> None:
         try:

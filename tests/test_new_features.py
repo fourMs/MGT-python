@@ -360,13 +360,133 @@ class TestPoseEstimator:
             from musicalgestures._pose_estimator import MediaPipePoseEstimator
             from musicalgestures._exceptions import MgDependencyError
             est = MediaPipePoseEstimator()
-            est._pose = None  # ensure not initialized
+            est._landmarker = None  # ensure not initialized
             with pytest.raises(MgDependencyError):
                 est._ensure_initialized()
         finally:
             sys.meta_path.remove(blocker)
             # Restore mediapipe modules
             sys.modules.update(mp_modules)
+
+
+# ---------------------------------------------------------------------------
+# Phase 3b – MediaPipe pose integration (_pose.py)
+# ---------------------------------------------------------------------------
+
+class TestMediaPipePoseIntegration:
+    """Tests for the MediaPipe path in musicalgestures._pose."""
+
+    def test_pose_connections_defined(self):
+        """MEDIAPIPE_POSE_CONNECTIONS should be a non-empty list of 2-tuples."""
+        from musicalgestures._pose import MEDIAPIPE_POSE_CONNECTIONS
+        assert isinstance(MEDIAPIPE_POSE_CONNECTIONS, list)
+        assert len(MEDIAPIPE_POSE_CONNECTIONS) > 0
+        for a, b in MEDIAPIPE_POSE_CONNECTIONS:
+            assert isinstance(a, int)
+            assert isinstance(b, int)
+            assert 0 <= a <= 32
+            assert 0 <= b <= 32
+
+    def test_save_pose_txt_csv(self, tmp_path):
+        """_save_pose_txt should write a valid CSV file."""
+        from musicalgestures._pose import _save_pose_txt
+        import pandas as pd
+
+        headers = ['Time', 'Nose X', 'Nose Y', 'Left Eye X', 'Left Eye Y']
+        data = [[0, 0.5, 0.3, 0.45, 0.28], [33, 0.51, 0.31, 0.46, 0.29]]
+        of = str(tmp_path / 'test_video')
+        _save_pose_txt(of, data, headers, 'csv', None, overwrite=True)
+        csv_path = tmp_path / 'test_video_pose.csv'
+        assert csv_path.exists()
+        df = pd.read_csv(csv_path)
+        assert list(df.columns) == headers
+        assert len(df) == 2
+
+    def test_save_pose_txt_tsv(self, tmp_path):
+        """_save_pose_txt should write a valid TSV file."""
+        from musicalgestures._pose import _save_pose_txt
+
+        headers = ['Time', 'Nose X', 'Nose Y']
+        data = [[0, 0.5, 0.3]]
+        of = str(tmp_path / 'test_video')
+        _save_pose_txt(of, data, headers, 'tsv', None, overwrite=True)
+        tsv_path = tmp_path / 'test_video_pose.tsv'
+        assert tsv_path.exists()
+
+    def test_save_pose_txt_txt(self, tmp_path):
+        """_save_pose_txt should write a valid TXT file."""
+        from musicalgestures._pose import _save_pose_txt
+
+        headers = ['Time', 'Nose X', 'Nose Y']
+        data = [[0, 0.5, 0.3]]
+        of = str(tmp_path / 'test_video')
+        _save_pose_txt(of, data, headers, 'txt', None, overwrite=True)
+        txt_path = tmp_path / 'test_video_pose.txt'
+        assert txt_path.exists()
+
+    def test_save_pose_txt_multiple_formats(self, tmp_path):
+        """_save_pose_txt with a list of formats should write all files."""
+        from musicalgestures._pose import _save_pose_txt
+
+        headers = ['Time', 'Nose X', 'Nose Y']
+        data = [[0, 0.5, 0.3]]
+        of = str(tmp_path / 'test_video')
+        _save_pose_txt(of, data, headers, ['csv', 'tsv'], None, overwrite=True)
+        assert (tmp_path / 'test_video_pose.csv').exists()
+        assert (tmp_path / 'test_video_pose.tsv').exists()
+
+    def test_save_pose_txt_custom_name(self, tmp_path):
+        """_save_pose_txt respects a custom target_name_data."""
+        from musicalgestures._pose import _save_pose_txt
+
+        headers = ['Time', 'Nose X', 'Nose Y']
+        data = [[0, 0.5, 0.3]]
+        of = str(tmp_path / 'test_video')
+        target = str(tmp_path / 'my_custom_output.csv')
+        _save_pose_txt(of, data, headers, 'csv', target, overwrite=True)
+        assert (tmp_path / 'my_custom_output.csv').exists()
+
+    def test_mediapipe_estimator_model_names(self):
+        """MediaPipePoseEstimator._MODEL_NAMES should map 0-2 to .task filenames."""
+        from musicalgestures._pose_estimator import MediaPipePoseEstimator
+        est = MediaPipePoseEstimator()
+        assert est._MODEL_NAMES[0].endswith('.task')
+        assert est._MODEL_NAMES[1].endswith('.task')
+        assert est._MODEL_NAMES[2].endswith('.task')
+
+    def test_mediapipe_estimator_model_urls(self):
+        """MediaPipePoseEstimator._MODEL_URLS should map 0-2 to HTTPS URLs."""
+        from musicalgestures._pose_estimator import MediaPipePoseEstimator
+        est = MediaPipePoseEstimator()
+        for complexity in (0, 1, 2):
+            url = est._MODEL_URLS[complexity]
+            assert url.startswith('https://')
+            assert '.task' in url
+
+    def test_mediapipe_estimator_close_noop(self):
+        """Calling close() on an uninitialised estimator should be a no-op."""
+        from musicalgestures._pose_estimator import MediaPipePoseEstimator
+        est = MediaPipePoseEstimator()
+        est.close()  # should not raise
+
+    def test_pose_function_routes_mediapipe(self, monkeypatch):
+        """pose() with model='mediapipe' should call _pose_mediapipe, not OpenPose."""
+        import musicalgestures._pose as pose_module
+        called_with = {}
+
+        def fake_pose_mediapipe(self, **kwargs):
+            called_with.update(kwargs)
+            return "sentinel"
+
+        monkeypatch.setattr(pose_module, "_pose_mediapipe", fake_pose_mediapipe)
+
+        class FakeMgVideo:
+            filename = "dummy.avi"
+            color = True
+
+        result = pose_module.pose(FakeMgVideo(), model="mediapipe", save_video=False)
+        assert result == "sentinel"
+        assert called_with.get("save_video") is False
 
 
 # ---------------------------------------------------------------------------

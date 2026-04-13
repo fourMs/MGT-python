@@ -26,7 +26,7 @@ This module provides:
 * class `PoseEstimator` – an abstract base class (ABC) defining the common
   interface that all pose backends must implement.
 * class `MediaPipePoseEstimator` – a concrete backend powered by Google
-  MediaPipe Pose (33 landmarks, CPU-friendly, zero model download).
+  MediaPipe Pose (33 landmarks, CPU-friendly, auto-downloads model on first use).
 * class `OpenPosePoseEstimator` – a thin wrapper around the legacy OpenPose /
   Caffe-model implementation already present in :mod:[Pose](_pose.md#pose).
 
@@ -56,30 +56,30 @@ class MediaPipePoseEstimator(PoseEstimator):
         model_complexity: int = 1,
         min_detection_confidence: float = 0.5,
         min_tracking_confidence: float = 0.5,
-        static_image_mode: bool = False,
     ) -> None:
 ```
 
-Pose estimator backed by Google MediaPipe Pose.
+Pose estimator backed by Google MediaPipe Pose (Tasks API).
 
-Requires the optional ``mediapipe`` package
+Requires the optional ``mediapipe>=0.10`` package
 
 ```python
 pip install musicalgestures[pose]
 ```
 
+The first time you use a given complexity level the corresponding
+`.task` model file (~8–28 MB) is downloaded from Google's model
+storage and cached in `musicalgestures/models/`.
+
 Parameters
 ----------
 model_complexity:
-    MediaPipe model complexity (0, 1, or 2).  Higher = more accurate
-    but slower.  Default: 1.
+    MediaPipe model complexity (0 = lite, 1 = full, 2 = heavy).
+    Higher values are more accurate but slower.  Default: 1.
 min_detection_confidence:
     Minimum confidence for initial body detection. Default: 0.5.
 min_tracking_confidence:
     Minimum confidence for landmark tracking. Default: 0.5.
-static_image_mode:
-    If *True*, treat every frame as a static image (no tracking).
-    Default: False.
 
 Examples
 --------
