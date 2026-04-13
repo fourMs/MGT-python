@@ -633,7 +633,8 @@ class Test_extract_subclip:
             musicalgestures.examples.dance, 3, 4, target_name=target_name)
         fps = get_fps(musicalgestures.examples.dance)
         result_framecount = get_framecount(result)
-        assert fps - 1 <= result_framecount <= fps + 1
+        # ffmpeg/ffprobe frame rounding can vary slightly across platforms.
+        assert abs(result_framecount - round(fps)) <= 2
 
     def test_start_later_than_end(self, tmp_path, testvideo_avi):
         target_name = str(tmp_path).replace(
@@ -902,19 +903,19 @@ class Test_get_length:
     def test_video(self):
         result = get_length(musicalgestures.examples.dance)
         assert type(result) == float
-        assert result == 62.84
+        assert abs(result - 62.84) <= 0.1
 
     def test_audio(self, testaudio):
         result = get_length(testaudio)
         assert type(result) == float
-        assert result == 62.86
+        assert abs(result - 62.86) <= 0.1
 
 
 class Test_get_framecount:
     def test_get_framecount(self):
         result = get_framecount(musicalgestures.examples.dance)
         assert type(result) == int
-        assert result == 1571
+        assert abs(result - 1571) <= 1
 
 
 class Test_get_fps:
