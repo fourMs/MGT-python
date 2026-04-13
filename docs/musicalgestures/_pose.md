@@ -8,7 +8,7 @@
 
 ## download_model
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py#L350)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py#L370)
 
 ```python
 def download_model(modeltype):
@@ -18,7 +18,7 @@ Helper function to automatically download model (.caffemodel) files.
 
 ## pose
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py#L13)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py#L14)
 
 ```python
 def pose(
