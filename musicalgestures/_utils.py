@@ -1616,6 +1616,21 @@ def unwrap_str(string):
         return string
 
 
+def get_cuda_device_count():
+    """
+    Returns the number of CUDA-capable GPU devices visible to OpenCV.
+
+    Returns:
+        int: Number of available CUDA devices, or 0 if the OpenCV CUDA
+             module is unavailable or no devices are detected.
+    """
+    import cv2
+    try:
+        return cv2.cuda.getCudaEnabledDeviceCount()
+    except Exception:
+        return 0
+
+
 def in_colab():
     """
     Check's if the environment is a Google Colab document.

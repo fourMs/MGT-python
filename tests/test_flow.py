@@ -54,6 +54,19 @@ class Test_flow_dense:
         assert type(result) == musicalgestures.MgVideo
         assert os.path.isfile(result.filename) == True
 
+    def test_use_gpu_true(self, testvideo_avi):
+        # use_gpu=True should work (falls back to CPU when CUDA is unavailable)
+        mg = musicalgestures.MgVideo(testvideo_avi)
+        result = mg.flow.dense(use_gpu=True, overwrite=True)
+        assert type(result) == musicalgestures.MgVideo
+        assert os.path.isfile(result.filename) == True
+
+    def test_use_gpu_false(self, testvideo_avi):
+        mg = musicalgestures.MgVideo(testvideo_avi)
+        result = mg.flow.dense(use_gpu=False, overwrite=True)
+        assert type(result) == musicalgestures.MgVideo
+        assert os.path.isfile(result.filename) == True
+
 
 class Test_flow_sparse:
     def test_normal_case(self, testvideo_avi):
@@ -80,3 +93,23 @@ class Test_flow_sparse:
         result = mg.flow.sparse(target_name=target_name, overwrite=True)
         assert type(result) == musicalgestures.MgVideo
         assert os.path.isfile(result.filename) == True
+
+    def test_use_gpu_true(self, testvideo_avi):
+        # use_gpu=True should work (falls back to CPU when CUDA is unavailable)
+        mg = musicalgestures.MgVideo(testvideo_avi)
+        result = mg.flow.sparse(use_gpu=True, overwrite=True)
+        assert type(result) == musicalgestures.MgVideo
+        assert os.path.isfile(result.filename) == True
+
+    def test_use_gpu_false(self, testvideo_avi):
+        mg = musicalgestures.MgVideo(testvideo_avi)
+        result = mg.flow.sparse(use_gpu=False, overwrite=True)
+        assert type(result) == musicalgestures.MgVideo
+        assert os.path.isfile(result.filename) == True
+
+
+class Test_get_cuda_device_count:
+    def test_returns_int(self):
+        result = musicalgestures.get_cuda_device_count()
+        assert isinstance(result, int)
+        assert result >= 0
