@@ -43,6 +43,7 @@ def mg_blurfaces(
     save_data=True,
     data_format='csv',
     color=(0, 0, 0),
+    use_gpu=False,
     target_name=None,
     overwrite=False,
 ):
@@ -67,6 +68,7 @@ Credits: `centerface.onnx` (original) and `centerface.py` are based on https://g
 - `save_data` *bool, optional* - Whether to save the scaled coordinates of the face mask (time (ms), x1, y1, x2, y2) for each frame to a file. Defaults to True.
 - `data_format` *str, optional* - Specifies format of blur_faces-data. Accepted values are 'csv', 'tsv' and 'txt'. For multiple output formats, use list, e.g. ['csv', 'txt']. Defaults to 'csv'.
 - `color` *tuple, optional* - Customized color of the rectangle boxes. Defaults to black (0, 0, 0).
+- `use_gpu` *bool, optional* - Whether to attempt GPU (CUDA) acceleration for face detection. Falls back to CPU automatically if CUDA is unavailable. Defaults to False.
 - `target_name` *str, optional* - Target output name. Defaults to None (which assumes that the input filename with the suffix "_blurred" should be used).
 - `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 

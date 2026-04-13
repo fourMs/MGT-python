@@ -96,6 +96,8 @@ spectrogram = audio.spectrogram()
 - `pose()` downloads missing OpenPose model weights on demand.
 - In notebook and batch execution, pose weight downloads are attempted automatically instead of prompting for stdin.
 - If CUDA-backed OpenCV DNN support is unavailable, `pose(device='gpu')` falls back to CPU.
+- `flow.dense()`, `flow.sparse()`, and `blur_faces()` run on CPU by default (`use_gpu=False`); pass `use_gpu=True` to attempt CUDA acceleration with automatic CPU fallback.
+- `get_cuda_device_count()` can be used to check CUDA visibility from OpenCV.
 - `blur_faces()` returns the generated `MgVideo` result consistently, including when exporting face-coordinate data.
 
 ## Academic Background
