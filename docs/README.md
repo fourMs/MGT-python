@@ -21,7 +21,7 @@ The **Musical Gestures Toolbox for Python** is a collection of tools for visuali
 pip install musicalgestures
 ```
 
-`musicalgestures` installs its Python dependencies automatically. A system-level `ffmpeg` installation is still required for video processing.
+`musicalgestures` installs its core Python dependencies automatically. You still need a working `ffmpeg` installation on your system for video processing.
 
 ### Basic Usage
 
@@ -51,10 +51,11 @@ v.pose(model='body_25', device='cpu')
 
 ### Runtime Notes
 
-- `pose()` downloads required model weights on first use if they are missing.
-- Notebook and other non-interactive environments auto-attempt the pose model download instead of prompting for input.
-- Requesting `device='gpu'` falls back to CPU when OpenCV CUDA support is not available.
-- `blur_faces()` returns the processed video object consistently, including when face-coordinate data is also saved.
+- `ffmpeg` is required for video I/O and preprocessing.
+- `pose()` downloads OpenPose weights on first use if they are missing.
+- In notebooks and other non-interactive runs, missing pose weights are downloaded automatically when possible.
+- If `device='gpu'` is requested but OpenCV CUDA support is unavailable, `pose()` falls back to CPU execution.
+- `blur_faces()` returns the generated result object consistently, including when `save_data=True`.
 
 ### Try Online
 

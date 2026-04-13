@@ -74,8 +74,6 @@ Credits: `centerface.onnx` (original) and `centerface.py` are based on https://g
 
 - `MgVideo` - A MgVideo as blur_faces for parent MgVideo
 
-When `save_data=True`, the function still returns the generated anonymized `MgVideo`, so the returned object can be chained or displayed immediately after exporting the face-coordinate data.
-
 ## nearest_neighbours
 
 [[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_blurfaces.py#L56)
