@@ -4,7 +4,7 @@ import os
 import sys
 import numpy as np
 import pandas as pd
-from musicalgestures._utils import MgProgressbar, convert_to_avi, extract_wav, embed_audio_in_video, roundup, frame2ms, generate_outfilename, in_colab, ffmpeg_cmd
+from musicalgestures._utils import MgProgressbar, convert_to_avi, extract_wav, embed_audio_in_video, roundup, frame2ms, generate_outfilename, in_colab, get_cuda_device_count, ffmpeg_cmd
 import musicalgestures
 import itertools
 
@@ -155,12 +155,7 @@ def pose(
         print('Sorry, OpenCV GPU acceleration is not supported in Colab. Switching to CPU.')
         device = 'cpu'
     elif device == 'gpu':
-        cuda_devices = 0
-        try:
-            cuda_devices = cv2.cuda.getCudaEnabledDeviceCount()
-        except Exception:
-            cuda_devices = 0
-        if cuda_devices <= 0:
+        if get_cuda_device_count() <= 0:
             print('OpenCV CUDA backend is unavailable. Switching to CPU.')
             device = 'cpu'
 
