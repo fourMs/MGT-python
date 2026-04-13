@@ -16,6 +16,8 @@ def download_model(modeltype):
 
 Helper function to automatically download model (.caffemodel) files.
 
+In non-interactive environments, the download helper is used without prompting for stdin so notebook and batch runs can proceed automatically when weights are missing.
+
 ## pose
 
 [[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py#L14)
@@ -39,6 +41,8 @@ def pose(
 Renders a video with the pose estimation (aka. "keypoint detection" or "skeleton tracking") overlaid on it.
 Outputs the predictions in a text file containing the normalized x and y coordinates of each keypoints
 (default format is csv). Uses models from the [openpose](https://github.com/CMU-Perceptual-Computing-Lab/openpose) project.
+
+If the requested model weights are missing, `pose()` attempts to download them on first use. When `device='gpu'` is requested but OpenCV CUDA DNN support is unavailable, execution falls back to CPU.
 
 #### Arguments
 

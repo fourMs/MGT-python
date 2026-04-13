@@ -19,6 +19,8 @@ The **Musical Gestures Toolbox for Python** is a collection of tools for visuali
 pip install musicalgestures
 ```
 
+`musicalgestures` installs its core Python dependencies automatically. You still need a working `ffmpeg` installation on your system for video processing.
+
 ### Basic Usage
 
 ```python
@@ -40,7 +42,18 @@ v.motion()
 v.audio.waveform()
 v.audio.spectrogram()
 v.audio.tempogram()
+
+# Pose estimation
+v.pose(model='body_25', device='cpu')
 ```
+
+### Runtime Notes
+
+- `ffmpeg` is required for video I/O and preprocessing.
+- `pose()` downloads OpenPose weights on first use if they are missing.
+- In notebooks and other non-interactive runs, missing pose weights are downloaded automatically when possible.
+- If `device='gpu'` is requested but OpenCV CUDA support is unavailable, `pose()` falls back to CPU execution.
+- `blur_faces()` returns the generated result object consistently, including when `save_data=True`.
 
 ### Try Online
 
@@ -65,13 +78,13 @@ v.audio.tempogram()
 
 ## Presentation
 
-See this short video presentation made for the Nordic Sound and Music Computing Conference 2021: 
+See this short video presentation made for the Nordic Sound and Music Computing Conference 2021:
 
 [![nordicsmc2021-thumbnail_640](https://github.com/user-attachments/assets/150b1143-0730-4083-af52-8c062a080deb)](https://www.youtube.com/watch?v=tZVX_lDFrwc)
 
 ## Requirements
 
-- Python 3.7+
+- Python 3.10+
 - FFmpeg
 - See [installation guide](docs/installation.md) for complete requirements
 
@@ -80,7 +93,6 @@ See this short video presentation made for the Nordic Sound and Music Computing 
 This toolbox builds on the [Musical Gestures Toolbox for Matlab](https://github.com/fourMs/MGT-matlab/), which again builds on the [Musical Gestures Toolbox for Max](https://www.uio.no/ritmo/english/research/labs/fourms/software/musicalgesturestoolbox/mgt-max/). Many researchers and research assistants have helped its development over the years, including [Balint Laczko](https://github.com/balintlaczko), [Joachim Poutaraud](https://github.com/joachimpoutaraud), [Frida Furmyr](https://github.com/fridafu), [Marcus Widmer](https://github.com/marcuswidmer), [Alexander Refsum Jensenius](https://github.com/alexarje/)
 
 The software is currently maintained by the [fourMs lab](https://github.com/fourMs) at [RITMO Centre for Interdisciplinary Studies in Rhythm, Time and Motion](https://www.uio.no/ritmo/english/) at the University of Oslo.
-
 
 ## Reference
 

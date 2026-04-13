@@ -25,6 +25,7 @@ MGT-python provides researchers, artists, and developers with powerful tools to:
 
 - Motion detection and tracking
 - Optical flow analysis
+- Pose estimation with automatic model download
 - Frame differencing and motion history
 - Video preprocessing (cropping, filtering, rotation)
 
@@ -57,6 +58,8 @@ MGT-python provides researchers, artists, and developers with powerful tools to:
 pip install musicalgestures
 ```
 
+`musicalgestures` installs its Python dependencies automatically. Install `ffmpeg` separately to enable video processing.
+
 ### Basic Usage
 
 ```python
@@ -87,6 +90,13 @@ spectrogram = audio.spectrogram()
 - **[Quick Start Tutorial](quickstart.md)** - Get up and running in minutes
 - **[Examples](examples.md)** - Sample code and use cases
 - **[User Guide](user-guide/core-classes.md)** - Comprehensive documentation
+
+## Runtime Behavior
+
+- `pose()` downloads missing OpenPose model weights on demand.
+- In notebook and batch execution, pose weight downloads are attempted automatically instead of prompting for stdin.
+- If CUDA-backed OpenCV DNN support is unavailable, `pose(device='gpu')` falls back to CPU.
+- `blur_faces()` returns the generated `MgVideo` result consistently, including when exporting face-coordinate data.
 
 ## Academic Background
 

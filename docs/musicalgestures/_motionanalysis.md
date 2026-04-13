@@ -24,6 +24,8 @@ def centroid(image, width, height):
 
 Computes the centroid and quantity of motion in an image or frame.
 
+The centroid calculation returns scalar X/Y coordinates derived from per-axis intensity means, which avoids array-to-scalar conversion issues during motion-data extraction.
+
 #### Arguments
 
 - `image` *np.array(uint8)* - The input image matrix for the centroid estimation function.

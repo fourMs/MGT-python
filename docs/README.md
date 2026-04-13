@@ -21,6 +21,8 @@ The **Musical Gestures Toolbox for Python** is a collection of tools for visuali
 pip install musicalgestures
 ```
 
+`musicalgestures` installs its Python dependencies automatically. A system-level `ffmpeg` installation is still required for video processing.
+
 ### Basic Usage
 
 ```python
@@ -42,7 +44,17 @@ v.motion()
 v.audio.waveform()
 v.audio.spectrogram()
 v.audio.tempogram()
+
+# Pose estimation
+v.pose(model='body_25', device='cpu')
 ```
+
+### Runtime Notes
+
+- `pose()` downloads required model weights on first use if they are missing.
+- Notebook and other non-interactive environments auto-attempt the pose model download instead of prompting for input.
+- Requesting `device='gpu'` falls back to CPU when OpenCV CUDA support is not available.
+- `blur_faces()` returns the processed video object consistently, including when face-coordinate data is also saved.
 
 ### Try Online
 
@@ -70,13 +82,13 @@ Full Mgt-python project documentation can be found in [Modules](MODULES.md#mgt-p
 
 ## Presentation
 
-See this short video presentation made for the Nordic Sound and Music Computing Conference 2021: 
+See this short video presentation made for the Nordic Sound and Music Computing Conference 2021:
 
 [![nordicsmc2021-thumbnail_640](https://github.com/user-attachments/assets/150b1143-0730-4083-af52-8c062a080deb)](https://www.youtube.com/watch?v=tZVX_lDFrwc)
 
 ## Requirements
 
-- Python 3.7+
+- Python 3.10+
 - FFmpeg
 - See [installation guide](docs/installation.md) for complete requirements
 

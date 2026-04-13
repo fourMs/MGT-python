@@ -12,10 +12,10 @@ pip install musicalgestures
 
 ### Python Version
 
-MGT-python requires **Python 3.7 or higher**. We recommend using the latest stable version of Python.
+MGT-python requires **Python 3.10 or higher**. We recommend using the latest stable version of Python.
 
 ```bash
-python --version  # Should be 3.7+
+python --version  # Should be 3.10+
 ```
 
 ### Operating Systems
@@ -40,6 +40,8 @@ MGT-python automatically installs the following core dependencies:
 - `opencv-python` - Computer vision algorithms
 - `scikit-image` - Image processing
 - `librosa` - Audio analysis
+
+These dependencies are declared in the package metadata and are installed automatically with `pip install musicalgestures`.
 
 ### Interactive Computing
 - `ipython>=7.12` - Enhanced Python shell
@@ -194,6 +196,10 @@ If using in Jupyter notebooks, you might need:
 ```bash
 pip install jupyter ipywidgets
 ```
+
+#### 5. Pose estimation in notebooks
+
+The `pose()` workflow may download OpenPose weights on first use. In non-interactive environments such as notebooks, the download is attempted automatically rather than prompting for input. If CUDA-backed OpenCV DNN support is unavailable, pose estimation falls back to CPU execution.
 
 ### Getting Help
 

@@ -85,6 +85,8 @@ data = pd.read_csv(motion_data['motion_data'])
 print(data.head())
 ```
 
+Recent motion-analysis fixes ensure centroid-of-motion coordinates are computed as scalar values during `motion()` and `motiondata()` runs, which makes notebook and batch execution more robust.
+
 ### 2. Create Visualizations
 
 Generate various visualizations:
@@ -104,6 +106,13 @@ print(f"Average image saved: {average_img}")
 # Motion history
 history = mv.history()
 print(f"Motion history: {history}")
+```
+
+Face anonymization also returns a usable result object even when exporting face-coordinate data:
+
+```python
+blurred = mv.blur_faces(save_data=True, data_format='csv')
+blurred.show(mode='notebook')
 ```
 
 ### 3. Audio Analysis
@@ -128,6 +137,18 @@ print(f"Spectrogram: {spectrogram}")
 descriptors = audio.descriptors()
 print(f"Descriptors: {descriptors}")
 ```
+
+### 4. Pose Estimation
+
+```python
+mv = mg.MgVideo(examples.dance)
+
+# Uses GPU if available, otherwise falls back to CPU automatically.
+pose_video = mv.pose(model='mpi', device='gpu', downsampling_factor=2)
+pose_video.show(mode='notebook')
+```
+
+On first use, pose estimation downloads the requested model weights if they are not already present.
 
 ## Working with Your Own Videos
 
