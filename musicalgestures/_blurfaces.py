@@ -222,7 +222,7 @@ def mg_blurfaces(self,
 
     # Save warped video as blur_faces for parent MgVideo
     # we have to do this here since we are not using mg_blurfaces (that would normally save the result itself)
-    self.blur_faces = musicalgestures.MgVideo(target_name, color=self.color, returned_by_process=True)
+    self.blur_faces_video = musicalgestures.MgVideo(target_name, color=self.color, returned_by_process=True)
 
     def save_txt(of, data, data_format, target_name=target_name, overwrite=overwrite):
         """
@@ -302,7 +302,7 @@ def mg_blurfaces(self,
 
     if save_data:  
         save_txt(of, data, data_format, target_name=target_name, overwrite=overwrite)  
-        return self.blur_faces
+        return self.blur_faces_video
 
     if draw_heatmap:
         target_name = os.path.splitext(target_name)[0] + '.png'
@@ -338,5 +338,5 @@ def mg_blurfaces(self,
         return MgImage(target_name)
 
     else:
-        return self.blur_faces
+        return self.blur_faces_video
     

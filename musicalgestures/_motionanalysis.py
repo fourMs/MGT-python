@@ -26,8 +26,8 @@ def centroid(image, width, height):
     my = np.mean(image, axis=1)
 
     if np.sum(mx) != 0 and np.sum(my) != 0:
-        comx = x.reshape(1, width)@mx.reshape(width, 1)/np.sum(mx)
-        comy = y.reshape(1, height)@my.reshape(height, 1)/np.sum(my)
+        comx = np.dot(x, mx) / np.sum(mx)
+        comy = np.dot(y, my) / np.sum(my)
     else:
         comx = 0
         comy = 0
