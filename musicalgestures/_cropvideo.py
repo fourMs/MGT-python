@@ -197,28 +197,37 @@ def mg_cropvideo_ffmpeg(
 
     if crop_movement.lower() == 'manual':
         if not in_colab():
+            import sys
+            import subprocess
+            import musicalgestures
 
-            # scale_ratio = get_box_video_ratio(filename)
-            # width, height = get_widthheight(filename)
-            # scaled_width, scaled_height = [int(elem * scale_ratio) for elem in [width, height]]
-            # first_frame_as_image = get_first_frame_as_image(filename, pict_format='.jpg')
+            scale_ratio = get_box_video_ratio(filename)
+            width, height = get_widthheight(filename)
+            scaled_width, scaled_height = [int(elem * scale_ratio) for elem in [width, height]]
+            first_frame_as_image = get_first_frame_as_image(filename, pict_format='.jpg')
 
-            # Cropping UI moved to another subprocess to avoid cv2.waitKey crashing Python with segmentation fault on Linux in Terminal
-            import threading
-            import queue
+            module_path = os.path.abspath(os.path.dirname(musicalgestures.__file__))
+            pyfile = os.path.join(module_path, '_cropping_window.py')
 
-            que = queue.Queue()
-            t = threading.Thread(target=lambda q, arg1:q.put(cropping_window(arg1)), args=(que, filename))
+            result = subprocess.run(
+                [sys.executable, pyfile, first_frame_as_image, str(scale_ratio), str(scaled_width), str(scaled_height)],
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+            )
 
-            t.start()
-            t.join()
+            os.remove(first_frame_as_image)
 
-            w, h, x, y = que.get()          
+            if result.returncode != 0:
+                raise RuntimeError(
+                    f"Cropping window subprocess failed (exit code {result.returncode}):\n{result.stderr}"
+                )
 
-            # x = threading.Thread(target=run_cropping_window, args=(first_frame_as_image, scale_ratio, scaled_width, scaled_height))
-            # run_cropping_window(first_frame_as_image, scale_ratio, scaled_width, scaled_height)
-            # x.start()
-            # x.join()
+            res = result.stdout.strip()
+            res_array = res.split(' ')
+            if len(res_array) != 4:
+                raise RuntimeError(
+                    f"Unexpected output from cropping window: '{res}'"
+                )
+            w, h, x, y = [int(elem) for elem in res_array]
 
         else:
             x, y, w, h = manual_text_input()
@@ -227,11 +236,6 @@ def mg_cropvideo_ffmpeg(
         w, h, x, y = find_motion_box_ffmpeg(filename, motion_box_thresh=motion_box_thresh, motion_box_margin=motion_box_margin)
 
     cropped_video = crop_ffmpeg(filename, w, h, x, y, target_name=target_name, overwrite=overwrite)
-
-    # if crop_movement.lower() == 'manual':
-    #     cv2.destroyAllWindows()
-    #     if not in_colab():
-    #         os.remove(first_frame_as_image)
 
     return cropped_video
 
