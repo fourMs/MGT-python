@@ -1,5 +1,6 @@
 import musicalgestures
 from musicalgestures._utils import *
+import musicalgestures._utils as _utils_module
 import numpy as np
 import os
 import itertools
@@ -167,6 +168,71 @@ class Test_MgProgressbar:
     def test_repr(self):
         pb = MgProgressbar(total=100)
         assert print(pb) == None
+
+
+class Test_show_progress:
+    def setup_method(self):
+        # Always restore the default state after each test
+        _utils_module._SHOW_PROGRESS = True
+
+    def teardown_method(self):
+        _utils_module._SHOW_PROGRESS = True
+
+    def test_show_progress_default_is_true(self):
+        assert _utils_module._SHOW_PROGRESS is True
+
+    def test_show_progress_disable(self):
+        show_progress(False)
+        assert _utils_module._SHOW_PROGRESS is False
+
+    def test_show_progress_enable(self):
+        _utils_module._SHOW_PROGRESS = False
+        show_progress(True)
+        assert _utils_module._SHOW_PROGRESS is True
+
+    def test_show_progress_exposed_on_module(self):
+        # Ensure show_progress is accessible via the top-level package
+        assert hasattr(musicalgestures, 'show_progress')
+        assert callable(musicalgestures.show_progress)
+
+    def test_progress_bar_suppressed_does_not_print(self, capsys):
+        show_progress(False)
+        pb = MgProgressbar(total=100)
+        for step in range(103):
+            pb.progress(step)
+        captured = capsys.readouterr()
+        assert captured.out == ""
+
+    def test_progress_bar_suppressed_marks_finished(self):
+        show_progress(False)
+        pb = MgProgressbar(total=100)
+        assert not pb.finished
+        pb.progress(200)
+        assert pb.finished
+
+    def test_progress_bar_suppressed_finished_returns_early(self):
+        show_progress(False)
+        pb = MgProgressbar(total=100)
+        pb.finished = True
+        # Should return immediately without touching _SHOW_PROGRESS check
+        assert pb.progress(50) == None
+
+    def test_progress_bar_enabled_after_disable(self, capsys):
+        show_progress(False)
+        pb = MgProgressbar(total=100)
+        pb.could_not_get_terminal_window = True
+        for step in range(50):
+            pb.progress(step)
+        show_progress(True)
+        pb2 = MgProgressbar(total=100)
+        pb2.could_not_get_terminal_window = True
+        import time
+        for step in range(103):
+            time.sleep(0.01)
+            pb2.progress(step)
+        captured = capsys.readouterr()
+        # pb2 ran with progress bars enabled so output should be non-empty
+        assert len(captured.out) > 0
 
 
 class Test_roundup:
