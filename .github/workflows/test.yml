@@ -3,7 +3,8 @@ name: Run Test with Pytest
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
-on: [push]
+on:
+  workflow_dispatch:
 
 jobs:  
   build:  
