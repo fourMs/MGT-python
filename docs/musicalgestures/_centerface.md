@@ -12,16 +12,16 @@
 
 ## CenterFace
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_centerface.py#L7)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_centerface.py#L8)
 
 ```python
 class CenterFace(object):
-    def __init__(landmarks=True):
+    def __init__(landmarks=True, use_gpu=False):
 ```
 
 ### CenterFace().decode
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_centerface.py#L53)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_centerface.py#L62)
 
 ```python
 def decode(heatmap, scale, offset, landmark, size, threshold=0.1):
@@ -29,7 +29,7 @@ def decode(heatmap, scale, offset, landmark, size, threshold=0.1):
 
 ### CenterFace().inference_opencv
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_centerface.py#L21)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_centerface.py#L30)
 
 ```python
 def inference_opencv(img, threshold):
@@ -37,7 +37,7 @@ def inference_opencv(img, threshold):
 
 ### CenterFace().nms
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_centerface.py#L87)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_centerface.py#L96)
 
 ```python
 def nms(boxes, scores, nms_thresh):
@@ -45,7 +45,7 @@ def nms(boxes, scores, nms_thresh):
 
 ### CenterFace().postprocess
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_centerface.py#L35)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_centerface.py#L44)
 
 ```python
 def postprocess(heatmap, lms, offset, scale, threshold):
@@ -53,7 +53,7 @@ def postprocess(heatmap, lms, offset, scale, threshold):
 
 ### CenterFace().transform
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_centerface.py#L30)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_centerface.py#L39)
 
 ```python
 def transform(h, w):

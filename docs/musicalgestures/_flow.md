@@ -77,7 +77,7 @@ Renders a dense optical flow video of the input video file using `cv2.calcOptica
 
 ### Flow().get_acceleration
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L252)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L288)
 
 ```python
 def get_acceleration(velocity, fps):
@@ -85,7 +85,7 @@ def get_acceleration(velocity, fps):
 
 ### Flow().get_velocity
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L262)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L298)
 
 ```python
 def get_velocity(
@@ -101,7 +101,7 @@ def get_velocity(
 
 ### Flow().sparse
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L277)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L313)
 
 ```python
 def sparse(
@@ -141,7 +141,7 @@ Renders a sparse optical flow video of the input video file using `cv2.calcOptic
 
 ### Flow().velocity_meters_per_second
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L270)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L306)
 
 ```python
 def velocity_meters_per_second(

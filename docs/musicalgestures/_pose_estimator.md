@@ -26,7 +26,7 @@ This module provides:
 * class `PoseEstimator` – an abstract base class (ABC) defining the common
   interface that all pose backends must implement.
 * class `MediaPipePoseEstimator` – a concrete backend powered by Google
-  MediaPipe Pose (33 landmarks, CPU-friendly, auto-downloads model on first use).
+  MediaPipe Pose (33 landmarks, CPU-friendly, zero model download).
 * class `OpenPosePoseEstimator` – a thin wrapper around the legacy OpenPose /
   Caffe-model implementation already present in :mod:[Pose](_pose.md#pose).
 
@@ -68,8 +68,8 @@ pip install musicalgestures[pose]
 ```
 
 The first time you use a given complexity level the corresponding
-`.task` model file (~8–28 MB) is downloaded from Google's model
-storage and cached in `musicalgestures/models/`.
+``.task`` model file (~8–28 MB) is downloaded from Google's model
+storage and cached in ``musicalgestures/models/``.
 
 Parameters
 ----------
@@ -97,7 +97,7 @@ Examples
 
 ### MediaPipePoseEstimator().close
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose_estimator.py#L290)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose_estimator.py#L360)
 
 ```python
 def close() -> None:
@@ -107,7 +107,7 @@ Release MediaPipe resources.
 
 ### MediaPipePoseEstimator().landmark_names
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose_estimator.py#L255)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose_estimator.py#L323)
 
 ```python
 @property
@@ -116,7 +116,7 @@ def landmark_names() -> list[str]:
 
 ### MediaPipePoseEstimator().predict_frame
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose_estimator.py#L259)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose_estimator.py#L327)
 
 ```python
 def predict_frame(frame: np.ndarray) -> PoseEstimatorResult:
@@ -140,7 +140,7 @@ PoseEstimatorResult
 
 ## OpenPosePoseEstimator
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose_estimator.py#L303)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose_estimator.py#L373)
 
 ```python
 class OpenPosePoseEstimator(PoseEstimator):
@@ -172,7 +172,7 @@ threshold:
 
 ### OpenPosePoseEstimator().landmark_names
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose_estimator.py#L330)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose_estimator.py#L400)
 
 ```python
 @property
@@ -181,7 +181,7 @@ def landmark_names() -> list[str]:
 
 ### OpenPosePoseEstimator().predict_frame
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose_estimator.py#L335)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose_estimator.py#L405)
 
 ```python
 def predict_frame(frame: np.ndarray) -> PoseEstimatorResult:
@@ -341,7 +341,7 @@ Return a plain dict representation.
 
 ## get_pose_estimator
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose_estimator.py#L348)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose_estimator.py#L418)
 
 ```python
 def get_pose_estimator(
