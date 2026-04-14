@@ -5,7 +5,7 @@
 [![CI](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml/badge.svg)](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml)
 [![Documentation](https://github.com/fourMs/MGT-python/actions/workflows/docs.yml/badge.svg)](https://fourms.github.io/MGT-python/)
 
-The **Musical Gestures Toolbox for Python** is a comprehensive collection of tools for visualization and analysis of audio and video, with a focus on motion capture and musical gesture analysis.
+The **Musical Gestures Toolbox for Python** is a collection of tools for visualization and analysis of audio and video, with a focus on motion capture and musical gesture analysis.
 
 ![MGT python demo](https://raw.githubusercontent.com/fourMs/MGT-python/master/musicalgestures/documentation/figures/promo/ipython_example.gif)
 
@@ -117,15 +117,18 @@ This toolbox builds upon years of research in musical gesture analysis:
 
 ## Citation
 
-If you use MGT-python in your research, please cite:
+If you use MGT-python in your research, please cite this article:
+
+- Laczkó, B., & Jensenius, A. R. (2021). [Reflections on the Development of the Musical Gestures Toolbox for Python](http://urn.nb.no/URN:NBN:no-91935). *Proceedings of the Nordic Sound and Music Computing Conference*, Copenhagen.
 
 ```bibtex
-@software{mgt_python,
-  title={Musical Gestures Toolbox for Python},
-  author={University of Oslo fourMs Lab},
-  url={https://fourms.github.io/MGT-python/},
-  version={1.3.2},
-  year={2024}
+@inproceedings{laczkoReflectionsDevelopmentMusical2021,
+    title = {Reflections on the Development of the Musical Gestures Toolbox for Python},
+    author = {Laczkó, Bálint and Jensenius, Alexander Refsum},
+    booktitle = {Proceedings of the Nordic Sound and Music Computing Conference},
+    year = {2021},
+    address = {Copenhagen},
+    url = {http://urn.nb.no/URN:NBN:no-91935}
 }
 ```
 
