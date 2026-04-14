@@ -50,7 +50,7 @@
 
 ## Examples
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L21)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/__init__.py#L23)
 
 ```python
 class Examples():

@@ -12,7 +12,7 @@
 
 ## async_subprocess
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L239)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L243)
 
 ```python
 async def async_subprocess(command):
@@ -59,7 +59,7 @@ Helper function to find the area of motion in a video, using ffmpeg.
 
 ## manual_text_input
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L282)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L286)
 
 ```python
 def manual_text_input():
@@ -104,7 +104,7 @@ Crops the video using ffmpeg.
 
 ## run_cropping_window
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L258)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L262)
 
 ```python
 def run_cropping_window(imgpath, scale_ratio, scaled_width, scaled_height):

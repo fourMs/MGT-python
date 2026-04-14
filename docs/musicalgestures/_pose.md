@@ -6,9 +6,13 @@
     - [download_model](#download_model)
     - [pose](#pose)
 
+#### Attributes
+
+- `MEDIAPIPE_POSE_CONNECTIONS` - MediaPipe Pose skeleton connections (pairs of landmark indices): `[(0, 1), (1, 2), (2, 3), (3, 7), (0, 4), (4, 5)...`
+
 ## download_model
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py#L370)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py#L582)
 
 ```python
 def download_model(modeltype):
@@ -42,21 +46,37 @@ Outputs the predictions in a text file containing the normalized x and y coordin
 
 Supports two backends:
 
-- **MediaPipe** (`model='mediapipe'`): Uses Google's MediaPipe Pose which detects 33 landmarks entirely on CPU. Requires the optional `mediapipe` package (`pip install musicalgestures[pose]`). The model file (~8–28 MB) is auto-downloaded on first use and cached in `musicalgestures/models/`.
-- **OpenPose** (`model='body_25'`, `'coco'`, or `'mpi'`): Uses Caffe-based OpenPose models. Model weights (~200 MB) are downloaded on first use.
+* **MediaPipe** (``model='mediapipe'``): Uses Google's MediaPipe Pose which detects 33
+  landmarks entirely on CPU.  Requires the optional ``mediapipe`` package
+  (``pip install musicalgestures[pose]``).  On first use, the model file
+  (~8–28 MB) is downloaded automatically and cached in ``musicalgestures/models/``.
+* **OpenPose** (``model='body_25'``, ``'coco'``, or ``'mpi'``): Uses Caffe-based OpenPose
+  models.  Model weights (~200 MB) are downloaded on first use.
 
 #### Arguments
 
-- `model` *str, optional* - Pose model to use. `'mediapipe'` uses MediaPipe Pose (33 landmarks, model auto-downloaded on first use). `'body_25'` loads the OpenPose BODY_25 model (25 keypoints), `'mpi'` loads the MPII model (15 keypoints), `'coco'` loads the COCO model (18 keypoints). Defaults to 'body_25'.
-- `device` *str, optional* - Sets the backend to use for the neural network ('cpu' or 'gpu'). Ignored when `model='mediapipe'` (MediaPipe always runs on CPU). Defaults to 'gpu'.
-- `threshold` *float, optional* - The normalized confidence threshold that decides whether we keep or discard a predicted point. Discarded points get substituted with (0, 0) in the output data. Defaults to 0.1.
-- `downsampling_factor` *int, optional* - Decides how much we downsample the video before we pass it to the neural network. Ignored when `model='mediapipe'`. Defaults to 2.
+- `model` *str, optional* - Pose model to use. ``'mediapipe'`` uses MediaPipe Pose (33
+    landmarks, model auto-downloaded on first use). ``'body_25'`` loads the OpenPose BODY_25 model
+    (25 keypoints), ``'mpi'`` loads the MPII model (15 keypoints), ``'coco'`` loads
+    the COCO model (18 keypoints). Defaults to 'body_25'.
+- `device` *str, optional* - Sets the backend to use for the neural network ('cpu' or 'gpu').
+    Ignored when ``model='mediapipe'`` (MediaPipe always runs on CPU). Defaults to 'gpu'.
+- `threshold` *float, optional* - The normalized confidence threshold that decides whether we
+    keep or discard a predicted point. Discarded points get substituted with (0, 0) in the
+    output data. Defaults to 0.1.
+- `downsampling_factor` *int, optional* - Decides how much we downsample the video before we
+    pass it to the neural network. Ignored when ``model='mediapipe'``. Defaults to 2.
 - `save_data` *bool, optional* - Whether we save the predicted pose data to a file. Defaults to True.
-- `data_format` *str, optional* - Specifies format of pose-data. Accepted values are 'csv', 'tsv' and 'txt'. For multiple output formats, use list, eg. ['csv', 'txt']. Defaults to 'csv'.
-- `save_video` *bool, optional* - Whether we save the video with the estimated pose overlaid on it. Defaults to True.
-- `target_name_video` *str, optional* - Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_pose" should be used).
-- `target_name_data` *str, optional* - Target output name for the data. Defaults to None (which assumes that the input filename with the suffix "_pose" should be used).
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+- `data_format` *str, optional* - Specifies format of pose-data. Accepted values are 'csv', 'tsv'
+    and 'txt'. For multiple output formats, use list, eg. ['csv', 'txt']. Defaults to 'csv'.
+- `save_video` *bool, optional* - Whether we save the video with the estimated pose overlaid on it.
+    Defaults to True.
+- `target_name_video` *str, optional* - Target output name for the video. Defaults to None (which
+    assumes that the input filename with the suffix "_pose" should be used).
+- `target_name_data` *str, optional* - Target output name for the data. Defaults to None (which
+    assumes that the input filename with the suffix "_pose" should be used).
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically
+    increment target filenames to avoid overwriting. Defaults to False.
 
 #### Returns
 
