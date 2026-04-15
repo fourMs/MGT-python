@@ -838,7 +838,7 @@ def save_txt(of, time, aom, com, qom, motion_analysis, width, height, data_forma
         elif data_format not in ["tsv", "csv", "txt"]:
             print(
                 f"Invalid data format: '{data_format}'.\nFalling back to '.csv'.")
-            save_single_file(of, time, aom, com, qom, width, height, "csv",
+            save_single_file(of, time, aom, com, qom, motion_analysis, width, height, "csv",
                              target_name_data=target_name_data, overwrite=overwrite)
 
     if type(data_format) == str:
