@@ -276,8 +276,14 @@ class MgVideo(MgAudio):
         return f"MgVideo('{self.filename}')"
 
     def numpy(self):
-        "Pipe all video frames from FFmpeg to numpy array"
+        """
+        Read all video frames into a numpy array using FFmpeg.
 
+        Returns:
+            tuple: A tuple ``(array, fps)`` where ``array`` is a ``numpy.ndarray``
+                of shape ``(N, H, W, 3)`` in BGR format (uint8) containing all N
+                frames, and ``fps`` is the frame rate of the video.
+        """
         # Define ffmpeg command and load all the video frames in memory
         cmd = ["ffmpeg", "-y", "-i", self.filename]
         process = ffmpeg_cmd(cmd, total_time=self.length, pipe="load")
@@ -289,13 +295,26 @@ class MgVideo(MgAudio):
         return array, self.fps
 
     def from_numpy(self, array, fps, target_name=None):
-        if target_name is not None:
-            self.filename = os.path.splitext(target_name)[0] + self.fex
+        """
+        Writes a numpy array of video frames to a video file using FFmpeg.
 
-        if self.path is not None:
-            target_name = os.path.join(self.path, self.filename)
+        After writing, updates ``self.filename``, ``self.of``, and ``self.fex`` to
+        reflect the actual output path so that subsequent operations on this object
+        refer to the newly created file.
+
+        Args:
+            array (np.ndarray): Video frames array with shape (N, H, W, 3) in BGR format.
+            fps (float): Frames per second for the output video.
+            target_name (str, optional): Full path for the output file. If None, uses
+                ``self.path/self.filename`` (or just ``self.filename`` if path is None).
+                Defaults to None.
+        """
+        if target_name is not None:
+            write_path = os.path.splitext(target_name)[0] + self.fex
+        elif self.path is not None:
+            write_path = os.path.join(self.path, self.filename)
         else:
-            target_name = self.filename
+            write_path = self.filename
 
         process = None
         for frame in array:
@@ -319,14 +338,16 @@ class MgVideo(MgAudio):
                     "libx264",
                     "-pix_fmt",
                     "yuv420p",
-                    target_name,
+                    write_path,
                 ]
                 process = ffmpeg_cmd(cmd, total_time=array.shape[0], pipe="write")
             process.stdin.write(frame.astype(np.uint8))
         process.stdin.close()
         process.wait()
 
-        return
+        # Update self.filename to the actual written path so that get_video() can find the file
+        self.filename = write_path
+        self.of, self.fex = os.path.splitext(write_path)
 
     def extract_frame(self, **kwargs):
         """
