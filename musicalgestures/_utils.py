@@ -531,8 +531,13 @@ def convert(filename, target_name, overwrite=False):
         return filename
     if not overwrite:
         target_name = generate_outfilename(target_name)
-    cmds = ['ffmpeg', '-y', '-i', filename,
-            "-q:v", "3", target_name]
+    # OGG video requires explicit Theora/Vorbis codecs; FFmpeg won't auto-select them
+    if target_fex.lower() == '.ogg':
+        cmds = ['ffmpeg', '-y', '-i', filename,
+                '-c:v', 'libtheora', '-c:a', 'libvorbis', '-q:v', '5', target_name]
+    else:
+        cmds = ['ffmpeg', '-y', '-i', filename,
+                '-q:v', '3', target_name]
     ffmpeg_cmd(cmds, get_length(filename),
                pb_prefix=f'Converting to {target_fex}:')
     return target_name
