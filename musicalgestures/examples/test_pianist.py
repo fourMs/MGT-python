@@ -5,7 +5,7 @@ mg = musicalgestures.MgVideo("./musicalgestures/examples/pianist.avi", color=Fal
 # USE MODULE METHOD: To run the motionvideo analysis, run the function using your video object,
 # then create the motion history by chaining the history() function onto the result of the previous (motion) function
 mg.motion(inverted_motionvideo=True, inverted_motiongram=True,
-          thresh=0.1, blur='Average').history(history_length=25)
+          threshold=0.1, blur='Average').history(history_length=25)
 
 # Average image of original video
 # mg.blend(filename="./musicalgestures/examples/pianist.avi", component_mode='average')

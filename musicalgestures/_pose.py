@@ -188,11 +188,11 @@ def pose(
     pb = MgProgressbar(total=self.length, prefix='Rendering pose estimation video:')
 
     if save_video:
-        if target_name_video == None:
+        if target_name_video is None:
             target_name_video = of + '_pose' + fex
         # if a target name was given we still enforce the .avi container anyway
         else:
-            target_name_video = os.path.splitext(target_name_video) + fex
+            target_name_video = os.path.splitext(target_name_video)[0] + fex
         if not overwrite:
             target_name_video = generate_outfilename(target_name_video)
             
@@ -243,7 +243,7 @@ def pose(
 
         if save_data:
             time = frame2ms(ii, self.fps)
-            points_list = [[list(point)[0]/self.width, list(point)[1]/self.height, ] if point != None else [
+            points_list = [[list(point)[0]/self.width, list(point)[1]/self.height, ] if point is not None else [
                 0, 0] for point in points]
             points_list_flat = itertools.chain.from_iterable(points_list)
             datapoint = [time]
@@ -325,7 +325,7 @@ def pose(
 
             if data_format == "tsv":
 
-                if target_name_data == None:
+                if target_name_data is None:
                     target_name_data = of+'_pose.tsv'
                 else:
                     # take name, but enforce tsv
@@ -347,7 +347,7 @@ def pose(
 
             elif data_format == "csv":
 
-                if target_name_data == None:
+                if target_name_data is None:
                     target_name_data = of+'_pose.csv'
                 else:
                     # take name, but enforce csv
@@ -360,7 +360,7 @@ def pose(
 
             elif data_format == "txt":
 
-                if target_name_data == None:
+                if target_name_data is None:
                     target_name_data = of+'_pose.txt'
                 else:
                     # take name, but enforce txt

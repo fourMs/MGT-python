@@ -39,7 +39,7 @@ class MgVideo(MgAudio):
         path=None,
         # Video parameters
         filtertype="Regular",
-        thresh=0.05,
+        threshold=0.05,
         starttime=0,
         endtime=0,
         blur="None",
@@ -62,11 +62,11 @@ class MgVideo(MgAudio):
 
         Args:
             filename (Union[str, List[str]]): Path to the video file. If input is a list, will merge all videos into one.
-            array (np.ndarray, optional): Generates an MgVideo object from a video array. Defauts to None.
-            fps (float, optional): The frequency at which consecutive images from the video array are captured or displayed. Defauts to None.
+            array (np.ndarray, optional): Generates an MgVideo object from a video array. Defaults to None.
+            fps (float, optional): The frequency at which consecutive images from the video array are captured or displayed. Defaults to None.
             path (str, optional): Path to save the output video file generated from a video array. Defaults to None.
-            filtertype (str, optional): The `filtertype` parameter for the `motion()` method. `Regular` turns all values below `thresh` to 0. `Binary` turns all values below `thresh` to 0, above `thresh` to 1. `Blob` removes individual pixels with erosion method. Defaults to 'Regular'.
-            thresh (float, optional): The `thresh` parameter for the `motion()` method. Eliminates pixel values less than given threshold. A number in the range of 0 to 1. Defaults to 0.05.
+            filtertype (str, optional): The `filtertype` parameter for the `motion()` method. `Regular` turns all values below `threshold` to 0. `Binary` turns all values below `threshold` to 0, above `threshold` to 1. `Blob` removes individual pixels with erosion method. Defaults to 'Regular'.
+            threshold (float, optional): The `threshold` parameter for the `motion()` method. Eliminates pixel values less than given threshold. A number in the range of 0 to 1. Defaults to 0.05.
             starttime (int or float, optional): Trims the video from this start time (s). Defaults to 0.
             endtime (int or float, optional): Trims the video until this end time (s). Defaults to 0 (which means the full length).
             blur (str, optional): The `blur` parameter for the `motion()` method. 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
@@ -104,7 +104,7 @@ class MgVideo(MgAudio):
         self.skip = skip
         self.frames = frames
         self.filtertype = filtertype
-        self.thresh = thresh
+        self.threshold = threshold
         self.blur = blur
         self.contrast = contrast
         self.brightness = brightness
@@ -183,7 +183,7 @@ class MgVideo(MgAudio):
             self.array,
             self.fps,
             self.filtertype,
-            self.thresh,
+            self.threshold,
             self.starttime,
             self.endtime,
             self.blur,

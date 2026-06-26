@@ -849,7 +849,7 @@ def framediff_ffmpeg(filename, target_name=None, color=True, overwrite=False):
     import os
     of, fex = os.path.splitext(filename)
 
-    if target_name == None:
+    if target_name is None:
         target_name = of + '_framediff' + fex
     if not overwrite:
         target_name = generate_outfilename(target_name)
@@ -884,7 +884,7 @@ def threshold_ffmpeg(filename, threshold=0.1, target_name=None, binary=False, ov
     import matplotlib
     of, fex = os.path.splitext(filename)
 
-    if target_name == None:
+    if target_name is None:
         target_name = of + '_thresh' + fex
     if not overwrite:
         target_name = generate_outfilename(target_name)
@@ -926,8 +926,8 @@ def motionvideo_ffmpeg(
     Args:
         filename (str): Path to the input video file.
         color (bool, optional): If False the input is converted to grayscale at the start of the process. This can significantly reduce render time. Defaults to True.
-        filtertype (str, optional): 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
-        thresh (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
+        filtertype (str, optional): 'Regular' turns all values below `threshold` to 0. 'Binary' turns all values below `threshold` to 0, above `threshold` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
+        threshold (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
         blur (str, optional): 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
         use_median (bool, optional): If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
         kernel_size (int, optional): Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
@@ -947,7 +947,7 @@ def motionvideo_ffmpeg(
     cmd = ['ffmpeg', '-y', '-i', filename]
     # cmd_filter = ''
 
-    if target_name == None:
+    if target_name is None:
         target_name = of + '_motion' + fex
     if not overwrite:
         target_name = generate_outfilename(target_name)
@@ -983,8 +983,8 @@ def motiongrams_ffmpeg(
     Args:
         filename (str): Path to the input video file.
         color (bool, optional): If False the input is converted to grayscale at the start of the process. This can significantly reduce render time. Defaults to True.
-        filtertype (str, optional): 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
-        thresh (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
+        filtertype (str, optional): 'Regular' turns all values below `threshold` to 0. 'Binary' turns all values below `threshold` to 0, above `threshold` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
+        threshold (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
         blur (str, optional): 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
         use_median (bool, optional): If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
         kernel_size (int, optional): Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
@@ -1003,9 +1003,9 @@ def motiongrams_ffmpeg(
 
     of, fex = os.path.splitext(filename)
 
-    if target_name_x == None:
+    if target_name_x is None:
         target_name_x = of+'_mgx_ffmpeg.png'
-    if target_name_y == None:
+    if target_name_y is None:
         target_name_y = of+'_mgy_ffmpeg.png'
     if not overwrite:
         target_name_x = generate_outfilename(target_name_x)
@@ -1062,7 +1062,7 @@ def crop_ffmpeg(filename, w, h, x, y, target_name=None, overwrite=False):
 
     of, fex = os.path.splitext(filename)
 
-    if target_name == None:
+    if target_name is None:
         target_name = of + '_crop' + fex
     if not overwrite:
         target_name = generate_outfilename(target_name)
@@ -1093,7 +1093,7 @@ def extract_wav(filename, target_name=None, overwrite=False):
     import os
     of, fex = os.path.splitext(filename)
 
-    if target_name == None:
+    if target_name is None:
         target_name = of + '.wav'
     if not overwrite:
         target_name = generate_outfilename(target_name)
@@ -1164,7 +1164,7 @@ def get_widthheight(filename: str) -> Tuple[int, int]:
     out_array = out.splitlines()
     video_stream = None
     at_line = -1
-    while video_stream == None:
+    while video_stream is None:
         video_stream = out_array[at_line] if out_array[at_line].find("Video:") != -1 else None
 
         if out_array[at_line].find("displaymatrix:") != -1:
@@ -1204,13 +1204,13 @@ def has_audio(filename):
     out_array = out.splitlines()
     audio_stream = None
     at_line = -1
-    while audio_stream == None:
+    while audio_stream is None:
         audio_stream = out_array[at_line] if out_array[at_line].find(
             "Audio:") != -1 else None
         at_line -= 1
         if at_line < -len(out_array):
             break
-    if audio_stream == None:
+    if audio_stream is None:
         return False
     else:
         return True
@@ -1230,7 +1230,7 @@ def get_length(filename: str) -> float:
     out_array = out.splitlines()
     duration = None
     at_line = -1
-    while duration == None:
+    while duration is None:
         duration = out_array[at_line] if out_array[at_line].find(
             "Duration:") != -1 else None
         at_line -= 1
@@ -1308,7 +1308,7 @@ def get_fps(filename):
     out_array = out.splitlines()
     video_stream = None
     at_line = -1
-    while video_stream == None:
+    while video_stream is None:
         video_stream = out_array[at_line] if out_array[at_line].find(
             "Video:") != -1 else None
         at_line -= 1
@@ -1318,7 +1318,7 @@ def get_fps(filename):
     video_stream_array = video_stream.split(',')
     fps = None
     at_chunk = -1
-    while fps == None:
+    while fps is None:
         fps = float(video_stream_array[at_chunk].split(
             ' ')[-2]) if video_stream_array[at_chunk].split(' ')[-1] == 'fps' else None
         at_chunk -= 1
@@ -1344,7 +1344,7 @@ def get_first_frame_as_image(filename, target_name=None, pict_format='.png', ove
     import os
     of = os.path.splitext(filename)[0]
 
-    if target_name == None:
+    if target_name is None:
         target_name = of + pict_format
     if not overwrite:
         target_name = generate_outfilename(target_name)
@@ -1451,7 +1451,7 @@ def audio_dilate(filename, dilation_ratio=1, target_name=None, overwrite=False):
     import os
     of, fex = os.path.splitext(filename)
 
-    if target_name == None:
+    if target_name is None:
         target_name = of + '_dilated' + fex
     if not overwrite:
         target_name = generate_outfilename(target_name)
@@ -1753,7 +1753,7 @@ def merge_videos(
     if fex.lower() not in [".mp4", ".mov", ".avi"]:
         fex = ".mkv"
     # set target name, a new file in the same directory as the first media file
-    if target_name == None:
+    if target_name is None:
         target_name = of + "_merged" + fex.lower()
     if not overwrite:
         target_name = generate_outfilename(target_name)

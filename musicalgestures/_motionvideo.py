@@ -18,7 +18,7 @@ from musicalgestures._mglist import MgList
 def mg_motion(
         self,
         filtertype='Regular',
-        thresh=0.05,
+        threshold=0.05,
         blur='None',
         kernel_size=5,
         use_median=False,
@@ -30,7 +30,7 @@ def mg_motion(
         equalize_motiongram=False,
         audio_descriptors=False,
         save_plot=True,
-        plot_title=None,
+        title=None,
         save_data=True,
         data_format="csv",
         save_motiongrams=True,
@@ -48,8 +48,8 @@ def mg_motion(
     centroid of motion for each frame with timecodes in milliseconds.
 
     Args:
-        filtertype (str, optional): 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
-        thresh (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
+        filtertype (str, optional): 'Regular' turns all values below `threshold` to 0. 'Binary' turns all values below `threshold` to 0, above `threshold` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
+        threshold (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
         blur (str, optional): 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
         kernel_size (int, optional): Size of structuring element. Defaults to 5.
         use_median (bool, optional): If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
@@ -60,7 +60,7 @@ def mg_motion(
         inverted_motiongram (bool, optional): If True, inverts colors of the motiongrams. Defaults to False.
         equalize_motiongram (bool, optional): If True, converts the motiongrams to hsv-color space and flattens the value channel (v). Defaults to True.
         save_plot (bool, optional): If True, outputs motion-plot. Defaults to True.
-        plot_title (str, optional): Optionally add title to the plot. Defaults to None, which uses the file name as a title.
+        title (str, optional): Optionally add title to the plot. Defaults to None, which uses the file name as a title.
         save_data (bool, optional): If True, outputs motion-data. Defaults to True.
         data_format (str/list, optional): Specifies format of motion-data. Accepted values are 'csv', 'tsv' and 'txt'. For multiple output formats, use list, eg. ['csv', 'txt']. Defaults to 'csv'.
         save_motiongrams (bool, optional): If True, outputs motiongrams. Defaults to True.
@@ -68,8 +68,8 @@ def mg_motion(
         target_name_video (str, optional): Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).
         target_name_plot (str, optional): Target output name for the plot. Defaults to None (which assumes that the input filename with the suffix "_motion_com_aom_qom" should be used).
         target_name_data (str, optional): Target output name for the data. Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).
-        target_name_mgx (str, optional): Target output name for the vertical motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgx" should be used).
-        target_name_mgy (str, optional): Target output name for the horizontal motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgy" should be used).
+        target_name_mgx (str, optional): Target output name for the horizontal motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgx" should be used).
+        target_name_mgy (str, optional): Target output name for the vertical motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgy" should be used).
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
@@ -85,7 +85,7 @@ def mg_motion(
         # Define ffmpeg command start and end
         cmd = ['ffmpeg', '-y', '-i', self.filename]
         # Filter video frames using ffmpeg
-        cmd, cmd_filter = filter_frame_ffmpeg(self.filename, cmd, self.color, blur, filtertype, thresh, kernel_size, use_median)
+        cmd, cmd_filter = filter_frame_ffmpeg(self.filename, cmd, self.color, blur, filtertype, threshold, kernel_size, use_median)
         
         if atadenoise:
             # Apply an adaptive temporal averaging denoiser every 129 frames
@@ -218,9 +218,9 @@ def mg_motion(
                 gramy_hsv[:, :, 2] = cv2.equalizeHist(gramy_hsv[:, :, 2]).astype(np.uint8)
                 gramy = cv2.cvtColor(gramy_hsv, cv2.COLOR_HSV2RGB).astype(np.uint8)
 
-            if target_name_mgx == None:
+            if target_name_mgx is None:
                 target_name_mgx = of + '_mgx.png'
-            if target_name_mgy == None:
+            if target_name_mgy is None:
                 target_name_mgy = of + '_mgy.png'
             if not overwrite:
                 target_name_mgx = generate_outfilename(target_name_mgx)
@@ -249,11 +249,11 @@ def mg_motion(
             data_format=data_format, target_name_data=target_name_data, overwrite=overwrite)
 
         if save_plot:
-            if plot_title == None:
-                plot_title = os.path.basename(of + fex)
+            if title is None:
+                title = os.path.basename(of + fex)
             # save plot as an MgImage at motion_plot for parent MgVideo
             self.motion_plot = MgImage(save_analysis(of, self.fps, aom, com, qom, motion_analysis, audio_descriptors, self.width,
-                                        self.height, unit, plot_title, target_name_plot=target_name_plot, overwrite=overwrite))
+                                        self.height, unit, title, target_name_plot=target_name_plot, overwrite=overwrite))
                 
         # Resetting numpy warnings for dividing by 0
         np.seterr(divide='warn', invalid='warn')
@@ -281,10 +281,10 @@ def mg_motion(
 def mg_motiongrams(
         self,
         filtertype='Regular',
-        thresh=0.05,
+        threshold=0.05,
         blur='None',
         use_median=False,
-        atadenoise=True,
+        atadenoise=False,
         kernel_size=5,
         inverted_motiongram=False,
         equalize_motiongram=True,
@@ -295,27 +295,25 @@ def mg_motiongrams(
     Shortcut for `mg_motion` to only render motiongrams.
 
     Args:
-        filtertype (str, optional): 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
-        thresh (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
+        filtertype (str, optional): 'Regular' turns all values below `threshold` to 0. 'Binary' turns all values below `threshold` to 0, above `threshold` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
+        threshold (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
         blur (str, optional): 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
         use_median (bool, optional): If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
-        atadenoise (bool, optional): If True, applies an adaptive temporal averaging denoiser every 129 frames. Defaults to True.
+        atadenoise (bool, optional): If True, applies an adaptive temporal averaging denoiser every 129 frames. Defaults to False.
         kernel_size (int, optional): Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
         inverted_motiongram (bool, optional): If True, inverts colors of the motiongrams. Defaults to False.
         equalize_motiongram (bool, optional): If True, converts the motiongrams to hsv-color space and flattens the value channel (v). Defaults to True.
-        target_name_mgx (str, optional): Target output name for the vertical motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgx" should be used).
-        target_name_mgy (str, optional): Target output name for the horizontal motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgy" should be used).
+        target_name_mgx (str, optional): Target output name for the horizontal motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgx" should be used).
+        target_name_mgy (str, optional): Target output name for the vertical motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgy" should be used).
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
         MgList: An MgList pointing to the output motiongram images (as MgImages).
     """
 
-    out_x, out_y = None, None
-
-    if target_name_mgx == None:
+    if target_name_mgx is None:
         target_name_mgx = self.of + '_mgx.png'
-    if target_name_mgy == None:
+    if target_name_mgy is None:
         target_name_mgy = self.of + '_mgy.png'
     if not overwrite:
         out_x = generate_outfilename(target_name_mgx)
@@ -326,7 +324,7 @@ def mg_motiongrams(
     mg_motion(
         self,
         filtertype=filtertype,
-        thresh=thresh,
+        threshold=threshold,
         blur=blur,
         kernel_size=kernel_size,
         use_median=use_median,
@@ -337,9 +335,9 @@ def mg_motiongrams(
         save_motiongrams=True,
         save_plot=False,
         save_video=False,
-        target_name_mgx=target_name_mgx,
-        target_name_mgy=target_name_mgy,
-        overwrite=overwrite)
+        target_name_mgx=out_x,
+        target_name_mgy=out_y,
+        overwrite=True)
 
     # mg_motion also saves the motiongrams as MgImages to self.motiongram_x and self.motiongram_y of the parent MgVideo
     return MgList(MgImage(out_x), MgImage(out_y))
@@ -348,7 +346,7 @@ def mg_motiongrams(
 def mg_motionvideo(
         self,
         filtertype='Regular',
-        thresh=0.05,
+        threshold=0.05,
         blur='None',
         use_median=False,
         kernel_size=5,
@@ -359,8 +357,8 @@ def mg_motionvideo(
     Shortcut to only render the motion video. Uses musicalgestures._utils.motionvideo_ffmpeg. Note that this does not apply median filter by default. If you need it use `use_median=True`.
 
     Args:
-        filtertype (str, optional): 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
-        thresh (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
+        filtertype (str, optional): 'Regular' turns all values below `threshold` to 0. 'Binary' turns all values below `threshold` to 0, above `threshold` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
+        threshold (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
         blur (str, optional): 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
         use_median (bool, optional): If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
         kernel_size (int, optional): Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
@@ -376,7 +374,7 @@ def mg_motionvideo(
         filename=self.filename,
         color=self.color,
         filtertype=filtertype,
-        threshold=thresh,
+        threshold=threshold,
         blur=blur,
         use_median=use_median,
         kernel_size=kernel_size,
@@ -394,7 +392,7 @@ def mg_motionvideo(
 def mg_motiondata(
         self,
         filtertype='Regular',
-        thresh=0.05,
+        threshold=0.05,
         blur='None',
         kernel_size=5,
         atadenoise=False,
@@ -407,8 +405,8 @@ def mg_motiondata(
     Shortcut for `mg_motion` to only render motion data.
 
     Args:
-        filtertype (str, optional): 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
-        thresh (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
+        filtertype (str, optional): 'Regular' turns all values below `threshold` to 0. 'Binary' turns all values below `threshold` to 0, above `threshold` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
+        threshold (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
         blur (str, optional): 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
         kernel_size (int, optional): Size of structuring element. Defaults to 5.
         atadenoise (bool, optional): If True, applies an adaptive temporal averaging denoiser every 129 frames. Defaults to False.
@@ -425,7 +423,7 @@ def mg_motiondata(
     out = None
 
     if type(data_format) == str:
-        if target_name == None:
+        if target_name is None:
             target_name = self.of + '_motion.' + data_format
         if not overwrite:
             target_name = generate_outfilename(target_name)
@@ -433,21 +431,21 @@ def mg_motiondata(
 
     if type(data_format) == list:
         out = []
-        if target_name == None:
+        if target_name is None:
             # this csv is just a temporary placeholder, the correct extension is always enforced based on the data_format(s)
             target_name = self.of + '_motion.csv'
         target_name_of = os.path.splitext(target_name)[0]
         for item in data_format:
             if not overwrite:
                 tmp_name = generate_outfilename(target_name_of + '.' + item)
-                out.append(tmp_name)
             else:
                 tmp_name = target_name_of + '.' + item
+            out.append(tmp_name)
 
     mg_motion(
         self,
         filtertype=filtertype,
-        thresh=thresh,
+        threshold=threshold,
         blur=blur,
         kernel_size=kernel_size,
         use_median=use_median,
@@ -472,7 +470,7 @@ def mg_motiondata(
 def mg_motionplots(
         self,
         filtertype='Regular',
-        thresh=0.05,
+        threshold=0.05,
         blur='None',
         kernel_size=5,
         use_median=False,
@@ -487,14 +485,14 @@ def mg_motionplots(
     Shortcut for `mg_motion` to only render motion plots.
 
     Args:
-        filtertype (str, optional): 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
-        thresh (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
+        filtertype (str, optional): 'Regular' turns all values below `threshold` to 0. 'Binary' turns all values below `threshold` to 0, above `threshold` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
+        threshold (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
         blur (str, optional): 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
         kernel_size (int, optional): Size of structuring element. Defaults to 5.
         use_median (bool, optional): If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
         atadenoise (bool, optional): If True, applies an adaptive temporal averaging denoiser every 129 frames. Defaults to False.
         motion_analysis (str, optional): Specify which motion analysis to process or all. 'AoM' renders the Area of Motion. 'CoM' renders the Centroid of Motion. 'QoM' renders the Quantity of Motion. 'all' renders all the motion analysis available. Defaults to 'all'.
-        audio_descriptors (bool, optional): Whether to plot motion plots together with audio descriptors in order to see possible correlations in the data. Deflauts to False.
+        audio_descriptors (bool, optional): Whether to plot motion plots together with audio descriptors in order to see possible correlations in the data. Defaults to False.
         unit (str, optional): Unit in QoM plot. Accepted values are 'seconds' or 'samples'. Defaults to 'seconds'.
         title (str, optional): Optionally add title to the plot. Defaults to None, which uses the file name as a title.
         target_name (str, optional): Target output name for the plot. Defaults to None (which assumes that the input filename with the suffix "_motion_com_aom_qom" should be used).
@@ -504,7 +502,7 @@ def mg_motionplots(
         MgImage: An MgImage pointing to the exported image (png) of the motion plots.
     """
 
-    if target_name == None:
+    if target_name is None:
         target_name = self.of + '_motionplots.png'
     if not overwrite:
         target_name = generate_outfilename(target_name)
@@ -512,7 +510,7 @@ def mg_motionplots(
     mg_motion(
         self,
         filtertype=filtertype,
-        thresh=thresh,
+        threshold=threshold,
         blur=blur,
         kernel_size=kernel_size,
         use_median=use_median,
@@ -523,7 +521,7 @@ def mg_motionplots(
         save_data=False,
         save_motiongrams=False,
         save_plot=True,
-        plot_title=title,
+        title=title,
         save_video=False,
         target_name_plot=target_name,
         overwrite=overwrite)
@@ -531,8 +529,14 @@ def mg_motionplots(
     # mg_motion also saves the plot as an MgImage to self.motion_plot of the parent MgVideo
     return MgImage(target_name)
 
+
 def mg_motionscore(self):
-    # Obtain the average vmaf motion score of a video using FFmpeg
+    """
+    Computes the average VMAF motion score of the video using FFmpeg.
+
+    Returns:
+        float: The average VMAF motion score, or None if unavailable.
+    """
     cmd = ['ffmpeg', '-i', self.filename, '-vf', 'vmafmotion', '-f', 'null', '-']
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
     out, _ = process.communicate()
@@ -541,8 +545,9 @@ def mg_motionscore(self):
     for index, item in enumerate(splitted):
         if isinstance(item, str) and re.search('VMAF', item):
             vmafmotion = float(re.findall(r'\d+\.\d+', splitted[index].split("] ")[1])[0])
-            return print('Average VMAF motion score:', vmafmotion)
+            return vmafmotion
     print('VMAF motion score is not available.')
+    return None
 
 
 def save_analysis(of, fps, aom, com, qom, motion_analysis, audio_descriptors, width, height, unit, title, target_name_plot, overwrite):
@@ -737,7 +742,7 @@ def save_analysis(of, fps, aom, com, qom, motion_analysis, audio_descriptors, wi
 
     fig.tight_layout()
 
-    if target_name_plot == None:
+    if target_name_plot is None:
         target_name_plot = of + '_motionplot.png'
     else:
         # enforce png
@@ -772,7 +777,7 @@ def save_txt(of, time, aom, com, qom, motion_analysis, width, height, data_forma
                           'AomX1': aom.transpose()[0], 'AomY1': aom.transpose()[1], 'AomX2': aom.transpose()[2], 'AomY2': aom.transpose()[3]})
 
         if data_format == "tsv":
-            if target_name_data == None:
+            if target_name_data is None:
                 target_name_data = of + '_motion.tsv'
             else:
                 # take name, but enforce tsv
@@ -799,7 +804,7 @@ def save_txt(of, time, aom, com, qom, motion_analysis, width, height, data_forma
 
 
         elif data_format == "csv":
-            if target_name_data == None:
+            if target_name_data is None:
                 target_name_data = of + '_motiondata.csv'
             else:
                 # take name, but enforce csv
@@ -809,7 +814,7 @@ def save_txt(of, time, aom, com, qom, motion_analysis, width, height, data_forma
             df.to_csv(target_name_data, index=None)
 
         elif data_format == "txt":
-            if target_name_data == None:
+            if target_name_data is None:
                 target_name_data = of+'_motion.txt'
             else:
                 # take name, but enforce txt

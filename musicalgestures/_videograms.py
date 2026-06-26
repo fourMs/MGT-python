@@ -57,9 +57,9 @@ def videograms_ffmpeg(self, target_name_x=None, target_name_y=None, overwrite=Fa
         framecount = get_framecount(shortened_file)
         length = get_length(shortened_file)
 
-        if target_name_x == None:
+        if target_name_x is None:
             target_name_x = skip_of+'_vgx.png'
-        if target_name_y == None:
+        if target_name_y is None:
             target_name_y = skip_of+'_vgy.png'
         if not overwrite:
             target_name_x = generate_outfilename(target_name_x)
@@ -84,9 +84,9 @@ def videograms_ffmpeg(self, target_name_x=None, target_name_y=None, overwrite=Fa
     else:
         length = get_length(self.filename)
 
-        if target_name_x == None:
+        if target_name_x is None:
             target_name_x = self.of +'_vgx.png'
-        if target_name_y == None:
+        if target_name_y is None:
             target_name_y = self.of+'_vgy.png'
         if not overwrite:
             target_name_x = generate_outfilename(target_name_x)

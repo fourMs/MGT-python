@@ -54,7 +54,7 @@ class MgAudioProcessor(object):
         self.n_fft = n_fft
         
         self.fmin = fmin
-        if fmax == None:
+        if fmax is None:
             self.fmax = self.audio_file.samplerate // 2
         else:
             fmax = self.fmax

@@ -126,12 +126,12 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
         else:
             print(f'Unrecognized mode: "{mode}". Try "windowed" or "notebook".')
 
-    if window_title == None:
+    if window_title is None:
         window_title = self.filename
 
-    if filename == None:
+    if filename is None:
         keys = self.__dict__.keys()
-        if key == None:
+        if key is None:
             filename = self.filename
             show(file=filename, width=window_width,
                  height=window_height, mode=mode, title=window_title, parent=self, **ipython_kwargs)
@@ -225,7 +225,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             if "motion_video" in keys:
                 motion_video_keys = self.motion_video.__dict__.keys()
                 if "history_video" in motion_video_keys:
-                    filename = self.motion_vide.history_video.filename
+                    filename = self.motion_video.history_video.filename
                     show(file=filename, width=window_width,
                          height=window_height, mode=mode, title=f'Motion History Video | {filename}', parent=self, **ipython_kwargs)
                 else:
@@ -287,7 +287,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
 
         else:
             print("Unknown shorthand.\n",
-                  "For images, try 'mgx', 'mgy', 'vgx', 'vgy', 'ssmx','ssmy', 'blend' or 'plot'.\n",
+                  "For images, try 'mgx', 'mgy', 'vgx', 'vgy', 'ssm', 'blend' or 'plot'.\n",
                   "For videos try 'motion', 'history', 'motionhistory', 'sparse', 'dense', 'pose', 'warp', 'blur' or 'subtract'.")
 
     else:

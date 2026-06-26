@@ -6,7 +6,7 @@ analysis and visualisation operations without writing Python code.
 Usage::
 
     musicalgestures --help
-    musicalgestures motion dancer.avi --thresh 0.05 --filtertype Regular
+    musicalgestures motion dancer.avi --threshold 0.05 --filtertype Regular
     musicalgestures videograms dancer.avi
     musicalgestures average dancer.avi
     musicalgestures info dancer.avi
@@ -88,7 +88,7 @@ def main() -> None:
     @click.option("--filtertype", default="Regular",
                   type=click.Choice(["Regular", "Binary", "Blob"], case_sensitive=False),
                   help="Filter type for motion detection.")
-    @click.option("--thresh", default=0.05, type=float, show_default=True,
+    @click.option("--threshold", default=0.05, type=float, show_default=True,
                   help="Pixel-value threshold (0–1).")
     @click.option("--blur", default="None",
                   type=click.Choice(["None", "Average"], case_sensitive=False),
@@ -96,12 +96,12 @@ def main() -> None:
     @click.option("--color/--no-color", default=True, show_default=True,
                   help="Process in colour (default) or grayscale.")
     @click.option("--overwrite", is_flag=True, help="Overwrite existing output files.")
-    def cmd_motion(filename, filtertype, thresh, blur, color, overwrite):
+    def cmd_motion(filename, filtertype, threshold, blur, color, overwrite):
         """Render a motion video for FILENAME."""
         try:
             import musicalgestures as mg
             v = mg.MgVideo(filename, color=color)
-            out = v.motion(filtertype=filtertype, thresh=thresh, blur=blur,
+            out = v.motion(filtertype=filtertype, threshold=threshold, blur=blur,
                            save_video=True, save_plot=False, save_data=False,
                            overwrite=overwrite)
             click.echo(f"Motion video saved: {out.filename}")
@@ -192,14 +192,14 @@ def main() -> None:
     @click.argument("filename", type=click.Path(exists=True))
     @click.option("--filtertype", default="Regular",
                   type=click.Choice(["Regular", "Binary", "Blob"], case_sensitive=False))
-    @click.option("--thresh", default=0.05, type=float, show_default=True)
+    @click.option("--threshold", default=0.05, type=float, show_default=True)
     @click.option("--overwrite", is_flag=True)
-    def cmd_motiongrams(filename, filtertype, thresh, overwrite):
+    def cmd_motiongrams(filename, filtertype, threshold, overwrite):
         """Render horizontal and vertical motiongrams for FILENAME."""
         try:
             import musicalgestures as mg
             v = mg.MgVideo(filename)
-            out = v.motiongrams(filtertype=filtertype, thresh=thresh, overwrite=overwrite)
+            out = v.motiongrams(filtertype=filtertype, threshold=threshold, overwrite=overwrite)
             click.echo(f"Motiongrams saved.")
         except Exception as exc:
             click.echo(f"Error: {exc}", err=True)

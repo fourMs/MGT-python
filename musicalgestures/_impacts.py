@@ -20,8 +20,8 @@ def impact_envelope(directogram, kernel_size=5):
     impact_envelope = flux.sum(axis=1)
     # To account for large outlying spikes that sometimes happen at shot boundaries (i.e., cuts)
     # we clip the 99th percentile of values to the 98th percentile.
-    clip_threshold = np.percentile(impact_envelope, 98)
-    impact_envelope[impact_envelope > clip_threshold] = 0
+    clip_thresholdold = np.percentile(impact_envelope, 98)
+    impact_envelope[impact_envelope > clip_thresholdold] = 0
     impact_envelope = impact_envelope / impact_envelope.max()
 
     return impact_envelope
@@ -47,7 +47,7 @@ def impact_detection(envelopes, time, fps, local_mean=0.1, local_maxima=0.15):
     return impact 
 
 
-def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.15, filtertype='Adaptative', thresh=0.05, kernel_size=5, target_name=None, overwrite=False):
+def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.15, filtertype='Adaptative', threshold=0.05, kernel_size=5, target_name=None, overwrite=False):
     """
     Compute a visual analogue of an onset envelope, aslo known as an impact envelope (Abe Davis).
     This is computed by summing over positive entries in the columns of the directogram. This gives an impact envelope with precisely the same
@@ -63,8 +63,8 @@ def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.
         detection (bool, optional): Whether to allow the detection of impacts based on local mean and local maxima or not.
         local_mean (float, optional): Size of the local mean window in seconds which reduces the amount of intensity variation between one impact and the next.
         local_maxima (float, optional): Size of the local maxima window in seconds for the impact envelopes
-        filtertype (str, optional): 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. 'Adaptative' perform adaptative threshold as the weighted sum of 11 neighborhood pixels where weights are a Gaussian window. Defaults to 'Adaptative'.
-        thresh (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
+        filtertype (str, optional): 'Regular' turns all values below `threshold` to 0. 'Binary' turns all values below `threshold` to 0, above `threshold` to 1. 'Blob' removes individual pixels with erosion method. 'Adaptative' perform adaptative thresholdold as the weighted sum of 11 neighborhood pixels where weights are a Gaussian window. Defaults to 'Adaptative'.
+        threshold (float, optional): Eliminates pixel values less than given thresholdold. Ranges from 0 to 1. Defaults to 0.05.
         kernel_size (int, optional): Size of structuring element. Defaults to 5.
         target_name (str, optional): Target output name for the directogram. Defaults to None (which assumes that the input filename with the suffix "_dg" should be used).
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
@@ -113,8 +113,8 @@ def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.
                 next_frame = cv2.adaptiveThreshold(
                     next_frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
             else:
-                # Frame Thresholding: apply threshold filter and median filter (of `kernel_size`x`kernel_size`) to the frame.
-                next_frame = filter_frame(next_frame, filtertype, thresh, kernel_size)
+                # Frame Thresholding: apply thresholdold filter and median filter (of `kernel_size`x`kernel_size`) to the frame.
+                next_frame = filter_frame(next_frame, filtertype, threshold, kernel_size)
 
             # Renders a dense optical flow video of the input video file using `cv2.calcOpticalFlowFarneback()`.
             # The description of the matching parameters are taken from the cv2 documentation.
@@ -144,7 +144,7 @@ def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.
     fig.patch.set_alpha(1)
 
     # add title
-    if title == None:
+    if title is None:
         title = os.path.basename(
             f'Impact Envelopes (filter type: {filtertype})')
 
@@ -162,7 +162,7 @@ def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.
 
     fig.tight_layout()
 
-    if target_name == None:
+    if target_name is None:
         target_name = of + '_impact.png'
 
     else:

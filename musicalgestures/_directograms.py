@@ -36,7 +36,7 @@ def directogram(optical_flow):
 
     return directogram
 
-def mg_directograms(self, title=None, filtertype='Adaptative', thresh=0.05, kernel_size=5, target_name=None, overwrite=False):
+def mg_directograms(self, title=None, filtertype='Adaptative', threshold=0.05, kernel_size=5, target_name=None, overwrite=False):
     """
     Compute a directogram to factor the magnitude of motion into different angles.
     Each columun of the directogram is computed as the weighted histogram (HISTOGRAM_BINS) of angles for the optical flow of an input frame.
@@ -45,8 +45,8 @@ def mg_directograms(self, title=None, filtertype='Adaptative', thresh=0.05, kern
 
     Args:
         title (str, optional): Optionally add title to the figure. Defaults to None, which uses 'Directogram' as a title. Defaults to None.
-        filtertype (str, optional): 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. 'Adaptative' perform adaptative threshold as the weighted sum of 11 neighborhood pixels where weights are a Gaussian window. Defaults to 'Adaptative'.
-        thresh (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
+        filtertype (str, optional): 'Regular' turns all values below `threshold` to 0. 'Binary' turns all values below `threshold` to 0, above `threshold` to 1. 'Blob' removes individual pixels with erosion method. 'Adaptative' perform adaptative thresholdold as the weighted sum of 11 neighborhood pixels where weights are a Gaussian window. Defaults to 'Adaptative'.
+        threshold (float, optional): Eliminates pixel values less than given thresholdold. Ranges from 0 to 1. Defaults to 0.05.
         kernel_size (int, optional): Size of structuring element. Defaults to 5.
         target_name (str, optional): Target output name for the directogram. Defaults to None (which assumes that the input filename with the suffix "_dg" should be used).
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
@@ -92,8 +92,8 @@ def mg_directograms(self, title=None, filtertype='Adaptative', thresh=0.05, kern
             if filtertype == 'Adaptative':
                 next_frame = cv2.adaptiveThreshold(next_frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
             else:
-                # Frame Thresholding: apply threshold filter and median filter (of `kernel_size`x`kernel_size`) to the frame.
-                next_frame = filter_frame(next_frame, filtertype, thresh, kernel_size)
+                # Frame Thresholding: apply thresholdold filter and median filter (of `kernel_size`x`kernel_size`) to the frame.
+                next_frame = filter_frame(next_frame, filtertype, threshold, kernel_size)
 
             # Renders a dense optical flow video of the input video file using `cv2.calcOpticalFlowFarneback()`.
             # The description of the matching parameters are taken from the cv2 documentation.
@@ -117,7 +117,7 @@ def mg_directograms(self, title=None, filtertype='Adaptative', thresh=0.05, kern
     fig.patch.set_alpha(1)
 
     # add title
-    if title == None:
+    if title is None:
         title = os.path.basename(f'Directogram (filter type: {filtertype})')
 
     fig.suptitle(title, fontsize=16)
@@ -128,7 +128,7 @@ def mg_directograms(self, title=None, filtertype='Adaptative', thresh=0.05, kern
     ax.set_ylabel('Angle [Radians]')
     ax.set_xlabel('Time [Seconds]')
 
-    if target_name == None:
+    if target_name is None:
         target_name = of + '_dg.png'
 
     else:

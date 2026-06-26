@@ -34,7 +34,7 @@ class MgAudio:
         Initializes the MgAudio class.
 
         Args:
-            filename (str): Path to the audio file. Passed by the parent MgAudio.
+            filename (str): Path to the audio file. Passed by the parent MgVideo.
             sr (int, optional): Sampling rate of the audio file. Possible to specify a target sampling rate. Defaults to None (i.e. original sampling rate).
             n_fft (int, optional): Length of the FFT window. Defaults to 2048.
             hop_length (int, optional): Number of samples between successive frames. Defaults to 512.
@@ -435,7 +435,7 @@ class MgAudio:
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
             original_time (bool, optional): Whether to plot original time or not. This parameter can be useful if the video file has been shortened beforehand (e.g. skip). Defaults to False.
             title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
-            target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_tempogram.png" should be used).
+            target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_hpss.png" should be used).
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
         Returns:

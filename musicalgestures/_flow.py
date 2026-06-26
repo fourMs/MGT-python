@@ -77,7 +77,7 @@ class Flow:
             MgVideo: A new MgVideo pointing to the output video file.
         """
 
-        if filename == None:
+        if filename is None:
             filename = self.filename
 
         of, fex = os.path.splitext(filename)
@@ -129,7 +129,7 @@ class Flow:
         else:
             pb = MgProgressbar(total=length, prefix='Rendering dense optical flow video:')
 
-            if target_name == None:
+            if target_name is None:
                 target_name = of + '_flow_dense' + fex
             if not overwrite:
                 target_name = generate_outfilename(target_name)
@@ -240,7 +240,7 @@ class Flow:
 
             fig.tight_layout()
 
-            if target_name == None:
+            if target_name is None:
                 target_name = of + '_velocity.png'
 
             else:
@@ -344,7 +344,7 @@ class Flow:
             MgVideo: A new MgVideo pointing to the output video file.
         """
 
-        if filename == None:
+        if filename is None:
             filename = self.filename
 
         of, fex = os.path.splitext(filename)
@@ -388,7 +388,7 @@ class Flow:
         pb = MgProgressbar(
             total=length, prefix='Rendering sparse optical flow video:')
 
-        if target_name == None:
+        if target_name is None:
             target_name = of + '_flow_sparse' + fex
         if not overwrite:
             target_name = generate_outfilename(target_name)

@@ -24,7 +24,7 @@ def contrast_brightness_ffmpeg(filename, contrast=0, brightness=0, target_name=N
 
     of, fex = os.path.splitext(filename)
 
-    if target_name == None:
+    if target_name is None:
         target_name = of + '_cb' + fex
     if not overwrite:
         target_name = generate_outfilename(target_name)
@@ -80,7 +80,7 @@ def skip_frames_ffmpeg(filename, skip=0, target_name=None, overwrite=False):
     pts_ratio = 1 / (skip+1)
     atempo_ratio = skip+1
 
-    if target_name == None:
+    if target_name is None:
         target_name = of + '_skip' + fex
     if not overwrite:
         target_name = generate_outfilename(target_name)
@@ -118,7 +118,7 @@ def fixed_frames_ffmpeg(filename, frames=0, target_name=None, overwrite=False):
         filename = convert_to_mp4(of + fex, overwrite=overwrite)
         of, fex = os.path.splitext(filename)
 
-    if target_name == None:
+    if target_name is None:
          target_name = of + '_fixed' + fex
     if not overwrite:
         target_name = generate_outfilename(target_name)

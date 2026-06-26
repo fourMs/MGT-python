@@ -1,7 +1,7 @@
 import numpy as np
 import os
 import cv2
-from musicalgestures._utils import MgImage, generate_outfilename, get_framecount, get_length, ffmpeg_cmd, get_widthheight
+from musicalgestures._utils import MgImage, MgProgressbar, generate_outfilename, get_framecount, get_length, ffmpeg_cmd, get_widthheight
 
 
 def mg_pixelarray(self, width=640, target_name=None, overwrite=False):
@@ -36,12 +36,7 @@ def mg_pixelarray(self, width=640, target_name=None, overwrite=False):
     frames = get_framecount(self.filename)
     height = int(np.ceil(frames / width))
     video_length = get_length(self.filename)
-    
-    print(f"Processing {self.filename}")
-    print(f"Total frames: {frames}")
-    print(f"Output dimensions: {width}x{height}")
-    print(f"Filter: scale=1:1,tile={width}x{height}")
-    
+
     # Method 1: Using FFmpeg (similar to the bash script)
     # This directly replicates the bash script functionality
     cmd = [
@@ -82,14 +77,12 @@ def mg_pixelarray_cv2(self, width=640, target_name=None, overwrite=False):
     # Open video
     cap = cv2.VideoCapture(self.filename)
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    
+
     # Calculate output dimensions
     height = int(np.ceil(total_frames / width))
-    
-    print(f"Processing {self.filename}")
-    print(f"Total frames: {total_frames}")
-    print(f"Output dimensions: {width}x{height}")
-    
+
+    pb = MgProgressbar(total=total_frames, prefix='Creating frame-averaged pixel array (cv2):')
+
     # Create output array
     if self.color:
         output_array = np.zeros((height, width, 3), dtype=np.uint8)
@@ -119,22 +112,16 @@ def mg_pixelarray_cv2(self, width=640, target_name=None, overwrite=False):
             # Only process if within our output bounds
             if row < height:
                 output_array[row, col] = average_color.astype(np.uint8)
-            
+
             frame_count += 1
-            
-            # Progress indicator
-            if frame_count % 100 == 0:
-                progress = (frame_count / total_frames) * 100
-                print(f"Progress: {progress:.1f}% ({frame_count}/{total_frames} frames)")
+            pb.progress(frame_count)
     
     finally:
         cap.release()
     
     # Save the image
     cv2.imwrite(target_name, output_array)
-    
-    print(f"Frame-averaged pixel array saved as: {target_name}")
-    
+
     # Save result as the pixelarray_cv2 for parent MgVideo
     self.pixelarray_cv2 = MgImage(target_name)
     
@@ -173,29 +160,20 @@ def mg_pixelarray_stats(self, width=640, include_stats=True):
     }
     
     if include_stats:
-        # Format duration similar to ffprobe output (HH:MM:SS.ms)
+        # Format duration as HH:MM:SS.ms
         hours = int(duration_seconds // 3600)
         minutes = int((duration_seconds % 3600) // 60)
         seconds = duration_seconds % 60
         duration_str = f"{hours:02d}:{minutes:02d}:{seconds:06.3f}"
-        
+
         result.update({
             'duration': duration_str,
             'duration_seconds': int(duration_seconds),
-            'fps': int(fps + 0.5),  # Round fps like in bash script
+            'fps': int(fps + 0.5),
             'total_frames': total_frames,
             'output_width': width,
             'output_height': height,
             'filter_description': f"scale=1:1,tile={width}x{height}"
         })
-        
-        # Print statistics (similar to bash script output)
-        print(f"{result['filename']}")
-        print(f"___Duration: {duration_str[:-1]}")  # Remove last character like bash script
-        print(f"____Seconds: {result['duration_seconds']}")
-        print(f"________FPS: {result['fps']}")
-        print(f"_____Frames: {result['total_frames']}")
-        print(f"_____Height: {result['output_height']}")
-        print(f"____Filters: {result['filter_description']}")
     
     return result

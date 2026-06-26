@@ -17,7 +17,7 @@ class InputError(Error):
         self.message = message
 
 
-def mg_input_test(filename, array, fps, filtertype, thresh, starttime, endtime, blur, skip, frames):
+def mg_input_test(filename, array, fps, filtertype, threshold, starttime, endtime, blur, skip, frames):
     """
     Gives feedback to user if initialization from input went wrong.
 
@@ -25,8 +25,8 @@ def mg_input_test(filename, array, fps, filtertype, thresh, starttime, endtime, 
         filename (str): Path to the input video file.
         array (np.ndarray, optional): Generates an MgVideo object from a video array. Defauts to None.
         fps (float, optional): The frequency at which consecutive images from the video array are captured or displayed. Defauts to None.
-        filtertype (str): 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method.
-        thresh (float): A number in the range of 0 to 1. Eliminates pixel values less than given threshold.
+        filtertype (str): 'Regular' turns all values below `threshold` to 0. 'Binary' turns all values below `threshold` to 0, above `threshold` to 1. 'Blob' removes individual pixels with erosion method.
+        threshold (float): A number in the range of 0 to 1. Eliminates pixel values less than given thresholdold.
         starttime (int/float): Trims the video from this start time (s).
         endtime (int/float): Trims the video until this end time (s).
         blur (str): 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise.
@@ -60,8 +60,8 @@ def mg_input_test(filename, array, fps, filtertype, thresh, starttime, endtime, 
             msg = 'Please specify a blur type as str: "Average" or "None"'
             raise InputError(msg)
 
-        if not isinstance(thresh, (float, int)):
-            msg = 'Please specify a threshold as a float between 0 and 1.'
+        if not isinstance(threshold, (float, int)):
+            msg = 'Please specify a thresholdold as a float between 0 and 1.'
             raise InputError(msg)
 
         if not isinstance(starttime, (float, int)):

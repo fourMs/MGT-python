@@ -68,10 +68,10 @@ def mg_ssm(
         self,
         features='motiongrams',
         filtertype='Regular',
-        thresh=0.05,
+        threshold=0.05,
         blur='None',
         norm=np.inf,
-        threshold=0.001,
+        norm_threshold=0.001,
         cmap='gray_r',
         use_median=False,
         kernel_size=5,
@@ -85,15 +85,15 @@ def mg_ssm(
 
     Args:
         features (str, optional): Defines the type of features on which to compute SSM. Possible to compute SSM on 'motiongrams', 'videograms', 'spectrogram', 'chromagram' and 'tempogram'. Defaults to 'motiongrams'.
-        filtertype (str, optional): 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
-        thresh (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
+        filtertype (str, optional): 'Regular' turns all values below `threshold` to 0. 'Binary' turns all values below `threshold` to 0, above `threshold` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
+        threshold (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
         blur (str, optional): 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
         norm (int, optional): Normalize the columns of the feature sequence. Possible to compute Manhattan norm (1), Euclidean norm (2), Minimum norm (-np.inf), Maximum norm (np.inf), etc. Defaults to np.inf.
-        threshold (float, optional): Only the columns with norm at least the amount of `threshold` indicated are normalized. Defaults to 0.001.
+        norm_threshold (float, optional): Only the columns with norm at least `norm_threshold` are normalized. Defaults to 0.001.
         cmap (str, optional): A Colormap instance or registered colormap name. The colormap maps the C values to colors. Defaults to 'gray_r'.
         use_median (bool, optional): If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
         kernel_size (int, optional):  Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
-        invert_axis (bool, optional): Whether to invert the y axis of the SSM. Defaults to True.
+        invert_yaxis (bool, optional): Whether to invert the y axis of the SSM. Defaults to True.
         title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
         target_name ([type], optional): Target output name for the SSM. Defaults to None.
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
@@ -106,7 +106,7 @@ def mg_ssm(
     """
 
     # Save figure to png
-    if target_name == None:
+    if target_name is None:
         target_name = self.of + '_ssm.png'
     else:
         # enforce png
@@ -136,7 +136,7 @@ def mg_ssm(
         mg_motiongrams(
             self,
             filtertype=filtertype,
-            thresh=thresh,
+            threshold=threshold,
             blur=blur,
             use_median=use_median,
             kernel_size=kernel_size,
@@ -146,9 +146,9 @@ def mg_ssm(
             target_name_mgy=out_y,
             overwrite=True)
 
-        # Normalize feature sequence        
-        X = librosa.util.normalize(self.ssm_fig.data[0].astype('float32'), norm=norm, threshold=threshold)
-        Y = librosa.util.normalize(self.ssm_fig.data[1].astype('float32'), norm=norm, threshold=threshold)
+        # Normalize feature sequence
+        X = librosa.util.normalize(self.ssm_fig.data[0].astype('float32'), norm=norm, threshold=norm_threshold)
+        Y = librosa.util.normalize(self.ssm_fig.data[1].astype('float32'), norm=norm, threshold=norm_threshold)
         # Compute SSM using dot product
         X_ssm = slow_dot(np.transpose(X), X, self.length)
         Y_ssm = slow_dot(np.transpose(Y), Y, self.length)
@@ -159,7 +159,7 @@ def mg_ssm(
         
         ax0 = fig.add_subplot(gs[0])
         ax0.xaxis.set_major_locator(MaxNLocator(8))
-        if title == None:
+        if title is None:
             title = ''
         if title == 'filename':
             title = 'Vertical motiongram: ' + os.path.basename(self.of + self.fex)
@@ -191,7 +191,7 @@ def mg_ssm(
 
         ax0 = fig.add_subplot(gs[0])
         ax0.xaxis.set_major_locator(MaxNLocator(8))
-        if title == None:
+        if title is None:
             title = ''
         if title == 'filename':
             title = 'Horizontal motiongram: ' + os.path.basename(self.of + self.fex)
@@ -250,8 +250,8 @@ def mg_ssm(
         vgx = cv2.cvtColor(cv2.imread(videograms[0].filename), cv2.COLOR_RGB2GRAY)
         vgy = cv2.cvtColor(cv2.imread(videograms[1].filename), cv2.COLOR_RGB2GRAY)
 
-        X = librosa.util.normalize(vgx.astype('float32'), norm=norm, threshold=threshold)
-        Y = librosa.util.normalize(vgy.astype('float32'), norm=norm, threshold=threshold)
+        X = librosa.util.normalize(vgx.astype('float32'), norm=norm, threshold=norm_threshold)
+        Y = librosa.util.normalize(vgy.astype('float32'), norm=norm, threshold=norm_threshold)
         # Compute SSM using dot product
         X_ssm = slow_dot(np.transpose(X), X, self.length)
         Y_ssm = slow_dot(np.transpose(Y), Y, self.length)
@@ -262,7 +262,7 @@ def mg_ssm(
         
         ax0 = fig.add_subplot(gs[0])
         ax0.xaxis.set_major_locator(MaxNLocator(8))
-        if title == None:
+        if title is None:
             title = ''
         if title == 'filename':
             title = 'Vertical videogram: ' + os.path.basename(self.of + self.fex)
@@ -292,7 +292,7 @@ def mg_ssm(
 
         ax0 = fig.add_subplot(gs[0])
         ax0.xaxis.set_major_locator(MaxNLocator(8))
-        if title == None:
+        if title is None:
             title = ''
         if title == 'filename':
             title = 'Horizontal videogram: ' + os.path.basename(self.of + self.fex)
@@ -335,7 +335,7 @@ def mg_ssm(
 
         X, sr_X, formatter = smooth_downsample_feature_sequence(spectrogram, sr/hop_length)
         # Normalize columns of the feature sequence
-        X = librosa.util.normalize(X.astype('float32'), norm=norm, threshold=threshold)
+        X = librosa.util.normalize(X.astype('float32'), norm=norm, threshold=norm_threshold)
         # Compute SSM using dot product
         X_ssm = slow_dot(np.transpose(X), X, self.length)
        # Plotting SSM for spectrogram
@@ -343,7 +343,7 @@ def mg_ssm(
         gs = gridspec.GridSpec(4, 1)
 
         ax0 = fig.add_subplot(gs[0])
-        if title == None:
+        if title is None:
             title = ''
         if title == 'filename':
             title = 'Spectrogram: ' + os.path.basename(self.of + self.fex)
@@ -389,8 +389,8 @@ def mg_ssm(
         chromagram = librosa.feature.chroma_stft(S=spectrogram, sr=sr, hop_length=hop_length, n_fft=frame_length)
 
         X, sr_X, formatter = smooth_downsample_feature_sequence(chromagram, sr/hop_length)
-        # Normalize feature sequence 
-        X = librosa.util.normalize(X.astype('float32'), norm=norm, threshold=threshold)
+        # Normalize feature sequence
+        X = librosa.util.normalize(X.astype('float32'), norm=norm, threshold=norm_threshold)
         # Compute SSM using dot product
         X_ssm = slow_dot(np.transpose(X), X, self.length)
 
@@ -399,7 +399,7 @@ def mg_ssm(
         gs = gridspec.GridSpec(4, 1)
 
         ax0 = fig.add_subplot(gs[0])
-        if title == None:
+        if title is None:
             title = ''
         if title == 'filename':
             title = 'Chromagram: ' + os.path.basename(self.of + self.fex)
@@ -454,7 +454,7 @@ def mg_ssm(
 
         X, sr_X, formatter = smooth_downsample_feature_sequence(tempogram, sr/hop_length)
         # Normalize feature sequence
-        X = librosa.util.normalize(X.astype('float32'), norm=norm, threshold=threshold)
+        X = librosa.util.normalize(X.astype('float32'), norm=norm, threshold=norm_threshold)
         # Compute SSM using dot product
         X_ssm = slow_dot(np.transpose(X), X, self.length)
 
@@ -463,7 +463,7 @@ def mg_ssm(
         gs = gridspec.GridSpec(4, 1)
 
         ax0 = fig.add_subplot(gs[0])
-        if title == None:
+        if title is None:
             title = ''
         if title == 'filename':
             title = 'Tempogram: ' + os.path.basename(self.of + self.fex)

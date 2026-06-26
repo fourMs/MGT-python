@@ -6,7 +6,7 @@ mg = musicalgestures.MgVideo("./musicalgestures/examples/dancer.avi", starttime=
 
 # USE MODULE METHOD: To run the motionvideo analysis, run the function using your video object
 mg.motion(inverted_motionvideo=False, inverted_motiongram=False,
-          thresh=0.05, unit='seconds')
+          threshold=0.05, unit='seconds')
 
 # History video
 mg.history(history_length=25)

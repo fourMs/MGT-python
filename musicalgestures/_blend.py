@@ -20,12 +20,12 @@ def mg_blend_image(self, filename=None, mode='all_mode', component_mode='average
         MgImage: A new MgImage pointing to the output image file.
     """
 
-    if filename == None:
+    if filename is None:
         filename = self.filename
 
     of, fex = os.path.splitext(filename)
 
-    if target_name == None:
+    if target_name is None:
         target_name = of + f'_{component_mode}.png'
     if not overwrite:
         target_name = generate_outfilename(target_name)
@@ -35,14 +35,13 @@ def mg_blend_image(self, filename=None, mode='all_mode', component_mode='average
     # Get the number of times all frames can be divided
     divider = int(np.ceil(np.log(frames / 2) / np.log(2)))
 
-    # Set average blur
-    if self.blur.lower() == 'average':
-        cmd_filter += 'avgblur=sizeX=10:sizeY=10,'
-
     # Define ffmpeg command
     cmd = ['ffmpeg', '-y', '-i', self.filename]
 
     cmd_filter = ''
+    # Set average blur
+    if self.blur.lower() == 'average':
+        cmd_filter += 'avgblur=sizeX=10:sizeY=10,'
     # set color mode
     if self.color == True:
         pixformat = 'gbrp'

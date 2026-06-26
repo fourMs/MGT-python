@@ -112,7 +112,7 @@ def mg_blurfaces(self,
 
     of, fex = os.path.splitext(self.filename)
     
-    if target_name == None:
+    if target_name is None:
         target_name = of + '_blurred.avi'
     else:
         # Enforce .avi
@@ -241,7 +241,7 @@ def mg_blurfaces(self,
             df = pd.DataFrame(data=data, columns=headers)
 
             if data_format == "tsv":
-                if target_name == None:
+                if target_name is None:
                     target_name = of + '.tsv'
                 else:
                     # take name, but enforce tsv
@@ -259,7 +259,7 @@ def mg_blurfaces(self,
                     np.savetxt(f, df.values, delimiter='\t', fmt=fmt_list)
 
             elif data_format == "csv":
-                if target_name == None:
+                if target_name is None:
                     target_name = of + '.csv'
                 else:
                     # take name, but enforce csv
@@ -269,7 +269,7 @@ def mg_blurfaces(self,
                 df.to_csv(target_name, index=None)
 
             elif data_format == "txt":
-                if target_name == None:
+                if target_name is None:
                     target_name = of + '.txt'
                 else:
                     # take name, but enforce txt

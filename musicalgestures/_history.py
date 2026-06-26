@@ -2,12 +2,8 @@ import cv2
 import os
 import numpy as np
 from musicalgestures._utils import extract_wav, embed_audio_in_video, MgProgressbar, ffmpeg_cmd, get_length, generate_outfilename, convert_to_avi
+from musicalgestures._exceptions import MgInputError
 import musicalgestures
-
-
-class ParameterError(Exception):
-    """Base class for argument errors."""
-    pass
 
 
 def history_ffmpeg(self, filename=None, history_length=10, weights=1, normalize=False, norm_strength=1, norm_smooth=0, target_name=None, overwrite=False):
@@ -28,7 +24,7 @@ def history_ffmpeg(self, filename=None, history_length=10, weights=1, normalize=
         MgVideo: A new MgVideo pointing to the output video file.
     """
 
-    if filename == None:
+    if filename is None:
         filename = self.filename
 
     of, fex = os.path.splitext(filename)
@@ -40,10 +36,10 @@ def history_ffmpeg(self, filename=None, history_length=10, weights=1, normalize=
     elif type(weights) == list:
         typecheck_list = [type(item) in [int, float] for item in weights]
         if False in typecheck_list:
-            raise ParameterError(
+            raise MgInputError(
                 'Found wrong type(s) in the list of weights. Use ints and floats.')
         elif len(weights) > history_length:
-            raise ParameterError(
+            raise MgInputError(
                 'history_length must be greater than or equal to the number of weights specified in weights.')
         else:
             weights_map = np.ones(history_length - len(weights))
@@ -56,10 +52,10 @@ def history_ffmpeg(self, filename=None, history_length=10, weights=1, normalize=
         try:
             weights_as_list = [float(item) for item in weights_as_list]
         except ValueError:
-            raise ParameterError(
+            raise MgInputError(
                 'Found wrong type(s) in the list of weights. Use ints and floats.')
         if len(weights_as_list) > history_length:
-            raise ParameterError(
+            raise MgInputError(
                 'history_length must be greater than or equal to the number of weights specified in weights.')
         else:
             weights_map = np.ones(history_length - len(weights_as_list))
@@ -68,22 +64,22 @@ def history_ffmpeg(self, filename=None, history_length=10, weights=1, normalize=
             weights_map += weights_as_list
             str_weights = ' '.join([str(weight) for weight in weights_map])
     else:
-        raise ParameterError(
+        raise MgInputError(
             'Wrong type used for weights. Use int, float, str, or list.')
 
     if type(normalize) != bool:
-        raise ParameterError(
+        raise MgInputError(
             'Wrong type used for normalize. Use only bool.')
 
     if normalize:
         if type(norm_strength) not in [int, float]:
-            raise ParameterError(
+            raise MgInputError(
                 'Wrong type used for norm_strength. Use int or float.')
         if type(norm_smooth) != int:
-            raise ParameterError(
+            raise MgInputError(
                 'Wrong type used for norm_smooth. Use only int.')
 
-    if target_name == None:
+    if target_name is None:
         target_name = of + '_history' + fex
     if not overwrite:
         target_name = generate_outfilename(target_name)
@@ -123,7 +119,7 @@ def history_cv2(self, filename=None, history_length=10, weights=1, target_name=N
         MgVideo: A new MgVideo pointing to the output video file.
     """
 
-    if filename == None:
+    if filename is None:
         filename = self.filename
 
     of, fex = os.path.splitext(filename)
@@ -149,7 +145,7 @@ def history_cv2(self, filename=None, history_length=10, weights=1, target_name=N
 
     pb = MgProgressbar(total=length, prefix='Rendering history video:')
 
-    if target_name == None:
+    if target_name is None:
         target_name = of + '_history' + fex
     if not overwrite:
         target_name = generate_outfilename(target_name)

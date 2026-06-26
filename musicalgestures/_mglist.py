@@ -121,12 +121,11 @@ class MgList():
                 if type(elem) in [MgList, MgImage, MgFigure]:
                     self.objectlist.append(elem)
                 else:
-                    print(
-                        f'Incompatible object type {type(elem)} at index {ind}, ignoring it.')
+                    raise TypeError(f'Incompatible object type {type(elem)} at index {ind}. Expected MgImage, MgFigure, or MgList.')
         elif type(other) in [MgList, MgImage, MgFigure]:
             self.objectlist.append(other)
         else:
-            print(f'Incompatible object type {type(other)}, ignoring it.')
+            raise TypeError(f'Incompatible object type {type(other)}. Expected MgImage, MgFigure, or MgList.')
         return MgList(self.objectlist)
 
     def __add__(self, other):
@@ -146,16 +145,14 @@ class MgList():
             _tmp_list += self.objectlist
             for ind, elem in enumerate(other):
                 if type(elem) in [MgList, MgImage, MgFigure]:
-                    _tmp_list += elem
+                    _tmp_list.append(elem)
                 else:
-                    print(
-                        f'Incompatible object type {type(elem)} at index {ind}, ignoring it.')
+                    raise TypeError(f'Incompatible object type {type(elem)} at index {ind}. Expected MgImage, MgFigure, or MgList.')
             return MgList(_tmp_list)
         elif type(other) in [MgList, MgImage, MgFigure]:
-            return MgList(self.objectlist + other)
+            return MgList(self.objectlist + [other])
         else:
-            print(f'Incompatible object type {type(other)}, ignoring it.')
-            return MgList(self.objectlist)
+            raise TypeError(f'Incompatible object type {type(other)}. Expected MgImage, MgFigure, or MgList.')
 
     def __repr__(self):
         return f"MgList('{self.objectlist}')"
@@ -279,7 +276,7 @@ class MgList():
 
                 elif type(obj) == MgFigure:
                     first_plot = False
-                    if index_of_first_plot == None:
+                    if index_of_first_plot is None:
                         index_of_first_plot = plot_counter  # 0-based!
                         first_plot = True
 
@@ -437,7 +434,7 @@ class MgList():
                                 elem_count, 1, plot_counter+1, sharex=ax[index_of_first_plot])
 
 
-                        librosa.display.waveplot(obj.data['y'], sr=obj.data['sr'], ax=ax[plot_counter])
+                        librosa.display.waveshow(obj.data['y'], sr=obj.data['sr'], ax=ax[plot_counter])
 
                         plot_xticks = np.arange(
                             0, obj.data['length']+0.1, obj.data['length']/20)
@@ -468,7 +465,7 @@ class MgList():
         fig.patch.set_facecolor('white')
         fig.patch.set_alpha(1)
 
-        if title != None and type(title)==str:
+        if title is not None and type(title)==str:
             # add title
             fig.suptitle(title, fontsize=16, y=0.99)
 

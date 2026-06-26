@@ -22,7 +22,7 @@ def mg_grid(self, height=300, rows=3, cols=3, padding=0, margin=0, target_name=N
     """
 
     of, fex = os.path.splitext(self.filename)
-    if target_name == None:
+    if target_name is None:
         target_name = of + '_grid.png'
     else:
         # Enforce png

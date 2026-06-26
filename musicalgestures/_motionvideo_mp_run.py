@@ -16,7 +16,7 @@ import cv2
 def mg_motion_mp(
         self,
         filtertype='Regular',
-        thresh=0.05,
+        threshold=0.05,
         blur='None',
         kernel_size=5,
         inverted_motionvideo=False,
@@ -24,7 +24,7 @@ def mg_motion_mp(
         unit='seconds',
         equalize_motiongram=True,
         save_plot=True,
-        plot_title=None,
+        title=None,
         save_data=True,
         data_format="csv",
         save_motiongrams=True,
@@ -67,7 +67,7 @@ def mg_motion_mp(
 
     save_data_feed = save_data or save_plot
 
-    command = [pythonkw, pyfile, temp_folder, of_feed, fex, self.fps, self.width, self.height, self.length, self.color, filtertype, thresh, blur,
+    command = [pythonkw, pyfile, temp_folder, of_feed, fex, self.fps, self.width, self.height, self.length, self.color, filtertype, threshold, blur,
                kernel_size, inverted_motionvideo, inverted_motiongram, equalize_motiongram, save_data_feed, save_motiongrams, save_video, num_processes]
     command = [str(item) for item in command]
     # print()
@@ -190,9 +190,9 @@ def mg_motion_mp(
             gramy_hsv[:, :, 2] = cv2.equalizeHist(gramy_hsv[:, :, 2])
             gramy = cv2.cvtColor(gramy_hsv, cv2.COLOR_HSV2BGR)
 
-        if target_name_mgx == None:
+        if target_name_mgx is None:
             target_name_mgx = of+'_mgx.png'
-        if target_name_mgy == None:
+        if target_name_mgy is None:
             target_name_mgy = of+'_mgy.png'
         if not overwrite:
             target_name_mgx = generate_outfilename(target_name_mgx)
@@ -253,14 +253,14 @@ def mg_motion_mp(
                 else:
                     com = np.append(com, np.load(item)[1:], axis=0)
 
-        if plot_title == None:
-            plot_title = os.path.basename(of + fex)
+        if title is None:
+            title = os.path.basename(of + fex)
         # save plot as an MgImage at motion_plot for parent MgVideo
         self.motion_plot = MgImage(save_analysis(of, self.fps, com, qom, self.width,
-                                   self.height, unit, plot_title, target_name_plot=target_name_plot, overwrite=overwrite))
+                                   self.height, unit, title, target_name_plot=target_name_plot, overwrite=overwrite))
 
     if save_video:
-        if target_name_video == None:
+        if target_name_video is None:
             target_name_video = of + '_motion' + fex
         # enforce avi
         else:
