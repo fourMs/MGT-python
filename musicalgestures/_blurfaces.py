@@ -113,20 +113,19 @@ def mg_blurfaces(self,
     of, fex = os.path.splitext(self.filename)
     
     if target_name is None:
-        target_name = of + '_blurred.avi'
-    else:
-        # Enforce .avi
-        target_name = os.path.splitext(target_name)[0] + '.avi'
+        # keep the source container (e.g. .mp4) by default
+        target_name = of + '_blurred' + fex
     if not overwrite:
         target_name = generate_outfilename(target_name)
     if os.path.isfile(target_name):
-        os.remove(target_name)       
+        os.remove(target_name)
 
     pb = MgProgressbar(total=self.length, prefix='Blurring faces:')
 
     # Create an instance of the CenterFace class
     centerface = CenterFace(use_gpu=use_gpu)
-    output_stream = cv2.VideoWriter(target_name, cv2.VideoWriter_fourcc('M','J','P','G'), self.fps, (self.width, self.height))
+    # Output is written through an FFmpeg pipe (libx264) for a small, portable file
+    video_out = None
     # Create an empty list to append the mask coordinates
     data = []
 
@@ -205,8 +204,14 @@ def mg_blurfaces(self,
             if draw_scores:
                 cv2.putText(frame, f'{score:.2f}', (x1 + 0, y1 - 20), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0, 255, 0))
 
-        output_stream.write(frame)
-    
+        if video_out is None:
+            cmd = ['ffmpeg', '-y', '-s', '{}x{}'.format(frame.shape[1], frame.shape[0]),
+                   '-r', str(self.fps), '-f', 'rawvideo', '-pix_fmt', 'bgr24',
+                   '-vcodec', 'rawvideo', '-i', '-', '-vcodec', 'libx264',
+                   '-pix_fmt', 'yuv420p', target_name]
+            video_out = ffmpeg_cmd(cmd, total_time=self.length, pipe='write')
+        video_out.stdin.write(frame.astype(np.uint8).tobytes())
+
         # Flush the buffer
         process.stdout.flush()
         pb.progress(i)
@@ -214,7 +219,9 @@ def mg_blurfaces(self,
 
     # Terminate the process
     process.terminate()
-    output_stream.release()
+    if video_out is not None:
+        video_out.stdin.close()
+        video_out.wait()
 
     if self.has_audio:
         # Embed audio in the video file
