@@ -9,6 +9,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.3] – 2026-06-26
+
+### Added
+- `MgVideo.heatmap()`: a motion heatmap showing which parts of the video change
+  the most (accumulated frame differences, colour-mapped, optionally overlaid on
+  the average frame).
+- `MgVideo.motiontempo()`: estimates the dominant movement tempo from the quantity
+  of motion via FFT, reported in Hz and BPM (addresses #158).
+- `descriptors(save_data=True, data_format=...)`: save the per-frame audio
+  descriptor time series to csv/tsv/txt, mirroring motiondata (closes #124).
+- `pose()` GPU via MediaPipe: `MediaPipePoseEstimator` gains a `device` parameter
+  and uses MediaPipe's GPU delegate (CPU fallback). When `device='gpu'` is requested
+  for an OpenPose model but OpenCV lacks CUDA, `pose()` auto-switches to the
+  MediaPipe backend so the GPU is actually used.
+- `cuda_build_available()` and `cuda_unavailable_reason()` helpers.
+
+### Changed
+- Display model: `MgImage`/`MgFigure` no longer auto-render as a notebook cell's
+  last expression (the rich `_repr_html_`/`_repr_mimebundle_` hooks were removed;
+  the HTML helper is kept as `to_html()`). Display now happens only via `show()`,
+  removing the duplicate (small + large) outputs for the audio figure methods and
+  making `average()` display only when `show()` is called.
+- Audio figure methods always close the pyplot figure after saving.
+- `MgFigure.show()` renders the saved image (inline in notebooks).
+- GPU-fallback messages in `pose()`, optical flow, and CenterFace now explain the
+  real cause (pip OpenCV is built without CUDA) instead of implying a missing GPU.
+
+### Fixed
+- `spectrogram()`/`descriptors()`: pin the time axis to the actual spectrogram
+  extent so a container duration longer than the decoded audio no longer leaves
+  trailing whitespace or mislabels the timeline.
+
+---
+
 ## [1.4.2] – 2026-06-26
 
 ### Fixed
@@ -105,7 +139,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.4.2...HEAD
+[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.4.3...HEAD
+[1.4.3]: https://github.com/fourMs/MGT-python/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/fourMs/MGT-python/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/fourMs/MGT-python/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/fourMs/MGT-python/compare/v1.3.3...v1.4.0
