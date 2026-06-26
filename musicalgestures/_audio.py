@@ -576,7 +576,7 @@ class MgAudio:
         return mgf
 
 
-    def descriptors(self, n_mels=128, fmin=0.0, fmax=None, power=2, dpi=300, autoshow=True, original_time=False, title=None, target_name=None, overwrite=False):
+    def descriptors(self, n_mels=128, fmin=0.0, fmax=None, power=2, dpi=300, autoshow=True, original_time=False, title=None, target_name=None, save_data=False, data_format='csv', target_name_data=None, overwrite=False):
         """
         Renders a figure of plots showing spectral/loudness descriptors, including RMS energy, spectral flatness, centroid, bandwidth, rolloff of the video/audio file.
 
@@ -590,6 +590,9 @@ class MgAudio:
             original_time (bool, optional): Whether to plot original time or not. This parameter can be useful if the file has been shortened beforehand (e.g. skip). Defaults to False.
             title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_descriptors.png" should be used).
+            save_data (bool, optional): Whether to also save the per-frame descriptor time series (time, RMS, centroid, bandwidth, rolloff, rolloff_min, flatness) to a data file. Defaults to False.
+            data_format (str/list, optional): Format of the saved descriptor data. Accepted values are 'csv', 'tsv' and 'txt'. For multiple formats, use a list, e.g. ['csv', 'txt']. Defaults to 'csv'.
+            target_name_data (str, optional): The name of the output data file. Defaults to None (which uses the input filename with the suffix "_descriptors").
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
 
         Returns:
@@ -708,6 +711,19 @@ class MgAudio:
             "flatness": flatness,
             "rms": rms
         }
+
+        # Optionally save the per-frame descriptor time series to disk
+        if save_data:
+            columns = {
+                'Time': times,
+                'RMS': rms[0],
+                'Centroid': cent[0],
+                'Bandwidth': spec_bw[0],
+                'Rolloff': rolloff[0],
+                'RolloffMin': rolloff_min[0],
+                'Flatness': flatness[0],
+            }
+            _save_audio_data(self.of + '_descriptors', columns, data_format, target_name_data, overwrite)
 
         mgf = MgFigure(
             figure=fig,
@@ -1132,3 +1148,42 @@ class MgAudio:
             image=target_name)
 
         return mgf
+
+def _save_audio_data(of, columns, data_format, target_name_data, overwrite):
+    """
+    Save a dictionary of equal-length 1-D arrays as a data file (csv/tsv/txt).
+
+    Mirrors how motion data is saved in motion(): supports 'csv', 'tsv', and 'txt'
+    (a single format string or a list of formats).
+
+    Args:
+        of (str): Output path stem (without extension).
+        columns (dict): Ordered mapping of column name -> 1-D array of values.
+        data_format (str or list): One or more of 'csv', 'tsv', 'txt'.
+        target_name_data (str or None): Optional explicit output path stem.
+        overwrite (bool): Whether to overwrite or auto-increment the filename.
+    """
+    import pandas as pd
+
+    # Align to the shortest column length to be safe
+    n = min(len(np.asarray(v).ravel()) for v in columns.values())
+    df = pd.DataFrame({k: np.asarray(v).ravel()[:n] for k, v in columns.items()})
+
+    formats = data_format if isinstance(data_format, (list, tuple)) else [data_format]
+    stem = target_name_data if target_name_data is not None else of
+    stem = os.path.splitext(stem)[0]
+
+    written = []
+    for fmt in formats:
+        fmt = fmt.lower()
+        if fmt not in ('csv', 'tsv', 'txt'):
+            print(f"Unknown data_format '{fmt}', skipping. Use 'csv', 'tsv' or 'txt'.")
+            continue
+        target = stem + '.' + fmt
+        if not overwrite:
+            target = generate_outfilename(target)
+        sep = ',' if fmt == 'csv' else '\t'
+        df.to_csv(target, sep=sep, index=False)
+        written.append(target)
+
+    return written
