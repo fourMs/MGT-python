@@ -225,8 +225,14 @@ class MgImage():
     def __repr__(self):
         return f"MgImage('{self.filename}')"
 
-    def _repr_html_(self) -> str:
-        """Rich HTML display for Jupyter notebooks."""
+    def to_html(self) -> str:
+        """
+        Return an HTML snippet embedding the image (base64-encoded).
+
+        NB: This is intentionally **not** exposed as ``_repr_html_``, so an MgImage
+        is not auto-rendered as the last expression of a Jupyter cell. Use ``show()``
+        to display the image.
+        """
         import base64
         import os
         if not os.path.exists(self.filename):
@@ -241,10 +247,6 @@ class MgImage():
             f'style="max-width:600px;max-height:400px;" />'
             f'<br><small><code>{self.filename}</code></small></div>'
         )
-
-    def _repr_mimebundle_(self, include=None, exclude=None) -> dict:
-        """MIME bundle for rich display environments."""
-        return {"text/html": self._repr_html_()}
 
 
 class MgFigure():
@@ -272,18 +274,36 @@ class MgFigure():
     def __repr__(self):
         return f"MgFigure(figure_type='{self.figure_type}')"
 
-    def show(self):
+    def show(self, **kwargs):
         """
-        Shows the internal matplotlib.pyplot.figure.
+        Display the rendered figure.
+
+        In a Jupyter notebook the saved image is shown inline; otherwise it is opened
+        in a viewer window. Additional keyword arguments are forwarded to the underlying
+        MgImage.show(). If no rendered image is available, the internal matplotlib figure
+        is returned instead.
         """
+        import os
+        if isinstance(self.image, (list, tuple)):
+            for img in self.image:
+                MgImage(img).show(**kwargs)
+            return self
+        if self.image and isinstance(self.image, str) and os.path.exists(self.image):
+            return MgImage(self.image).show(**kwargs)
         return self.figure
 
-    def _repr_html_(self) -> str:
-        """Rich HTML display for Jupyter notebooks."""
+    def to_html(self) -> str:
+        """
+        Return an HTML snippet embedding the rendered figure (base64-encoded).
+
+        NB: This is intentionally **not** exposed as ``_repr_html_``, so an MgFigure
+        is not auto-rendered as the last expression of a Jupyter cell. Use ``show()``
+        to display the figure.
+        """
         import base64
         import io
         import os
-        if self.image and os.path.exists(self.image):
+        if self.image and isinstance(self.image, str) and os.path.exists(self.image):
             with open(self.image, 'rb') as f:
                 b64 = base64.b64encode(f.read()).decode('ascii')
             return (
@@ -304,10 +324,6 @@ class MgFigure():
                 f'<br><small><code>MgFigure(type={self.figure_type!r})</code></small></div>'
             )
         return f"<i>MgFigure(type={self.figure_type!r}) – no image available</i>"
-
-    def _repr_mimebundle_(self, include=None, exclude=None) -> dict:
-        """MIME bundle for rich display environments."""
-        return {"text/html": self._repr_html_()}
 
 def roundup(num, modulo_num):
     """

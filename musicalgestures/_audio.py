@@ -186,8 +186,10 @@ class MgAudio:
         fig.tight_layout()
         plt.savefig(target_name, format='png', transparent=False)
 
-        if not autoshow:
-            plt.close()
+        # Always close the pyplot figure: the returned MgFigure displays the saved
+        # PNG via its rich repr, so leaving the figure open would cause the inline
+        # backend to render a second (duplicate) copy in notebooks.
+        plt.close(fig)
 
         # create MgFigure
         data = {
@@ -267,9 +269,11 @@ class MgAudio:
         # get rid of "default" ticks
         ax.yaxis.set_minor_locator(matplotlib.ticker.NullLocator())
 
-        # ax.set(title=os.path.basename(self.filename))
-        plot_xticks = np.arange(0, self.length+0.1, self.length/20)
-        ax.set(xticks=plot_xticks)
+        # Pin the time axis to the actual spectrogram extent so the container
+        # duration (which can be longer than the decoded audio) does not leave
+        # trailing whitespace or mislabel the timeline.
+        xmax = S.shape[1] * self.hop_length / sr
+        ax.set_xlim(0, xmax)
 
         freq_ticks = [elem*100 for elem in range(10)]
         freq_ticks = []
@@ -286,7 +290,7 @@ class MgAudio:
         ax.set(yticklabels=(freq_ticks_labels))
 
         # Adapt the plotting of the audio file's time when skipping frames of a video file
-        self.format_time(ax, original_time)
+        self.format_time(ax, original_time, original_duration=None if original_time else xmax)
 
         if raw:
             fig.patch.set_visible(False)
@@ -297,8 +301,10 @@ class MgAudio:
         plt.tight_layout()
         plt.savefig(target_name, format='png', transparent=False)
 
-        if not autoshow:
-            plt.close()
+        # Always close the pyplot figure: the returned MgFigure displays the saved
+        # PNG via its rich repr, so leaving the figure open would cause the inline
+        # backend to render a second (duplicate) copy in notebooks.
+        plt.close(fig)
 
         # create MgFigure
         data = {
@@ -393,8 +399,10 @@ class MgAudio:
         plt.tight_layout()
         plt.savefig(target_name, format='png', transparent=False)
 
-        if not autoshow:
-            plt.close()
+        # Always close the pyplot figure: the returned MgFigure displays the saved
+        # PNG via its rich repr, so leaving the figure open would cause the inline
+        # backend to render a second (duplicate) copy in notebooks.
+        plt.close(fig)
 
         # create MgFigure
         data = {
@@ -533,8 +541,10 @@ class MgAudio:
             # Add labels to plot
             plt.legend()
 
-        if not autoshow:
-            plt.close()
+        # Always close the pyplot figure: the returned MgFigure displays the saved
+        # PNG via its rich repr, so leaving the figure open would cause the inline
+        # backend to render a second (duplicate) copy in notebooks.
+        plt.close(fig)
 
         # create MgFigure
         if dim == 2:
@@ -633,9 +643,9 @@ class MgAudio:
         # get rid of "default" ticks
         ax[2].yaxis.set_minor_locator(matplotlib.ticker.NullLocator())
 
-        # ax[0].set(title=os.path.basename(self.filename))
-        plot_xticks = np.arange(0, self.length+0.1, self.length/20)
-        ax[2].set(xticks=plot_xticks)
+        # Pin the time axis to the actual spectrogram extent (see spectrogram()).
+        xmax = S.shape[1] * self.hop_length / sr
+        ax[2].set_xlim(0, xmax)
 
         freq_ticks = [elem*100 for elem in range(10)]
         freq_ticks = [250]
@@ -673,13 +683,15 @@ class MgAudio:
         ax[0].legend(loc='upper right')
 
         # Adapt the plotting of the audio file's time when skipping frames of a video file
-        self.format_time(ax[2], original_time)
-        
+        self.format_time(ax[2], original_time, original_duration=None if original_time else xmax)
+
         plt.tight_layout()
         plt.savefig(target_name, format='png', transparent=False)
 
-        if not autoshow:
-            plt.close()
+        # Always close the pyplot figure: the returned MgFigure displays the saved
+        # PNG via its rich repr, so leaving the figure open would cause the inline
+        # backend to render a second (duplicate) copy in notebooks.
+        plt.close(fig)
 
         # create MgFigure
         data = {
@@ -788,8 +800,10 @@ class MgAudio:
         plt.tight_layout()
         plt.savefig(target_name, format='png', transparent=False)
 
-        if not autoshow:
-            plt.close()
+        # Always close the pyplot figure: the returned MgFigure displays the saved
+        # PNG via its rich repr, so leaving the figure open would cause the inline
+        # backend to render a second (duplicate) copy in notebooks.
+        plt.close(fig)
 
         data = {
             "hop_size": self.hop_length,
@@ -872,8 +886,10 @@ class MgAudio:
         plt.tight_layout()
         plt.savefig(target_name, format='png', transparent=False)
 
-        if not autoshow:
-            plt.close()
+        # Always close the pyplot figure: the returned MgFigure displays the saved
+        # PNG via its rich repr, so leaving the figure open would cause the inline
+        # backend to render a second (duplicate) copy in notebooks.
+        plt.close(fig)
 
         data = {
             "hop_size": self.hop_length,
@@ -983,8 +999,10 @@ class MgAudio:
         plt.tight_layout()
         plt.savefig(target_name, format='png', transparent=False)
 
-        if not autoshow:
-            plt.close()
+        # Always close the pyplot figure: the returned MgFigure displays the saved
+        # PNG via its rich repr, so leaving the figure open would cause the inline
+        # backend to render a second (duplicate) copy in notebooks.
+        plt.close(fig)
 
         data = {
             "sr": sr,
@@ -1101,8 +1119,10 @@ class MgAudio:
         plt.tight_layout(rect=[0, 0, 1, 0.93])
         plt.savefig(target_name, format='png', transparent=False)
 
-        if not autoshow:
-            plt.close()
+        # Always close the pyplot figure: the returned MgFigure displays the saved
+        # PNG via its rich repr, so leaving the figure open would cause the inline
+        # backend to render a second (duplicate) copy in notebooks.
+        plt.close(fig)
 
         mgf = MgFigure(
             figure=fig,

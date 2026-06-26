@@ -734,20 +734,25 @@ class TestMgCorpus:
 # ---------------------------------------------------------------------------
 
 class TestJupyterRepr:
-    """Tests that _repr_html_ was added to MgImage and MgFigure."""
+    """MgImage/MgFigure display only via show(); HTML is available via to_html().
 
-    def test_mgimage_has_repr_html(self):
+    They must NOT define _repr_html_/_repr_mimebundle_, so they are not auto-rendered
+    as the last expression of a Jupyter cell (display happens only through show()).
+    """
+
+    def test_mgimage_no_autodisplay_hooks(self):
         from musicalgestures._utils import MgImage
-        assert hasattr(MgImage, "_repr_html_")
-        assert callable(MgImage._repr_html_)
+        assert not hasattr(MgImage, "_repr_html_")
+        assert not hasattr(MgImage, "_repr_mimebundle_")
+        assert hasattr(MgImage, "show")
 
-    def test_mgimage_repr_html_missing_file(self):
+    def test_mgimage_to_html_missing_file(self):
         from musicalgestures._utils import MgImage
         img = MgImage("/nonexistent/file.png")
-        html = img._repr_html_()
+        html = img.to_html()
         assert "not found" in html
 
-    def test_mgimage_repr_html_existing_file(self, tmp_path):
+    def test_mgimage_to_html_existing_file(self, tmp_path):
         from musicalgestures._utils import MgImage
         f = tmp_path / "test.png"
         # Write a minimal 1x1 white PNG (89 bytes)
@@ -758,18 +763,19 @@ class TestJupyterRepr:
         )
         f.write_bytes(base64.b64decode(png_b64))
         img = MgImage(str(f))
-        html = img._repr_html_()
+        html = img.to_html()
         assert "data:image/png;base64," in html
 
-    def test_mgfigure_has_repr_html(self):
+    def test_mgfigure_no_autodisplay_hooks(self):
         from musicalgestures._utils import MgFigure
-        assert hasattr(MgFigure, "_repr_html_")
-        assert callable(MgFigure._repr_html_)
+        assert not hasattr(MgFigure, "_repr_html_")
+        assert not hasattr(MgFigure, "_repr_mimebundle_")
+        assert hasattr(MgFigure, "show")
 
-    def test_mgfigure_repr_html_no_image(self):
+    def test_mgfigure_to_html_no_image(self):
         from musicalgestures._utils import MgFigure
         fig = MgFigure(figure_type="test")
-        html = fig._repr_html_()
+        html = fig.to_html()
         assert "MgFigure" in html
 
 
