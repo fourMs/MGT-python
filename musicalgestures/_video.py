@@ -159,6 +159,7 @@ class MgVideo(MgAudio):
     )
     from musicalgestures._heatmap import mg_heatmap as heatmap
     from musicalgestures._motiontempo import mg_motiontempo as motiontempo
+    from musicalgestures._motionvectors import mg_motionvectors as motionvectors
     from musicalgestures._pose import pose
 
     def average(self, **kwargs):
