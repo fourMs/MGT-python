@@ -42,6 +42,35 @@ OPENPOSE_NAMES = {
 }
 
 
+import contextlib
+
+
+@contextlib.contextmanager
+def _suppress_native_stderr(active=True):
+    """
+    Temporarily redirect the process's stderr (fd 2) to /dev/null.
+
+    MediaPipe logs from its C++/GL layer (EGL init, absl INFO/WARNING) go straight to
+    the stderr file descriptor and can't be silenced from Python logging. This redirects
+    fd 2 around the MediaPipe run so those messages don't clutter notebooks. No-op when
+    ``active`` is False (use ``quiet=False`` to see the native logs for debugging).
+    """
+    if not active:
+        yield
+        return
+    import sys
+    sys.stderr.flush()
+    devnull = os.open(os.devnull, os.O_WRONLY)
+    saved = os.dup(2)
+    try:
+        os.dup2(devnull, 2)
+        yield
+    finally:
+        os.dup2(saved, 2)
+        os.close(devnull)
+        os.close(saved)
+
+
 def _pose_canvas_and_colors(frame, overlay, background):
     """Return (canvas, line_color, marker_color) in BGR for drawing the pose."""
     if overlay:
@@ -64,6 +93,7 @@ def pose(
         overlay=True,
         background='black',
         convert=True,
+        quiet=True,
         save_average_pose=True,
         save_trajectories=True,
         transparent_trajectories=None,
@@ -119,6 +149,9 @@ def pose(
         convert (bool, optional): If True (default), non-AVI input is first converted to an all-intra
             MJPEG `.avi` (cached as ``self.as_avi``) for frame-accurate decoding. Set to False to read the
             source file directly — faster and no extra file, suitable when your mp4 decodes reliably.
+        quiet (bool, optional): MediaPipe only. If True (default), suppress MediaPipe's native C++/GL
+            console logs (EGL init, absl INFO/WARNING, GPU-delegate messages) during inference. Set to
+            False to see them for debugging.
         target_name_video (str, optional): Target output name for the video. Defaults to None (which
             assumes that the input filename with the suffix "_pose" should be used).
         save_average_pose (bool, optional): Whether to also render an image of the average pose over
@@ -155,23 +188,28 @@ def pose(
 
     # --- MediaPipe backend ---------------------------------------------------
     # Explicit MediaPipe request, or auto-preference: when GPU is requested for an
-    # OpenPose model but OpenCV has no CUDA backend, prefer MediaPipe (which can use
-    # its own GPU delegate) instead of silently dropping to CPU OpenPose.
+    # OpenPose model but OpenCV has no CUDA backend, fall back to the (fast, reliable)
+    # MediaPipe pose backend instead of CPU OpenPose. We use the CPU delegate here:
+    # MediaPipe's GPU delegate is the OpenGL-ES path (the integrated GPU on Linux, not
+    # an NVIDIA card) and is fragile, so it is reserved for explicit model='mediapipe',
+    # device='gpu' requests.
     use_mediapipe = model.lower() == 'mediapipe'
+    mediapipe_device = device
     if not use_mediapipe and device.lower() == 'gpu' and not in_colab() and get_cuda_device_count() <= 0:
         if _mediapipe_available():
             print(
                 f"GPU requested but OpenCV has no CUDA backend; switching from '{model}' to the "
-                "MediaPipe pose backend for GPU acceleration (33 landmarks).\n  "
+                "MediaPipe pose backend (CPU/XNNPACK — fast and reliable).\n  "
                 + cuda_unavailable_reason()
             )
             use_mediapipe = True
+            mediapipe_device = 'cpu'
         # else: fall through to the OpenPose path, which will warn and use CPU.
 
     if use_mediapipe:
         return _pose_mediapipe(
             self,
-            device=device,
+            device=mediapipe_device,
             threshold=threshold,
             save_data=save_data,
             data_format=data_format,
@@ -180,6 +218,7 @@ def pose(
             overlay=overlay,
             background=background,
             convert=convert,
+            quiet=quiet,
             save_average_pose=save_average_pose,
             save_trajectories=save_trajectories,
             transparent_trajectories=transparent_trajectories,
@@ -581,6 +620,7 @@ def _pose_mediapipe(
         overlay=True,
         background='black',
         convert=True,
+        quiet=True,
         save_average_pose=True,
         save_trajectories=True,
         transparent_trajectories=None,
@@ -651,7 +691,8 @@ def _pose_mediapipe(
             avg_acc += frame
             avg_n += 1
 
-        result = estimator.predict_frame(frame)
+        with _suppress_native_stderr(quiet):
+            result = estimator.predict_frame(frame)
         keypoints = result.keypoints  # shape (33, 3): x, y, visibility
 
         # Collect data row: time + normalised (x, y) for every landmark.
@@ -703,7 +744,8 @@ def _pose_mediapipe(
         pb.progress(ii)
         ii += 1
 
-    estimator.close()
+    with _suppress_native_stderr(quiet):
+        estimator.close()
 
     if save_video:
         video_out.stdin.close()

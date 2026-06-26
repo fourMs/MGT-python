@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import abc
 import logging
+import os
 from pathlib import Path
 from typing import Any
 
@@ -294,6 +295,8 @@ class MediaPipePoseEstimator(PoseEstimator):
     def _ensure_initialized(self) -> None:
         if self._landmarker is not None:
             return
+        # Quieten MediaPipe/absl/glog INFO+WARNING spam (must be set before import).
+        os.environ.setdefault("GLOG_minloglevel", "2")
         try:
             import mediapipe as mp
         except ImportError as exc:
@@ -322,6 +325,12 @@ class MediaPipePoseEstimator(PoseEstimator):
         if want_gpu:
             try:
                 self._landmarker = _make_landmarker(BaseOptions.Delegate.GPU)
+                print(
+                    "Note: MediaPipe's GPU delegate uses OpenGL-ES (the integrated GPU on Linux, "
+                    "not a CUDA/NVIDIA card) and can emit synchronization warnings or glitch on some "
+                    "drivers. If you see 'Tensors are designed for single writes' errors or odd output, "
+                    "use device='cpu' (fast and reliable)."
+                )
                 logger.debug("MediaPipe PoseLandmarker initialised on GPU (complexity=%d)", self.model_complexity)
                 return
             except Exception as exc:
