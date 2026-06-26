@@ -2,7 +2,7 @@ import os, subprocess
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from musicalgestures._utils import convert_to_mp4
+from musicalgestures._utils import convert_to_mp4, get_framecount
 
 
 def mg_info(self, type=None, autoshow=True, overwrite=False):
@@ -10,13 +10,56 @@ def mg_info(self, type=None, autoshow=True, overwrite=False):
     Returns info about video/audio/format file using ffprobe.
 
     Args:
-        type (str, optional): Type of information to retrieve. Possible choice are 'audio', 'video', 'format' or 'frame'. Defaults to None (which gives info about video, audio and format).
+        type (str, optional): Type of information to retrieve. Possible choices are 'summary', 'audio', 'video', 'format' or 'frame'. Defaults to None (which gives info about video, audio and format).
+            - 'summary': prints a human-readable table of key video properties (resolution, fps, frame count, duration, color mode, audio) and returns a dict.
+            - 'audio' / 'video' / 'format': returns the matching ffprobe stream as a pandas DataFrame row.
+            - 'frame': renders a bar chart of I/P/B frame sizes and returns a DataFrame.
+            - None: returns a DataFrame with all ffprobe stream and format metadata.
         autoshow (bool, optional): Whether to show the I/P/B frames figure automatically. Defaults to True. NB: The type argument needs to be set to 'frame'.
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
 
     Returns:
-        str: decoded ffprobe output (stdout) as a list containing three dictionaries for video, audio and format metadata.
+        dict or pandas.DataFrame: dict when type='summary', DataFrame otherwise.
     """
+
+    if type == 'summary':
+        framecount = get_framecount(self.filename)
+
+        h = int(self.length // 3600)
+        m = int((self.length % 3600) // 60)
+        s = self.length % 60
+        duration_str = f"{h}:{m:02d}:{s:05.2f}" if h else f"{m}:{s:05.2f}"
+
+        filesize = os.path.getsize(self.filename)
+        if filesize >= 1_000_000:
+            size_str = f"{filesize / 1_000_000:.1f} MB"
+        elif filesize >= 1_000:
+            size_str = f"{filesize / 1_000:.1f} KB"
+        else:
+            size_str = f"{filesize} B"
+
+        info_dict = {
+            'filename':  os.path.basename(self.filename),
+            'width':     self.width,
+            'height':    self.height,
+            'fps':       self.fps,
+            'frames':    framecount,
+            'duration':  round(self.length, 3),
+            'color':     self.color,
+            'has_audio': bool(self.has_audio),
+            'filesize':  filesize,
+        }
+
+        col = 12
+        print(f"{'File:':<{col}} {os.path.basename(self.filename)}")
+        print(f"{'Resolution:':<{col}} {self.width} × {self.height} px")
+        print(f"{'Frames:':<{col}} {framecount}  @  {self.fps:g} fps")
+        print(f"{'Duration:':<{col}} {duration_str}  ({self.length:.3f} s)")
+        print(f"{'Color:':<{col}} {'color' if self.color else 'grayscale'}")
+        print(f"{'Audio:':<{col}} {'yes' if self.has_audio else 'no'}")
+        print(f"{'File size:':<{col}} {size_str}")
+
+        return info_dict
 
     # Get streams and format information (https://ffmpeg.org/ffprobe.html)
     cmd = ["ffprobe", "-hide_banner", "-loglevel", "quiet", "-show_streams", "-show_format", self.filename]
