@@ -3,14 +3,14 @@ import cv2
 import numpy as np
 from musicalgestures._utils import MgImage, generate_outfilename, ffmpeg_cmd, get_length
 
-def mg_grid(self, height=300, rows=3, cols=3, padding=0, margin=0, target_name=None, overwrite=False, return_array=False):
+def mg_grid(self, height=300, rows=3, columns=3, padding=0, margin=0, target_name=None, overwrite=False, return_array=False):
     """
     Generates frame strip video preview using ffmpeg.
 
     Args:
         height (int, optional): Frame height, width is adjusted automatically to keep the correct aspect ratio. Defaults to 300.
         rows (int, optional): Number of rows of the grid. Defaults to 3.
-        cols (int, optional): Number of columns of the grid. Defaults to 3.
+        columns (int, optional): Number of columns of the grid. Defaults to 3.
         padding (int, optional): Padding size between the frames. Defaults to 0.
         margin (int, optional): Margin size for the grid. Defaults to 0.
         target_name ([type], optional): Target output name for the grid image. Defaults to None.
@@ -33,11 +33,11 @@ def mg_grid(self, height=300, rows=3, cols=3, padding=0, margin=0, target_name=N
     # Get the number of frames
     cap = cv2.VideoCapture(self.filename)
     nb_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    nth_frame = int(nb_frames / (rows*cols))
+    nth_frame = int(nb_frames / (rows*columns))
 
     # Define the grid specifications
     width = int((float(self.width) / self.height) * height)
-    grid = f"select=not(mod(n\,{nth_frame})),scale={width}:{height},tile={cols}x{rows}:padding={padding}:margin={margin}"
+    grid = f"select=not(mod(n\,{nth_frame})),scale={width}:{height},tile={columns}x{rows}:padding={padding}:margin={margin}"
 
     # Declare the ffmpeg commands
     if return_array:
@@ -45,7 +45,7 @@ def mg_grid(self, height=300, rows=3, cols=3, padding=0, margin=0, target_name=N
         process = ffmpeg_cmd(cmd, get_length(self.filename), pb_prefix='Rendering video frame grid:', pipe='load')
 
         # Convert bytes to array and convert from BGR to RGB
-        array = np.frombuffer(process.stdout, dtype=np.uint8).reshape([height*rows, int(width*cols), 3])[...,::-1] 
+        array = np.frombuffer(process.stdout, dtype=np.uint8).reshape([height*rows, int(width*columns), 3])[...,::-1] 
 
         return array
     else:
