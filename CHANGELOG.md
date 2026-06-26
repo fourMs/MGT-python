@@ -9,6 +9,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.4] – 2026-06-26
+
+### Added
+- `MgVideo.eulerian()` — Eulerian Video Magnification (Wu et al., SIGGRAPH 2012)
+  to reveal subtle changes. `mode='color'` amplifies subtle colour changes
+  (pulse/breathing) via a Gaussian pyramid + ideal FFT band-pass (two-pass, low
+  memory); `mode='motion'` amplifies subtle motion via a Laplacian pyramid +
+  streaming IIR band-pass with spatial-wavelength attenuation. Reads/writes through
+  the FFmpeg pipe so any format works, addressing the format/memory limitations
+  of existing PyEVM ports (closes #212).
+- `MgVideo.sonomotiongram()` — sonifies the motiongram by treating it as a
+  magnitude spectrogram (spatial position → frequency, motion intensity →
+  amplitude) and resynthesising audio via inverse STFT (Griffin–Lim). Returns an
+  MgAudio (closes #171).
+- `MgVideo.motionvectors()` — visualises the motion vectors carried by inter-frame
+  codecs (MPEG/H.264/H.265) using FFmpeg's codecview filter (closes #254).
+
+### Fixed
+- EVM/sonomotiongram timing: `MgVideo.length` is a frame count (not seconds), so
+  audio duration is computed as `length/fps` and progress is tracked in frames.
+
+---
+
 ## [1.4.3] – 2026-06-26
 
 ### Added
@@ -139,7 +162,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.4.3...HEAD
+[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.4.4...HEAD
+[1.4.4]: https://github.com/fourMs/MGT-python/compare/v1.4.3...v1.4.4
 [1.4.3]: https://github.com/fourMs/MGT-python/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/fourMs/MGT-python/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/fourMs/MGT-python/compare/v1.4.0...v1.4.1
