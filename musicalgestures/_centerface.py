@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 
 import musicalgestures
-from musicalgestures._utils import get_cuda_device_count
+from musicalgestures._utils import get_cuda_device_count, cuda_unavailable_reason
 
 class CenterFace(object):
     
@@ -19,7 +19,7 @@ class CenterFace(object):
                 self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
                 self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
             else:
-                print('OpenCV CUDA backend is unavailable. CenterFace will use CPU.')
+                print('OpenCV CUDA backend is unavailable. CenterFace will use CPU.\n  ' + cuda_unavailable_reason())
 
         self.img_h_new, self.img_w_new, self.scale_h, self.scale_w = 0, 0, 0, 0
 

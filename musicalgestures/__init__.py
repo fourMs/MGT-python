@@ -15,6 +15,8 @@ from musicalgestures._utils import (
     get_length,
     generate_outfilename,
     get_cuda_device_count,
+    cuda_build_available,
+    cuda_unavailable_reason,
     show_progress,
 )
 from musicalgestures._mglist import MgList

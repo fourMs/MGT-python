@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import entropy
 
 import musicalgestures
-from musicalgestures._utils import MgFigure, extract_wav, embed_audio_in_video, MgProgressbar, convert_to_avi, generate_outfilename, ffmpeg_cmd, get_cuda_device_count
+from musicalgestures._utils import MgFigure, extract_wav, embed_audio_in_video, MgProgressbar, convert_to_avi, generate_outfilename, ffmpeg_cmd, get_cuda_device_count, cuda_unavailable_reason
 
 
 class Flow:
@@ -109,7 +109,7 @@ class Flow:
             if not hasattr(cv2, 'cuda') or not hasattr(cv2.cuda, 'FarnebackOpticalFlow'):
                 print('cv2.cuda.FarnebackOpticalFlow is unavailable (requires opencv-contrib built with CUDA). Switching to CPU for dense optical flow.')
             elif get_cuda_device_count() <= 0:
-                print('OpenCV CUDA backend is unavailable. Switching to CPU for dense optical flow.')
+                print('OpenCV CUDA backend is unavailable. Switching to CPU for dense optical flow.\n  ' + cuda_unavailable_reason())
             else:
                 _use_gpu = True
                 farneback_gpu = cv2.cuda.FarnebackOpticalFlow.create(
@@ -375,7 +375,7 @@ class Flow:
             if not hasattr(cv2, 'cuda') or not hasattr(cv2.cuda, 'SparsePyrLKOpticalFlow'):
                 print('cv2.cuda.SparsePyrLKOpticalFlow is unavailable (requires opencv-contrib built with CUDA). Switching to CPU for sparse optical flow.')
             elif get_cuda_device_count() <= 0:
-                print('OpenCV CUDA backend is unavailable. Switching to CPU for sparse optical flow.')
+                print('OpenCV CUDA backend is unavailable. Switching to CPU for sparse optical flow.\n  ' + cuda_unavailable_reason())
             else:
                 _use_gpu = True
                 iters = of_criteria[1] if len(of_criteria) > 1 else 10

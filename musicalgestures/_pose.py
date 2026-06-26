@@ -4,7 +4,7 @@ import os
 import sys
 import numpy as np
 import pandas as pd
-from musicalgestures._utils import MgProgressbar, convert_to_avi, extract_wav, embed_audio_in_video, roundup, frame2ms, generate_outfilename, in_colab, get_cuda_device_count, ffmpeg_cmd
+from musicalgestures._utils import MgProgressbar, convert_to_avi, extract_wav, embed_audio_in_video, roundup, frame2ms, generate_outfilename, in_colab, get_cuda_device_count, cuda_unavailable_reason, ffmpeg_cmd
 import musicalgestures
 import itertools
 
@@ -156,7 +156,7 @@ def pose(
         device = 'cpu'
     elif device == 'gpu':
         if get_cuda_device_count() <= 0:
-            print('OpenCV CUDA backend is unavailable. Switching to CPU.')
+            print('OpenCV CUDA backend is unavailable. Switching to CPU.\n  ' + cuda_unavailable_reason())
             device = 'cpu'
 
     if device == "cpu":

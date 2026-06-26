@@ -1681,6 +1681,47 @@ def get_cuda_device_count():
         return 0
 
 
+def cuda_build_available():
+    """
+    Returns whether the installed OpenCV was compiled with CUDA support.
+
+    Returns:
+        bool: True if OpenCV's build information reports CUDA support, else False.
+    """
+    try:
+        info = cv2.getBuildInformation()
+    except Exception:
+        return False
+    for line in info.splitlines():
+        stripped = line.strip()
+        if stripped.startswith('NVIDIA CUDA') or stripped.startswith('CUDA:'):
+            return 'YES' in stripped.upper()
+    return False
+
+
+def cuda_unavailable_reason():
+    """
+    Returns a short, actionable explanation of why the OpenCV CUDA backend is unavailable.
+
+    Distinguishes the common case (the pip OpenCV wheels are built without CUDA) from the
+    case where OpenCV has CUDA but no GPU/driver is detected.
+
+    Returns:
+        str: A human-readable explanation.
+    """
+    if not cuda_build_available():
+        return (
+            'The installed OpenCV (pip "opencv-python"/"opencv-contrib-python") is built '
+            'WITHOUT CUDA, so the GPU cannot be used even if your machine has one. GPU '
+            'acceleration requires an OpenCV compiled with CUDA + cuDNN — build it from '
+            'source with -D WITH_CUDA=ON, or install a CUDA-enabled OpenCV build.'
+        )
+    return (
+        'OpenCV was built with CUDA but no CUDA-capable GPU was detected. Check your '
+        'NVIDIA driver and CUDA runtime installation.'
+    )
+
+
 def in_colab():
     """
     Check's if the environment is a Google Colab document.
