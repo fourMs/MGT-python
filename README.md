@@ -26,26 +26,33 @@ pip install musicalgestures
 ```python
 import musicalgestures as mg
 
-# Load a video
-v = mg.MgVideo('dance.avi')
+# Load a video (mp4, avi, mov, … all supported)
+v = mg.MgVideo('dance.mp4')
 
-# Create visualizations
-v.grid()
-v.videograms()
-v.average()
-v.history()
+# Create visualizations — call .show() to display the result
+v.grid().show()
+v.videograms().show()
+v.average().show()
+v.history().show()
+v.heatmap().show()              # where the video changes most
 
-# Perform motion analysis
-v.motion()
+# Motion analysis
+v.motion().show()
+v.motiontempo().show()          # dominant movement tempo (Hz/BPM)
+v.eulerian(mode='motion').show()  # amplify subtle motion (EVM)
 
 # Audio analysis
-v.audio.waveform()
-v.audio.spectrogram()
-v.audio.tempogram()
+v.audio.waveform().show()
+v.audio.spectrogram().show()
+v.audio.mfcc().show()
+v.audio.tempo().show()          # tempo + beat tracking
+v.sonomotiongram().show()       # sonify the motiongram
 
-# Pose estimation
-v.pose(model='body_25', device='cpu')
+# Pose estimation (MediaPipe is GPU-capable on the standard pip OpenCV)
+v.pose(model='mediapipe').show()
 ```
+
+> Display happens via `.show()` — analysis methods return result objects (`MgVideo`/`MgImage`/`MgFigure`) and do not auto-render.
 
 ### Runtime Notes
 
@@ -71,10 +78,11 @@ v.pose(model='body_25', device='cpu')
 
 ## Features
 
-- **Video Analysis**: Motion detection, optical flow, pose estimation
-- **Audio Processing**: Spectrograms, audio descriptors, tempo analysis
-- **Visualizations**: Motiongrams, videograms, motion history
-- **Integration**: Works with NumPy, SciPy, and Matplotlib ecosystems
+- **Video Analysis**: Motion detection, optical flow, motion vectors, movement tempo, Eulerian Video Magnification
+- **Pose Estimation**: MediaPipe (GPU-capable) and OpenPose backends, with average-pose and trajectory summaries (per-marker quantity of motion + dominant frequency)
+- **Audio Processing**: Waveforms, spectrograms, MFCC, chromagrams, tempo/beat tracking, spectral descriptors
+- **Visualizations**: Motiongrams, videograms, motion history, heatmaps, sonomotiongrams (motion → sound)
+- **Integration**: Works with NumPy, SciPy, librosa, and Matplotlib ecosystems
 - **Cross-platform**: Linux, macOS, Windows support
 
 ## Presentation

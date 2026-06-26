@@ -9,6 +9,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.5] – 2026-06-26
+
+### Added
+- `pose()` now also exports an **average-pose image** (each marker coloured/labelled
+  by its average quantity of motion in px/frame and dominant movement frequency in Hz,
+  with a per-marker stats CSV) and an **all-trajectories image**. Marker labels are laid
+  out to avoid overlapping (with leader lines). Options: `save_average_pose`,
+  `save_trajectories`, `transparent_trajectories` (transparent background, auto-enabled
+  when trajectories are the only export, for overlaying on video).
+- `pose()` rendering controls: `style` (`'both'`/`'markers'`/`'skeleton'`), `overlay`
+  (draw on the video or a plain background), and `background` (`'black'`/`'white'`, with
+  contrast-adapted colours).
+- `convert=False` flag on `pose()`, `flow.dense()`/`flow.sparse()`, `directograms()`,
+  `impacts()`, `motion_mp()`, and `history_cv2()` to skip the AVI conversion and read the
+  source (e.g. mp4) directly.
+
+### Changed
+- **Display model**: analysis results (`MgImage`/`MgFigure`) no longer auto-render as a
+  notebook cell's last expression — display happens only via `show()`. HTML is available
+  via `to_html()`. `MgList.as_figure()` and `info('frame')` updated accordingly
+  (`info('frame')` returns an `MgImage`).
+- `blur_faces()` writes **MP4/libx264** (via the FFmpeg pipe) instead of MJPEG-AVI,
+  keeping the source container by default.
+
+### Performance
+- `MgAudio` caches the decoded audio, so multiple audio analyses decode the file once.
+- `ffprobe()` results are cached per file (path+mtime+size), so the metadata helpers share
+  a single subprocess call.
+
+### Fixed
+- Fixed all "invalid escape sequence" `SyntaxWarning`s on import.
+- Documented that `MgVideo.length` is a frame count (`MgAudio.length` is seconds).
+- Removed 30 unused imports.
+
+---
+
 ## [1.4.4] – 2026-06-26
 
 ### Added
@@ -162,7 +198,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.4.4...HEAD
+[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.4.5...HEAD
+[1.4.5]: https://github.com/fourMs/MGT-python/compare/v1.4.4...v1.4.5
 [1.4.4]: https://github.com/fourMs/MGT-python/compare/v1.4.3...v1.4.4
 [1.4.3]: https://github.com/fourMs/MGT-python/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/fourMs/MGT-python/compare/v1.4.1...v1.4.2
