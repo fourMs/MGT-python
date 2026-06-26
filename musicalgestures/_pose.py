@@ -66,6 +66,7 @@ def pose(
         convert=True,
         save_average_pose=True,
         save_trajectories=True,
+        transparent_trajectories=None,
         target_name_video=None,
         target_name_data=None,
         target_name_average=None,
@@ -181,6 +182,7 @@ def pose(
             convert=convert,
             save_average_pose=save_average_pose,
             save_trajectories=save_trajectories,
+            transparent_trajectories=transparent_trajectories,
             target_name_video=target_name_video,
             target_name_data=target_name_data,
             target_name_average=target_name_average,
@@ -522,7 +524,8 @@ def pose(
     average_image, trajectories_image = _render_pose_extras(
         data, names, POSE_PAIRS, self.width, self.height, self.fps,
         avg_frame, of, save_average_pose, save_trajectories,
-        target_name_average, target_name_trajectories, overwrite)
+        target_name_average, target_name_trajectories, overwrite,
+        transparent_trajectories=transparent_trajectories)
     self.pose_average = average_image
     self.pose_trajectories = trajectories_image
 
@@ -539,7 +542,8 @@ def pose(
 
 def _render_pose_extras(data, names, connections, width, height, fps, avg_frame, of,
                         save_average_pose, save_trajectories,
-                        target_name_average, target_name_trajectories, overwrite):
+                        target_name_average, target_name_trajectories, overwrite,
+                        transparent_trajectories=None):
     """Render the average-pose and trajectories images from collected keypoints."""
     from musicalgestures._pose_visualize import render_average_pose, render_trajectories
     average_image = None
@@ -552,7 +556,11 @@ def _render_pose_extras(data, names, connections, width, height, fps, avg_frame,
                                             avg_frame, tn, overwrite)
     if save_trajectories:
         tn = target_name_trajectories if target_name_trajectories else of + '_pose_trajectories.png'
-        trajectories_image = render_trajectories(data, names, width, height, fps, tn, overwrite)
+        # Default: use a transparent background when trajectories are the only image exported,
+        # so they can be overlaid on the video later. Explicit override via transparent_trajectories.
+        transparent = transparent_trajectories if transparent_trajectories is not None else (not save_average_pose)
+        trajectories_image = render_trajectories(data, names, width, height, fps, tn, overwrite,
+                                                 transparent=transparent)
     return average_image, trajectories_image
 
 
@@ -575,6 +583,7 @@ def _pose_mediapipe(
         convert=True,
         save_average_pose=True,
         save_trajectories=True,
+        transparent_trajectories=None,
         target_name_video=None,
         target_name_data=None,
         target_name_average=None,
@@ -720,7 +729,8 @@ def _pose_mediapipe(
     average_image, trajectories_image = _render_pose_extras(
         data, names, MEDIAPIPE_POSE_CONNECTIONS, self.width, self.height, self.fps,
         avg_frame, of, save_average_pose, save_trajectories,
-        target_name_average, target_name_trajectories, overwrite)
+        target_name_average, target_name_trajectories, overwrite,
+        transparent_trajectories=transparent_trajectories)
     self.pose_average = average_image
     self.pose_trajectories = trajectories_image
 
