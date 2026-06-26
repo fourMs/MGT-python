@@ -262,6 +262,15 @@ mv.show(key='pose')
 - `downsampling_factor`: reduces input resolution before inference (OpenPose only); higher is faster but less accurate
 - `threshold`: minimum network confidence to accept a keypoint (normalised 0–1)
 
+`pose()` also renders two summary images of the whole video (disable with `save_average_pose=False` / `save_trajectories=False`), attached to the returned video:
+
+```python
+pv = mv.pose(model='mediapipe')
+pv.average_pose.show()     # average pose; markers coloured/labelled by QoM (px/frame) + dominant frequency (Hz)
+pv.trajectories.show()     # every marker's spatial path over the whole video
+# a per-marker stats CSV (<name>_pose_average_stats.csv) with average QoM and frequency is also saved
+```
+
 !!! tip "GPU acceleration"
     `pose(model='mediapipe', device='gpu')` gives GPU acceleration with the standard pip OpenCV. The OpenCV-based methods (`flow.dense(use_gpu=True)`, `blur_faces(use_gpu=True)`, OpenPose `device='gpu'`) need an OpenCV built with CUDA. Use `mg.cuda_build_available()` to check, and `mg.cuda_unavailable_reason()` for an explanation.
 
