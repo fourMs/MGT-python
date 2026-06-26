@@ -47,19 +47,23 @@ def pose(
     Supports two backends:
 
     * **MediaPipe** (``model='mediapipe'``): Uses Google's MediaPipe Pose which detects 33
-      landmarks entirely on CPU.  Requires the optional ``mediapipe`` package
-      (``pip install musicalgestures[pose]``).  On first use, the model file
-      (~8–28 MB) is downloaded automatically and cached in ``musicalgestures/models/``.
+      landmarks. Runs on CPU, or on GPU via MediaPipe's GPU delegate when ``device='gpu'``
+      (with automatic CPU fallback if the delegate is unavailable). Requires the optional
+      ``mediapipe`` package (``pip install musicalgestures[pose]``). On first use, the model
+      file (~8–28 MB) is downloaded automatically and cached in ``musicalgestures/models/``.
     * **OpenPose** (``model='body_25'``, ``'coco'``, or ``'mpi'``): Uses Caffe-based OpenPose
-      models.  Model weights (~200 MB) are downloaded on first use.
+      models.  Model weights (~200 MB) are downloaded on first use. GPU here requires an
+      OpenCV built with CUDA; if unavailable while ``device='gpu'``, ``pose()`` automatically
+      switches to the MediaPipe backend (when installed) for GPU acceleration.
 
     Args:
         model (str, optional): Pose model to use. ``'mediapipe'`` uses MediaPipe Pose (33
             landmarks, model auto-downloaded on first use). ``'body_25'`` loads the OpenPose BODY_25 model
             (25 keypoints), ``'mpi'`` loads the MPII model (15 keypoints), ``'coco'`` loads
             the COCO model (18 keypoints). Defaults to 'body_25'.
-        device (str, optional): Sets the backend to use for the neural network ('cpu' or 'gpu').
-            Ignored when ``model='mediapipe'`` (MediaPipe always runs on CPU). Defaults to 'gpu'.
+        device (str, optional): Compute backend ('cpu' or 'gpu'). For OpenPose models this
+            selects the OpenCV DNN backend (GPU needs a CUDA-enabled OpenCV). For MediaPipe
+            it selects the inference delegate (GPU delegate with CPU fallback). Defaults to 'gpu'.
         threshold (float, optional): The normalized confidence threshold that decides whether we
             keep or discard a predicted point. Discarded points get substituted with (0, 0) in the
             output data. Defaults to 0.1.
@@ -82,9 +86,24 @@ def pose(
     """
 
     # --- MediaPipe backend ---------------------------------------------------
-    if model.lower() == 'mediapipe':
+    # Explicit MediaPipe request, or auto-preference: when GPU is requested for an
+    # OpenPose model but OpenCV has no CUDA backend, prefer MediaPipe (which can use
+    # its own GPU delegate) instead of silently dropping to CPU OpenPose.
+    use_mediapipe = model.lower() == 'mediapipe'
+    if not use_mediapipe and device.lower() == 'gpu' and not in_colab() and get_cuda_device_count() <= 0:
+        if _mediapipe_available():
+            print(
+                f"GPU requested but OpenCV has no CUDA backend; switching from '{model}' to the "
+                "MediaPipe pose backend for GPU acceleration (33 landmarks).\n  "
+                + cuda_unavailable_reason()
+            )
+            use_mediapipe = True
+        # else: fall through to the OpenPose path, which will warn and use CPU.
+
+    if use_mediapipe:
         return _pose_mediapipe(
             self,
+            device=device,
             threshold=threshold,
             save_data=save_data,
             data_format=data_format,
@@ -413,8 +432,15 @@ def pose(
         return self
 
 
+def _mediapipe_available():
+    """Returns True if the optional ``mediapipe`` package can be imported."""
+    import importlib.util
+    return importlib.util.find_spec('mediapipe') is not None
+
+
 def _pose_mediapipe(
         self,
+        device='cpu',
         threshold=0.1,
         save_data=True,
         data_format='csv',
@@ -424,7 +450,9 @@ def _pose_mediapipe(
         overwrite=False):
     """
     Internal helper: run MediaPipe Pose on a video and render/save the output.
-    Called by :func:`pose` when ``model='mediapipe'``.
+    Called by :func:`pose` when ``model='mediapipe'`` (or when GPU is requested and the
+    OpenCV CUDA backend is unavailable). ``device`` selects the MediaPipe delegate
+    ('gpu' uses the GPU delegate with automatic CPU fallback).
     """
     from musicalgestures._pose_estimator import MediaPipePoseEstimator, MEDIAPIPE_LANDMARK_NAMES
 
@@ -457,7 +485,7 @@ def _pose_mediapipe(
     ii = 0
     data = []
 
-    estimator = MediaPipePoseEstimator()
+    estimator = MediaPipePoseEstimator(device=device.lower())
 
     while True:
         out = process.stdout.read(self.width * self.height * 3)

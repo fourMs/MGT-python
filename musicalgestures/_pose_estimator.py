@@ -247,8 +247,9 @@ class MediaPipePoseEstimator(PoseEstimator):
         model_complexity: int = 1,
         min_detection_confidence: float = 0.5,
         min_tracking_confidence: float = 0.5,
+        device: PoseDevice | str = PoseDevice.CPU,
     ) -> None:
-        super().__init__(model=PoseModel.MEDIAPIPE, device=PoseDevice.CPU)
+        super().__init__(model=PoseModel.MEDIAPIPE, device=device)
         self.model_complexity = model_complexity
         self.min_detection_confidence = min_detection_confidence
         self.min_tracking_confidence = min_tracking_confidence
@@ -308,15 +309,33 @@ class MediaPipePoseEstimator(PoseEstimator):
         PoseLandmarkerOptions = mp.tasks.vision.PoseLandmarkerOptions
         VisionRunningMode = mp.tasks.vision.RunningMode
 
-        options = PoseLandmarkerOptions(
-            base_options=BaseOptions(model_asset_path=str(model_path)),
-            running_mode=VisionRunningMode.IMAGE,
-            min_pose_detection_confidence=self.min_detection_confidence,
-            min_tracking_confidence=self.min_tracking_confidence,
-        )
-        self._landmarker = PoseLandmarker.create_from_options(options)
+        def _make_landmarker(delegate):
+            options = PoseLandmarkerOptions(
+                base_options=BaseOptions(model_asset_path=str(model_path), delegate=delegate),
+                running_mode=VisionRunningMode.IMAGE,
+                min_pose_detection_confidence=self.min_detection_confidence,
+                min_tracking_confidence=self.min_tracking_confidence,
+            )
+            return PoseLandmarker.create_from_options(options)
+
+        want_gpu = self.device == PoseDevice.GPU
+        if want_gpu:
+            try:
+                self._landmarker = _make_landmarker(BaseOptions.Delegate.GPU)
+                logger.debug("MediaPipe PoseLandmarker initialised on GPU (complexity=%d)", self.model_complexity)
+                return
+            except Exception as exc:
+                print(
+                    "MediaPipe GPU delegate is unavailable; falling back to CPU.\n  "
+                    f"({type(exc).__name__}: {exc})\n  "
+                    "GPU inference needs MediaPipe's GPU delegate (Linux with working "
+                    "OpenGL/EGL drivers). The model still runs, just on CPU."
+                )
+                self.device = PoseDevice.CPU
+
+        self._landmarker = _make_landmarker(BaseOptions.Delegate.CPU)
         logger.debug(
-            "MediaPipe PoseLandmarker initialised (complexity=%d)",
+            "MediaPipe PoseLandmarker initialised on CPU (complexity=%d)",
             self.model_complexity,
         )
 
