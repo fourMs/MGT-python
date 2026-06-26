@@ -1,9 +1,7 @@
-import cv2
 import os
-import numpy as np
 from musicalgestures._videoadjust import skip_frames_ffmpeg, fixed_frames_ffmpeg, contrast_brightness_ffmpeg
 from musicalgestures._cropvideo import mg_cropvideo_ffmpeg
-from musicalgestures._utils import has_audio, convert_to_avi, rotate_video, convert_to_grayscale, extract_subclip, get_length, get_fps, get_framecount, get_widthheight
+from musicalgestures._utils import has_audio, rotate_video, convert_to_grayscale, extract_subclip, get_fps, get_framecount, get_widthheight
 
 
 class ReadError(Exception):

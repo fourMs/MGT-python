@@ -1,4 +1,3 @@
-import musicalgestures
 from musicalgestures._utils import MgFigure, MgImage
 
 

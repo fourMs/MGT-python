@@ -1,7 +1,5 @@
-import cv2
 import os
-import numpy as np
-from musicalgestures._utils import MgProgressbar, MgImage, get_widthheight, get_framecount, get_length, ffmpeg_cmd, generate_outfilename
+from musicalgestures._utils import MgImage, get_widthheight, get_framecount, get_length, ffmpeg_cmd, generate_outfilename
 from musicalgestures._mglist import MgList
 from musicalgestures._videoadjust import skip_frames_ffmpeg
 import math

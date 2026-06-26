@@ -1,6 +1,5 @@
 import argparse
 import os
-import sys
 from musicalgestures._utils import unwrap_str
 
 if __name__ == '__main__':

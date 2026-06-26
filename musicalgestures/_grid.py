@@ -1,4 +1,4 @@
-import os, subprocess
+import os
 import cv2
 import numpy as np
 from musicalgestures._utils import MgImage, generate_outfilename, ffmpeg_cmd, get_length
@@ -37,7 +37,7 @@ def mg_grid(self, height=300, rows=3, columns=3, padding=0, margin=0, target_nam
 
     # Define the grid specifications
     width = int((float(self.width) / self.height) * height)
-    grid = f"select=not(mod(n\,{nth_frame})),scale={width}:{height},tile={columns}x{rows}:padding={padding}:margin={margin}"
+    grid = rf"select=not(mod(n\,{nth_frame})),scale={width}:{height},tile={columns}x{rows}:padding={padding}:margin={margin}"
 
     # Declare the ffmpeg commands
     if return_array:

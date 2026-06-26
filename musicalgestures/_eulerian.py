@@ -2,7 +2,7 @@ import os
 import numpy as np
 import cv2
 import musicalgestures
-from musicalgestures._utils import MgProgressbar, generate_outfilename, get_length, ffmpeg_cmd
+from musicalgestures._utils import MgProgressbar, generate_outfilename, ffmpeg_cmd
 
 
 # ---------------------------------------------------------------------------

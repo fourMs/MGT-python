@@ -1,5 +1,5 @@
 import numpy as np
-import os, subprocess
+import os
 
 from musicalgestures._utils import MgImage, generate_outfilename, get_framecount, get_length, ffmpeg_cmd
 

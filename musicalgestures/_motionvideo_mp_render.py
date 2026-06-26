@@ -3,7 +3,6 @@ import numpy as np
 import os
 import argparse
 import cv2
-import sys
 # import musicalgestures
 from musicalgestures._utils import frame2ms
 from musicalgestures._motionanalysis import centroid

@@ -1,5 +1,4 @@
 import os
-import glob
 import numpy as np
 from typing import Union, List
 from musicalgestures._input_test import mg_input_test
@@ -197,7 +196,12 @@ class MgVideo(MgAudio):
         )
 
     def get_video(self):
-        """Creates a video attribute to the Musical Gestures object with the given correct settings."""
+        """Creates a video attribute to the Musical Gestures object with the given correct settings.
+
+        NB: For an ``MgVideo``, ``self.length`` is the number of **frames** (from
+        ``get_framecount``), whereas for ``MgAudio`` ``self.length`` is the duration in
+        **seconds**. To get the video duration in seconds use ``self.length / self.fps``.
+        """
         (
             self.length,
             self.width,
@@ -362,7 +366,7 @@ class MgVideo(MgAudio):
         Args:
             frame (int): The frame number to extract.
             time (str): The time in HH:MM:ss.ms where to extract the frame from.
-            target_name (str, optional): The name for the output file. If None, the name will be \<input name\>FRAME\<frame number\>.\<file extension\>. Defaults to None.
+            target_name (str, optional): The name for the output file. If None, the name will be <input name>FRAME<frame number>.<file extension>. Defaults to None.
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
 
         Returns:

@@ -49,12 +49,29 @@ class MgAudio:
         self.n_fft = n_fft
         self.hop_length = hop_length
         self.length = get_length(self.filename)
+        self._y_cache = None  # cached (y, sr) from librosa.load, keyed by sr
 
     from musicalgestures._ssm import mg_ssm as ssm
 
+    def _load(self):
+        """
+        Load (and cache) the audio samples with librosa.
+
+        The decoded array is cached on the object so repeated audio analyses
+        (waveform, spectrogram, descriptors, …) don't re-decode the file each time.
+        The cache is invalidated automatically if ``self.sr`` changes.
+
+        Returns:
+            tuple: (y, sr) — the audio samples and their sample rate.
+        """
+        if self._y_cache is None or self._y_cache[1] != self.sr:
+            y, sr = librosa.load(self.filename, sr=self.sr)
+            self._y_cache = (y, sr)
+        return self._y_cache
+
     def numpy(self):
         "Read the original file of the MgAudio object as a numpy array using librosa."
-        self.y, self.sr = librosa.load(self.filename, sr=self.sr)
+        self.y, self.sr = self._load()
         return self.y
 
 
@@ -146,7 +163,7 @@ class MgAudio:
                 peaks = processor.peaks(seek_point, next_seek_point)        
                 y.draw_peaks(x, peaks, spectral_centroid) 
         else:
-            y, sr = librosa.load(self.filename, sr=self.sr)
+            y, sr = self._load()
 
         fig, ax = plt.subplots(figsize=(12, 4), dpi=dpi)
         fig.patch.set_facecolor('white') # make sure background is white
@@ -243,7 +260,7 @@ class MgAudio:
         if not overwrite:
             target_name = generate_outfilename(target_name)
 
-        y, sr = librosa.load(self.filename, sr=self.sr)
+        y, sr = self._load()
 
         S = librosa.feature.melspectrogram(
             y=y, sr=sr, n_mels=n_mels, n_fft=self.n_fft, hop_length=self.hop_length, power=power, fmin=fmin, fmax=fmax)
@@ -353,7 +370,7 @@ class MgAudio:
         if not overwrite:
             target_name = generate_outfilename(target_name)
 
-        y, sr = librosa.load(self.filename, sr=self.sr)
+        y, sr = self._load()
 
         oenv = librosa.onset.onset_strength(y=y, sr=sr, hop_length=self.hop_length)
 
@@ -462,7 +479,7 @@ class MgAudio:
         if not overwrite:
             target_name = generate_outfilename(target_name)
 
-        y, sr = librosa.load(self.filename, sr=self.sr)
+        y, sr = self._load()
         if dim == 2:
             D = librosa.feature.melspectrogram(y=y, sr=sr, n_fft=self.n_fft, hop_length=self.hop_length, n_mels=n_mels, fmin=fmin, fmax=fmax)
             # Separate into harmonic and percussive components
@@ -610,7 +627,7 @@ class MgAudio:
         if not overwrite:
             target_name = generate_outfilename(target_name)
 
-        y, sr = librosa.load(self.filename, sr=self.sr)
+        y, sr = self._load()
 
         cent = librosa.feature.spectral_centroid(
             y=y, sr=sr, n_fft=self.n_fft, hop_length=self.hop_length)
@@ -773,7 +790,7 @@ class MgAudio:
         if not overwrite:
             target_name = generate_outfilename(target_name)
 
-        y, sr = librosa.load(self.filename, sr=self.sr)
+        y, sr = self._load()
 
         chroma_type = chroma_type.lower()
         if chroma_type == 'cqt':
@@ -872,7 +889,7 @@ class MgAudio:
         if not overwrite:
             target_name = generate_outfilename(target_name)
 
-        y, sr = librosa.load(self.filename, sr=self.sr)
+        y, sr = self._load()
 
         mfccs = librosa.feature.mfcc(
             y=y, sr=sr, n_mfcc=n_mfcc, n_fft=self.n_fft, hop_length=self.hop_length)
@@ -962,7 +979,7 @@ class MgAudio:
         if not overwrite:
             target_name = generate_outfilename(target_name)
 
-        y, sr = librosa.load(self.filename, sr=self.sr)
+        y, sr = self._load()
 
         tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr, hop_length=self.hop_length)
         beat_times = librosa.frames_to_time(beat_frames, sr=sr, hop_length=self.hop_length)

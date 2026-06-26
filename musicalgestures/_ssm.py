@@ -10,7 +10,6 @@ from matplotlib.ticker import FuncFormatter
 import librosa 
 import librosa.display
 
-import musicalgestures
 from musicalgestures._motionvideo import mg_motiongrams
 from musicalgestures._videograms import videograms_ffmpeg
 from musicalgestures._mglist import MgList

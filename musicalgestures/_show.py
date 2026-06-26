@@ -1,7 +1,6 @@
 # import cv2
 # import numpy as np
 import os
-from matplotlib import pyplot as plt
 from IPython.display import Image, display, HTML
 # try:
 from IPython.display import Video

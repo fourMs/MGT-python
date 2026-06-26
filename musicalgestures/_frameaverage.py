@@ -1,7 +1,7 @@
 import numpy as np
 import os
 import cv2
-from musicalgestures._utils import MgImage, MgProgressbar, generate_outfilename, get_framecount, get_length, ffmpeg_cmd, get_widthheight
+from musicalgestures._utils import MgImage, MgProgressbar, generate_outfilename, get_framecount, get_length, ffmpeg_cmd
 
 
 def mg_pixelarray(self, width=640, target_name=None, overwrite=False):

@@ -3,7 +3,6 @@ import cv2
 import numpy as np
 import skimage.draw
 import pandas as pd
-import subprocess
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.pyplot as plt
@@ -12,7 +11,6 @@ import matplotlib as mpl
 
 import musicalgestures
 from musicalgestures._centerface import CenterFace
-from musicalgestures._filter import filter_frame_ffmpeg
 from musicalgestures._utils import MgProgressbar, MgImage, embed_audio_in_video, extract_wav, generate_outfilename, frame2ms, ffmpeg_cmd
 
 def scaling_mask(x1, y1, x2, y2, mask_scale=1.0):

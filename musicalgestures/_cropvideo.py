@@ -1,10 +1,7 @@
 import cv2
 import os
-import numpy as np
-import time
 import asyncio
-from musicalgestures._utils import MgProgressbar, get_length, get_widthheight, get_first_frame_as_image, get_box_video_ratio, roundup, crop_ffmpeg, wrap_str, unwrap_str, in_colab
-from musicalgestures._filter import filter_frame
+from musicalgestures._utils import MgProgressbar, get_length, get_widthheight, get_first_frame_as_image, get_box_video_ratio, roundup, crop_ffmpeg, wrap_str, in_colab
 
 def find_motion_box_ffmpeg(filename, motion_box_thresh=0.1, motion_box_margin=12):
     """
@@ -26,7 +23,6 @@ def find_motion_box_ffmpeg(filename, motion_box_thresh=0.1, motion_box_margin=12
     """
 
     import subprocess
-    import os
     import matplotlib
     import numpy as np
     total_time = get_length(filename)

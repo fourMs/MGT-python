@@ -687,7 +687,7 @@ def extract_frame(
         filename (str): Path to the input video file.
         frame (int): The frame number to extract.
         time (Union[str, float]): The time in HH:MM:ss.ms where to extract the frame from. If float, it is interpreted as seconds from the start of the video.
-        target_name (str, optional): The name for the output file. If None, the name will be \<input name\>FRAME\<frame number\>.\<file extension\>. Defaults to None.
+        target_name (str, optional): The name for the output file. If None, the name will be <input name>FRAME<frame number>.<file extension>. Defaults to None.
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
     """
 
@@ -712,7 +712,7 @@ def extract_frame(
         cmds = ['ffmpeg',
                 '-y' if overwrite else "-n",
                 '-i', filename,
-                "-vf", f"select='eq(n\,{frame})'",
+                "-vf", rf"select='eq(n\,{frame})'",
                 "-vsync", "0",
                 # "-vframes", "1",
                 target_name]
@@ -720,7 +720,7 @@ def extract_frame(
         cmds = ['ffmpeg',
                 '-y' if overwrite else "-n",
                 '-i', filename,
-                "-vf", f"select='eq(t\,{time})'",
+                "-vf", rf"select='eq(t\,{time})'",
                 "-vsync", "0",
                 # "-vframes", "1",
                 target_name]
@@ -737,7 +737,7 @@ def extract_subclip(filename, t1, t2, target_name=None, overwrite=False):
         filename (str): Path to the input video file.
         t1 (float): The start of the section to extract in seconds.
         t2 (float): The end of the section to extract in seconds.
-        target_name (str, optional): The name for the output file. If None, the name will be \<input name\>SUB\<start time in ms\>_\<end time in ms\>.\<file extension\>. Defaults to None.
+        target_name (str, optional): The name for the output file. If None, the name will be <input name>SUB<start time in ms>_<end time in ms>.<file extension>. Defaults to None.
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
 
     Returns:
@@ -1137,9 +1137,18 @@ class NoStreamError(FFprobeError):
 class NoDurationError(FFprobeError):
     pass
 
+# Cache of ffprobe output keyed by (path, mtime, size) so the many helpers that
+# probe the same file (get_length, get_widthheight, has_audio, …) share a single
+# subprocess call. The stat key invalidates the cache when the file changes.
+_FFPROBE_CACHE = {}
+
+
 def ffprobe(filename):
     """
     Returns info about video/audio file using FFprobe.
+
+    The result is cached per file (keyed by path + modification time + size), so
+    repeated probes of an unchanged file don't spawn a new subprocess each time.
 
     Args:
         filename (str): Path to the video file to measure.
@@ -1148,6 +1157,18 @@ def ffprobe(filename):
         str: decoded FFprobe output (stdout) as one string.
     """
     import subprocess
+    import os
+
+    cache_key = None
+    try:
+        st = os.stat(filename)
+        cache_key = (filename, st.st_mtime, st.st_size)
+        cached = _FFPROBE_CACHE.get(cache_key)
+        if cached is not None:
+            return cached
+    except OSError:
+        pass  # file not found yet — fall through to ffprobe, which raises a clear error
+
     command = ['ffprobe', filename]
     process = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
@@ -1162,8 +1183,9 @@ def ffprobe(filename):
     else:
         if out.splitlines()[-1].find("No such file or directory") != -1:
             raise FileNotFoundError(out.splitlines()[-1])
-        else:
-            return out
+        if cache_key is not None:
+            _FFPROBE_CACHE[cache_key] = out
+        return out
 
 def get_widthheight(filename: str) -> Tuple[int, int]:
     """
@@ -1185,7 +1207,7 @@ def get_widthheight(filename: str) -> Tuple[int, int]:
 
         if out_array[at_line].find("displaymatrix:") != -1:
             import re
-            rotation = [d for d in re.findall("\d+\.\d+", out_array[at_line])]
+            rotation = [d for d in re.findall(r"\d+\.\d+", out_array[at_line])]
 
         at_line -= 1
         if at_line < -len(out_array):

@@ -65,7 +65,7 @@ def main() -> None:
     def cmd_info(filename):
         """Print metadata about a video or audio file."""
         try:
-            from musicalgestures._utils import get_length, get_framecount, get_fps, get_widthheight, has_audio
+            from musicalgestures._utils import get_length, get_fps, get_widthheight, has_audio
             length = get_length(filename)
             fps = get_fps(filename)
             width, height = get_widthheight(filename)
