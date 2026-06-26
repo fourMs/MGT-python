@@ -105,23 +105,26 @@ def mg_eulerian(
         target_name = generate_outfilename(target_name)
 
     mode = mode.lower()
-    width, height, fps, length = self.width, self.height, self.fps, self.length
+    width, height, fps = self.width, self.height, self.fps
+    # NB: for MgVideo, self.length is the frame count, not seconds.
+    n_frames = self.length
+    duration_s = self.length / fps if fps else 0
 
     def _open_reader():
         cmd = ['ffmpeg', '-y', '-i', self.filename]
-        return ffmpeg_cmd(cmd, total_time=length, pipe='read')
+        return ffmpeg_cmd(cmd, total_time=duration_s, pipe='read')
 
     def _open_writer():
         cmd = ['ffmpeg', '-y', '-s', f'{width}x{height}', '-r', str(fps), '-f', 'rawvideo',
                '-pix_fmt', 'bgr24', '-vcodec', 'rawvideo', '-i', '-',
                '-vcodec', 'libx264', '-pix_fmt', 'yuv420p', target_name]
-        return ffmpeg_cmd(cmd, total_time=length, pipe='write')
+        return ffmpeg_cmd(cmd, total_time=duration_s, pipe='write')
 
     frame_bytes = width * height * 3
 
     if mode == 'color':
         # ---- Pass 1: collect the small Gaussian level for every frame ----
-        pb = MgProgressbar(total=self.length * 2, prefix='EVM (color) analysing:')
+        pb = MgProgressbar(total=n_frames * 2, prefix='EVM (color):')
         process = _open_reader()
         small_stack = []
         i = 0
@@ -132,7 +135,7 @@ def mg_eulerian(
             frame = np.frombuffer(buf, dtype=np.uint8).reshape(height, width, 3).astype(np.float32)
             small_stack.append(_gaussian_top(frame, levels))
             i += 1
-            pb.progress(i / max(fps, 1))
+            pb.progress(i)
 
         if len(small_stack) < 2:
             raise RuntimeError(f"Not enough frames in {self.filename} for EVM.")
@@ -160,14 +163,14 @@ def mg_eulerian(
             out = np.clip(frame + mag, 0, 255).astype(np.uint8)
             writer.stdin.write(out.tobytes())
             i += 1
-            pb.progress(self.length + i / max(fps, 1))
+            pb.progress(n_frames + i)
         writer.stdin.close()
         writer.wait()
-        pb.progress(self.length * 2)
+        pb.progress(n_frames * 2)
 
     elif mode == 'motion':
         # ---- Streaming Laplacian-pyramid IIR band-pass ----
-        pb = MgProgressbar(total=self.length, prefix='EVM (motion):')
+        pb = MgProgressbar(total=n_frames, prefix='EVM (motion):')
         process = _open_reader()
         writer = _open_writer()
 
@@ -216,11 +219,11 @@ def mg_eulerian(
             out = np.clip(out, 0, 255).astype(np.uint8)
             writer.stdin.write(out.tobytes())
             i += 1
-            pb.progress(i / max(fps, 1))
+            pb.progress(i)
 
         writer.stdin.close()
         writer.wait()
-        pb.progress(self.length)
+        pb.progress(n_frames)
 
     else:
         raise ValueError(f"Unknown mode '{mode}'. Use 'color' or 'motion'.")
