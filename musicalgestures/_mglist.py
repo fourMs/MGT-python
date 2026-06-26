@@ -505,8 +505,9 @@ class MgList():
         if export_png:
             plt.savefig(of + '.png', format='png', transparent=False)
 
-        if not autoshow:
-            plt.close()
+        # Always close: the returned MgFigure is displayed via show(), so leaving the
+        # figure open would make the inline backend render a duplicate in notebooks.
+        plt.close(fig)
 
         # create MgFigure
         mgf = MgFigure(

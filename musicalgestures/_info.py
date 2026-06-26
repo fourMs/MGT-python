@@ -2,7 +2,7 @@ import os, subprocess
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from musicalgestures._utils import convert_to_mp4, get_framecount
+from musicalgestures._utils import convert_to_mp4, get_framecount, MgImage, generate_outfilename
 
 
 def mg_info(self, type=None, autoshow=True, overwrite=False):
@@ -138,24 +138,32 @@ def mg_info(self, type=None, autoshow=True, overwrite=False):
         
         df = pd.DataFrame.from_dict(ipb_frames)
 
-        if autoshow:
-            fig, ax = plt.subplots(figsize=(12,4), dpi=300)
-            fig.patch.set_facecolor('white') # make sure background is white
-            fig.patch.set_alpha(1)
-
-            for i, (label, series) in enumerate(df.groupby('type')):
-                plot_frames(series, label, index=i)
-
-            # Get handles and labels
-            handles, labels = plt.gca().get_legend_handles_labels()
-            order = [1,2,0] # specify order of items in legend       
-            # Add legend to plot
-            ax.legend([handles[idx] for idx in order],[labels[idx] for idx in order]) 
-            ax.set_xlabel('Frame index')
-            ax.set_ylabel('Size (bytes)')
-            fig.tight_layout()
-        else:
+        if not autoshow:
             return df
+
+        fig, ax = plt.subplots(figsize=(12,4), dpi=300)
+        fig.patch.set_facecolor('white') # make sure background is white
+        fig.patch.set_alpha(1)
+
+        for i, (label, series) in enumerate(df.groupby('type')):
+            plot_frames(series, label, index=i)
+
+        # Get handles and labels
+        handles, labels = plt.gca().get_legend_handles_labels()
+        order = [1,2,0] # specify order of items in legend
+        # Add legend to plot
+        ax.legend([handles[idx] for idx in order],[labels[idx] for idx in order])
+        ax.set_xlabel('Frame index')
+        ax.set_ylabel('Size (bytes)')
+        fig.tight_layout()
+
+        # Save and close so display goes through the returned MgImage's show()
+        target_png = self.of + '_frames.png'
+        if not overwrite:
+            target_png = generate_outfilename(target_png)
+        fig.savefig(target_png, facecolor='white')
+        plt.close(fig)
+        return MgImage(target_png)
 
     else:
         for i, info in enumerate(splitted):

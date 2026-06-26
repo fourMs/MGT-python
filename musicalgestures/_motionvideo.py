@@ -572,6 +572,7 @@ def save_analysis(of, fps, aom, com, qom, motion_analysis, audio_descriptors, wi
 
     # Audio descriptors
     if audio_descriptors:
+        plt.close(fig)  # discard the figure created above; build a taller one instead
         fig = plt.figure(figsize=(12, 16), dpi=300)
         fig.patch.set_facecolor('white')
         fig.patch.set_alpha(1)

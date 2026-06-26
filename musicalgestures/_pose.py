@@ -26,6 +26,21 @@ MEDIAPIPE_POSE_CONNECTIONS = [
     (24, 26), (26, 28), (28, 30), (28, 32), (30, 32),
 ]
 
+# OpenPose marker names per model (order matches the network keypoint indices)
+OPENPOSE_NAMES = {
+    'coco': ['Nose', 'Neck', 'Right Shoulder', 'Right Elbow', 'Right Wrist', 'Left Shoulder',
+             'Left Elbow', 'Left Wrist', 'Right Hip', 'Right Knee', 'Right Ankle', 'Left Hip',
+             'Left Knee', 'Left Ankle', 'Right Eye', 'Left Eye', 'Right Ear', 'Left Ear'],
+    'mpi': ['Head', 'Neck', 'Right Shoulder', 'Right Elbow', 'Right Wrist', 'Left Shoulder',
+            'Left Elbow', 'Left Wrist', 'Right Hip', 'Right Knee', 'Right Ankle', 'Left Hip',
+            'Left Knee', 'Left Ankle', 'Chest'],
+    'body_25': ['Nose', 'Neck', 'Right Shoulder', 'Right Elbow', 'Right Wrist', 'Left Shoulder',
+                'Left Elbow', 'Left Wrist', 'Mid Hip', 'Right Hip', 'Right Knee', 'Right Ankle',
+                'Left Hip', 'Left Knee', 'Left Ankle', 'Right Eye', 'Left Eye', 'Right Ear',
+                'Left Ear', 'Left Big Toe', 'Left Small Toe', 'Left Heel', 'Right Big Toe',
+                'Right Small Toe', 'Right Heel'],
+}
+
 
 def pose(
         self,
@@ -36,8 +51,12 @@ def pose(
         save_data=True,
         data_format='csv',
         save_video=True,
+        save_average_pose=True,
+        save_trajectories=True,
         target_name_video=None,
         target_name_data=None,
+        target_name_average=None,
+        target_name_trajectories=None,
         overwrite=False):
     """
     Renders a video with the pose estimation (aka. "keypoint detection" or "skeleton tracking") overlaid on it.
@@ -76,13 +95,26 @@ def pose(
             Defaults to True.
         target_name_video (str, optional): Target output name for the video. Defaults to None (which
             assumes that the input filename with the suffix "_pose" should be used).
+        save_average_pose (bool, optional): Whether to also render an image of the average pose over
+            the whole video, with each marker coloured/labelled by its average quantity of motion
+            (px/frame) and labelled with its dominant movement frequency (Hz). A CSV of the per-marker
+            statistics is saved alongside it. Defaults to True.
+        save_trajectories (bool, optional): Whether to also render an image of every marker's spatial
+            trajectory across the whole video. Defaults to True.
         target_name_data (str, optional): Target output name for the data. Defaults to None (which
             assumes that the input filename with the suffix "_pose" should be used).
+        target_name_average (str, optional): Target output name for the average-pose image. Defaults
+            to None (input filename with the suffix "_pose_average.png").
+        target_name_trajectories (str, optional): Target output name for the trajectories image.
+            Defaults to None (input filename with the suffix "_pose_trajectories.png").
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically
             increment target filenames to avoid overwriting. Defaults to False.
 
     Returns:
-        MgVideo: An MgVideo pointing to the output video.
+        MgVideo: An MgVideo pointing to the output video. The average-pose and trajectories images
+            (when rendered) are attached as ``.average_pose`` and ``.trajectories`` (MgImage), and the
+            collected keypoints are available on the parent object as ``self.pose_average`` /
+            ``self.pose_trajectories``.
     """
 
     # --- MediaPipe backend ---------------------------------------------------
@@ -108,8 +140,12 @@ def pose(
             save_data=save_data,
             data_format=data_format,
             save_video=save_video,
+            save_average_pose=save_average_pose,
+            save_trajectories=save_trajectories,
             target_name_video=target_name_video,
             target_name_data=target_name_data,
+            target_name_average=target_name_average,
+            target_name_trajectories=target_name_trajectories,
             overwrite=overwrite,
         )
     # -------------------------------------------------------------------------
@@ -222,6 +258,10 @@ def pose(
 
     ii = 0
     data = []
+    # Accumulate the average frame as a background for the average-pose image
+    collect_extra = save_average_pose or save_trajectories
+    avg_acc = np.zeros((self.height, self.width, 3), dtype=np.float64) if save_average_pose else None
+    avg_n = 0
 
     while True:
         # Read frame-by-frame
@@ -233,6 +273,10 @@ def pose(
 
         # Transform the bytes read into a numpy array
         frame = np.frombuffer(out, dtype=np.uint8).reshape([self.height, self.width, 3]).copy() # height, width, channels
+
+        if avg_acc is not None:
+            avg_acc += frame
+            avg_n += 1
 
         inpBlob = cv2.dnn.blobFromImage(frame, 1.0 / 255, (inWidth, inHeight), (0, 0, 0), swapRB=False, crop=False)
         net.setInput(inpBlob)
@@ -260,7 +304,9 @@ def pose(
             else:
                 points.append(None)
 
-        if save_data:
+        # Always collect keypoints so the average-pose/trajectories images can be built
+        # even when save_data is False (saving to file is gated separately below).
+        if save_data or collect_extra:
             time = frame2ms(ii, self.fps)
             points_list = [[list(point)[0]/self.width, list(point)[1]/self.height, ] if point is not None else [
                 0, 0] for point in points]
@@ -423,13 +469,44 @@ def pose(
         save_txt(of, self.width, self.height, model, data, data_format,
                  target_name_data=target_name_data, overwrite=overwrite)
 
+    # Render the average-pose and trajectories images from the collected keypoints
+    names = OPENPOSE_NAMES.get(model.lower())
+    avg_frame = (avg_acc / avg_n).astype(np.uint8) if (avg_acc is not None and avg_n > 0) else None
+    average_image, trajectories_image = _render_pose_extras(
+        data, names, POSE_PAIRS, self.width, self.height, self.fps,
+        avg_frame, of, save_average_pose, save_trajectories,
+        target_name_average, target_name_trajectories, overwrite)
+    self.pose_average = average_image
+    self.pose_trajectories = trajectories_image
+
     if save_video:
         # save result as pose_video for parent MgVideo
         self.pose_video = musicalgestures.MgVideo(target_name_video, color=self.color, returned_by_process=True)
+        self.pose_video.average_pose = average_image
+        self.pose_video.trajectories = trajectories_image
         return self.pose_video
     else:
         # otherwise just return the parent MgVideo
         return self
+
+
+def _render_pose_extras(data, names, connections, width, height, fps, avg_frame, of,
+                        save_average_pose, save_trajectories,
+                        target_name_average, target_name_trajectories, overwrite):
+    """Render the average-pose and trajectories images from collected keypoints."""
+    from musicalgestures._pose_visualize import render_average_pose, render_trajectories
+    average_image = None
+    trajectories_image = None
+    if not data or not names:
+        return None, None
+    if save_average_pose:
+        tn = target_name_average if target_name_average else of + '_pose_average.png'
+        average_image = render_average_pose(data, names, connections, width, height, fps,
+                                            avg_frame, tn, overwrite)
+    if save_trajectories:
+        tn = target_name_trajectories if target_name_trajectories else of + '_pose_trajectories.png'
+        trajectories_image = render_trajectories(data, names, width, height, fps, tn, overwrite)
+    return average_image, trajectories_image
 
 
 def _mediapipe_available():
@@ -445,8 +522,12 @@ def _pose_mediapipe(
         save_data=True,
         data_format='csv',
         save_video=True,
+        save_average_pose=True,
+        save_trajectories=True,
         target_name_video=None,
         target_name_data=None,
+        target_name_average=None,
+        target_name_trajectories=None,
         overwrite=False):
     """
     Internal helper: run MediaPipe Pose on a video and render/save the output.
@@ -484,6 +565,9 @@ def _pose_mediapipe(
 
     ii = 0
     data = []
+    collect_extra = save_average_pose or save_trajectories
+    avg_acc = np.zeros((self.height, self.width, 3), dtype=np.float64) if save_average_pose else None
+    avg_n = 0
 
     estimator = MediaPipePoseEstimator(device=device.lower())
 
@@ -496,11 +580,16 @@ def _pose_mediapipe(
 
         frame = np.frombuffer(out, dtype=np.uint8).reshape([self.height, self.width, 3]).copy()
 
+        if avg_acc is not None:
+            avg_acc += frame
+            avg_n += 1
+
         result = estimator.predict_frame(frame)
         keypoints = result.keypoints  # shape (33, 3): x, y, visibility
 
-        # Collect data row: time + normalised (x, y) for every landmark
-        if save_data:
+        # Collect data row: time + normalised (x, y) for every landmark.
+        # Always collected so the average-pose/trajectories images can be built.
+        if save_data or collect_extra:
             time_ms = frame2ms(ii, self.fps)
             row = [time_ms]
             for i in range(len(MEDIAPIPE_LANDMARK_NAMES)):
@@ -560,8 +649,20 @@ def _pose_mediapipe(
             headers.append(name.replace('_', ' ').title() + ' Y')
         _save_pose_txt(of, data, headers, data_format, target_name_data, overwrite)
 
+    # Render the average-pose and trajectories images from the collected keypoints
+    names = [name.replace('_', ' ').title() for name in MEDIAPIPE_LANDMARK_NAMES]
+    avg_frame = (avg_acc / avg_n).astype(np.uint8) if (avg_acc is not None and avg_n > 0) else None
+    average_image, trajectories_image = _render_pose_extras(
+        data, names, MEDIAPIPE_POSE_CONNECTIONS, self.width, self.height, self.fps,
+        avg_frame, of, save_average_pose, save_trajectories,
+        target_name_average, target_name_trajectories, overwrite)
+    self.pose_average = average_image
+    self.pose_trajectories = trajectories_image
+
     if save_video:
         self.pose_video = musicalgestures.MgVideo(target_name_video, color=self.color, returned_by_process=True)
+        self.pose_video.average_pose = average_image
+        self.pose_video.trajectories = trajectories_image
         return self.pose_video
     else:
         return self
