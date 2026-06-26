@@ -36,7 +36,7 @@ def directogram(optical_flow):
 
     return directogram
 
-def mg_directograms(self, title=None, filtertype='Adaptative', threshold=0.05, kernel_size=5, target_name=None, overwrite=False):
+def mg_directograms(self, title=None, filtertype='Adaptative', threshold=0.05, kernel_size=5, convert=True, target_name=None, overwrite=False):
     """
     Compute a directogram to factor the magnitude of motion into different angles.
     Each columun of the directogram is computed as the weighted histogram (HISTOGRAM_BINS) of angles for the optical flow of an input frame.
@@ -57,7 +57,7 @@ def mg_directograms(self, title=None, filtertype='Adaptative', threshold=0.05, k
 
     of, fex = os.path.splitext(self.filename)
 
-    if fex != '.avi':
+    if convert and fex != '.avi':
         # first check if there already is a converted version, if not create one and register it to self
         if "as_avi" not in self.__dict__.keys():
             file_as_avi = convert_to_avi(of + fex, overwrite=overwrite)

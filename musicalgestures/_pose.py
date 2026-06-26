@@ -63,6 +63,7 @@ def pose(
         style='both',
         overlay=True,
         background='black',
+        convert=True,
         save_average_pose=True,
         save_trajectories=True,
         target_name_video=None,
@@ -114,6 +115,9 @@ def pose(
         background (str, optional): Background colour used when `overlay=False`: `'black'` (default) or
             `'white'`. On a white background the markers and joint lines are drawn in darker, higher-contrast
             colours. Ignored when `overlay=True`.
+        convert (bool, optional): If True (default), non-AVI input is first converted to an all-intra
+            MJPEG `.avi` (cached as ``self.as_avi``) for frame-accurate decoding. Set to False to read the
+            source file directly — faster and no extra file, suitable when your mp4 decodes reliably.
         target_name_video (str, optional): Target output name for the video. Defaults to None (which
             assumes that the input filename with the suffix "_pose" should be used).
         save_average_pose (bool, optional): Whether to also render an image of the average pose over
@@ -174,6 +178,7 @@ def pose(
             style=style,
             overlay=overlay,
             background=background,
+            convert=convert,
             save_average_pose=save_average_pose,
             save_trajectories=save_trajectories,
             target_name_video=target_name_video,
@@ -259,7 +264,7 @@ def pose(
 
     of, fex = os.path.splitext(self.filename)
 
-    if fex != '.avi':
+    if convert and fex.lower() != '.avi':
         # first check if there already is a converted version, if not create one and register it to the parent self
         if "as_avi" not in self.__dict__.keys():
             file_as_avi = convert_to_avi(of + fex, overwrite=overwrite)
@@ -269,6 +274,7 @@ def pose(
         of, fex = self.as_avi.of, self.as_avi.fex
         filename = of + fex
     else:
+        # use the source file directly (e.g. an mp4 that decodes frame-accurately)
         filename = self.filename
 
     inWidth = int(roundup(self.width/downsampling_factor, 2))
@@ -566,6 +572,7 @@ def _pose_mediapipe(
         style='both',
         overlay=True,
         background='black',
+        convert=True,
         save_average_pose=True,
         save_trajectories=True,
         target_name_video=None,
@@ -590,7 +597,7 @@ def _pose_mediapipe(
 
     of, fex = os.path.splitext(self.filename)
 
-    if fex != '.avi':
+    if convert and fex.lower() != '.avi':
         if "as_avi" not in self.__dict__.keys():
             file_as_avi = convert_to_avi(of + fex, overwrite=overwrite)
             self.as_avi = musicalgestures.MgVideo(file_as_avi)

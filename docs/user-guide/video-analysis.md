@@ -8,6 +8,25 @@ import musicalgestures as mg
 mv = mg.MgVideo('/path/to/video.avi')
 ```
 
+## AVI conversion (`convert`)
+
+Most analysis methods stream frames straight through FFmpeg and run on any container, including MP4 — e.g. `motion()`, `motiongrams()`, `average()`/`blend()`, `videograms()`, `heatmap()`, `eulerian()`, `motiontempo()`, `sonomotiongram()`, `grid()`, `subtract()`, and `history()`.
+
+A few methods that decode frame-by-frame with OpenCV first convert the input to an all-intra **MJPEG `.avi`** (cached once as `self.as_avi`) for frame-accurate decoding: `pose()`, `flow.dense()`/`flow.sparse()`, `directograms()`, `impacts()`, `motion_mp()`, and `history_cv2()`. The motion **video output** is also written as `.avi`.
+
+If your MP4 decodes reliably and you want to skip that conversion (faster, no extra file), pass `convert=False`:
+
+```python
+mv = mg.MgVideo('clip.mp4')
+mv.pose(model='mediapipe', convert=False)     # read the mp4 directly
+mv.flow.dense(convert=False)
+mv.directograms(convert=False)
+```
+
+The default `convert=True` keeps the safe, frame-accurate behaviour.
+
+---
+
 ## Threshold and filter parameters
 
 Many methods accept `threshold` and `filtertype`:

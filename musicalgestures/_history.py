@@ -104,7 +104,7 @@ def history_ffmpeg(self, filename=None, history_length=10, weights=1, normalize=
     return self.history_video
 
 
-def history_cv2(self, filename=None, history_length=10, weights=1, target_name=None, overwrite=False):
+def history_cv2(self, filename=None, history_length=10, weights=1, convert=True, target_name=None, overwrite=False):
     """
     This function  creates a video where each frame is the average of the N previous frames, where n is determined by `history_length`. The history frames are summed up and normalized, and added to the current frame to show the history. Uses cv2.
 
@@ -124,7 +124,7 @@ def history_cv2(self, filename=None, history_length=10, weights=1, target_name=N
 
     of, fex = os.path.splitext(filename)
 
-    if fex != '.avi':
+    if convert and fex != '.avi':
         # first check if there already is a converted version, if not create one and register it to the parent self
         if "as_avi" not in self.__dict__.keys():
             file_as_avi = convert_to_avi(of + fex, overwrite=overwrite)

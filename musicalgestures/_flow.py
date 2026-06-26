@@ -48,6 +48,7 @@ class Flow:
             scaledown=1,      
             skip_empty=False,
             use_gpu=False,
+            convert=True,
             target_name=None,
             overwrite=False):
         """
@@ -83,7 +84,7 @@ class Flow:
         of, fex = os.path.splitext(filename)
 
         # Convert to avi if the input is not avi - necesarry for cv2 compatibility on all platforms
-        if fex != '.avi':
+        if convert and fex != '.avi':
             # first check if there already is a converted version, if not create one and register it to the parent self
             if "as_avi" not in self.parent().__dict__.keys():
                 file_as_avi = convert_to_avi(of + fex, overwrite=overwrite)
@@ -322,6 +323,7 @@ class Flow:
             of_criteria=(cv2.TERM_CRITERIA_EPS |
                          cv2.TERM_CRITERIA_COUNT, 10, 0.03),
             use_gpu=False,
+            convert=True,
             target_name=None,
             overwrite=False):
         """
@@ -350,7 +352,7 @@ class Flow:
         of, fex = os.path.splitext(filename)
 
         # Convert to avi if the input is not avi - necesarry for cv2 compatibility on all platforms
-        if fex != '.avi':
+        if convert and fex != '.avi':
             # first check if there already is a converted version, if not create one and register it to the parent self
             if "as_avi" not in self.parent().__dict__.keys():
                 file_as_avi = convert_to_avi(of + fex, overwrite=overwrite)

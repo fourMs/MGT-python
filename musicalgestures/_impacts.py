@@ -47,7 +47,7 @@ def impact_detection(envelopes, time, fps, local_mean=0.1, local_maxima=0.15):
     return impact 
 
 
-def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.15, filtertype='Adaptative', threshold=0.05, kernel_size=5, target_name=None, overwrite=False):
+def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.15, filtertype='Adaptative', threshold=0.05, kernel_size=5, convert=True, target_name=None, overwrite=False):
     """
     Compute a visual analogue of an onset envelope, aslo known as an impact envelope (Abe Davis).
     This is computed by summing over positive entries in the columns of the directogram. This gives an impact envelope with precisely the same
@@ -75,7 +75,7 @@ def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.
 
     of, fex = os.path.splitext(self.filename)
 
-    if fex != '.avi':
+    if convert and fex != '.avi':
         # first check if there already is a converted version, if not create one and register it to self
         if "as_avi" not in self.__dict__.keys():
             file_as_avi = convert_to_avi(of + fex, overwrite=overwrite)

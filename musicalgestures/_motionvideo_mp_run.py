@@ -34,13 +34,14 @@ def mg_motion_mp(
         target_name_data=None,
         target_name_mgx=None,
         target_name_mgy=None,
+        convert=True,
         overwrite=False,
         num_processes=-1):
 
     of, fex = self.of, self.fex
 
     # Convert to avi if the input is not avi - necesarry for cv2 compatibility on all platforms
-    if fex != '.avi':
+    if convert and fex != '.avi':
         # first check if there already is a converted version, if not create one and register it to the parent self
         if "as_avi" not in self.__dict__.keys():
             file_as_avi = convert_to_avi(of + fex, overwrite=overwrite)
