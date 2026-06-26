@@ -38,3 +38,4 @@ tests/htmlcov
 musicalgestures/pose/body_25/pose_iter_584000.caffemodel
 musicalgestures/pose/body_25/.wget-hsts
 dancer_grid.png
+musicalgestures/models/pose_landmarker_*.task

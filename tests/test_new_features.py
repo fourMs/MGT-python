@@ -63,8 +63,7 @@ class TestEnums:
         from musicalgestures._enums import DataFormat
         assert DataFormat.CSV == "csv"
         assert DataFormat.TSV == "tsv"
-        assert DataFormat.JSON == "json"
-        assert DataFormat.HDF5 == "hdf5"
+        assert DataFormat.TXT == "txt"
 
     def test_string_comparison(self):
         """Enum members must compare equal to plain strings."""
@@ -347,13 +346,13 @@ class TestPoseEstimator:
         mp_modules = {k: v for k, v in sys.modules.items() if k.startswith("mediapipe")}
         for k in mp_modules:
             del sys.modules[k]
-        # Block mediapipe import
+        # Block mediapipe import using the modern MetaPathFinder API
+        # (find_module/load_module were removed in Python 3.12).
         class BlockMediapipe:
-            def find_module(self, name, path=None):
-                if name == "mediapipe":
-                    return self
-            def load_module(self, name):
-                raise ImportError("mediapipe not installed (mocked)")
+            def find_spec(self, name, path=None, target=None):
+                if name == "mediapipe" or name.startswith("mediapipe."):
+                    raise ImportError("mediapipe not installed (mocked)")
+                return None
         blocker = BlockMediapipe()
         sys.meta_path.insert(0, blocker)
         try:

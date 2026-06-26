@@ -7,12 +7,12 @@ from musicalgestures._utils import get_widthheight
 
 def filter_frame(motion_frame, filtertype, threshold, kernel_size):
     """
-    Applies a thresholdold filter and then a median filter (of `kernel_size`x`kernel_size`) to an image or videoframe.
+    Applies a threshold filter and then a median filter (of `kernel_size`x`kernel_size`) to an image or videoframe.
 
     Args:
         motion_frame (np.array(uint8)): Input motion image.
         filtertype (str): 'Regular' turns all values below `threshold` to 0. 'Binary' turns all values below `threshold` to 0, above `threshold` to 1. 'Blob' removes individual pixels with erosion method.
-        threshold (float): A number in the range of 0 to 1. Eliminates pixel values less than given thresholdold.
+        threshold (float): A number in the range of 0 to 1. Eliminates pixel values less than given threshold.
         kernel_size (int): Size of structuring element.
 
     Returns:
@@ -29,19 +29,19 @@ def filter_frame(motion_frame, filtertype, threshold, kernel_size):
         motion_frame = cv2.erode(motion_frame, np.ones([kernel_size, kernel_size]), iterations=1)
     return motion_frame
 
-def filter_frame_ffmpeg(filename, cmd, color, blur, filtertype, thresholdold, kernel_size, use_median, invert=False):
+def filter_frame_ffmpeg(filename, cmd, color, blur, filtertype, threshold, kernel_size, use_median, invert=False):
     """
-    Builds an FFmpeg filter-complex string for frame differencing, thresholdolding and optional median filtering.
+    Builds an FFmpeg filter-complex string for frame differencing, thresholding and optional median filtering.
 
     Args:
         filename (str): Path to the input video file (used to derive frame dimensions).
         cmd (list): Base FFmpeg command list to which extra inputs are appended in-place.
         color (bool): If True, use gbrp pixel format; otherwise gray.
         blur (str): 'Average' applies a 10×10 box blur before differencing; 'None' skips it.
-        filtertype (str): 'Regular' thresholdolds frame differences; 'Binary' binarises them; 'Blob' erodes.
-        thresholdold (float): Pixel-value thresholdold in the range 0–1.
+        filtertype (str): 'Regular' thresholds frame differences; 'Binary' binarises them; 'Blob' erodes.
+        threshold (float): Pixel-value threshold in the range 0–1.
         kernel_size (int): Radius for the median or erosion filter.
-        use_median (bool): If True, apply a median filter after thresholdolding.
+        use_median (bool): If True, apply a median filter after thresholding.
         invert (bool, optional): If True, negate the output. Defaults to False.
 
     Returns:
@@ -68,18 +68,18 @@ def filter_frame_ffmpeg(filename, cmd, color, blur, filtertype, thresholdold, ke
 
     width, height = get_widthheight(filename)
 
-    threshold_color = matplotlib.colors.to_hex([thresholdold, thresholdold, thresholdold])
+    threshold_color = matplotlib.colors.to_hex([threshold, threshold, threshold])
     threshold_color = '0x' + threshold_color[1:]
 
-    # set thresholdold
+    # set threshold
     if filtertype.lower() == 'regular':
         cmd += ['-f', 'lavfi', '-i', f'color={threshold_color},scale={width}:{height}',
                 '-f', 'lavfi', '-i', f'color=black,scale={width}:{height}']
-        cmd_filter += '[0:v][1][2][diff]thresholdold,'
+        cmd_filter += '[0:v][1][2][diff]threshold,'
     elif filtertype.lower() == 'binary':
         cmd += ['-f', 'lavfi', '-i', f'color={threshold_color},scale={width}:{height}', '-f', 'lavfi', '-i',
                 f'color=black,scale={width}:{height}', '-f', 'lavfi', '-i', f'color=white,scale={width}:{height}']
-        cmd_filter += 'thresholdold,'
+        cmd_filter += 'threshold,'
     elif filtertype.lower() == 'blob':
         # cmd_filter += 'erosion,' # erosion is always 3x3 so we will hack it with a median filter with percentile=0 which will pick minimum values
         cmd_filter += f'median=radius={kernel_size}:percentile=0,'

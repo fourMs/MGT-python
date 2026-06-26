@@ -131,18 +131,18 @@ class Test_mg_grid_return_array:
 
     def test_return_array_type(self, testvideo_avi):
         mg = musicalgestures.MgVideo(testvideo_avi)
-        result = mg.grid(height=100, rows=2, cols=2, return_array=True)
+        result = mg.grid(height=100, rows=2, columns=2, return_array=True)
         assert isinstance(result, np.ndarray)
 
     def test_return_array_dtype(self, testvideo_avi):
         mg = musicalgestures.MgVideo(testvideo_avi)
-        result = mg.grid(height=100, rows=2, cols=2, return_array=True)
+        result = mg.grid(height=100, rows=2, columns=2, return_array=True)
         assert result.dtype == np.uint8
 
     def test_return_array_shape(self, testvideo_avi):
         mg = musicalgestures.MgVideo(testvideo_avi)
         rows, cols, height = 2, 3, 100
-        result = mg.grid(height=height, rows=rows, cols=cols, return_array=True)
+        result = mg.grid(height=height, rows=rows, columns=cols, return_array=True)
         assert result.ndim == 3
         assert result.shape[0] == height * rows
         assert result.shape[2] == 3  # RGB channels
@@ -154,11 +154,11 @@ class Test_mg_grid_return_array:
         expected_file = of + "_grid.png"
         if os.path.exists(expected_file):
             os.remove(expected_file)
-        mg.grid(height=100, rows=2, cols=2, return_array=True)
+        mg.grid(height=100, rows=2, columns=2, return_array=True)
         assert not os.path.exists(expected_file)
 
     def test_return_mgimage_when_no_array(self, testvideo_avi):
         mg = musicalgestures.MgVideo(testvideo_avi)
-        result = mg.grid(height=100, rows=2, cols=2, return_array=False)
+        result = mg.grid(height=100, rows=2, columns=2, return_array=False)
         assert isinstance(result, musicalgestures.MgImage)
         assert os.path.isfile(result.filename)
