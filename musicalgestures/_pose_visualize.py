@@ -77,10 +77,14 @@ def _per_marker_stats(coords, fps, diag, fmin=0.2, fmax=8.0):
 
 
 def render_average_pose(data, names, connections, width, height, fps, avg_frame,
-                        target_name, overwrite=False, fmin=0.2, fmax=8.0):
+                        target_name, overwrite=False, fmin=0.2, fmax=8.0, style='both'):
     """
     Render the average pose of the whole video, with per-marker quantity of motion
     (colour + label) and dominant frequency (label) annotated.
+
+    ``style`` matches the video: 'both' draws markers + skeleton lines, 'markers' draws
+    only the markers, 'skeleton' draws only the connecting joint lines. Per-marker labels
+    are shown in all cases.
 
     Returns an MgImage, or None if there are too few frames.
     """
@@ -117,17 +121,19 @@ def render_average_pose(data, names, connections, width, height, fps, avg_frame,
     else:
         ax.set_facecolor('#f0f0f0')
 
-    # Skeleton connections
-    for a, b in connections:
-        if a < n_points and b < n_points and not (np.isnan(mean_px[a]).any() or np.isnan(mean_px[b]).any()):
-            ax.plot([mean_px[a, 0], mean_px[b, 0]], [mean_px[a, 1], mean_px[b, 1]],
-                    color='#888888', lw=2, alpha=0.8, zorder=2, solid_capstyle='round')
+    # Skeleton connections (joint lines)
+    if style in ('both', 'skeleton'):
+        for a, b in connections:
+            if a < n_points and b < n_points and not (np.isnan(mean_px[a]).any() or np.isnan(mean_px[b]).any()):
+                ax.plot([mean_px[a, 0], mean_px[b, 0]], [mean_px[a, 1], mean_px[b, 1]],
+                        color='#888888', lw=2, alpha=0.8, zorder=2, solid_capstyle='round')
 
-    # Markers
+    # Markers (keypoints)
     vis_idx = [i for i in range(n_points) if not np.isnan(mean_px[i]).any()]
-    for i in vis_idx:
-        ax.scatter(mean_px[i, 0], mean_px[i, 1], s=120, color=cmap(qom[i] / qmax),
-                   edgecolors='white', linewidths=1.0, zorder=3)
+    if style in ('both', 'markers'):
+        for i in vis_idx:
+            ax.scatter(mean_px[i, 0], mean_px[i, 1], s=120, color=cmap(qom[i] / qmax),
+                       edgecolors='white', linewidths=1.0, zorder=3)
 
     # Labels (name, QoM, frequency), laid out to avoid overlapping each other
     if vis_idx:

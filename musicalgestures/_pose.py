@@ -525,7 +525,7 @@ def pose(
         data, names, POSE_PAIRS, self.width, self.height, self.fps,
         avg_frame, of, save_average_pose, save_trajectories,
         target_name_average, target_name_trajectories, overwrite,
-        transparent_trajectories=transparent_trajectories)
+        transparent_trajectories=transparent_trajectories, style=style)
     self.pose_average = average_image
     self.pose_trajectories = trajectories_image
 
@@ -543,7 +543,7 @@ def pose(
 def _render_pose_extras(data, names, connections, width, height, fps, avg_frame, of,
                         save_average_pose, save_trajectories,
                         target_name_average, target_name_trajectories, overwrite,
-                        transparent_trajectories=None):
+                        transparent_trajectories=None, style='both'):
     """Render the average-pose and trajectories images from collected keypoints."""
     from musicalgestures._pose_visualize import render_average_pose, render_trajectories
     average_image = None
@@ -553,7 +553,7 @@ def _render_pose_extras(data, names, connections, width, height, fps, avg_frame,
     if save_average_pose:
         tn = target_name_average if target_name_average else of + '_pose_average.png'
         average_image = render_average_pose(data, names, connections, width, height, fps,
-                                            avg_frame, tn, overwrite)
+                                            avg_frame, tn, overwrite, style=style)
     if save_trajectories:
         tn = target_name_trajectories if target_name_trajectories else of + '_pose_trajectories.png'
         # Default: use a transparent background when trajectories are the only image exported,
@@ -730,7 +730,7 @@ def _pose_mediapipe(
         data, names, MEDIAPIPE_POSE_CONNECTIONS, self.width, self.height, self.fps,
         avg_frame, of, save_average_pose, save_trajectories,
         target_name_average, target_name_trajectories, overwrite,
-        transparent_trajectories=transparent_trajectories)
+        transparent_trajectories=transparent_trajectories, style=style)
     self.pose_average = average_image
     self.pose_trajectories = trajectories_image
 
