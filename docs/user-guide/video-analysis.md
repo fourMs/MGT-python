@@ -1,0 +1,282 @@
+# Video Analysis
+
+All video analysis methods are called on an `MgVideo` object. Each method writes output files alongside the source video and returns a result object you can use directly or pass to further methods.
+
+```python
+import musicalgestures as mg
+
+mv = mg.MgVideo('/path/to/video.avi')
+```
+
+## Threshold and filter parameters
+
+Many methods accept `threshold` and `filtertype`:
+
+- `threshold` (float, 0–1): pixels with a value below this fraction of 255 are set to zero. The default is `0.05`. Higher values remove more background noise but may lose subtle motion.
+- `filtertype` (str): `'Regular'` (default) thresholds and median-filters; `'Binary'` binarises the output; `'Blob'` applies erosion instead.
+
+See the [filter reference](../musicalgestures/_filter.md) for details.
+
+---
+
+## Motion analysis
+
+`motion()` is the primary analysis method. It renders a motion video, horizontal and vertical motiongrams, a motion plot, and a CSV of per-frame motion data, all in one call. It returns an `MgVideo` pointing to the motion video.
+
+```python
+motion_video = mv.motion()      # returns MgVideo
+motion_video.show()
+mv.show(key='motion')           # equivalent shorthand
+```
+
+### Shortcuts
+
+```python
+motion_vid = mv.motionvideo()   # motion video only — returns MgVideo
+
+motiondata = mv.motiondata()    # CSV only — returns list of paths
+motiondata = mv.motiondata(motion_analysis='aom')
+
+motionplots = mv.motionplots()  # motion plot image — returns MgImage
+motionplots = mv.motionplots(audio_descriptors=True)
+motionplots.show()
+mv.show(key='plot')
+
+motiongrams = mv.motiongrams()  # returns MgList[MgImage, MgImage]
+motiongrams[0].show()           # horizontal motiongram (mgx)
+motiongrams[1].show()           # vertical motiongram (mgy)
+mv.show(key='mgx')
+mv.show(key='mgy')
+
+score = mv.motionscore()        # average VMAF motion score — returns float
+```
+
+### Motion data columns
+
+The CSV produced by `motion()` and `motiondata()` contains one row per frame:
+
+| Column | Description |
+|---|---|
+| Time | Frame timestamp in milliseconds |
+| Qom | Quantity of motion (sum of active pixels) |
+| ComX, ComY | Centroid of motion (normalised 0–1) |
+| AomX1, AomY1, AomX2, AomY2 | Bounding box of motion area (normalised) |
+
+---
+
+## Videograms
+
+Videograms apply the motiongram technique to the source video directly, without first computing frame differences. They show the full scene content over time rather than motion only.
+
+```python
+videograms = mv.videograms()    # returns MgList[MgImage, MgImage]
+videograms[0].show()            # horizontal videogram (vgx)
+videograms[1].show()            # vertical videogram (vgy)
+mv.show(key='vgx')
+mv.show(key='vgy')
+```
+
+---
+
+## Self-Similarity Matrix (SSM)
+
+SSMs compare each column or row of a motiongram or videogram against all others, revealing periodic structure in the motion.
+
+```python
+motionssm = mv.ssm(features='motiongrams')              # returns MgList
+motionssm = mv.ssm(features='motiongrams', cmap='viridis', norm=2)
+motionssm[0].show()     # horizontal SSM
+motionssm[1].show()     # vertical SSM
+mv.show(key='ssm')
+
+videossm = mv.ssm(features='videograms')
+chromassm = mv.ssm(features='chromagram', cmap='magma', norm=2)
+spectrossm = mv.ssm(features='spectrogram')
+```
+
+---
+
+## Background subtraction
+
+`subtract()` removes a static background from each frame. If no background image is provided, it computes the frame average automatically.
+
+```python
+subtraction = mv.subtract()                                             # returns MgVideo
+subtraction = mv.subtract(bg_img='/path/to/background.png', bg_color='#ffffff')
+subtraction = mv.subtract(bg_img='/path/to/background.png', curves=0.3)
+subtraction.show()
+mv.show(key='subtract')
+```
+
+---
+
+## Grid preview
+
+`grid()` assembles a strip of evenly-spaced frames into a single image, useful for quickly reviewing a recording.
+
+```python
+grid = mv.grid(height=300, rows=3, cols=3)  # returns MgImage
+grid.show()
+grid_array = mv.grid(height=300, rows=3, cols=3, return_array=True)
+```
+
+---
+
+## History video
+
+`history()` overlays the last `history_length` frames onto each frame, making the trajectory of motion visible.
+
+```python
+history = mv.history(history_length=20)     # returns MgVideo
+history.show()
+mv.show(key='history')
+```
+
+Applying history to a motion video emphasises movement traces:
+
+```python
+motionhistory = mv.motionvideo().history()
+mv.show(key='motionhistory')
+```
+
+---
+
+## Blend
+
+`blend()` combines all frames into a single image using a compositing mode.
+
+```python
+average = mv.average()                          # returns MgImage (mean of all frames)
+average = mv.blend(component_mode='average')    # equivalent
+lighten = mv.blend(component_mode='lighten')
+darken  = mv.blend(component_mode='darken')
+average.show()
+mv.show(key='blend')
+```
+
+Motion average — blend applied to a motion video — shows where movement was concentrated:
+
+```python
+motion_average = mv.motionvideo().blend(component_mode='average')
+motion_average.show()
+```
+
+---
+
+## Pose estimation
+
+`pose()` runs OpenPose skeleton estimation on each frame. On first use it downloads the requested model weights (~200 MB).
+
+```python
+pose = mv.pose(model='coco', device='cpu', downsampling_factor=4)
+pose = mv.pose(model='body_25', device='gpu', downsampling_factor=2, threshold=0.1)
+pose.show()
+mv.show(key='pose')
+```
+
+- `model`: `'body_25'` (default), `'coco'`, or `'mpi'`
+- `device`: `'cpu'` (default) or `'gpu'` (falls back to CPU if CUDA is unavailable)
+- `downsampling_factor`: reduces input resolution before inference; higher values are faster but less accurate
+- `threshold`: minimum network confidence to accept a keypoint (normalised 0–1)
+
+---
+
+## Optical flow
+
+### Sparse
+
+Sparse optical flow tracks a small set of salient feature points and draws their trajectories.
+
+```python
+flow_sparse = mv.flow.sparse()      # returns MgVideo
+flow_sparse.show()
+mv.show(key='sparse')
+```
+
+### Dense
+
+Dense optical flow estimates movement at every pixel, colour-coding direction.
+
+```python
+flow_dense = mv.flow.dense()                    # returns MgVideo
+flow_dense = mv.flow.dense(use_gpu=True)        # CUDA acceleration with CPU fallback
+flow_dense.show()
+mv.show(key='dense')
+```
+
+### Velocity
+
+Setting `velocity=True` computes per-frame speed instead of direction, and returns an `MgFigure` with the velocity plot and associated data.
+
+```python
+velocity = mv.flow.dense(velocity=True)
+velocity_per_meters = mv.flow.dense(velocity=True, distance=3.5, angle_of_view=80)
+xvel = velocity.data['xvel']
+yvel = velocity.data['yvel']
+velocity.figure
+```
+
+---
+
+## Face anonymisation
+
+`blur_faces()` detects faces in every frame and applies a blur, black rectangle, or image mask.
+
+```python
+blur = mv.blur_faces()                                  # returns MgVideo
+blur = mv.blur_faces(use_gpu=True)
+blur = mv.blur_faces(save_data=True, data_format='csv')
+blur.show()
+mv.show(key='blur')
+
+source_image = '/path/to/mask.jpg'
+mv.blur_faces(mask='image', mask_image=source_image)
+```
+
+To render a heatmap of face detection centroids instead:
+
+```python
+heatmap = mv.blur_faces(draw_heatmap=True, neighbours=128, resolution=500, save_data=False)
+heatmap.show()
+```
+
+---
+
+## Warp audiovisual beats
+
+`warp_audiovisual_beats()` temporally aligns visual beats (extracted from directograms) with audio beats to create a re-timed video.
+
+```python
+warp = mv.warp_audiovisual_beats('/path/to/audio.wav')  # returns MgVideo
+warp.show()
+mv.show(key='warp')
+```
+
+### Directograms
+
+Directograms factor motion magnitude into angular bins, analogous to a spectrogram with angles replacing frequencies.
+
+```python
+directograms = mv.directograms()    # returns MgFigure
+directograms.data['directogram']
+directograms.show()
+```
+
+### Impacts
+
+Impacts are visual analogues of audio onset envelopes, derived from directogram deceleration.
+
+```python
+impacts = mv.impacts(detection=False)                               # returns MgFigure
+impacts = mv.impacts(detection=True, local_mean=0.1, local_maxima=0.15)
+impacts.data['impact envelopes']
+impacts.show()
+```
+
+---
+
+## Next steps
+
+- [Audio Analysis](audio-analysis.md) — waveforms, spectrograms, and audio features
+- [Working with Results](results.md) — combining and displaying MgFigure, MgImage, and MgList
+- [API Reference](../musicalgestures/_motionvideo.md) — complete motion method signatures

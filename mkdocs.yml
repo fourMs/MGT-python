@@ -45,6 +45,11 @@ nav:
     - Examples: examples.md
   - User Guide:
     - Core Classes: user-guide/core-classes.md
+    - Loading & Showing: user-guide/loading.md
+    - Preprocessing: user-guide/preprocessing.md
+    - Video Analysis: user-guide/video-analysis.md
+    - Audio Analysis: user-guide/audio-analysis.md
+    - Working with Results: user-guide/results.md
   - API Reference:
     - Overview: musicalgestures/index.md
     - Video: musicalgestures/_video.md
@@ -55,11 +60,6 @@ nav:
     - Complete Reference: MODULES.md
   - Development:
     - Contributing: contributing.md
-
-plugins:
-  - search
-  - git-revision-date-localized:
-      enable_creation_date: true
 
 markdown_extensions:
   - admonition

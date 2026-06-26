@@ -1,0 +1,108 @@
+# Preprocessing
+
+All preprocessing is applied at load time by passing arguments to `MgVideo`. Steps execute in a fixed order: trim → skip → fix → rotate → contrast/brightness → crop → grayscale.
+
+```python
+import musicalgestures as mg
+
+mv = mg.MgVideo(
+    '/path/to/video.avi',
+    starttime=5,
+    endtime=15,
+    skip=3,
+    rotate=90,
+    contrast=100,
+    brightness=20,
+    crop='auto',
+    color=False,
+)
+```
+
+## Trimming
+
+Use `starttime` and `endtime` (in seconds) to work on a portion of the video:
+
+```python
+mv = mg.MgVideo('/path/to/video.avi', starttime=5, endtime=15)
+```
+
+## Frame skipping
+
+`skip=n` keeps every (n+1)th frame, reducing processing time:
+
+```python
+mv = mg.MgVideo('/path/to/video.avi', skip=2)
+```
+
+## Fixing a frame count
+
+`frames` extracts a fixed number of frames, useful for batch processing files of different lengths:
+
+```python
+mv = mg.MgVideo('/path/to/video.avi', frames=1000)
+mv = mg.MgVideo('/path/to/video.avi', frames=-1)    # keyframes only
+```
+
+## Rotation
+
+`rotate` accepts any angle in degrees:
+
+```python
+mv = mg.MgVideo('/path/to/video.avi', rotate=90)
+mv = mg.MgVideo('/path/to/video.avi', rotate=5.31)
+```
+
+## Contrast and brightness
+
+Both parameters are percentages in the range −100 to 100. A value of 0 leaves the video unchanged:
+
+```python
+mv = mg.MgVideo('/path/to/video.avi', contrast=100, brightness=20)
+```
+
+## Cropping
+
+`crop='auto'` detects the region of motion and crops to it. `crop='manual'` opens a window where you draw the crop rectangle, then press `c` to confirm or `r` to reset:
+
+```python
+mv = mg.MgVideo('/path/to/video.avi', crop='auto')
+mv = mg.MgVideo('/path/to/video.avi', crop='manual')
+```
+
+## Grayscale
+
+`color=False` converts the video to grayscale and keeps all subsequent processes in grayscale mode, which can reduce processing time:
+
+```python
+mv = mg.MgVideo('/path/to/video.avi', color=False)
+```
+
+## Keeping intermediate files
+
+By default only the final preprocessed video is kept. Set `keep_all=True` to retain the result of each step:
+
+```python
+mv = mg.MgVideo('/path/to/video.avi', starttime=5, endtime=15, skip=3,
+                rotate=90, contrast=100, brightness=20, crop='auto',
+                color=False, keep_all=True)
+```
+
+This produces files like `video_trim.avi`, `video_trim_skip.avi`, `video_trim_skip_rot.avi`, and so on.
+
+## Output file names and overwriting
+
+Every analysis method accepts `target_name` and `overwrite`:
+
+- `target_name` sets the output file path. If `None` (default), a suffix is appended to the source name — for example, `history` on `dance.avi` produces `dance_history.avi` in the same directory.
+- `overwrite=False` (default) silently increments the filename if one already exists: `dance_history.avi` → `dance_history_0.avi` → `dance_history_1.avi`, and so on.
+- `overwrite=True` always replaces the existing file.
+
+```python
+mv = mg.MgVideo('/path/to/video.avi')
+mv.history(target_name='/output/my_history.avi', overwrite=True)
+```
+
+## Next steps
+
+- [Video Analysis](video-analysis.md) — run motion analysis, optical flow, and more
+- [Loading & Showing](loading.md) — how to load and display results

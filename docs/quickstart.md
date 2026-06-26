@@ -267,10 +267,12 @@ for video_file in video_files:
 
 Now that you're familiar with the basics, explore more advanced features:
 
-- **[Core Classes](user-guide/core-classes.md)** - Detailed class documentation
-- **[API Reference](musicalgestures/index.md)** - Complete function reference
-- **[Examples](examples.md)** - More complete examples and use cases
-- **[Wiki](https://github.com/fourMs/MGT-python/wiki)** - Function-level how-to guides
+- **[Loading & Showing](user-guide/loading.md)** - How to load videos and display results
+- **[Preprocessing](user-guide/preprocessing.md)** - Trim, crop, rotate, and adjust videos
+- **[Video Analysis](user-guide/video-analysis.md)** - Motion analysis, optical flow, pose estimation
+- **[Audio Analysis](user-guide/audio-analysis.md)** - Waveforms, spectrograms, and audio features
+- **[Working with Results](user-guide/results.md)** - MgFigure, MgImage, MgList, and chaining
+- **[API Reference](musicalgestures/index.md)** - Complete method documentation
 
 ## Common Issues
 
