@@ -42,6 +42,15 @@ OPENPOSE_NAMES = {
 }
 
 
+def _pose_canvas_and_colors(frame, overlay, background):
+    """Return (canvas, line_color, marker_color) in BGR for drawing the pose."""
+    if overlay:
+        return frame, (0, 255, 255), (0, 0, 255)            # over video: yellow lines, red markers
+    if str(background).lower() == 'white':
+        return np.full_like(frame, 255), (180, 60, 0), (0, 0, 200)   # white bg: dark blue lines, dark red markers
+    return np.zeros_like(frame), (0, 255, 255), (0, 0, 255)  # black bg: yellow lines, red markers
+
+
 def pose(
         self,
         model='body_25',
@@ -53,6 +62,7 @@ def pose(
         save_video=True,
         style='both',
         overlay=True,
+        background='black',
         save_average_pose=True,
         save_trajectories=True,
         target_name_video=None,
@@ -99,8 +109,11 @@ def pose(
             joint lines (the skeleton); `'markers'` draws only the keypoints; `'skeleton'` draws only
             the connecting joint lines. Defaults to 'both'.
         overlay (bool, optional): If True, draw the pose on top of the original video frames. If False,
-            draw it on a black background instead (a "markers only" video with no video underneath).
+            draw it on a plain background instead (a "markers only" video with no video underneath).
             Defaults to True.
+        background (str, optional): Background colour used when `overlay=False`: `'black'` (default) or
+            `'white'`. On a white background the markers and joint lines are drawn in darker, higher-contrast
+            colours. Ignored when `overlay=True`.
         target_name_video (str, optional): Target output name for the video. Defaults to None (which
             assumes that the input filename with the suffix "_pose" should be used).
         save_average_pose (bool, optional): Whether to also render an image of the average pose over
@@ -130,6 +143,11 @@ def pose(
         print(f"Unrecognized style '{style}', falling back to 'both'. Use 'both', 'markers' or 'skeleton'.")
         style = 'both'
 
+    background = str(background).lower()
+    if background not in ('black', 'white'):
+        print(f"Unrecognized background '{background}', falling back to 'black'. Use 'black' or 'white'.")
+        background = 'black'
+
     # --- MediaPipe backend ---------------------------------------------------
     # Explicit MediaPipe request, or auto-preference: when GPU is requested for an
     # OpenPose model but OpenCV has no CUDA backend, prefer MediaPipe (which can use
@@ -155,6 +173,7 @@ def pose(
             save_video=save_video,
             style=style,
             overlay=overlay,
+            background=background,
             save_average_pose=save_average_pose,
             save_trajectories=save_trajectories,
             target_name_video=target_name_video,
@@ -330,8 +349,8 @@ def pose(
             datapoint += points_list_flat
             data.append(datapoint)
 
-        # Draw on the video frame, or on a black canvas when overlay is disabled
-        canvas = frame if overlay else np.zeros_like(frame)
+        # Draw on the video frame, or on a plain canvas when overlay is disabled
+        canvas, line_color, marker_color = _pose_canvas_and_colors(frame, overlay, background)
 
         # Joint lines (skeleton)
         if style in ('both', 'skeleton'):
@@ -339,13 +358,13 @@ def pose(
                 partA, partB = pair[0], pair[1]
                 if points[partA] and points[partB]:
                     cv2.line(canvas, points[partA], points[partB],
-                             (0, 255, 255), 2, lineType=cv2.LINE_AA)
+                             line_color, 2, lineType=cv2.LINE_AA)
 
         # Markers (keypoints)
         if style in ('both', 'markers'):
             for point in points:
                 if point is not None:
-                    cv2.circle(canvas, point, 4, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
+                    cv2.circle(canvas, point, 4, marker_color, thickness=-1, lineType=cv2.FILLED)
 
         frame = canvas
 
@@ -546,6 +565,7 @@ def _pose_mediapipe(
         save_video=True,
         style='both',
         overlay=True,
+        background='black',
         save_average_pose=True,
         save_trajectories=True,
         target_name_video=None,
@@ -564,6 +584,9 @@ def _pose_mediapipe(
     style = str(style).lower()
     if style not in ('both', 'markers', 'skeleton'):
         style = 'both'
+    background = str(background).lower()
+    if background not in ('black', 'white'):
+        background = 'black'
 
     of, fex = os.path.splitext(self.filename)
 
@@ -628,8 +651,8 @@ def _pose_mediapipe(
                     row += [0.0, 0.0]
             data.append(row)
 
-        # Draw on the video frame, or on a black canvas when overlay is disabled
-        canvas = frame if overlay else np.zeros_like(frame)
+        # Draw on the video frame, or on a plain canvas when overlay is disabled
+        canvas, line_color, marker_color = _pose_canvas_and_colors(frame, overlay, background)
 
         # Joint lines (skeleton)
         if style in ('both', 'skeleton'):
@@ -639,7 +662,7 @@ def _pose_mediapipe(
                 if va >= threshold and vb >= threshold:
                     pt_a = (int(xa * self.width), int(ya * self.height))
                     pt_b = (int(xb * self.width), int(yb * self.height))
-                    cv2.line(canvas, pt_a, pt_b, (0, 255, 255), 2, lineType=cv2.LINE_AA)
+                    cv2.line(canvas, pt_a, pt_b, line_color, 2, lineType=cv2.LINE_AA)
 
         # Markers (keypoints)
         if style in ('both', 'markers'):
@@ -647,7 +670,7 @@ def _pose_mediapipe(
                 x, y, vis = keypoints[i]
                 if vis >= threshold:
                     pt = (int(x * self.width), int(y * self.height))
-                    cv2.circle(canvas, pt, 4, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
+                    cv2.circle(canvas, pt, 4, marker_color, thickness=-1, lineType=cv2.FILLED)
 
         frame = canvas
 
