@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.2] – 2026-06-26
+
+### Fixed
+- **Critical:** repaired a `thresholdold` corruption (from a botched `thresh`→`threshold`
+  replace) that broke the FFmpeg `threshold` filter, leaving `motion()`, `motiongrams()`
+  and related functions producing no frames and crashing. Motion analysis works again.
+- `skip` with large values no longer crashes: `atempo` filters are chained for ratios
+  above FFmpeg's per-filter limit of 100, and colons are stripped from output filenames.
+- Restored consistent behaviour of the threshold/filtertype options in `motiongrams()`.
+
+### Added
+- `info(type='summary')` now reports video codec/profile, pixel format, color space,
+  and audio codec/sample-rate/bit-rate alongside resolution, frames, fps, and duration.
+- `audio.mfcc()`, `audio.tempo()` (beat tracking with tempo, beat times, inter-beat
+  intervals and beat regularity), and `audio.beat_statistics()` (circular timing analysis).
+- `musicalgestures/_analysis.py`: general signal/statistics utilities (`smooth`,
+  `bandpass`, `dominant_frequency`, `circular_stats`, `rayleigh_test`, `synchrony`),
+  exported at package level.
+
+---
+
 ## [1.4.1] – 2026-06-26
 
 ### Fixed
@@ -84,7 +105,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.4.1...HEAD
+[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.4.2...HEAD
+[1.4.2]: https://github.com/fourMs/MGT-python/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/fourMs/MGT-python/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/fourMs/MGT-python/compare/v1.3.3...v1.4.0
 [1.3.3]: https://github.com/fourMs/MGT-python/releases/tag/v1.3.3
