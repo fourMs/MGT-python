@@ -59,3 +59,11 @@ from musicalgestures._pose_estimator import (
     OpenPosePoseEstimator,
     get_pose_estimator,
 )
+from musicalgestures._analysis import (
+    smooth,
+    bandpass,
+    dominant_frequency,
+    circular_stats,
+    rayleigh_test,
+    synchrony,
+)

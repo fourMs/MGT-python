@@ -809,3 +809,306 @@ class MgAudio:
             image=target_name)
 
         return mgf
+
+    def mfcc(self, n_mfcc=13, cmap='RdBu_r', dpi=300, autoshow=True, raw=False, original_time=False, title=None, target_name=None, overwrite=False):
+        """
+        Renders a figure showing the Mel-frequency cepstral coefficients (MFCCs) of the video/audio file.
+
+        MFCCs compactly describe the spectral envelope (timbre) of a sound over time and are
+        widely used as features for audio classification and similarity.
+
+        Args:
+            n_mfcc (int, optional): Number of MFCCs to compute. Defaults to 13.
+            cmap (str, optional): Matplotlib colormap for the display. Defaults to 'RdBu_r'.
+            dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
+            autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+            raw (bool, optional): Whether to show labels and ticks on the plot. Defaults to False.
+            original_time (bool, optional): Whether to plot original time or not. Defaults to False.
+            title (str, optional): Optionally add title to the figure. Use 'filename' to set the filename as title. Defaults to None.
+            target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_mfcc.png" should be used).
+            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+
+        Returns:
+            MgFigure: An MgFigure object referring to the internal figure and its data.
+        """
+        if not has_audio(self.filename):
+            print('The video has no audio track.')
+            return
+
+        if target_name is None:
+            target_name = self.of + '_mfcc.png'
+        else:
+            target_name = os.path.splitext(target_name)[0] + '.png'
+        if not overwrite:
+            target_name = generate_outfilename(target_name)
+
+        y, sr = librosa.load(self.filename, sr=self.sr)
+
+        mfccs = librosa.feature.mfcc(
+            y=y, sr=sr, n_mfcc=n_mfcc, n_fft=self.n_fft, hop_length=self.hop_length)
+
+        fig, ax = plt.subplots(figsize=(12, 4), dpi=dpi)
+        fig.patch.set_facecolor('white')
+        fig.patch.set_alpha(1)
+
+        if title is None:
+            title = ''
+        if title == 'filename':
+            title = os.path.basename(self.filename)
+        fig.suptitle(title, fontsize=16)
+
+        img = librosa.display.specshow(
+            mfccs, sr=sr, hop_length=self.hop_length, x_axis='time', cmap=cmap, ax=ax)
+        fig.colorbar(img, ax=ax)
+        ax.set(ylabel='MFCC coefficient', title='MFCC')
+
+        self.format_time(ax, original_time)
+
+        if raw:
+            fig.patch.set_visible(False)
+            fig.suptitle('')
+            ax.axis('off')
+
+        plt.tight_layout()
+        plt.savefig(target_name, format='png', transparent=False)
+
+        if not autoshow:
+            plt.close()
+
+        data = {
+            "hop_size": self.hop_length,
+            "sr": sr,
+            "of": self.of,
+            "mfcc": mfccs,
+            "n_mfcc": n_mfcc,
+            "length": self.length,
+        }
+
+        mgf = MgFigure(
+            figure=fig,
+            figure_type='audio.mfcc',
+            data=data,
+            layers=None,
+            image=target_name)
+
+        return mgf
+
+    def tempo(self, dpi=300, autoshow=True, raw=False, original_time=False, title=None, target_name=None, overwrite=False):
+        """
+        Estimates tempo and beat positions, and renders the waveform with beat markers.
+
+        Uses librosa's beat tracker. In addition to the figure, the returned object's
+        ``.data`` dictionary contains the estimated tempo, beat times, inter-beat
+        intervals, a beat-regularity measure, and circular beat statistics (phase
+        deviation of each beat from a fitted ideal grid, plus a Rayleigh test of
+        timing consistency).
+
+        Args:
+            dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
+            autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+            raw (bool, optional): Whether to show labels and ticks on the plot. Defaults to False.
+            original_time (bool, optional): Whether to plot original time or not. Defaults to False.
+            title (str, optional): Optionally add title to the figure. Use 'filename' to set the filename as title. Defaults to None.
+            target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_tempo.png" should be used).
+            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+
+        Returns:
+            MgFigure: An MgFigure object. Access numeric results via ``.data``:
+                'tempo', 'beat_times', 'ibi', 'beat_regularity', 'beat_phases',
+                'deviations_s', 'R_beat', 'mu_beat', 'T_fit', 't0_fit', 'p_rayleigh'.
+        """
+        from musicalgestures._analysis import circular_stats, rayleigh_test
+
+        if not has_audio(self.filename):
+            print('The video has no audio track.')
+            return
+
+        if target_name is None:
+            target_name = self.of + '_tempo.png'
+        else:
+            target_name = os.path.splitext(target_name)[0] + '.png'
+        if not overwrite:
+            target_name = generate_outfilename(target_name)
+
+        y, sr = librosa.load(self.filename, sr=self.sr)
+
+        tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr, hop_length=self.hop_length)
+        beat_times = librosa.frames_to_time(beat_frames, sr=sr, hop_length=self.hop_length)
+        tempo = float(np.atleast_1d(tempo)[0])
+
+        # Beat regularity from inter-beat intervals
+        if len(beat_times) > 1:
+            ibi = np.diff(beat_times)
+            beat_regularity = float(1.0 - ibi.std() / ibi.mean()) if ibi.mean() > 0 else 0.0
+        else:
+            ibi = np.array([0.0])
+            beat_regularity = 0.0
+
+        # Circular beat statistics: fit an ideal grid and measure phase deviations
+        if len(beat_times) >= 4:
+            k = np.arange(len(beat_times))
+            T_fit, t0_fit = np.polyfit(k, beat_times, 1)
+            deviations_s = beat_times - (t0_fit + k * T_fit)
+            beat_phases = (deviations_s / T_fit) * 2 * np.pi % (2 * np.pi)
+            R_beat, mu_beat = circular_stats(beat_phases)
+            _, p_rayleigh = rayleigh_test(beat_phases)
+        else:
+            beat_phases = deviations_s = np.array([])
+            T_fit, t0_fit = (60.0 / tempo if tempo > 0 else 0.0), 0.0
+            R_beat = mu_beat = 0.0
+            p_rayleigh = 1.0
+
+        fig, ax = plt.subplots(figsize=(12, 4), dpi=dpi)
+        fig.patch.set_facecolor('white')
+        fig.patch.set_alpha(1)
+
+        if title is None:
+            title = ''
+        if title == 'filename':
+            title = os.path.basename(self.filename)
+        fig.suptitle(title, fontsize=16)
+
+        librosa.display.waveshow(y, sr=sr, ax=ax, alpha=0.6)
+        for bt in beat_times:
+            ax.axvline(bt, color='r', alpha=0.6, linewidth=0.8)
+        ax.set(title=f'Tempo: {tempo:.1f} BPM   |   Beats: {len(beat_times)}   |   Regularity: {beat_regularity:.1%}')
+
+        self.format_time(ax, original_time)
+
+        if raw:
+            fig.patch.set_visible(False)
+            fig.suptitle('')
+            ax.axis('off')
+
+        plt.tight_layout()
+        plt.savefig(target_name, format='png', transparent=False)
+
+        if not autoshow:
+            plt.close()
+
+        data = {
+            "sr": sr,
+            "of": self.of,
+            "length": self.length,
+            "tempo": tempo,
+            "beat_times": beat_times,
+            "ibi": ibi,
+            "beat_regularity": beat_regularity,
+            "beat_phases": beat_phases,
+            "deviations_s": deviations_s,
+            "R_beat": R_beat,
+            "mu_beat": mu_beat,
+            "T_fit": T_fit,
+            "t0_fit": t0_fit,
+            "p_rayleigh": p_rayleigh,
+        }
+
+        mgf = MgFigure(
+            figure=fig,
+            figure_type='audio.tempo',
+            data=data,
+            layers=None,
+            image=target_name)
+
+        return mgf
+
+    def beat_statistics(self, n_bins=32, cmap='YlOrRd', dpi=300, autoshow=True, title=None, target_name=None, overwrite=False):
+        """
+        Renders circular statistics of beat-timing consistency.
+
+        Fits an ideal isochronous beat grid to the detected beats and visualises how
+        each beat deviates from it: a polar histogram of beat phases (with the mean
+        resultant vector) and a time series of millisecond deviations. This reveals
+        whether a performer rushes, drags, or keeps steady time.
+
+        Args:
+            n_bins (int, optional): Number of bins in the polar phase histogram. Defaults to 32.
+            cmap (str, optional): Matplotlib colormap for the polar histogram. Defaults to 'YlOrRd'.
+            dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
+            autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+            title (str, optional): Optionally add title to the figure. Use 'filename' to set the filename as title. Defaults to None.
+            target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_beatstats.png" should be used).
+            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+
+        Returns:
+            MgFigure: An MgFigure object whose ``.data`` mirrors the beat statistics from tempo(),
+                or None if fewer than four beats are detected.
+        """
+        if not has_audio(self.filename):
+            print('The video has no audio track.')
+            return
+
+        # Reuse tempo() for the beat analysis (without showing its figure)
+        beat_mgf = self.tempo(autoshow=False, overwrite=overwrite)
+        if beat_mgf is None:
+            return
+        plt.close(beat_mgf.figure)
+        d = beat_mgf.data
+
+        beat_phases = d["beat_phases"]
+        if len(beat_phases) < 4:
+            print('Not enough beats detected for circular statistics (need at least 4).')
+            return
+
+        if target_name is None:
+            target_name = self.of + '_beatstats.png'
+        else:
+            target_name = os.path.splitext(target_name)[0] + '.png'
+        if not overwrite:
+            target_name = generate_outfilename(target_name)
+
+        deviations_ms = d["deviations_s"] * 1000
+        R, mu = d["R_beat"], d["mu_beat"]
+
+        fig = plt.figure(figsize=(14, 6), dpi=dpi)
+        fig.patch.set_facecolor('white')
+        fig.patch.set_alpha(1)
+
+        # Polar histogram of beat phases
+        ax_p = fig.add_subplot(121, projection='polar')
+        bin_edges = np.linspace(0, 2 * np.pi, n_bins + 1)
+        counts, _ = np.histogram(beat_phases, bins=bin_edges)
+        theta_c = (bin_edges[:-1] + bin_edges[1:]) / 2
+        norm_c = counts / (counts.max() + 1e-9)
+        ax_p.bar(theta_c, counts, width=2 * np.pi / n_bins * 0.88,
+                 color=matplotlib.colormaps[cmap](norm_c), alpha=0.85,
+                 edgecolor='white', linewidth=0.3)
+        if counts.max() > 0:
+            ax_p.annotate('', xy=(np.radians(mu), R * counts.max()), xytext=(0, 0),
+                          arrowprops=dict(arrowstyle='-|>', color='#333333', lw=2.0, mutation_scale=16))
+        ax_p.set_xticks([0, np.pi / 2, np.pi, 3 * np.pi / 2])
+        ax_p.set_xticklabels(['on beat', '1/4 late', '1/2', '1/4 early'], fontsize=8)
+        ax_p.set_title(f'Beat phase deviation\nR = {R:.3f}   μ = {mu:.1f}°   p = {d["p_rayleigh"]:.4f}', fontsize=10)
+
+        # Time series of deviations
+        ax_t = fig.add_subplot(122)
+        sc = ax_t.scatter(d["beat_times"], deviations_ms, c=d["beat_times"], cmap='plasma', s=18, alpha=0.8)
+        ax_t.axhline(0, color='#888888', lw=1.0, ls='--', alpha=0.7)
+        ax_t.axhline(float(deviations_ms.mean()), color='#1f77b4', lw=1.2, ls=':',
+                     label=f'mean {float(deviations_ms.mean()):.1f} ms')
+        ax_t.set(xlabel='Time (s)', ylabel='Deviation from ideal grid (ms)', title='Beat timing deviation')
+        ax_t.legend()
+        cb = fig.colorbar(sc, ax=ax_t)
+        cb.set_label('Time (s)')
+
+        if title is None:
+            title = ''
+        if title == 'filename':
+            title = os.path.basename(self.filename)
+        fig.suptitle(f'{title}   Tempo: {d["tempo"]:.1f} BPM   σ = {float(deviations_ms.std()):.1f} ms'.strip(),
+                     fontsize=13, fontweight='bold')
+
+        plt.tight_layout(rect=[0, 0, 1, 0.93])
+        plt.savefig(target_name, format='png', transparent=False)
+
+        if not autoshow:
+            plt.close()
+
+        mgf = MgFigure(
+            figure=fig,
+            figure_type='audio.beat_statistics',
+            data=d,
+            layers=None,
+            image=target_name)
+
+        return mgf
