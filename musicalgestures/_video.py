@@ -157,6 +157,7 @@ class MgVideo(MgAudio):
         mg_pixelarray_cv2 as pixelarray_cv2,
         mg_pixelarray_stats as pixelarray_stats
     )
+    from musicalgestures._heatmap import mg_heatmap as heatmap
     from musicalgestures._pose import pose
 
     def average(self, **kwargs):
