@@ -40,7 +40,8 @@ def mg_motion(
         target_name_data=None,
         target_name_mgx=None,
         target_name_mgy=None,
-        overwrite=False):
+        overwrite=False,
+        normalize=None):
     """
     Finds the difference in pixel value from one frame to the next in an input video, and saves the frames into a new video. 
     Describes the motion in the recording. Outputs: a motion video, a plot describing the centroid of motion and the 
@@ -290,7 +291,8 @@ def mg_motiongrams(
         equalize_motiongram=True,
         target_name_mgx=None,
         target_name_mgy=None,
-        overwrite=False):
+        overwrite=False,
+        normalize=None):
     """
     Shortcut for `mg_motion` to only render motiongrams.
 
