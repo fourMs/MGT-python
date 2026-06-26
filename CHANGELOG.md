@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [1.4.0] – 2026-06-26
+
 ### Added
 
 #### Phase 1 – Foundation
@@ -43,6 +47,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `tqdm` added as a core dependency (progress bars in downstream usage).
 - CI now installs the package from source (`pip install -e ".[dev]"`) and runs `pytest`.
+- `threshold` parameter name is now consistent across all public APIs (previously some paths used `thresh`).
+- `contrast` and `brightness` parameters use integer range −100 to 100 (previously ambiguous).
+- `blur` parameter only accepts `'None'` and `'Average'` (removed undocumented `'Medium'`).
+
+### Fixed
+- `average()` method restored as an alias for `blend(component_mode='average')` (was accidentally removed in a prior refactor).
+- `average()` silently accepts legacy kwargs `method=` and `normalize=` for backward compatibility.
+- `motiongrams()` and `motion()` silently accept `normalize=` kwarg for backward compatibility.
+- OGG video conversion now explicitly specifies `libtheora`/`libvorbis` codecs.
+- `from_numpy()` path bug fixed when `path` attribute is set.
+- Motiondata fallback corrected for invalid data formats.
+- Optical flow video export fixed (replaced broken cv2.VideoWriter with FFmpeg subprocess).
+- History feature string-weights parsing fixed.
+- Cropping window on Linux no longer stalls on repeated use.
+- All examples in `docs/examples.md` updated to match the current API.
 
 ### Deprecated
 - Python 3.7 and 3.8 are no longer supported. The minimum required version is Python 3.10.
@@ -56,5 +75,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.3.3...HEAD
+[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/fourMs/MGT-python/compare/v1.3.3...v1.4.0
 [1.3.3]: https://github.com/fourMs/MGT-python/releases/tag/v1.3.3
