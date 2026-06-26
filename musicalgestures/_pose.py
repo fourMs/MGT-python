@@ -51,6 +51,8 @@ def pose(
         save_data=True,
         data_format='csv',
         save_video=True,
+        style='both',
+        overlay=True,
         save_average_pose=True,
         save_trajectories=True,
         target_name_video=None,
@@ -93,6 +95,12 @@ def pose(
             and 'txt'. For multiple output formats, use list, eg. ['csv', 'txt']. Defaults to 'csv'.
         save_video (bool, optional): Whether we save the video with the estimated pose overlaid on it.
             Defaults to True.
+        style (str, optional): How to draw the pose. `'both'` draws markers (keypoints) connected by
+            joint lines (the skeleton); `'markers'` draws only the keypoints; `'skeleton'` draws only
+            the connecting joint lines. Defaults to 'both'.
+        overlay (bool, optional): If True, draw the pose on top of the original video frames. If False,
+            draw it on a black background instead (a "markers only" video with no video underneath).
+            Defaults to True.
         target_name_video (str, optional): Target output name for the video. Defaults to None (which
             assumes that the input filename with the suffix "_pose" should be used).
         save_average_pose (bool, optional): Whether to also render an image of the average pose over
@@ -117,6 +125,11 @@ def pose(
             ``self.pose_trajectories``.
     """
 
+    style = str(style).lower()
+    if style not in ('both', 'markers', 'skeleton'):
+        print(f"Unrecognized style '{style}', falling back to 'both'. Use 'both', 'markers' or 'skeleton'.")
+        style = 'both'
+
     # --- MediaPipe backend ---------------------------------------------------
     # Explicit MediaPipe request, or auto-preference: when GPU is requested for an
     # OpenPose model but OpenCV has no CUDA backend, prefer MediaPipe (which can use
@@ -140,6 +153,8 @@ def pose(
             save_data=save_data,
             data_format=data_format,
             save_video=save_video,
+            style=style,
+            overlay=overlay,
             save_average_pose=save_average_pose,
             save_trajectories=save_trajectories,
             target_name_video=target_name_video,
@@ -315,17 +330,24 @@ def pose(
             datapoint += points_list_flat
             data.append(datapoint)
 
-        for pair in POSE_PAIRS:
-            partA = pair[0]
-            partB = pair[1]
+        # Draw on the video frame, or on a black canvas when overlay is disabled
+        canvas = frame if overlay else np.zeros_like(frame)
 
-            if points[partA] and points[partB]:
-                cv2.line(frame, points[partA], points[partB],
-                            (0, 255, 255), 2, lineType=cv2.LINE_AA)
-                cv2.circle(
-                    frame, points[partA], 4, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
-                cv2.circle(
-                    frame, points[partB], 4, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
+        # Joint lines (skeleton)
+        if style in ('both', 'skeleton'):
+            for pair in POSE_PAIRS:
+                partA, partB = pair[0], pair[1]
+                if points[partA] and points[partB]:
+                    cv2.line(canvas, points[partA], points[partB],
+                             (0, 255, 255), 2, lineType=cv2.LINE_AA)
+
+        # Markers (keypoints)
+        if style in ('both', 'markers'):
+            for point in points:
+                if point is not None:
+                    cv2.circle(canvas, point, 4, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
+
+        frame = canvas
 
         if save_video:
             if video_out is None:
@@ -522,6 +544,8 @@ def _pose_mediapipe(
         save_data=True,
         data_format='csv',
         save_video=True,
+        style='both',
+        overlay=True,
         save_average_pose=True,
         save_trajectories=True,
         target_name_video=None,
@@ -536,6 +560,10 @@ def _pose_mediapipe(
     ('gpu' uses the GPU delegate with automatic CPU fallback).
     """
     from musicalgestures._pose_estimator import MediaPipePoseEstimator, MEDIAPIPE_LANDMARK_NAMES
+
+    style = str(style).lower()
+    if style not in ('both', 'markers', 'skeleton'):
+        style = 'both'
 
     of, fex = os.path.splitext(self.filename)
 
@@ -600,21 +628,28 @@ def _pose_mediapipe(
                     row += [0.0, 0.0]
             data.append(row)
 
-        # Draw skeleton connections
-        for (a, b) in MEDIAPIPE_POSE_CONNECTIONS:
-            xa, ya, va = keypoints[a]
-            xb, yb, vb = keypoints[b]
-            if va >= threshold and vb >= threshold:
-                pt_a = (int(xa * self.width), int(ya * self.height))
-                pt_b = (int(xb * self.width), int(yb * self.height))
-                cv2.line(frame, pt_a, pt_b, (0, 255, 255), 2, lineType=cv2.LINE_AA)
+        # Draw on the video frame, or on a black canvas when overlay is disabled
+        canvas = frame if overlay else np.zeros_like(frame)
 
-        # Draw landmark circles
-        for i in range(len(MEDIAPIPE_LANDMARK_NAMES)):
-            x, y, vis = keypoints[i]
-            if vis >= threshold:
-                pt = (int(x * self.width), int(y * self.height))
-                cv2.circle(frame, pt, 4, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
+        # Joint lines (skeleton)
+        if style in ('both', 'skeleton'):
+            for (a, b) in MEDIAPIPE_POSE_CONNECTIONS:
+                xa, ya, va = keypoints[a]
+                xb, yb, vb = keypoints[b]
+                if va >= threshold and vb >= threshold:
+                    pt_a = (int(xa * self.width), int(ya * self.height))
+                    pt_b = (int(xb * self.width), int(yb * self.height))
+                    cv2.line(canvas, pt_a, pt_b, (0, 255, 255), 2, lineType=cv2.LINE_AA)
+
+        # Markers (keypoints)
+        if style in ('both', 'markers'):
+            for i in range(len(MEDIAPIPE_LANDMARK_NAMES)):
+                x, y, vis = keypoints[i]
+                if vis >= threshold:
+                    pt = (int(x * self.width), int(y * self.height))
+                    cv2.circle(canvas, pt, 4, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
+
+        frame = canvas
 
         if save_video:
             if video_out is None:
