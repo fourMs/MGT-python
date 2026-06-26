@@ -117,6 +117,50 @@ chroma_data = mgf.data['chroma']   # numpy array, shape (12, n_frames)
 
 ---
 
+## MFCC
+
+Mel-frequency cepstral coefficients compactly describe the spectral envelope (timbre) over time and are widely used as audio features.
+
+```python
+mfcc = audio.mfcc()
+mfcc = audio.mfcc(n_mfcc=20)
+mfcc.show()
+
+coeffs = audio.mfcc(autoshow=False).data['mfcc']   # numpy array (n_mfcc, frames)
+```
+
+---
+
+## Tempo and beat tracking
+
+`tempo()` estimates the tempo and beat positions and renders the waveform with beat markers. Numeric results are in the returned figure's `.data`:
+
+```python
+t = audio.tempo()
+t.show()
+
+print(t.data['tempo'])            # BPM
+print(t.data['beat_times'])       # beat positions (s)
+print(t.data['beat_regularity'])  # 1.0 = perfectly even beats
+```
+
+Available `.data` keys: `tempo`, `beat_times`, `ibi` (inter-beat intervals), `beat_regularity`, `beat_phases`, `deviations_s`, `R_beat`, `mu_beat`, `T_fit`, `t0_fit`, `p_rayleigh`.
+
+---
+
+## Beat statistics (timing consistency)
+
+`beat_statistics()` fits an ideal isochronous grid to the detected beats and visualises how each beat deviates from it — a polar phase histogram plus a millisecond-deviation time series. This shows whether a performer rushes, drags, or keeps steady time. Requires at least four detected beats.
+
+```python
+stats = audio.beat_statistics()
+stats.show()
+```
+
+The polar plot shows the mean resultant vector length `R` (concentration of timing) and a Rayleigh-test p-value (`p` small = significantly consistent timing).
+
+---
+
 ## Self-Similarity Matrix (SSM)
 
 Audio SSMs compare feature frames against each other to reveal repeating structure (verse/chorus, loops, etc.). Supported features are `'spectrogram'`, `'chromagram'`, and `'tempogram'`.
@@ -150,6 +194,38 @@ Descriptors can be overlaid on motion plots by passing `audio_descriptors=True` 
 
 ```python
 mv.motionplots(audio_descriptors=True)
+```
+
+---
+
+## Signal-analysis utilities
+
+The `musicalgestures` package exposes general-purpose helpers for analysing rhythm and periodicity in any 1-D signal (audio onset envelopes, quantity-of-motion curves, body-part speeds):
+
+```python
+import musicalgestures as mg
+
+mg.smooth(x, w=5)                                  # moving-average smoothing
+mg.bandpass(signal, lo, hi, fs)                    # zero-phase Butterworth band-pass
+mg.dominant_frequency(signal, fps, fmin, fmax)     # FFT peak within a band (Hz)
+mg.circular_stats(phases)                          # (R, mean_angle_deg)
+mg.rayleigh_test(phases)                           # (Z, p) non-uniformity test
+mg.synchrony(sig_a, sig_b, times_a, times_b)       # Pearson r after align + normalise
+```
+
+For example, to quantify audio–motion synchrony, correlate the audio onset strength against the video's quantity of motion:
+
+```python
+import pandas as pd, os
+mv = mg.MgVideo('dance.avi')
+motion_video = mv.motion()
+
+csv = os.path.splitext(motion_video.filename)[0].replace('_motion', '_motiondata') + '.csv'
+qom = pd.read_csv(csv)
+onset = mv.audio.tempo(autoshow=False).data   # or compute an onset envelope
+
+r = mg.synchrony(qom['Qom'].values, mv.audio.numpy())
+print(f"audio-motion correlation: {r:.3f}")
 ```
 
 ---
