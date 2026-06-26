@@ -64,6 +64,85 @@ The CSV produced by `motion()` and `motiondata()` contains one row per frame:
 
 ---
 
+## Motion heatmap
+
+`heatmap()` accumulates the absolute frame-to-frame difference across the whole video into a single colour-mapped image, so hot regions mark where the most change happened. By default the heat is overlaid on a dimmed average frame for spatial context.
+
+```python
+heat = mv.heatmap()                                    # returns MgImage
+heat = mv.heatmap(colormap='jet', overlay=False)       # bare heatmap on black
+heat = mv.heatmap(blur=3, gamma=0.4, colormap='viridis')
+heat.show()
+```
+
+- `colormap`: any matplotlib colormap (`'inferno'` default)
+- `overlay`: composite on the dimmed average frame (default `True`); `alpha`/`background_dim` tune the mix
+- `blur`: optional Gaussian smoothing radius; `gamma` (<1) boosts faint motion
+- `normalize`: scale the most active pixel to the top of the colormap
+
+---
+
+## Movement tempo
+
+`motiontempo()` estimates the dominant movement tempo from the quantity of motion (mean absolute frame difference) via an FFT, reported in both Hz and BPM.
+
+```python
+mt = mv.motiontempo()                       # returns MgFigure
+print(mt.data['tempo_bpm'])                 # dominant tempo in BPM
+print(mt.data['dominant_frequency'])        # in Hz
+mt.show()                                   # QoM signal + movement spectrum
+```
+
+Restrict the search band with `fmin`/`fmax` (Hz).
+
+---
+
+## Motion vectors
+
+`motionvectors()` visualises the motion vectors carried by inter-frame codecs (MPEG, H.264, H.265) using FFmpeg's `codecview` filter — a decoder-level view of motion with no recomputation.
+
+```python
+mvecs = mv.motionvectors()      # returns MgVideo
+mvecs.show()
+```
+
+!!! note
+    Intra-only formats (e.g. MJPEG in many `.avi` files) carry no motion vectors. Convert to an mp4/H.264 source first to see them.
+
+---
+
+## Eulerian Video Magnification
+
+`eulerian()` amplifies subtle changes that are normally invisible (Wu et al., SIGGRAPH 2012).
+
+```python
+# Amplify subtle COLOUR changes (e.g. pulse, breathing)
+evm = mv.eulerian(mode='color', freq_low=0.83, freq_high=1.0, amplification=50)
+
+# Amplify subtle MOTION
+evm = mv.eulerian(mode='motion', freq_low=0.4, freq_high=3.0, amplification=20)
+evm.show()
+```
+
+- `mode='color'` uses a Gaussian pyramid + ideal FFT temporal band-pass (two-pass, low memory)
+- `mode='motion'` uses a Laplacian pyramid + streaming IIR band-pass (frame-by-frame, low memory)
+- `freq_low`/`freq_high` set the temporal band in Hz; `amplification` is the gain; `levels` the pyramid depth
+
+---
+
+## Sonomotiongram
+
+`sonomotiongram()` sonifies the motiongram: the motiongram matrix is treated as a magnitude spectrogram (spatial position → frequency, motion intensity → amplitude) and resynthesised to audio via an inverse STFT (Griffin–Lim). It returns an [`MgAudio`](audio-analysis.md), so you can analyse or play the result.
+
+```python
+son = mv.sonomotiongram(sonogram='vertical')   # or 'horizontal' — returns MgAudio
+son.waveform().show()
+son.spectrogram().show()
+# rendered WAV at son.filename
+```
+
+---
+
 ## Videograms
 
 Videograms apply the motiongram technique to the source video directly, without first computing frame differences. They show the full scene content over time rather than motion only.
@@ -115,9 +194,9 @@ mv.show(key='subtract')
 `grid()` assembles a strip of evenly-spaced frames into a single image, useful for quickly reviewing a recording.
 
 ```python
-grid = mv.grid(height=300, rows=3, cols=3)  # returns MgImage
+grid = mv.grid(height=300, rows=3, columns=3)  # returns MgImage
 grid.show()
-grid_array = mv.grid(height=300, rows=3, cols=3, return_array=True)
+grid_array = mv.grid(height=300, rows=3, columns=3, return_array=True)
 ```
 
 ---
@@ -165,19 +244,26 @@ motion_average.show()
 
 ## Pose estimation
 
-`pose()` runs OpenPose skeleton estimation on each frame. On first use it downloads the requested model weights (~200 MB).
+`pose()` runs skeleton estimation on each frame, with two backends:
+
+- **MediaPipe** (`model='mediapipe'`): Google MediaPipe Pose, 33 landmarks. Model auto-downloads (~8–28 MB). Supports GPU via MediaPipe's own delegate, independent of OpenCV's CUDA build — so it works on the standard pip OpenCV.
+- **OpenPose** (`model='body_25'`/`'coco'`/`'mpi'`): Caffe models (~200 MB on first use). GPU here needs an OpenCV compiled with CUDA.
 
 ```python
+pose = mv.pose(model='mediapipe', device='gpu')                 # recommended; GPU-capable
 pose = mv.pose(model='coco', device='cpu', downsampling_factor=4)
-pose = mv.pose(model='body_25', device='gpu', downsampling_factor=2, threshold=0.1)
+pose = mv.pose(model='body_25', device='gpu', threshold=0.1)
 pose.show()
 mv.show(key='pose')
 ```
 
-- `model`: `'body_25'` (default), `'coco'`, or `'mpi'`
-- `device`: `'cpu'` (default) or `'gpu'` (falls back to CPU if CUDA is unavailable)
-- `downsampling_factor`: reduces input resolution before inference; higher values are faster but less accurate
+- `model`: `'mediapipe'`, `'body_25'` (default), `'coco'`, or `'mpi'`
+- `device`: `'cpu'` or `'gpu'`. For OpenPose models, if `device='gpu'` is requested but OpenCV lacks CUDA, `pose()` automatically switches to the MediaPipe backend (when installed) so the GPU is still used; otherwise it falls back to CPU.
+- `downsampling_factor`: reduces input resolution before inference (OpenPose only); higher is faster but less accurate
 - `threshold`: minimum network confidence to accept a keypoint (normalised 0–1)
+
+!!! tip "GPU acceleration"
+    `pose(model='mediapipe', device='gpu')` gives GPU acceleration with the standard pip OpenCV. The OpenCV-based methods (`flow.dense(use_gpu=True)`, `blur_faces(use_gpu=True)`, OpenPose `device='gpu'`) need an OpenCV built with CUDA. Use `mg.cuda_build_available()` to check, and `mg.cuda_unavailable_reason()` for an explanation.
 
 ---
 

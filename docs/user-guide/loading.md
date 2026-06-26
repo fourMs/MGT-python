@@ -75,6 +75,21 @@ mv.info('audio')    # audio stream metadata only
 mv.info('format')   # container/format metadata only
 ```
 
+For a quick human-readable overview, use `info('summary')` — it prints resolution, frame count, fps, duration, colour mode, video codec/profile, colour profile, and audio codec/sample-rate/bit-rate, and returns the values as a dict:
+
+```python
+summary = mv.info('summary')
+# File:         video.avi
+# Resolution:   1920 × 1080 px
+# Frames:       750  @  25 fps
+# Duration:     0:30.00  (30.000 s)
+# Color:        color
+# Video codec:  h264 (High)
+# Audio:        aac (48,000 Hz, 192 kbps)
+# File size:    42.3 MB
+print(summary['fps'], summary['video_codec'])
+```
+
 ### I/P/B frame types
 
 To inspect the compression frame types in the video:

@@ -190,6 +190,14 @@ descriptors = audio.descriptors()
 descriptors.show()
 ```
 
+Set `save_data=True` to also write the per-frame descriptor time series to disk (csv/tsv/txt), mirroring `motiondata`:
+
+```python
+audio.descriptors(save_data=True, data_format='csv')   # or 'tsv' / 'txt' / ['csv','txt']
+# writes <name>_descriptors.csv with columns:
+# Time, RMS, Centroid, Bandwidth, Rolloff, RolloffMin, Flatness
+```
+
 Descriptors can be overlaid on motion plots by passing `audio_descriptors=True` to `motionplots()`:
 
 ```python

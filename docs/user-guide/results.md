@@ -2,6 +2,9 @@
 
 MGT-python analysis methods return one of three result types: `MgFigure`, `MgImage`, or `MgList`. All three implement `show()` and can be combined into stacked, time-aligned figures.
 
+!!! note "Display happens via `show()`"
+    Result objects do **not** auto-render as the last expression of a notebook cell — call `show()` to display them. This keeps a single, predictable display and avoids duplicate output. (An HTML snippet is still available programmatically via `to_html()` on `MgImage`/`MgFigure`.)
+
 ---
 
 ## MgFigure
