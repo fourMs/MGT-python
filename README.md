@@ -63,11 +63,10 @@ v.pose(model='body_25', device='cpu')
 
 ### Quick Links
 
-- [Installation Guide](docs/installation.md)
-- [Quick Start Tutorial](docs/quickstart.md)
-- [Examples & Tutorials](docs/examples.md)
-- [User Guide](docs/user-guide/core-classes.md)
-- [API Reference](docs/musicalgestures/index.md)
+- [Installation Guide](https://fourms.github.io/MGT-python/installation/)
+- [Quick Start Tutorial](https://fourms.github.io/MGT-python/quickstart/)
+- [API Reference](https://fourms.github.io/MGT-python/musicalgestures/)
+- [Wiki & How-Tos](https://github.com/fourMs/MGT-python/wiki)
 - [Contributing](docs/contributing.md)
 
 ## Features

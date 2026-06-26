@@ -46,7 +46,7 @@ mv = mg.MgVideo(
     endtime=30,        # End at 30 seconds  
     color=False,       # Convert to grayscale
     filtertype='Regular',  # Motion detection filter
-    thresh=0.1         # Motion threshold
+    threshold=0.1      # Motion threshold
 )
 ```
 
@@ -72,16 +72,16 @@ Extract motion information from your video:
 ```python
 mv = mg.MgVideo(examples.dance)
 
-# Perform motion analysis
-motion_data = mv.motion()
+# Perform motion analysis — returns MgVideo pointing to the motion video
+motion_video = mv.motion()
+motion_video.show()           # watch the motion video
+mv.show(key='motion')         # equivalent shorthand via source MgVideo
 
-# This creates several outputs:
-print(f"Motion video: {motion_data['motion_video']}")
-print(f"Data file: {motion_data['motion_data']}")
-
-# Access motion metrics
+# Motion data (QoM, CoM, AoM per frame) is saved as a CSV alongside the video
 import pandas as pd
-data = pd.read_csv(motion_data['motion_data'])
+import os
+csv_path = os.path.splitext(motion_video.filename)[0].replace('_motion', '_motiondata') + '.csv'
+data = pd.read_csv(csv_path)
 print(data.head())
 ```
 
@@ -94,18 +94,19 @@ Generate various visualizations:
 ```python
 mv = mg.MgVideo(examples.pianist)
 
-# Motiongrams (motion over time)
+# Motiongrams — returns MgList with [horizontal_mgram, vertical_mgram]
 motiongrams = mv.motiongrams()
-print(f"Horizontal motiongram: {motiongrams['mg_x']}")
-print(f"Vertical motiongram: {motiongrams['mg_y']}")
+motiongrams[0].show()  # horizontal motiongram
+motiongrams[1].show()  # vertical motiongram
+mv.show(key='mgx')     # shorthand from source MgVideo
 
-# Average image
+# Average image (blend of all frames)
 average_img = mv.average()
-print(f"Average image saved: {average_img}")
+average_img.show()
 
 # Motion history
 history = mv.history()
-print(f"Motion history: {history}")
+history.show()
 ```
 
 Face anonymization also returns a usable result object even when exporting face-coordinate data:
@@ -198,8 +199,6 @@ average = mv.average()
 audio_analysis = mv.audio.spectrogram()
 
 print("Analysis complete!")
-print(f"Motion data: {motion['motion_data']}")
-print(f"Visualizations created in: {mv.outdir}")
 ```
 
 ## Understanding Output Files
@@ -221,11 +220,7 @@ MGT-python creates several types of output files:
 
 ### Working Directory
 
-By default, outputs are saved in the same directory as your input video. You can specify a different location:
-
-```python
-mv = mg.MgVideo('video.mp4', outdir='/path/to/output/')
-```
+By default, outputs are saved in the same directory as your input video. Use `target_name` on individual methods to control the output path for a specific result.
 
 ## Interactive Analysis
 
@@ -273,9 +268,9 @@ for video_file in video_files:
 Now that you're familiar with the basics, explore more advanced features:
 
 - **[Core Classes](user-guide/core-classes.md)** - Detailed class documentation
-- **[Video Processing](user-guide/video-processing.md)** - Advanced video techniques
-- **[Audio Analysis](user-guide/audio-analysis.md)** - Comprehensive audio features
+- **[API Reference](musicalgestures/index.md)** - Complete function reference
 - **[Examples](examples.md)** - More complete examples and use cases
+- **[Wiki](https://github.com/fourMs/MGT-python/wiki)** - Function-level how-to guides
 
 ## Common Issues
 

@@ -109,7 +109,7 @@ While not officially supported, you can use conda for dependency management:
 
 ```bash
 # Create a new environment
-conda create -n mgt python=3.9
+conda create -n mgt python=3.10
 conda activate mgt
 
 # Install pip dependencies
@@ -137,7 +137,7 @@ pip install musicalgestures
 
 ### Using conda
 ```bash
-conda create -n mgt python=3.9
+conda create -n mgt python=3.10
 conda activate mgt
 pip install musicalgestures
 ```
