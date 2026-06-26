@@ -300,6 +300,13 @@ pv.trajectories.show()     # every marker's spatial path over the whole video
 # a per-marker stats CSV (<name>_pose_average_stats.csv) with average QoM and frequency is also saved
 ```
 
+The average-pose labels are automatically laid out so they don't overlap (with thin leader lines back to each marker). When the trajectories image is the **only** one exported, it is rendered on a **transparent background** so you can overlay it on the video afterwards; force it either way with `transparent_trajectories=True/False`:
+
+```python
+mv.pose(model='mediapipe', save_average_pose=False, save_video=False)   # trajectories only → transparent PNG
+mv.pose(model='mediapipe', transparent_trajectories=True)              # force transparent trajectories
+```
+
 !!! tip "GPU acceleration"
     `pose(model='mediapipe', device='gpu')` gives GPU acceleration with the standard pip OpenCV. The OpenCV-based methods (`flow.dense(use_gpu=True)`, `blur_faces(use_gpu=True)`, OpenPose `device='gpu'`) need an OpenCV built with CUDA. Use `mg.cuda_build_available()` to check, and `mg.cuda_unavailable_reason()` for an explanation.
 
