@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.1] – 2026-06-26
+
+### Fixed
+- `average()` now correctly ignores both `method=` and `normalize=` legacy kwargs (1.4.0 only filtered `normalize=`).
+- Rename `cols` → `columns` parameter in `mg_grid`.
+- Added `audio.chromagram()` method.
+
+---
+
 ## [1.4.0] – 2026-06-26
 
 ### Added
@@ -75,6 +84,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.4.1...HEAD
+[1.4.1]: https://github.com/fourMs/MGT-python/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/fourMs/MGT-python/compare/v1.3.3...v1.4.0
 [1.3.3]: https://github.com/fourMs/MGT-python/releases/tag/v1.3.3
