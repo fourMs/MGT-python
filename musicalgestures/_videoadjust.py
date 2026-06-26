@@ -57,9 +57,27 @@ def contrast_brightness_ffmpeg(filename, contrast=0, brightness=0, target_name=N
     return target_name
 
 
+def _build_atempo_chain(ratio):
+    """Build a chained atempo filter string for ratios outside FFmpeg's per-filter [0.5, 100.0] limit."""
+    parts = []
+    while ratio > 100.0:
+        parts.append('atempo=100.0')
+        ratio /= 100.0
+    while ratio < 0.5:
+        parts.append('atempo=0.5')
+        ratio /= 0.5
+    parts.append(f'atempo={ratio:.6g}')
+    return ','.join(parts)
+
+
+def _safe_output_name(path):
+    """Return path with colons removed from the basename (colons break FFmpeg output on some systems)."""
+    return os.path.join(os.path.dirname(path), os.path.basename(path).replace(':', '_'))
+
+
 def skip_frames_ffmpeg(filename, skip=0, target_name=None, overwrite=False):
     """
-    Time-shrinks the video by skipping (discarding) every n frames determined by `skip`. 
+    Time-shrinks the video by skipping (discarding) every n frames determined by `skip`.
     To discard half of the frames (ie. double the speed of the video) use `skip=1`.
 
     Args:
@@ -81,14 +99,18 @@ def skip_frames_ffmpeg(filename, skip=0, target_name=None, overwrite=False):
     atempo_ratio = skip+1
 
     if target_name is None:
-        target_name = of + '_skip' + fex
+        target_name = _safe_output_name(of + '_skip' + fex)
+    else:
+        target_name = _safe_output_name(target_name)
     if not overwrite:
         target_name = generate_outfilename(target_name)
 
     # original duration of the file is stored in the -metadata title variable
-    if has_audio(filename): 
+    if has_audio(filename):
+        # atempo only accepts values in [0.5, 100.0] per filter; chain multiple for large ratios
+        atempo_chain = _build_atempo_chain(atempo_ratio)
         cmd = ['ffmpeg', '-y', '-i', filename, '-metadata', f'title={get_length(filename)}', '-filter_complex',
-               f'[0:v]setpts={pts_ratio}*PTS[v];[0:a]atempo={atempo_ratio}[a]', '-map', '[v]', '-map', '[a]', '-q:v', '3', '-shortest', target_name]
+               f'[0:v]setpts={pts_ratio}*PTS[v];[0:a]{atempo_chain}[a]', '-map', '[v]', '-map', '[a]', '-q:v', '3', '-shortest', target_name]
     else:
         cmd = ['ffmpeg', '-y', '-i', filename, '-metadata', f'title={get_length(filename)}', '-filter_complex',
                f'[0:v]setpts={pts_ratio}*PTS[v]', '-map', '[v]', '-q:v', '3', target_name]
@@ -145,8 +167,9 @@ def fixed_frames_ffmpeg(filename, frames=0, target_name=None, overwrite=False):
         return target_name
 
     if has_audio(filename):
+        atempo_chain = _build_atempo_chain(atempo_ratio)
         cmd = ['ffmpeg', '-y', '-i', filename, '-filter_complex',
-               f'[0:v]setpts={pts_ratio}*PTS[v];[0:a]atempo={atempo_ratio}[a]', '-map', '[v]', '-map', '[a]', '-q:v', '3', '-shortest', target_name]
+               f'[0:v]setpts={pts_ratio}*PTS[v];[0:a]{atempo_chain}[a]', '-map', '[v]', '-map', '[a]', '-q:v', '3', '-shortest', target_name]
     else:
         cmd = ['ffmpeg', '-y', '-i', filename, '-filter_complex',
                f'[0:v]setpts={pts_ratio}*PTS[v]', '-map', '[v]', '-q:v', '3', target_name]

@@ -38,25 +38,61 @@ def mg_info(self, type=None, autoshow=True, overwrite=False):
         else:
             size_str = f"{filesize} B"
 
+        # Query codec/profile details from ffprobe
+        v = _probe_stream(self.filename, 'v')
+        a = _probe_stream(self.filename, 'a')
+
+        video_codec = v.get('codec_name')
+        video_profile = v.get('profile')
+        pix_fmt = v.get('pix_fmt')
+        color_space = v.get('color_space')
+        color_profile = ', '.join(x for x in (pix_fmt, color_space) if x and x != 'unknown') or None
+
+        audio_codec = a.get('codec_name')
+        audio_sr = a.get('sample_rate')
+        audio_br = a.get('bit_rate')
+        audio_sr_str = f"{int(audio_sr):,} Hz" if audio_sr and audio_sr.isdigit() else None
+        audio_br_str = f"{int(audio_br) // 1000} kbps" if audio_br and audio_br.isdigit() else None
+
         info_dict = {
-            'filename':  os.path.basename(self.filename),
-            'width':     self.width,
-            'height':    self.height,
-            'fps':       self.fps,
-            'frames':    framecount,
-            'duration':  round(self.length, 3),
-            'color':     self.color,
-            'has_audio': bool(self.has_audio),
-            'filesize':  filesize,
+            'filename':       os.path.basename(self.filename),
+            'width':          self.width,
+            'height':         self.height,
+            'fps':            self.fps,
+            'frames':         framecount,
+            'duration':       round(self.length, 3),
+            'color':          self.color,
+            'video_codec':    video_codec,
+            'video_profile':  video_profile,
+            'pixel_format':   pix_fmt,
+            'color_space':    color_space,
+            'has_audio':      bool(self.has_audio),
+            'audio_codec':    audio_codec,
+            'audio_sample_rate': int(audio_sr) if audio_sr and audio_sr.isdigit() else None,
+            'audio_bit_rate': int(audio_br) if audio_br and audio_br.isdigit() else None,
+            'filesize':       filesize,
         }
 
-        col = 12
+        col = 14
         print(f"{'File:':<{col}} {os.path.basename(self.filename)}")
         print(f"{'Resolution:':<{col}} {self.width} × {self.height} px")
         print(f"{'Frames:':<{col}} {framecount}  @  {self.fps:g} fps")
         print(f"{'Duration:':<{col}} {duration_str}  ({self.length:.3f} s)")
         print(f"{'Color:':<{col}} {'color' if self.color else 'grayscale'}")
-        print(f"{'Audio:':<{col}} {'yes' if self.has_audio else 'no'}")
+        codec_str = video_codec or 'unknown'
+        if video_profile:
+            codec_str += f" ({video_profile})"
+        print(f"{'Video codec:':<{col}} {codec_str}")
+        if color_profile:
+            print(f"{'Color profile:':<{col}} {color_profile}")
+        if self.has_audio:
+            audio_str = audio_codec or 'unknown'
+            extras = ', '.join(x for x in (audio_sr_str, audio_br_str) if x)
+            if extras:
+                audio_str += f" ({extras})"
+            print(f"{'Audio:':<{col}} {audio_str}")
+        else:
+            print(f"{'Audio:':<{col}} no")
         print(f"{'File size:':<{col}} {size_str}")
 
         return info_dict
@@ -152,6 +188,39 @@ def mg_info(self, type=None, autoshow=True, overwrite=False):
             return df[df.codec_type == type]
         else:
             return df
+
+
+def _probe_stream(filename, stream_type):
+    """
+    Query ffprobe for the first stream of a given type and return its entries as a dict.
+
+    Args:
+        filename (str): Path to the media file.
+        stream_type (str): 'v' for video or 'a' for audio.
+
+    Returns:
+        dict: key/value pairs from the ffprobe stream output (empty if no such stream).
+    """
+    cmd = ["ffprobe", "-hide_banner", "-loglevel", "quiet", "-select_streams",
+           f"{stream_type}:0", "-show_entries",
+           "stream=codec_name,profile,pix_fmt,color_space,sample_rate,bit_rate",
+           "-of", "default=noprint_wrappers=1", filename]
+    try:
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+        out, _ = process.communicate(timeout=10)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        return {}
+    except Exception:
+        return {}
+
+    result = {}
+    for line in out.splitlines():
+        if '=' in line:
+            key, value = line.split('=', 1)
+            if value not in ('', 'N/A', 'unknown'):
+                result[key] = value
+    return result
 
 
 def plot_frames(df, label, color_list=['#636EFA','#00CC96','#EF553B'], index=0):
