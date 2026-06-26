@@ -78,6 +78,45 @@ hpss_fig.show()
 
 ---
 
+## Chromagram
+
+A chromagram maps audio energy onto the 12 pitch classes (C, C#, D, …, B) over time. It is useful for analysing harmony, chord progressions, and key.
+
+```python
+chroma = audio.chromagram()
+chroma.show()
+```
+
+Three algorithms are available via `chroma_type`:
+
+| `chroma_type` | Algorithm | Best for |
+|---|---|---|
+| `'cqt'` (default) | Constant-Q Transform | Music with low-frequency content |
+| `'stft'` | Short-Time Fourier Transform | Fast computation |
+| `'cens'` | Chroma Energy Normalised Statistics | Robustness to timbre and dynamics |
+
+```python
+chroma_cqt  = audio.chromagram(chroma_type='cqt')
+chroma_stft = audio.chromagram(chroma_type='stft')
+chroma_cens = audio.chromagram(chroma_type='cens')
+```
+
+You can also control normalisation and colormap:
+
+```python
+chroma = audio.chromagram(norm=2, cmap='viridis')   # L2 norm, viridis colormap
+chroma = audio.chromagram(norm=None)                 # no normalisation
+```
+
+The `chroma` array (shape `12 × frames`) is available in the returned `MgFigure`:
+
+```python
+mgf = audio.chromagram()
+chroma_data = mgf.data['chroma']   # numpy array, shape (12, n_frames)
+```
+
+---
+
 ## Self-Similarity Matrix (SSM)
 
 Audio SSMs compare feature frames against each other to reveal repeating structure (verse/chorus, loops, etc.). Supported features are `'spectrogram'`, `'chromagram'`, and `'tempogram'`.

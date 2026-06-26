@@ -705,3 +705,107 @@ class MgAudio:
             image=target_name)
 
         return mgf
+
+    def chromagram(self, n_chroma=12, norm=np.inf, chroma_type='cqt', cmap='coolwarm', dpi=300, autoshow=True, raw=False, original_time=False, title=None, target_name=None, overwrite=False):
+        """
+        Renders a figure showing the chromagram of the video/audio file.
+
+        A chromagram maps audio energy onto the 12 pitch classes (C, C#, D, …, B) over time,
+        making it useful for analysing harmony and chord progressions.
+
+        Args:
+            n_chroma (int, optional): Number of chroma bins (pitch classes). Defaults to 12.
+            norm (float or None, optional): Column-wise normalisation. np.inf gives maximum-norm,
+                1 gives L1-norm, 2 gives L2-norm, None disables normalisation. Defaults to np.inf.
+            chroma_type (str, optional): Algorithm used to compute the chroma features.
+                'cqt'  — Constant-Q transform (best for music, handles low frequencies well).
+                'stft' — Short-time Fourier transform (faster, slightly lower pitch resolution).
+                'cens' — Chroma Energy Normalised Statistics (robust to dynamics and timbre).
+                Defaults to 'cqt'.
+            cmap (str, optional): Matplotlib colormap for the chromagram display. Defaults to 'coolwarm'.
+            dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
+            autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+            raw (bool, optional): Whether to show labels and ticks on the plot. Defaults to False.
+            original_time (bool, optional): Whether to plot original time or not. Defaults to False.
+            title (str, optional): Optionally add title to the figure. Use 'filename' to set the filename as title. Defaults to None.
+            target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_chromagram.png" should be used).
+            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+
+        Returns:
+            MgFigure: An MgFigure object referring to the internal figure and its data.
+        """
+        if not has_audio(self.filename):
+            print('The video has no audio track.')
+            return
+
+        if target_name is None:
+            target_name = self.of + '_chromagram.png'
+        else:
+            target_name = os.path.splitext(target_name)[0] + '.png'
+        if not overwrite:
+            target_name = generate_outfilename(target_name)
+
+        y, sr = librosa.load(self.filename, sr=self.sr)
+
+        chroma_type = chroma_type.lower()
+        if chroma_type == 'cqt':
+            chroma = librosa.feature.chroma_cqt(
+                y=y, sr=sr, hop_length=self.hop_length, n_chroma=n_chroma, norm=norm)
+        elif chroma_type == 'stft':
+            chroma = librosa.feature.chroma_stft(
+                y=y, sr=sr, n_fft=self.n_fft, hop_length=self.hop_length, n_chroma=n_chroma, norm=norm)
+        elif chroma_type == 'cens':
+            chroma = librosa.feature.chroma_cens(
+                y=y, sr=sr, hop_length=self.hop_length, n_chroma=n_chroma, norm=norm)
+        else:
+            print(f"Unknown chroma_type '{chroma_type}'. Use 'cqt', 'stft', or 'cens'.")
+            return
+
+        fig, ax = plt.subplots(figsize=(12, 4), dpi=dpi)
+        fig.patch.set_facecolor('white')
+        fig.patch.set_alpha(1)
+
+        if title is None:
+            title = ''
+        if title == 'filename':
+            title = os.path.basename(self.filename)
+        fig.suptitle(title, fontsize=16)
+
+        img = librosa.display.specshow(
+            chroma, sr=sr, hop_length=self.hop_length,
+            x_axis='time', y_axis='chroma', cmap=cmap, ax=ax)
+
+        fig.colorbar(img, ax=ax)
+        ax.set(title=f'Chromagram ({chroma_type.upper()})')
+
+        self.format_time(ax, original_time)
+
+        if raw:
+            fig.patch.set_visible(False)
+            fig.suptitle('')
+            ax.axis('off')
+
+        plt.tight_layout()
+        plt.savefig(target_name, format='png', transparent=False)
+
+        if not autoshow:
+            plt.close()
+
+        data = {
+            "hop_size": self.hop_length,
+            "sr": sr,
+            "of": self.of,
+            "chroma": chroma,
+            "chroma_type": chroma_type,
+            "n_chroma": n_chroma,
+            "length": self.length,
+        }
+
+        mgf = MgFigure(
+            figure=fig,
+            figure_type='audio.chromagram',
+            data=data,
+            layers=None,
+            image=target_name)
+
+        return mgf
