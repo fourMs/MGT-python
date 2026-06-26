@@ -260,11 +260,14 @@ mv.show(key='pose')
 pose = mv.pose(model='mediapipe', style='markers', overlay=False)
 # draw only the skeleton (joint lines) over the video
 pose = mv.pose(model='mediapipe', style='skeleton')
+# markers/skeleton on a white background
+pose = mv.pose(model='mediapipe', overlay=False, background='white')
 ```
 
 - `model`: `'mediapipe'`, `'body_25'` (default), `'coco'`, or `'mpi'`
 - `style`: `'both'` (default), `'markers'` (keypoints only), or `'skeleton'` (joint lines only)
-- `overlay`: `True` (draw on the video) or `False` (draw on a black background)
+- `overlay`: `True` (draw on the video) or `False` (draw on a plain background)
+- `background`: `'black'` (default) or `'white'` — the background colour when `overlay=False` (colours adapt for contrast)
 - `device`: `'cpu'` or `'gpu'`. For OpenPose models, if `device='gpu'` is requested but OpenCV lacks CUDA, `pose()` automatically switches to the MediaPipe backend (when installed) so the GPU is still used; otherwise it falls back to CPU.
 - `downsampling_factor`: reduces input resolution before inference (OpenPose only); higher is faster but less accurate
 - `threshold`: minimum network confidence to accept a keypoint (normalised 0–1)
