@@ -171,9 +171,9 @@ class MgVideo(MgAudio):
         Returns:
             MgImage: A new MgImage pointing to the output average image file.
         """
-        # Remove 'normalize' parameter if present (for backward compatibility)
-        # The current blend implementation doesn't support normalize
-        filtered_kwargs = {k: v for k, v in kwargs.items() if k != 'normalize'}
+        # Strip parameters that were documented in older API versions but aren't
+        # supported by the underlying blend implementation.
+        filtered_kwargs = {k: v for k, v in kwargs.items() if k not in ('normalize', 'method')}
         return self.blend(component_mode='average', **filtered_kwargs)
 
     def test_input(self):
