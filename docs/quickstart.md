@@ -210,7 +210,7 @@ print(ts.data['audio_tempo_bpm'], ts.data['motion_tempo_bpm'])
 
 ![Audio–movement tempo similarity](images/examples/tempo_similarity.png)
 
-See the dedicated [Audio–Video Processing & Analysis](user-guide/audiovisual.md) page for the full suite (phase synchrony, structure comparison, body–audio and dynamics coupling).
+See the dedicated [Audio-Video Processing & Analysis](user-guide/audio-video.md) page for the full suite (phase synchrony, structure comparison, body–audio and dynamics coupling).
 
 ## Working with Your Own Videos
 

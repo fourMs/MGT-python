@@ -1,4 +1,4 @@
-# Audio–Video Processing & Analysis
+# Audio-Video Processing & Analysis
 
 MGT-python treats sound and movement as two views of the same performance. This page collects the
 tools that **cross** the two domains — converting between them, aligning them, and measuring how

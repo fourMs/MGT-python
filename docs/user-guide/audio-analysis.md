@@ -245,7 +245,7 @@ mv.phase_synchrony().show()
 mv.dynamics_coupling().show()
 ```
 
-See the dedicated **[Audio–Video Processing & Analysis](audiovisual.md)** page for full descriptions, the sonification/beat-warping tools, and example figures.
+See the dedicated **[Audio-Video Processing & Analysis](audio-video.md)** page for full descriptions, the sonification/beat-warping tools, and example figures.
 
 ---
 

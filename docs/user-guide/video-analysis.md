@@ -502,7 +502,7 @@ MGT-python provides a suite of reports that compare a single performer's **sound
 loudness-vs-motion dynamics coupling — alongside the sonification and beat-warping tools. These now
 have their own page:
 
-➡️ **[Audio–Video Processing & Analysis](audiovisual.md)**
+➡️ **[Audio-Video Processing & Analysis](audio-video.md)**
 
 ```python
 mv.tempo_similarity().show()      # audio tempo vs movement tempo
