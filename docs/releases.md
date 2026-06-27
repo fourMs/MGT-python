@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.6.1**.
+The current stable release is **MGT-python 1.6.2**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,15 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.6.2
+
+- `pose()` falls back to OpenPose when MediaPipe isn't installed (works out of the box).
+- Fixed method-shadowing (audio–movement reports / warp), `blend()`/`grid()` ignoring their
+  filename/target arguments, and several docstring/quickstart errors.
+- Informative `repr` for `MgVideo`/`MgAudio`; new `duration`/`n_frames` properties and
+  `MgImage.save()`/`MgFigure.save()`.
+- New docs: optional-extras matrix, core-class conveniences, and a "which method?" table.
 
 ### 1.6.1
 

@@ -9,6 +9,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.6.2] – 2026-06-27
+
+### Fixed
+- `pose()` defaults to the MediaPipe backend (the optional `[pose]` extra). On installs without
+  MediaPipe it now **falls back to the OpenPose `body_25` backend** (with a clear message) instead
+  of raising, so `pose()` works out of the box. (This also fixes the CI test jobs.)
+- Several result attributes shadowed their own methods on the instance, so a second call failed:
+  `tempo_similarity`, `phase_synchrony`, `structure_comparison`, `body_audio_coupling`,
+  `dynamics_coupling` (now stored as `*_figure`) and the warp result (now `self.warp_video`).
+- `blend()` ignored its `filename` argument (it always read `self.filename`).
+- `grid()` ignored its `target_name` argument (it always wrote `<input>_grid.png`).
+- Corrected stale `overwrite` docstrings (now default `True`), documented the previously
+  undocumented `convert` parameter on `directograms`/`impacts`/`history_cv2`, and fixed several
+  quickstart errors (invalid `scale=` example; `_motiondata.csv`/`_descriptors.csv`/`.avi` names).
+
+### Added
+- Informative `repr` for `MgVideo` (frames, fps, size, audio) and `MgAudio`.
+- `MgVideo.duration` (seconds) and `MgVideo.n_frames` properties, and `MgAudio.duration` — clearing
+  up the `length` footgun (frame count for video vs seconds for audio).
+- `MgImage.save(path)` and `MgFigure.save(path)` to copy/save a result to a chosen location.
+- Documentation: an optional-dependency/extras matrix, core-class conveniences, a "Which method
+  should I use?" disambiguation table, and `pose_center()`/`pose_distance()` with examples + images.
+
+---
+
 ## [1.6.1] – 2026-06-27
 
 ### Added
@@ -386,7 +411,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.6.1...HEAD
+[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.6.2...HEAD
+[1.6.2]: https://github.com/fourMs/MGT-python/compare/v1.6.1...v1.6.2
 [1.6.1]: https://github.com/fourMs/MGT-python/compare/v1.6.0...v1.6.1
 [1.6.0]: https://github.com/fourMs/MGT-python/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/fourMs/MGT-python/compare/v1.4.9...v1.5.0
