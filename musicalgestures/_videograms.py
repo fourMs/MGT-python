@@ -13,8 +13,8 @@ def videograms_ffmpeg(self, target_name_x=None, target_name_y=None, overwrite=Tr
     the index of the source frame.
 
     Args:
-        target_name_x (str, optional): Target output name for the videogram on the X axis. Defaults to None (which assumes that the input filename with the suffix "_vgx" should be used).
-        target_name_y (str, optional): Target output name for the videogram on the Y axis. Defaults to None (which assumes that the input filename with the suffix "_vgy" should be used).
+        target_name_x (str, optional): Target output name for the vertical videogram (the x-axis collapse). Defaults to None (which assumes that the input filename with the suffix "_vgv" should be used).
+        target_name_y (str, optional): Target output name for the horizontal videogram (the y-axis collapse). Defaults to None (which assumes that the input filename with the suffix "_vgh" should be used).
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:
@@ -56,9 +56,9 @@ def videograms_ffmpeg(self, target_name_x=None, target_name_y=None, overwrite=Tr
         length = get_length(shortened_file)
 
         if target_name_x is None:
-            target_name_x = skip_of+'_vgx.png'
+            target_name_x = skip_of+'_vgv.png'
         if target_name_y is None:
-            target_name_y = skip_of+'_vgy.png'
+            target_name_y = skip_of+'_vgh.png'
         if not overwrite:
             target_name_x = generate_outfilename(target_name_x)
             target_name_y = generate_outfilename(target_name_y)
@@ -83,9 +83,9 @@ def videograms_ffmpeg(self, target_name_x=None, target_name_y=None, overwrite=Tr
         length = get_length(self.filename)
 
         if target_name_x is None:
-            target_name_x = self.of +'_vgx.png'
+            target_name_x = self.of +'_vgv.png'
         if target_name_y is None:
-            target_name_y = self.of+'_vgy.png'
+            target_name_y = self.of+'_vgh.png'
         if not overwrite:
             target_name_x = generate_outfilename(target_name_x)
             target_name_y = generate_outfilename(target_name_y)

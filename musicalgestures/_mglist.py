@@ -273,14 +273,12 @@ class MgList():
 
                     # add title based on content
                     last_tag = os.path.splitext(obj.filename)[0].split('_')[-1]
-                    if last_tag == 'mgx':
-                        ax[plot_counter].set(title='Motiongram X')
-                    elif last_tag == 'mgy':
-                        ax[plot_counter].set(title='Motiongram Y')
-                    elif last_tag == 'vgx':
-                        ax[plot_counter].set(title='Videogram X')
-                    elif last_tag == 'vgy':
-                        ax[plot_counter].set(title='Videogram Y')
+                    tag_titles = {'mgh': 'Horizontal Motiongram', 'mgv': 'Vertical Motiongram',
+                                  'vgh': 'Horizontal Videogram', 'vgv': 'Vertical Videogram',
+                                  'mgx': 'Vertical Motiongram', 'mgy': 'Horizontal Motiongram',
+                                  'vgx': 'Vertical Videogram', 'vgy': 'Horizontal Videogram'}
+                    if last_tag in tag_titles:
+                        ax[plot_counter].set(title=tag_titles[last_tag])
                     else:
                         ax[plot_counter].set(
                             title=os.path.basename(obj.filename))
@@ -508,14 +506,12 @@ class MgList():
 
             # add title based on content
             last_tag = os.path.splitext(img_to_redo)[0].split('_')[-1]
-            if last_tag == 'mgx':
-                ax[0].set(title='Motiongram X')
-            elif last_tag == 'mgy':
-                ax[0].set(title='Motiongram Y')
-            elif last_tag == 'vgx':
-                ax[0].set(title='Videogram X')
-            elif last_tag == 'vgy':
-                ax[0].set(title='Videogram Y')
+            tag_titles = {'mgh': 'Horizontal Motiongram', 'mgv': 'Vertical Motiongram',
+                          'vgh': 'Horizontal Videogram', 'vgv': 'Vertical Videogram',
+                          'mgx': 'Vertical Motiongram', 'mgy': 'Horizontal Motiongram',
+                          'vgx': 'Vertical Videogram', 'vgy': 'Horizontal Videogram'}
+            if last_tag in tag_titles:
+                ax[0].set(title=tag_titles[last_tag])
             else:
                 ax[0].set(title=os.path.basename(img_to_redo))
 

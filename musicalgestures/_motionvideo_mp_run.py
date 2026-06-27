@@ -192,9 +192,9 @@ def mg_motion_mp(
             gramy = cv2.cvtColor(gramy_hsv, cv2.COLOR_HSV2BGR)
 
         if target_name_mgx is None:
-            target_name_mgx = of+'_mgx.png'
+            target_name_mgx = of+'_mgv.png'
         if target_name_mgy is None:
-            target_name_mgy = of+'_mgy.png'
+            target_name_mgy = of+'_mgh.png'
         if not overwrite:
             target_name_mgx = generate_outfilename(target_name_mgx)
             target_name_mgy = generate_outfilename(target_name_mgy)

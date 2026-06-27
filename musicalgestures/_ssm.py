@@ -127,8 +127,8 @@ def mg_ssm(
                 return
 
         out_x, out_y = None, None
-        target_name_mgx = os.path.splitext(target_name)[0] + '_mgx.png'
-        target_name_mgy = os.path.splitext(target_name)[0] + '_mgy.png'
+        target_name_mgx = os.path.splitext(target_name)[0] + '_mgv.png'
+        target_name_mgy = os.path.splitext(target_name)[0] + '_mgh.png'
 
         if not overwrite:
             out_x = generate_outfilename(target_name_mgx)
@@ -261,8 +261,8 @@ def mg_ssm(
                 return
             
         out_x, out_y = None, None
-        target_name_vgx = os.path.splitext(target_name)[0] + '_vgx.png'
-        target_name_vgy = os.path.splitext(target_name)[0] + '_vgy.png'
+        target_name_vgx = os.path.splitext(target_name)[0] + '_vgv.png'
+        target_name_vgy = os.path.splitext(target_name)[0] + '_vgh.png'
 
         if not overwrite:
             out_x = generate_outfilename(target_name_vgx)

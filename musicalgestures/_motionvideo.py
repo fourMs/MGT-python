@@ -69,8 +69,8 @@ def mg_motion(
         target_name_video (str, optional): Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).
         target_name_plot (str, optional): Target output name for the plot. Defaults to None (which assumes that the input filename with the suffix "_motion_com_aom_qom" should be used).
         target_name_data (str, optional): Target output name for the data. Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).
-        target_name_mgx (str, optional): Target output name for the horizontal motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgx" should be used).
-        target_name_mgy (str, optional): Target output name for the vertical motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgy" should be used).
+        target_name_mgx (str, optional): Target output name for the vertical motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgv" should be used).
+        target_name_mgy (str, optional): Target output name for the horizontal motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgh" should be used).
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:
@@ -220,9 +220,9 @@ def mg_motion(
                 gramy = cv2.cvtColor(gramy_hsv, cv2.COLOR_HSV2RGB).astype(np.uint8)
 
             if target_name_mgx is None:
-                target_name_mgx = of + '_mgx.png'
+                target_name_mgx = of + '_mgv.png'
             if target_name_mgy is None:
-                target_name_mgy = of + '_mgy.png'
+                target_name_mgy = of + '_mgh.png'
             if not overwrite:
                 target_name_mgx = generate_outfilename(target_name_mgx)
                 target_name_mgy = generate_outfilename(target_name_mgy)
@@ -305,8 +305,8 @@ def mg_motiongrams(
         kernel_size (int, optional): Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
         inverted_motiongram (bool, optional): If True, inverts colors of the motiongrams. Defaults to False.
         equalize_motiongram (bool, optional): If True, converts the motiongrams to hsv-color space and flattens the value channel (v). Defaults to True.
-        target_name_mgx (str, optional): Target output name for the horizontal motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgx" should be used).
-        target_name_mgy (str, optional): Target output name for the vertical motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgy" should be used).
+        target_name_mgx (str, optional): Target output name for the vertical motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgv" should be used).
+        target_name_mgy (str, optional): Target output name for the horizontal motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgh" should be used).
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:
@@ -314,9 +314,9 @@ def mg_motiongrams(
     """
 
     if target_name_mgx is None:
-        target_name_mgx = self.of + '_mgx.png'
+        target_name_mgx = self.of + '_mgv.png'
     if target_name_mgy is None:
-        target_name_mgy = self.of + '_mgy.png'
+        target_name_mgy = self.of + '_mgh.png'
     if not overwrite:
         out_x = generate_outfilename(target_name_mgx)
         out_y = generate_outfilename(target_name_mgy)
