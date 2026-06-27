@@ -9,6 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.6] – 2026-06-27
+
+### Added
+- Space-time person visualisations (`musicalgestures/_spacetime.py`): `stroboscope()`
+  (chronophotography), `silhouette_waterfall()`, `motionhistory()` (Motion History Image),
+  and `spacetime_volume()` (3D x,y,t silhouette point cloud). Silhouettes use MediaPipe
+  selfie segmentation when available, falling back to background subtraction
+  (`method='auto'|'mediapipe'|'bgsub'`).
+- `ssm(features='motiongrams', combine=True)` — a single self-similarity matrix from the
+  concatenated horizontal + vertical motiongram features (both axes of motion in one display).
+- `pose()` `style` now also applies to the average-pose image (markers/skeleton/both).
+
+### Changed
+- `pose()`: the no-CUDA fallback now uses the MediaPipe CPU (XNNPACK) delegate (fast, reliable)
+  rather than the fragile OpenGL-ES GPU delegate. New `quiet=True` suppresses MediaPipe's native
+  C++/GL console logs; explicit `device='gpu'` prints a one-line caveat.
+
+### Fixed
+- **Orientation**: portrait/phone videos that store a rotation flag are now normalised at load
+  (the rotation is baked into the pixels and the flag removed), so cv2-based processes no longer
+  come out rotated 90°. All processes keep the original orientation.
+
+---
+
 ## [1.4.5] – 2026-06-26
 
 ### Added
@@ -198,7 +222,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.4.5...HEAD
+[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.4.6...HEAD
+[1.4.6]: https://github.com/fourMs/MGT-python/compare/v1.4.5...v1.4.6
 [1.4.5]: https://github.com/fourMs/MGT-python/compare/v1.4.4...v1.4.5
 [1.4.4]: https://github.com/fourMs/MGT-python/compare/v1.4.3...v1.4.4
 [1.4.3]: https://github.com/fourMs/MGT-python/compare/v1.4.2...v1.4.3

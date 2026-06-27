@@ -82,6 +82,7 @@ v.pose(model='mediapipe').show()
 - **Pose Estimation**: MediaPipe (GPU-capable) and OpenPose backends, with average-pose and trajectory summaries (per-marker quantity of motion + dominant frequency)
 - **Audio Processing**: Waveforms, spectrograms, MFCC, chromagrams, tempo/beat tracking, spectral descriptors
 - **Visualizations**: Motiongrams, videograms, motion history, heatmaps, sonomotiongrams (motion → sound)
+- **Space-time displays**: Stroboscope (chronophotography), silhouette waterfall, Motion History Image, 3D space-time volume, combined motion SSM
 - **Integration**: Works with NumPy, SciPy, librosa, and Matplotlib ecosystems
 - **Cross-platform**: Linux, macOS, Windows support
 
