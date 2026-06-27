@@ -15,7 +15,14 @@ from musicalgestures._utils import MgFigure, MgProgressbar, generate_outfilename
 
 
 def _movement_qom(self):
-    """Return (qom, fps): the per-frame quantity of motion (mean absolute frame difference)."""
+    """Return (qom, fps): the per-frame quantity of motion (mean absolute frame difference).
+
+    The result is cached on the MgVideo (keyed by filename) so that calling several
+    movement/audio-movement analyses in a row does not re-decode the video each time.
+    """
+    cache = getattr(self, '_qom_cache', None)
+    if cache is not None and cache[0] == self.filename:
+        return cache[1], cache[2]
     cap = cv2.VideoCapture(self.filename)
     total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     fps = cap.get(cv2.CAP_PROP_FPS) or self.fps
@@ -37,7 +44,9 @@ def _movement_qom(self):
     finally:
         cap.release()
     pb.progress(max(total, 1))
-    return np.asarray(qom, dtype=float), fps
+    qom = np.asarray(qom, dtype=float)
+    self._qom_cache = (self.filename, qom, fps)
+    return qom, fps
 
 
 def mg_beat_statistics(self, source='motion', n_bins=32, cmap='YlOrRd', dpi=300,
@@ -309,8 +318,8 @@ def mg_tempo_similarity(self, dpi=300, autoshow=True, title=None, target_name=No
     try:
         import pandas as pd
         pd.DataFrame([d]).to_csv(os.path.splitext(target_name)[0] + '.csv', index=False)
-    except Exception:
-        pass
+    except Exception as e:
+        print(f'Warning: could not save CSV: {e}')
 
     mgf = MgFigure(figure=fig, figure_type='video.tempo_similarity', data=d, layers=None, image=target_name)
     self.tempo_similarity = mgf

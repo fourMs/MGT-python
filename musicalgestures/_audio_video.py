@@ -16,8 +16,15 @@ from musicalgestures._utils import MgFigure, generate_outfilename, has_audio
 
 
 def _audio_env(self, kind='onset'):
-    """Return (env, times, sr): the audio onset-strength ('onset') or loudness ('rms') envelope."""
+    """Return (env, times, sr): the audio onset-strength ('onset') or loudness ('rms') envelope.
+
+    Cached on the MgVideo (keyed by filename + kind) so repeated audio–movement analyses reuse it.
+    """
     import librosa
+    cache = getattr(self, '_audio_env_cache', {})
+    key = (self.filename, kind)
+    if key in cache:
+        return cache[key]
     y, sr = self._load()
     hop = self.hop_length
     if kind == 'rms':
@@ -25,7 +32,10 @@ def _audio_env(self, kind='onset'):
     else:
         env = librosa.onset.onset_strength(y=y, sr=sr, hop_length=hop)
     t = librosa.times_like(env, sr=sr, hop_length=hop)
-    return np.asarray(env, dtype=float), np.asarray(t, dtype=float), sr
+    result = (np.asarray(env, dtype=float), np.asarray(t, dtype=float), sr)
+    cache[key] = result
+    self._audio_env_cache = cache
+    return result
 
 
 def _common_grid(t_a, a, t_m, m, fs=50.0):
@@ -324,8 +334,8 @@ def mg_body_audio_coupling(self, dpi=300, cmap='coolwarm', dot_size=260, autosho
     try:
         import pandas as pd
         pd.DataFrame(stats).to_csv(os.path.splitext(target_name)[0] + '.csv', index=False)
-    except Exception:
-        pass
+    except Exception as e:
+        print(f'Warning: could not save CSV: {e}')
 
     d = {'correlations': stats, 'mean_abs_correlation': round(float(np.nanmean(np.abs(corrs))), 3),
          'fps': fps, 'sr': sr}

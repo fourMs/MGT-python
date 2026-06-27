@@ -184,8 +184,8 @@ def render_average_pose(data, names, connections, width, height, fps, avg_frame,
         pd.DataFrame({'Marker': names,
                       'AvgQoM_normalized': qom,
                       'DominantFrequency_Hz': freq}).to_csv(stats_path, index=False)
-    except Exception:
-        pass
+    except Exception as e:
+        print(f'Warning: could not save CSV: {e}')
 
     return MgImage(target_name)
 
@@ -555,14 +555,14 @@ def render_segment_circular(data, names, connections, width, height, fps, target
         import pandas as pd
         stats_path = os.path.splitext(target_name)[0] + '_stats.csv'
         pd.DataFrame(stats).to_csv(stats_path, index=False)
-    except Exception:
-        pass
+    except Exception as e:
+        print(f'Warning: could not save CSV: {e}')
 
     return MgFigure(figure=fig, figure_type='video.pose_segments',
                     data={'stats': stats, 'fps': fps}, layers=None, image=target_name)
 
 
-def pose_center(data, names, fmin=None, fmax=None):
+def pose_center(data, names):
     """
     Centre pose data on its global centroid (a 2D port of the MoCap Toolbox ``mccenter``).
 
@@ -589,7 +589,7 @@ def pose_center(data, names, fmin=None, fmax=None):
 
 
 def render_pose_center(data, names, width, height, target_name, overwrite=True,
-                       connections=None, cmap='hsv', dpi=200):
+                       cmap='hsv', dpi=200):
     """
     Centre the pose data (see :func:`pose_center`) and plot the centred marker trajectories.
 
@@ -715,8 +715,8 @@ def render_pose_distance(data, names, width, height, fps, target_name, overwrite
                 for i in range(n_points)]
         rows.append({'Marker': 'AVERAGE', 'TotalDistancePx': round(average, 2)})
         pd.DataFrame(rows).to_csv(os.path.splitext(target_name)[0] + '.csv', index=False)
-    except Exception:
-        pass
+    except Exception as e:
+        print(f'Warning: could not save CSV: {e}')
 
     return MgFigure(figure=fig, figure_type='video.pose_distance',
                     data={'total': total, 'average': average, 'cumulative': cumulative,

@@ -39,3 +39,11 @@ musicalgestures/pose/body_25/pose_iter_584000.caffemodel
 musicalgestures/pose/body_25/.wget-hsts
 dancer_grid.png
 musicalgestures/models/pose_landmarker_*.task
+
+# Generated example outputs (keep only the source example media/scripts)
+musicalgestures/examples/*
+!musicalgestures/examples/dancer.avi
+!musicalgestures/examples/pianist.avi
+!musicalgestures/examples/Filtering.ipynb
+!musicalgestures/examples/test_dance.py
+!musicalgestures/examples/test_pianist.py

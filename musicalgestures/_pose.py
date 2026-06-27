@@ -833,6 +833,17 @@ def _rerender_pose_from_cache(self, style='both', overlay=True, background='blac
     return self
 
 
+def _ensure_pose_keypoints(self, **pose_kwargs):
+    """Make sure ``self._pose_keypoints`` exists; if not, run pose() (without writing the video
+    or the summary images) to populate it. Extra kwargs are forwarded to pose()."""
+    if getattr(self, '_pose_keypoints', None) is None:
+        pose_kwargs.setdefault('save_video', False)
+        pose_kwargs.setdefault('save_average_pose', False)
+        pose_kwargs.setdefault('save_trajectories', False)
+        self.pose(**pose_kwargs)
+    return self._pose_keypoints
+
+
 def mg_pose_waterfall(self, style='trajectories', n_samples=40, markers=None, color_by=None,
                       cmap='hsv', dpi=200, elev=20, azim=-60, lw=1.0, axes=True, crop=False,
                       target_name=None, overwrite=True, **pose_kwargs):
@@ -871,12 +882,7 @@ def mg_pose_waterfall(self, style='trajectories', n_samples=40, markers=None, co
     """
     from musicalgestures._pose_visualize import render_pose_waterfall
 
-    if getattr(self, '_pose_keypoints', None) is None:
-        # Compute keypoints without writing the pose video; this populates self._pose_keypoints.
-        pose_kwargs.setdefault('save_video', False)
-        pose_kwargs.setdefault('save_average_pose', False)
-        pose_kwargs.setdefault('save_trajectories', False)
-        self.pose(**pose_kwargs)
+    _ensure_pose_keypoints(self, **pose_kwargs)
 
     c = self._pose_keypoints
     if target_name is None:
@@ -922,11 +928,7 @@ def mg_pose_segments(self, segments=None, n_bins=36, cmap='viridis', dpi=200, nc
     """
     from musicalgestures._pose_visualize import render_segment_circular
 
-    if getattr(self, '_pose_keypoints', None) is None:
-        pose_kwargs.setdefault('save_video', False)
-        pose_kwargs.setdefault('save_average_pose', False)
-        pose_kwargs.setdefault('save_trajectories', False)
-        self.pose(**pose_kwargs)
+    _ensure_pose_keypoints(self, **pose_kwargs)
 
     c = self._pose_keypoints
     if target_name is None:
@@ -966,11 +968,7 @@ def mg_pose_center(self, save_data=True, dpi=200, target_name=None, overwrite=Tr
     """
     from musicalgestures._pose_visualize import render_pose_center
 
-    if getattr(self, '_pose_keypoints', None) is None:
-        pose_kwargs.setdefault('save_video', False)
-        pose_kwargs.setdefault('save_average_pose', False)
-        pose_kwargs.setdefault('save_trajectories', False)
-        self.pose(**pose_kwargs)
+    _ensure_pose_keypoints(self, **pose_kwargs)
 
     c = self._pose_keypoints
     if target_name is None:
@@ -979,7 +977,7 @@ def mg_pose_center(self, save_data=True, dpi=200, target_name=None, overwrite=Tr
         target_name = os.path.splitext(target_name)[0] + '.png'
 
     mgf = render_pose_center(c['data'], c['names'], c['width'], c['height'], target_name,
-                             overwrite=overwrite, connections=c.get('connections'), dpi=dpi)
+                             overwrite=overwrite, dpi=dpi)
     if mgf is not None and save_data:
         try:
             import pandas as pd
@@ -990,8 +988,8 @@ def mg_pose_center(self, save_data=True, dpi=200, target_name=None, overwrite=Tr
                 cols[f'{name} X'] = coords[:, i, 0]
                 cols[f'{name} Y'] = coords[:, i, 1]
             pd.DataFrame(cols).to_csv(os.path.splitext(target_name)[0] + '.csv', index=False)
-        except Exception:
-            pass
+        except Exception as e:
+            print(f'Warning: could not save CSV: {e}')
     self.pose_centered_figure = mgf
     return mgf
 
@@ -1019,11 +1017,7 @@ def mg_pose_distance(self, dpi=200, target_name=None, overwrite=True, **pose_kwa
     """
     from musicalgestures._pose_visualize import render_pose_distance
 
-    if getattr(self, '_pose_keypoints', None) is None:
-        pose_kwargs.setdefault('save_video', False)
-        pose_kwargs.setdefault('save_average_pose', False)
-        pose_kwargs.setdefault('save_trajectories', False)
-        self.pose(**pose_kwargs)
+    _ensure_pose_keypoints(self, **pose_kwargs)
 
     c = self._pose_keypoints
     if target_name is None:
