@@ -117,7 +117,7 @@ def _average_frame(self):
 
 def mg_stroboscope(self, n_samples=12, method='auto', threshold=0.1, kernel_size=5,
                    keep_largest=False, colorize=True, background='average',
-                   target_name=None, overwrite=False):
+                   target_name=None, overwrite=True):
     """
     Renders a stroboscope / chronophotography image: the person's silhouette at evenly
     sampled times composited onto a single frame, showing the body moving through space
@@ -136,7 +136,7 @@ def mg_stroboscope(self, n_samples=12, method='auto', threshold=0.1, kernel_size
         colorize (bool, optional): Tint each silhouette by time (early→late) for a temporal cue. Defaults to True.
         background (str, optional): 'average' (clean plate), 'first' (first frame), 'black' or 'white'. Defaults to 'average'.
         target_name (str, optional): Output name. Defaults to None ("_stroboscope.png").
-        overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to False.
+        overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to True.
 
     Returns:
         MgImage: the stroboscope image.
@@ -198,7 +198,7 @@ def mg_stroboscope(self, n_samples=12, method='auto', threshold=0.1, kernel_size
 
 def mg_silhouette_waterfall(self, n_samples=40, method='auto', threshold=0.1, kernel_size=5,
                             keep_largest=False, axis='horizontal', cmap='viridis', dpi=200,
-                            elev=35, azim=-60, target_name=None, overwrite=False):
+                            elev=35, azim=-60, target_name=None, overwrite=True):
     """
     Renders a 3D silhouette waterfall: the per-frame silhouette projected onto one spatial
     axis and stacked as cascading curves along a time (depth) axis, so the body's occupancy
@@ -219,7 +219,7 @@ def mg_silhouette_waterfall(self, n_samples=40, method='auto', threshold=0.1, ke
         elev (float, optional): 3D elevation angle. Defaults to 35.
         azim (float, optional): 3D azimuth angle. Defaults to -60.
         target_name (str, optional): Output name. Defaults to None ("_silhouette_waterfall.png").
-        overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to False.
+        overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to True.
 
     Returns:
         MgFigure: the 3D waterfall figure (the stacked profiles are in ``.data``).
@@ -294,7 +294,7 @@ def mg_silhouette_waterfall(self, n_samples=40, method='auto', threshold=0.1, ke
 # ---------------------------------------------------------------------------
 
 def mg_motionhistory(self, threshold=0.05, decay=0.3, normalize=False, blur=0,
-                     cmap='hot', dpi=300, target_name=None, overwrite=False):
+                     cmap='hot', dpi=300, target_name=None, overwrite=True):
     """
     Renders a Motion History Image (Bobick & Davis): a single image where intensity encodes
     how recently motion occurred at each pixel (recent motion bright, older motion fades out).
@@ -319,7 +319,7 @@ def mg_motionhistory(self, threshold=0.05, decay=0.3, normalize=False, blur=0,
         cmap (str, optional): Matplotlib colormap. Defaults to 'hot'.
         dpi (int, optional): Output DPI. Defaults to 300.
         target_name (str, optional): Output name. Defaults to None ("_mhi.png").
-        overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to False.
+        overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to True.
 
     Returns:
         MgImage: the motion history image.
@@ -383,7 +383,7 @@ def mg_motionhistory(self, threshold=0.05, decay=0.3, normalize=False, blur=0,
 
 def mg_spacetime_volume(self, n_samples=50, downsample=8, method='auto', threshold=0.1,
                         kernel_size=5, keep_largest=False, cmap='viridis', dpi=200,
-                        elev=20, azim=-60, target_name=None, overwrite=False):
+                        elev=20, azim=-60, target_name=None, overwrite=True):
     """
     Renders a 3D space-time scatter of the person's silhouette: points (x, y, t) where the
     silhouette is present, with time on the depth axis and colour, showing how the body
@@ -401,7 +401,7 @@ def mg_spacetime_volume(self, n_samples=50, downsample=8, method='auto', thresho
         elev (float, optional): 3D elevation angle. Defaults to 20.
         azim (float, optional): 3D azimuth angle. Defaults to -60.
         target_name (str, optional): Output name. Defaults to None ("_spacetime_volume.png").
-        overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to False.
+        overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to True.
 
     Returns:
         MgFigure: the 3D space-time figure (data holds the point cloud).

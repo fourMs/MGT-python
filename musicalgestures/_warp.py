@@ -18,7 +18,7 @@ def beats_diff(beats, media):
     beats_diff = np.append(diff, media.shape[0] - beats[-1])
     return beats_diff
 
-def mg_warp_audiovisual_beats(self, audio_file, speed=(0.5,2), data=None, filtertype='Adaptative', threshold=0.05, kernel_size=5, target_name=None, overwrite=False):
+def mg_warp_audiovisual_beats(self, audio_file, speed=(0.5,2), data=None, filtertype='Adaptative', threshold=0.05, kernel_size=5, target_name=None, overwrite=True):
     """
     Warp audio beats with visual beats (patterns of motion that can be shifted in time to control visual rhythm).
     Visual beats are warped after computing a directogram which factors the magnitude of motion in the video into different angles.
@@ -33,7 +33,7 @@ def mg_warp_audiovisual_beats(self, audio_file, speed=(0.5,2), data=None, filter
         threshold (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
         kernel_size (int, optional): Size of structuring element. Defaults to 5.
         target_name (str, optional): Target output name for the directogram. Defaults to None (which assumes that the input filename with the suffix "_dg" should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:
         MgVideo: A MgVideo as warp_audiovisual_beats for parent MgVideo

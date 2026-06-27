@@ -111,7 +111,7 @@ def pose(
         style='both',
         overlay=True,
         background='black',
-        convert=True,
+        convert=None,
         quiet=True,
         marker_history=0,
         save_average_pose=True,
@@ -122,7 +122,7 @@ def pose(
         target_name_data=None,
         target_name_average=None,
         target_name_trajectories=None,
-        overwrite=False):
+        overwrite=True):
     """
     Renders a video with the pose estimation (aka. "keypoint detection" or "skeleton tracking") overlaid on it.
     Outputs the predictions in a text file containing the normalized x and y coordinates of each keypoint
@@ -177,9 +177,11 @@ def pose(
         marker_history (int, optional): If greater than 0, draw a motion trail for every marker by joining its
             positions over the last `marker_history` frames. Defaults to 0 (no trails). Works in all rendering
             paths (OpenPose, MediaPipe, and cached re-render).
-        convert (bool, optional): If True (default), non-AVI input is first converted to an all-intra
-            MJPEG `.avi` (cached as ``self.as_avi``) for frame-accurate decoding. Set to False to read the
-            source file directly — faster and no extra file, suitable when your mp4 decodes reliably.
+        convert (bool, optional): Whether non-AVI input is first converted to an all-intra MJPEG `.avi`
+            (cached as ``self.as_avi``) for frame-accurate decoding. Defaults to None ("auto"): the
+            MediaPipe backend reads the source file directly (it decodes sequentially through an FFmpeg
+            pipe and needs no intra-frame AVI), while the OpenPose backend converts. Pass True/False to
+            force the behaviour.
         quiet (bool, optional): MediaPipe only. If True (default), suppress MediaPipe's native C++/GL
             console logs (EGL init, absl INFO/WARNING, GPU-delegate messages) during inference. Set to
             False to see them for debugging.
@@ -238,6 +240,11 @@ def pose(
             use_mediapipe = True
             mediapipe_device = 'cpu'
         # else: fall through to the OpenPose path, which will warn and use CPU.
+
+    # Resolve the "auto" convert default: MediaPipe reads the source directly through an
+    # FFmpeg pipe and needs no all-intra AVI; OpenPose keeps the frame-accurate conversion.
+    if convert is None:
+        convert = not use_mediapipe
 
     # --- Reuse cached keypoints (skip re-inference) --------------------------
     # If a previous pose() run on this object used the same model/threshold, re-render
@@ -681,7 +688,7 @@ def _rerender_pose_from_cache(self, style='both', overlay=True, background='blac
                               transparent_trajectories=None, trajectory_labels=False,
                               marker_history=0, target_name_video=None,
                               target_name_data=None, target_name_average=None,
-                              target_name_trajectories=None, overwrite=False):
+                              target_name_trajectories=None, overwrite=True):
     """Re-render the pose outputs from cached keypoints (no network inference)."""
     c = self._pose_keypoints
     data, names, connections = c['data'], c['names'], c['connections']
@@ -799,7 +806,7 @@ def _rerender_pose_from_cache(self, style='both', overlay=True, background='blac
 
 
 def mg_pose_waterfall(self, markers=None, color_by='marker', cmap='hsv', dpi=200,
-                      elev=20, azim=-60, lw=1.0, target_name=None, overwrite=False, **pose_kwargs):
+                      elev=20, azim=-60, lw=1.0, target_name=None, overwrite=True, **pose_kwargs):
     """
     Render a 3D spatio-temporal waterfall of the pose markers.
 
@@ -819,7 +826,7 @@ def mg_pose_waterfall(self, markers=None, color_by='marker', cmap='hsv', dpi=200
         azim (float, optional): 3D azimuth angle. Defaults to -60.
         lw (float, optional): Trajectory line width. Defaults to 1.0.
         target_name (str, optional): Output name. Defaults to None ("_pose_waterfall.png").
-        overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to False.
+        overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to True.
         **pose_kwargs: Forwarded to ``pose()`` if keypoints have to be computed.
 
     Returns:
@@ -864,7 +871,7 @@ def _pose_mediapipe(
         style='both',
         overlay=True,
         background='black',
-        convert=True,
+        convert=None,
         quiet=True,
         marker_history=0,
         save_average_pose=True,
@@ -875,7 +882,7 @@ def _pose_mediapipe(
         target_name_data=None,
         target_name_average=None,
         target_name_trajectories=None,
-        overwrite=False):
+        overwrite=True):
     """
     Internal helper: run MediaPipe Pose on a video and render/save the output.
     Called by :func:`pose` when ``model='mediapipe'`` (or when GPU is requested and the
@@ -1051,7 +1058,7 @@ def _pose_mediapipe(
         return self
 
 
-def _save_pose_c3d(of, data, names, fps, width, height, target_name_data=None, overwrite=False):
+def _save_pose_c3d(of, data, names, fps, width, height, target_name_data=None, overwrite=True):
     """
     Save pose keypoints to a C3D motion-capture file.
 

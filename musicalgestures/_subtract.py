@@ -17,7 +17,7 @@ def mg_subtract(
         bg_img=None,
         bg_color='#000000',
         target_name=None,
-        overwrite=False):
+        overwrite=True):
     """
     Renders background subtraction using ffmpeg. 
 
@@ -32,7 +32,7 @@ def mg_subtract(
         bg_img (str, optional): Path to a background image (.png) that needs to be subtracted from the video. If set to None, it uses an average image of all frames in the video. Defaults to None.
         bg_color (str, optional): Set the background color in the video file in hex value. Defaults to '#000000' (black). 
         target_name (str, optional): Target output name for the subtracted video. Defaults to None.
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:
         MgVideo: A MgVideo as subtract for parent MgVideo

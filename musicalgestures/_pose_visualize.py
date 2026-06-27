@@ -90,7 +90,7 @@ def _per_marker_stats(coords, fps, fmin=0.2, fmax=8.0):
 
 
 def render_average_pose(data, names, connections, width, height, fps, avg_frame,
-                        target_name, overwrite=False, fmin=0.2, fmax=8.0, style='both'):
+                        target_name, overwrite=True, fmin=0.2, fmax=8.0, style='both'):
     """
     Render the average pose of the whole video, with per-marker quantity of motion
     (colour + label) and dominant frequency (label) annotated.
@@ -195,7 +195,7 @@ def render_average_pose(data, names, connections, width, height, fps, avg_frame,
     return MgImage(target_name)
 
 
-def render_trajectories(data, names, width, height, fps, target_name, overwrite=False,
+def render_trajectories(data, names, width, height, fps, target_name, overwrite=True,
                         transparent=False, labels=False):
     """
     Render every marker's spatial trajectory across the whole video.
@@ -257,7 +257,7 @@ def render_trajectories(data, names, width, height, fps, target_name, overwrite=
     return MgImage(target_name)
 
 
-def render_pose_waterfall(data, names, width, height, fps, target_name, overwrite=False,
+def render_pose_waterfall(data, names, width, height, fps, target_name, overwrite=True,
                           markers=None, color_by='marker', cmap='hsv', dpi=200,
                           elev=20, azim=-60, lw=1.0):
     """
@@ -273,7 +273,7 @@ def render_pose_waterfall(data, names, width, height, fps, target_name, overwrit
         width, height (int): Frame size in pixels (used to scale normalised coords).
         fps (float): Frames per second (for the time axis).
         target_name (str): Output PNG path.
-        overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to False.
+        overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to True.
         markers (list, optional): Subset of marker names or indices to draw. Defaults to all.
         color_by (str, optional): ``'marker'`` (one colour per marker) or ``'time'`` (colour
             follows time along each path). Defaults to 'marker'.

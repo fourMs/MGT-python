@@ -41,7 +41,7 @@ def _movement_qom(self):
 
 
 def mg_beat_statistics(self, source='audio', n_bins=32, cmap='YlOrRd', dpi=300,
-                       autoshow=True, title=None, target_name=None, overwrite=False,
+                       autoshow=True, title=None, target_name=None, overwrite=True,
                        fmin=0.2, fmax=8.0):
     """
     Circular statistics of beat-timing consistency, from the **audio** or from the **movement**.
@@ -61,7 +61,7 @@ def mg_beat_statistics(self, source='audio', n_bins=32, cmap='YlOrRd', dpi=300,
         autoshow (bool, optional): Kept for API parity (display is via show()). Defaults to True.
         title (str, optional): Optional figure title; use 'filename' for the file name. Defaults to None.
         target_name (str, optional): Output image name. Defaults to None.
-        overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to False.
+        overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to True.
         fmin (float, optional): Lowest movement-onset rate to consider (Hz), 'motion' only. Defaults to 0.2.
         fmax (float, optional): Highest movement-onset rate to consider (Hz), 'motion' only. Defaults to 8.0.
 

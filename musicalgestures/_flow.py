@@ -50,7 +50,7 @@ class Flow:
             use_gpu=False,
             convert=True,
             target_name=None,
-            overwrite=False):
+            overwrite=True):
         """
         Renders a dense optical flow video of the input video file using `cv2.calcOpticalFlowFarneback()`. The description of the matching parameters are taken from the cv2 documentation.
 
@@ -72,7 +72,7 @@ class Flow:
             skip_empty (bool, optional): If True, repeats previous frame in the output when encounters an empty frame. Defaults to False.
             use_gpu (bool, optional): Whether to attempt GPU (CUDA) acceleration using `cv2.cuda.FarnebackOpticalFlow`. When `True`, falls back to CPU automatically if CUDA is unavailable or the required OpenCV CUDA modules are not installed. When `False`, CPU processing is used unconditionally. Defaults to False.
             target_name (str, optional): Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_flow_dense" should be used).
-            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
         Returns:
             MgVideo: A new MgVideo pointing to the output video file.
@@ -325,7 +325,7 @@ class Flow:
             use_gpu=False,
             convert=True,
             target_name=None,
-            overwrite=False):
+            overwrite=True):
         """
         Renders a sparse optical flow video of the input video file using `cv2.calcOpticalFlowPyrLK()`. `cv2.goodFeaturesToTrack()` is used for the corner estimation. The description of the matching parameters are taken from the cv2 documentation.
 
@@ -340,7 +340,7 @@ class Flow:
             of_criteria (tuple, optional): Specifies the termination criteria of the iterative search algorithm (after the specified maximum number of iterations criteria.maxCount or when the search window moves by less than criteria.epsilon). Defaults to (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03).
             use_gpu (bool, optional): Whether to attempt GPU (CUDA) acceleration using `cv2.cuda.SparsePyrLKOpticalFlow`. When `True`, falls back to CPU automatically if CUDA is unavailable or the required OpenCV CUDA modules are not installed. When `False`, CPU processing is used unconditionally. Defaults to False.
             target_name (str, optional): Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_flow_sparse" should be used).
-            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
         Returns:
             MgVideo: A new MgVideo pointing to the output video file.

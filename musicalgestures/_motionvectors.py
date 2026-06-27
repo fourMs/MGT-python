@@ -3,7 +3,7 @@ import musicalgestures
 from musicalgestures._utils import generate_outfilename, get_length, ffmpeg_cmd
 
 
-def mg_motionvectors(self, target_name=None, overwrite=False):
+def mg_motionvectors(self, target_name=None, overwrite=True):
     """
     Renders a video visualising the motion vectors encoded in the input video.
 

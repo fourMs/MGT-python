@@ -40,7 +40,7 @@ def mg_motion(
         target_name_data=None,
         target_name_mgx=None,
         target_name_mgy=None,
-        overwrite=False,
+        overwrite=True,
         normalize=None):
     """
     Finds the difference in pixel value from one frame to the next in an input video, and saves the frames into a new video. 
@@ -71,7 +71,7 @@ def mg_motion(
         target_name_data (str, optional): Target output name for the data. Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).
         target_name_mgx (str, optional): Target output name for the horizontal motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgx" should be used).
         target_name_mgy (str, optional): Target output name for the vertical motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgy" should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:
         MgVideo: A new MgVideo pointing to the output video file. If `save_video=False`, it returns an MgVideo pointing to the input video file.
@@ -291,7 +291,7 @@ def mg_motiongrams(
         equalize_motiongram=True,
         target_name_mgx=None,
         target_name_mgy=None,
-        overwrite=False,
+        overwrite=True,
         normalize=None):
     """
     Shortcut for `mg_motion` to only render motiongrams.
@@ -307,7 +307,7 @@ def mg_motiongrams(
         equalize_motiongram (bool, optional): If True, converts the motiongrams to hsv-color space and flattens the value channel (v). Defaults to True.
         target_name_mgx (str, optional): Target output name for the horizontal motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgx" should be used).
         target_name_mgy (str, optional): Target output name for the vertical motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgy" should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:
         MgList: An MgList pointing to the output motiongram images (as MgImages).
@@ -354,7 +354,7 @@ def mg_motionvideo(
         kernel_size=5,
         inverted_motionvideo=False,
         target_name=None,
-        overwrite=False):
+        overwrite=True):
     """
     Shortcut to only render the motion video. Uses musicalgestures._utils.motionvideo_ffmpeg. Note that this does not apply median filter by default. If you need it use `use_median=True`.
 
@@ -366,7 +366,7 @@ def mg_motionvideo(
         kernel_size (int, optional): Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
         inverted_motionvideo (bool, optional): If True, inverts colors of the motion video. Defaults to False.
         target_name (str, optional): Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:
         MgVideo: A new MgVideo pointing to the output '_motion' video file.
@@ -402,7 +402,7 @@ def mg_motiondata(
         motion_analysis='all',
         data_format="csv",
         target_name=None,
-        overwrite=False):
+        overwrite=True):
     """
     Shortcut for `mg_motion` to only render motion data.
 
@@ -416,7 +416,7 @@ def mg_motiondata(
         motion_analysis (str, optional): Specify which motion analysis to process or all. 'AoM' renders the Area of Motion. 'CoM' renders the Centroid of Motion. 'QoM' renders the Quantity of Motion. 'all' renders all the motion analysis available. Defaults to 'all'.
         data_format (str/list, optional): Specifies format of motion-data. Accepted values are 'csv', 'tsv' and 'txt'. For multiple output formats, use list, eg. ['csv', 'txt']. Defaults to 'csv'.
         target_name (str, optional): Target output name for the data. Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:
         str/list: The path(s) to the rendered data file(s).
@@ -482,7 +482,7 @@ def mg_motionplots(
         unit='seconds',
         title=None,
         target_name=None,
-        overwrite=False):
+        overwrite=True):
     """
     Shortcut for `mg_motion` to only render motion plots.
 
@@ -498,7 +498,7 @@ def mg_motionplots(
         unit (str, optional): Unit in QoM plot. Accepted values are 'seconds' or 'samples'. Defaults to 'seconds'.
         title (str, optional): Optionally add title to the plot. Defaults to None, which uses the file name as a title.
         target_name (str, optional): Target output name for the plot. Defaults to None (which assumes that the input filename with the suffix "_motion_com_aom_qom" should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:
         MgImage: An MgImage pointing to the exported image (png) of the motion plots.

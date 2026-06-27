@@ -5,7 +5,7 @@ from musicalgestures._videoadjust import skip_frames_ffmpeg
 import math
 
 
-def videograms_ffmpeg(self, target_name_x=None, target_name_y=None, overwrite=False):
+def videograms_ffmpeg(self, target_name_x=None, target_name_y=None, overwrite=True):
     """
     Renders horizontal and vertical videograms of the source video using ffmpeg. Averages videoframes by axes, 
     and creates two images of the horizontal-axis and vertical-axis stacks. In these stacks, a single row or 
@@ -15,7 +15,7 @@ def videograms_ffmpeg(self, target_name_x=None, target_name_y=None, overwrite=Fa
     Args:
         target_name_x (str, optional): Target output name for the videogram on the X axis. Defaults to None (which assumes that the input filename with the suffix "_vgx" should be used).
         target_name_y (str, optional): Target output name for the videogram on the Y axis. Defaults to None (which assumes that the input filename with the suffix "_vgy" should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:
         MgList: An MgList with the MgImage objects referring to the horizontal and vertical videograms respectively. 

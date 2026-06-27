@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 from musicalgestures._utils import MgImage, generate_outfilename, ffmpeg_cmd, get_length
 
-def mg_grid(self, height=300, rows=3, columns=3, padding=0, margin=0, target_name=None, overwrite=False, return_array=False):
+def mg_grid(self, height=300, rows=3, columns=3, padding=0, margin=0, target_name=None, overwrite=True, return_array=False):
     """
     Generates frame strip video preview using ffmpeg.
 
@@ -14,7 +14,7 @@ def mg_grid(self, height=300, rows=3, columns=3, padding=0, margin=0, target_nam
         padding (int, optional): Padding size between the frames. Defaults to 0.
         margin (int, optional): Margin size for the grid. Defaults to 0.
         target_name ([type], optional): Target output name for the grid image. Defaults to None.
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
         return_array (bool, optional): Whether to return an array of not. If set to False the function writes the grid image to disk. Defaults to False.
 
     Returns:

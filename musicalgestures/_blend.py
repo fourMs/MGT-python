@@ -4,7 +4,7 @@ import os
 from musicalgestures._utils import MgImage, generate_outfilename, get_framecount, get_length, ffmpeg_cmd
 
 
-def mg_blend_image(self, filename=None, mode='all_mode', component_mode='average', target_name=None, overwrite=False):
+def mg_blend_image(self, filename=None, mode='all_mode', component_mode='average', target_name=None, overwrite=True):
     """
     Finds and saves a blended image of an input video file using FFmpeg. 
     The FFmpeg tblend (time blend) filter takes two consecutive frames from one single stream, and outputs the result obtained by blending the new frame on top of the old frame.
@@ -14,7 +14,7 @@ def mg_blend_image(self, filename=None, mode='all_mode', component_mode='average
         mode (str, optional): Set blend mode for specific pixel component or all pixel components. Accepted options are 'c0_mode', 'c1_mode', c2_mode', 'c3_mode' and 'all_mode'. Defaults to 'all_mode'. 
         component_mode (str, optional): Component mode of the FFmpeg tblend. Available values for component modes can be accessed here: https://ffmpeg.org/ffmpeg-filters.html#blend-1. Defaults to 'average'.
         target_name (str, optional): The name of the output video. Defaults to None (which assumes that the input filename with the component mode suffix should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:
         MgImage: A new MgImage pointing to the output image file.

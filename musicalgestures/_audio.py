@@ -117,7 +117,7 @@ class MgAudio:
             else:  
                 ax.xaxis.set_major_formatter(ticker.FixedFormatter(list(time)))
 
-    def waveform(self, dpi=300, autoshow=True, raw=False, colored=False, image_width=2500, image_height=500, fmin=500, fmax=None, cmap='freesound', original_time=True, title=None, target_name=None, overwrite=False):
+    def waveform(self, dpi=300, autoshow=True, raw=False, colored=False, image_width=2500, image_height=500, fmin=500, fmax=None, cmap='freesound', original_time=True, title=None, target_name=None, overwrite=True):
         """
         Renders a figure showing the waveform of the video/audio file.
 
@@ -134,7 +134,7 @@ class MgAudio:
             original_time (bool, optional): Whether to plot original time or not. This parameter can be useful if the video file has been shortened beforehand (e.g. skip). Defaults to True.
             title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_waveform.png" should be used).
-            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
         Returns:
             MgFigure: An MgFigure object referring to the internal figure and its data.
@@ -230,7 +230,7 @@ class MgAudio:
         return mgf
 
 
-    def spectrogram(self, fmin=0.0, fmax=None, n_mels=128, power=2.0, top_db=80.0, dpi=300, autoshow=True, raw=False, original_time=False, title=None, target_name=None, overwrite=False):
+    def spectrogram(self, fmin=0.0, fmax=None, n_mels=128, power=2.0, top_db=80.0, dpi=300, autoshow=True, raw=False, original_time=False, title=None, target_name=None, overwrite=True):
         """
         Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
@@ -246,7 +246,7 @@ class MgAudio:
             original_time (bool, optional): Whether to plot original time or not. This parameter can be useful if the video file has been shortened beforehand (e.g. skip). Defaults to False.
             title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_spectrogram.png" should be used).
-            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
         Returns:
             MgFigure: An MgFigure object referring to the internal figure and its data.
@@ -345,7 +345,7 @@ class MgAudio:
 
         return mgf
 
-    def tempogram(self, dpi=300, autoshow=True, raw=False, onset_strength=True, original_time=False, title=None, target_name=None, overwrite=False):
+    def tempogram(self, dpi=300, autoshow=True, raw=False, onset_strength=True, original_time=False, title=None, target_name=None, overwrite=True):
         """
         Renders a figure with a plots of onset strength and tempogram of the video/audio file.
 
@@ -359,7 +359,7 @@ class MgAudio:
             original_time (bool, optional): Whether to plot original time or not. This parameter can be useful if the video file has been shortened beforehand (e.g. skip). Defaults to False.
             title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_tempogram.png" should be used).
-            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
         Returns:
             MgFigure: An MgFigure object referring to the internal figure and its data.
@@ -456,7 +456,7 @@ class MgAudio:
 
         return mgf
     
-    def hpss(self, dim=2, n_mels=128, fmin=0.0, fmax=None, kernel_size=31, margin=(1.0,5.0), power=2.0, top_db=80.0, mask=False, residual=False, dpi=300, autoshow=True, original_time=False, title=None, target_name=None, overwrite=False):
+    def hpss(self, dim=2, n_mels=128, fmin=0.0, fmax=None, kernel_size=31, margin=(1.0,5.0), power=2.0, top_db=80.0, mask=False, residual=False, dpi=300, autoshow=True, original_time=False, title=None, target_name=None, overwrite=True):
         """
         Renders a figure with a plots of harmonic and percussive components of the audio file.
 
@@ -476,7 +476,7 @@ class MgAudio:
             original_time (bool, optional): Whether to plot original time or not. This parameter can be useful if the video file has been shortened beforehand (e.g. skip). Defaults to False.
             title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_hpss.png" should be used).
-            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
         Returns:
             MgFigure: An MgFigure object referring to the internal figure and its data.
@@ -608,7 +608,7 @@ class MgAudio:
         return mgf
 
 
-    def descriptors(self, n_mels=128, fmin=0.0, fmax=None, power=2, dpi=300, autoshow=True, original_time=False, title=None, target_name=None, save_data=False, data_format='csv', target_name_data=None, overwrite=False):
+    def descriptors(self, n_mels=128, fmin=0.0, fmax=None, power=2, dpi=300, autoshow=True, original_time=False, title=None, target_name=None, save_data=False, data_format='csv', target_name_data=None, overwrite=True):
         """
         Renders a figure of plots showing spectral/loudness descriptors, including RMS energy, spectral flatness, centroid, bandwidth, rolloff of the video/audio file.
 
@@ -625,7 +625,7 @@ class MgAudio:
             save_data (bool, optional): Whether to also save the per-frame descriptor time series (time, RMS, centroid, bandwidth, rolloff, rolloff_min, flatness) to a data file. Defaults to False.
             data_format (str/list, optional): Format of the saved descriptor data. Accepted values are 'csv', 'tsv' and 'txt'. For multiple formats, use a list, e.g. ['csv', 'txt']. Defaults to 'csv'.
             target_name_data (str, optional): The name of the output data file. Defaults to None (which uses the input filename with the suffix "_descriptors").
-            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
         Returns:
             MgFigure: An MgFigure object referring to the internal figure and its data.
@@ -766,7 +766,7 @@ class MgAudio:
 
         return mgf
 
-    def chromagram(self, n_chroma=12, norm=np.inf, chroma_type='cqt', cmap='coolwarm', dpi=300, autoshow=True, raw=False, original_time=False, title=None, target_name=None, overwrite=False):
+    def chromagram(self, n_chroma=12, norm=np.inf, chroma_type='cqt', cmap='coolwarm', dpi=300, autoshow=True, raw=False, original_time=False, title=None, target_name=None, overwrite=True):
         """
         Renders a figure showing the chromagram of the video/audio file.
 
@@ -789,7 +789,7 @@ class MgAudio:
             original_time (bool, optional): Whether to plot original time or not. Defaults to False.
             title (str, optional): Optionally add title to the figure. Use 'filename' to set the filename as title. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_chromagram.png" should be used).
-            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
         Returns:
             MgFigure: An MgFigure object referring to the internal figure and its data.
@@ -872,7 +872,7 @@ class MgAudio:
 
         return mgf
 
-    def mfcc(self, n_mfcc=13, cmap='RdBu_r', dpi=300, autoshow=True, raw=False, original_time=False, title=None, target_name=None, overwrite=False):
+    def mfcc(self, n_mfcc=13, cmap='RdBu_r', dpi=300, autoshow=True, raw=False, original_time=False, title=None, target_name=None, overwrite=True):
         """
         Renders a figure showing the Mel-frequency cepstral coefficients (MFCCs) of the video/audio file.
 
@@ -888,7 +888,7 @@ class MgAudio:
             original_time (bool, optional): Whether to plot original time or not. Defaults to False.
             title (str, optional): Optionally add title to the figure. Use 'filename' to set the filename as title. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_mfcc.png" should be used).
-            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
         Returns:
             MgFigure: An MgFigure object referring to the internal figure and its data.
@@ -957,7 +957,7 @@ class MgAudio:
 
         return mgf
 
-    def tempo(self, dpi=300, autoshow=True, raw=False, original_time=False, title=None, target_name=None, overwrite=False):
+    def tempo(self, dpi=300, autoshow=True, raw=False, original_time=False, title=None, target_name=None, overwrite=True):
         """
         Estimates tempo and beat positions, and renders the waveform with beat markers.
 
@@ -974,7 +974,7 @@ class MgAudio:
             original_time (bool, optional): Whether to plot original time or not. Defaults to False.
             title (str, optional): Optionally add title to the figure. Use 'filename' to set the filename as title. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_tempo.png" should be used).
-            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
         Returns:
             MgFigure: An MgFigure object. Access numeric results via ``.data``:
@@ -1078,7 +1078,7 @@ class MgAudio:
 
         return mgf
 
-    def beat_statistics(self, n_bins=32, cmap='YlOrRd', dpi=300, autoshow=True, title=None, target_name=None, overwrite=False):
+    def beat_statistics(self, n_bins=32, cmap='YlOrRd', dpi=300, autoshow=True, title=None, target_name=None, overwrite=True):
         """
         Renders circular statistics of beat-timing consistency.
 
@@ -1094,7 +1094,7 @@ class MgAudio:
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
             title (str, optional): Optionally add title to the figure. Use 'filename' to set the filename as title. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_beatstats.png" should be used).
-            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
         Returns:
             MgFigure: An MgFigure object whose ``.data`` mirrors the beat statistics from tempo(),

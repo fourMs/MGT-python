@@ -4,7 +4,7 @@ import os
 from musicalgestures._utils import scale_num, get_length, ffmpeg_cmd, has_audio, generate_outfilename, convert_to_mp4
 
 
-def contrast_brightness_ffmpeg(filename, contrast=0, brightness=0, target_name=None, overwrite=False):
+def contrast_brightness_ffmpeg(filename, contrast=0, brightness=0, target_name=None, overwrite=True):
     """
     Applies contrast and brightness adjustments on the source video using ffmpeg.
 
@@ -13,7 +13,7 @@ def contrast_brightness_ffmpeg(filename, contrast=0, brightness=0, target_name=N
         contrast (int/float, optional): Increase or decrease contrast. Values range from -100 to 100. Defaults to 0.
         brightness (int/float, optional): Increase or decrease brightness. Values range from -100 to 100. Defaults to 0.
         target_name (str, optional): Defaults to None (which assumes that the input filename with the suffix "_cb" should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
     Returns:
         str: Path to the output video.
@@ -74,7 +74,7 @@ def _safe_output_name(path):
     return os.path.join(os.path.dirname(path), os.path.basename(path).replace(':', '_'))
 
 
-def skip_frames_ffmpeg(filename, skip=0, target_name=None, overwrite=False):
+def skip_frames_ffmpeg(filename, skip=0, target_name=None, overwrite=True):
     """
     Time-shrinks the video by skipping (discarding) every n frames determined by `skip`.
     To discard half of the frames (ie. double the speed of the video) use `skip=1`.
@@ -83,7 +83,7 @@ def skip_frames_ffmpeg(filename, skip=0, target_name=None, overwrite=False):
         filename (str): Path to the video to process.
         skip (int, optional): Discard `skip` frames before keeping one. Defaults to 0.
         target_name (str, optional): Defaults to None (which assumes that the input filename with the suffix "_skip" should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
     Returns:
         str: Path to the output video.
@@ -118,7 +118,7 @@ def skip_frames_ffmpeg(filename, skip=0, target_name=None, overwrite=False):
 
     return target_name
 
-def fixed_frames_ffmpeg(filename, frames=0, target_name=None, overwrite=False):
+def fixed_frames_ffmpeg(filename, frames=0, target_name=None, overwrite=True):
     """
     Specify a fixed target number frames to extract from the video. 
     To extract only keyframes from the video, set the parameter keyframes to True.
@@ -127,7 +127,7 @@ def fixed_frames_ffmpeg(filename, frames=0, target_name=None, overwrite=False):
         filename (str): Path to the video to process.
         frames (int), optional): Number frames to extract from the video. If set to -1, it will only extract the keyframes of the video. Defaults to 0.
         target_name (str, optional): Defaults to None (which assumes that the input filename with the suffix "_fixed" should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
     Returns:
         str: Path to the output video.

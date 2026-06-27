@@ -47,7 +47,7 @@ def impact_detection(envelopes, time, fps, local_mean=0.1, local_maxima=0.15):
     return impact 
 
 
-def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.15, filtertype='Adaptative', threshold=0.05, kernel_size=5, convert=True, target_name=None, overwrite=False):
+def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.15, filtertype='Adaptative', threshold=0.05, kernel_size=5, convert=True, target_name=None, overwrite=True):
     """
     Compute a visual analogue of an onset envelope, aslo known as an impact envelope (Abe Davis).
     This is computed by summing over positive entries in the columns of the directogram. This gives an impact envelope with precisely the same
@@ -67,7 +67,7 @@ def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.
         threshold (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
         kernel_size (int, optional): Size of structuring element. Defaults to 5.
         target_name (str, optional): Target output name for the directogram. Defaults to None (which assumes that the input filename with the suffix "_dg" should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:
         MgFigure: An MgFigure object referring to the internal figure and its data.

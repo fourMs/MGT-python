@@ -36,7 +36,7 @@ def directogram(optical_flow):
 
     return directogram
 
-def mg_directograms(self, title=None, filtertype='Adaptative', threshold=0.05, kernel_size=5, convert=True, target_name=None, overwrite=False):
+def mg_directograms(self, title=None, filtertype='Adaptative', threshold=0.05, kernel_size=5, convert=True, target_name=None, overwrite=True):
     """
     Compute a directogram to factor the magnitude of motion into different angles.
     Each columun of the directogram is computed as the weighted histogram (HISTOGRAM_BINS) of angles for the optical flow of an input frame.
@@ -49,7 +49,7 @@ def mg_directograms(self, title=None, filtertype='Adaptative', threshold=0.05, k
         threshold (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
         kernel_size (int, optional): Size of structuring element. Defaults to 5.
         target_name (str, optional): Target output name for the directogram. Defaults to None (which assumes that the input filename with the suffix "_dg" should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:
         MgFigure: A MgFigure object referring to the internal figure and its data.

@@ -171,7 +171,7 @@ def mg_cropvideo_ffmpeg(
         motion_box_thresh=0.1,
         motion_box_margin=12,
         target_name=None,
-        overwrite=False):
+        overwrite=True):
     """
     Crops the video using ffmpeg.
 
@@ -181,7 +181,7 @@ def mg_cropvideo_ffmpeg(
         motion_box_thresh (float, optional): Only meaningful if `crop_movement='Auto'`. Takes floats between 0 and 1, where 0 includes all the motion and 1 includes none. Defaults to 0.1.
         motion_box_margin (int, optional): Only meaningful if `crop_movement='Auto'`. Adds margin to the bounding box. Defaults to 12.
         target_name (str, optional): The name of the output video. Defaults to None (which assumes that the input filename with the suffix "_crop" should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:
         str: Path to the cropped video.

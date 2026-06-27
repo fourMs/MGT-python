@@ -551,14 +551,14 @@ def ffmpeg_has_encoder(name):
     return available
 
 
-def convert(filename, target_name, overwrite=False):
+def convert(filename, target_name, overwrite=True):
     """
     Converts a video to another format/container using ffmpeg.
 
     Args:
         filename (str): Path to the input video file to convert.
         target_name (str): Target filename as path.
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
     Returns:
         str: The path to the output file.
@@ -589,14 +589,14 @@ def convert(filename, target_name, overwrite=False):
     return target_name
 
 
-def convert_to_avi(filename, target_name=None, overwrite=False):
+def convert_to_avi(filename, target_name=None, overwrite=True):
     """
     Converts a video to one with .avi extension using ffmpeg.
 
     Args:
         filename (str): Path to the input video file to convert.
         target_name (str, optional): Target filename as path. Defaults to None (which assumes that the input filename should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
     Returns:
         str: The path to the output '.avi' file.
@@ -618,14 +618,14 @@ def convert_to_avi(filename, target_name=None, overwrite=False):
     return target_name
 
 
-def convert_to_mp4(filename, target_name=None, overwrite=False):
+def convert_to_mp4(filename, target_name=None, overwrite=True):
     """
     Converts a video to one with .mp4 extension using ffmpeg.
 
     Args:
         filename (str): Path to the input video file to convert.
         target_name (str, optional): Target filename as path. Defaults to None (which assumes that the input filename should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
     Returns:
         str: The path to the output '.mp4' file.
@@ -647,14 +647,14 @@ def convert_to_mp4(filename, target_name=None, overwrite=False):
     return target_name
 
 
-def convert_to_webm(filename, target_name=None, overwrite=False):
+def convert_to_webm(filename, target_name=None, overwrite=True):
     """
     Converts a video to one with .webm extension using ffmpeg.
 
     Args:
         filename (str): Path to the input video file to convert.
         target_name (str, optional): Target filename as path. Defaults to None (which assumes that the input filename should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
     Returns:
         str: The path to the output '.webm' file.
@@ -676,7 +676,7 @@ def convert_to_webm(filename, target_name=None, overwrite=False):
     return target_name
 
 
-def cast_into_avi(filename, target_name=None, overwrite=False):
+def cast_into_avi(filename, target_name=None, overwrite=True):
     """
     *Experimental*
     Casts a video into and .avi container using ffmpeg. Much faster than `convert_to_avi`,
@@ -685,7 +685,7 @@ def cast_into_avi(filename, target_name=None, overwrite=False):
     Args:
         filename (str): Path to the input video file.
         target_name (str, optional): Target filename as path. Defaults to None (which assumes that the input filename should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
     Returns:
         str: The path to the output '.avi' file.
@@ -718,7 +718,7 @@ def extract_frame(
         frame (int): The frame number to extract.
         time (Union[str, float]): The time in HH:MM:ss.ms where to extract the frame from. If float, it is interpreted as seconds from the start of the video.
         target_name (str, optional): The name for the output file. If None, the name will be <input name>FRAME<frame number>.<file extension>. Defaults to None.
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
     """
 
     import os
@@ -759,7 +759,7 @@ def extract_frame(
     return target_name
 
 
-def extract_subclip(filename, t1, t2, target_name=None, overwrite=False):
+def extract_subclip(filename, t1, t2, target_name=None, overwrite=True):
     """
     Extracts a section of the video using ffmpeg.
 
@@ -768,7 +768,7 @@ def extract_subclip(filename, t1, t2, target_name=None, overwrite=False):
         t1 (float): The start of the section to extract in seconds.
         t2 (float): The end of the section to extract in seconds.
         target_name (str, optional): The name for the output file. If None, the name will be <input name>SUB<start time in ms>_<end time in ms>.<file extension>. Defaults to None.
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
     Returns:
         str: Path to the extracted section as a video.
@@ -812,7 +812,7 @@ def extract_subclip(filename, t1, t2, target_name=None, overwrite=False):
     return target_name
 
 
-def rotate_video(filename, angle, target_name=None, overwrite=False):
+def rotate_video(filename, angle, target_name=None, overwrite=True):
     """
     Rotates a video by an `angle` using ffmpeg.
 
@@ -820,7 +820,7 @@ def rotate_video(filename, angle, target_name=None, overwrite=False):
         filename (str): Path to the input video file.
         angle (float): The angle (in degrees) specifying the amount of rotation. Positive values rotate clockwise.
         target_name (str, optional): Target filename as path. Defaults to None (which assumes that the input filename with the suffix "_rot" should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
     Returns:
         str: The path to the rotated video file.
@@ -850,14 +850,14 @@ def rotate_video(filename, angle, target_name=None, overwrite=False):
                pb_prefix=f"Rotating video by {angle} degrees:")
     return target_name
 
-def convert_to_grayscale(filename, target_name=None, overwrite=False):
+def convert_to_grayscale(filename, target_name=None, overwrite=True):
     """
     Converts a video to grayscale using ffmpeg.
 
     Args:
         filename (str): Path to the input video file.
         target_name (str, optional): Target filename as path. Defaults to None (which assumes that the input filename with the suffix "_gray" should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
     Returns:
         str: The path to the grayscale video file.
@@ -878,7 +878,7 @@ def convert_to_grayscale(filename, target_name=None, overwrite=False):
     ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Converting to grayscale:')
     return target_name
 
-def framediff_ffmpeg(filename, target_name=None, color=True, overwrite=False):
+def framediff_ffmpeg(filename, target_name=None, color=True, overwrite=True):
     """
     Renders a frame difference video from the input using ffmpeg.
 
@@ -886,7 +886,7 @@ def framediff_ffmpeg(filename, target_name=None, color=True, overwrite=False):
         filename (str): Path to the input video file.
         target_name (str, optional): The name of the output video. Defaults to None (which assumes that the input filename with the suffix "_framediff" should be used).
         color (bool, optional): If False, the output will be grayscale. Defaults to True.
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
     Returns:
         str: Path to the output video.
@@ -911,7 +911,7 @@ def framediff_ffmpeg(filename, target_name=None, color=True, overwrite=False):
     return target_name
 
 
-def threshold_ffmpeg(filename, threshold=0.1, target_name=None, binary=False, overwrite=False):
+def threshold_ffmpeg(filename, threshold=0.1, target_name=None, binary=False, overwrite=True):
     """
     Renders a pixel-thresholded video from the input using ffmpeg.
 
@@ -920,7 +920,7 @@ def threshold_ffmpeg(filename, threshold=0.1, target_name=None, binary=False, ov
         threshold (float, optional): The normalized pixel value to use as the threshold. Pixels below the threshold will turn black. Defaults to 0.1.
         target_name (str, optional): The name of the output video. Defaults to None (which assumes that the input filename with the suffix "_thresh" should be used).
         binary (bool, optional): If True, the pixels above the threshold will turn white. Defaults to False.
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
     Returns:
         str: Path to the output video.
@@ -965,7 +965,7 @@ def motionvideo_ffmpeg(
         kernel_size=5,
         invert=False,
         target_name=None,
-        overwrite=False):
+        overwrite=True):
     """
     Renders a motion video using ffmpeg. 
 
@@ -979,7 +979,7 @@ def motionvideo_ffmpeg(
         kernel_size (int, optional): Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
         invert (bool, optional): If True, inverts colors of the motion video. Defaults to False.
         target_name (str, optional): Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
     Returns:
         str: Path to the output video.
@@ -1022,7 +1022,7 @@ def motiongrams_ffmpeg(
         invert=False,
         target_name_x=None,
         target_name_y=None,
-        overwrite=False):
+        overwrite=True):
     """
     Renders horizontal and vertical motiongrams using ffmpeg. 
 
@@ -1037,7 +1037,7 @@ def motiongrams_ffmpeg(
         invert (bool, optional): If True, inverts colors of the motiongrams. Defaults to False.
         target_name_x (str, optional): Target output name for the motiongram on the X axis. Defaults to None (which assumes that the input filename with the suffix "_mgx_ffmpeg" should be used).
         target_name_y (str, optional): Target output name for the motiongram on the Y axis. Defaults to None (which assumes that the input filename with the suffix "_mgy_ffmpeg" should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:
         str: Path to the output horizontal motiongram (_mgx).
@@ -1087,7 +1087,7 @@ def motiongrams_ffmpeg(
     return target_name_x, target_name_y
 
 
-def crop_ffmpeg(filename, w, h, x, y, target_name=None, overwrite=False):
+def crop_ffmpeg(filename, w, h, x, y, target_name=None, overwrite=True):
     """
     Crops a video using ffmpeg.
 
@@ -1098,7 +1098,7 @@ def crop_ffmpeg(filename, w, h, x, y, target_name=None, overwrite=False):
         x (int): The horizontal coordinate of the top left pixel of the cropping rectangle.
         y (int): The vertical coordinate of the top left pixel of the cropping rectangle.
         target_name (str, optional): The name of the output video. Defaults to None (which assumes that the input filename with the suffix "_crop" should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:
         str: Path to the output video.
@@ -1123,14 +1123,14 @@ def crop_ffmpeg(filename, w, h, x, y, target_name=None, overwrite=False):
     return target_name
 
 
-def extract_wav(filename, target_name=None, overwrite=False):
+def extract_wav(filename, target_name=None, overwrite=True):
     """
     Extracts audio from video into a .wav file via ffmpeg.
 
     Args:
         filename (str): Path to the video file from which the audio track shall be extracted.
         target_name (str, optional): The name of the output video. Defaults to None (which assumes that the input filename should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
     Returns:
         str: The path to the output audio file.
@@ -1460,7 +1460,7 @@ def get_fps(filename):
     return fps
 
 
-def get_first_frame_as_image(filename, target_name=None, pict_format='.png', overwrite=False):
+def get_first_frame_as_image(filename, target_name=None, pict_format='.png', overwrite=True):
     """
     Extracts the first frame of a video and saves it as an image using ffmpeg.
 
@@ -1468,7 +1468,7 @@ def get_first_frame_as_image(filename, target_name=None, pict_format='.png', ove
         filename (str): Path to the input video file.
         target_name (str, optional): The name for the output image. Defaults to None (which assumes that the input filename should be used).
         pict_format (str, optional): The format to use for the output image. Defaults to '.png'.
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
     Returns:
         str: Path to the output image file.
@@ -1567,7 +1567,7 @@ def quality_metrics(original, processed, metric=None):
             print(splitted[index])
 
 
-def audio_dilate(filename, dilation_ratio=1, target_name=None, overwrite=False):
+def audio_dilate(filename, dilation_ratio=1, target_name=None, overwrite=True):
     """
     Time-stretches or -shrinks (dilates) an audio file using ffmpeg.
 
@@ -1575,7 +1575,7 @@ def audio_dilate(filename, dilation_ratio=1, target_name=None, overwrite=False):
         filename (str): Path to the audio file to dilate.
         dilation_ratio (float, optional): The source file's length divided by the resulting file's length. Defaults to 1.
         target_name (str, optional): The name of the output video. Defaults to None (which assumes that the input filename with the suffix "_dilated" should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
     Returns:
         str: The path to the output audio file.
@@ -1890,7 +1890,7 @@ def merge_videos(
     Args:
         media_paths (list): List of paths to the video files to merge.
         target_name (str, optional): The name of the output video. Defaults to None (which assumes that the input filename with the suffix "_merged" should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
     Returns:
         str: Path to the output video.

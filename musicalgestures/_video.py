@@ -385,7 +385,7 @@ class MgVideo(MgAudio):
             frame (int): The frame number to extract.
             time (str): The time in HH:MM:ss.ms where to extract the frame from.
             target_name (str, optional): The name for the output file. If None, the name will be <input name>FRAME<frame number>.<file extension>. Defaults to None.
-            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+            overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
         Returns:
             MgImage: An MgImage object referring to the extracted frame.

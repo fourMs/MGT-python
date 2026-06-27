@@ -35,7 +35,7 @@ def mg_motion_mp(
         target_name_mgx=None,
         target_name_mgy=None,
         convert=True,
-        overwrite=False,
+        overwrite=True,
         num_processes=-1):
 
     of, fex = self.of, self.fex
@@ -339,7 +339,7 @@ class TrackMultiProgress():
         self.processmap = np.zeros(self.numprocesses)
 
 
-def concat_videos(list_of_videos, target_name=None, overwrite=False, pb_prefix='Concatenating videos:', stream=True):
+def concat_videos(list_of_videos, target_name=None, overwrite=True, pb_prefix='Concatenating videos:', stream=True):
     import os
     of, fex = os.path.splitext(list_of_videos[0])
     if not target_name:

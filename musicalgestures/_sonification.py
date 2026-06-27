@@ -14,7 +14,7 @@ def mg_sonomotiongram(
         flip=True,
         normalize=True,
         target_name=None,
-        overwrite=False):
+        overwrite=True):
     """
     Creates a *sonomotiongram*: a sonification of the video's motiongram.
 

@@ -15,7 +15,7 @@ def mg_heatmap(
         normalize=True,
         gamma=0.5,
         target_name=None,
-        overwrite=False):
+        overwrite=True):
     """
     Renders a motion heatmap showing which parts of the video change the most.
 

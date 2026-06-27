@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 from musicalgestures._utils import convert_to_mp4, get_framecount, MgImage, generate_outfilename
 
 
-def mg_info(self, type=None, autoshow=True, overwrite=False):
+def mg_info(self, type=None, autoshow=True, overwrite=True):
     """
     Returns info about video/audio/format file using ffprobe.
 
@@ -16,7 +16,7 @@ def mg_info(self, type=None, autoshow=True, overwrite=False):
             - 'frame': renders a bar chart of I/P/B frame sizes and returns a DataFrame.
             - None: returns a DataFrame with all ffprobe stream and format metadata.
         autoshow (bool, optional): Whether to show the I/P/B frames figure automatically. Defaults to True. NB: The type argument needs to be set to 'frame'.
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
     Returns:
         dict or pandas.DataFrame: dict when type='summary', DataFrame otherwise.

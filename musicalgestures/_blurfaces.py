@@ -80,7 +80,7 @@ def mg_blurfaces(self,
                  color=(0, 0, 0), 
                  use_gpu=False,
                  target_name=None, 
-                 overwrite=False):
+                 overwrite=True):
     """
     Automatic anonymization of faces in videos. 
     This function works by first detecting all human faces in each video frame and then applying an anonymization filter 
@@ -102,7 +102,7 @@ def mg_blurfaces(self,
         color (tuple, optional): Customized color of the rectangle boxes. Defaults to black (0, 0, 0).
         use_gpu (bool, optional): Whether to attempt GPU (CUDA) acceleration for face detection. Falls back to CPU automatically if CUDA is unavailable. Defaults to False.
         target_name (str, optional): Target output name. Defaults to None (which assumes that the input filename with the suffix "_blurred" should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:
         MgVideo: A MgVideo as blur_faces for parent MgVideo

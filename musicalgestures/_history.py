@@ -6,7 +6,7 @@ from musicalgestures._exceptions import MgInputError
 import musicalgestures
 
 
-def history_ffmpeg(self, filename=None, history_length=10, weights=1, normalize=False, norm_strength=1, norm_smooth=0, target_name=None, overwrite=False):
+def history_ffmpeg(self, filename=None, history_length=10, weights=1, normalize=False, norm_strength=1, norm_smooth=0, target_name=None, overwrite=True):
     """
     This function  creates a video where each frame is the average of the N previous frames, where n is determined by `history_length`. The history frames are summed up and normalized, and added to the current frame to show the history. Uses ffmpeg.
 
@@ -18,7 +18,7 @@ def history_ffmpeg(self, filename=None, history_length=10, weights=1, normalize=
         norm_strength (int/float, optional): Defines the strength of the normalization where 1 represents full strength. Defaults to 1.
         norm_smooth (int, optional): Defines the number of previous frames to use for temporal smoothing. The input range of each channel is smoothed using a rolling average over the current frame and the `norm_smooth` previous frames. Defaults to 0.
         target_name (str, optional): Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_history" should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:
         MgVideo: A new MgVideo pointing to the output video file.
@@ -104,7 +104,7 @@ def history_ffmpeg(self, filename=None, history_length=10, weights=1, normalize=
     return self.history_video
 
 
-def history_cv2(self, filename=None, history_length=10, weights=1, convert=True, target_name=None, overwrite=False):
+def history_cv2(self, filename=None, history_length=10, weights=1, convert=True, target_name=None, overwrite=True):
     """
     This function  creates a video where each frame is the average of the N previous frames, where n is determined by `history_length`. The history frames are summed up and normalized, and added to the current frame to show the history. Uses cv2.
 
@@ -113,7 +113,7 @@ def history_cv2(self, filename=None, history_length=10, weights=1, convert=True,
         history_length (int, optional): Number of frames to be saved in the history tail. Defaults to 10.
         weights (int/float/list, optional): Defines the weight or weights applied to the frames in the history tail. If given as list the first element in the list will correspond to the weight of the newest frame in the tail. Defaults to 1.
         target_name (str, optional): Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_history" should be used).
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:
         MgVideo: A new MgVideo pointing to the output video file.

@@ -78,7 +78,7 @@ def mg_ssm(
         combine=False,
         title=None,
         target_name=None,
-        overwrite=False):
+        overwrite=True):
     """
     Compute Self-Similarity Matrix (SSM) by converting the input signal into a suitable feature sequence and comparing each element of the feature sequence with all other elements of the sequence.
     SSMs can be computed over different input features such as 'motiongrams', 'spectrogram', 'chromagram' and 'tempogram'.
@@ -99,7 +99,7 @@ def mg_ssm(
         invert_yaxis (bool, optional): Whether to invert the y axis of the SSM. Defaults to True.
         title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
         target_name ([type], optional): Target output name for the SSM. Defaults to None.
-        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:
         # if features='motiongrams':

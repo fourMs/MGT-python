@@ -4,7 +4,7 @@ import cv2
 from musicalgestures._utils import MgImage, MgProgressbar, generate_outfilename, get_framecount, get_length, ffmpeg_cmd
 
 
-def mg_pixelarray(self, width=640, target_name=None, overwrite=False):
+def mg_pixelarray(self, width=640, target_name=None, overwrite=True):
     """
     Creates a 'Frame-Averaged Pixel Array' of a video by reducing each frame to a single pixel
     and arranging all frames into a single image. This is equivalent to the bash script that
@@ -54,7 +54,7 @@ def mg_pixelarray(self, width=640, target_name=None, overwrite=False):
     return self.pixelarray
 
 
-def mg_pixelarray_cv2(self, width=640, target_name=None, overwrite=False):
+def mg_pixelarray_cv2(self, width=640, target_name=None, overwrite=True):
     """
     Alternative implementation using OpenCV for more control over the process.
     Creates a 'Frame-Averaged Pixel Array' by reading each frame, calculating its average color,
@@ -63,7 +63,7 @@ def mg_pixelarray_cv2(self, width=640, target_name=None, overwrite=False):
     Args:
         width (int, optional): Width of the output image in pixels. Defaults to 640.
         target_name (str, optional): The name of the output image file. Defaults to None.
-        overwrite (bool, optional): Whether to allow overwriting existing files. Defaults to False.
+        overwrite (bool, optional): Whether to allow overwriting existing files. Defaults to True.
     
     Returns:
         MgImage: A new MgImage pointing to the output frame-averaged pixel array image file.
