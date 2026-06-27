@@ -177,3 +177,78 @@ def fixed_frames_ffmpeg(filename, frames=0, target_name=None, overwrite=True):
 
     return target_name
 
+
+def mg_resample(self, fps=None, speed=None, skip=None, target_name=None, overwrite=True):
+    """
+    Resample the (already loaded) video and return a **new** MgVideo, leaving the original
+    object untouched.
+
+    Three independent, combinable operations:
+
+    * ``fps``: retime to a target frame rate using FFmpeg's ``fps`` filter — **duration-preserving**
+      (frames are dropped/duplicated to hit the rate), e.g. 30 → 25 fps.
+    * ``speed``: change playback speed by a factor (>1 faster/shorter, <1 slower/longer); the video
+      is retimed with ``setpts`` and the audio with ``atempo`` so they stay in sync.
+    * ``skip``: integer frame decimation — discard ``skip`` frames for every one kept (this also
+      shortens/speeds up the clip), matching the loader's ``skip`` parameter.
+
+    When more than one is given they are applied in order: ``skip`` → ``speed``/``fps``.
+
+    Args:
+        fps (float, optional): Target frame rate (duration-preserving). Defaults to None.
+        speed (float, optional): Playback-speed factor. Defaults to None.
+        skip (int, optional): Discard ``skip`` frames for every one kept. Defaults to None.
+        target_name (str, optional): Output name. Defaults to None (input filename + "_resampled").
+        overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to True.
+
+    Returns:
+        MgVideo: a new MgVideo pointing to the resampled file.
+    """
+    import musicalgestures
+
+    if fps is None and speed is None and not skip:
+        raise ValueError("Provide at least one of fps, speed, or skip.")
+    if speed is not None and speed <= 0:
+        raise ValueError("speed must be a positive factor (e.g. 2.0 = twice as fast).")
+    if fps is not None and fps <= 0:
+        raise ValueError("fps must be a positive number.")
+
+    source = self.filename
+
+    # 1) Integer frame decimation (also speeds up) — reuse the tested helper.
+    if skip:
+        source = skip_frames_ffmpeg(source, int(skip), overwrite=overwrite)
+
+    # 2) Speed and/or frame-rate retime in a single FFmpeg pass.
+    final = source
+    if speed is not None or fps is not None:
+        of, fex = os.path.splitext(source)
+        if target_name is None:
+            out = of + '_resampled' + fex
+        else:
+            out = os.path.splitext(target_name)[0] + fex
+        if not overwrite:
+            out = generate_outfilename(out)
+
+        vfilters = []
+        if speed is not None and speed != 1:
+            vfilters.append(f'setpts=PTS/{speed:.6g}')
+        if fps is not None:
+            vfilters.append(f'fps={fps:.6g}')
+        vf = ','.join(vfilters)
+
+        if speed is not None and speed != 1 and has_audio(source):
+            # Retime audio too so it stays in sync with the sped-up/slowed-down video.
+            atempo_chain = _build_atempo_chain(speed)
+            cmd = ['ffmpeg', '-y', '-i', source, '-filter_complex',
+                   f'[0:v]{vf}[v];[0:a]{atempo_chain}[a]', '-map', '[v]', '-map', '[a]',
+                   '-q:v', '3', '-shortest', out]
+        else:
+            # fps-only (or no audio): -vf retimes the video and passes audio through unchanged.
+            cmd = ['ffmpeg', '-y', '-i', source, '-vf', vf, '-q:v', '3', out]
+
+        ffmpeg_cmd(cmd, get_length(source), pb_prefix='Resampling:')
+        final = out
+
+    return musicalgestures.MgVideo(final, color=self.color, returned_by_process=True)
+

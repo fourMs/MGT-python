@@ -143,6 +143,7 @@ class MgVideo(MgAudio):
     from musicalgestures._blurfaces import mg_blurfaces as blur_faces
     from musicalgestures._impacts import mg_impacts as impacts
     from musicalgestures._grid import mg_grid as grid
+    from musicalgestures._videoadjust import mg_resample as resample
     from musicalgestures._motionvideo import save_analysis
 
     # from musicalgestures._cropvideo import mg_cropvideo, find_motion_box, find_total_motion_box
