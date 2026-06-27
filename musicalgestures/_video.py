@@ -171,6 +171,7 @@ class MgVideo(MgAudio):
     # Overrides the inherited audio beat_statistics with a source-aware version
     # (source='audio' delegates to the audio analysis; source='motion' uses movement onsets).
     from musicalgestures._movementbeats import mg_beat_statistics as beat_statistics
+    from musicalgestures._movementbeats import mg_tempo_similarity as tempo_similarity
     from musicalgestures._pose import pose
     from musicalgestures._pose import mg_pose_waterfall as pose_waterfall
     from musicalgestures._pose import mg_pose_segments as pose_segments

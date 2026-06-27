@@ -183,3 +183,135 @@ def mg_beat_statistics(self, source='motion', n_bins=32, cmap='YlOrRd', dpi=300,
     mgf = MgFigure(figure=fig, figure_type='video.beat_statistics', data=d, layers=None, image=target_name)
     self.movement_beat_statistics = mgf
     return mgf
+
+
+def _nearest_harmonic_ratio(ratio):
+    """Return (nearest_simple_ratio, label) for a tempo ratio (e.g. 2.02 -> (2.0, '2:1'))."""
+    candidates = {1/3: '1:3', 1/2: '1:2', 2/3: '2:3', 1.0: '1:1',
+                  3/2: '3:2', 2.0: '2:1', 3.0: '3:1'}
+    best = min(candidates, key=lambda c: abs(np.log2(ratio / c)) if ratio > 0 else np.inf)
+    return best, candidates[best]
+
+
+def mg_tempo_similarity(self, dpi=300, autoshow=True, title=None, target_name=None, overwrite=True):
+    """
+    Compare the **audio** tempo/rhythm with the **movement** tempo/rhythm and report how similar
+    they are.
+
+    Estimates the tempo of the audio track (from its onset-strength envelope) and of the movement
+    (from the quantity-of-motion envelope), then aligns the two normalised envelopes and
+    cross-correlates them to measure rhythmic agreement. The figure shows the two envelopes
+    overlaid and their cross-correlation; the report (also saved as a CSV) lists the audio tempo,
+    movement tempo, their ratio and nearest harmonic relationship, the peak cross-correlation, and
+    the lag (s) at which the movement best aligns with the audio.
+
+    Args:
+        dpi (int, optional): Output DPI. Defaults to 300.
+        autoshow (bool, optional): Kept for API parity (display via show()). Defaults to True.
+        title (str, optional): Optional figure title; 'filename' uses the file name. Defaults to None.
+        target_name (str, optional): Output image name. Defaults to None ("_tempo_similarity.png").
+        overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to True.
+
+    Returns:
+        MgFigure: the report figure (metrics in ``.data``), or None if the video has no audio.
+    """
+    import librosa
+    from musicalgestures._utils import has_audio
+
+    if not has_audio(self.filename):
+        print('The video has no audio track — cannot compare audio and movement tempo.')
+        return None
+
+    if target_name is None:
+        target_name = self.of + '_tempo_similarity.png'
+    else:
+        target_name = os.path.splitext(target_name)[0] + '.png'
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
+
+    # --- Audio envelope + tempo ---
+    y, sr = self._load()
+    hop = self.hop_length
+    oenv = librosa.onset.onset_strength(y=y, sr=sr, hop_length=hop)
+    audio_tempo = float(np.atleast_1d(librosa.beat.tempo(onset_envelope=oenv, sr=sr, hop_length=hop))[0])
+    a_t = librosa.times_like(oenv, sr=sr, hop_length=hop)
+
+    # --- Movement envelope + tempo ---
+    qom, fps = _movement_qom(self)
+    if len(qom) < 4:
+        print('Not enough frames to estimate movement tempo.')
+        return None
+    motion_tempo = float(np.atleast_1d(librosa.beat.tempo(onset_envelope=qom, sr=fps, hop_length=1))[0])
+    m_t = np.arange(len(qom)) / max(fps, 1e-9)
+
+    # --- Resample both onto a common time grid and cross-correlate ---
+    fs = 50.0  # Hz
+    dur = min(a_t[-1] if len(a_t) else 0, m_t[-1] if len(m_t) else 0)
+    if dur <= 0:
+        print('Audio and movement do not overlap in time.')
+        return None
+    t = np.arange(0, dur, 1.0 / fs)
+    a = np.interp(t, a_t, oenv)
+    m = np.interp(t, m_t, qom)
+    a = (a - a.mean()) / (a.std() + 1e-9)
+    m = (m - m.mean()) / (m.std() + 1e-9)
+    xcorr = np.correlate(m, a, mode='full') / len(t)
+    lags = np.arange(-len(t) + 1, len(t)) / fs
+    peak_i = int(np.argmax(xcorr))
+    peak_lag = float(lags[peak_i])
+    peak_corr = float(xcorr[peak_i])
+    zero_corr = float(xcorr[len(t) - 1])  # correlation at zero lag
+
+    ratio = motion_tempo / audio_tempo if audio_tempo > 0 else 0.0
+    harm, harm_label = _nearest_harmonic_ratio(ratio) if ratio > 0 else (0.0, 'n/a')
+    tempo_agreement = float(max(0.0, 1.0 - abs(np.log2(ratio / harm)))) if (ratio > 0 and harm > 0) else 0.0
+
+    # --- Figure ---
+    fig, axes = plt.subplots(2, 1, figsize=(12, 7), dpi=dpi)
+    fig.patch.set_facecolor('white')
+    if title == 'filename':
+        title = os.path.basename(self.filename)
+    fig.suptitle(title or 'Audio–movement tempo similarity', fontsize=14)
+
+    axes[0].plot(t, a, color='#1f77b4', lw=0.9, label=f'Audio onset (tempo {audio_tempo:.1f} BPM)')
+    axes[0].plot(t, m, color='#d62728', lw=0.9, alpha=0.8, label=f'Movement QoM (tempo {motion_tempo:.1f} BPM)')
+    axes[0].set_xlabel('Time (s)')
+    axes[0].set_ylabel('Normalised envelope')
+    axes[0].legend(loc='upper right', fontsize=8)
+    axes[0].set_title('Audio onset strength vs. quantity of motion', fontsize=10)
+
+    axes[1].plot(lags, xcorr, color='#2ca02c', lw=0.9)
+    axes[1].axvline(peak_lag, color='crimson', ls='--', lw=1,
+                    label=f'peak r={peak_corr:.2f} @ {peak_lag:+.2f}s')
+    axes[1].axvline(0, color='#888888', ls=':', lw=0.8)
+    axes[1].set_xlabel('Lag (s)  — movement relative to audio')
+    axes[1].set_ylabel('Cross-correlation')
+    axes[1].legend(loc='upper right', fontsize=8)
+    axes[1].set_title(
+        f'Tempo ratio {ratio:.2f} (≈ {harm_label})  |  agreement {tempo_agreement:.2f}  |  '
+        f'zero-lag r={zero_corr:.2f}', fontsize=10)
+
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
+    plt.savefig(target_name, format='png', transparent=False)
+    plt.close(fig)
+
+    d = {
+        'audio_tempo_bpm': round(audio_tempo, 2),
+        'motion_tempo_bpm': round(motion_tempo, 2),
+        'tempo_ratio': round(ratio, 3),
+        'nearest_harmonic': harm_label,
+        'tempo_agreement': round(tempo_agreement, 3),
+        'peak_crosscorr': round(peak_corr, 3),
+        'peak_lag_s': round(peak_lag, 3),
+        'zero_lag_crosscorr': round(zero_corr, 3),
+        'fps': fps, 'sr': sr,
+    }
+    try:
+        import pandas as pd
+        pd.DataFrame([d]).to_csv(os.path.splitext(target_name)[0] + '.csv', index=False)
+    except Exception:
+        pass
+
+    mgf = MgFigure(figure=fig, figure_type='video.tempo_similarity', data=d, layers=None, image=target_name)
+    self.tempo_similarity = mgf
+    return mgf
