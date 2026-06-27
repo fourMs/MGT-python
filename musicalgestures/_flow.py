@@ -4,7 +4,6 @@ import numpy as np
 import math
 import weakref
 import matplotlib.pyplot as plt
-from scipy.stats import entropy
 
 import musicalgestures
 from musicalgestures._utils import MgFigure, extract_wav, embed_audio_in_video, MgProgressbar, convert_to_avi, generate_outfilename, ffmpeg_cmd, get_cuda_device_count, cuda_unavailable_reason
@@ -231,6 +230,7 @@ class Flow:
 
             time = np.linspace(0, len(xvel)/fps, len(xvel))
             acceleration = self.get_acceleration(xvel, fps)
+            from scipy.stats import entropy   # lazy import: keeps scipy.stats out of startup
             acceleration_entropy = entropy(acceleration)
 
             ax.plot(time, xvel, label=f'Average acceleration: {round(np.mean(acceleration),3)} m/s\nEntropy of acceleration: {round(acceleration_entropy,3)}')

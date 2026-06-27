@@ -1,4 +1,3 @@
-from scipy.signal import medfilt2d
 import cv2
 import numpy as np
 import matplotlib
@@ -19,6 +18,7 @@ def filter_frame(motion_frame, filtertype, threshold, kernel_size):
         np.array(uint8): The filtered frame.
     """
 
+    from scipy.signal import medfilt2d   # lazy import: keeps scipy.signal out of startup
     if filtertype.lower() == 'regular':
         motion_frame = (motion_frame > threshold*255)*motion_frame
         motion_frame = medfilt2d(motion_frame, kernel_size)

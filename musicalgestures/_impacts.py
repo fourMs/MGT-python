@@ -2,7 +2,6 @@ import cv2
 import os
 import numpy as np
 from numba import jit
-from scipy.signal import medfilt2d
 import matplotlib.pyplot as plt
 import musicalgestures
 from musicalgestures._directograms import directogram
@@ -11,6 +10,7 @@ from musicalgestures._filter import filter_frame
 
 def impact_envelope(directogram, kernel_size=5):
 
+    from scipy.signal import medfilt2d   # lazy import: keeps scipy.signal out of startup
     # Apply a median filter to the directogram using a local window-size given by kernel_size
     filtered_directogram = medfilt2d(directogram, kernel_size)
     flux = np.zeros(directogram.shape)

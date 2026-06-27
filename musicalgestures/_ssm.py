@@ -1,7 +1,6 @@
 import os
 import cv2
 import numpy as np
-from scipy import signal
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
@@ -38,6 +37,7 @@ def smooth_downsample_feature_sequence(X, sr, filt_len=41, down_sampling=10, w_t
         
     formatter = FuncFormatter(inside)
 
+    from scipy import signal   # lazy import: keeps scipy.signal out of startup
     filt_kernel = np.expand_dims(signal.get_window(w_type, filt_len), axis=0)
     X_smooth = signal.convolve(X, filt_kernel, mode='same') / filt_len
     X_smooth = X_smooth[:, ::down_sampling]

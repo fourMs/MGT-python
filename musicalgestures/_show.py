@@ -1,11 +1,6 @@
 # import cv2
 # import numpy as np
 import os
-from IPython.display import Image, display, HTML
-# try:
-from IPython.display import Video
-# except:
-#     from IPython.core.display import Video
 from base64 import b64encode
 import musicalgestures
 
@@ -24,6 +19,8 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
         window_title (str, optional): The title of the window. If None, the title of the window will be the file name. Defaults to None.
         ipython_kwargs (dict, optional): Additional arguments for IPython.display.Image or IPython.display.Video. Defaults to None.
     """
+    # Lazy import: keeps IPython out of `import musicalgestures` startup.
+    from IPython.display import Image, display, HTML, Video
 
     def show(file, width=640, height=480, mode='windowed', title='Untitled', parent=None, **ipython_kwargs):
         """
