@@ -71,12 +71,30 @@ def _suppress_native_stderr(active=True):
         os.close(saved)
 
 
+def _draw_marker_trails(canvas, trail, color):
+    """Draw each marker's path over the buffered recent frames (a fading history trail).
+
+    trail: a sequence of (n_points, 2) pixel-coordinate arrays (np.nan = missing).
+    """
+    if trail is None or len(trail) < 2:
+        return
+    arr = np.asarray(trail, dtype=float)   # (F, n, 2)
+    F, n, _ = arr.shape
+    for j in range(n):
+        track = arr[:, j, :]
+        for f in range(1, F):
+            p0, p1 = track[f - 1], track[f]
+            if not (np.isnan(p0).any() or np.isnan(p1).any()):
+                cv2.line(canvas, (int(p0[0]), int(p0[1])), (int(p1[0]), int(p1[1])),
+                         color, 1, lineType=cv2.LINE_AA)
+
+
 def _pose_canvas_and_colors(frame, overlay, background):
     """Return (canvas, line_color, marker_color) in BGR for drawing the pose."""
     if overlay:
         return frame, (0, 255, 255), (0, 0, 255)            # over video: yellow lines, red markers
     if str(background).lower() == 'white':
-        return np.full_like(frame, 255), (180, 60, 0), (0, 0, 200)   # white bg: dark blue lines, dark red markers
+        return np.full_like(frame, 255), (0, 0, 0), (0, 0, 0)   # white bg: black skeleton + markers (inverted)
     return np.zeros_like(frame), (0, 255, 255), (0, 0, 255)  # black bg: yellow lines, red markers
 
 
@@ -95,6 +113,7 @@ def pose(
         background='black',
         convert=True,
         quiet=True,
+        marker_history=0,
         save_average_pose=True,
         save_trajectories=True,
         transparent_trajectories=None,
@@ -150,8 +169,11 @@ def pose(
             draw it on a plain background instead (a "markers only" video with no video underneath).
             Defaults to True.
         background (str, optional): Background colour used when `overlay=False`: `'black'` (default) or
-            `'white'`. On a white background the markers and joint lines are drawn in darker, higher-contrast
-            colours. Ignored when `overlay=True`.
+            `'white'`. With `'white'` the skeleton and markers are drawn in black (an inverted, print-friendly
+            look). With `'black'` they are drawn in bright colours. Ignored when `overlay=True`.
+        marker_history (int, optional): If greater than 0, draw a motion trail for every marker by joining its
+            positions over the last `marker_history` frames. Defaults to 0 (no trails). Works in all rendering
+            paths (OpenPose, MediaPipe, and cached re-render).
         convert (bool, optional): If True (default), non-AVI input is first converted to an all-intra
             MJPEG `.avi` (cached as ``self.as_avi``) for frame-accurate decoding. Set to False to read the
             source file directly — faster and no extra file, suitable when your mp4 decodes reliably.
@@ -226,7 +248,7 @@ def pose(
             self, style=style, overlay=overlay, background=background,
             save_data=save_data, data_format=data_format, save_video=save_video,
             save_average_pose=save_average_pose, save_trajectories=save_trajectories,
-            transparent_trajectories=transparent_trajectories,
+            transparent_trajectories=transparent_trajectories, marker_history=marker_history,
             target_name_video=target_name_video, target_name_data=target_name_data,
             target_name_average=target_name_average, target_name_trajectories=target_name_trajectories,
             overwrite=overwrite)
@@ -244,6 +266,7 @@ def pose(
             background=background,
             convert=convert,
             quiet=quiet,
+            marker_history=marker_history,
             save_average_pose=save_average_pose,
             save_trajectories=save_trajectories,
             transparent_trajectories=transparent_trajectories,
@@ -368,6 +391,8 @@ def pose(
     collect_extra = save_average_pose or save_trajectories
     avg_acc = np.zeros((self.height, self.width, 3), dtype=np.float64) if save_average_pose else None
     avg_n = 0
+    from collections import deque
+    _trail = deque(maxlen=int(marker_history)) if marker_history and marker_history > 0 else None
 
     while True:
         # Read frame-by-frame
@@ -422,6 +447,11 @@ def pose(
 
         # Draw on the video frame, or on a plain canvas when overlay is disabled
         canvas, line_color, marker_color = _pose_canvas_and_colors(frame, overlay, background)
+
+        # Marker history trails (last N frames)
+        if _trail is not None:
+            _trail.append([[p[0], p[1]] if p is not None else [np.nan, np.nan] for p in points])
+            _draw_marker_trails(canvas, _trail, marker_color)
 
         # Joint lines (skeleton)
         if style in ('both', 'skeleton'):
@@ -640,7 +670,7 @@ def _render_pose_extras(data, names, connections, width, height, fps, avg_frame,
 def _rerender_pose_from_cache(self, style='both', overlay=True, background='black',
                               save_data=True, data_format='csv', save_video=True,
                               save_average_pose=True, save_trajectories=True,
-                              transparent_trajectories=None, target_name_video=None,
+                              transparent_trajectories=None, marker_history=0, target_name_video=None,
                               target_name_data=None, target_name_average=None,
                               target_name_trajectories=None, overwrite=False):
     """Re-render the pose outputs from cached keypoints (no network inference)."""
@@ -676,6 +706,8 @@ def _rerender_pose_from_cache(self, style='both', overlay=True, background='blac
     avg_n = 0
     video_out = None
     frame_bytes = width * height * 3
+    from collections import deque
+    _trail = deque(maxlen=int(marker_history)) if marker_history and marker_history > 0 else None
     pb = MgProgressbar(total=len(data), prefix='Re-rendering pose (cached):')
 
     for ii, row in enumerate(data):
@@ -694,6 +726,9 @@ def _rerender_pose_from_cache(self, style='both', overlay=True, background='blac
 
         coords = row[1:1 + 2 * n_points]
         pts = [(coords[2 * j], coords[2 * j + 1]) for j in range(n_points)]
+        if _trail is not None:
+            _trail.append([[x * width, y * height] if (x or y) else [np.nan, np.nan] for x, y in pts])
+            _draw_marker_trails(canvas, _trail, marker_color)
         if style in ('both', 'skeleton'):
             for a, b in connections:
                 if a < n_points and b < n_points:
@@ -771,6 +806,7 @@ def _pose_mediapipe(
         background='black',
         convert=True,
         quiet=True,
+        marker_history=0,
         save_average_pose=True,
         save_trajectories=True,
         transparent_trajectories=None,
@@ -825,6 +861,8 @@ def _pose_mediapipe(
     collect_extra = save_average_pose or save_trajectories
     avg_acc = np.zeros((self.height, self.width, 3), dtype=np.float64) if save_average_pose else None
     avg_n = 0
+    from collections import deque
+    _trail = deque(maxlen=int(marker_history)) if marker_history and marker_history > 0 else None
 
     estimator = MediaPipePoseEstimator(device=device.lower())
 
@@ -859,6 +897,12 @@ def _pose_mediapipe(
 
         # Draw on the video frame, or on a plain canvas when overlay is disabled
         canvas, line_color, marker_color = _pose_canvas_and_colors(frame, overlay, background)
+
+        # Marker history trails (last N frames)
+        if _trail is not None:
+            _trail.append([[float(x) * self.width, float(y) * self.height] if v >= threshold
+                           else [np.nan, np.nan] for x, y, v in keypoints])
+            _draw_marker_trails(canvas, _trail, marker_color)
 
         # Joint lines (skeleton)
         if style in ('both', 'skeleton'):
