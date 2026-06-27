@@ -6,7 +6,7 @@ import matplotlib.ticker as ticker
 import matplotlib
 import numpy as np
 
-from musicalgestures._utils import MgFigure, get_length, generate_outfilename, has_audio
+from musicalgestures._utils import MgFigure, get_length, generate_outfilename, resolve_filename, has_audio
 from musicalgestures._info import mg_info as info
 from musicalgestures._colored import MgAudioProcessor, MgWaveformImage
 
@@ -154,13 +154,7 @@ class MgAudio:
             print('The video has no audio track.')
             return
 
-        if target_name is None:
-            target_name = self.of + '_waveform.png'
-        else:
-            #enforce png
-            target_name = os.path.splitext(target_name)[0] + '.png'
-        if not overwrite:
-            target_name = generate_outfilename(target_name)
+        target_name = resolve_filename(self.of, '_waveform.png', target_name, overwrite)
 
         if colored:
             # Process audio chunks and compute spectral centroid for creating the colored waveform
@@ -266,13 +260,7 @@ class MgAudio:
             print('The video has no audio track.')
             return
 
-        if target_name is None:
-            target_name = self.of + '_spectrogram.png'
-        else:
-            # enforce png
-            target_name = os.path.splitext(target_name)[0] + '.png'
-        if not overwrite:
-            target_name = generate_outfilename(target_name)
+        target_name = resolve_filename(self.of, '_spectrogram.png', target_name, overwrite)
 
         y, sr = self._load()
 
@@ -379,13 +367,7 @@ class MgAudio:
             print('The video has no audio track.')
             return
 
-        if target_name is None:
-            target_name = self.of + '_tempogram.png'
-        else:
-            #enforce png
-            target_name = os.path.splitext(target_name)[0] + '.png'
-        if not overwrite:
-            target_name = generate_outfilename(target_name)
+        target_name = resolve_filename(self.of, '_tempogram.png', target_name, overwrite)
 
         y, sr = self._load()
 
@@ -496,13 +478,7 @@ class MgAudio:
             print('The video has no audio track.')
             return
 
-        if target_name is None:
-            target_name = self.of + '_hpss.png'
-        else:
-            #enforce png
-            target_name = os.path.splitext(target_name)[0] + '.png'
-        if not overwrite:
-            target_name = generate_outfilename(target_name)
+        target_name = resolve_filename(self.of, '_hpss.png', target_name, overwrite)
 
         y, sr = self._load()
         if dim == 2:
@@ -644,13 +620,7 @@ class MgAudio:
             print('The video has no audio track.')
             return
 
-        if target_name is None:
-            target_name = self.of + '_descriptors.png'
-        else:
-            # enforce png
-            target_name = os.path.splitext(target_name)[0] + '.png'
-        if not overwrite:
-            target_name = generate_outfilename(target_name)
+        target_name = resolve_filename(self.of, '_descriptors.png', target_name, overwrite)
 
         y, sr = self._load()
 
@@ -808,12 +778,7 @@ class MgAudio:
             print('The video has no audio track.')
             return
 
-        if target_name is None:
-            target_name = self.of + '_chromagram.png'
-        else:
-            target_name = os.path.splitext(target_name)[0] + '.png'
-        if not overwrite:
-            target_name = generate_outfilename(target_name)
+        target_name = resolve_filename(self.of, '_chromagram.png', target_name, overwrite)
 
         y, sr = self._load()
 
@@ -907,12 +872,7 @@ class MgAudio:
             print('The video has no audio track.')
             return
 
-        if target_name is None:
-            target_name = self.of + '_mfcc.png'
-        else:
-            target_name = os.path.splitext(target_name)[0] + '.png'
-        if not overwrite:
-            target_name = generate_outfilename(target_name)
+        target_name = resolve_filename(self.of, '_mfcc.png', target_name, overwrite)
 
         y, sr = self._load()
 
@@ -997,12 +957,7 @@ class MgAudio:
             print('The video has no audio track.')
             return
 
-        if target_name is None:
-            target_name = self.of + '_tempo.png'
-        else:
-            target_name = os.path.splitext(target_name)[0] + '.png'
-        if not overwrite:
-            target_name = generate_outfilename(target_name)
+        target_name = resolve_filename(self.of, '_tempo.png', target_name, overwrite)
 
         y, sr = self._load()
 
@@ -1126,12 +1081,7 @@ class MgAudio:
             print('Not enough beats detected for circular statistics (need at least 4).')
             return
 
-        if target_name is None:
-            target_name = self.of + '_beatstats.png'
-        else:
-            target_name = os.path.splitext(target_name)[0] + '.png'
-        if not overwrite:
-            target_name = generate_outfilename(target_name)
+        target_name = resolve_filename(self.of, '_beatstats.png', target_name, overwrite)
 
         deviations_ms = d["deviations_s"] * 1000
         R, mu = d["R_beat"], d["mu_beat"]
