@@ -169,14 +169,8 @@ def render_average_pose(data, names, connections, width, height, fps, avg_frame,
                         bbox=dict(boxstyle='round,pad=0.15', facecolor='white',
                                   edgecolor='none', alpha=0.8))
 
-    sm = matplotlib.cm.ScalarMappable(cmap=cmap, norm=matplotlib.colors.Normalize(vmin=0, vmax=qmax))
-    cb = fig.colorbar(sm, ax=ax, fraction=0.03, pad=0.01)
-    cb.set_label('Average quantity of motion (normalised 0–1)', fontsize=8)
-    cb.ax.tick_params(labelsize=7)
-
     ax.set_xlim(0, width)
     ax.set_ylim(height, 0)
-    ax.set_title('Average pose — colour & first number = normalised QoM, second = dominant frequency (Hz)', fontsize=9)
     ax.axis('off')
     fig.tight_layout()
     fig.savefig(target_name, facecolor='white', bbox_inches='tight')

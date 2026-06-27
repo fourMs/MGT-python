@@ -17,7 +17,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
 
     Args:
         filename (str, optional): If given, `mg_show` will show this file instead of what it inherits from its parent object. Defaults to None.
-        key (str, optional): If given, `mg_show` will search for file names corresponding to certain processes you have previously rendered on your source. It is meant to be a shortcut, so you don't have to remember the exact name (and path) of eg. a motion video corresponding to your source in your MgVideo, but you rather just use `MgVideo('path/to/vid.mp4').show(key='motion')`. Accepted values are 'horizontal'/'vertical' (motiongram or videogram; 'mgx'/'mgy'/'vgx'/'vgy' also work as aliases), 'ssm', 'blend', 'plot', 'motion', 'history', 'motionhistory', 'sparse', and 'dense'. Defaults to None.
+        key (str, optional): If given, `mg_show` will search for file names corresponding to certain processes you have previously rendered on your source. It is meant to be a shortcut, so you don't have to remember the exact name (and path) of eg. a motion video corresponding to your source in your MgVideo, but you rather just use `MgVideo('path/to/vid.mp4').show(key='motion')`. Accepted values are 'horizontal'/'vertical' (motiongram or videogram; aliases 'mgh'/'vgh' for horizontal, 'mgv'/'vgv' for vertical, and the legacy 'mgx'/'mgy'/'vgx'/'vgy' literal x/y files), 'ssm', 'blend', 'plot', 'motion', 'history', 'motionhistory', 'sparse', and 'dense'. Defaults to None.
         mode (str, optional): Whether to show things in a separate window or inline in the jupyter notebook. Accepted values are 'windowed' and 'notebook'. Defaults to 'windowed'.
         window_width (int, optional): The width of the window. Defaults to 640.
         window_height (int, optional): The height of the window. Defaults to 480.
@@ -135,59 +135,35 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             show(file=filename, width=window_width,
                  height=window_height, mode=mode, title=window_title, parent=self, **ipython_kwargs)
 
-        elif key.lower() in ('horizontal', 'vertical'):
-            # Generic orientation keys for motiongrams/videograms; prefer whichever exists
-            axis = 'x' if key.lower() == 'horizontal' else 'y'
-            label = 'Horizontal' if axis == 'x' else 'Vertical'
-            if f"motiongram_{axis}" in keys:
-                filename = getattr(self, f"motiongram_{axis}").filename
-                show(file=filename, width=window_width, height=window_height, mode=mode,
-                     title=f'{label} Motiongram | {filename}', parent=self, **ipython_kwargs)
-            elif f"videogram_{axis}" in keys:
-                filename = getattr(self, f"videogram_{axis}").filename
-                show(file=filename, width=window_width, height=window_height, mode=mode,
-                     title=f'{label} Videogram | {filename}', parent=self, **ipython_kwargs)
+        elif key.lower() in ('horizontal', 'vertical', 'mgh', 'mgv', 'vgh', 'vgv',
+                             'mgx', 'mgy', 'vgx', 'vgy'):
+            # Orientation keys for motiongrams/videograms. Horizontal movement is captured by
+            # the y-axis collapse (motiongram_y / videogram_y), vertical by the x-axis collapse
+            # (motiongram_x / videogram_x). Canonical aliases: mgh/vgh (horizontal),
+            # mgv/vgv (vertical); legacy mgx/mgy/vgx/vgy map to the literal x/y files.
+            k = key.lower()
+            horizontal_keys = ('horizontal', 'mgh', 'vgh', 'mgy', 'vgy')
+            axis = 'y' if k in horizontal_keys else 'x'
+            label = 'Horizontal' if k in horizontal_keys else 'Vertical'
+            if k in ('mgh', 'mgv', 'mgx', 'mgy'):
+                kinds = ('motiongram',)
+            elif k in ('vgh', 'vgv', 'vgx', 'vgy'):
+                kinds = ('videogram',)
             else:
+                kinds = ('motiongram', 'videogram')
+            target = None
+            for kind in kinds:
+                if f"{kind}_{axis}" in keys:
+                    target = (kind, getattr(self, f"{kind}_{axis}").filename)
+                    break
+            if target is None:
                 raise FileNotFoundError(
-                    f"There is no known {label.lower()} motiongram or videogram for this file. "
+                    f"There is no known {label.lower()} {' or '.join(kinds)} for this file. "
                     "Run motiongrams() or videograms() first.")
+            kind, filename = target
+            show(file=filename, width=window_width, height=window_height, mode=mode,
+                 title=f'{label} {kind.capitalize()} | {filename}', parent=self, **ipython_kwargs)
 
-        elif key.lower() == 'mgx':
-            if "motiongram_x" in keys:
-                filename = self.motiongram_x.filename
-                show(file=filename, width=window_width,
-                     height=window_height, mode=mode, title=f'Horizontal Motiongram | {filename}', parent=self, **ipython_kwargs)
-            else:
-                raise FileNotFoundError(
-                    "There is no known horizontal motiongram for this file.")
-
-        elif key.lower() == 'mgy':
-            if "motiongram_y" in keys:
-                filename = self.motiongram_y.filename
-                show(file=filename, width=window_width,
-                     height=window_height, mode=mode, title=f'Vertical Motiongram | {filename}', parent=self, **ipython_kwargs)
-            else:
-                raise FileNotFoundError(
-                    "There is no known vertical motiongram for this file.")
-
-        elif key.lower() == 'vgx':
-            if "videogram_x" in keys:
-                filename = self.videogram_x.filename
-                show(file=filename, width=window_width,
-                     height=window_height, mode=mode, title=f'Horizontal Videogram | {filename}', parent=self, **ipython_kwargs)
-            else:
-                raise FileNotFoundError(
-                    "There is no known horizontal videogram for this file.")
-
-        elif key.lower() == 'vgy':
-            if "videogram_y" in keys:
-                filename = self.videogram_y.filename
-                show(file=filename, width=window_width,
-                     height=window_height, mode=mode, title=f'Vertical Videogram | {filename}', parent=self, **ipython_kwargs)
-            else:
-                raise FileNotFoundError(
-                    "There is no known vertical videogram for this file.")
-            
         elif key.lower() == 'ssm':
             if "ssm_fig" in keys:
                 filename = self.ssm_fig.image
