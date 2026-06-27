@@ -9,6 +9,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.6.0] – 2026-06-27
+
+### Added
+- **Audio–movement analysis suite** for comparing a single performer's sound and motion:
+  - `tempo_similarity()` — audio tempo vs movement tempo (ratio, nearest harmonic,
+    cross-correlation peak/lag, zero-lag correlation), with a CSV.
+  - `phase_synchrony()` — phase-locking value (PLV) between the audio and movement rhythm,
+    with a polar phase-difference histogram.
+  - `structure_comparison()` — audio self-similarity (MFCC) vs movement self-similarity
+    (frame appearance) plus a difference map and structural-agreement score.
+  - `body_audio_coupling()` — correlates each pose marker's speed with the audio onset
+    envelope; body map + ranked bar chart + CSV.
+  - `dynamics_coupling()` — audio loudness (RMS) vs quantity of motion, zero/best-lag correlation.
+- `pose_segments()` — circular (polar rose) motion plots and per-segment circular statistics
+  (mean angle, resultant length R, circular std, range of motion, mean angular speed) + CSV.
+- `resample(fps=…, speed=…, skip=…)` — retime an already-loaded video and return a **new**
+  MgVideo: duration-preserving frame-rate change, playback-speed factor (audio kept in sync),
+  and/or integer frame decimation.
+- `pose_waterfall(style=…)` gained `'markers'`, `'skeleton'`, and `'both'` styles (in addition
+  to `'trajectories'`), plus `axes=False` (clean render) and `crop=True` (trim to the data).
+- `silhouette_waterfall()` gained `axes=False` and `crop=True`.
+
+### Changed
+- `pose(background='white')` now also makes the trajectories image white (the trajectory
+  background follows the pose `background`); use `trajectory_background` to override.
+
+### Fixed
+- Removed the white frame around the average-pose image (it now fills edge-to-edge).
+- `pose_waterfall(crop=True)` no longer leaves a large empty margin (the 3D axes fills the
+  figure and the data cube is zoomed), including with `axes=False`.
+
+---
+
 ## [1.5.0] – 2026-06-27
 
 ### Changed
@@ -329,7 +362,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/fourMs/MGT-python/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/fourMs/MGT-python/compare/v1.4.9...v1.5.0
 [1.4.9]: https://github.com/fourMs/MGT-python/compare/v1.4.8...v1.4.9
 [1.4.8]: https://github.com/fourMs/MGT-python/compare/v1.4.7...v1.4.8

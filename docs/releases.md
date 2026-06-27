@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.5.0**.
+The current stable release is **MGT-python 1.6.0**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,17 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.6.0
+
+- New **audio–movement analysis suite** for single-dancer studies: `tempo_similarity()`,
+  `phase_synchrony()`, `structure_comparison()`, `body_audio_coupling()`, `dynamics_coupling()`.
+- `pose_segments()` — circular motion plots and statistics per body segment.
+- `resample(fps=…, speed=…, skip=…)` returns a new retimed MgVideo.
+- `pose_waterfall()` gains `markers`/`skeleton`/`both` styles plus `axes=False` and `crop=True`;
+  `silhouette_waterfall()` gains the same `axes`/`crop` options.
+- Average-pose image white frame removed; `pose(background='white')` now also whitens the
+  trajectories image.
 
 ### 1.5.0
 
