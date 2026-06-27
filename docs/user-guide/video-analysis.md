@@ -205,6 +205,9 @@ print(mt.data['dominant_frequency'])        # in Hz
 mt.show()                                   # QoM signal + movement spectrum
 ```
 
+![Movement tempo of dance.avi](../images/examples/motiontempo.png)
+*Movement tempo: the quantity-of-motion signal and its FFT movement spectrum, with the dominant tempo marked.*
+
 Restrict the search band with `fmin`/`fmax` (Hz).
 
 ---
@@ -235,6 +238,9 @@ evm = mv.eulerian(mode='color', freq_low=0.83, freq_high=1.0, amplification=50)
 evm = mv.eulerian(mode='motion', freq_low=0.4, freq_high=3.0, amplification=20)
 evm.show()
 ```
+
+![Eulerian video magnification frame of dance.avi](../images/examples/eulerian.png)
+*Eulerian video magnification: a single frame from the output video, with subtle changes amplified.*
 
 - `mode='color'` uses a Gaussian pyramid + ideal FFT temporal band-pass (two-pass, low memory)
 - `mode='motion'` uses a Laplacian pyramid + streaming IIR band-pass (frame-by-frame, low memory)
@@ -269,6 +275,12 @@ mv.show(key='horizontal')
 mv.show(key='vertical')
 ```
 
+![Horizontal videogram of dance.avi](../images/examples/videogram_h.png)
+*Horizontal videogram: the full scene content (not motion) collapsed onto the y-axis, flowing left→right over time.*
+
+![Vertical videogram of dance.avi](../images/examples/videogram_v.png)
+*Vertical videogram: the full scene content collapsed onto the x-axis, stacked top→bottom over time.*
+
 ---
 
 ## Self-Similarity Matrix (SSM)
@@ -290,6 +302,9 @@ videossm = mv.ssm(features='videograms')
 chromassm = mv.ssm(features='chromagram', cmap='magma', norm=2)
 spectrossm = mv.ssm(features='spectrogram')
 ```
+
+![Combined motion self-similarity matrix of dance.avi](../images/examples/ssm.png)
+*Combined motion SSM: both axes of motion in a single self-similarity matrix, revealing periodic structure over time.*
 
 ---
 
@@ -317,6 +332,9 @@ grid.show()
 grid_array = mv.grid(height=300, rows=3, columns=3, return_array=True)
 ```
 
+![Grid preview of dance.avi](../images/examples/grid.png)
+*Grid: a strip of evenly-spaced frames assembled into a single image for a quick overview of the recording.*
+
 ---
 
 ## History video
@@ -328,6 +346,9 @@ history = mv.history(history_length=20)     # returns MgVideo
 history.show()
 mv.show(key='history')
 ```
+
+![History video frame of dance.avi](../images/examples/history.png)
+*History: a single frame from the output video, with the last `history_length` frames overlaid to trace the trajectory of motion.*
 
 Applying history to a motion video emphasises movement traces:
 
@@ -595,6 +616,9 @@ directograms.data['directogram']
 directograms.show()
 ```
 
+![Directogram of dance.avi](../images/examples/directograms.png)
+*Directogram: motion magnitude factored into angular bins over time, like a spectrogram with angles replacing frequencies.*
+
 ### Impacts
 
 Impacts are visual analogues of audio onset envelopes, derived from directogram deceleration.
@@ -605,6 +629,9 @@ impacts = mv.impacts(detection=True, local_mean=0.1, local_maxima=0.15)
 impacts.data['impact envelopes']
 impacts.show()
 ```
+
+![Visual impacts of dance.avi](../images/examples/impacts.png)
+*Impacts: the visual onset envelope derived from directogram deceleration, the movement analogue of an audio onset envelope.*
 
 ---
 

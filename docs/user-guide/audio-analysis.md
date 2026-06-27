@@ -24,6 +24,9 @@ waveform = audio.waveform()
 waveform.show()
 ```
 
+![Waveform of dance audio](../images/examples/waveform.png)
+*Waveform: audio amplitude over time, giving a quick overview of loudness and silence.*
+
 Pass `raw=True` to skip librosa post-processing and plot the raw sample values:
 
 ```python
@@ -53,6 +56,9 @@ spectrogram.show()
 spectrogram = audio.spectrogram(raw=True)
 ```
 
+![Mel spectrogram of dance audio](../images/examples/spectrogram.png)
+*Mel spectrogram: frequency content over time, more informative than a waveform for most audio.*
+
 ---
 
 ## Tempogram
@@ -63,6 +69,9 @@ A tempogram estimates tempo by analysing onset strength over time using FFT, giv
 tempogram = audio.tempogram()
 tempogram.show()
 ```
+
+![Tempogram of dance audio](../images/examples/tempogram.png)
+*Tempogram: rhythmic periodicity from onset strength over time, with an onset-strength panel above and the estimated tempo in the title.*
 
 By default the figure includes an onset-strength panel above the tempogram. Pass `onset_strength=False` for just the tempogram in a single panel (the same size as the spectrogram/chromagram):
 
@@ -94,6 +103,9 @@ A chromagram maps audio energy onto the 12 pitch classes (C, C#, D, …, B) over
 chroma = audio.chromagram()
 chroma.show()
 ```
+
+![Chromagram of dance audio](../images/examples/chromagram.png)
+*Chromagram: audio energy mapped onto the 12 pitch classes over time, useful for harmony, chord progressions, and key.*
 
 Three algorithms are available via `chroma_type`:
 
@@ -137,6 +149,9 @@ mfcc.show()
 coeffs = audio.mfcc(autoshow=False).data['mfcc']   # numpy array (n_mfcc, frames)
 ```
 
+![MFCC of dance audio](../images/examples/mfcc.png)
+*MFCC: mel-frequency cepstral coefficients describing the spectral envelope (timbre) over time.*
+
 ---
 
 ## Tempo and beat tracking
@@ -151,6 +166,9 @@ print(t.data['tempo'])            # BPM
 print(t.data['beat_times'])       # beat positions (s)
 print(t.data['beat_regularity'])  # 1.0 = perfectly even beats
 ```
+
+![Tempo and beat tracking of dance audio](../images/examples/tempo.png)
+*Tempo: the waveform with detected beat markers; numeric tempo, beat times, and regularity are in the figure's `.data`.*
 
 Available `.data` keys: `tempo`, `beat_times`, `ibi` (inter-beat intervals), `beat_regularity`, `beat_phases`, `deviations_s`, `R_beat`, `mu_beat`, `T_fit`, `t0_fit`, `p_rayleigh`.
 
@@ -211,6 +229,9 @@ SSMs can also be computed on visual features from `MgVideo` — see [Video Analy
 descriptors = audio.descriptors()
 descriptors.show()
 ```
+
+![Audio descriptors of dance audio](../images/examples/descriptors.png)
+*Audio descriptors: RMS energy, spectral flatness, centroid, bandwidth, and rolloff plotted over time in a single figure.*
 
 Set `save_data=True` to also write the per-frame descriptor time series to disk (csv/tsv/txt), mirroring `motiondata`:
 
