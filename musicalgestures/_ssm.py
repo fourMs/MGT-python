@@ -75,6 +75,7 @@ def mg_ssm(
         use_median=False,
         kernel_size=5,
         invert_yaxis=True,
+        combine=False,
         title=None,
         target_name=None,
         overwrite=False):
@@ -89,6 +90,9 @@ def mg_ssm(
         blur (str, optional): 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
         norm (int, optional): Normalize the columns of the feature sequence. Possible to compute Manhattan norm (1), Euclidean norm (2), Minimum norm (-np.inf), Maximum norm (np.inf), etc. Defaults to np.inf.
         norm_threshold (float, optional): Only the columns with norm at least `norm_threshold` are normalized. Defaults to 0.001.
+        combine (bool, optional): For 'motiongrams', compute a single SSM from the concatenated
+            horizontal + vertical motiongram features (both axes of motion in one display) and
+            return a single MgImage instead of an MgList of two. Defaults to False.
         cmap (str, optional): A Colormap instance or registered colormap name. The colormap maps the C values to colors. Defaults to 'gray_r'.
         use_median (bool, optional): If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
         kernel_size (int, optional):  Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
@@ -148,6 +152,34 @@ def mg_ssm(
         # Normalize feature sequence
         X = librosa.util.normalize(self.ssm_fig.data[0].astype('float32'), norm=norm, threshold=norm_threshold)
         Y = librosa.util.normalize(self.ssm_fig.data[1].astype('float32'), norm=norm, threshold=norm_threshold)
+
+        # Combined SSM: stack horizontal + vertical motiongram features per frame so a
+        # single self-similarity matrix reflects both axes of motion at once.
+        if combine:
+            n = min(X.shape[-1], Y.shape[-1])
+            XY = np.concatenate([X[..., :n], Y[..., :n]], axis=0)
+            XY_ssm = slow_dot(np.transpose(XY), XY, self.length)
+
+            fig, ax = plt.subplots(figsize=(8, 8))
+            if title == 'filename':
+                ax.set_title('Combined motion SSM: ' + os.path.basename(self.of + self.fex))
+            elif title:
+                ax.set_title(title)
+            else:
+                ax.set_title('Combined (horizontal + vertical) motion SSM')
+            img = ax.imshow(XY_ssm, aspect='auto', cmap=cmap)
+            if invert_yaxis:
+                ax.invert_yaxis()
+            ax.set_xlabel('Time [frames]')
+            ax.set_ylabel('Time [frames]')
+            cb_norm = mpl.colors.Normalize(vmin=0, vmax=1.0)
+            fig.colorbar(mpl.cm.ScalarMappable(norm=cb_norm, cmap=cmap), ax=ax, aspect=50)
+            fig.tight_layout()
+            plt.savefig(target_name, format='png', facecolor='white', transparent=False)
+            plt.close()
+            self.ssm_combined = MgImage(target_name)
+            return MgImage(target_name)
+
         # Compute SSM using dot product
         X_ssm = slow_dot(np.transpose(X), X, self.length)
         Y_ssm = slow_dot(np.transpose(Y), Y, self.length)
