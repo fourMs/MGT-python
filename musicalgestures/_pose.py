@@ -829,26 +829,31 @@ def _rerender_pose_from_cache(self, style='both', overlay=True, background='blac
     return self
 
 
-def mg_pose_waterfall(self, markers=None, color_by='marker', cmap='hsv', dpi=200,
-                      elev=20, azim=-60, lw=1.0, target_name=None, overwrite=True, **pose_kwargs):
+def mg_pose_waterfall(self, style='trajectories', n_samples=40, markers=None, color_by=None,
+                      cmap='hsv', dpi=200, elev=20, azim=-60, lw=1.0,
+                      target_name=None, overwrite=True, **pose_kwargs):
     """
-    Render a 3D spatio-temporal waterfall of the pose markers.
-
-    Each marker's trajectory flows through (x, time, y) space, cascading along the time axis —
+    Render a 3D spatio-temporal waterfall of the pose, cascading along the time (depth) axis —
     a pose-based counterpart to ``silhouette_waterfall()``. Uses cached pose keypoints from a
     previous ``pose()`` call when available; otherwise it runs pose estimation first (extra
     keyword arguments such as ``model``/``device``/``downsampling_factor`` are forwarded to
     ``pose()``).
 
     Args:
+        style (str, optional): What to draw. ``'trajectories'`` (default) draws each marker's
+            continuous path through (x, time, y); ``'markers'`` scatters the markers at
+            ``n_samples`` time slices; ``'skeleton'`` draws the skeleton joint lines at each
+            time slice; ``'both'`` draws markers + skeleton.
+        n_samples (int, optional): Number of time slices for the marker/skeleton styles.
+            Defaults to 40 (ignored for ``'trajectories'``).
         markers (list, optional): Subset of marker names or indices to draw. Defaults to all.
-        color_by (str, optional): ``'marker'`` (one colour per marker) or ``'time'`` (colour
-            follows time along each path). Defaults to 'marker'.
+        color_by (str, optional): ``'marker'`` or ``'time'``. Defaults to None ("auto"):
+            'marker' for trajectories, 'time' for the slice styles.
         cmap (str, optional): Matplotlib colormap. Defaults to 'hsv'.
         dpi (int, optional): Output DPI. Defaults to 200.
         elev (float, optional): 3D elevation angle. Defaults to 20.
         azim (float, optional): 3D azimuth angle. Defaults to -60.
-        lw (float, optional): Trajectory line width. Defaults to 1.0.
+        lw (float, optional): Line width. Defaults to 1.0.
         target_name (str, optional): Output name. Defaults to None ("_pose_waterfall.png").
         overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to True.
         **pose_kwargs: Forwarded to ``pose()`` if keypoints have to be computed.
@@ -873,7 +878,8 @@ def mg_pose_waterfall(self, markers=None, color_by='marker', cmap='hsv', dpi=200
 
     mgf = render_pose_waterfall(
         c['data'], c['names'], c['width'], c['height'], c['fps'], target_name,
-        overwrite=overwrite, markers=markers, color_by=color_by, cmap=cmap,
+        overwrite=overwrite, style=style, connections=c.get('connections'),
+        n_samples=n_samples, markers=markers, color_by=color_by, cmap=cmap,
         dpi=dpi, elev=elev, azim=azim, lw=lw)
     self.pose_waterfall_figure = mgf
     return mgf

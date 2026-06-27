@@ -261,14 +261,19 @@ def render_trajectories(data, names, width, height, fps, target_name, overwrite=
 
 
 def render_pose_waterfall(data, names, width, height, fps, target_name, overwrite=True,
-                          markers=None, color_by='marker', cmap='hsv', dpi=200,
+                          style='trajectories', connections=None, n_samples=40,
+                          markers=None, color_by=None, cmap='hsv', dpi=200,
                           elev=20, azim=-60, lw=1.0):
     """
-    Render a 3D spatio-temporal waterfall of the pose markers.
+    Render a 3D spatio-temporal waterfall of the pose, cascading along the time (depth) axis —
+    a pose-based counterpart to ``silhouette_waterfall()``.
 
-    Every marker's trajectory is drawn as a line flowing through (x, time, y) space, so the
-    body's movement "cascades" along the time (depth) axis — a pose-based counterpart to
-    ``silhouette_waterfall()``.
+    ``style`` selects what is drawn:
+
+    * ``'trajectories'`` (default): each marker's path is a continuous line through (x, time, y).
+    * ``'markers'``: the markers themselves are scattered at ``n_samples`` time slices.
+    * ``'skeleton'``: the skeleton joint lines are drawn at ``n_samples`` time slices.
+    * ``'both'``: markers + skeleton at each time slice.
 
     Args:
         data (list): Collected pose rows ``[time_ms, x0, y0, x1, y1, ...]`` (normalised coords).
@@ -277,22 +282,33 @@ def render_pose_waterfall(data, names, width, height, fps, target_name, overwrit
         fps (float): Frames per second (for the time axis).
         target_name (str): Output PNG path.
         overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to True.
+        style (str, optional): ``'trajectories'`` (default), ``'markers'``, ``'skeleton'``, or
+            ``'both'``.
+        connections (list, optional): Skeleton connection pairs (indices); required for the
+            ``'skeleton'``/``'both'`` styles.
+        n_samples (int, optional): Number of time slices for the marker/skeleton styles.
+            Defaults to 40.
         markers (list, optional): Subset of marker names or indices to draw. Defaults to all.
-        color_by (str, optional): ``'marker'`` (one colour per marker) or ``'time'`` (colour
-            follows time along each path). Defaults to 'marker'.
+        color_by (str, optional): ``'marker'`` (one colour per marker) or ``'time'`` (colour by
+            time). Defaults to None ("auto"): 'marker' for trajectories, 'time' for the slice styles.
         cmap (str, optional): Matplotlib colormap. Defaults to 'hsv'.
         dpi (int, optional): Output DPI. Defaults to 200.
         elev (float, optional): 3D elevation angle. Defaults to 20.
         azim (float, optional): 3D azimuth angle. Defaults to -60.
-        lw (float, optional): Trajectory line width. Defaults to 1.0.
+        lw (float, optional): Line width. Defaults to 1.0.
 
     Returns:
-        MgFigure: the 3D waterfall figure (``.data`` holds the trajectories), or None if there
-        are too few frames.
+        MgFigure: the 3D waterfall figure, or None if there are too few frames.
     """
     from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 (registers 3d projection)
     from mpl_toolkits.mplot3d.art3d import Line3DCollection
     from musicalgestures._utils import MgFigure
+
+    style = str(style).lower()
+    if style not in ('trajectories', 'markers', 'skeleton', 'both'):
+        style = 'trajectories'
+    if color_by is None:
+        color_by = 'marker' if style == 'trajectories' else 'time'
 
     n_points = len(names)
     coords, times = _positions_from_data(data, n_points)
@@ -312,6 +328,7 @@ def render_pose_waterfall(data, names, width, height, fps, target_name, overwrit
                     idx.append(names.index(m))
             elif 0 <= int(m) < n_points:
                 idx.append(int(m))
+    idx_set = set(idx)
 
     if target_name is None:
         target_name = '_pose_waterfall.png'
@@ -324,24 +341,52 @@ def render_pose_waterfall(data, names, width, height, fps, target_name, overwrit
     fig.patch.set_facecolor('white')
 
     tmin, tmax = float(times.min()), float(times.max())
-    for k, i in enumerate(idx):
-        path = px[:, i, :]
-        valid = ~np.isnan(path).any(axis=1)
-        if valid.sum() < 2:
-            continue
-        x = path[valid, 0]
-        z = height - path[valid, 1]      # invert so up is up
-        t = times[valid]
-        if color_by == 'time':
-            # Per-segment colouring along the path by time
-            pts = np.column_stack([x, t, z]).reshape(-1, 1, 3)
-            segs = np.concatenate([pts[:-1], pts[1:]], axis=1)
-            norm = (t[:-1] - tmin) / max(tmax - tmin, 1e-9)
-            lc = Line3DCollection(segs, colors=cmap_obj(norm), linewidths=lw, alpha=0.8)
-            ax.add_collection3d(lc)
-        else:
-            color = cmap_obj(k / max(len(idx) - 1, 1))
-            ax.plot(x, t, z, color=color, lw=lw, alpha=0.8)
+
+    def _tcolor(t):
+        return cmap_obj((t - tmin) / max(tmax - tmin, 1e-9))
+
+    if style == 'trajectories':
+        for k, i in enumerate(idx):
+            path = px[:, i, :]
+            valid = ~np.isnan(path).any(axis=1)
+            if valid.sum() < 2:
+                continue
+            x = path[valid, 0]
+            z = height - path[valid, 1]      # invert so up is up
+            t = times[valid]
+            if color_by == 'time':
+                # Per-segment colouring along the path by time
+                pts = np.column_stack([x, t, z]).reshape(-1, 1, 3)
+                segs = np.concatenate([pts[:-1], pts[1:]], axis=1)
+                norm = (t[:-1] - tmin) / max(tmax - tmin, 1e-9)
+                lc = Line3DCollection(segs, colors=cmap_obj(norm), linewidths=lw, alpha=0.8)
+                ax.add_collection3d(lc)
+            else:
+                color = cmap_obj(k / max(len(idx) - 1, 1))
+                ax.plot(x, t, z, color=color, lw=lw, alpha=0.8)
+    else:
+        # Marker/skeleton styles: draw the pose at n_samples time slices, stacked along time.
+        T = coords.shape[0]
+        sample_idx = np.unique(np.linspace(0, T - 1, min(int(n_samples), T)).astype(int))
+        draw_markers = style in ('markers', 'both')
+        draw_skeleton = style in ('skeleton', 'both') and connections is not None
+        for ti in sample_idx:
+            t = times[ti]
+            color = _tcolor(t)
+            if draw_skeleton:
+                for a, b in connections:
+                    if a in idx_set and b in idx_set and a < n_points and b < n_points:
+                        pa, pb = px[ti, a], px[ti, b]
+                        if not (np.isnan(pa).any() or np.isnan(pb).any()):
+                            ax.plot([pa[0], pb[0]], [t, t],
+                                    [height - pa[1], height - pb[1]],
+                                    color=color, lw=lw, alpha=0.8)
+            if draw_markers:
+                pts = px[ti, idx, :]
+                vis = ~np.isnan(pts).any(axis=1)
+                if vis.any():
+                    ax.scatter(pts[vis, 0], np.full(vis.sum(), t), height - pts[vis, 1],
+                               color=color, s=6, alpha=0.8, depthshade=True)
 
     ax.set_xlim(0, width)
     ax.set_ylim(tmin, tmax)
@@ -354,6 +399,7 @@ def render_pose_waterfall(data, names, width, height, fps, target_name, overwrit
     fig.savefig(target_name, facecolor='white')
     plt.close(fig)
 
-    fig_data = {'coords': coords, 'times': times, 'names': names, 'markers': idx, 'fps': fps}
+    fig_data = {'coords': coords, 'times': times, 'names': names, 'markers': idx,
+                'style': style, 'fps': fps}
     return MgFigure(figure=fig, figure_type='video.pose_waterfall', data=fig_data,
                     layers=None, image=target_name)
