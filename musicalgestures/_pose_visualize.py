@@ -6,32 +6,37 @@ import matplotlib.pyplot as plt
 from musicalgestures._utils import MgImage, generate_outfilename
 
 
-def _layout_labels(anchors, box_w, box_h, width, height, iterations=120):
+def _layout_labels(anchors, box_w, box_h, width, height, iterations=400, gap=None):
     """
     Greedily spread label positions so their (approximate) boxes don't overlap.
 
     Starts each label slightly above its anchor, then iteratively pushes overlapping
-    label boxes apart and keeps them within the image bounds. Returns an (M, 2) array
-    of label-centre positions in image (pixel) coordinates.
+    label boxes apart (keeping a small gap) and keeps them within the image bounds.
+    Returns an (M, 2) array of label-centre positions in image (pixel) coordinates.
     """
     pos = anchors.astype(float).copy()
     pos[:, 1] -= box_h * 0.7 + height * 0.01   # start a bit above the marker
     n = len(pos)
+    if gap is None:
+        gap = height * 0.006   # keep a small breathing space between boxes
     for _ in range(iterations):
         moved = False
         for i in range(n):
             for j in range(i + 1, n):
                 dx = pos[i, 0] - pos[j, 0]
                 dy = pos[i, 1] - pos[j, 1]
-                ox = (box_w[i] + box_w[j]) / 2 - abs(dx)
-                oy = (box_h[i] + box_h[j]) / 2 - abs(dy)
+                ox = (box_w[i] + box_w[j]) / 2 + gap - abs(dx)
+                oy = (box_h[i] + box_h[j]) / 2 + gap - abs(dy)
                 if ox > 0 and oy > 0:
+                    # push apart along the axis of least overlap
                     if ox < oy:
-                        s = (ox / 2 + 0.5) * (1.0 if dx >= 0 else -1.0)
+                        sign = 1.0 if dx >= 0 else -1.0
+                        s = (ox / 2 + 0.5) * sign
                         pos[i, 0] += s
                         pos[j, 0] -= s
                     else:
-                        s = (oy / 2 + 0.5) * (1.0 if dy >= 0 else -1.0)
+                        sign = 1.0 if dy >= 0 else -1.0
+                        s = (oy / 2 + 0.5) * sign
                         pos[i, 1] += s
                         pos[j, 1] -= s
                     moved = True
@@ -58,8 +63,13 @@ def _positions_from_data(data, n_points):
     return coords, times
 
 
-def _per_marker_stats(coords, fps, diag, fmin=0.2, fmax=8.0):
-    """Per-marker average quantity of motion (px/frame) and dominant frequency (Hz)."""
+def _per_marker_stats(coords, fps, fmin=0.2, fmax=8.0):
+    """
+    Per-marker average quantity of motion and dominant frequency (Hz).
+
+    QoM is the mean frame-to-frame displacement in **normalised** image coordinates,
+    then scaled to [0, 1] across markers (the most-moving marker = 1.0).
+    """
     from musicalgestures._analysis import dominant_frequency
 
     T, n, _ = coords.shape
@@ -68,11 +78,14 @@ def _per_marker_stats(coords, fps, diag, fmin=0.2, fmax=8.0):
     for i in range(n):
         xy = coords[:, i, :]
         d = np.diff(xy, axis=0)
-        speed = np.sqrt((d ** 2).sum(axis=1)) * diag   # px/frame
+        speed = np.sqrt((d ** 2).sum(axis=1))   # normalised units
         valid = speed[~np.isnan(speed)]
         if len(valid) > 1:
             qom[i] = float(np.mean(valid))
             freq[i] = dominant_frequency(np.nan_to_num(speed), fps, fmin=fmin, fmax=fmax)
+    # Normalise QoM to [0, 1] across markers
+    if qom.max() > 0:
+        qom = qom / qom.max()
     return qom, freq
 
 
@@ -93,8 +106,7 @@ def render_average_pose(data, names, connections, width, height, fps, avg_frame,
     if coords.shape[0] < 2:
         return None
 
-    diag = float(np.sqrt(width ** 2 + height ** 2))
-    qom, freq = _per_marker_stats(coords, fps, diag, fmin=fmin, fmax=fmax)
+    qom, freq = _per_marker_stats(coords, fps, fmin=fmin, fmax=fmax)  # qom already 0–1
 
     mean_pos = np.nanmean(coords, axis=0)          # (n, 2) normalised
     mean_px = mean_pos * np.array([width, height])  # to pixels
@@ -104,8 +116,8 @@ def render_average_pose(data, names, connections, width, height, fps, avg_frame,
     if not overwrite:
         target_name = generate_outfilename(target_name)
 
-    # Colour markers by QoM
-    qmax = qom.max() if qom.max() > 0 else 1.0
+    # Colour markers by normalised QoM (0–1)
+    qmax = 1.0
     cmap = matplotlib.colormaps['plasma']
 
     aspect = width / height
@@ -135,20 +147,19 @@ def render_average_pose(data, names, connections, width, height, fps, avg_frame,
             ax.scatter(mean_px[i, 0], mean_px[i, 1], s=120, color=cmap(qom[i] / qmax),
                        edgecolors='white', linewidths=1.0, zorder=3)
 
-    # Labels (name, QoM, frequency), laid out to avoid overlapping each other
+    # Labels: only the numbers (normalised QoM | dominant frequency), no marker name,
+    # laid out to avoid overlapping each other.
     if vis_idx:
-        texts = [f"{names[i]}\n{qom[i]:.1f}px | {freq[i]:.1f}Hz" for i in vis_idx]
+        texts = [f"{qom[i]:.2f} | {freq[i]:.1f}Hz" for i in vis_idx]
         anchors = np.array([mean_px[i] for i in vis_idx], dtype=float)
-        char_w = width * 0.0072
-        line_h = height * 0.032
-        box_w = np.array([max(len(n), len(f"{q:.1f}px | {f:.1f}Hz")) for n, q, f
-                          in zip([names[i] for i in vis_idx],
-                                 [qom[i] for i in vis_idx],
-                                 [freq[i] for i in vis_idx])]) * char_w
-        box_h = np.full(len(vis_idx), 2 * line_h)
+        char_w = width * 0.0080
+        line_h = height * 0.034
+        # Single-line boxes (no name) sized to the text, with a little extra margin
+        box_w = np.array([len(t) for t in texts]) * char_w + width * 0.01
+        box_h = np.full(len(vis_idx), line_h * 1.3)
         label_pos = _layout_labels(anchors, box_w, box_h, width, height)
 
-        for k, i in enumerate(vis_idx):
+        for k in range(len(vis_idx)):
             ax.annotate(texts[k],
                         xy=(anchors[k, 0], anchors[k, 1]),
                         xytext=(label_pos[k, 0], label_pos[k, 1]), textcoords='data',
@@ -156,16 +167,16 @@ def render_average_pose(data, names, connections, width, height, fps, avg_frame,
                         ha='center', va='center',
                         arrowprops=dict(arrowstyle='-', color='#555555', lw=0.4, alpha=0.7),
                         bbox=dict(boxstyle='round,pad=0.15', facecolor='white',
-                                  edgecolor='none', alpha=0.75))
+                                  edgecolor='none', alpha=0.8))
 
     sm = matplotlib.cm.ScalarMappable(cmap=cmap, norm=matplotlib.colors.Normalize(vmin=0, vmax=qmax))
     cb = fig.colorbar(sm, ax=ax, fraction=0.03, pad=0.01)
-    cb.set_label('Average quantity of motion (px/frame)', fontsize=8)
+    cb.set_label('Average quantity of motion (normalised 0–1)', fontsize=8)
     cb.ax.tick_params(labelsize=7)
 
     ax.set_xlim(0, width)
     ax.set_ylim(height, 0)
-    ax.set_title('Average pose — marker colour = QoM, labels = QoM | dominant frequency', fontsize=10)
+    ax.set_title('Average pose — colour & first number = normalised QoM, second = dominant frequency (Hz)', fontsize=9)
     ax.axis('off')
     fig.tight_layout()
     fig.savefig(target_name, facecolor='white', bbox_inches='tight')
@@ -176,7 +187,7 @@ def render_average_pose(data, names, connections, width, height, fps, avg_frame,
         import pandas as pd
         stats_path = os.path.splitext(target_name)[0] + '_stats.csv'
         pd.DataFrame({'Marker': names,
-                      'AvgQoM_px_per_frame': qom,
+                      'AvgQoM_normalized': qom,
                       'DominantFrequency_Hz': freq}).to_csv(stats_path, index=False)
     except Exception:
         pass
