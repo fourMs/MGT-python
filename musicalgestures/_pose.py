@@ -830,7 +830,7 @@ def _rerender_pose_from_cache(self, style='both', overlay=True, background='blac
 
 
 def mg_pose_waterfall(self, style='trajectories', n_samples=40, markers=None, color_by=None,
-                      cmap='hsv', dpi=200, elev=20, azim=-60, lw=1.0,
+                      cmap='hsv', dpi=200, elev=20, azim=-60, lw=1.0, axes=True,
                       target_name=None, overwrite=True, **pose_kwargs):
     """
     Render a 3D spatio-temporal waterfall of the pose, cascading along the time (depth) axis —
@@ -854,6 +854,8 @@ def mg_pose_waterfall(self, style='trajectories', n_samples=40, markers=None, co
         elev (float, optional): 3D elevation angle. Defaults to 20.
         azim (float, optional): 3D azimuth angle. Defaults to -60.
         lw (float, optional): Line width. Defaults to 1.0.
+        axes (bool, optional): Draw the axes and tick labels. Set to False for a clean render
+            with all axes and text removed. Defaults to True.
         target_name (str, optional): Output name. Defaults to None ("_pose_waterfall.png").
         overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to True.
         **pose_kwargs: Forwarded to ``pose()`` if keypoints have to be computed.
@@ -880,7 +882,7 @@ def mg_pose_waterfall(self, style='trajectories', n_samples=40, markers=None, co
         c['data'], c['names'], c['width'], c['height'], c['fps'], target_name,
         overwrite=overwrite, style=style, connections=c.get('connections'),
         n_samples=n_samples, markers=markers, color_by=color_by, cmap=cmap,
-        dpi=dpi, elev=elev, azim=azim, lw=lw)
+        dpi=dpi, elev=elev, azim=azim, lw=lw, axes=axes)
     self.pose_waterfall_figure = mgf
     return mgf
 

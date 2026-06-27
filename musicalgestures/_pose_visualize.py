@@ -257,7 +257,7 @@ def render_trajectories(data, names, width, height, fps, target_name, overwrite=
 def render_pose_waterfall(data, names, width, height, fps, target_name, overwrite=True,
                           style='trajectories', connections=None, n_samples=40,
                           markers=None, color_by=None, cmap='hsv', dpi=200,
-                          elev=20, azim=-60, lw=1.0):
+                          elev=20, azim=-60, lw=1.0, axes=True):
     """
     Render a 3D spatio-temporal waterfall of the pose, cascading along the time (depth) axis —
     a pose-based counterpart to ``silhouette_waterfall()``.
@@ -290,6 +290,8 @@ def render_pose_waterfall(data, names, width, height, fps, target_name, overwrit
         elev (float, optional): 3D elevation angle. Defaults to 20.
         azim (float, optional): 3D azimuth angle. Defaults to -60.
         lw (float, optional): Line width. Defaults to 1.0.
+        axes (bool, optional): Draw the axes and tick labels. Set to False for a clean render
+            with all axes and text removed. Defaults to True.
 
     Returns:
         MgFigure: the 3D waterfall figure, or None if there are too few frames.
@@ -385,9 +387,12 @@ def render_pose_waterfall(data, names, width, height, fps, target_name, overwrit
     ax.set_xlim(0, width)
     ax.set_ylim(tmin, tmax)
     ax.set_zlim(0, height)
-    ax.set_xlabel('Horizontal position (px)')
-    ax.set_ylabel('Time (s)')
-    ax.set_zlabel('Vertical position (px)')
+    if axes:
+        ax.set_xlabel('Horizontal position (px)')
+        ax.set_ylabel('Time (s)')
+        ax.set_zlabel('Vertical position (px)')
+    else:
+        ax.set_axis_off()
     ax.view_init(elev=elev, azim=azim)
     fig.tight_layout()
     fig.savefig(target_name, facecolor='white')

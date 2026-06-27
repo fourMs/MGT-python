@@ -198,7 +198,7 @@ def mg_stroboscope(self, n_samples=12, method='auto', threshold=0.1, kernel_size
 
 def mg_silhouette_waterfall(self, n_samples=40, method='auto', threshold=0.1, kernel_size=5,
                             keep_largest=False, axis='horizontal', cmap='viridis', dpi=200,
-                            elev=35, azim=-60, target_name=None, overwrite=True):
+                            elev=35, azim=-60, axes=True, target_name=None, overwrite=True):
     """
     Renders a 3D silhouette waterfall: the per-frame silhouette projected onto one spatial
     axis and stacked as cascading curves along a time (depth) axis, so the body's occupancy
@@ -218,6 +218,8 @@ def mg_silhouette_waterfall(self, n_samples=40, method='auto', threshold=0.1, ke
         dpi (int, optional): Output DPI. Defaults to 200.
         elev (float, optional): 3D elevation angle. Defaults to 35.
         azim (float, optional): 3D azimuth angle. Defaults to -60.
+        axes (bool, optional): Draw the axes, tick labels, and title. Set to False for a clean
+            render with all axes and text removed. Defaults to True.
         target_name (str, optional): Output name. Defaults to None ("_silhouette_waterfall.png").
         overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to True.
 
@@ -274,10 +276,13 @@ def mg_silhouette_waterfall(self, n_samples=40, method='auto', threshold=0.1, ke
         ax.plot(pos, np.full_like(pos, t, dtype=float), prof,
                 color=cmap_obj(k / n_slices), lw=0.9, alpha=0.9)
 
-    ax.set_xlabel('Horizontal position (px)' if axis == 'horizontal' else 'Vertical position (px)')
-    ax.set_ylabel('Time (s)')
-    ax.set_zlabel('Silhouette extent')
-    ax.set_title('Silhouette waterfall')
+    if axes:
+        ax.set_xlabel('Horizontal position (px)' if axis == 'horizontal' else 'Vertical position (px)')
+        ax.set_ylabel('Time (s)')
+        ax.set_zlabel('Silhouette extent')
+        ax.set_title('Silhouette waterfall')
+    else:
+        ax.set_axis_off()
     ax.view_init(elev=elev, azim=azim)
     fig.tight_layout()
     fig.savefig(target_name, facecolor='white')
