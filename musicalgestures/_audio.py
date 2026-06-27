@@ -412,12 +412,11 @@ class MgAudio:
             onset_ax.label_outer()
             onset_ax.legend(frameon=True)
 
-        librosa.display.specshow(tempogram, sr=sr, hop_length=self.hop_length,
-                                 x_axis='time', y_axis='tempo', cmap='magma', ax=tempo_ax)
-        tempo_ax.axhline(tempo, color='w', linestyle='--', alpha=1,
-                         label='Estimated tempo={:g}'.format(tempo))
-        tempo_ax.legend(loc='upper right')
-        tempo_ax.set(title='Tempogram')
+        img = librosa.display.specshow(tempogram, sr=sr, hop_length=self.hop_length,
+                                       x_axis='time', y_axis='tempo', cmap='magma', ax=tempo_ax)
+        fig.colorbar(img, ax=tempo_ax)
+        tempo_bpm = float(np.atleast_1d(tempo)[0])
+        tempo_ax.set(title='Tempogram (estimated tempo = {:.1f} BPM)'.format(tempo_bpm))
 
         # Adapt the plotting of the audio file's time when skipping frames of a video file
         self.format_time(tempo_ax, original_time)

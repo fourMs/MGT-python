@@ -293,7 +293,7 @@ def mg_silhouette_waterfall(self, n_samples=40, method='auto', threshold=0.1, ke
 # 3. Motion History Image (MHI)
 # ---------------------------------------------------------------------------
 
-def mg_motionhistory(self, threshold=0.05, decay=0.3, normalize=True, blur=0,
+def mg_motionhistory(self, threshold=0.05, decay=0.3, normalize=False, blur=0,
                      cmap='hot', dpi=300, target_name=None, overwrite=False):
     """
     Renders a Motion History Image (Bobick & Davis): a single image where intensity encodes
@@ -310,7 +310,10 @@ def mg_motionhistory(self, threshold=0.05, decay=0.3, normalize=True, blur=0,
         decay (float, optional): Fade window as a fraction of the clip length (0–1): a motion
             mark fully fades after this fraction of the video. Smaller = shorter trails, less
             blow-out. Defaults to 0.3.
-        normalize (bool, optional): Stretch the result to the full intensity range. Defaults to True.
+        normalize (bool, optional): Stretch the result to the full intensity range. Defaults to False.
+            The MHI is already built in [0, 1], so normalization is rarely needed; when the final
+            frames are static it amplifies faint residual trails and over-brightens ("blows up") the
+            image, so it is guarded to skip when the peak intensity is very low.
         blur (int, optional): Optional Gaussian smoothing radius for the difference mask (0 = off).
             Helps suppress speckle noise. Defaults to 0.
         cmap (str, optional): Matplotlib colormap. Defaults to 'hot'.
@@ -356,7 +359,9 @@ def mg_motionhistory(self, threshold=0.05, decay=0.3, normalize=True, blur=0,
         pb.progress(i)
     pb.progress(self.length)
 
-    if normalize and mhi.max() > 0:
+    # Only normalize when there is substantial motion intensity; otherwise dividing by a tiny
+    # peak amplifies faint residual trails into a washed-out ("blown up") image.
+    if normalize and mhi.max() > 0.2:
         mhi = mhi / mhi.max()
 
     fig, ax = plt.subplots(figsize=(12, 12 * self.height / self.width), dpi=dpi)
