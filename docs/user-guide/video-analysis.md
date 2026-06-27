@@ -362,14 +362,22 @@ pose = mv.pose(model='mediapipe', overlay=False, background='white')
 - `device`: `'cpu'` or `'gpu'`. For OpenPose models, if `device='gpu'` is requested but OpenCV lacks CUDA, `pose()` automatically switches to the MediaPipe backend (when installed) so the GPU is still used; otherwise it falls back to CPU.
 - `downsampling_factor`: reduces input resolution before inference (OpenPose only); higher is faster but less accurate
 - `threshold`: minimum network confidence to accept a keypoint (normalised 0–1)
+- `data_format`: `'csv'` (default), `'tsv'`, `'txt'`, or `'c3d'` (motion-capture format; needs the optional `c3d` package). Combine, e.g. `data_format=['csv', 'c3d']`.
+- `use_cache`: reuse keypoints from a previous `pose()` run (same model/threshold) to re-render a different `style`/`overlay`/`background` **without re-running inference** — e.g. run `style='markers'` then `style='skeleton'` and the second call is near-instant. Defaults to `True`.
+
+```python
+mv.pose(model='mediapipe', style='markers')      # runs inference, caches keypoints
+mv.pose(model='mediapipe', style='skeleton')     # reuses cache — no re-inference
+mv.pose(model='mediapipe', data_format=['csv', 'c3d'])   # also write a .c3d mocap file
+```
 
 `pose()` also renders two summary images of the whole video (disable with `save_average_pose=False` / `save_trajectories=False`), attached to the returned video:
 
 ```python
 pv = mv.pose(model='mediapipe')
-pv.average_pose.show()     # average pose; markers coloured/labelled by QoM (px/frame) + dominant frequency (Hz)
+pv.average_pose.show()     # markers coloured/labelled by normalised QoM (0–1) + dominant frequency (Hz)
 pv.trajectories.show()     # every marker's spatial path over the whole video
-# a per-marker stats CSV (<name>_pose_average_stats.csv) with average QoM and frequency is also saved
+# a per-marker stats CSV (<name>_pose_average_stats.csv) with normalised QoM and frequency is also saved
 ```
 
 The average-pose labels are automatically laid out so they don't overlap (with thin leader lines back to each marker). When the trajectories image is the **only** one exported, it is rendered on a **transparent background** so you can overlay it on the video afterwards; force it either way with `transparent_trajectories=True/False`:
