@@ -9,6 +9,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.7] – 2026-06-27
+
+### Fixed
+- **GPU detection**: `_utils.py` never imported `cv2`, so `get_cuda_device_count()` and
+  `cuda_build_available()` always reported no CUDA — GPU was never used even with a
+  CUDA-enabled OpenCV. Now fixed: `pose(device='gpu')` (OpenPose), `flow.dense(use_gpu=True)`,
+  and `flow.sparse(use_gpu=True)` use the GPU on a CUDA build.
+- GPU sparse optical flow: corrected point shapes (1×N CV_32FC2) and `calc()` return
+  handling so the CUDA path works (it was never exercised before the detection fix).
+- `MgList.show(key='mgx'/'vgx'/…)` on motiongrams/videograms results no longer crashes —
+  it selects the matching panel.
+- CI on macOS/Windows: skip `.ogg` conversion tests when the FFmpeg build lacks libtheora;
+  force the Matplotlib Agg backend in tests (no more Windows `_tkinter` crash).
+- Audio cache: methods inherited by `MgVideo` (e.g. `video.spectrogram()`) no longer fail
+  on a missing `_y_cache` attribute.
+
+### Added
+- `pose(use_cache=True)`: reuse cached keypoints to re-render a different
+  `style`/`overlay`/`background` without re-running inference.
+- `pose(data_format='c3d')`: export markers to a C3D motion-capture file (optional `c3d` dep).
+- `tempogram(onset_strength=False)`: single-panel tempogram matching the chromagram size.
+- `beat_statistics(source='motion')` on `MgVideo`: rhythmic-timing statistics from movement onsets.
+
+### Changed
+- Average-pose image: labels show numbers only (normalised QoM 0–1 | dominant frequency Hz),
+  with stronger de-overlap; QoM reported normalised instead of px/frame.
+- `motiontempo()`: QoM normalised to 0–1, panel renamed to "Motion spectrum", with average
+  quantity-of-motion and average beat-frequency lines + numbers.
+
+---
+
 ## [1.4.6] – 2026-06-27
 
 ### Added
@@ -222,7 +253,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.4.6...HEAD
+[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.4.7...HEAD
+[1.4.7]: https://github.com/fourMs/MGT-python/compare/v1.4.6...v1.4.7
 [1.4.6]: https://github.com/fourMs/MGT-python/compare/v1.4.5...v1.4.6
 [1.4.5]: https://github.com/fourMs/MGT-python/compare/v1.4.4...v1.4.5
 [1.4.4]: https://github.com/fourMs/MGT-python/compare/v1.4.3...v1.4.4
