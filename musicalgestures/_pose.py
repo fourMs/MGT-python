@@ -893,6 +893,55 @@ def mg_pose_waterfall(self, style='trajectories', n_samples=40, markers=None, co
     return mgf
 
 
+def mg_pose_segments(self, segments=None, n_bins=36, cmap='viridis', dpi=200, ncols=6,
+                     target_name=None, overwrite=True, **pose_kwargs):
+    """
+    Circular (polar) motion plots and statistics for each body segment.
+
+    A *segment* is the bone between two connected joints (e.g. shoulder–elbow). For every segment
+    this computes its per-frame orientation angle and draws a polar rose histogram of the angle
+    distribution with the mean-direction resultant vector, annotated with circular statistics
+    (mean angle, resultant length R, and range of motion). A CSV of the per-segment statistics —
+    mean angle, R, circular std, range of motion, and mean angular speed — is saved alongside the
+    image. Uses cached pose keypoints from a previous ``pose()`` call when available; otherwise it
+    runs pose estimation first (``model``/``device``/… are forwarded to ``pose()``).
+
+    Args:
+        segments (list, optional): Subset of connections as ``(a, b)`` joint-index tuples.
+            Defaults to all skeleton connections.
+        n_bins (int, optional): Number of angular bins per rose. Defaults to 36 (10° bins).
+        cmap (str, optional): Matplotlib colormap for the bars. Defaults to 'viridis'.
+        dpi (int, optional): Output DPI. Defaults to 200.
+        ncols (int, optional): Columns in the subplot grid. Defaults to 6.
+        target_name (str, optional): Output name. Defaults to None ("_pose_segments.png").
+        overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to True.
+        **pose_kwargs: Forwarded to ``pose()`` if keypoints have to be computed.
+
+    Returns:
+        MgFigure: the grid of circular plots (per-segment stats in ``.data['stats']``), or None.
+    """
+    from musicalgestures._pose_visualize import render_segment_circular
+
+    if getattr(self, '_pose_keypoints', None) is None:
+        pose_kwargs.setdefault('save_video', False)
+        pose_kwargs.setdefault('save_average_pose', False)
+        pose_kwargs.setdefault('save_trajectories', False)
+        self.pose(**pose_kwargs)
+
+    c = self._pose_keypoints
+    if target_name is None:
+        target_name = c['of'] + '_pose_segments.png'
+    else:
+        target_name = os.path.splitext(target_name)[0] + '.png'
+
+    mgf = render_segment_circular(
+        c['data'], c['names'], c.get('connections'), c['width'], c['height'], c['fps'],
+        target_name, overwrite=overwrite, segments=segments, n_bins=n_bins, cmap=cmap,
+        dpi=dpi, ncols=ncols)
+    self.pose_segments_figure = mgf
+    return mgf
+
+
 def _mediapipe_available():
     """Returns True if the optional ``mediapipe`` package can be imported."""
     import importlib.util

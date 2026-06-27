@@ -431,3 +431,132 @@ def render_pose_waterfall(data, names, width, height, fps, target_name, overwrit
                 'style': style, 'fps': fps}
     return MgFigure(figure=fig, figure_type='video.pose_waterfall', data=fig_data,
                     layers=None, image=target_name)
+
+
+def _segment_angles(coords, a, b):
+    """Per-frame orientation angle (radians) of the segment from joint a to joint b.
+
+    Uses image coordinates with the y-axis inverted so that 0 = pointing right and
+    +pi/2 = pointing up (intuitive). Frames where either joint is missing are dropped.
+    """
+    pa = coords[:, a, :]
+    pb = coords[:, b, :]
+    valid = ~(np.isnan(pa).any(axis=1) | np.isnan(pb).any(axis=1))
+    dx = pb[valid, 0] - pa[valid, 0]
+    dy = -(pb[valid, 1] - pa[valid, 1])   # invert y so up is positive
+    return np.arctan2(dy, dx), valid
+
+
+def render_segment_circular(data, names, connections, width, height, fps, target_name,
+                            overwrite=True, segments=None, n_bins=36, cmap='viridis',
+                            dpi=200, ncols=6):
+    """
+    Circular (polar) motion plots and statistics for every body segment.
+
+    A *segment* is the bone between two connected joints. For each segment this computes the
+    per-frame orientation angle and draws a polar rose histogram of the angle distribution with
+    the mean-direction resultant vector overlaid, annotated with the segment's circular statistics.
+    A CSV of the per-segment statistics is saved alongside the image.
+
+    Args:
+        data (list): Collected pose rows ``[time_ms, x0, y0, ...]`` (normalised coords).
+        names (list): Marker names (length n_points).
+        connections (list): Segment connection pairs (joint-index tuples).
+        width, height (int): Frame size in pixels (to scale coordinates).
+        fps (float): Frames per second (for angular speed).
+        target_name (str): Output PNG path.
+        overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to True.
+        segments (list, optional): Subset of connections (as ``(a, b)`` index tuples) to plot.
+            Defaults to all connections.
+        n_bins (int, optional): Number of angular bins in each rose. Defaults to 36 (10° bins).
+        cmap (str, optional): Matplotlib colormap for the bars (by bin count). Defaults to 'viridis'.
+        dpi (int, optional): Output DPI. Defaults to 200.
+        ncols (int, optional): Number of columns in the subplot grid. Defaults to 6.
+
+    Returns:
+        MgFigure: the grid of circular plots (per-segment stats in ``.data``), or None if there
+        are too few frames.
+    """
+    from musicalgestures._analysis import circular_stats
+    from musicalgestures._utils import MgFigure
+
+    n_points = len(names)
+    coords, times = _positions_from_data(data, n_points)
+    if coords.shape[0] < 2:
+        return None
+    coords = coords * np.array([width, height])   # pixels
+
+    segs = segments if segments is not None else connections
+    segs = [(a, b) for (a, b) in segs if a < n_points and b < n_points]
+    if not segs:
+        return None
+
+    if target_name is None:
+        target_name = '_pose_segments.png'
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
+
+    cmap_obj = matplotlib.colormaps[cmap]
+    n = len(segs)
+    ncols = max(1, int(ncols))
+    nrows = int(np.ceil(n / ncols))
+    fig, axes = plt.subplots(nrows, ncols, figsize=(ncols * 2.6, nrows * 2.8),
+                             dpi=dpi, subplot_kw={'projection': 'polar'})
+    fig.patch.set_facecolor('white')
+    axes = np.atleast_1d(axes).ravel()
+
+    bins = np.linspace(-np.pi, np.pi, n_bins + 1)
+    stats = []
+    for k, (a, b) in enumerate(segs):
+        ax = axes[k]
+        ang, valid = _segment_angles(coords, a, b)
+        label = f"{names[a]}–{names[b]}"
+        if ang.size < 2:
+            ax.set_title(label, fontsize=6)
+            ax.set_xticklabels([]); ax.set_yticklabels([])
+            stats.append({'Segment': label, 'MeanAngleDeg': np.nan, 'R': np.nan,
+                          'CircularStdDeg': np.nan, 'RangeDeg': np.nan, 'MeanAngularSpeedDegS': np.nan})
+            continue
+
+        R, mean_deg = circular_stats(ang)
+        circ_std = float(np.degrees(np.sqrt(-2.0 * np.log(R)))) if 0 < R <= 1 else np.nan
+        # Range of motion: peak-to-peak of the unwrapped angle series
+        rom = float(np.degrees(np.ptp(np.unwrap(ang)))) if ang.size > 1 else 0.0
+        # Mean angular speed (deg/s) from frame-to-frame angle change
+        ang_speed = float(np.degrees(np.abs(np.diff(np.unwrap(ang))).mean()) * fps) if ang.size > 1 else 0.0
+
+        counts, _ = np.histogram(ang, bins=bins)
+        widths = np.diff(bins)
+        centers = bins[:-1] + widths / 2
+        cmax = counts.max() if counts.max() > 0 else 1
+        ax.bar(centers, counts, width=widths, bottom=0.0,
+               color=cmap_obj(counts / cmax), alpha=0.85, edgecolor='none')
+        # Mean-direction resultant vector (length = R, scaled to the radial axis)
+        ax.plot([np.radians(mean_deg), np.radians(mean_deg)], [0, R * cmax],
+                color='crimson', lw=1.6, zorder=5)
+        ax.set_theta_zero_location('E')
+        ax.set_yticklabels([])
+        ax.tick_params(labelsize=5)
+        ax.set_title(f"{label}\nμ={mean_deg:.0f}°  R={R:.2f}  ROM={rom:.0f}°", fontsize=6)
+
+        stats.append({'Segment': label, 'MeanAngleDeg': round(mean_deg, 1), 'R': round(R, 3),
+                      'CircularStdDeg': round(circ_std, 1) if np.isfinite(circ_std) else np.nan,
+                      'RangeDeg': round(rom, 1), 'MeanAngularSpeedDegS': round(ang_speed, 1)})
+
+    for j in range(n, len(axes)):
+        axes[j].axis('off')
+
+    fig.tight_layout()
+    fig.savefig(target_name, facecolor='white', bbox_inches='tight')
+    plt.close(fig)
+
+    # Save the per-segment statistics as a CSV next to the image
+    try:
+        import pandas as pd
+        stats_path = os.path.splitext(target_name)[0] + '_stats.csv'
+        pd.DataFrame(stats).to_csv(stats_path, index=False)
+    except Exception:
+        pass
+
+    return MgFigure(figure=fig, figure_type='video.pose_segments',
+                    data={'stats': stats, 'fps': fps}, layers=None, image=target_name)

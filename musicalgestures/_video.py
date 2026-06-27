@@ -173,6 +173,7 @@ class MgVideo(MgAudio):
     from musicalgestures._movementbeats import mg_beat_statistics as beat_statistics
     from musicalgestures._pose import pose
     from musicalgestures._pose import mg_pose_waterfall as pose_waterfall
+    from musicalgestures._pose import mg_pose_segments as pose_segments
 
     def average(self, **kwargs):
         """
