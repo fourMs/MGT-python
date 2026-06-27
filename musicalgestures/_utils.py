@@ -225,6 +225,15 @@ class MgImage():
     def __repr__(self):
         return f"MgImage('{self.filename}')"
 
+    def save(self, target_name: str) -> "MgImage":
+        """Save (copy) the image to ``target_name`` and return a new MgImage pointing to it."""
+        import os
+        import shutil
+        target_name = os.path.splitext(target_name)[0] + (self.fex or '.png')
+        if os.path.abspath(target_name) != os.path.abspath(self.filename):
+            shutil.copyfile(self.filename, target_name)
+        return MgImage(target_name)
+
     def to_html(self) -> str:
         """
         Return an HTML snippet embedding the image (base64-encoded).
@@ -273,6 +282,24 @@ class MgFigure():
 
     def __repr__(self):
         return f"MgFigure(figure_type='{self.figure_type}')"
+
+    def save(self, target_name: str):
+        """Save the rendered figure to ``target_name``.
+
+        Copies the rendered PNG if one exists, otherwise re-saves the internal matplotlib
+        figure. Returns an MgImage pointing to the saved file (or None if nothing to save).
+        """
+        import os
+        import shutil
+        target_name = os.path.splitext(target_name)[0] + '.png'
+        if isinstance(self.image, str) and os.path.exists(self.image):
+            if os.path.abspath(target_name) != os.path.abspath(self.image):
+                shutil.copyfile(self.image, target_name)
+            return MgImage(target_name)
+        if self.figure is not None:
+            self.figure.savefig(target_name)
+            return MgImage(target_name)
+        return None
 
     def show(self, **kwargs):
         """

@@ -51,6 +51,16 @@ class MgAudio:
         self.length = get_length(self.filename)
         self._y_cache = None  # cached (y, sr) from librosa.load, keyed by sr
 
+    def __repr__(self) -> str:
+        dur = getattr(self, 'length', None)
+        dur_str = f"{dur:.2f}s" if dur is not None else "?s"
+        return f"MgAudio('{self.filename}', {dur_str}, sr={getattr(self, 'sr', None)})"
+
+    @property
+    def duration(self) -> float:
+        """Audio duration in **seconds** (for an MgAudio this equals ``self.length``)."""
+        return float(self.length)
+
     from musicalgestures._ssm import mg_ssm as ssm
 
     def _load(self):

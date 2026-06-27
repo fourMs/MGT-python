@@ -478,6 +478,10 @@ class TestMediaPipePoseIntegration:
             return "sentinel"
 
         monkeypatch.setattr(pose_module, "_pose_mediapipe", fake_pose_mediapipe)
+        # Routing to the MediaPipe backend presupposes MediaPipe is installed; force that here
+        # so the test is independent of whether the optional [pose] extra is present (e.g. on CI,
+        # where pose() otherwise falls back to the OpenPose backend).
+        monkeypatch.setattr(pose_module, "_mediapipe_available", lambda: True)
 
         class FakeMgVideo:
             filename = "dummy.avi"

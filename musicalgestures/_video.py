@@ -184,6 +184,30 @@ class MgVideo(MgAudio):
     from musicalgestures._pose import mg_pose_center as pose_center
     from musicalgestures._pose import mg_pose_distance as pose_distance
 
+    def __repr__(self) -> str:
+        w, h = getattr(self, 'width', None), getattr(self, 'height', None)
+        size = f"{w}x{h}" if w and h else "?x?"
+        fps = getattr(self, 'fps', None)
+        fps_str = f"{fps:g}fps" if fps else "?fps"
+        frames = getattr(self, 'length', None)
+        frames_str = f"{int(frames)} frames" if frames else "? frames"
+        return (f"MgVideo('{self.filename}', {frames_str}, {fps_str}, {size}, "
+                f"audio={getattr(self, 'has_audio', None)})")
+
+    @property
+    def n_frames(self) -> int:
+        """Number of frames in the video (an alias for the frame-count ``length``)."""
+        return int(self.length)
+
+    @property
+    def duration(self) -> float:
+        """Video duration in **seconds** (``length / fps``).
+
+        Note ``self.length`` is the frame *count* for an MgVideo (it is the duration in
+        seconds for an MgAudio); use this property when you want seconds.
+        """
+        return self.length / self.fps if self.fps else 0.0
+
     def average(self, **kwargs):
         """
         Backward compatibility alias for blend(component_mode='average').
@@ -309,9 +333,6 @@ class MgVideo(MgAudio):
             self.audio = MgAudio(self.filename, self.sr, self.n_fft, self.hop_length)
         else:
             self.audio = None
-
-    def __repr__(self):
-        return f"MgVideo('{self.filename}')"
 
     def numpy(self):
         """
