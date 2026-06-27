@@ -172,8 +172,9 @@ def render_average_pose(data, names, connections, width, height, fps, avg_frame,
     ax.set_xlim(0, width)
     ax.set_ylim(height, 0)
     ax.axis('off')
-    fig.tight_layout()
-    fig.savefig(target_name, facecolor='white', bbox_inches='tight')
+    # Make the axes fill the whole figure and save with no padding so there is no white frame.
+    ax.set_position([0, 0, 1, 1])
+    fig.savefig(target_name, dpi=150, pad_inches=0)
     plt.close(fig)
 
     # Also save a CSV of the per-marker statistics
