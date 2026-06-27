@@ -12,18 +12,19 @@ mv = mg.MgVideo('/path/to/video.avi')
 
 Most analysis methods stream frames straight through FFmpeg and run on any container, including MP4 — e.g. `motion()`, `motiongrams()`, `average()`/`blend()`, `videograms()`, `heatmap()`, `eulerian()`, `motiontempo()`, `sonomotiongram()`, `grid()`, `subtract()`, and `history()`.
 
-A few methods that decode frame-by-frame with OpenCV first convert the input to an all-intra **MJPEG `.avi`** (cached once as `self.as_avi`) for frame-accurate decoding: `pose()`, `flow.dense()`/`flow.sparse()`, `directograms()`, `impacts()`, `motion_mp()`, and `history_cv2()`. The motion **video output** is also written as `.avi`.
+A few methods that decode frame-by-frame with OpenCV first convert the input to an all-intra **MJPEG `.avi`** (cached once as `self.as_avi`) for frame-accurate decoding: `flow.dense()`/`flow.sparse()`, `directograms()`, `impacts()`, `motion_mp()`, and `history_cv2()`. The motion **video output** is also written as `.avi`.
 
 If your MP4 decodes reliably and you want to skip that conversion (faster, no extra file), pass `convert=False`:
 
 ```python
 mv = mg.MgVideo('clip.mp4')
-mv.pose(convert=False)                        # read the mp4 directly
 mv.flow.dense(convert=False)
 mv.directograms(convert=False)
 ```
 
-The default `convert=True` keeps the safe, frame-accurate behaviour.
+For these methods the default `convert=True` keeps the safe, frame-accurate behaviour.
+
+`pose()` is different: its `convert` defaults to `None` ("auto"). The MediaPipe backend (the default) reads the source file directly, with **no** intermediate AVI; the OpenPose backends still convert for frame-accurate decoding. The pose result video is written in the **original container** — an mp4 in gives an mp4 out, with no avi→mp4 round-trip. Pass `convert=True`/`False` to force conversion on or off regardless of backend.
 
 ---
 
@@ -386,17 +387,20 @@ mv.pose(data_format=['csv', 'c3d'])   # also write a .c3d mocap file
 
 ```python
 pv = mv.pose()
-pv.average_pose.show()     # markers coloured/labelled by normalised QoM (0–1) + dominant frequency (Hz)
+pv.average_pose.show()     # markers coloured by normalised QoM, with per-marker "QoM | frequency" labels
 pv.trajectories.show()     # every marker's spatial path over the whole video
 # a per-marker stats CSV (<name>_pose_average_stats.csv) with normalised QoM and frequency is also saved
 ```
 
-The average-pose labels are automatically laid out so they don't overlap (with thin leader lines back to each marker). The marker-trajectories image does **not** show per-marker name labels by default (`trajectory_labels=False`); re-enable them with `trajectory_labels=True`. When the trajectories image is the **only** one exported, it is rendered on a **transparent background** so you can overlay it on the video afterwards; force it either way with `transparent_trajectories=True/False`:
+Both summary images are decluttered: neither carries an in-figure title. The average-pose image no longer draws a colorbar — markers are still coloured by quantity of motion, and each one is annotated with a `QoM | frequency` number label (normalised QoM 0–1 and dominant frequency in Hz). These labels are automatically laid out so they don't overlap (with thin leader lines back to each marker). The marker-trajectories image shows **no** per-marker name labels by default (`trajectory_labels=False`); re-enable them with `trajectory_labels=True`.
+
+Control the trajectories image background with `trajectory_background`: `'black'` (default), `'white'`, or `'transparent'` (so you can overlay the paths on the video afterwards). This supersedes the older `transparent_trajectories` flag, which is still accepted.
 
 ```python
-mv.pose(save_average_pose=False, save_video=False)   # trajectories only → transparent PNG
-mv.pose(transparent_trajectories=True)               # force transparent trajectories
-mv.pose(trajectory_labels=True)                      # show marker names on the trajectories image
+mv.pose(trajectory_background='transparent')   # paths on a transparent PNG for overlay
+mv.pose(trajectory_background='white')         # print-friendly white background
+mv.pose(trajectory_labels=True)                # show marker names on the trajectories image
+mv.pose(transparent_trajectories=True)         # legacy flag, still accepted
 ```
 
 !!! tip "GPU acceleration"
@@ -407,14 +411,23 @@ mv.pose(trajectory_labels=True)                      # show marker names on the 
 `pose_waterfall()` renders a 3D spatio-temporal waterfall where each pose marker's trajectory flows through `(x, time, y)` space — a pose-based counterpart to `silhouette_waterfall()`. It returns an `MgFigure`. It reuses cached pose keypoints from a prior `pose()` call; otherwise it runs `pose()` first (pose kwargs like `model`/`device` are forwarded).
 
 ```python
-wf = mv.pose_waterfall()                       # returns MgFigure
+wf = mv.pose_waterfall()                       # returns MgFigure ('trajectories' style)
 wf = mv.pose_waterfall(color_by='time')        # colour follows time along each path
 wf = mv.pose_waterfall(markers=['left_wrist', 'right_wrist'], cmap='viridis')
+wf = mv.pose_waterfall(style='skeleton')       # skeleton joint lines at sampled time slices
+wf = mv.pose_waterfall(style='markers', n_samples=60)
 wf.show()
 ```
 
+- `style`: how the waterfall is drawn —
+    - `'trajectories'` (default): continuous per-marker paths flowing through `(x, time, y)` space
+    - `'markers'`: markers scattered at discrete time slices
+    - `'skeleton'`: skeleton joint lines drawn per time slice
+    - `'both'`: markers and skeleton lines together
+
+  The slice-based styles (`'markers'`, `'skeleton'`, `'both'`) sample `n_samples` time slices (default `40`) and default to colour-by-time.
 - `markers`: which markers to plot (default `None` = all)
-- `color_by`: `'marker'` (default, one colour per marker) or `'time'` (colour follows time along each path)
+- `color_by`: `'marker'` (one colour per marker) or `'time'` (colour follows time). Defaults to `'marker'` for `'trajectories'` and to `'time'` for the slice styles.
 - `cmap`: matplotlib colormap (`'hsv'` default); `dpi` (default `200`); `lw` line width (default `1.0`)
 - `elev`/`azim`: 3D view angles (defaults `20` / `-60`)
 - plus the usual `target_name`, `overwrite`, and forwarded `**pose_kwargs` (e.g. `model`, `device`)

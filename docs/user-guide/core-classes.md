@@ -42,7 +42,7 @@ mg.MgVideo(
     crop=None,            # None, 'auto', or 'manual'
     keep_all=False,       # bool — keep intermediate preprocessing files
     target_name=None,     # str — output file name
-    overwrite=False,      # bool
+    overwrite=True,       # bool — overwrite outputs in place (False = auto-increment)
 )
 ```
 

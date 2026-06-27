@@ -9,6 +9,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.9] – 2026-06-27
+
+### Added
+- `pose_waterfall(style=...)`: new `'markers'`, `'skeleton'`, and `'both'` styles that draw the
+  pose at `n_samples` time slices (colour-by-time by default), in addition to the existing
+  `'trajectories'` style.
+- `pose(trajectory_background=...)`: choose the trajectories-image background — `'black'`,
+  `'white'`, or `'transparent'` (legacy `transparent_trajectories` still honoured).
+- Orientation aliases for `show(key=...)`: `mgh`/`vgh` (horizontal) and `mgv`/`vgv` (vertical).
+
+### Changed
+- `overwrite` now defaults to `True` for all functions: outputs are overwritten in place instead
+  of auto-incrementing the filename. Pass `overwrite=False` for the old behaviour.
+- `MgVideo.beat_statistics()` now defaults to `source='motion'` (analyses the movement rhythm),
+  so it differs from `video.audio.beat_statistics()`. Use `source='audio'` for the audio track.
+- `pose()`: `convert` defaults to `None` ("auto") — MediaPipe reads the source directly (no
+  intermediate AVI), OpenPose still converts for frame-accurate decoding. The result video is
+  written in the **original container** (mp4 in → mp4 out; no avi→mp4 round-trip).
+- Pose images decluttered: removed the titles from the trajectories and waterfall images and
+  the average-pose image, and removed the average-pose colorbar. The trajectories image omits
+  marker-name labels by default (`trajectory_labels=True` to re-enable).
+
+### Fixed
+- The `show(key=...)` orientation keys for motiongrams/videograms were swapped: `'horizontal'`
+  now selects the horizontal-movement gram and `'vertical'` the vertical one, with correct titles
+  (in both `MgVideo.show` and `MgList.show`).
+
+---
+
 ## [1.4.8] – 2026-06-27
 
 ### Added
@@ -285,7 +314,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.4.8...HEAD
+[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.4.9...HEAD
+[1.4.9]: https://github.com/fourMs/MGT-python/compare/v1.4.8...v1.4.9
 [1.4.8]: https://github.com/fourMs/MGT-python/compare/v1.4.7...v1.4.8
 [1.4.7]: https://github.com/fourMs/MGT-python/compare/v1.4.6...v1.4.7
 [1.4.6]: https://github.com/fourMs/MGT-python/compare/v1.4.5...v1.4.6

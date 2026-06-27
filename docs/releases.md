@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.4.8**.
+The current stable release is **MGT-python 1.4.9**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,18 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.4.9
+
+- `pose_waterfall()` gains `'markers'`, `'skeleton'`, and `'both'` styles (in addition to
+  `'trajectories'`).
+- `pose(trajectory_background=...)` for black/white/transparent trajectory images; pose images
+  decluttered (titles and the average-pose colorbar removed).
+- `overwrite` now defaults to `True` everywhere; `MgVideo.beat_statistics()` defaults to
+  `source='motion'`.
+- `pose()` keeps the source container (mp4 in → mp4 out) and skips the AVI step for MediaPipe.
+- Fixed the swapped `'horizontal'`/`'vertical'` motiongram/videogram `show()` keys; added
+  `mgh`/`vgh` and `mgv`/`vgv` aliases.
 
 ### 1.4.8
 

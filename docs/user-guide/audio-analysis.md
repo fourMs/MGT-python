@@ -169,12 +169,14 @@ The polar plot shows the mean resultant vector length `R` (concentration of timi
 
 ### From movement instead of audio
 
-On an `MgVideo` you can run the same timing analysis on the **movement** rhythm by detecting onsets in the quantity of motion:
+On an `MgVideo`, `beat_statistics()` defaults to `source='motion'`: it runs the timing analysis on the **movement** rhythm by detecting onsets in the quantity of motion. This is the key difference from `video.audio.beat_statistics()`, which always analyses the audio track. Pass `source='audio'` to analyse the audio track from the video instead:
 
 ```python
 mv = mg.MgVideo('dance.mp4')
-mv.beat_statistics(source='audio')    # default — the audio track
-mv.beat_statistics(source='motion')   # rhythmic onsets of the movement
+mv.beat_statistics()                   # default — rhythmic onsets of the movement
+mv.beat_statistics(source='motion')   # explicit; same as the default
+mv.beat_statistics(source='audio')    # the audio track instead
+mv.audio.beat_statistics()            # the audio track (always audio)
 ```
 
 `source='motion'` returns an `MgFigure` whose `.data` holds the movement tempo, beat times, regularity, and phase deviations — the same fields as the audio version.

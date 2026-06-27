@@ -49,10 +49,12 @@ Supported key values:
 | `'motion'` | Motion video |
 | `'history'` | History video |
 | `'motionhistory'` | Motion history video (chained) |
-| `'mgx'` | Horizontal motiongram |
-| `'mgy'` | Vertical motiongram |
-| `'vgx'` | Horizontal videogram |
-| `'vgy'` | Vertical videogram |
+| `'horizontal'` | Horizontal-movement motiongram/videogram |
+| `'vertical'` | Vertical-movement motiongram/videogram |
+| `'mgh'` / `'vgh'` | Horizontal motiongram / videogram (alias of `'horizontal'`) |
+| `'mgv'` / `'vgv'` | Vertical motiongram / videogram (alias of `'vertical'`) |
+| `'mgx'` / `'mgy'` | Literal x / y motiongram file (legacy) |
+| `'vgx'` / `'vgy'` | Literal x / y videogram file (legacy) |
 | `'ssm'` | Self-similarity matrix |
 | `'blend'` | Blended image |
 | `'plot'` | Motion plot image |
@@ -62,6 +64,8 @@ Supported key values:
 | `'warp'` | Warped audiovisual beats video |
 | `'blur'` | Face-anonymized video |
 | `'subtract'` | Background-subtracted video |
+
+The orientation keys select by *direction of movement*: `'horizontal'` (with aliases `'mgh'`/`'vgh'`) shows the horizontal-movement gram and `'vertical'` (aliases `'mgv'`/`'vgv'`) the vertical one. The legacy `'mgx'`/`'mgy'`/`'vgx'`/`'vgy'` keys still resolve to the literal x/y files.
 
 ## Getting video metadata
 

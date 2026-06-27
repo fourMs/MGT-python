@@ -94,12 +94,12 @@ This produces files like `video_trim.avi`, `video_trim_skip.avi`, `video_trim_sk
 Every analysis method accepts `target_name` and `overwrite`:
 
 - `target_name` sets the output file path. If `None` (default), a suffix is appended to the source name — for example, `history` on `dance.avi` produces `dance_history.avi` in the same directory.
-- `overwrite=False` (default) silently increments the filename if one already exists: `dance_history.avi` → `dance_history_0.avi` → `dance_history_1.avi`, and so on.
-- `overwrite=True` always replaces the existing file.
+- `overwrite=True` (default) replaces the existing file in place — re-running a method overwrites the previous result instead of leaving stale copies behind.
+- `overwrite=False` silently increments the filename if one already exists: `dance_history.avi` → `dance_history_0.avi` → `dance_history_1.avi`, and so on (the old auto-increment behaviour).
 
 ```python
 mv = mg.MgVideo('/path/to/video.avi')
-mv.history(target_name='/output/my_history.avi', overwrite=True)
+mv.history(target_name='/output/my_history.avi', overwrite=False)   # keep every run
 ```
 
 ## Next steps
