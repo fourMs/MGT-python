@@ -45,11 +45,28 @@ class MgList():
 
     def show(self, filename=None, key=None, mode='windowed', window_width=640, window_height=480, window_title=None):
         """
-        Iterates all objects in the MgList and calls `mg_show()` on them.
+        Display the objects in the MgList.
+
+        By default every item is shown. The horizontal/vertical shortcut keys
+        ('mgx'/'vgx' → first item, 'mgy'/'vgy' → second item) select a single panel,
+        e.g. ``mv.motiongrams().show(key='mgx')``. (These keys identify *which item in the
+        list* to show — they are not forwarded to the individual images.)
         """
+        # The MgList items are already the concrete images, so a key selects an item
+        # rather than being passed down (an MgImage can't resolve 'mgx'/'vgx' itself).
+        key_to_index = {'mgx': 0, 'vgx': 0, 'mgy': 1, 'vgy': 1}
+        if key is not None and key.lower() in key_to_index:
+            idx = key_to_index[key.lower()]
+            if 0 <= idx < len(self.objectlist):
+                self.objectlist[idx].show(mode=mode, window_width=window_width,
+                                          window_height=window_height, window_title=window_title)
+            else:
+                print(f"This MgList has no item for key '{key}'.")
+            return
+
         for obj in self.objectlist:
             if type(obj) != MgFigure:
-                obj.show(filename=filename, key=key, mode=mode, window_width=window_width,
+                obj.show(mode=mode, window_width=window_width,
                          window_height=window_height, window_title=window_title)
             else:
                 obj.show()
