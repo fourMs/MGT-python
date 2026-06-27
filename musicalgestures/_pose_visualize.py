@@ -560,3 +560,165 @@ def render_segment_circular(data, names, connections, width, height, fps, target
 
     return MgFigure(figure=fig, figure_type='video.pose_segments',
                     data={'stats': stats, 'fps': fps}, layers=None, image=target_name)
+
+
+def pose_center(data, names, fmin=None, fmax=None):
+    """
+    Centre pose data on its global centroid (a 2D port of the MoCap Toolbox ``mccenter``).
+
+    Computes a single offset per coordinate dimension — the mean of the per-marker temporal means
+    (missing detections ignored) — and subtracts it from every marker so the overall
+    spatiotemporal centroid sits at the origin (0, 0).
+
+    Args:
+        data (list): Collected pose rows ``[time_ms, x0, y0, ...]`` (normalised coords).
+        names (list): Marker names (length n_points).
+
+    Returns:
+        tuple: ``(centered, offset, times)`` where ``centered`` is a (T, n, 2) array of centred
+            normalised coordinates (NaN for missing), ``offset`` is the (x, y) centroid that was
+            removed, and ``times`` is the per-frame time in seconds.
+    """
+    n_points = len(names)
+    coords, times = _positions_from_data(data, n_points)   # (T, n, 2), NaN for missing
+    # Per-marker temporal mean, then the mean across markers — one offset per dimension.
+    per_marker_mean = np.nanmean(coords, axis=0)           # (n, 2)
+    offset = np.nanmean(per_marker_mean, axis=0)           # (2,) = (x, y)
+    centered = coords - offset
+    return centered, offset, times
+
+
+def render_pose_center(data, names, width, height, target_name, overwrite=True,
+                       connections=None, cmap='hsv', dpi=200):
+    """
+    Centre the pose data (see :func:`pose_center`) and plot the centred marker trajectories.
+
+    Returns an MgFigure whose ``.data`` holds the centred coordinates and the removed offset, or
+    None if there are too few frames.
+    """
+    from musicalgestures._utils import MgFigure
+
+    n_points = len(names)
+    centered, offset, times = pose_center(data, names)
+    if centered.shape[0] < 2:
+        return None
+
+    if target_name is None:
+        target_name = '_pose_centered.png'
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
+
+    aspect = width / height
+    cmap_obj = matplotlib.colormaps[cmap]
+    fig, ax = plt.subplots(figsize=(8 * aspect, 8), dpi=dpi)
+    fig.patch.set_facecolor('white')
+
+    for i in range(n_points):
+        path = centered[:, i, :]
+        if np.all(np.isnan(path)):
+            continue
+        ax.plot(path[:, 0], path[:, 1], color=cmap_obj(i / max(n_points - 1, 1)),
+                lw=0.8, alpha=0.7, zorder=2)
+    ax.axhline(0, color='#888888', lw=0.6, zorder=1)
+    ax.axvline(0, color='#888888', lw=0.6, zorder=1)
+    ax.scatter([0], [0], marker='+', s=120, color='black', zorder=3)  # origin = centroid
+    ax.set_aspect('equal')
+    ax.invert_yaxis()   # image coordinates: y increases downward
+    ax.set_xlabel('Centred x (normalised)')
+    ax.set_ylabel('Centred y (normalised)')
+    fig.tight_layout()
+    fig.savefig(target_name, facecolor='white', bbox_inches='tight')
+    plt.close(fig)
+
+    return MgFigure(figure=fig, figure_type='video.pose_center',
+                    data={'coords': centered, 'offset': offset, 'times': times, 'names': names},
+                    layers=None, image=target_name)
+
+
+def pose_distance(data, names, width, height):
+    """
+    Per-marker cumulative distance travelled (a 2D port of the MoCap Toolbox ``mccumdist``).
+
+    Sums the frame-to-frame Euclidean displacement of each marker (in pixels) and accumulates it
+    over time. Gaps from missing detections contribute no distance.
+
+    Args:
+        data (list): Collected pose rows ``[time_ms, x0, y0, ...]`` (normalised coords).
+        names (list): Marker names (length n_points).
+        width, height (int): Frame size in pixels (to scale the normalised coordinates).
+
+    Returns:
+        tuple: ``(cumulative, total, average, times)`` where ``cumulative`` is a (T-1, n) array of
+            cumulative distance per marker (pixels), ``total`` is the per-marker total (n,),
+            ``average`` is the mean total across markers, and ``times`` are the per-frame times (s).
+    """
+    n_points = len(names)
+    coords, t = _positions_from_data(data, n_points)
+    px = coords * np.array([width, height])                 # (T, n, 2) pixels
+    disp = np.sqrt((np.diff(px, axis=0) ** 2).sum(axis=2))  # (T-1, n)
+    disp = np.nan_to_num(disp)                              # missing frames → no movement
+    cumulative = np.cumsum(disp, axis=0)                    # (T-1, n)
+    total = cumulative[-1] if cumulative.shape[0] else np.zeros(n_points)
+    average = float(np.mean(total)) if total.size else 0.0
+    return cumulative, total, average, t[1:]
+
+
+def render_pose_distance(data, names, width, height, fps, target_name, overwrite=True,
+                         cmap='hsv', dpi=200):
+    """
+    Plot per-marker cumulative distance travelled over time plus a ranked total per marker.
+
+    Returns an MgFigure (``.data`` holds the totals, average, and cumulative curves) and saves a
+    CSV of the per-marker totals; None if there are too few frames.
+    """
+    from musicalgestures._utils import MgFigure
+
+    n_points = len(names)
+    cumulative, total, average, times = pose_distance(data, names, width, height)
+    if cumulative.shape[0] < 1:
+        return None
+
+    if target_name is None:
+        target_name = '_pose_distance.png'
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
+
+    cmap_obj = matplotlib.colormaps[cmap]
+    fig, (axc, axbar) = plt.subplots(1, 2, figsize=(14, 6), dpi=dpi,
+                                     gridspec_kw={'width_ratios': [3, 2]})
+    fig.patch.set_facecolor('white')
+
+    for i in range(n_points):
+        axc.plot(times, cumulative[:, i], color=cmap_obj(i / max(n_points - 1, 1)),
+                 lw=0.9, alpha=0.8)
+    axc.set_xlabel('Time (s)')
+    axc.set_ylabel('Cumulative distance (px)')
+    axc.set_title('Per-marker cumulative distance travelled', fontsize=10)
+
+    order = np.argsort(total)
+    axbar.barh(np.arange(n_points), total[order],
+               color=[cmap_obj(o / max(n_points - 1, 1)) for o in order])
+    axbar.set_yticks(np.arange(n_points))
+    axbar.set_yticklabels([names[o] for o in order], fontsize=5)
+    axbar.axvline(average, color='crimson', ls='--', lw=1, label=f'average = {average:.0f} px')
+    axbar.legend(loc='lower right', fontsize=8)
+    axbar.set_xlabel('Total distance travelled (px)')
+    axbar.set_title('Total distance per marker (ranked)', fontsize=10)
+
+    fig.tight_layout()
+    fig.savefig(target_name, facecolor='white', bbox_inches='tight')
+    plt.close(fig)
+
+    try:
+        import pandas as pd
+        rows = [{'Marker': names[i], 'TotalDistancePx': round(float(total[i]), 2)}
+                for i in range(n_points)]
+        rows.append({'Marker': 'AVERAGE', 'TotalDistancePx': round(average, 2)})
+        pd.DataFrame(rows).to_csv(os.path.splitext(target_name)[0] + '.csv', index=False)
+    except Exception:
+        pass
+
+    return MgFigure(figure=fig, figure_type='video.pose_distance',
+                    data={'total': total, 'average': average, 'cumulative': cumulative,
+                          'times': times, 'names': names, 'fps': fps},
+                    layers=None, image=target_name)

@@ -181,6 +181,8 @@ class MgVideo(MgAudio):
     from musicalgestures._pose import pose
     from musicalgestures._pose import mg_pose_waterfall as pose_waterfall
     from musicalgestures._pose import mg_pose_segments as pose_segments
+    from musicalgestures._pose import mg_pose_center as pose_center
+    from musicalgestures._pose import mg_pose_distance as pose_distance
 
     def average(self, **kwargs):
         """

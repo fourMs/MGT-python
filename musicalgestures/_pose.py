@@ -942,6 +942,101 @@ def mg_pose_segments(self, segments=None, n_bins=36, cmap='viridis', dpi=200, nc
     return mgf
 
 
+def mg_pose_center(self, save_data=True, dpi=200, target_name=None, overwrite=True, **pose_kwargs):
+    """
+    Centre the pose data on its global centroid — a 2D port of the MoCap Toolbox ``mccenter``.
+
+    A single offset per coordinate (the mean of the per-marker temporal means, missing detections
+    ignored) is subtracted from every marker so the overall spatiotemporal centroid sits at the
+    origin (0, 0). This removes the performer's absolute position in the frame, leaving relative
+    posture/movement — useful before comparing or further analysing trajectories. Plots the centred
+    marker trajectories and (by default) saves a CSV of the centred coordinates. Uses cached pose
+    keypoints when available, otherwise runs ``pose()`` first (``**pose_kwargs`` are forwarded).
+
+    Args:
+        save_data (bool, optional): Save a CSV of the centred coordinates. Defaults to True.
+        dpi (int, optional): Output DPI. Defaults to 200.
+        target_name (str, optional): Output name. Defaults to None ("_pose_centered.png").
+        overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to True.
+        **pose_kwargs: Forwarded to ``pose()`` if keypoints have to be computed.
+
+    Returns:
+        MgFigure: the centred-trajectories figure; ``.data['coords']`` holds the (T, n, 2) centred
+        coordinates and ``.data['offset']`` the removed centroid. None if there are too few frames.
+    """
+    from musicalgestures._pose_visualize import render_pose_center
+
+    if getattr(self, '_pose_keypoints', None) is None:
+        pose_kwargs.setdefault('save_video', False)
+        pose_kwargs.setdefault('save_average_pose', False)
+        pose_kwargs.setdefault('save_trajectories', False)
+        self.pose(**pose_kwargs)
+
+    c = self._pose_keypoints
+    if target_name is None:
+        target_name = c['of'] + '_pose_centered.png'
+    else:
+        target_name = os.path.splitext(target_name)[0] + '.png'
+
+    mgf = render_pose_center(c['data'], c['names'], c['width'], c['height'], target_name,
+                             overwrite=overwrite, connections=c.get('connections'), dpi=dpi)
+    if mgf is not None and save_data:
+        try:
+            import pandas as pd
+            coords = mgf.data['coords']            # (T, n, 2)
+            times = mgf.data['times']
+            cols = {'Time': np.round(times * 1000.0, 3)}
+            for i, name in enumerate(c['names']):
+                cols[f'{name} X'] = coords[:, i, 0]
+                cols[f'{name} Y'] = coords[:, i, 1]
+            pd.DataFrame(cols).to_csv(os.path.splitext(target_name)[0] + '.csv', index=False)
+        except Exception:
+            pass
+    self.pose_centered_figure = mgf
+    return mgf
+
+
+def mg_pose_distance(self, dpi=200, target_name=None, overwrite=True, **pose_kwargs):
+    """
+    Per-marker distance travelled and the average across markers — a 2D port of the MoCap Toolbox
+    ``mccumdist``.
+
+    Sums each marker's frame-to-frame Euclidean displacement (in pixels) and accumulates it over
+    time. The figure shows the per-marker cumulative-distance curves and a ranked bar chart of the
+    total distance per marker with the across-marker average marked; a CSV of the totals (plus the
+    average) is saved. Uses cached pose keypoints when available, otherwise runs ``pose()`` first
+    (``**pose_kwargs`` are forwarded).
+
+    Args:
+        dpi (int, optional): Output DPI. Defaults to 200.
+        target_name (str, optional): Output name. Defaults to None ("_pose_distance.png").
+        overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to True.
+        **pose_kwargs: Forwarded to ``pose()`` if keypoints have to be computed.
+
+    Returns:
+        MgFigure: ``.data['total']`` (per-marker totals), ``.data['average']`` (mean total), and
+        ``.data['cumulative']`` (per-marker cumulative curves). None if there are too few frames.
+    """
+    from musicalgestures._pose_visualize import render_pose_distance
+
+    if getattr(self, '_pose_keypoints', None) is None:
+        pose_kwargs.setdefault('save_video', False)
+        pose_kwargs.setdefault('save_average_pose', False)
+        pose_kwargs.setdefault('save_trajectories', False)
+        self.pose(**pose_kwargs)
+
+    c = self._pose_keypoints
+    if target_name is None:
+        target_name = c['of'] + '_pose_distance.png'
+    else:
+        target_name = os.path.splitext(target_name)[0] + '.png'
+
+    mgf = render_pose_distance(c['data'], c['names'], c['width'], c['height'], c['fps'],
+                               target_name, overwrite=overwrite, dpi=dpi)
+    self.pose_distance_figure = mgf
+    return mgf
+
+
 def _mediapipe_available():
     """Returns True if the optional ``mediapipe`` package can be imported."""
     import importlib.util
