@@ -9,6 +9,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.8] – 2026-06-27
+
+### Added
+- `pose_waterfall()`: a 3D spatio-temporal waterfall where each marker's trajectory flows
+  through (x, time, y) space — a pose-based counterpart to `silhouette_waterfall()`. Reuses
+  cached pose keypoints when available; `color_by='marker'/'time'`, marker subsets supported.
+- `pose(marker_history=N)`: draw a motion trail for each marker over the last N frames
+  (works in the OpenPose, MediaPipe, and cached re-render paths).
+- `pose(trajectory_labels=True)`: re-enable per-marker name labels on the trajectories image.
+
+### Changed
+- `pose()` now defaults to the MediaPipe backend instead of OpenPose `body_25`. MediaPipe is
+  fast on plain CPU, needs no CUDA-enabled OpenCV build, and gives 33 landmarks with depth +
+  visibility. The OpenPose models (`body_25`/`coco`/`mpi`) remain available for multi-person
+  scenes and CUDA setups.
+- `pose(overlay=False, background='white')` now draws a black skeleton and markers (a
+  print-friendly inverted look) instead of the previous dark-blue/dark-red scheme.
+- The marker-trajectories image no longer shows per-marker name labels by default.
+- `tempogram()`: added a colorbar (matching the chromagram), shows the estimated tempo rounded
+  to one decimal with "BPM" in the title, and removed the dotted estimated-tempo line.
+- `videograms()`/`motiongrams()` display keys are now `'horizontal'`/`'vertical'`.
+
+### Fixed
+- `motionhistory()`: `normalize` now defaults to `False` and is guarded so it no longer
+  amplifies faint residual trails into a washed-out ("blown up") image when the final frames
+  are static.
+- Documentation: refreshed the docs site, wiki, and READMEs for the MediaPipe default and the
+  new pose options; updated the stale `releases.md` page (was pinned to an old version) to track
+  the changelog.
+
+---
+
 ## [1.4.7] – 2026-06-27
 
 ### Fixed
@@ -253,7 +285,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.4.7...HEAD
+[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.4.8...HEAD
+[1.4.8]: https://github.com/fourMs/MGT-python/compare/v1.4.7...v1.4.8
 [1.4.7]: https://github.com/fourMs/MGT-python/compare/v1.4.6...v1.4.7
 [1.4.6]: https://github.com/fourMs/MGT-python/compare/v1.4.5...v1.4.6
 [1.4.5]: https://github.com/fourMs/MGT-python/compare/v1.4.4...v1.4.5

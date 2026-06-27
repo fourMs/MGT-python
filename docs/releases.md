@@ -1,88 +1,44 @@
 # Release Notes
 
-## Version 1.3.2 (Current)
+The current stable release is **MGT-python 1.4.8**.
 
-Current stable release of MGT-python.
-
-### Features
-
-- Complete video analysis toolkit
-- Audio processing and visualization
-- Motion detection and tracking
-- Optical flow analysis
-- Motiongram and videogram generation
-- Self-similarity matrix analysis
-- Pose estimation integration
-- Comprehensive example videos and tutorials
-
-### Dependencies
-
-- Python 3.7+
-- NumPy, pandas, matplotlib
-- OpenCV, scikit-image
-- Librosa for audio analysis
-- FFmpeg for video processing
-
-### Installation
-
-```bash
-pip install musicalgestures
-```
-
-## Previous Versions
-
-### Version 1.3.1
-
-- Bug fixes and stability improvements
-- Enhanced documentation
-- Performance optimizations
-
-### Version 1.3.0
-
-- Added 360-degree video support
-- Improved audio analysis features
-- New visualization options
-- Extended API functionality
-
-### Version 1.2.x
-
-- Initial stable release series
-- Core video and audio processing
-- Basic motion analysis
-- Fundamental visualization tools
-
-## Future Releases
-
-### Planned Features
-
-- Real-time processing capabilities
-- Enhanced pose estimation
-- Machine learning integration
-- Additional visualization options
-- Performance improvements
-
-### Breaking Changes
-
-No breaking changes are currently planned. The project maintains backward compatibility whenever possible.
-
-## Upgrade Guide
-
-### From 1.3.1 to 1.3.2
-
-No breaking changes. Simply update:
+Install or upgrade from PyPI:
 
 ```bash
 pip install --upgrade musicalgestures
 ```
 
-### From 1.2.x to 1.3.x
+## Full changelog
 
-Minor API changes may affect some advanced use cases. Check the documentation for updated examples.
+The complete, version-by-version history — including every Added / Changed / Fixed entry — is
+maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/CHANGELOG.md),
+which is the single source of truth for release notes.
+
+## Recent highlights
+
+### 1.4.8
+
+- New `pose_waterfall()` — a 3D spatio-temporal waterfall of pose-marker trajectories.
+- `pose()` now defaults to the MediaPipe backend (fast on plain CPU, 33 landmarks, no CUDA
+  build needed); OpenPose remains available for multi-person scenes.
+- `pose(marker_history=N)` motion trails, inverted black-on-white skeleton mode, and
+  label-free trajectory images by default.
+- `tempogram()` gains a colorbar and shows the estimated tempo (BPM) in the title.
+- `motionhistory(normalize=...)` no longer over-brightens static clips.
+
+### 1.4.x series
+
+- GPU support fixes (CUDA detection, sparse optical flow), `pose(use_cache=True)`,
+  C3D marker export, combined motion SSM, space-time displays (stroboscope, silhouette
+  waterfall, Motion History Image, space-time volume), audio additions (chromagram, MFCC,
+  tempo, beat statistics), and many CI and stability fixes.
+
+See the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/CHANGELOG.md) for the
+full detail of every release.
 
 ## Support
 
 For issues and support:
 
 - [GitHub Issues](https://github.com/fourMs/MGT-python/issues)
-- [Documentation](https://mgt-python.readthedocs.io/)
-- Email: a.r.jensenius@imv.uio.no
+- [Documentation](https://fourms.github.io/MGT-python/)
