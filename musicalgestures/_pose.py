@@ -86,6 +86,7 @@ def pose(
         device='gpu',
         threshold=0.1,
         downsampling_factor=2,
+        use_cache=True,
         save_data=True,
         data_format='csv',
         save_video=True,
@@ -132,6 +133,10 @@ def pose(
             output data. Defaults to 0.1.
         downsampling_factor (int, optional): Decides how much we downsample the video before we
             pass it to the neural network. Ignored when ``model='mediapipe'``. Defaults to 2.
+        use_cache (bool, optional): If True (default), reuse keypoints from a previous pose() run on
+            this object (same model/threshold) to re-render a different `style`/`overlay`/`background`
+            without re-running the network — e.g. run `style='markers'` then `style='skeleton'` fast.
+            Defaults to True.
         save_data (bool, optional): Whether we save the predicted pose data to a file. Defaults to True.
         data_format (str, optional): Specifies format of pose-data. Accepted values are 'csv', 'tsv'
             and 'txt'. For multiple output formats, use list, eg. ['csv', 'txt']. Defaults to 'csv'.
@@ -205,6 +210,25 @@ def pose(
             use_mediapipe = True
             mediapipe_device = 'cpu'
         # else: fall through to the OpenPose path, which will warn and use CPU.
+
+    # --- Reuse cached keypoints (skip re-inference) --------------------------
+    # If a previous pose() run on this object used the same model/threshold, re-render
+    # from the stored keypoints with the new style/overlay/background instead of running
+    # the (expensive) network again.
+    effective_model = 'mediapipe' if use_mediapipe else model.lower()
+    cache = getattr(self, '_pose_keypoints', None)
+    if use_cache and cache is not None \
+            and cache.get('model') == effective_model \
+            and cache.get('threshold') == threshold \
+            and cache.get('downsampling_factor') == (None if use_mediapipe else downsampling_factor):
+        return _rerender_pose_from_cache(
+            self, style=style, overlay=overlay, background=background,
+            save_data=save_data, data_format=data_format, save_video=save_video,
+            save_average_pose=save_average_pose, save_trajectories=save_trajectories,
+            transparent_trajectories=transparent_trajectories,
+            target_name_video=target_name_video, target_name_data=target_name_data,
+            target_name_average=target_name_average, target_name_trajectories=target_name_trajectories,
+            overwrite=overwrite)
 
     if use_mediapipe:
         return _pose_mediapipe(
@@ -385,16 +409,15 @@ def pose(
             else:
                 points.append(None)
 
-        # Always collect keypoints so the average-pose/trajectories images can be built
-        # even when save_data is False (saving to file is gated separately below).
-        if save_data or collect_extra:
-            time = frame2ms(ii, self.fps)
-            points_list = [[list(point)[0]/self.width, list(point)[1]/self.height, ] if point is not None else [
-                0, 0] for point in points]
-            points_list_flat = itertools.chain.from_iterable(points_list)
-            datapoint = [time]
-            datapoint += points_list_flat
-            data.append(datapoint)
+        # Always collect keypoints so the average-pose/trajectories images and the
+        # keypoint cache (for fast re-rendering) are available; file-writing is gated below.
+        time = frame2ms(ii, self.fps)
+        points_list = [[list(point)[0]/self.width, list(point)[1]/self.height, ] if point is not None else [
+            0, 0] for point in points]
+        points_list_flat = itertools.chain.from_iterable(points_list)
+        datapoint = [time]
+        datapoint += points_list_flat
+        data.append(datapoint)
 
         # Draw on the video frame, or on a plain canvas when overlay is disabled
         canvas, line_color, marker_color = _pose_canvas_and_colors(frame, overlay, background)
@@ -559,6 +582,13 @@ def pose(
 
     # Render the average-pose and trajectories images from the collected keypoints
     names = OPENPOSE_NAMES.get(model.lower())
+    # Cache keypoints so a later pose() call can re-render a different style without re-inference
+    self._pose_keypoints = {
+        'model': model.lower(), 'threshold': threshold, 'downsampling_factor': downsampling_factor,
+        'names': names, 'connections': POSE_PAIRS, 'data': data,
+        'width': self.width, 'height': self.height, 'fps': self.fps,
+        'filename': filename, 'of': of, 'fex': fex, 'has_audio': self.has_audio,
+    }
     avg_frame = (avg_acc / avg_n).astype(np.uint8) if (avg_acc is not None and avg_n > 0) else None
     average_image, trajectories_image = _render_pose_extras(
         data, names, POSE_PAIRS, self.width, self.height, self.fps,
@@ -601,6 +631,120 @@ def _render_pose_extras(data, names, connections, width, height, fps, avg_frame,
         trajectories_image = render_trajectories(data, names, width, height, fps, tn, overwrite,
                                                  transparent=transparent)
     return average_image, trajectories_image
+
+
+def _rerender_pose_from_cache(self, style='both', overlay=True, background='black',
+                              save_data=True, data_format='csv', save_video=True,
+                              save_average_pose=True, save_trajectories=True,
+                              transparent_trajectories=None, target_name_video=None,
+                              target_name_data=None, target_name_average=None,
+                              target_name_trajectories=None, overwrite=False):
+    """Re-render the pose outputs from cached keypoints (no network inference)."""
+    c = self._pose_keypoints
+    data, names, connections = c['data'], c['names'], c['connections']
+    width, height, fps = c['width'], c['height'], c['fps']
+    filename, of, fex = c['filename'], c['of'], c['fex']
+    n_points = len(names)
+
+    style = str(style).lower()
+    if style not in ('both', 'markers', 'skeleton'):
+        style = 'both'
+    background = str(background).lower()
+    if background not in ('black', 'white'):
+        background = 'black'
+
+    print('Reusing cached pose keypoints (no re-inference).')
+
+    if save_video:
+        if target_name_video is None:
+            target_name_video = of + '_pose' + fex
+        else:
+            target_name_video = os.path.splitext(target_name_video)[0] + fex
+        if not overwrite:
+            target_name_video = generate_outfilename(target_name_video)
+
+    need_frames = overlay or save_average_pose
+    process = None
+    if need_frames:
+        process = ffmpeg_cmd(['ffmpeg', '-y', '-i', filename],
+                             total_time=self.length / self.fps if self.fps else 0, pipe='read')
+    avg_acc = np.zeros((height, width, 3), dtype=np.float64) if save_average_pose else None
+    avg_n = 0
+    video_out = None
+    frame_bytes = width * height * 3
+    pb = MgProgressbar(total=len(data), prefix='Re-rendering pose (cached):')
+
+    for ii, row in enumerate(data):
+        src_frame = None
+        if process is not None:
+            buf = process.stdout.read(frame_bytes)
+            if len(buf) < frame_bytes:
+                break
+            src_frame = np.frombuffer(buf, dtype=np.uint8).reshape(height, width, 3).copy()
+            if avg_acc is not None:
+                avg_acc += src_frame
+                avg_n += 1
+
+        base = src_frame if (overlay and src_frame is not None) else np.zeros((height, width, 3), np.uint8)
+        canvas, line_color, marker_color = _pose_canvas_and_colors(base, overlay, background)
+
+        coords = row[1:1 + 2 * n_points]
+        pts = [(coords[2 * j], coords[2 * j + 1]) for j in range(n_points)]
+        if style in ('both', 'skeleton'):
+            for a, b in connections:
+                if a < n_points and b < n_points:
+                    xa, ya = pts[a]
+                    xb, yb = pts[b]
+                    if (xa or ya) and (xb or yb):
+                        cv2.line(canvas, (int(xa * width), int(ya * height)),
+                                 (int(xb * width), int(yb * height)), line_color, 2, lineType=cv2.LINE_AA)
+        if style in ('both', 'markers'):
+            for x, y in pts:
+                if x or y:
+                    cv2.circle(canvas, (int(x * width), int(y * height)), 4, marker_color,
+                               thickness=-1, lineType=cv2.FILLED)
+
+        if save_video:
+            if video_out is None:
+                cmd = ['ffmpeg', '-y', '-s', '{}x{}'.format(width, height), '-r', str(fps),
+                       '-f', 'rawvideo', '-pix_fmt', 'bgr24', '-vcodec', 'rawvideo', '-i', '-',
+                       '-vcodec', 'libx264', '-pix_fmt', 'yuv420p', target_name_video]
+                video_out = ffmpeg_cmd(cmd, total_time=self.length / self.fps if self.fps else 0, pipe='write')
+            video_out.stdin.write(canvas.astype(np.uint8).tobytes())
+        pb.progress(ii + 1)
+    pb.progress(len(data))
+
+    if process is not None:
+        process.terminate()
+    if save_video and video_out is not None:
+        video_out.stdin.close()
+        video_out.wait()
+        if c.get('has_audio'):
+            source_audio = extract_wav(of + fex)
+            embed_audio_in_video(source_audio, target_name_video)
+            os.remove(source_audio)
+
+    if save_data:
+        headers = ['Time']
+        for nm in names:
+            headers.append(f'{nm} X')
+            headers.append(f'{nm} Y')
+        _save_pose_txt(of, data, headers, data_format, target_name_data, overwrite)
+
+    avg_frame = (avg_acc / avg_n).astype(np.uint8) if (avg_acc is not None and avg_n > 0) else None
+    average_image, trajectories_image = _render_pose_extras(
+        data, names, connections, width, height, fps, avg_frame, of,
+        save_average_pose, save_trajectories, target_name_average, target_name_trajectories,
+        overwrite, transparent_trajectories=transparent_trajectories, style=style)
+    self.pose_average = average_image
+    self.pose_trajectories = trajectories_image
+
+    if save_video:
+        self.pose_video = musicalgestures.MgVideo(target_name_video, color=self.color, returned_by_process=True)
+        self.pose_video.average_pose = average_image
+        self.pose_video.trajectories = trajectories_image
+        return self.pose_video
+    return self
 
 
 def _mediapipe_available():
@@ -696,17 +840,16 @@ def _pose_mediapipe(
         keypoints = result.keypoints  # shape (33, 3): x, y, visibility
 
         # Collect data row: time + normalised (x, y) for every landmark.
-        # Always collected so the average-pose/trajectories images can be built.
-        if save_data or collect_extra:
-            time_ms = frame2ms(ii, self.fps)
-            row = [time_ms]
-            for i in range(len(MEDIAPIPE_LANDMARK_NAMES)):
-                x, y, vis = keypoints[i]
-                if vis >= threshold:
-                    row += [float(x), float(y)]
-                else:
-                    row += [0.0, 0.0]
-            data.append(row)
+        # Always collected so the images and the keypoint cache are available.
+        time_ms = frame2ms(ii, self.fps)
+        row = [time_ms]
+        for i in range(len(MEDIAPIPE_LANDMARK_NAMES)):
+            x, y, vis = keypoints[i]
+            if vis >= threshold:
+                row += [float(x), float(y)]
+            else:
+                row += [0.0, 0.0]
+        data.append(row)
 
         # Draw on the video frame, or on a plain canvas when overlay is disabled
         canvas, line_color, marker_color = _pose_canvas_and_colors(frame, overlay, background)
@@ -767,6 +910,13 @@ def _pose_mediapipe(
 
     # Render the average-pose and trajectories images from the collected keypoints
     names = [name.replace('_', ' ').title() for name in MEDIAPIPE_LANDMARK_NAMES]
+    # Cache keypoints so a later pose() call can re-render a different style without re-inference
+    self._pose_keypoints = {
+        'model': 'mediapipe', 'threshold': threshold, 'downsampling_factor': None,
+        'names': names, 'connections': MEDIAPIPE_POSE_CONNECTIONS, 'data': data,
+        'width': self.width, 'height': self.height, 'fps': self.fps,
+        'filename': filename, 'of': of, 'fex': fex, 'has_audio': self.has_audio,
+    }
     avg_frame = (avg_acc / avg_n).astype(np.uint8) if (avg_acc is not None and avg_n > 0) else None
     average_image, trajectories_image = _render_pose_extras(
         data, names, MEDIAPIPE_POSE_CONNECTIONS, self.width, self.height, self.fps,

@@ -424,7 +424,8 @@ class Flow:
             gpu_frame_gray = cv2.cuda_GpuMat()
             gpu_old_gray.upload(old_gray)
             gpu_p0 = cv2.cuda_GpuMat()
-            gpu_p0.upload(p0)
+            # CUDA SparsePyrLKOpticalFlow needs the points as a 1xN CV_32FC2 row vector
+            gpu_p0.upload(p0.reshape(1, -1, 2))
 
         # Create a mask image for drawing purposes
         mask = np.zeros_like(old_frame)
@@ -439,19 +440,21 @@ class Flow:
                 # calculate optical flow
                 if _use_gpu:
                     gpu_frame_gray.upload(frame_gray)
-                    gpu_p1, gpu_st = lk_gpu.calc(gpu_old_gray, gpu_frame_gray, gpu_p0, None, None)
-                    p1 = gpu_p1.download()
-                    st = gpu_st.download()
+                    gpu_p1, gpu_st, _gpu_err = lk_gpu.calc(gpu_old_gray, gpu_frame_gray, gpu_p0, None)
+                    # GPU returns 1xN; flatten to (N,2)/(N,) for uniform selection
+                    p1 = gpu_p1.download().reshape(-1, 2)
+                    st = gpu_st.download().reshape(-1)
                     # Swap references so current frame becomes old frame for next
                     # iteration, avoiding new GpuMat allocation each frame
                     gpu_old_gray, gpu_frame_gray = gpu_frame_gray, gpu_old_gray
+                    good_new = p1[st == 1]
+                    good_old = p0.reshape(-1, 2)[st == 1]
                 else:
                     p1, st, err = cv2.calcOpticalFlowPyrLK(
                         old_gray, frame_gray, p0, None, **lk_params)
-
-                # Select good points
-                good_new = p1[st == 1]
-                good_old = p0[st == 1]
+                    # Select good points
+                    good_new = p1[st == 1]
+                    good_old = p0[st == 1]
 
                 # draw the tracks
                 for i, (new, old) in enumerate(zip(good_new, good_old)):
@@ -474,7 +477,7 @@ class Flow:
                 old_gray = frame_gray.copy()
                 p0 = good_new.reshape(-1, 1, 2)
                 if _use_gpu:
-                    gpu_p0.upload(p0)
+                    gpu_p0.upload(good_new.reshape(1, -1, 2))
 
             else:
                 pb.progress(length)
