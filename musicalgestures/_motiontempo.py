@@ -23,7 +23,7 @@ def mg_motiontempo(self, fmin=0.2, fmax=8.0, dpi=300, autoshow=True, title=None,
         target_name (str, optional): The name of the output image. Defaults to None
             (which uses the input filename with the suffix "_motiontempo.png").
         overwrite (bool, optional): Whether to allow overwriting existing files or to
-            automatically increment the target filename. Defaults to False.
+            automatically increment the target filename. Defaults to True.
 
     Returns:
         MgFigure: An MgFigure object. Numeric results are available in ``.data``:

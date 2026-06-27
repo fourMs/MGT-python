@@ -21,7 +21,7 @@ def mg_motionvectors(self, target_name=None, overwrite=True):
         target_name (str, optional): Target output name for the video. Defaults to None
             (which uses the input filename with the suffix "_motionvectors").
         overwrite (bool, optional): Whether to allow overwriting existing files or to
-            automatically increment the target filename. Defaults to False.
+            automatically increment the target filename. Defaults to True.
 
     Returns:
         MgVideo: An MgVideo pointing to the rendered motion-vector video.

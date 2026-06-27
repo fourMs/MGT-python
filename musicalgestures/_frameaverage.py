@@ -21,7 +21,7 @@ def mg_pixelarray(self, width=640, target_name=None, overwrite=True):
         target_name (str, optional): The name of the output image file. If None, uses input filename 
                                    with '_framearray_<width>' suffix. Defaults to None.
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically 
-                                  increment target filenames to avoid overwriting. Defaults to False.
+                                  increment target filenames to avoid overwriting. Defaults to True.
     
     Returns:
         MgImage: A new MgImage pointing to the output frame-averaged pixel array image file.

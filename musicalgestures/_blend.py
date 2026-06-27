@@ -36,7 +36,7 @@ def mg_blend_image(self, filename=None, mode='all_mode', component_mode='average
     divider = int(np.ceil(np.log(frames / 2) / np.log(2)))
 
     # Define ffmpeg command
-    cmd = ['ffmpeg', '-y', '-i', self.filename]
+    cmd = ['ffmpeg', '-y', '-i', filename]
 
     cmd_filter = ''
     # Set average blur

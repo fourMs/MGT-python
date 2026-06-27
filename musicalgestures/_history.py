@@ -112,6 +112,7 @@ def history_cv2(self, filename=None, history_length=10, weights=1, convert=True,
         filename (str, optional): Path to the input video file. If None, the video file of the MgVideo is used. Defaults to None.
         history_length (int, optional): Number of frames to be saved in the history tail. Defaults to 10.
         weights (int/float/list, optional): Defines the weight or weights applied to the frames in the history tail. If given as list the first element in the list will correspond to the weight of the newest frame in the tail. Defaults to 1.
+        convert (bool, optional): If True (default), non-AVI input is first converted to an all-intra MJPEG `.avi` (cached as `self.as_avi`) for frame-accurate decoding. Set to False to read the source file directly. Defaults to True.
         target_name (str, optional): Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_history" should be used).
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 

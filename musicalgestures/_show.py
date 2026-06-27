@@ -255,8 +255,8 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
                     "There is no known pose video for this file.")
 
         elif key.lower() == 'warp':
-            if "warp_audiovisual_beats" in keys:
-                filename = self.warp_audiovisual_beats.filename
+            if "warp_video" in keys:
+                filename = self.warp_video.filename
                 show(file=filename, width=window_width,
                      height=window_height, mode=mode, title=f'Warp Audiovisual Video | {filename}', parent=self, **ipython_kwargs)
             else:

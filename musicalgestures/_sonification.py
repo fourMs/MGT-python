@@ -38,7 +38,7 @@ def mg_sonomotiongram(
         target_name (str, optional): Output audio filename. Defaults to None (input filename
             with the suffix "_sono_<sonogram>.wav").
         overwrite (bool, optional): Whether to allow overwriting or auto-increment the filename.
-            Defaults to False.
+            Defaults to True.
 
     Returns:
         MgAudio: An MgAudio pointing to the rendered sonification (WAV).

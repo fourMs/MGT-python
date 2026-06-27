@@ -140,7 +140,7 @@ def mg_phase_synchrony(self, fmin=0.5, fmax=4.0, fs=50.0, n_bins=36, dpi=300,
     d = {'plv': round(plv, 3), 'mean_phase_diff_deg': round(mean_dphi, 1),
          'fmin': fmin, 'fmax': fmax, 'fps': fps, 'sr': sr}
     mgf = MgFigure(figure=fig, figure_type='video.phase_synchrony', data=d, layers=None, image=target_name)
-    self.phase_synchrony = mgf
+    self.phase_synchrony_figure = mgf
     return mgf
 
 
@@ -236,7 +236,7 @@ def mg_structure_comparison(self, n=200, dpi=300, cmap='magma', autoshow=True,
 
     d = {'structural_agreement': round(agreement, 3), 'n': int(k), 'sr': sr}
     mgf = MgFigure(figure=fig, figure_type='video.structure_comparison', data=d, layers=None, image=target_name)
-    self.structure_comparison = mgf
+    self.structure_comparison_figure = mgf
     return mgf
 
 
@@ -340,7 +340,7 @@ def mg_body_audio_coupling(self, dpi=300, cmap='coolwarm', dot_size=260, autosho
     d = {'correlations': stats, 'mean_abs_correlation': round(float(np.nanmean(np.abs(corrs))), 3),
          'fps': fps, 'sr': sr}
     mgf = MgFigure(figure=fig, figure_type='video.body_audio_coupling', data=d, layers=None, image=target_name)
-    self.body_audio_coupling = mgf
+    self.body_audio_coupling_figure = mgf
     return mgf
 
 
@@ -420,5 +420,5 @@ def mg_dynamics_coupling(self, fs=50.0, max_lag=2.0, dpi=300, autoshow=True,
     d = {'zero_lag_corr': round(zero_r, 3), 'best_corr': round(best_r, 3),
          'best_lag_s': round(best_lag, 3), 'fps': fps, 'sr': sr}
     mgf = MgFigure(figure=fig, figure_type='video.dynamics_coupling', data=d, layers=None, image=target_name)
-    self.dynamics_coupling = mgf
+    self.dynamics_coupling_figure = mgf
     return mgf

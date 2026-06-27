@@ -514,6 +514,32 @@ The saved CSV (and `seg.data['stats']`) reports, per segment: mean angle, result
 - `cmap`: colormap for the bars (`'viridis'` default); `ncols` sets the subplot-grid width (default `6`); `dpi` (default `200`)
 - plus the usual `target_name`, `overwrite`, and forwarded `**pose_kwargs`
 
+### Pose centring
+
+`pose_center()` centres the pose data on its **global centroid** — a 2D port of the MoCap Toolbox `mccenter`. A single offset per coordinate (the mean of the per-marker temporal means, missing detections ignored) is subtracted from every marker so the overall spatiotemporal centroid sits at the origin. This removes the performer's absolute position in the frame, leaving relative posture/movement — useful before comparing or further analysing trajectories. It plots the centred marker trajectories, saves a CSV of the centred coordinates, and returns an `MgFigure` (the centred `(T, n, 2)` array is in `.data['coords']`, the removed offset in `.data['offset']`).
+
+```python
+pc = mv.pose_center()          # returns MgFigure (+ CSV); reuses cached keypoints or runs pose()
+pc.show()
+centred = pc.data['coords']    # (frames, markers, 2), centroid at the origin
+```
+
+![Centred pose trajectories of dance.avi](../images/examples/pose_center.png)
+*Each marker's trajectory after centring on the global centroid (origin marked).*
+
+### Distance travelled
+
+`pose_distance()` computes each marker's **cumulative distance travelled** (the sum of frame-to-frame Euclidean displacement, in pixels) plus the across-marker average — a 2D port of `mccumdist`. The figure shows the per-marker cumulative-distance curves and a ranked total-per-marker bar chart with the average marked; a CSV of the totals (and the average) is saved. `.data` holds `total` (per marker), `average`, and `cumulative` (the per-marker curves).
+
+```python
+pd_fig = mv.pose_distance()    # returns MgFigure (+ CSV)
+pd_fig.show()
+print(pd_fig.data['average'])  # mean distance travelled across markers (px)
+```
+
+![Per-marker distance travelled in dance.avi](../images/examples/pose_distance.png)
+*Left: cumulative distance travelled per marker over time. Right: total per marker, ranked, with the across-marker average.*
+
 ---
 
 ## Audio–movement analysis

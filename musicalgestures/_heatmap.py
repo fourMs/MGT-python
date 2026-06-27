@@ -48,7 +48,7 @@ def mg_heatmap(
             (which uses the input filename with the suffix "_heatmap.png").
         overwrite (bool, optional): Whether to allow overwriting existing files or to
             automatically increment the target filename to avoid overwriting.
-            Defaults to False.
+            Defaults to True.
 
     Returns:
         MgImage: A new MgImage pointing to the output heatmap image file.

@@ -249,8 +249,8 @@ print("Analysis complete!")
 MGT-python creates several types of output files:
 
 ### Video Files
-- `*_motion.mp4` - Motion detection video
-- `*_history.mp4` - Motion history visualization
+- `*_motion.avi` - Motion detection video
+- `*_history.avi` - Motion history visualization
 
 ### Image Files
 - `*_average.png` - Average of all frames
@@ -258,8 +258,8 @@ MGT-python creates several types of output files:
 - `*_mgv.png` - Vertical motiongram
 
 ### Data Files
-- `*_motion.csv` - Numerical motion data
-- `*_audio_descriptors.csv` - Audio feature data
+- `*_motiondata.csv` - Numerical motion data
+- `*_descriptors.csv` - Audio feature data
 
 ### Working Directory
 
@@ -344,8 +344,11 @@ For large videos, consider:
 # Process shorter segments
 mv = mg.MgVideo('large_video.mp4', starttime=0, endtime=30)
 
-# Or reduce resolution during preprocessing
-mv = mg.MgVideo('large_video.mp4', scale=0.5)  # 50% size
+# Or thin out the frames at load time (keep 1 of every skip+1 frames)
+mv = mg.MgVideo('large_video.mp4', skip=2)
+
+# Or re-time an already-loaded video to a lower frame rate
+mv = mg.MgVideo('large_video.mp4').resample(fps=15)
 ```
 
 Ready to dive deeper? Check out our comprehensive [User Guide](user-guide/core-classes.md)!

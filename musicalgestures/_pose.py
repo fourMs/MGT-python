@@ -207,7 +207,7 @@ def pose(
         target_name_trajectories (str, optional): Target output name for the trajectories image.
             Defaults to None (input filename with the suffix "_pose_trajectories.png").
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically
-            increment target filenames to avoid overwriting. Defaults to False.
+            increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:
         MgVideo: An MgVideo pointing to the output video. The average-pose and trajectories images
@@ -245,6 +245,17 @@ def pose(
             use_mediapipe = True
             mediapipe_device = 'cpu'
         # else: fall through to the OpenPose path, which will warn and use CPU.
+
+    # MediaPipe is an optional dependency (the `[pose]` extra). If it was selected (it is the
+    # default backend) but isn't installed, fall back to the OpenPose BODY_25 model — it runs on
+    # the always-present OpenCV DNN and auto-downloads its weights — so pose() works on a bare
+    # `pip install musicalgestures`.
+    if use_mediapipe and not _mediapipe_available():
+        print("MediaPipe is not installed; falling back to the OpenPose 'body_25' backend. "
+              "Install MediaPipe for the default backend with: pip install musicalgestures[pose]")
+        use_mediapipe = False
+        if model.lower() == 'mediapipe':
+            model = 'body_25'
 
     # Resolve the "auto" convert default: MediaPipe reads the source directly through an
     # FFmpeg pipe and needs no all-intra AVI; OpenPose keeps the frame-accurate conversion.

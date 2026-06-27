@@ -322,5 +322,5 @@ def mg_tempo_similarity(self, dpi=300, autoshow=True, title=None, target_name=No
         print(f'Warning: could not save CSV: {e}')
 
     mgf = MgFigure(figure=fig, figure_type='video.tempo_similarity', data=d, layers=None, image=target_name)
-    self.tempo_similarity = mgf
+    self.tempo_similarity_figure = mgf
     return mgf

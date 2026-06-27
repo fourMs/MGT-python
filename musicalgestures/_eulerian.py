@@ -91,7 +91,7 @@ def mg_eulerian(
         target_name (str, optional): Target output name. Defaults to None (input filename with
             the suffix "_evm").
         overwrite (bool, optional): Whether to allow overwriting or auto-increment the filename.
-            Defaults to False.
+            Defaults to True.
 
     Returns:
         MgVideo: An MgVideo pointing to the magnified output video.
