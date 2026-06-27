@@ -101,6 +101,33 @@ heat.show()
 
 ---
 
+## Space-time visualisations
+
+Several ways to show *where* a person is and *when*, in a single image. Silhouettes are
+extracted with MediaPipe selfie segmentation when available, else by background subtraction
+against the average frame (best for static-camera recordings). Control extraction with
+`method='auto'|'mediapipe'|'bgsub'`.
+
+```python
+# Stroboscope / chronophotography — silhouettes at sampled times on one frame
+mv.stroboscope(n_samples=12).show()
+
+# Silhouette waterfall — silhouette projection stacked over time
+mv.silhouette_waterfall(axis='horizontal').show()   # or axis='vertical'
+
+# Motion History Image — intensity = how recently motion happened (no silhouette needed)
+mv.motionhistory().show()
+
+# 3D space-time silhouette volume — (x, y, t) point cloud
+mv.spacetime_volume(n_samples=50).show()
+```
+
+These complement the motiongram (space×time) and the combined motion SSM (temporal structure):
+the stroboscope and volume show the body moving through space over time, the waterfall shows
+spatial occupancy flowing over time, and the MHI compresses recency of motion into one frame.
+
+---
+
 ## Movement tempo
 
 `motiontempo()` estimates the dominant movement tempo from the quantity of motion (mean absolute frame difference) via an FFT, reported in both Hz and BPM.

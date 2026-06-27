@@ -161,6 +161,12 @@ class MgVideo(MgAudio):
     from musicalgestures._motionvectors import mg_motionvectors as motionvectors
     from musicalgestures._eulerian import mg_eulerian as eulerian
     from musicalgestures._sonification import mg_sonomotiongram as sonomotiongram
+    from musicalgestures._spacetime import (
+        mg_stroboscope as stroboscope,
+        mg_silhouette_waterfall as silhouette_waterfall,
+        mg_motionhistory as motionhistory,
+        mg_spacetime_volume as spacetime_volume,
+    )
     from musicalgestures._pose import pose
 
     def average(self, **kwargs):
