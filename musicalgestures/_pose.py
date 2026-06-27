@@ -138,8 +138,9 @@ def pose(
             without re-running the network — e.g. run `style='markers'` then `style='skeleton'` fast.
             Defaults to True.
         save_data (bool, optional): Whether we save the predicted pose data to a file. Defaults to True.
-        data_format (str, optional): Specifies format of pose-data. Accepted values are 'csv', 'tsv'
-            and 'txt'. For multiple output formats, use list, eg. ['csv', 'txt']. Defaults to 'csv'.
+        data_format (str, optional): Specifies format of pose-data. Accepted values are 'csv', 'tsv',
+            'txt' and 'c3d' (motion-capture format; requires the optional ``c3d`` package). For multiple
+            output formats, use a list, e.g. ['csv', 'c3d']. Defaults to 'csv'.
         save_video (bool, optional): Whether we save the video with the estimated pose overlaid on it.
             Defaults to True.
         style (str, optional): How to draw the pose. `'both'` draws markers (keypoints) connected by
@@ -577,8 +578,11 @@ def pose(
                                  target_name_data=target_name_data, overwrite=overwrite)
 
     if save_data:
-        save_txt(of, self.width, self.height, model, data, data_format,
-                 target_name_data=target_name_data, overwrite=overwrite)
+        text_format = _handle_c3d(of, data, OPENPOSE_NAMES.get(model.lower()), self.fps,
+                                  self.width, self.height, data_format, target_name_data, overwrite)
+        if text_format is not None:
+            save_txt(of, self.width, self.height, model, data, text_format,
+                     target_name_data=target_name_data, overwrite=overwrite)
 
     # Render the average-pose and trajectories images from the collected keypoints
     names = OPENPOSE_NAMES.get(model.lower())
@@ -729,7 +733,9 @@ def _rerender_pose_from_cache(self, style='both', overlay=True, background='blac
         for nm in names:
             headers.append(f'{nm} X')
             headers.append(f'{nm} Y')
-        _save_pose_txt(of, data, headers, data_format, target_name_data, overwrite)
+        text_format = _handle_c3d(of, data, names, fps, width, height, data_format, target_name_data, overwrite)
+        if text_format is not None:
+            _save_pose_txt(of, data, headers, text_format, target_name_data, overwrite)
 
     avg_frame = (avg_acc / avg_n).astype(np.uint8) if (avg_acc is not None and avg_n > 0) else None
     average_image, trajectories_image = _render_pose_extras(
@@ -906,7 +912,11 @@ def _pose_mediapipe(
         for name in MEDIAPIPE_LANDMARK_NAMES:
             headers.append(name.replace('_', ' ').title() + ' X')
             headers.append(name.replace('_', ' ').title() + ' Y')
-        _save_pose_txt(of, data, headers, data_format, target_name_data, overwrite)
+        c3d_names = [name.replace('_', ' ').title() for name in MEDIAPIPE_LANDMARK_NAMES]
+        text_format = _handle_c3d(of, data, c3d_names, self.fps, self.width, self.height,
+                                  data_format, target_name_data, overwrite)
+        if text_format is not None:
+            _save_pose_txt(of, data, headers, text_format, target_name_data, overwrite)
 
     # Render the average-pose and trajectories images from the collected keypoints
     names = [name.replace('_', ' ').title() for name in MEDIAPIPE_LANDMARK_NAMES]
@@ -933,6 +943,56 @@ def _pose_mediapipe(
         return self.pose_video
     else:
         return self
+
+
+def _save_pose_c3d(of, data, names, fps, width, height, target_name_data=None, overwrite=False):
+    """
+    Save pose keypoints to a C3D motion-capture file.
+
+    Each landmark becomes a 3D point (x, y, z=0) in pixel coordinates; frames with a
+    missing detection (0,0) are flagged invalid (residual = -1). Requires the optional
+    ``c3d`` package (``pip install c3d``).
+    """
+    try:
+        import c3d
+    except ImportError as exc:
+        from musicalgestures._utils import MgError
+        raise MgError("Saving pose data as C3D requires the 'c3d' package. "
+                      "Install it with: pip install c3d") from exc
+
+    out_path = (of + '_pose.c3d') if target_name_data is None else (os.path.splitext(target_name_data)[0] + '.c3d')
+    if not overwrite:
+        out_path = generate_outfilename(out_path)
+
+    n_points = len(names)
+    writer = c3d.Writer(point_rate=float(fps))
+    for row in data:
+        coords = np.asarray(row[1:1 + 2 * n_points], dtype=np.float32)
+        points = np.zeros((n_points, 5), dtype=np.float32)
+        for j in range(n_points):
+            x, y = coords[2 * j], coords[2 * j + 1]
+            if x == 0 and y == 0:           # missing detection
+                points[j] = [0, 0, 0, -1, 0]
+            else:
+                points[j] = [x * width, y * height, 0.0, 0.0, 0]
+        writer.add_frames([(points, np.zeros((0, 1), dtype=np.float32))])
+
+    writer.set_point_labels(names)
+    with open(out_path, 'wb') as h:
+        writer.write(h)
+    return out_path
+
+
+def _handle_c3d(of, data, names, fps, width, height, data_format, target_name_data, overwrite):
+    """Save a .c3d file if 'c3d' is among the requested formats; return the remaining
+    (text) formats to be handled by the text saver, or None if there are none."""
+    formats = list(data_format) if isinstance(data_format, (list, tuple)) else [data_format]
+    if any(str(f).lower() == 'c3d' for f in formats):
+        _save_pose_c3d(of, data, names, fps, width, height, target_name_data, overwrite)
+    text = [f for f in formats if str(f).lower() != 'c3d']
+    if not text:
+        return None
+    return text if isinstance(data_format, (list, tuple)) else text[0]
 
 
 def _save_pose_txt(of, data, headers, data_format, target_name_data, overwrite):
