@@ -258,7 +258,7 @@ def render_trajectories(data, names, width, height, fps, target_name, overwrite=
 def render_pose_waterfall(data, names, width, height, fps, target_name, overwrite=True,
                           style='trajectories', connections=None, n_samples=40,
                           markers=None, color_by=None, cmap='hsv', dpi=200,
-                          elev=20, azim=-60, lw=1.0, axes=True):
+                          elev=20, azim=-60, lw=1.0, axes=True, crop=False):
     """
     Render a 3D spatio-temporal waterfall of the pose, cascading along the time (depth) axis —
     a pose-based counterpart to ``silhouette_waterfall()``.
@@ -293,6 +293,8 @@ def render_pose_waterfall(data, names, width, height, fps, target_name, overwrit
         lw (float, optional): Line width. Defaults to 1.0.
         axes (bool, optional): Draw the axes and tick labels. Set to False for a clean render
             with all axes and text removed. Defaults to True.
+        crop (bool, optional): Tighten the spatial axis limits to the actual marker extent and
+            trim the surrounding whitespace, so the figure shows mostly the data. Defaults to False.
 
     Returns:
         MgFigure: the 3D waterfall figure, or None if there are too few frames.
@@ -385,9 +387,24 @@ def render_pose_waterfall(data, names, width, height, fps, target_name, overwrit
                     ax.scatter(pts[vis, 0], np.full(vis.sum(), t), height - pts[vis, 1],
                                color=color, s=6, alpha=0.8, depthshade=True)
 
-    ax.set_xlim(0, width)
+    if crop:
+        # Tighten the spatial limits to the actual marker extent (with a small margin).
+        xs = px[:, idx, 0]
+        zs = height - px[:, idx, 1]
+        if np.isfinite(xs).any() and np.isfinite(zs).any():
+            xmin, xmax = np.nanmin(xs), np.nanmax(xs)
+            zmin, zmax = np.nanmin(zs), np.nanmax(zs)
+            xpad = max((xmax - xmin) * 0.05, 1.0)
+            zpad = max((zmax - zmin) * 0.05, 1.0)
+            ax.set_xlim(xmin - xpad, xmax + xpad)
+            ax.set_zlim(zmin - zpad, zmax + zpad)
+        else:
+            ax.set_xlim(0, width)
+            ax.set_zlim(0, height)
+    else:
+        ax.set_xlim(0, width)
+        ax.set_zlim(0, height)
     ax.set_ylim(tmin, tmax)
-    ax.set_zlim(0, height)
     if axes:
         ax.set_xlabel('Horizontal position (px)')
         ax.set_ylabel('Time (s)')
@@ -396,7 +413,8 @@ def render_pose_waterfall(data, names, width, height, fps, target_name, overwrit
         ax.set_axis_off()
     ax.view_init(elev=elev, azim=azim)
     fig.tight_layout()
-    fig.savefig(target_name, facecolor='white')
+    save_kwargs = {'bbox_inches': 'tight', 'pad_inches': 0} if crop else {}
+    fig.savefig(target_name, facecolor='white', **save_kwargs)
     plt.close(fig)
 
     fig_data = {'coords': coords, 'times': times, 'names': names, 'markers': idx,

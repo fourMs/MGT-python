@@ -198,7 +198,7 @@ def mg_stroboscope(self, n_samples=12, method='auto', threshold=0.1, kernel_size
 
 def mg_silhouette_waterfall(self, n_samples=40, method='auto', threshold=0.1, kernel_size=5,
                             keep_largest=False, axis='horizontal', cmap='viridis', dpi=200,
-                            elev=35, azim=-60, axes=True, target_name=None, overwrite=True):
+                            elev=35, azim=-60, axes=True, crop=False, target_name=None, overwrite=True):
     """
     Renders a 3D silhouette waterfall: the per-frame silhouette projected onto one spatial
     axis and stacked as cascading curves along a time (depth) axis, so the body's occupancy
@@ -220,6 +220,8 @@ def mg_silhouette_waterfall(self, n_samples=40, method='auto', threshold=0.1, ke
         azim (float, optional): 3D azimuth angle. Defaults to -60.
         axes (bool, optional): Draw the axes, tick labels, and title. Set to False for a clean
             render with all axes and text removed. Defaults to True.
+        crop (bool, optional): Tighten the spatial axis to the occupied (nonzero) extent and trim
+            the surrounding whitespace, so the figure shows mostly the data. Defaults to False.
         target_name (str, optional): Output name. Defaults to None ("_silhouette_waterfall.png").
         overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to True.
 
@@ -276,6 +278,13 @@ def mg_silhouette_waterfall(self, n_samples=40, method='auto', threshold=0.1, ke
         ax.plot(pos, np.full_like(pos, t, dtype=float), prof,
                 color=cmap_obj(k / n_slices), lw=0.9, alpha=0.9)
 
+    if crop and arr.size:
+        # Tighten the spatial axis to the occupied (nonzero) profile extent.
+        occupied = np.where(arr.max(axis=0) > 0)[0]
+        if occupied.size:
+            pad = max(int((occupied[-1] - occupied[0]) * 0.05), 1)
+            ax.set_xlim(max(occupied[0] - pad, 0), min(occupied[-1] + pad, arr.shape[1] - 1))
+
     if axes:
         ax.set_xlabel('Horizontal position (px)' if axis == 'horizontal' else 'Vertical position (px)')
         ax.set_ylabel('Time (s)')
@@ -285,7 +294,8 @@ def mg_silhouette_waterfall(self, n_samples=40, method='auto', threshold=0.1, ke
         ax.set_axis_off()
     ax.view_init(elev=elev, azim=azim)
     fig.tight_layout()
-    fig.savefig(target_name, facecolor='white')
+    save_kwargs = {'bbox_inches': 'tight', 'pad_inches': 0} if crop else {}
+    fig.savefig(target_name, facecolor='white', **save_kwargs)
     plt.close(fig)
 
     data = {'profiles': arr, 'times': np.array(times), 'axis': axis}
