@@ -216,8 +216,8 @@ MGT-python creates several types of output files:
 
 ### Image Files
 - `*_average.png` - Average of all frames
-- `*_mgx.png` - Horizontal motiongram
-- `*_mgy.png` - Vertical motiongram
+- `*_mgh.png` - Horizontal motiongram
+- `*_mgv.png` - Vertical motiongram
 
 ### Data Files
 - `*_motion.csv` - Numerical motion data

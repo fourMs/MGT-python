@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.4.9**.
+The current stable release is **MGT-python 1.5.0**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,12 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.5.0
+
+- Motiongram/videogram output files now use `_mgh`/`_vgh` (horizontal) and `_mgv`/`_vgv`
+  (vertical) suffixes instead of the axis-based `_mgx`/`_mgy`/`_vgx`/`_vgy`.
+- `silhouette_waterfall()` and `pose_waterfall()` gain `axes=False` for a clean, label-free 3D render.
 
 ### 1.4.9
 

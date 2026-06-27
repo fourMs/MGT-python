@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.5.0] – 2026-06-27
+
+### Changed
+- **Motiongram/videogram output filenames** now use direction-of-movement suffixes: `_mgh`/`_vgh`
+  (horizontal) and `_mgv`/`_vgv` (vertical), replacing the axis-based `_mgy`/`_vgy` and
+  `_mgx`/`_vgx`. Applied to `motion()`, `motiongrams()`, `videograms()`, `motion_mp()`, and the
+  `ssm()` intermediates. The `show(key=...)` keys (`'horizontal'`/`'vertical'`,
+  `mgh`/`mgv`/`vgh`/`vgv`, and the legacy `mgx`/`mgy`/`vgx`/`vgy`) all still resolve correctly.
+
+### Added
+- `silhouette_waterfall()` and `pose_waterfall()` accept `axes=False` to render without any axes,
+  ticks, labels, panes, or title (a clean 3D image).
+
+---
+
 ## [1.4.9] – 2026-06-27
 
 ### Added
@@ -314,7 +329,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.4.9...HEAD
+[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/fourMs/MGT-python/compare/v1.4.9...v1.5.0
 [1.4.9]: https://github.com/fourMs/MGT-python/compare/v1.4.8...v1.4.9
 [1.4.8]: https://github.com/fourMs/MGT-python/compare/v1.4.7...v1.4.8
 [1.4.7]: https://github.com/fourMs/MGT-python/compare/v1.4.6...v1.4.7

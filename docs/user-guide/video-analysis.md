@@ -117,6 +117,7 @@ mv.stroboscope(n_samples=12).show()
 
 # 3D silhouette waterfall — silhouette profile cascading along a time axis
 mv.silhouette_waterfall(n_samples=40, axis='horizontal').show()
+mv.silhouette_waterfall(axes=False).show()   # clean render, no axes/labels/title
 
 # Motion History Image — intensity = how recently motion happened (no silhouette needed)
 mv.motionhistory().show()
@@ -416,6 +417,7 @@ wf = mv.pose_waterfall(color_by='time')        # colour follows time along each 
 wf = mv.pose_waterfall(markers=['left_wrist', 'right_wrist'], cmap='viridis')
 wf = mv.pose_waterfall(style='skeleton')       # skeleton joint lines at sampled time slices
 wf = mv.pose_waterfall(style='markers', n_samples=60)
+wf = mv.pose_waterfall(axes=False)             # clean render, no axes/labels
 wf.show()
 ```
 
@@ -430,6 +432,7 @@ wf.show()
 - `color_by`: `'marker'` (one colour per marker) or `'time'` (colour follows time). Defaults to `'marker'` for `'trajectories'` and to `'time'` for the slice styles.
 - `cmap`: matplotlib colormap (`'hsv'` default); `dpi` (default `200`); `lw` line width (default `1.0`)
 - `elev`/`azim`: 3D view angles (defaults `20` / `-60`)
+- `axes`: set to `False` to render without any axes, ticks, labels, or panes (a clean 3D image). Defaults to `True`. (`silhouette_waterfall()` accepts the same `axes` option.)
 - plus the usual `target_name`, `overwrite`, and forwarded `**pose_kwargs` (e.g. `model`, `device`)
 
 ---
