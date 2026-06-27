@@ -82,6 +82,62 @@ OpenCV is typically installed automatically with `opencv-python`. If you encount
 sudo apt install libgl1-mesa-glx libglib2.0-0
 ```
 
+## Optional Dependencies (Extras)
+
+The core `pip install musicalgestures` already covers the large majority of features —
+motion analysis, motiongrams/videograms, average/blend, heatmap, space-time visualisations
+(stroboscope, silhouette waterfall, motion history), audio analysis (librosa), optical flow
+on the CPU, face blurring, and more. A few capabilities need an optional dependency or a
+specially-built OpenCV. Install only what you need:
+
+| Feature | Install / requirement |
+|---|---|
+| Everything in the table below | `pip install musicalgestures[full]` |
+| **Pose estimation — default backend (MediaPipe)** | `pip install musicalgestures[pose]` |
+| **C3D motion-capture export** (`pose(data_format='c3d')`) | `pip install musicalgestures[c3d]` |
+| **GPU acceleration** (`flow.dense(use_gpu=True)`, `flow.sparse(use_gpu=True)`, `blur_faces(use_gpu=True)`, OpenPose `device='gpu'`) | OpenCV built with CUDA (see [GPU / CUDA acceleration](#gpu--cuda-acceleration) below) |
+
+### Pose estimation
+
+`pose()` works **with or without** an extra installed:
+
+- With `musicalgestures[pose]`, the default **MediaPipe** backend is used — recommended:
+  faster on CPU, 33 landmarks, and no CUDA-enabled OpenCV build needed.
+- If MediaPipe is **not** installed, `pose()` automatically falls back to the OpenPose
+  `body_25` backend. This uses the always-present OpenCV DNN module and auto-downloads
+  ~200 MB of Caffe weights on first use — so pose estimation works either way.
+
+### C3D export
+
+`pose(data_format='c3d')` writes a `.c3d` motion-capture file and needs the optional
+`c3d` package (`pip install musicalgestures[c3d]`). All other `data_format` values
+(`'csv'`, `'tsv'`, `'txt'`) work with the core install.
+
+### GPU / CUDA acceleration
+
+`flow.dense(use_gpu=True)`, `flow.sparse(use_gpu=True)`, `blur_faces(use_gpu=True)`, and the
+OpenPose backends with `device='gpu'` all require an OpenCV **built with CUDA support** (the
+standard pip `opencv-python` wheels are CPU-only). Every one of these calls **falls back to the
+CPU automatically** when CUDA is unavailable, so code stays portable. Check what your build
+offers:
+
+```python
+import musicalgestures as mg
+
+mg.cuda_build_available()    # True if OpenCV was compiled with CUDA
+mg.get_cuda_device_count()   # number of CUDA devices visible to OpenCV
+mg.cuda_unavailable_reason() # human-readable explanation when CUDA is missing
+```
+
+The MediaPipe pose backend is the exception: `pose(model='mediapipe', device='gpu')` can use a
+GPU through MediaPipe's own delegate with the standard pip OpenCV — no CUDA build required.
+
+### Other extras
+
+`musicalgestures[ml]` (scikit-learn/torch) and `musicalgestures[cli]` (the `musicalgestures`
+command-line tool) are also available; `musicalgestures[full]` installs `pose`, `c3d`, `ml`,
+and `cli` together.
+
 ## Installation Methods
 
 ### 1. Standard Installation (Recommended)
@@ -160,7 +216,7 @@ print(f"Pianist video: {examples.pianist}")
 # Basic functionality test
 mv = mg.MgVideo(examples.dance)
 print(f"Video loaded: {mv.filename}")
-print(f"Duration: {mv.length:.2f} seconds")
+print(f"Duration: {mv.duration:.2f} seconds")   # .duration is seconds; .length is the frame count
 ```
 
 ## Troubleshooting

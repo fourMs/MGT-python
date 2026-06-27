@@ -54,13 +54,35 @@ mv = mg.MgVideo('/path/to/video.mp4')
 mv.filename     # full file path
 mv.width        # frame width in pixels
 mv.height       # frame height in pixels
-mv.length       # duration in seconds
+mv.length       # frame COUNT (number of frames — see the gotcha below)
+mv.n_frames     # frame count (clear alias for length)
+mv.duration     # duration in SECONDS (length / fps)
 mv.fps          # frame rate
 mv.framecount   # total number of frames
 mv.color        # True for colour, False for grayscale
 mv.audio        # MgAudio object for the video's audio track
 mv.flow         # Flow object exposing flow.dense() and flow.sparse()
 ```
+
+`MgVideo` also has an informative `repr`, so printing one tells you everything at a glance:
+
+```python
+mv = mg.MgVideo('dance.avi')
+print(mv)   # MgVideo('dance.avi', 1572 frames, 25fps, 518x496, audio=True)
+```
+
+!!! warning "`length` means different things on `MgVideo` and `MgAudio`"
+    `MgVideo.length` is the frame **count**, whereas `MgAudio.length` is the duration in
+    **seconds**. To avoid the confusion, prefer the unambiguous members:
+
+    - `.duration` — duration in **seconds** on **both** classes.
+    - `.n_frames` — frame **count** (on `MgVideo`).
+
+    ```python
+    mv.duration        # seconds        e.g. 62.88
+    mv.n_frames        # frame count    e.g. 1572
+    mv.audio.duration  # seconds — same units as mv.duration
+    ```
 
 ---
 
@@ -70,6 +92,8 @@ mv.flow         # Flow object exposing flow.dense() and flow.sparse()
 
 ```python
 audio = mg.MgAudio('/path/to/audio.mp3')
+print(audio)           # MgAudio('audio.mp3', 62.88s, sr=22050)
+print(audio.duration)  # duration in seconds (for MgAudio this equals .length)
 ```
 
 ---
@@ -77,6 +101,23 @@ audio = mg.MgAudio('/path/to/audio.mp3')
 ## Result types
 
 `MgFigure`, `MgImage`, and `MgList` are returned by analysis methods. You do not normally create them yourself. See [Working with Results](results.md) for how to use them.
+
+### Saving a result to a chosen path
+
+Both `MgImage` and `MgFigure` have a `save(target_name)` method that copies the rendered
+result to a path you choose and returns an `MgImage` pointing to it. This is handy for
+collecting outputs into a folder without hunting for the auto-named files next to the source
+video:
+
+```python
+mv = mg.MgVideo('dance.avi')
+
+mv.average().save('out/average.png')        # MgImage.save  → MgImage('out/average.png')
+mv.motiontempo().save('out/tempo.png')      # MgFigure.save → MgImage('out/tempo.png')
+
+# save() returns an MgImage, so it chains straight into show()
+mv.heatmap().save('out/heatmap.png').show()
+```
 
 ---
 

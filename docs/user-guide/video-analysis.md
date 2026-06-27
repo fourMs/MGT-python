@@ -8,6 +8,28 @@ import musicalgestures as mg
 mv = mg.MgVideo('/path/to/video.avi')
 ```
 
+## Which method should I use?
+
+Several methods have overlapping or similar-sounding names. This table disambiguates the most
+commonly confused pairs — one line each:
+
+| Method | Use it when you want… |
+|---|---|
+| `average()` | a long-exposure mean of all frames — it is a convenience alias for `blend(component_mode='average')`. |
+| `blend()` | to composite all frames with a chosen mode (`'average'`, `'lighten'`, `'darken'`, …). |
+| `history()` | a **video** where each frame carries a trail of overlaid past frames. |
+| `motionhistory()` | a single **Motion History Image** — one image where brightness encodes *when* motion last happened (recency). |
+| `motion().average()` / `heatmap()` | a single motion-**density** image — *where and how much* motion happened (order-independent). |
+| `motiongrams()` | how **motion** (frame differences) is distributed in space over time. |
+| `videograms()` | how the **raw pixel intensity** (the whole scene, not motion) is distributed in space over time. |
+| `ssm()` on `MgVideo` | self-similarity from **visual** features (`features='motiongrams'`/`'videograms'`). |
+| `ssm()` on `MgAudio` | self-similarity from **audio** features (`features='spectrogram'`/`'chromagram'`/`'tempogram'`). |
+| `pose_waterfall()` | pose **markers** flowing through `(x, time, y)` space (needs pose data). |
+| `silhouette_waterfall()` | the **silhouette** profile cascading over a time axis (no pose needed). |
+| `motiontempo()` | the dominant **movement** tempo (from the quantity-of-motion signal). |
+| audio `tempo()` / `tempogram()` | the **audio** tempo / rhythmic periodicity. |
+| `tempo_similarity()` | to **compare** movement tempo against audio tempo. |
+
 ## AVI conversion (`convert`)
 
 Most analysis methods stream frames straight through FFmpeg and run on any container, including MP4 — e.g. `motion()`, `motiongrams()`, `average()`/`blend()`, `videograms()`, `heatmap()`, `eulerian()`, `motiontempo()`, `sonomotiongram()`, `grid()`, `subtract()`, and `history()`.
