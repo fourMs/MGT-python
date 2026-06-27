@@ -40,7 +40,7 @@ def _movement_qom(self):
     return np.asarray(qom, dtype=float), fps
 
 
-def mg_beat_statistics(self, source='audio', n_bins=32, cmap='YlOrRd', dpi=300,
+def mg_beat_statistics(self, source='motion', n_bins=32, cmap='YlOrRd', dpi=300,
                        autoshow=True, title=None, target_name=None, overwrite=True,
                        fmin=0.2, fmax=8.0):
     """
@@ -52,9 +52,9 @@ def mg_beat_statistics(self, source='audio', n_bins=32, cmap='YlOrRd', dpi=300,
     steady. Requires at least four detected beats.
 
     Args:
-        source (str, optional): `'audio'` (default) analyses the audio track (same as
-            `MgAudio.beat_statistics`); `'motion'` detects rhythmic onsets in the video's
-            quantity of motion and analyses the **movement** rhythm.
+        source (str, optional): `'motion'` (default) detects rhythmic onsets in the video's
+            quantity of motion and analyses the **movement** rhythm; `'audio'` analyses the
+            audio track instead (same as `MgAudio.beat_statistics` / `video.audio.beat_statistics`).
         n_bins (int, optional): Bins in the polar phase histogram. Defaults to 32.
         cmap (str, optional): Colormap for the polar histogram. Defaults to 'YlOrRd'.
         dpi (int, optional): Output DPI. Defaults to 300.
