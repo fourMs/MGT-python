@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.6.2**.
+The current stable release is **MGT-python 1.6.3**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,12 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.6.3
+
+- Faster `import musicalgestures` (~1.5s → ~0.7s) via lazy-loaded heavy dependencies.
+- Pose model weights now download via `urllib` (removed the bundled 3.8 MB `wget.exe`).
+- Internal: shared `resolve_filename()` output-path helper and new regression tests (353 → 371).
 
 ### 1.6.2
 
