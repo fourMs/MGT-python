@@ -100,7 +100,7 @@ def _pose_canvas_and_colors(frame, overlay, background):
 
 def pose(
         self,
-        model='body_25',
+        model='mediapipe',
         device='gpu',
         threshold=0.1,
         downsampling_factor=2,
@@ -140,10 +140,12 @@ def pose(
       switches to the MediaPipe backend (when installed) for GPU acceleration.
 
     Args:
-        model (str, optional): Pose model to use. ``'mediapipe'`` uses MediaPipe Pose (33
-            landmarks, model auto-downloaded on first use). ``'body_25'`` loads the OpenPose BODY_25 model
-            (25 keypoints), ``'mpi'`` loads the MPII model (15 keypoints), ``'coco'`` loads
-            the COCO model (18 keypoints). Defaults to 'body_25'.
+        model (str, optional): Pose model to use. ``'mediapipe'`` (default) uses MediaPipe Pose (33
+            landmarks with depth + visibility, model auto-downloaded on first use); it is fast on plain
+            CPU, needs no CUDA build, and is best for single-person analysis. ``'body_25'`` loads the
+            OpenPose BODY_25 model (25 keypoints), ``'mpi'`` loads the MPII model (15 keypoints),
+            ``'coco'`` loads the COCO model (18 keypoints). The OpenPose models support multi-person
+            scenes but are slow without a CUDA-enabled OpenCV build. Defaults to 'mediapipe'.
         device (str, optional): Compute backend ('cpu' or 'gpu'). For OpenPose models this
             selects the OpenCV DNN backend (GPU needs a CUDA-enabled OpenCV). For MediaPipe
             it selects the inference delegate (GPU delegate with CPU fallback). Defaults to 'gpu'.
