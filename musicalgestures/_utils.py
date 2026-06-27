@@ -1793,6 +1793,7 @@ def get_cuda_device_count():
              module is unavailable or no devices are detected.
     """
     try:
+        import cv2
         return cv2.cuda.getCudaEnabledDeviceCount()
     except Exception:
         return 0
@@ -1806,6 +1807,7 @@ def cuda_build_available():
         bool: True if OpenCV's build information reports CUDA support, else False.
     """
     try:
+        import cv2
         info = cv2.getBuildInformation()
     except Exception:
         return False
