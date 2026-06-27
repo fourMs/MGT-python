@@ -56,6 +56,7 @@ v.pose(model='mediapipe').show()
 
 ### Runtime Notes
 
+- `import musicalgestures` is fast: heavy dependencies are lazy-loaded, so the relevant backends load on first use rather than at import time.
 - `ffmpeg` is required for video I/O and preprocessing.
 - `pose()` defaults to the MediaPipe backend and downloads its weights on first use if they are missing; the OpenPose models (`'body_25'`/`'coco'`/`'mpi'`) download their larger Caffe weights on first use instead.
 - In notebooks and other non-interactive runs, missing pose weights are downloaded automatically when possible.
@@ -78,8 +79,8 @@ v.pose(model='mediapipe').show()
 
 ## Features
 
-- **Video Analysis**: Motion detection, optical flow, motion vectors, movement tempo, Eulerian Video Magnification
-- **Pose Estimation**: MediaPipe (default; fast on plain CPU, GPU-capable) and OpenPose (multi-person) backends, with average-pose and trajectory summaries (per-marker quantity of motion + dominant frequency), optional marker motion trails, a 3D pose waterfall, and per-segment circular statistics (`pose_segments()`)
+- **Video Analysis**: Motion detection, optical flow, motion vectors, movement tempo, Eulerian Video Magnification, frame-rate/speed resampling (`resample()`)
+- **Pose Estimation**: MediaPipe (default; fast on plain CPU, GPU-capable) and OpenPose (multi-person) backends, with average-pose and trajectory summaries (per-marker quantity of motion + dominant frequency), optional marker motion trails, a 3D pose waterfall (`pose_waterfall()`), per-segment circular statistics (`pose_segments()`), centroid centring (`pose_center()`), and per-marker distance travelled (`pose_distance()`)
 - **Audio–movement analysis**: Compare a single performer's sound and motion — tempo similarity, phase synchrony, structural similarity, per-body-part audio coupling, and loudness/dynamics coupling
 - **Audio Processing**: Waveforms, spectrograms, MFCC, chromagrams, tempo/beat tracking, spectral descriptors
 - **Visualizations**: Motiongrams, videograms, motion history, heatmaps, sonomotiongrams (motion → sound)

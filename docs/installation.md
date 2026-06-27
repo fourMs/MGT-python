@@ -107,6 +107,9 @@ specially-built OpenCV. Install only what you need:
   `body_25` backend. This uses the always-present OpenCV DNN module and auto-downloads
   ~200 MB of Caffe weights on first use — so pose estimation works either way.
 
+Pose model weights are downloaded automatically on first use via Python's `urllib`
+(cross-platform, no `wget` or platform-specific download scripts) — nothing extra to install.
+
 ### C3D export
 
 `pose(data_format='c3d')` writes a `.c3d` motion-capture file and needs the optional
@@ -284,10 +287,12 @@ Consider installing additional optimized libraries:
 ```bash
 # For faster NumPy operations
 pip install mkl
-
-# For GPU acceleration (if available)
-pip install opencv-contrib-python
 ```
+
+> **GPU acceleration** is *not* provided by the PyPI `opencv-python`/`opencv-contrib-python`
+> wheels — they are CPU-only. The CUDA-accelerated paths (`flow.dense(use_gpu=True)`,
+> `flow.sparse(use_gpu=True)`, `blur_faces(use_gpu=True)`, OpenPose `device='gpu'`) require an
+> OpenCV **built from source with CUDA**. See [GPU / CUDA acceleration](#gpu--cuda-acceleration).
 
 ### Memory Management
 For processing large videos, ensure adequate RAM and consider:

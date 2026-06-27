@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Faster import**: `import musicalgestures` dropped from ~1.5s to ~0.7s by lazy-loading heavy
+  dependencies (`scipy.signal`, `scipy.stats`, `IPython.display`) that are only needed by specific
+  methods.
+- **Pose model download** now uses Python's `urllib` instead of a bundled Windows `wget.exe` and
+  platform-specific shell scripts — removes the 3.8 MB binary from the wheel and is fully
+  cross-platform.
+
+### Internal
+- Added a `resolve_filename()` helper that centralises the `target_name`/`overwrite` output-path
+  logic (the pattern whose copy-paste variants caused the earlier `grid()`/`blend()` bugs); adopted
+  it across the single-output video methods and all `MgAudio` methods.
+- Added regression tests for the audio–movement suite, `resample()`, the pose renderers, and the
+  core-class conveniences (353 → 371 tests).
+
 ---
 
 ## [1.6.2] – 2026-06-27
