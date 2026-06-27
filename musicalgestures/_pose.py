@@ -117,6 +117,7 @@ def pose(
         save_average_pose=True,
         save_trajectories=True,
         transparent_trajectories=None,
+        trajectory_background=None,
         trajectory_labels=False,
         target_name_video=None,
         target_name_data=None,
@@ -195,6 +196,10 @@ def pose(
             trajectory across the whole video. Defaults to True.
         trajectory_labels (bool, optional): Whether to annotate the trajectories image with each
             marker's name. Defaults to False (cleaner image).
+        trajectory_background (str, optional): Background of the trajectories PNG: ``'black'``,
+            ``'white'``, or ``'transparent'`` (for overlaying on the video). Defaults to None
+            ("auto"): transparent when the trajectories image is the only one exported, else black.
+            Takes precedence over the legacy ``transparent_trajectories`` flag.
         target_name_data (str, optional): Target output name for the data. Defaults to None (which
             assumes that the input filename with the suffix "_pose" should be used).
         target_name_average (str, optional): Target output name for the average-pose image. Defaults
@@ -260,7 +265,8 @@ def pose(
             self, style=style, overlay=overlay, background=background,
             save_data=save_data, data_format=data_format, save_video=save_video,
             save_average_pose=save_average_pose, save_trajectories=save_trajectories,
-            transparent_trajectories=transparent_trajectories, trajectory_labels=trajectory_labels,
+            transparent_trajectories=transparent_trajectories,
+            trajectory_background=trajectory_background, trajectory_labels=trajectory_labels,
             marker_history=marker_history,
             target_name_video=target_name_video, target_name_data=target_name_data,
             target_name_average=target_name_average, target_name_trajectories=target_name_trajectories,
@@ -283,6 +289,7 @@ def pose(
             save_average_pose=save_average_pose,
             save_trajectories=save_trajectories,
             transparent_trajectories=transparent_trajectories,
+            trajectory_background=trajectory_background,
             trajectory_labels=trajectory_labels,
             target_name_video=target_name_video,
             target_name_data=target_name_data,
@@ -366,6 +373,9 @@ def pose(
         net.setPreferableBackend(cv2.dnn.DNN_TARGET_CPU)
 
     of, fex = os.path.splitext(self.filename)
+    # Write the result in the original container so we don't produce an .avi that then has
+    # to be converted to .mp4; the AVI is only an intermediate for frame-accurate decoding.
+    output_fex = fex
 
     if convert and fex.lower() != '.avi':
         # first check if there already is a converted version, if not create one and register it to the parent self
@@ -387,10 +397,9 @@ def pose(
 
     if save_video:
         if target_name_video is None:
-            target_name_video = of + '_pose' + fex
-        # if a target name was given we still enforce the .avi container anyway
+            target_name_video = of + '_pose' + output_fex
         else:
-            target_name_video = os.path.splitext(target_name_video)[0] + fex
+            target_name_video = os.path.splitext(target_name_video)[0] + output_fex
         if not overwrite:
             target_name_video = generate_outfilename(target_name_video)
             
@@ -635,7 +644,8 @@ def pose(
         'model': model.lower(), 'threshold': threshold, 'downsampling_factor': downsampling_factor,
         'names': names, 'connections': POSE_PAIRS, 'data': data,
         'width': self.width, 'height': self.height, 'fps': self.fps,
-        'filename': filename, 'of': of, 'fex': fex, 'has_audio': self.has_audio,
+        'filename': filename, 'of': of, 'fex': fex, 'output_fex': output_fex,
+        'has_audio': self.has_audio,
     }
     avg_frame = (avg_acc / avg_n).astype(np.uint8) if (avg_acc is not None and avg_n > 0) else None
     average_image, trajectories_image = _render_pose_extras(
@@ -643,6 +653,7 @@ def pose(
         avg_frame, of, save_average_pose, save_trajectories,
         target_name_average, target_name_trajectories, overwrite,
         transparent_trajectories=transparent_trajectories,
+        trajectory_background=trajectory_background,
         trajectory_labels=trajectory_labels, style=style)
     self.pose_average = average_image
     self.pose_trajectories = trajectories_image
@@ -661,7 +672,8 @@ def pose(
 def _render_pose_extras(data, names, connections, width, height, fps, avg_frame, of,
                         save_average_pose, save_trajectories,
                         target_name_average, target_name_trajectories, overwrite,
-                        transparent_trajectories=None, trajectory_labels=False, style='both'):
+                        transparent_trajectories=None, trajectory_background=None,
+                        trajectory_labels=False, style='both'):
     """Render the average-pose and trajectories images from collected keypoints."""
     from musicalgestures._pose_visualize import render_average_pose, render_trajectories
     average_image = None
@@ -674,18 +686,28 @@ def _render_pose_extras(data, names, connections, width, height, fps, avg_frame,
                                             avg_frame, tn, overwrite, style=style)
     if save_trajectories:
         tn = target_name_trajectories if target_name_trajectories else of + '_pose_trajectories.png'
-        # Default: use a transparent background when trajectories are the only image exported,
-        # so they can be overlaid on the video later. Explicit override via transparent_trajectories.
-        transparent = transparent_trajectories if transparent_trajectories is not None else (not save_average_pose)
+        # Resolve the trajectories background. Explicit trajectory_background wins; otherwise
+        # fall back to the legacy transparent_trajectories flag; otherwise auto: transparent
+        # when trajectories are the only image exported (so they can overlay the video later),
+        # else black.
+        if trajectory_background is not None:
+            bg = trajectory_background
+        elif transparent_trajectories is True:
+            bg = 'transparent'
+        elif transparent_trajectories is False:
+            bg = 'black'
+        else:
+            bg = 'transparent' if not save_average_pose else 'black'
         trajectories_image = render_trajectories(data, names, width, height, fps, tn, overwrite,
-                                                 transparent=transparent, labels=trajectory_labels)
+                                                 background=bg, labels=trajectory_labels)
     return average_image, trajectories_image
 
 
 def _rerender_pose_from_cache(self, style='both', overlay=True, background='black',
                               save_data=True, data_format='csv', save_video=True,
                               save_average_pose=True, save_trajectories=True,
-                              transparent_trajectories=None, trajectory_labels=False,
+                              transparent_trajectories=None, trajectory_background=None,
+                              trajectory_labels=False,
                               marker_history=0, target_name_video=None,
                               target_name_data=None, target_name_average=None,
                               target_name_trajectories=None, overwrite=True):
@@ -694,6 +716,7 @@ def _rerender_pose_from_cache(self, style='both', overlay=True, background='blac
     data, names, connections = c['data'], c['names'], c['connections']
     width, height, fps = c['width'], c['height'], c['fps']
     filename, of, fex = c['filename'], c['of'], c['fex']
+    output_fex = c.get('output_fex', fex)
     n_points = len(names)
 
     style = str(style).lower()
@@ -707,9 +730,9 @@ def _rerender_pose_from_cache(self, style='both', overlay=True, background='blac
 
     if save_video:
         if target_name_video is None:
-            target_name_video = of + '_pose' + fex
+            target_name_video = of + '_pose' + output_fex
         else:
-            target_name_video = os.path.splitext(target_name_video)[0] + fex
+            target_name_video = os.path.splitext(target_name_video)[0] + output_fex
         if not overwrite:
             target_name_video = generate_outfilename(target_name_video)
 
@@ -793,6 +816,7 @@ def _rerender_pose_from_cache(self, style='both', overlay=True, background='blac
         data, names, connections, width, height, fps, avg_frame, of,
         save_average_pose, save_trajectories, target_name_average, target_name_trajectories,
         overwrite, transparent_trajectories=transparent_trajectories,
+        trajectory_background=trajectory_background,
         trajectory_labels=trajectory_labels, style=style)
     self.pose_average = average_image
     self.pose_trajectories = trajectories_image
@@ -877,6 +901,7 @@ def _pose_mediapipe(
         save_average_pose=True,
         save_trajectories=True,
         transparent_trajectories=None,
+        trajectory_background=None,
         trajectory_labels=False,
         target_name_video=None,
         target_name_data=None,
@@ -899,6 +924,9 @@ def _pose_mediapipe(
         background = 'black'
 
     of, fex = os.path.splitext(self.filename)
+    # Write the result in the original container (no avi→mp4 round-trip); any AVI is only an
+    # intermediate for frame-accurate decoding.
+    output_fex = fex
 
     if convert and fex.lower() != '.avi':
         if "as_avi" not in self.__dict__.keys():
@@ -913,9 +941,9 @@ def _pose_mediapipe(
 
     if save_video:
         if target_name_video is None:
-            target_name_video = of + '_pose' + fex
+            target_name_video = of + '_pose' + output_fex
         else:
-            target_name_video = os.path.splitext(target_name_video)[0] + fex
+            target_name_video = os.path.splitext(target_name_video)[0] + output_fex
         if not overwrite:
             target_name_video = generate_outfilename(target_name_video)
 
@@ -1037,7 +1065,8 @@ def _pose_mediapipe(
         'model': 'mediapipe', 'threshold': threshold, 'downsampling_factor': None,
         'names': names, 'connections': MEDIAPIPE_POSE_CONNECTIONS, 'data': data,
         'width': self.width, 'height': self.height, 'fps': self.fps,
-        'filename': filename, 'of': of, 'fex': fex, 'has_audio': self.has_audio,
+        'filename': filename, 'of': of, 'fex': fex, 'output_fex': output_fex,
+        'has_audio': self.has_audio,
     }
     avg_frame = (avg_acc / avg_n).astype(np.uint8) if (avg_acc is not None and avg_n > 0) else None
     average_image, trajectories_image = _render_pose_extras(
@@ -1045,6 +1074,7 @@ def _pose_mediapipe(
         avg_frame, of, save_average_pose, save_trajectories,
         target_name_average, target_name_trajectories, overwrite,
         transparent_trajectories=transparent_trajectories,
+        trajectory_background=trajectory_background,
         trajectory_labels=trajectory_labels, style=style)
     self.pose_average = average_image
     self.pose_trajectories = trajectories_image

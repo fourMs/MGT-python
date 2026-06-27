@@ -196,14 +196,14 @@ def render_average_pose(data, names, connections, width, height, fps, avg_frame,
 
 
 def render_trajectories(data, names, width, height, fps, target_name, overwrite=True,
-                        transparent=False, labels=False):
+                        background='black', labels=False):
     """
     Render every marker's spatial trajectory across the whole video.
 
-    When ``transparent`` is True the background is left transparent, so the PNG can be
-    overlaid on the original video later. Set ``labels=True`` to annotate each trajectory
-    with its marker name (off by default). Returns an MgImage, or None if there are too few
-    frames.
+    ``background`` chooses the PNG background: ``'black'`` (default), ``'white'``, or
+    ``'transparent'`` (so the PNG can be overlaid on the original video later). Set
+    ``labels=True`` to annotate each trajectory with its marker name (off by default).
+    Returns an MgImage, or None if there are too few frames.
     """
     n_points = len(names)
     coords, times = _positions_from_data(data, n_points)
@@ -217,6 +217,11 @@ def render_trajectories(data, names, width, height, fps, target_name, overwrite=
     if not overwrite:
         target_name = generate_outfilename(target_name)
 
+    bg = str(background).lower()
+    if bg not in ('black', 'white', 'transparent'):
+        bg = 'black'
+    transparent = bg == 'transparent'
+
     cmap = matplotlib.colormaps['hsv']
     aspect = width / height
     fig_h = 9
@@ -225,8 +230,8 @@ def render_trajectories(data, names, width, height, fps, target_name, overwrite=
         fig.patch.set_alpha(0.0)
         ax.patch.set_alpha(0.0)
     else:
-        fig.patch.set_facecolor('white')
-        ax.set_facecolor('#0f0f0f')
+        fig.patch.set_facecolor(bg)
+        ax.set_facecolor(bg)
 
     for i in range(n_points):
         path = px[:, i, :]
@@ -238,7 +243,7 @@ def render_trajectories(data, names, width, height, fps, target_name, overwrite=
             mean_xy = np.nanmean(path, axis=0)
             if not np.isnan(mean_xy).any():
                 # On a transparent background, don't paint an opaque label box over the (future) video
-                label_bg = 'none' if transparent else 'black'
+                label_bg = 'none' if transparent else bg
                 ax.text(mean_xy[0], mean_xy[1], names[i], color=color, fontsize=6,
                         ha='center', va='center', zorder=3,
                         bbox=dict(boxstyle='round,pad=0.12', facecolor=label_bg, edgecolor=color, alpha=0.7))
@@ -246,12 +251,10 @@ def render_trajectories(data, names, width, height, fps, target_name, overwrite=
     ax.set_xlim(0, width)
     ax.set_ylim(height, 0)
     ax.set_aspect('equal')
-    if not transparent:
-        ax.set_title('Marker trajectories over the whole video', fontsize=10)
     ax.axis('off')
     fig.tight_layout()
     fig.savefig(target_name, transparent=transparent,
-                facecolor=(None if transparent else 'white'), bbox_inches='tight')
+                facecolor=(None if transparent else bg), bbox_inches='tight')
     plt.close(fig)
 
     return MgImage(target_name)
@@ -346,7 +349,6 @@ def render_pose_waterfall(data, names, width, height, fps, target_name, overwrit
     ax.set_xlabel('Horizontal position (px)')
     ax.set_ylabel('Time (s)')
     ax.set_zlabel('Vertical position (px)')
-    ax.set_title('Pose spatio-temporal waterfall')
     ax.view_init(elev=elev, azim=azim)
     fig.tight_layout()
     fig.savefig(target_name, facecolor='white')
