@@ -187,6 +187,10 @@ motionssm[0].show()     # horizontal SSM
 motionssm[1].show()     # vertical SSM
 mv.show(key='ssm')
 
+# both axes of motion in a single SSM (returns one MgImage)
+combined = mv.ssm(features='motiongrams', combine=True)
+combined.show()
+
 videossm = mv.ssm(features='videograms')
 chromassm = mv.ssm(features='chromagram', cmap='magma', norm=2)
 spectrossm = mv.ssm(features='spectrogram')
