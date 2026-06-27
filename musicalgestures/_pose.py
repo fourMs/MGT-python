@@ -790,6 +790,56 @@ def _rerender_pose_from_cache(self, style='both', overlay=True, background='blac
     return self
 
 
+def mg_pose_waterfall(self, markers=None, color_by='marker', cmap='hsv', dpi=200,
+                      elev=20, azim=-60, lw=1.0, target_name=None, overwrite=False, **pose_kwargs):
+    """
+    Render a 3D spatio-temporal waterfall of the pose markers.
+
+    Each marker's trajectory flows through (x, time, y) space, cascading along the time axis —
+    a pose-based counterpart to ``silhouette_waterfall()``. Uses cached pose keypoints from a
+    previous ``pose()`` call when available; otherwise it runs pose estimation first (extra
+    keyword arguments such as ``model``/``device``/``downsampling_factor`` are forwarded to
+    ``pose()``).
+
+    Args:
+        markers (list, optional): Subset of marker names or indices to draw. Defaults to all.
+        color_by (str, optional): ``'marker'`` (one colour per marker) or ``'time'`` (colour
+            follows time along each path). Defaults to 'marker'.
+        cmap (str, optional): Matplotlib colormap. Defaults to 'hsv'.
+        dpi (int, optional): Output DPI. Defaults to 200.
+        elev (float, optional): 3D elevation angle. Defaults to 20.
+        azim (float, optional): 3D azimuth angle. Defaults to -60.
+        lw (float, optional): Trajectory line width. Defaults to 1.0.
+        target_name (str, optional): Output name. Defaults to None ("_pose_waterfall.png").
+        overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to False.
+        **pose_kwargs: Forwarded to ``pose()`` if keypoints have to be computed.
+
+    Returns:
+        MgFigure: the 3D waterfall figure, or None if there are too few frames.
+    """
+    from musicalgestures._pose_visualize import render_pose_waterfall
+
+    if getattr(self, '_pose_keypoints', None) is None:
+        # Compute keypoints without writing the pose video; this populates self._pose_keypoints.
+        pose_kwargs.setdefault('save_video', False)
+        pose_kwargs.setdefault('save_average_pose', False)
+        pose_kwargs.setdefault('save_trajectories', False)
+        self.pose(**pose_kwargs)
+
+    c = self._pose_keypoints
+    if target_name is None:
+        target_name = c['of'] + '_pose_waterfall.png'
+    else:
+        target_name = os.path.splitext(target_name)[0] + '.png'
+
+    mgf = render_pose_waterfall(
+        c['data'], c['names'], c['width'], c['height'], c['fps'], target_name,
+        overwrite=overwrite, markers=markers, color_by=color_by, cmap=cmap,
+        dpi=dpi, elev=elev, azim=azim, lw=lw)
+    self.pose_waterfall_figure = mgf
+    return mgf
+
+
 def _mediapipe_available():
     """Returns True if the optional ``mediapipe`` package can be imported."""
     import importlib.util

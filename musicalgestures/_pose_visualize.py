@@ -255,3 +255,103 @@ def render_trajectories(data, names, width, height, fps, target_name, overwrite=
     plt.close(fig)
 
     return MgImage(target_name)
+
+
+def render_pose_waterfall(data, names, width, height, fps, target_name, overwrite=False,
+                          markers=None, color_by='marker', cmap='hsv', dpi=200,
+                          elev=20, azim=-60, lw=1.0):
+    """
+    Render a 3D spatio-temporal waterfall of the pose markers.
+
+    Every marker's trajectory is drawn as a line flowing through (x, time, y) space, so the
+    body's movement "cascades" along the time (depth) axis — a pose-based counterpart to
+    ``silhouette_waterfall()``.
+
+    Args:
+        data (list): Collected pose rows ``[time_ms, x0, y0, x1, y1, ...]`` (normalised coords).
+        names (list): Marker names (length n_points).
+        width, height (int): Frame size in pixels (used to scale normalised coords).
+        fps (float): Frames per second (for the time axis).
+        target_name (str): Output PNG path.
+        overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to False.
+        markers (list, optional): Subset of marker names or indices to draw. Defaults to all.
+        color_by (str, optional): ``'marker'`` (one colour per marker) or ``'time'`` (colour
+            follows time along each path). Defaults to 'marker'.
+        cmap (str, optional): Matplotlib colormap. Defaults to 'hsv'.
+        dpi (int, optional): Output DPI. Defaults to 200.
+        elev (float, optional): 3D elevation angle. Defaults to 20.
+        azim (float, optional): 3D azimuth angle. Defaults to -60.
+        lw (float, optional): Trajectory line width. Defaults to 1.0.
+
+    Returns:
+        MgFigure: the 3D waterfall figure (``.data`` holds the trajectories), or None if there
+        are too few frames.
+    """
+    from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 (registers 3d projection)
+    from mpl_toolkits.mplot3d.art3d import Line3DCollection
+    from musicalgestures._utils import MgFigure
+
+    n_points = len(names)
+    coords, times = _positions_from_data(data, n_points)
+    if coords.shape[0] < 2:
+        return None
+
+    px = coords * np.array([width, height])   # (T, n, 2) in pixels
+
+    # Resolve which markers to draw
+    if markers is None:
+        idx = list(range(n_points))
+    else:
+        idx = []
+        for m in markers:
+            if isinstance(m, str):
+                if m in names:
+                    idx.append(names.index(m))
+            elif 0 <= int(m) < n_points:
+                idx.append(int(m))
+
+    if target_name is None:
+        target_name = '_pose_waterfall.png'
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
+
+    cmap_obj = matplotlib.colormaps[cmap]
+    fig = plt.figure(figsize=(10, 8), dpi=dpi)
+    ax = fig.add_subplot(111, projection='3d')
+    fig.patch.set_facecolor('white')
+
+    tmin, tmax = float(times.min()), float(times.max())
+    for k, i in enumerate(idx):
+        path = px[:, i, :]
+        valid = ~np.isnan(path).any(axis=1)
+        if valid.sum() < 2:
+            continue
+        x = path[valid, 0]
+        z = height - path[valid, 1]      # invert so up is up
+        t = times[valid]
+        if color_by == 'time':
+            # Per-segment colouring along the path by time
+            pts = np.column_stack([x, t, z]).reshape(-1, 1, 3)
+            segs = np.concatenate([pts[:-1], pts[1:]], axis=1)
+            norm = (t[:-1] - tmin) / max(tmax - tmin, 1e-9)
+            lc = Line3DCollection(segs, colors=cmap_obj(norm), linewidths=lw, alpha=0.8)
+            ax.add_collection3d(lc)
+        else:
+            color = cmap_obj(k / max(len(idx) - 1, 1))
+            ax.plot(x, t, z, color=color, lw=lw, alpha=0.8)
+
+    ax.set_xlim(0, width)
+    ax.set_ylim(tmin, tmax)
+    ax.set_zlim(0, height)
+    ax.set_xlabel('Horizontal position (px)')
+    ax.set_ylabel('Time (s)')
+    ax.set_zlabel('Vertical position (px)')
+    ax.set_title('Pose spatio-temporal waterfall')
+    ax.view_init(elev=elev, azim=azim)
+    fig.tight_layout()
+    fig.savefig(target_name, facecolor='white')
+    plt.close(fig)
+
+    fig_data = {'coords': coords, 'times': times, 'names': names, 'markers': idx, 'fps': fps}
+    return MgFigure(figure=fig, figure_type='video.pose_waterfall', data=fig_data,
+                    layers=None, image=target_name)
