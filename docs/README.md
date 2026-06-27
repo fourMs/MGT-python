@@ -45,14 +45,14 @@ v.audio.waveform()
 v.audio.spectrogram()
 v.audio.tempogram()
 
-# Pose estimation
-v.pose(model='body_25', device='cpu')
+# Pose estimation (MediaPipe by default — fast on plain CPU, no CUDA build needed)
+v.pose()
 ```
 
 ### Runtime Notes
 
 - `ffmpeg` is required for video I/O and preprocessing.
-- `pose()` downloads OpenPose weights on first use if they are missing.
+- `pose()` defaults to the MediaPipe backend and downloads its weights on first use if they are missing; the OpenPose models (`'body_25'`/`'coco'`/`'mpi'`) download their (larger) Caffe weights on first use instead.
 - In notebooks and other non-interactive runs, missing pose weights are downloaded automatically when possible.
 - If `device='gpu'` is requested but OpenCV CUDA support is unavailable, `pose()` falls back to CPU execution.
 - `flow.dense()`, `flow.sparse()`, and `blur_faces()` use CPU by default (`use_gpu=False`). Set `use_gpu=True` to opt into CUDA acceleration with automatic CPU fallback.

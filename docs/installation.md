@@ -199,7 +199,7 @@ pip install jupyter ipywidgets
 
 #### 5. Pose estimation in notebooks
 
-The `pose()` workflow may download OpenPose weights on first use. In non-interactive environments such as notebooks, the download is attempted automatically rather than prompting for input. If CUDA-backed OpenCV DNN support is unavailable, pose estimation falls back to CPU execution.
+The `pose()` workflow downloads its model weights on first use — MediaPipe weights for the default backend, or the larger OpenPose Caffe weights when an OpenPose model (`'body_25'`/`'coco'`/`'mpi'`) is selected. In non-interactive environments such as notebooks, the download is attempted automatically rather than prompting for input. If CUDA-backed OpenCV DNN support is unavailable, OpenPose models fall back to CPU execution (MediaPipe runs on plain CPU regardless).
 
 ### Getting Help
 

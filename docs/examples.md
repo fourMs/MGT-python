@@ -122,11 +122,16 @@ import musicalgestures as mg
 
 mv = mg.MgVideo(mg.examples.dance)
 
-# Pose estimation — downloads model weights on first use
-# device='gpu' falls back to CPU if CUDA is unavailable
+# Pose estimation — defaults to the MediaPipe backend (33 landmarks, fast on
+# plain CPU, no CUDA-enabled OpenCV build required). Downloads model weights on
+# first use; device='gpu' falls back to CPU if unavailable.
 try:
-    pose_video = mv.pose(model='coco', device='cpu', downsampling_factor=4)
+    pose_video = mv.pose()
     pose_video.show()
+
+    # OpenPose models ('body_25', 'coco', 'mpi') support multi-person analysis
+    # but are slow without a CUDA-enabled OpenCV build:
+    pose_video = mv.pose(model='coco', device='cpu', downsampling_factor=4)
 except Exception as e:
     print(f"Pose estimation failed: {e}")
 ```

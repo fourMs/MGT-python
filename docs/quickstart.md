@@ -144,12 +144,17 @@ print(f"Descriptors: {descriptors}")
 ```python
 mv = mg.MgVideo(examples.dance)
 
-# Explicit GPU request with CPU fallback when CUDA is unavailable.
-pose_video = mv.pose(model='mpi', device='gpu', downsampling_factor=2)
+# pose() defaults to the MediaPipe backend: fast on plain CPU, no CUDA-enabled
+# OpenCV build needed, 33 landmarks with depth + visibility (best for one person).
+pose_video = mv.pose()
 pose_video.show(mode='notebook')
+
+# OpenPose models ('body_25', 'coco', 'mpi') support multi-person analysis but are
+# slow without a CUDA-enabled OpenCV build:
+pose_video = mv.pose(model='mpi', device='gpu', downsampling_factor=2)
 ```
 
-On first use, pose estimation downloads the requested model weights if they are not already present.
+On first use, pose estimation downloads the requested model weights if they are not already present (MediaPipe weights by default).
 
 ### 5. Optional GPU Acceleration
 

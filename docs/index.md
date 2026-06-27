@@ -47,7 +47,7 @@ MGT-python provides researchers, artists, and developers with powerful tools to:
 
 - Video format conversion
 - Batch processing capabilities
-- Integration with OpenPose for pose estimation
+- Pose estimation with MediaPipe (default) and OpenPose backends
 - Export functionality for further analysis
 
 ## Quick Start
@@ -93,7 +93,7 @@ spectrogram = audio.spectrogram()
 
 ## Runtime Behavior
 
-- `pose()` downloads missing OpenPose model weights on demand.
+- `pose()` defaults to the MediaPipe backend and downloads its weights on demand; the OpenPose models download their larger Caffe weights on first use instead.
 - In notebook and batch execution, pose weight downloads are attempted automatically instead of prompting for stdin.
 - If CUDA-backed OpenCV DNN support is unavailable, `pose(device='gpu')` falls back to CPU.
 - `flow.dense()`, `flow.sparse()`, and `blur_faces()` run on CPU by default (`use_gpu=False`); pass `use_gpu=True` to attempt CUDA acceleration with automatic CPU fallback.

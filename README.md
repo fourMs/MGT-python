@@ -57,7 +57,7 @@ v.pose(model='mediapipe').show()
 ### Runtime Notes
 
 - `ffmpeg` is required for video I/O and preprocessing.
-- `pose()` downloads OpenPose weights on first use if they are missing.
+- `pose()` defaults to the MediaPipe backend and downloads its weights on first use if they are missing; the OpenPose models (`'body_25'`/`'coco'`/`'mpi'`) download their larger Caffe weights on first use instead.
 - In notebooks and other non-interactive runs, missing pose weights are downloaded automatically when possible.
 - If `device='gpu'` is requested but OpenCV CUDA support is unavailable, `pose()` falls back to CPU execution.
 - `flow.dense()`, `flow.sparse()`, and `blur_faces()` use CPU by default (`use_gpu=False`). Set `use_gpu=True` to opt into CUDA acceleration with automatic CPU fallback.
@@ -79,7 +79,7 @@ v.pose(model='mediapipe').show()
 ## Features
 
 - **Video Analysis**: Motion detection, optical flow, motion vectors, movement tempo, Eulerian Video Magnification
-- **Pose Estimation**: MediaPipe (GPU-capable) and OpenPose backends, with average-pose and trajectory summaries (per-marker quantity of motion + dominant frequency)
+- **Pose Estimation**: MediaPipe (default; fast on plain CPU, GPU-capable) and OpenPose (multi-person) backends, with average-pose and trajectory summaries (per-marker quantity of motion + dominant frequency), optional marker motion trails, and a 3D pose waterfall
 - **Audio Processing**: Waveforms, spectrograms, MFCC, chromagrams, tempo/beat tracking, spectral descriptors
 - **Visualizations**: Motiongrams, videograms, motion history, heatmaps, sonomotiongrams (motion → sound)
 - **Space-time displays**: Stroboscope (chronophotography), silhouette waterfall, Motion History Image, 3D space-time volume, combined motion SSM

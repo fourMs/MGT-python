@@ -18,7 +18,7 @@ If your MP4 decodes reliably and you want to skip that conversion (faster, no ex
 
 ```python
 mv = mg.MgVideo('clip.mp4')
-mv.pose(model='mediapipe', convert=False)     # read the mp4 directly
+mv.pose(convert=False)                        # read the mp4 directly
 mv.flow.dense(convert=False)
 mv.directograms(convert=False)
 ```
@@ -135,7 +135,10 @@ mv.stroboscope(n_samples=10, threshold=0.15, keep_largest=True).show()
 
 **Motion History Image controls.** `motionhistory()` decays old motion over a window so it
 doesn't accumulate and blow out: `decay` (fraction of the clip a mark persists; smaller = shorter
-trails), `threshold` (motion sensitivity), `blur` (speckle suppression), and `normalize`:
+trails), `threshold` (motion sensitivity), `blur` (speckle suppression), and `normalize`.
+`normalize` now defaults to `False` — the MHI is already built in `[0, 1]`, and normalising rarely
+helps; when the final frames are static it amplified faint residual trails and over-brightened the
+image. (It is also guarded to skip when peak intensity is very low.) Set `normalize=True` to opt in:
 
 ```python
 mv.motionhistory(threshold=0.08, decay=0.2, blur=1).show()
@@ -341,28 +344,32 @@ motion_average.show()
 
 `pose()` runs skeleton estimation on each frame, with two backends:
 
-- **MediaPipe** (`model='mediapipe'`): Google MediaPipe Pose, 33 landmarks. Model auto-downloads (~8–28 MB). Supports GPU via MediaPipe's own delegate, independent of OpenCV's CUDA build — so it works on the standard pip OpenCV.
-- **OpenPose** (`model='body_25'`/`'coco'`/`'mpi'`): Caffe models (~200 MB on first use). GPU here needs an OpenCV compiled with CUDA.
+- **MediaPipe** (`model='mediapipe'`, the **default**): Google MediaPipe Pose, 33 landmarks with depth and visibility. Fast on plain CPU, needs no CUDA-enabled OpenCV build, and works on the standard pip OpenCV (with optional GPU via MediaPipe's own delegate). Best for single-person analysis. Model weights auto-download (~8–28 MB) on first use.
+- **OpenPose** (`model='body_25'`/`'coco'`/`'mpi'`): Caffe models (~200 MB on first use). Support multi-person analysis, but are slow without an OpenCV compiled with CUDA.
 
 ```python
-pose = mv.pose(model='mediapipe', device='gpu')                 # recommended; GPU-capable
-pose = mv.pose(model='coco', device='cpu', downsampling_factor=4)
+pose = mv.pose()                                                # MediaPipe by default
+pose = mv.pose(device='gpu')                                    # MediaPipe with GPU delegate
+pose = mv.pose(model='coco', device='cpu', downsampling_factor=4)   # OpenPose, multi-person
 pose = mv.pose(model='body_25', device='gpu', threshold=0.1)
 pose.show()
 mv.show(key='pose')
 
 # draw only the markers on a black background (no video underneath)
-pose = mv.pose(model='mediapipe', style='markers', overlay=False)
+pose = mv.pose(style='markers', overlay=False)
 # draw only the skeleton (joint lines) over the video
-pose = mv.pose(model='mediapipe', style='skeleton')
-# markers/skeleton on a white background
-pose = mv.pose(model='mediapipe', overlay=False, background='white')
+pose = mv.pose(style='skeleton')
+# markers/skeleton on a white background (print-friendly: black skeleton + markers)
+pose = mv.pose(overlay=False, background='white')
+# leave a motion trail behind each marker over the last 10 frames
+pose = mv.pose(marker_history=10)
 ```
 
-- `model`: `'mediapipe'`, `'body_25'` (default), `'coco'`, or `'mpi'`
+- `model`: `'mediapipe'` (default), `'body_25'`, `'coco'`, or `'mpi'`
 - `style`: `'both'` (default), `'markers'` (keypoints only), or `'skeleton'` (joint lines only)
 - `overlay`: `True` (draw on the video) or `False` (draw on a plain background)
-- `background`: `'black'` (default) or `'white'` — the background colour when `overlay=False` (colours adapt for contrast)
+- `background`: `'black'` (default) or `'white'` — the background colour when `overlay=False`. `'black'` draws bright colours; `'white'` draws a black skeleton and markers for a print-friendly inverted look.
+- `marker_history`: `0` (default) draws nothing extra; when `> 0`, draws a motion trail for each marker by joining its positions over the last N frames. Works in all render paths.
 - `device`: `'cpu'` or `'gpu'`. For OpenPose models, if `device='gpu'` is requested but OpenCV lacks CUDA, `pose()` automatically switches to the MediaPipe backend (when installed) so the GPU is still used; otherwise it falls back to CPU.
 - `downsampling_factor`: reduces input resolution before inference (OpenPose only); higher is faster but less accurate
 - `threshold`: minimum network confidence to accept a keypoint (normalised 0–1)
@@ -370,29 +377,47 @@ pose = mv.pose(model='mediapipe', overlay=False, background='white')
 - `use_cache`: reuse keypoints from a previous `pose()` run (same model/threshold) to re-render a different `style`/`overlay`/`background` **without re-running inference** — e.g. run `style='markers'` then `style='skeleton'` and the second call is near-instant. Defaults to `True`.
 
 ```python
-mv.pose(model='mediapipe', style='markers')      # runs inference, caches keypoints
-mv.pose(model='mediapipe', style='skeleton')     # reuses cache — no re-inference
-mv.pose(model='mediapipe', data_format=['csv', 'c3d'])   # also write a .c3d mocap file
+mv.pose(style='markers')      # runs inference, caches keypoints
+mv.pose(style='skeleton')     # reuses cache — no re-inference
+mv.pose(data_format=['csv', 'c3d'])   # also write a .c3d mocap file
 ```
 
 `pose()` also renders two summary images of the whole video (disable with `save_average_pose=False` / `save_trajectories=False`), attached to the returned video:
 
 ```python
-pv = mv.pose(model='mediapipe')
+pv = mv.pose()
 pv.average_pose.show()     # markers coloured/labelled by normalised QoM (0–1) + dominant frequency (Hz)
 pv.trajectories.show()     # every marker's spatial path over the whole video
 # a per-marker stats CSV (<name>_pose_average_stats.csv) with normalised QoM and frequency is also saved
 ```
 
-The average-pose labels are automatically laid out so they don't overlap (with thin leader lines back to each marker). When the trajectories image is the **only** one exported, it is rendered on a **transparent background** so you can overlay it on the video afterwards; force it either way with `transparent_trajectories=True/False`:
+The average-pose labels are automatically laid out so they don't overlap (with thin leader lines back to each marker). The marker-trajectories image does **not** show per-marker name labels by default (`trajectory_labels=False`); re-enable them with `trajectory_labels=True`. When the trajectories image is the **only** one exported, it is rendered on a **transparent background** so you can overlay it on the video afterwards; force it either way with `transparent_trajectories=True/False`:
 
 ```python
-mv.pose(model='mediapipe', save_average_pose=False, save_video=False)   # trajectories only → transparent PNG
-mv.pose(model='mediapipe', transparent_trajectories=True)              # force transparent trajectories
+mv.pose(save_average_pose=False, save_video=False)   # trajectories only → transparent PNG
+mv.pose(transparent_trajectories=True)               # force transparent trajectories
+mv.pose(trajectory_labels=True)                      # show marker names on the trajectories image
 ```
 
 !!! tip "GPU acceleration"
     `pose(model='mediapipe', device='gpu')` gives GPU acceleration with the standard pip OpenCV. The OpenCV-based methods (`flow.dense(use_gpu=True)`, `blur_faces(use_gpu=True)`, OpenPose `device='gpu'`) need an OpenCV built with CUDA. Use `mg.cuda_build_available()` to check, and `mg.cuda_unavailable_reason()` for an explanation.
+
+### Pose waterfall
+
+`pose_waterfall()` renders a 3D spatio-temporal waterfall where each pose marker's trajectory flows through `(x, time, y)` space — a pose-based counterpart to `silhouette_waterfall()`. It returns an `MgFigure`. It reuses cached pose keypoints from a prior `pose()` call; otherwise it runs `pose()` first (pose kwargs like `model`/`device` are forwarded).
+
+```python
+wf = mv.pose_waterfall()                       # returns MgFigure
+wf = mv.pose_waterfall(color_by='time')        # colour follows time along each path
+wf = mv.pose_waterfall(markers=['left_wrist', 'right_wrist'], cmap='viridis')
+wf.show()
+```
+
+- `markers`: which markers to plot (default `None` = all)
+- `color_by`: `'marker'` (default, one colour per marker) or `'time'` (colour follows time along each path)
+- `cmap`: matplotlib colormap (`'hsv'` default); `dpi` (default `200`); `lw` line width (default `1.0`)
+- `elev`/`azim`: 3D view angles (defaults `20` / `-60`)
+- plus the usual `target_name`, `overwrite`, and forwarded `**pose_kwargs` (e.g. `model`, `device`)
 
 ---
 
