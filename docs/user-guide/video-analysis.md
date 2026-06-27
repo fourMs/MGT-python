@@ -126,6 +126,30 @@ These complement the motiongram (space×time) and the combined motion SSM (tempo
 the stroboscope and volume show the body moving through space over time, the waterfall shows
 spatial occupancy flowing over time, and the MHI compresses recency of motion into one frame.
 
+### Density vs. recency: `motionhistory()` vs `heatmap()` / `motion().average()`
+
+These single-image summaries look similar but encode different things — the distinction is
+**whether time order matters**:
+
+| Visualisation | Each pixel encodes | Time order |
+|---|---|---|
+| `heatmap()` and `motion().average()` | **how much / how often** motion happened there (motion *density*) | **Order-independent** — reversing or shuffling the frames gives the same image |
+| `motionhistory()` (MHI) | **when** motion last happened there (motion *recency*: recent = bright, old = fades) | **Order-dependent** — reversing the video inverts the image |
+
+Concrete example — a dancer crossing the frame left → right:
+
+- `heatmap()` / `motion().average()` → a uniformly bright band along the whole path (you can't tell which way they went).
+- `motionhistory()` → a **gradient** along the path: dark where they were early, bright where they were recently — so you can read the **direction and progression** of the movement.
+
+In short: use **`heatmap()` / `motion().average()`** for *where and how much* motion (a long-exposure of motion intensity); use **`motionhistory()`** for *where and when* (a recency map that captures the arrow of time).
+
+Related but different: `motion().history()` (or `mv.show(key='motionhistory')`) is a **video** where each frame
+carries a short motion *trail* of the last N frames (a weighted moving average), rather than a single
+whole-clip summary image.
+
+> Note: `motion()` applies your `threshold`/`filtertype` when defining motion, whereas `motionhistory()`
+> uses its own simple internal frame-difference threshold — so what counts as "motion" can differ slightly.
+
 ---
 
 ## Movement tempo
