@@ -9,6 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.6.1] – 2026-06-27
+
+### Added
+- `pose_center()` — centre the pose data on its global centroid (a 2D port of the MoCap Toolbox
+  `mccenter`); plots the centred trajectories and saves a CSV of centred coordinates.
+- `pose_distance()` — per-marker cumulative distance travelled plus the across-marker average
+  (a 2D port of `mccumdist`); plots cumulative curves + a ranked total-per-marker bar chart and
+  saves a CSV.
+
+### Changed
+- Consolidated the audio–movement material into a dedicated **Audio-Video Processing & Analysis**
+  documentation page; the docs module was renamed accordingly (the public `warp_audiovisual_beats()`
+  method is unchanged).
+
+### Fixed / internal
+- Cache the movement quantity-of-motion and audio onset/RMS envelopes per `MgVideo`, so running
+  several audio–movement analyses in a row no longer re-decodes the same video/audio (~6× faster
+  on subsequent calls).
+- Removed ~26 MB of generated test artifacts that had been committed under
+  `musicalgestures/examples/` (and added `.gitignore` rules to keep them out); de-duplicated the
+  pose-keypoint cache fallback across the `pose_*` methods; surfaced CSV-save errors as warnings.
+
+---
+
 ## [1.6.0] – 2026-06-27
 
 ### Added
@@ -362,7 +386,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.6.0...HEAD
+[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.6.1...HEAD
+[1.6.1]: https://github.com/fourMs/MGT-python/compare/v1.6.0...v1.6.1
 [1.6.0]: https://github.com/fourMs/MGT-python/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/fourMs/MGT-python/compare/v1.4.9...v1.5.0
 [1.4.9]: https://github.com/fourMs/MGT-python/compare/v1.4.8...v1.4.9

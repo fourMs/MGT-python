@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.6.0**.
+The current stable release is **MGT-python 1.6.1**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,14 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.6.1
+
+- `pose_center()` (centre on the global centroid) and `pose_distance()` (per-marker cumulative
+  distance travelled + average) — 2D ports of the MoCap Toolbox `mccenter`/`mccumdist`.
+- Dedicated **Audio-Video Processing & Analysis** documentation page.
+- Faster repeated audio–movement analyses (cached video/audio decode) and a leaner repo
+  (removed committed example artifacts).
 
 ### 1.6.0
 
