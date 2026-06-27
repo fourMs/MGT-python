@@ -228,6 +228,27 @@ mv.motionplots(audio_descriptors=True)
 
 ---
 
+## Audio–movement comparison reports
+
+When the audio and the movement come from the same performer (e.g. a dancer who is also the sound source), several `MgVideo` methods compare the **sound** with the **motion** directly. They live on `MgVideo` (not `MgAudio`) because they need both tracks, but they are audio-related:
+
+- `tempo_similarity()` — audio tempo vs. movement tempo (BPM, ratio, cross-correlation)
+- `phase_synchrony()` — phase-locking value between the audio and movement rhythm
+- `structure_comparison()` — audio SSM (MFCC) vs. movement SSM (frame appearance)
+- `body_audio_coupling()` — each pose marker's speed correlated with the audio onset envelope
+- `dynamics_coupling()` — audio loudness (RMS) vs. quantity of motion
+
+```python
+mv = mg.MgVideo('dance.avi')
+mv.tempo_similarity().show()
+mv.phase_synchrony().show()
+mv.dynamics_coupling().show()
+```
+
+See [Video Analysis → Audio–movement analysis](video-analysis.md#audiomovement-analysis) for full descriptions and example figures.
+
+---
+
 ## Signal-analysis utilities
 
 The `musicalgestures` package exposes general-purpose helpers for analysing rhythm and periodicity in any 1-D signal (audio onset envelopes, quantity-of-motion curves, body-part speeds):

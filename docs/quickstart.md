@@ -174,6 +174,44 @@ blur_gpu = mv.blur_faces(use_gpu=True)
 print(mg.get_cuda_device_count())
 ```
 
+### 6. Resampling (frame rate / speed)
+
+`resample()` returns a **new** `MgVideo` (the original is untouched) re-timed by frame rate, playback speed, or frame decimation:
+
+```python
+mv = mg.MgVideo(examples.dance)
+
+mv25 = mv.resample(fps=25)        # retime to 25 fps (duration-preserving)
+fast = mv.resample(speed=2.0)     # 2× faster, video + audio in sync
+mv25.show()
+```
+
+### 7. Pose segment statistics
+
+`pose_segments()` draws a polar rose plot and circular statistics for each body segment (the bone between two joints):
+
+```python
+mv = mg.MgVideo(examples.dance)
+mv.pose_segments().show()         # reuses cached pose keypoints if available
+```
+
+![Pose segment circular statistics](images/examples/pose_segments.png)
+
+### 8. Audio–movement tempo similarity
+
+`tempo_similarity()` compares the audio tempo with the movement tempo and cross-correlates the two rhythms:
+
+```python
+mv = mg.MgVideo(examples.dance)
+ts = mv.tempo_similarity()
+ts.show()
+print(ts.data['audio_tempo_bpm'], ts.data['motion_tempo_bpm'])
+```
+
+![Audio–movement tempo similarity](images/examples/tempo_similarity.png)
+
+See [Video Analysis → Audio–movement analysis](user-guide/video-analysis.md#audiomovement-analysis) for the full suite (phase synchrony, structure comparison, body–audio and dynamics coupling).
+
 ## Working with Your Own Videos
 
 ### Supported Formats

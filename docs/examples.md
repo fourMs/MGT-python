@@ -183,6 +183,61 @@ history.show()
 average_img.show()
 ```
 
+### Example 8b: Resampling (frame rate and speed)
+
+```python
+import musicalgestures as mg
+
+mv = mg.MgVideo(mg.examples.dance)
+
+# resample() returns a NEW MgVideo; the original mv is untouched
+mv25 = mv.resample(fps=25)        # retime to 25 fps (duration-preserving)
+fast = mv.resample(speed=2.0)     # 2× faster — video and audio retimed in sync
+dec  = mv.resample(skip=2)        # discard 2 frames for every one kept
+
+mv25.show()
+```
+
+### Example 8c: Pose waterfall and segment statistics
+
+```python
+import musicalgestures as mg
+
+mv = mg.MgVideo(mg.examples.dance)
+
+# 3D spatio-temporal waterfall of the pose markers
+mv.pose_waterfall(style='trajectories').show()
+mv.pose_waterfall(style='skeleton', crop=True).show()   # tight, clean render
+
+# Circular statistics per body segment (bone between two joints)
+seg = mv.pose_segments()          # reuses cached pose keypoints if available
+seg.show()
+print(seg.data['stats'])          # mean angle, R, circular std, ROM, angular speed
+```
+
+![Pose segment circular statistics](images/examples/pose_segments.png)
+
+### Example 8d: Audio–movement analysis
+
+```python
+import musicalgestures as mg
+
+mv = mg.MgVideo(mg.examples.dance)   # needs an audio track
+
+# Compare audio tempo vs. movement tempo
+ts = mv.tempo_similarity()
+ts.show()
+print(ts.data['audio_tempo_bpm'], ts.data['motion_tempo_bpm'])
+
+# The rest of the audio–movement suite
+mv.phase_synchrony().show()       # phase-locking value (rhythm)
+mv.structure_comparison().show()  # audio SSM vs. movement SSM
+mv.body_audio_coupling().show()   # which body parts track the music
+mv.dynamics_coupling().show()     # loudness vs. quantity of motion
+```
+
+![Audio–movement tempo similarity](images/examples/tempo_similarity.png)
+
 ## Research Examples
 
 ### Example 9: Motion Feature Extraction

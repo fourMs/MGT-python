@@ -79,7 +79,8 @@ v.pose(model='mediapipe').show()
 ## Features
 
 - **Video Analysis**: Motion detection, optical flow, motion vectors, movement tempo, Eulerian Video Magnification
-- **Pose Estimation**: MediaPipe (default; fast on plain CPU, GPU-capable) and OpenPose (multi-person) backends, with average-pose and trajectory summaries (per-marker quantity of motion + dominant frequency), optional marker motion trails, and a 3D pose waterfall
+- **Pose Estimation**: MediaPipe (default; fast on plain CPU, GPU-capable) and OpenPose (multi-person) backends, with average-pose and trajectory summaries (per-marker quantity of motion + dominant frequency), optional marker motion trails, a 3D pose waterfall, and per-segment circular statistics (`pose_segments()`)
+- **Audio–movement analysis**: Compare a single performer's sound and motion — tempo similarity, phase synchrony, structural similarity, per-body-part audio coupling, and loudness/dynamics coupling
 - **Audio Processing**: Waveforms, spectrograms, MFCC, chromagrams, tempo/beat tracking, spectral descriptors
 - **Visualizations**: Motiongrams, videograms, motion history, heatmaps, sonomotiongrams (motion → sound)
 - **Space-time displays**: Stroboscope (chronophotography), silhouette waterfall, Motion History Image, 3D space-time volume, combined motion SSM

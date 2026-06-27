@@ -73,6 +73,12 @@ mv.show(key='vertical')
 score = mv.motionscore()        # average VMAF motion score — returns float
 ```
 
+![Horizontal motiongram of dance.avi](../images/examples/motiongram_h.png)
+*Horizontal motiongram: vertical motion collapsed onto the y-axis, flowing left→right over time.*
+
+![Vertical motiongram of dance.avi](../images/examples/motiongram_v.png)
+*Vertical motiongram: horizontal motion collapsed onto the x-axis, stacked top→bottom over time.*
+
 ### Motion data columns
 
 The CSV produced by `motion()` and `motiondata()` contains one row per frame:
@@ -96,6 +102,9 @@ heat = mv.heatmap(colormap='jet', overlay=False)       # bare heatmap on black
 heat = mv.heatmap(blur=3, gamma=0.4, colormap='viridis')
 heat.show()
 ```
+
+![Motion heatmap of dance.avi](../images/examples/heatmap.png)
+*Heatmap: accumulated frame-to-frame difference, hot colours mark where the most change happened, overlaid on the dimmed average frame.*
 
 - `colormap`: any matplotlib colormap (`'inferno'` default)
 - `overlay`: composite on the dimmed average frame (default `True`); `alpha`/`background_dim` tune the mix
@@ -125,6 +134,15 @@ mv.motionhistory().show()
 # 3D space-time silhouette volume — (x, y, t) point cloud
 mv.spacetime_volume(n_samples=50).show()
 ```
+
+![Stroboscope of dance.avi](../images/examples/stroboscope.png)
+*Stroboscope: silhouettes sampled at several times and composited onto a single frame (chronophotography).*
+
+![Silhouette waterfall of dance.avi](../images/examples/silhouette_waterfall.png)
+*Silhouette waterfall: the silhouette profile cascading along a time axis in 3D.*
+
+![Motion History Image of dance.avi](../images/examples/motionhistory.png)
+*Motion History Image: brightness encodes how recently motion happened at each pixel (recent = bright, old = fades).*
 
 **Cleaner silhouettes (single person on a static background).** The silhouette methods
 (`stroboscope`, `silhouette_waterfall`, `spacetime_volume`) share controls: raise `threshold`
@@ -333,6 +351,9 @@ average.show()
 mv.show(key='blend')
 ```
 
+![Average image of dance.avi](../images/examples/average.png)
+*Average: the pixel-wise mean of every frame — a long-exposure-style summary of the whole clip.*
+
 Motion average — blend applied to a motion video — shows where movement was concentrated:
 
 ```python
@@ -393,6 +414,12 @@ pv.trajectories.show()     # every marker's spatial path over the whole video
 # a per-marker stats CSV (<name>_pose_average_stats.csv) with normalised QoM and frequency is also saved
 ```
 
+![Average pose of dance.avi](../images/examples/pose_average.png)
+*Average pose: markers placed at their mean position, coloured by normalised quantity of motion and annotated with a `QoM | frequency` label (no colorbar, no title).*
+
+![Pose marker trajectories of dance.avi](../images/examples/pose_trajectories.png)
+*Marker trajectories: every marker's spatial path over the whole video. The background follows `trajectory_background` (default `'black'`).*
+
 Both summary images are decluttered: neither carries an in-figure title. The average-pose image no longer draws a colorbar — markers are still coloured by quantity of motion, and each one is annotated with a `QoM | frequency` number label (normalised QoM 0–1 and dominant frequency in Hz). These labels are automatically laid out so they don't overlap (with thin leader lines back to each marker). The marker-trajectories image shows **no** per-marker name labels by default (`trajectory_labels=False`); re-enable them with `trajectory_labels=True`.
 
 Control the trajectories image background with `trajectory_background`: `'black'` (default), `'white'`, or `'transparent'` (so you can overlay the paths on the video afterwards). This supersedes the older `transparent_trajectories` flag, which is still accepted.
@@ -418,8 +445,15 @@ wf = mv.pose_waterfall(markers=['left_wrist', 'right_wrist'], cmap='viridis')
 wf = mv.pose_waterfall(style='skeleton')       # skeleton joint lines at sampled time slices
 wf = mv.pose_waterfall(style='markers', n_samples=60)
 wf = mv.pose_waterfall(axes=False)             # clean render, no axes/labels
+wf = mv.pose_waterfall(crop=True)              # tighten to the data, trim whitespace
 wf.show()
 ```
+
+![Pose waterfall (trajectories) of dance.avi](../images/examples/pose_waterfall_trajectories.png)
+*`style='trajectories'`: each marker's continuous path flowing through `(x, time, y)` space.*
+
+![Pose waterfall (skeleton) of dance.avi](../images/examples/pose_waterfall_skeleton.png)
+*`style='skeleton'`: the skeleton joint lines drawn at `n_samples` time slices, coloured by time.*
 
 - `style`: how the waterfall is drawn —
     - `'trajectories'` (default): continuous per-marker paths flowing through `(x, time, y)` space
@@ -433,7 +467,100 @@ wf.show()
 - `cmap`: matplotlib colormap (`'hsv'` default); `dpi` (default `200`); `lw` line width (default `1.0`)
 - `elev`/`azim`: 3D view angles (defaults `20` / `-60`)
 - `axes`: set to `False` to render without any axes, ticks, labels, or panes (a clean 3D image). Defaults to `True`. (`silhouette_waterfall()` accepts the same `axes` option.)
+- `crop`: set to `True` to tighten the spatial limits to the marker extent and trim the surrounding whitespace, so the figure shows mostly the data. Defaults to `False`.
 - plus the usual `target_name`, `overwrite`, and forwarded `**pose_kwargs` (e.g. `model`, `device`)
+
+### Pose segments (circular statistics)
+
+`pose_segments()` analyses each **body segment** — the bone between two connected joints (e.g. shoulder→elbow) — and draws a grid of circular (polar rose) plots, one per segment. For each segment it computes the per-frame orientation angle and shows a rose histogram of the angle distribution with the mean-direction resultant vector. It returns an `MgFigure` and saves a per-segment statistics CSV. Like `pose_waterfall()`, it reuses cached pose keypoints from a prior `pose()` call, otherwise runs `pose()` first (pose kwargs are forwarded).
+
+```python
+seg = mv.pose_segments()                       # returns MgFigure ('viridis' roses)
+seg = mv.pose_segments(n_bins=24, cmap='magma', ncols=4)
+seg = mv.pose_segments(segments=[(11, 13), (13, 15)])   # only chosen joint pairs
+seg.show()
+
+stats = seg.data['stats']                      # per-segment circular statistics
+```
+
+![Pose segments circular statistics of dance.avi](../images/examples/pose_segments.png)
+*Per-segment polar rose plots: the angular distribution of each bone's orientation, with the mean-direction resultant vector.*
+
+The saved CSV (and `seg.data['stats']`) reports, per segment: mean angle, resultant length **R** (0–1, concentration of direction), circular standard deviation, range of motion, and mean angular speed.
+
+- `segments`: list of `(a, b)` joint-index tuples to restrict the analysis (default `None` = all skeleton connections)
+- `n_bins`: angular bins per rose (default `36` = 10° bins)
+- `cmap`: colormap for the bars (`'viridis'` default); `ncols` sets the subplot-grid width (default `6`); `dpi` (default `200`)
+- plus the usual `target_name`, `overwrite`, and forwarded `**pose_kwargs`
+
+---
+
+## Audio–movement analysis
+
+These `MgVideo` methods compare a single performer's **sound** with their **movement** — ideal for analysing a dancer who is also the sound source. Each estimates an audio envelope and a movement envelope from the same clip, returns an `MgFigure` (numeric results in `.data`), and most also save a CSV alongside the image. They require the video to have an audio track. (They are also cross-referenced from [Audio Analysis](audio-analysis.md).)
+
+### Tempo similarity
+
+`tempo_similarity()` compares the **audio** tempo (from the onset-strength envelope) with the **movement** tempo (from the quantity-of-motion envelope). The two-panel figure overlays the normalised envelopes and shows their cross-correlation; the report lists audio BPM, movement BPM, their ratio and nearest harmonic relationship, the peak cross-correlation and its lag, and the zero-lag correlation.
+
+```python
+ts = mv.tempo_similarity()                     # returns MgFigure (+ CSV)
+ts.show()
+print(ts.data['audio_tempo_bpm'], ts.data['motion_tempo_bpm'])
+print(ts.data['tempo_ratio'], ts.data['nearest_harmonic'])
+```
+
+![Audio–movement tempo similarity of dance.avi](../images/examples/tempo_similarity.png)
+*Top: audio onset strength vs. quantity of motion. Bottom: their cross-correlation, with the peak lag and tempo ratio annotated.*
+
+### Phase synchrony
+
+`phase_synchrony()` band-passes both the audio onset envelope and the movement QoM to the tempo band `[fmin, fmax]` Hz and compares their instantaneous phases (Hilbert transform). It reports the **phase-locking value** (PLV, 0–1: how consistent the audio↔movement phase difference is) and draws a polar histogram of the phase difference.
+
+```python
+ps = mv.phase_synchrony(fmin=0.5, fmax=4.0)    # returns MgFigure
+ps.show()
+print(ps.data)                                 # PLV, mean phase difference, …
+```
+
+![Audio–movement phase synchrony of dance.avi](../images/examples/phase_synchrony.png)
+*Left: the band-passed audio and movement signals. Right: a polar histogram of the phase difference with the PLV.*
+
+### Structure comparison
+
+`structure_comparison()` builds a self-similarity matrix (SSM) of the audio (from MFCC frames) and of the movement (from low-resolution frame appearance), resampled to the same number of time points, and shows them side by side with their absolute **difference map**. Bright regions in the difference are where the musical structure and the movement structure diverge; it reports an overall structural-agreement score.
+
+```python
+sc = mv.structure_comparison(n=200, cmap='magma')   # returns MgFigure
+sc.show()
+```
+
+![Audio vs. movement structure comparison of dance.avi](../images/examples/structure_comparison.png)
+*Audio SSM (MFCC) vs. movement SSM (frame appearance) and their absolute difference.*
+
+### Body–audio coupling
+
+`body_audio_coupling()` correlates **each pose marker's speed** with the audio onset envelope, revealing which body parts are most rhythmically tied to the music. The figure shows a body map (the average pose with markers coloured by correlation) plus a ranked bar chart, and a CSV of per-marker correlations. It reuses cached pose keypoints or runs `pose()` first (pose kwargs forwarded).
+
+```python
+bc = mv.body_audio_coupling(cmap='coolwarm')   # returns MgFigure (+ CSV)
+bc.show()
+```
+
+![Per-body-part audio coupling of dance.avi](../images/examples/body_audio_coupling.png)
+*Each marker coloured by how strongly its speed correlates with the audio onset envelope, plus a ranked bar chart.*
+
+### Dynamics coupling
+
+`dynamics_coupling()` compares audio **loudness** (RMS) with movement **quantity** (QoM) — does the performer move more when the music is louder? It aligns the two envelopes and reports their correlation at zero lag and at the best lag within `max_lag` seconds; the figure overlays the normalised envelopes and shows a loudness-vs-motion scatter.
+
+```python
+dc = mv.dynamics_coupling(max_lag=2.0)         # returns MgFigure
+dc.show()
+```
+
+![Audio loudness vs. movement quantity coupling of dance.avi](../images/examples/dynamics_coupling.png)
+*Audio RMS loudness overlaid on quantity of motion, with the loudness-vs-motion scatter and correlation.*
 
 ---
 

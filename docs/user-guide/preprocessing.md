@@ -77,6 +77,28 @@ mv = mg.MgVideo('/path/to/video.avi', crop='manual')
 mv = mg.MgVideo('/path/to/video.avi', color=False)
 ```
 
+## Resampling (frame rate, speed, frame decimation)
+
+Unlike the options above, `resample()` is a **method** called on an already-loaded `MgVideo`. It returns a **new** `MgVideo` and leaves the original object untouched, so you can branch off a re-timed copy:
+
+```python
+mv = mg.MgVideo('/path/to/video.avi')
+
+mv25 = mv.resample(fps=25)         # retime to 25 fps (duration-preserving)
+fast = mv.resample(speed=2.0)      # play 2× faster (video + audio retimed in sync)
+slow = mv.resample(speed=0.5)      # play 2× slower / longer
+dec  = mv.resample(skip=2)         # discard 2 frames for every one kept
+mv25.show()
+```
+
+Three independent, combinable operations:
+
+- `fps`: retime to a target frame rate via FFmpeg's `fps` filter — **duration-preserving** (frames are dropped/duplicated to hit the rate), e.g. 30 → 25 fps.
+- `speed`: change playback speed by a factor (`>1` faster/shorter, `<1` slower/longer); the video (`setpts`) and the audio (`atempo`) are retimed together so they stay in sync.
+- `skip`: integer frame decimation — discard `skip` frames for every one kept (this also shortens/speeds up the clip), matching the loader's `skip` parameter.
+
+When more than one is given they are applied in order: `skip` → `speed`/`fps`. The output filename defaults to the input name with a `_resampled` suffix; `target_name` and `overwrite` work as for the other methods.
+
 ## Keeping intermediate files
 
 By default only the final preprocessed video is kept. Set `keep_all=True` to retain the result of each step:
