@@ -47,14 +47,16 @@ class MgList():
         """
         Display the objects in the MgList.
 
-        By default every item is shown. The horizontal/vertical shortcut keys
-        ('mgx'/'vgx' → first item, 'mgy'/'vgy' → second item) select a single panel,
-        e.g. ``mv.motiongrams().show(key='mgx')``. (These keys identify *which item in the
-        list* to show — they are not forwarded to the individual images.)
+        By default every item is shown. The keys ``'horizontal'`` (first item) and
+        ``'vertical'`` (second item) select a single panel, e.g.
+        ``mv.motiongrams().show(key='horizontal')``. The legacy keys 'mgx'/'vgx' and
+        'mgy'/'vgy' are accepted as aliases. (The key identifies *which item in the list*
+        to show — it is not forwarded to the individual images.)
         """
         # The MgList items are already the concrete images, so a key selects an item
-        # rather than being passed down (an MgImage can't resolve 'mgx'/'vgx' itself).
-        key_to_index = {'mgx': 0, 'vgx': 0, 'mgy': 1, 'vgy': 1}
+        # rather than being passed down (an MgImage can't resolve these itself).
+        key_to_index = {'horizontal': 0, 'vertical': 1,
+                        'mgx': 0, 'vgx': 0, 'mgy': 1, 'vgy': 1}
         if key is not None and key.lower() in key_to_index:
             idx = key_to_index[key.lower()]
             if 0 <= idx < len(self.objectlist):

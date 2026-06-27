@@ -61,11 +61,13 @@ motionplots = mv.motionplots(audio_descriptors=True)
 motionplots.show()
 mv.show(key='plot')
 
-motiongrams = mv.motiongrams()  # returns MgList[MgImage, MgImage]
-motiongrams[0].show()           # horizontal motiongram (mgx)
-motiongrams[1].show()           # vertical motiongram (mgy)
-mv.show(key='mgx')
-mv.show(key='mgy')
+motiongrams = mv.motiongrams()        # returns MgList[MgImage, MgImage]
+motiongrams[0].show()                 # horizontal motiongram
+motiongrams[1].show()                 # vertical motiongram
+motiongrams.show(key='horizontal')    # select a panel by orientation
+motiongrams.show(key='vertical')
+mv.show(key='horizontal')             # shorthand from the source MgVideo
+mv.show(key='vertical')
 
 score = mv.motionscore()        # average VMAF motion score — returns float
 ```
@@ -236,10 +238,12 @@ Videograms apply the motiongram technique to the source video directly, without 
 
 ```python
 videograms = mv.videograms()    # returns MgList[MgImage, MgImage]
-videograms[0].show()            # horizontal videogram (vgx)
-videograms[1].show()            # vertical videogram (vgy)
-mv.show(key='vgx')
-mv.show(key='vgy')
+videograms[0].show()            # horizontal videogram
+videograms[1].show()            # vertical videogram
+videograms.show(key='horizontal')
+videograms.show(key='vertical')
+mv.show(key='horizontal')
+mv.show(key='vertical')
 ```
 
 ---

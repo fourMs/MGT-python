@@ -98,7 +98,7 @@ mv = mg.MgVideo(examples.pianist)
 motiongrams = mv.motiongrams()
 motiongrams[0].show()  # horizontal motiongram
 motiongrams[1].show()  # vertical motiongram
-mv.show(key='mgx')     # shorthand from source MgVideo
+mv.show(key='horizontal')  # shorthand from source MgVideo
 
 # Average image (blend of all frames)
 average_img = mv.average()

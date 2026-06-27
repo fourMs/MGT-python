@@ -17,7 +17,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
 
     Args:
         filename (str, optional): If given, `mg_show` will show this file instead of what it inherits from its parent object. Defaults to None.
-        key (str, optional): If given, `mg_show` will search for file names corresponding to certain processes you have previously rendered on your source. It is meant to be a shortcut, so you don't have to remember the exact name (and path) of eg. a motion video corresponding to your source in your MgVideo, but you rather just use `MgVideo('path/to/vid.mp4').show(key='motion')`. Accepted values are 'mgx', 'mgy', 'vgx', 'vgy', 'blend', 'plot', 'motion', 'history', 'motionhistory', 'sparse', and 'dense'. Defaults to None.
+        key (str, optional): If given, `mg_show` will search for file names corresponding to certain processes you have previously rendered on your source. It is meant to be a shortcut, so you don't have to remember the exact name (and path) of eg. a motion video corresponding to your source in your MgVideo, but you rather just use `MgVideo('path/to/vid.mp4').show(key='motion')`. Accepted values are 'horizontal'/'vertical' (motiongram or videogram; 'mgx'/'mgy'/'vgx'/'vgy' also work as aliases), 'ssm', 'blend', 'plot', 'motion', 'history', 'motionhistory', 'sparse', and 'dense'. Defaults to None.
         mode (str, optional): Whether to show things in a separate window or inline in the jupyter notebook. Accepted values are 'windowed' and 'notebook'. Defaults to 'windowed'.
         window_width (int, optional): The width of the window. Defaults to 640.
         window_height (int, optional): The height of the window. Defaults to 480.
@@ -134,6 +134,23 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
             filename = self.filename
             show(file=filename, width=window_width,
                  height=window_height, mode=mode, title=window_title, parent=self, **ipython_kwargs)
+
+        elif key.lower() in ('horizontal', 'vertical'):
+            # Generic orientation keys for motiongrams/videograms; prefer whichever exists
+            axis = 'x' if key.lower() == 'horizontal' else 'y'
+            label = 'Horizontal' if axis == 'x' else 'Vertical'
+            if f"motiongram_{axis}" in keys:
+                filename = getattr(self, f"motiongram_{axis}").filename
+                show(file=filename, width=window_width, height=window_height, mode=mode,
+                     title=f'{label} Motiongram | {filename}', parent=self, **ipython_kwargs)
+            elif f"videogram_{axis}" in keys:
+                filename = getattr(self, f"videogram_{axis}").filename
+                show(file=filename, width=window_width, height=window_height, mode=mode,
+                     title=f'{label} Videogram | {filename}', parent=self, **ipython_kwargs)
+            else:
+                raise FileNotFoundError(
+                    f"There is no known {label.lower()} motiongram or videogram for this file. "
+                    "Run motiongrams() or videograms() first.")
 
         elif key.lower() == 'mgx':
             if "motiongram_x" in keys:
@@ -286,7 +303,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
 
         else:
             print("Unknown shorthand.\n",
-                  "For images, try 'mgx', 'mgy', 'vgx', 'vgy', 'ssm', 'blend' or 'plot'.\n",
+                  "For images, try 'horizontal', 'vertical', 'ssm', 'blend' or 'plot'.\n",
                   "For videos try 'motion', 'history', 'motionhistory', 'sparse', 'dense', 'pose', 'warp', 'blur' or 'subtract'.")
 
     else:
