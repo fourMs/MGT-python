@@ -293,8 +293,16 @@ def mg_silhouette_waterfall(self, n_samples=40, method='auto', threshold=0.1, ke
     else:
         ax.set_axis_off()
     ax.view_init(elev=elev, azim=azim)
-    fig.tight_layout()
-    save_kwargs = {'bbox_inches': 'tight', 'pad_inches': 0} if crop else {}
+    if crop:
+        ax.set_position([0, 0, 1, 1])
+        try:
+            ax.set_box_aspect(None, zoom=1.5)
+        except TypeError:
+            pass
+        save_kwargs = {'bbox_inches': 'tight', 'pad_inches': 0}
+    else:
+        fig.tight_layout()
+        save_kwargs = {}
     fig.savefig(target_name, facecolor='white', **save_kwargs)
     plt.close(fig)
 

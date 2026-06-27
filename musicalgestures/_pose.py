@@ -654,7 +654,7 @@ def pose(
         target_name_average, target_name_trajectories, overwrite,
         transparent_trajectories=transparent_trajectories,
         trajectory_background=trajectory_background,
-        trajectory_labels=trajectory_labels, style=style)
+        trajectory_labels=trajectory_labels, style=style, background=background)
     self.pose_average = average_image
     self.pose_trajectories = trajectories_image
 
@@ -673,7 +673,7 @@ def _render_pose_extras(data, names, connections, width, height, fps, avg_frame,
                         save_average_pose, save_trajectories,
                         target_name_average, target_name_trajectories, overwrite,
                         transparent_trajectories=None, trajectory_background=None,
-                        trajectory_labels=False, style='both'):
+                        trajectory_labels=False, style='both', background='black'):
     """Render the average-pose and trajectories images from collected keypoints."""
     from musicalgestures._pose_visualize import render_average_pose, render_trajectories
     average_image = None
@@ -686,18 +686,22 @@ def _render_pose_extras(data, names, connections, width, height, fps, avg_frame,
                                             avg_frame, tn, overwrite, style=style)
     if save_trajectories:
         tn = target_name_trajectories if target_name_trajectories else of + '_pose_trajectories.png'
-        # Resolve the trajectories background. Explicit trajectory_background wins; otherwise
-        # fall back to the legacy transparent_trajectories flag; otherwise auto: transparent
-        # when trajectories are the only image exported (so they can overlay the video later),
-        # else black.
+        # Resolve the trajectories background. Explicit trajectory_background wins; then the
+        # legacy transparent_trajectories flag; then follow the pose `background` ('white' is
+        # always honoured); otherwise auto: transparent when trajectories are the only image
+        # exported (so they can overlay the video later), else the pose background.
         if trajectory_background is not None:
             bg = trajectory_background
         elif transparent_trajectories is True:
             bg = 'transparent'
         elif transparent_trajectories is False:
-            bg = 'black'
+            bg = background
+        elif str(background).lower() == 'white':
+            bg = 'white'
+        elif not save_average_pose:
+            bg = 'transparent'
         else:
-            bg = 'transparent' if not save_average_pose else 'black'
+            bg = 'black'
         trajectories_image = render_trajectories(data, names, width, height, fps, tn, overwrite,
                                                  background=bg, labels=trajectory_labels)
     return average_image, trajectories_image
@@ -817,7 +821,7 @@ def _rerender_pose_from_cache(self, style='both', overlay=True, background='blac
         save_average_pose, save_trajectories, target_name_average, target_name_trajectories,
         overwrite, transparent_trajectories=transparent_trajectories,
         trajectory_background=trajectory_background,
-        trajectory_labels=trajectory_labels, style=style)
+        trajectory_labels=trajectory_labels, style=style, background=background)
     self.pose_average = average_image
     self.pose_trajectories = trajectories_image
 
@@ -1085,7 +1089,7 @@ def _pose_mediapipe(
         target_name_average, target_name_trajectories, overwrite,
         transparent_trajectories=transparent_trajectories,
         trajectory_background=trajectory_background,
-        trajectory_labels=trajectory_labels, style=style)
+        trajectory_labels=trajectory_labels, style=style, background=background)
     self.pose_average = average_image
     self.pose_trajectories = trajectories_image
 
