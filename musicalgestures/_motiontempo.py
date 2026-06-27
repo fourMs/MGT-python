@@ -65,6 +65,10 @@ def mg_motiontempo(self, fmin=0.2, fmax=8.0, dpi=300, autoshow=True, title=None,
     if len(qom) < 4:
         raise RuntimeError(f"Not enough frames in {self.filename} to estimate movement tempo.")
 
+    # Normalise QoM to [0, 1] by pixel value range (mean abs frame difference / 255)
+    qom = qom / 255.0
+    mean_qom = float(qom.mean())
+
     times = np.arange(len(qom)) / fps
 
     # Dominant movement frequency and its spectrum within [fmin, fmax]
@@ -85,16 +89,22 @@ def mg_motiontempo(self, fmin=0.2, fmax=8.0, dpi=300, autoshow=True, title=None,
     fig.suptitle(title, fontsize=16)
 
     ax[0].plot(times, qom, color='#1f77b4', lw=0.8)
-    ax[0].set(title='Quantity of motion', xlabel='Time (s)', ylabel='QoM')
+    # Average quantity of motion line + number
+    ax[0].axhline(mean_qom, color='#d62728', ls='--', lw=1.2,
+                  label=f'avg QoM = {mean_qom:.3f}')
+    ax[0].legend(loc='upper right')
+    ax[0].set(title='Quantity of motion', xlabel='Time (s)', ylabel='QoM (normalised 0–1)')
     ax[0].set_xlim(0, times[-1] if len(times) else 1)
+    ax[0].set_ylim(0, max(qom.max() * 1.05, 1e-6))
 
     mask = (freqs >= fmin) & (freqs <= fmax)
     ax[1].plot(freqs[mask], spectrum[mask], color='#ff7f0e', lw=0.9)
+    # Average beat frequency line + number
     if dom_freq > 0:
-        ax[1].axvline(dom_freq, color='r', ls='--',
-                      label=f'{dom_freq:.2f} Hz = {tempo_bpm:.1f} BPM')
-        ax[1].legend()
-    ax[1].set(title='Movement spectrum', xlabel='Frequency (Hz)', ylabel='Magnitude')
+        ax[1].axvline(dom_freq, color='r', ls='--', lw=1.2,
+                      label=f'avg beat frequency = {dom_freq:.2f} Hz ({tempo_bpm:.1f} BPM)')
+        ax[1].legend(loc='upper right')
+    ax[1].set(title='Motion spectrum', xlabel='Frequency (Hz)', ylabel='Magnitude')
     ax[1].set_xlim(fmin, fmax)
 
     plt.tight_layout(rect=[0, 0, 1, 0.96])
@@ -104,6 +114,7 @@ def mg_motiontempo(self, fmin=0.2, fmax=8.0, dpi=300, autoshow=True, title=None,
     data = {
         'tempo_bpm': tempo_bpm,
         'dominant_frequency': dom_freq,
+        'mean_qom': mean_qom,
         'qom': qom,
         'times': times,
         'freqs': freqs,
