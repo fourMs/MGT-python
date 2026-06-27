@@ -25,8 +25,8 @@ def mg_grid(self, height=300, rows=3, columns=3, padding=0, margin=0, target_nam
     if target_name is None:
         target_name = of + '_grid.png'
     else:
-        # Enforce png
-        target_name = of + '_grid.png'
+        # Enforce a .png extension on the provided target name
+        target_name = os.path.splitext(target_name)[0] + '.png'
     if not overwrite:
         target_name = generate_outfilename(target_name)
 
