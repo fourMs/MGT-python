@@ -345,7 +345,7 @@ class MgAudio:
 
         return mgf
 
-    def tempogram(self, dpi=300, autoshow=True, raw=False, original_time=False, title=None, target_name=None, overwrite=False):
+    def tempogram(self, dpi=300, autoshow=True, raw=False, onset_strength=True, original_time=False, title=None, target_name=None, overwrite=False):
         """
         Renders a figure with a plots of onset strength and tempogram of the video/audio file.
 
@@ -353,6 +353,9 @@ class MgAudio:
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
             autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
             raw (bool, optional): Whether to show labels and ticks on the plot. Defaults to False.
+            onset_strength (bool, optional): Whether to include the onset-strength panel above the
+                tempogram. Set to False for just the tempogram in a single-panel figure (the same
+                size as spectrogram/chromagram). Defaults to True.
             original_time (bool, optional): Whether to plot original time or not. This parameter can be useful if the video file has been shortened beforehand (e.g. skip). Defaults to False.
             title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_tempogram.png" should be used).
@@ -385,7 +388,13 @@ class MgAudio:
         tempo = librosa.beat.tempo(
             onset_envelope=oenv, sr=sr, hop_length=self.hop_length)[0]
 
-        fig, ax = plt.subplots(nrows=2, figsize=(12, 4), dpi=dpi, sharex=True)
+        if onset_strength:
+            fig, axes = plt.subplots(nrows=2, figsize=(12, 4), dpi=dpi, sharex=True)
+            onset_ax, tempo_ax = axes[0], axes[1]
+        else:
+            # Single-panel tempogram, matching the spectrogram/chromagram figure size
+            fig, tempo_ax = plt.subplots(figsize=(12, 4), dpi=dpi)
+            onset_ax = None
         fig.patch.set_facecolor('white') # make sure background is white
         fig.patch.set_alpha(1)
 
@@ -398,24 +407,27 @@ class MgAudio:
 
         times = librosa.times_like(oenv, sr=sr, hop_length=self.hop_length)
 
-        ax[0].plot(times, oenv, label='Onset strength')
-        ax[0].label_outer()
-        ax[0].legend(frameon=True)
+        if onset_ax is not None:
+            onset_ax.plot(times, oenv, label='Onset strength')
+            onset_ax.label_outer()
+            onset_ax.legend(frameon=True)
 
         librosa.display.specshow(tempogram, sr=sr, hop_length=self.hop_length,
-                                 x_axis='time', y_axis='tempo', cmap='magma', ax=ax[1])
-        ax[1].axhline(tempo, color='w', linestyle='--', alpha=1,
-                      label='Estimated tempo={:g}'.format(tempo))
-        ax[1].legend(loc='upper right')
-        ax[1].set(title='Tempogram')
+                                 x_axis='time', y_axis='tempo', cmap='magma', ax=tempo_ax)
+        tempo_ax.axhline(tempo, color='w', linestyle='--', alpha=1,
+                         label='Estimated tempo={:g}'.format(tempo))
+        tempo_ax.legend(loc='upper right')
+        tempo_ax.set(title='Tempogram')
 
         # Adapt the plotting of the audio file's time when skipping frames of a video file
-        self.format_time(ax[1], original_time)
+        self.format_time(tempo_ax, original_time)
 
         if raw:
             fig.patch.set_visible(False)
             fig.suptitle('')
-            ax.axis('off')
+            tempo_ax.axis('off')
+            if onset_ax is not None:
+                onset_ax.axis('off')
 
         plt.tight_layout()
         plt.savefig(target_name, format='png', transparent=False)

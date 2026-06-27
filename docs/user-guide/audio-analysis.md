@@ -64,6 +64,12 @@ tempogram = audio.tempogram()
 tempogram.show()
 ```
 
+By default the figure includes an onset-strength panel above the tempogram. Pass `onset_strength=False` for just the tempogram in a single panel (the same size as the spectrogram/chromagram):
+
+```python
+audio.tempogram(onset_strength=False).show()
+```
+
 ---
 
 ## Harmonic Percussive Source Separation (HPSS)
