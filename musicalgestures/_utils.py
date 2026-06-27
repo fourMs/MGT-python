@@ -1254,6 +1254,71 @@ def has_audio(filename):
         return True
 
 
+def get_rotation(filename):
+    """
+    Returns the display rotation (degrees) stored in a video's metadata.
+
+    Phone/portrait videos often store landscape pixels plus a rotation flag (display
+    matrix). FFmpeg's frame pipe applies this automatically while OpenCV's VideoCapture
+    does not, which can leave some processes rotated. This reads the flag so the
+    orientation can be normalised.
+
+    Returns:
+        int: rotation in degrees (e.g. 0, 90, 180, 270), or 0 if none/unknown.
+    """
+    import subprocess
+    # Preferred: structured side-data rotation (one value per packet; take the first)
+    for entries in ("side_data=rotation", "stream_side_data=rotation", "stream_tags=rotate"):
+        try:
+            out = subprocess.run(
+                ["ffprobe", "-v", "error", "-select_streams", "v:0",
+                 "-show_entries", entries, "-of", "default=nk=1:nw=1", filename],
+                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                universal_newlines=True, timeout=10).stdout
+            for line in out.splitlines():
+                line = line.strip()
+                if line and line.lstrip("-").isdigit():
+                    return int(line) % 360
+        except Exception:
+            continue
+    return 0
+
+
+def normalize_rotation(filename, overwrite=True):
+    """
+    If a video carries a display-rotation flag (e.g. a phone portrait recording with
+    landscape pixels), re-encode it so the rotation is baked into the pixels and the
+    flag removed. This makes every downstream reader (FFmpeg pipe, OpenCV, filters)
+    agree on the orientation, preventing some processes from coming out rotated.
+
+    Args:
+        filename (str): Path to the video file.
+        overwrite (bool): Overwrite the "_oriented" output if it exists. Defaults to True.
+
+    Returns:
+        str: Path to an upright video — the original if it had no rotation, otherwise a
+            new "_oriented" copy.
+    """
+    import os
+    rotation = get_rotation(filename)
+    if rotation % 360 == 0:
+        return filename
+
+    of, fex = os.path.splitext(filename)
+    target = of + '_oriented' + fex
+    if not overwrite:
+        target = generate_outfilename(target)
+
+    print(f"Detected {rotation}° rotation metadata — baking orientation into the pixels "
+          "so all processes keep the original orientation.")
+    cmd = ['ffmpeg', '-y', '-i', filename, '-c:v', 'libx264', '-pix_fmt', 'yuv420p']
+    if has_audio(filename):
+        cmd += ['-c:a', 'copy']
+    cmd += [target]
+    ffmpeg_cmd(cmd, get_length(filename), pb_prefix='Normalising orientation:')
+    return target
+
+
 def get_length(filename: str) -> float:
     """
     Gets the length (in seconds) of a video using FFprobe.

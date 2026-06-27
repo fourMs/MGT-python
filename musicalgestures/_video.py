@@ -202,6 +202,14 @@ class MgVideo(MgAudio):
         ``get_framecount``), whereas for ``MgAudio`` ``self.length`` is the duration in
         **seconds**. To get the video duration in seconds use ``self.length / self.fps``.
         """
+        # Bake any display-rotation flag into the pixels so every reader (FFmpeg pipe,
+        # OpenCV, filters) agrees on orientation and no process comes out rotated.
+        from musicalgestures._utils import normalize_rotation
+        oriented = normalize_rotation(self.filename)
+        if oriented != self.filename:
+            self.filename = oriented
+            self.of, self.fex = os.path.splitext(self.filename)
+
         (
             self.length,
             self.width,
