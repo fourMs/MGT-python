@@ -112,14 +112,31 @@ against the average frame (best for static-camera recordings). Control extractio
 # Stroboscope / chronophotography — silhouettes at sampled times on one frame
 mv.stroboscope(n_samples=12).show()
 
-# Silhouette waterfall — silhouette projection stacked over time
-mv.silhouette_waterfall(axis='horizontal').show()   # or axis='vertical'
+# 3D silhouette waterfall — silhouette profile cascading along a time axis
+mv.silhouette_waterfall(n_samples=40, axis='horizontal').show()
 
 # Motion History Image — intensity = how recently motion happened (no silhouette needed)
 mv.motionhistory().show()
 
 # 3D space-time silhouette volume — (x, y, t) point cloud
 mv.spacetime_volume(n_samples=50).show()
+```
+
+**Cleaner silhouettes (single person on a static background).** The silhouette methods
+(`stroboscope`, `silhouette_waterfall`, `spacetime_volume`) share controls: raise `threshold`
+to reject background noise, tune the morphological `kernel_size`, and set `keep_largest=True`
+to keep only the person's blob. If a result looks washed out / "blows up", these are the knobs:
+
+```python
+mv.stroboscope(n_samples=10, threshold=0.15, keep_largest=True).show()
+```
+
+**Motion History Image controls.** `motionhistory()` decays old motion over a window so it
+doesn't accumulate and blow out: `decay` (fraction of the clip a mark persists; smaller = shorter
+trails), `threshold` (motion sensitivity), `blur` (speckle suppression), and `normalize`:
+
+```python
+mv.motionhistory(threshold=0.08, decay=0.2, blur=1).show()
 ```
 
 These complement the motiongram (space×time) and the combined motion SSM (temporal structure):

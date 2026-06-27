@@ -167,6 +167,9 @@ class MgVideo(MgAudio):
         mg_motionhistory as motionhistory,
         mg_spacetime_volume as spacetime_volume,
     )
+    # Overrides the inherited audio beat_statistics with a source-aware version
+    # (source='audio' delegates to the audio analysis; source='motion' uses movement onsets).
+    from musicalgestures._movementbeats import mg_beat_statistics as beat_statistics
     from musicalgestures._pose import pose
 
     def average(self, **kwargs):

@@ -64,10 +64,14 @@ class MgAudio:
         Returns:
             tuple: (y, sr) — the audio samples and their sample rate.
         """
-        if self._y_cache is None or self._y_cache[1] != self.sr:
+        # getattr guard: MgVideo inherits the audio methods but does not set _y_cache
+        # in its own __init__, so the attribute may be absent on the instance.
+        cache = getattr(self, '_y_cache', None)
+        if cache is None or cache[1] != self.sr:
             y, sr = librosa.load(self.filename, sr=self.sr)
-            self._y_cache = (y, sr)
-        return self._y_cache
+            cache = (y, sr)
+            self._y_cache = cache
+        return cache
 
     def numpy(self):
         "Read the original file of the MgAudio object as a numpy array using librosa."

@@ -54,20 +54,45 @@ def _make_segmenter(method):
         return None
 
 
-def _silhouette(frame, seg_fn, bg_gray, threshold):
-    """Return a boolean person/foreground mask for a BGR frame."""
+def _silhouette(frame, seg_fn, bg_gray, threshold, kernel_size=5, keep_largest=False):
+    """
+    Return a boolean person/foreground mask for a BGR frame.
+
+    Args:
+        seg_fn: MediaPipe segmentation callable, or None for background subtraction.
+        bg_gray: grayscale background (average frame) for subtraction.
+        threshold: foreground threshold in [0, 1] (fraction of 255 for bg-subtraction;
+            segmentation-confidence cutoff for MediaPipe).
+        kernel_size: morphological kernel for open/close cleanup (0 disables).
+        keep_largest: keep only the largest connected component — a clean single-person blob.
+    """
     if seg_fn is not None:
-        mask = seg_fn(frame[..., ::-1])  # expects RGB
-        if mask is not None:
-            return mask > 0.5
-    # Background subtraction fallback
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY).astype(np.float32)
-    diff = np.abs(gray - bg_gray)
-    mask = (diff > threshold * 255).astype(np.uint8)
+        seg = seg_fn(frame[..., ::-1])  # expects RGB
+        if seg is not None:
+            mask = (seg > max(threshold, 0.1)).astype(np.uint8)
+        else:
+            mask = None
+    else:
+        mask = None
+    if mask is None:
+        # Background subtraction fallback (ideal for a static background)
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY).astype(np.float32)
+        diff = np.abs(gray - bg_gray)
+        mask = (diff > threshold * 255).astype(np.uint8)
+
     # Clean up speckle and fill holes
-    kernel = np.ones((5, 5), np.uint8)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=2)
+    if kernel_size and kernel_size > 0:
+        kernel = np.ones((int(kernel_size), int(kernel_size)), np.uint8)
+        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+        mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=2)
+
+    # Keep only the largest blob (the person) — removes stray foreground patches
+    if keep_largest and mask.any():
+        n, labels, stats, _ = cv2.connectedComponentsWithStats(mask, connectivity=8)
+        if n > 1:
+            largest = 1 + int(np.argmax(stats[1:, cv2.CC_STAT_AREA]))
+            mask = (labels == largest).astype(np.uint8)
+
     return mask.astype(bool)
 
 
@@ -90,17 +115,24 @@ def _average_frame(self):
 # 1. Stroboscope (chronophotography)
 # ---------------------------------------------------------------------------
 
-def mg_stroboscope(self, n_samples=12, method='auto', threshold=0.1, colorize=True,
-                   background='average', target_name=None, overwrite=False):
+def mg_stroboscope(self, n_samples=12, method='auto', threshold=0.1, kernel_size=5,
+                   keep_largest=False, colorize=True, background='average',
+                   target_name=None, overwrite=False):
     """
     Renders a stroboscope / chronophotography image: the person's silhouette at evenly
     sampled times composited onto a single frame, showing the body moving through space
     over time (Muybridge-style).
 
+    For a clean result with a single person on a static background, raise ``threshold`` and
+    set ``keep_largest=True`` so only the person's blob is composited (avoids the image
+    "blowing up" from background noise).
+
     Args:
         n_samples (int, optional): Number of time samples (silhouettes) to composite. Defaults to 12.
         method (str, optional): Silhouette extraction: 'auto', 'mediapipe', or 'bgsub'. Defaults to 'auto'.
-        threshold (float, optional): Foreground threshold (0–1) for background subtraction. Defaults to 0.1.
+        threshold (float, optional): Foreground threshold (0–1). Higher rejects more background. Defaults to 0.1.
+        kernel_size (int, optional): Morphological cleanup kernel for the silhouette (0 disables). Defaults to 5.
+        keep_largest (bool, optional): Keep only the largest blob (the person). Defaults to False.
         colorize (bool, optional): Tint each silhouette by time (early→late) for a temporal cue. Defaults to True.
         background (str, optional): 'average' (clean plate), 'first' (first frame), 'black' or 'white'. Defaults to 'average'.
         target_name (str, optional): Output name. Defaults to None ("_stroboscope.png").
@@ -143,7 +175,7 @@ def mg_stroboscope(self, n_samples=12, method='auto', threshold=0.1, colorize=Tr
         if canvas is None:
             canvas = frame.copy()
         if i in sample_idx:
-            mask = _silhouette(frame, seg_fn, bg_gray, threshold)
+            mask = _silhouette(frame, seg_fn, bg_gray, threshold, kernel_size, keep_largest)
             if colorize:
                 tint = (np.array(cmap(order / n_order)[:3]) * 255)[::-1]  # RGB→BGR
                 tinted = (frame.astype(np.float32) * 0.5 + tint * 0.5).astype(np.uint8)
@@ -164,27 +196,37 @@ def mg_stroboscope(self, n_samples=12, method='auto', threshold=0.1, colorize=Tr
 # 2. Silhouette waterfall
 # ---------------------------------------------------------------------------
 
-def mg_silhouette_waterfall(self, method='auto', threshold=0.1, axis='horizontal',
-                            cmap='magma', dpi=300, target_name=None, overwrite=False):
+def mg_silhouette_waterfall(self, n_samples=40, method='auto', threshold=0.1, kernel_size=5,
+                            keep_largest=False, axis='horizontal', cmap='viridis', dpi=200,
+                            elev=35, azim=-60, target_name=None, overwrite=False):
     """
-    Renders a silhouette waterfall: the per-frame silhouette projected onto one spatial
-    axis and stacked over time, so the body's occupancy flows through the image.
+    Renders a 3D silhouette waterfall: the per-frame silhouette projected onto one spatial
+    axis and stacked as cascading curves along a time (depth) axis, so the body's occupancy
+    profile "flows" through time — like a 3D spectrogram waterfall.
+
+    For a single person on a static background, raise ``threshold`` and/or set
+    ``keep_largest=True`` for a cleaner profile.
 
     Args:
+        n_samples (int, optional): Number of time slices (profiles) to stack. Defaults to 40.
         method (str, optional): Silhouette extraction: 'auto', 'mediapipe', or 'bgsub'. Defaults to 'auto'.
-        threshold (float, optional): Foreground threshold (0–1) for background subtraction. Defaults to 0.1.
-        axis (str, optional): 'horizontal' collapses the vertical axis (image = time × x);
-            'vertical' collapses the horizontal axis (image = y × time). Defaults to 'horizontal'.
-        cmap (str, optional): Matplotlib colormap. Defaults to 'magma'.
-        dpi (int, optional): Output DPI. Defaults to 300.
+        threshold (float, optional): Foreground threshold (0–1). Higher rejects more background. Defaults to 0.1.
+        kernel_size (int, optional): Morphological cleanup kernel (0 disables). Defaults to 5.
+        keep_largest (bool, optional): Keep only the largest blob (the person). Defaults to False.
+        axis (str, optional): 'horizontal' profiles over x (collapse y); 'vertical' profiles over y. Defaults to 'horizontal'.
+        cmap (str, optional): Matplotlib colormap (by time). Defaults to 'viridis'.
+        dpi (int, optional): Output DPI. Defaults to 200.
+        elev (float, optional): 3D elevation angle. Defaults to 35.
+        azim (float, optional): 3D azimuth angle. Defaults to -60.
         target_name (str, optional): Output name. Defaults to None ("_silhouette_waterfall.png").
         overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to False.
 
     Returns:
-        MgImage: the waterfall image.
+        MgFigure: the 3D waterfall figure (the stacked profiles are in ``.data``).
     """
     import matplotlib
     import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 (registers 3d projection)
 
     if target_name is None:
         target_name = self.of + '_silhouette_waterfall.png'
@@ -197,55 +239,80 @@ def mg_silhouette_waterfall(self, method='auto', threshold=0.1, axis='horizontal
     bg_gray = cv2.cvtColor(avg, cv2.COLOR_BGR2GRAY).astype(np.float32)
     seg_fn = _make_segmenter(method)
 
+    total = int(self.length)
+    sample_idx = sorted(set(np.linspace(0, total - 1, min(n_samples, total)).astype(int).tolist()))
+    sample_set = set(sample_idx)
+
     profiles = []
+    times = []
     pb = MgProgressbar(total=self.length, prefix='Rendering silhouette waterfall:')
     i = 0
     for frame in _iter_frames(self):
-        mask = _silhouette(frame, seg_fn, bg_gray, threshold)
-        if axis == 'horizontal':
-            profiles.append(mask.sum(axis=0))   # collapse y → length W
-        else:
-            profiles.append(mask.sum(axis=1))   # collapse x → length H
+        if i in sample_set:
+            mask = _silhouette(frame, seg_fn, bg_gray, threshold, kernel_size, keep_largest)
+            if axis == 'horizontal':
+                profiles.append(mask.sum(axis=0).astype(np.float32))   # over x (length W)
+            else:
+                profiles.append(mask.sum(axis=1).astype(np.float32))   # over y (length H)
+            times.append(i / max(self.fps, 1))
         i += 1
         pb.progress(i)
     pb.progress(self.length)
 
-    arr = np.array(profiles, dtype=np.float32)  # (T, axis_len)
-    if arr.max() > 0:
+    arr = np.array(profiles, dtype=np.float32)  # (n_slices, axis_len)
+    if arr.size and arr.max() > 0:
         arr = arr / arr.max()
 
-    fig, ax = plt.subplots(figsize=(12, 6), dpi=dpi)
+    cmap_obj = matplotlib.colormaps[cmap]
+    fig = plt.figure(figsize=(11, 8), dpi=dpi)
+    ax = fig.add_subplot(111, projection='3d')
     fig.patch.set_facecolor('white')
-    if axis == 'horizontal':
-        # time flows downward, x across
-        ax.imshow(arr, aspect='auto', cmap=cmap, origin='upper')
-        ax.set_xlabel('Horizontal position (px)')
-        ax.set_ylabel('Time (frames)')
-    else:
-        # y down, time across
-        ax.imshow(arr.T, aspect='auto', cmap=cmap, origin='upper')
-        ax.set_xlabel('Time (frames)')
-        ax.set_ylabel('Vertical position (px)')
+
+    pos = np.arange(arr.shape[1]) if arr.size else np.array([])
+    n_slices = max(len(profiles) - 1, 1)
+    for k, (prof, t) in enumerate(zip(arr, times)):
+        ax.plot(pos, np.full_like(pos, t, dtype=float), prof,
+                color=cmap_obj(k / n_slices), lw=0.9, alpha=0.9)
+
+    ax.set_xlabel('Horizontal position (px)' if axis == 'horizontal' else 'Vertical position (px)')
+    ax.set_ylabel('Time (s)')
+    ax.set_zlabel('Silhouette extent')
     ax.set_title('Silhouette waterfall')
+    ax.view_init(elev=elev, azim=azim)
     fig.tight_layout()
     fig.savefig(target_name, facecolor='white')
     plt.close(fig)
 
-    self.silhouette_waterfall_image = MgImage(target_name)
-    return self.silhouette_waterfall_image
+    data = {'profiles': arr, 'times': np.array(times), 'axis': axis}
+    mgf = MgFigure(figure=fig, figure_type='video.silhouette_waterfall', data=data, layers=None, image=target_name)
+    self.silhouette_waterfall_figure = mgf
+    return mgf
 
 
 # ---------------------------------------------------------------------------
 # 3. Motion History Image (MHI)
 # ---------------------------------------------------------------------------
 
-def mg_motionhistory(self, threshold=0.05, cmap='hot', dpi=300, target_name=None, overwrite=False):
+def mg_motionhistory(self, threshold=0.05, decay=0.3, normalize=True, blur=0,
+                     cmap='hot', dpi=300, target_name=None, overwrite=False):
     """
     Renders a Motion History Image (Bobick & Davis): a single image where intensity encodes
-    how recently motion occurred at each pixel (recent motion bright, older motion fades).
+    how recently motion occurred at each pixel (recent motion bright, older motion fades out).
+
+    A motion mark is set to full intensity where motion occurs and then **decays** linearly to
+    zero over a window set by ``decay``, so old motion disappears instead of accumulating and
+    washing out the image. Raise ``threshold`` to ignore background noise, and lower ``decay``
+    for shorter (less crowded) trails.
 
     Args:
-        threshold (float, optional): Motion threshold (0–1) on frame differences. Defaults to 0.05.
+        threshold (float, optional): Motion threshold (0–1) on frame differences. Higher rejects
+            more background noise. Defaults to 0.05.
+        decay (float, optional): Fade window as a fraction of the clip length (0–1): a motion
+            mark fully fades after this fraction of the video. Smaller = shorter trails, less
+            blow-out. Defaults to 0.3.
+        normalize (bool, optional): Stretch the result to the full intensity range. Defaults to True.
+        blur (int, optional): Optional Gaussian smoothing radius for the difference mask (0 = off).
+            Helps suppress speckle noise. Defaults to 0.
         cmap (str, optional): Matplotlib colormap. Defaults to 'hot'.
         dpi (int, optional): Output DPI. Defaults to 300.
         target_name (str, optional): Output name. Defaults to None ("_mhi.png").
@@ -265,30 +332,36 @@ def mg_motionhistory(self, threshold=0.05, cmap='hot', dpi=300, target_name=None
         target_name = generate_outfilename(target_name)
 
     total = max(int(self.length), 1)
+    decay_frames = max(1, int(decay * total))
+    step = 1.0 / decay_frames
+
     mhi = np.zeros((self.height, self.width), dtype=np.float32)
     prev_gray = None
-    decay = 1.0 / total
-    t = 0.0
     pb = MgProgressbar(total=self.length, prefix='Rendering motion history image:')
     i = 0
     for frame in _iter_frames(self):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY).astype(np.float32)
         if prev_gray is not None:
-            motion = np.abs(gray - prev_gray) > (threshold * 255)
-            t += decay
-            mhi[motion] = t                 # stamp current time where motion happens
+            diff = np.abs(gray - prev_gray)
+            if blur and blur > 0:
+                k = int(blur) * 2 + 1
+                diff = cv2.GaussianBlur(diff, (k, k), 0)
+            motion = diff > (threshold * 255)
+            # Decay everything, then re-stamp current motion to full intensity
+            mhi -= step
+            np.clip(mhi, 0.0, 1.0, out=mhi)
+            mhi[motion] = 1.0
         prev_gray = gray
         i += 1
         pb.progress(i)
     pb.progress(self.length)
 
-    # Normalise so the most recent motion is brightest
-    if mhi.max() > 0:
+    if normalize and mhi.max() > 0:
         mhi = mhi / mhi.max()
 
     fig, ax = plt.subplots(figsize=(12, 12 * self.height / self.width), dpi=dpi)
     fig.patch.set_facecolor('white')
-    ax.imshow(mhi, cmap=cmap)
+    ax.imshow(mhi, cmap=cmap, vmin=0.0, vmax=1.0)
     ax.set_title('Motion History Image (bright = recent motion)')
     ax.axis('off')
     fig.tight_layout()
@@ -304,7 +377,8 @@ def mg_motionhistory(self, threshold=0.05, cmap='hot', dpi=300, target_name=None
 # ---------------------------------------------------------------------------
 
 def mg_spacetime_volume(self, n_samples=50, downsample=8, method='auto', threshold=0.1,
-                        cmap='viridis', dpi=200, elev=20, azim=-60, target_name=None, overwrite=False):
+                        kernel_size=5, keep_largest=False, cmap='viridis', dpi=200,
+                        elev=20, azim=-60, target_name=None, overwrite=False):
     """
     Renders a 3D space-time scatter of the person's silhouette: points (x, y, t) where the
     silhouette is present, with time on the depth axis and colour, showing how the body
@@ -314,7 +388,9 @@ def mg_spacetime_volume(self, n_samples=50, downsample=8, method='auto', thresho
         n_samples (int, optional): Number of time samples (depth slices). Defaults to 50.
         downsample (int, optional): Spatial downsampling factor for the silhouette points. Defaults to 8.
         method (str, optional): Silhouette extraction: 'auto', 'mediapipe', or 'bgsub'. Defaults to 'auto'.
-        threshold (float, optional): Foreground threshold (0–1) for background subtraction. Defaults to 0.1.
+        threshold (float, optional): Foreground threshold (0–1). Higher rejects more background. Defaults to 0.1.
+        kernel_size (int, optional): Morphological cleanup kernel for the silhouette (0 disables). Defaults to 5.
+        keep_largest (bool, optional): Keep only the largest blob (the person). Defaults to False.
         cmap (str, optional): Matplotlib colormap for time. Defaults to 'viridis'.
         dpi (int, optional): Output DPI. Defaults to 200.
         elev (float, optional): 3D elevation angle. Defaults to 20.
@@ -348,7 +424,7 @@ def mg_spacetime_volume(self, n_samples=50, downsample=8, method='auto', thresho
     i = 0
     for frame in _iter_frames(self):
         if i in sample_idx:
-            mask = _silhouette(frame, seg_fn, bg_gray, threshold)
+            mask = _silhouette(frame, seg_fn, bg_gray, threshold, kernel_size, keep_largest)
             sub = mask[::downsample, ::downsample]
             yy, xx = np.nonzero(sub)
             xs.append(xx * downsample)

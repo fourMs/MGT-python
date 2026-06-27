@@ -159,6 +159,18 @@ stats.show()
 
 The polar plot shows the mean resultant vector length `R` (concentration of timing) and a Rayleigh-test p-value (`p` small = significantly consistent timing).
 
+### From movement instead of audio
+
+On an `MgVideo` you can run the same timing analysis on the **movement** rhythm by detecting onsets in the quantity of motion:
+
+```python
+mv = mg.MgVideo('dance.mp4')
+mv.beat_statistics(source='audio')    # default — the audio track
+mv.beat_statistics(source='motion')   # rhythmic onsets of the movement
+```
+
+`source='motion'` returns an `MgFigure` whose `.data` holds the movement tempo, beat times, regularity, and phase deviations — the same fields as the audio version.
+
 ---
 
 ## Self-Similarity Matrix (SSM)

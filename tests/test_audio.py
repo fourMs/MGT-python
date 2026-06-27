@@ -30,6 +30,12 @@ class Test_Audio:
     def test_no_audio(self, testvideo_avi_silent):
         assert musicalgestures.MgVideo(testvideo_avi_silent).audio is None
 
+    def test_mgvideo_inherited_audio_method(self, testvideo_avi):
+        # Regression: audio methods called directly on an MgVideo (which inherits them
+        # but does not set the _y_cache attribute) must still work.
+        result = musicalgestures.MgVideo(testvideo_avi).spectrogram(autoshow=False, overwrite=True)
+        assert isinstance(result, MgFigure)
+
 class Test_Audio_Waveform:
     def test_target_name_is_none(self, testvideo_avi):
         result = musicalgestures.MgVideo(testvideo_avi).audio.waveform(target_name=None)
