@@ -49,6 +49,7 @@ nav:
     - Preprocessing: user-guide/preprocessing.md
     - Video Analysis: user-guide/video-analysis.md
     - Audio Analysis: user-guide/audio-analysis.md
+    - Audio–Video Analysis: user-guide/audiovisual.md
     - Working with Results: user-guide/results.md
   - API Reference:
     - Overview: musicalgestures/index.md
