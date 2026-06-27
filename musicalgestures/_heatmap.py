@@ -2,7 +2,7 @@ import numpy as np
 import os
 import cv2
 import matplotlib
-from musicalgestures._utils import MgImage, MgProgressbar, generate_outfilename
+from musicalgestures._utils import MgImage, MgProgressbar, generate_outfilename, resolve_filename
 
 
 def mg_heatmap(
@@ -54,13 +54,7 @@ def mg_heatmap(
         MgImage: A new MgImage pointing to the output heatmap image file.
     """
 
-    if target_name is None:
-        target_name = f"{self.of}_heatmap.png"
-    else:
-        # enforce png
-        target_name = os.path.splitext(target_name)[0] + '.png'
-    if not overwrite:
-        target_name = generate_outfilename(target_name)
+    target_name = resolve_filename(self.of, '_heatmap.png', target_name, overwrite)
 
     cap = cv2.VideoCapture(self.filename)
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))

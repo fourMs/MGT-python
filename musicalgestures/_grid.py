@@ -1,7 +1,7 @@
 import os
 import cv2
 import numpy as np
-from musicalgestures._utils import MgImage, generate_outfilename, ffmpeg_cmd, get_length
+from musicalgestures._utils import MgImage, generate_outfilename, resolve_filename, ffmpeg_cmd, get_length
 
 def mg_grid(self, height=300, rows=3, columns=3, padding=0, margin=0, target_name=None, overwrite=True, return_array=False):
     """
@@ -22,13 +22,7 @@ def mg_grid(self, height=300, rows=3, columns=3, padding=0, margin=0, target_nam
     """
 
     of, fex = os.path.splitext(self.filename)
-    if target_name is None:
-        target_name = of + '_grid.png'
-    else:
-        # Enforce a .png extension on the provided target name
-        target_name = os.path.splitext(target_name)[0] + '.png'
-    if not overwrite:
-        target_name = generate_outfilename(target_name)
+    target_name = resolve_filename(of, '_grid.png', target_name, overwrite)
 
     # Get the number of frames
     cap = cv2.VideoCapture(self.filename)

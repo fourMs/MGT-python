@@ -7,7 +7,7 @@ from matplotlib import colors
 
 import musicalgestures
 from musicalgestures._filter import filter_frame
-from musicalgestures._utils import MgProgressbar, MgFigure, convert_to_avi, generate_outfilename
+from musicalgestures._utils import MgProgressbar, MgFigure, convert_to_avi, generate_outfilename, resolve_filename
 
 HISTOGRAM_BINS = np.linspace(-np.pi, np.pi, 100)
 
@@ -129,14 +129,7 @@ def mg_directograms(self, title=None, filtertype='Adaptative', threshold=0.05, k
     ax.set_ylabel('Angle [Radians]')
     ax.set_xlabel('Time [Seconds]')
 
-    if target_name is None:
-        target_name = of + '_dg.png'
-
-    else:
-        # enforce png
-        target_name = os.path.splitext(target_name)[0] + '.png'
-    if not overwrite:
-        target_name = generate_outfilename(target_name)
+    target_name = resolve_filename(of, '_dg.png', target_name, overwrite)
 
     plt.savefig(target_name, format='png', transparent=False)
     plt.close()

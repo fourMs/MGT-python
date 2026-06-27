@@ -1,6 +1,6 @@
 import os
 import musicalgestures
-from musicalgestures._utils import generate_outfilename, get_length, ffmpeg_cmd
+from musicalgestures._utils import generate_outfilename, resolve_filename, get_length, ffmpeg_cmd
 
 
 def mg_motionvectors(self, target_name=None, overwrite=True):
@@ -28,12 +28,7 @@ def mg_motionvectors(self, target_name=None, overwrite=True):
     """
     of, fex = os.path.splitext(self.filename)
 
-    if target_name is None:
-        target_name = of + '_motionvectors' + fex
-    else:
-        target_name = os.path.splitext(target_name)[0] + fex
-    if not overwrite:
-        target_name = generate_outfilename(target_name)
+    target_name = resolve_filename(of, '_motionvectors' + fex, target_name, overwrite)
 
     # -flags2 +export_mvs must precede -i so the decoder exports motion vectors;
     # codecview then draws them (pf=P-frame forward, bf/bb=B-frame forward/backward).

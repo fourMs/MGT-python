@@ -2,7 +2,7 @@ import os
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
-from musicalgestures._utils import MgFigure, MgProgressbar, generate_outfilename
+from musicalgestures._utils import MgFigure, MgProgressbar, generate_outfilename, resolve_filename
 
 
 def mg_motiontempo(self, fmin=0.2, fmax=8.0, dpi=300, autoshow=True, title=None, target_name=None, overwrite=True):
@@ -31,12 +31,7 @@ def mg_motiontempo(self, fmin=0.2, fmax=8.0, dpi=300, autoshow=True, title=None,
     """
     from musicalgestures._analysis import dominant_frequency
 
-    if target_name is None:
-        target_name = self.of + '_motiontempo.png'
-    else:
-        target_name = os.path.splitext(target_name)[0] + '.png'
-    if not overwrite:
-        target_name = generate_outfilename(target_name)
+    target_name = resolve_filename(self.of, '_motiontempo.png', target_name, overwrite)
 
     cap = cv2.VideoCapture(self.filename)
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))

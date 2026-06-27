@@ -5,7 +5,7 @@ from numba import jit
 import matplotlib.pyplot as plt
 import musicalgestures
 from musicalgestures._directograms import directogram
-from musicalgestures._utils import MgProgressbar, MgFigure, convert_to_avi, generate_outfilename
+from musicalgestures._utils import MgProgressbar, MgFigure, convert_to_avi, generate_outfilename, resolve_filename
 from musicalgestures._filter import filter_frame
 
 def impact_envelope(directogram, kernel_size=5):
@@ -163,14 +163,7 @@ def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.
 
     fig.tight_layout()
 
-    if target_name is None:
-        target_name = of + '_impact.png'
-
-    else:
-        # enforce png
-        target_name = os.path.splitext(target_name)[0] + '.png'
-    if not overwrite:
-        target_name = generate_outfilename(target_name)
+    target_name = resolve_filename(of, '_impact.png', target_name, overwrite)
 
     plt.savefig(target_name, format='png', transparent=False)
     plt.close()

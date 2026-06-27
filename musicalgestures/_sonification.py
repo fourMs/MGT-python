@@ -2,7 +2,7 @@ import os
 import numpy as np
 import cv2
 import musicalgestures
-from musicalgestures._utils import MgProgressbar, generate_outfilename, ffmpeg_cmd
+from musicalgestures._utils import MgProgressbar, generate_outfilename, resolve_filename, ffmpeg_cmd
 
 
 def mg_sonomotiongram(
@@ -49,12 +49,7 @@ def mg_sonomotiongram(
     if sonogram not in ('vertical', 'horizontal'):
         raise ValueError("sonogram must be 'vertical' or 'horizontal'.")
 
-    if target_name is None:
-        target_name = f"{self.of}_sono_{sonogram}.wav"
-    else:
-        target_name = os.path.splitext(target_name)[0] + '.wav'
-    if not overwrite:
-        target_name = generate_outfilename(target_name)
+    target_name = resolve_filename(self.of, f"_sono_{sonogram}.wav", target_name, overwrite)
 
     width, height, fps = self.width, self.height, self.fps
     # NB: for MgVideo, self.length is the frame count, not seconds.

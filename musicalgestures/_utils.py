@@ -484,6 +484,36 @@ def generate_outfilename(requested_name):
     return f'{req_of}_{out_increment}{req_fex}'
 
 
+def resolve_filename(stem, suffix, target_name=None, overwrite=True):
+    """Resolve an output filename for a rendered result.
+
+    Centralises the ``target_name``/``overwrite`` logic that most methods repeat: use
+    ``stem + suffix`` when no name is given, otherwise honour the provided ``target_name`` but
+    enforce the extension from ``suffix``; when ``overwrite`` is False, auto-increment the name so
+    nothing is clobbered.
+
+    Args:
+        stem (str): Input filename stem (e.g. ``self.of``), used when ``target_name`` is None.
+        suffix (str): Suffix incl. extension to append to ``stem`` (e.g. ``'_grid.png'``); its
+            extension is also the one enforced on a provided ``target_name``.
+        target_name (str, optional): Explicit output path (its extension is normalised to the
+            ``suffix`` extension). Defaults to None.
+        overwrite (bool, optional): If False, auto-increment to avoid overwriting. Defaults to True.
+
+    Returns:
+        str: The resolved output path.
+    """
+    import os
+    ext = os.path.splitext(suffix)[1]
+    if target_name is None:
+        target_name = stem + suffix
+    else:
+        target_name = os.path.splitext(target_name)[0] + ext
+    if not overwrite:
+        target_name = generate_outfilename(target_name)
+    return target_name
+
+
 def get_frame_planecount(frame):
     """
     Gets the planecount (color channel count) of a video frame.

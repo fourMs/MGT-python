@@ -2,7 +2,7 @@ import os
 import numpy as np
 import cv2
 import musicalgestures
-from musicalgestures._utils import MgProgressbar, generate_outfilename, ffmpeg_cmd
+from musicalgestures._utils import MgProgressbar, generate_outfilename, resolve_filename, ffmpeg_cmd
 
 
 # ---------------------------------------------------------------------------
@@ -97,12 +97,7 @@ def mg_eulerian(
         MgVideo: An MgVideo pointing to the magnified output video.
     """
     of, fex = os.path.splitext(self.filename)
-    if target_name is None:
-        target_name = of + '_evm' + fex
-    else:
-        target_name = os.path.splitext(target_name)[0] + fex
-    if not overwrite:
-        target_name = generate_outfilename(target_name)
+    target_name = resolve_filename(of, '_evm' + fex, target_name, overwrite)
 
     mode = mode.lower()
     width, height, fps = self.width, self.height, self.fps
