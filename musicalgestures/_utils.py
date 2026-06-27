@@ -526,6 +526,31 @@ def pass_if_container_is(container, file):
             f"Container should be {container.lower()}, but it is {os.path.splitext(file)[1].lower()} in file {file}.")
 
 
+_ENCODER_CACHE = {}
+
+
+def ffmpeg_has_encoder(name):
+    """
+    Returns True if the installed FFmpeg has the named encoder (e.g. 'libtheora').
+
+    Useful for guarding format conversions whose codec may be missing from a given
+    FFmpeg build (notably libtheora/libvorbis for .ogg on some macOS/Windows builds).
+    """
+    import subprocess
+    if name in _ENCODER_CACHE:
+        return _ENCODER_CACHE[name]
+    try:
+        out = subprocess.run(['ffmpeg', '-hide_banner', '-encoders'],
+                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                             universal_newlines=True, timeout=15).stdout
+        available = any(line.split()[1] == name for line in out.splitlines()
+                        if len(line.split()) > 1)
+    except Exception:
+        available = False
+    _ENCODER_CACHE[name] = available
+    return available
+
+
 def convert(filename, target_name, overwrite=False):
     """
     Converts a video to another format/container using ffmpeg.
@@ -549,6 +574,11 @@ def convert(filename, target_name, overwrite=False):
         target_name = generate_outfilename(target_name)
     # OGG video requires explicit Theora/Vorbis codecs; FFmpeg won't auto-select them
     if target_fex.lower() == '.ogg':
+        if not ffmpeg_has_encoder('libtheora'):
+            raise FFmpegError(
+                "Converting to .ogg requires the 'libtheora' encoder, which this FFmpeg "
+                "build does not include. Install an FFmpeg with libtheora/libvorbis, or "
+                "use a different output format.")
         cmds = ['ffmpeg', '-y', '-i', filename,
                 '-c:v', 'libtheora', '-c:a', 'libvorbis', '-q:v', '5', target_name]
     else:

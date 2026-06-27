@@ -500,6 +500,10 @@ class Test_convert:
     @pytest.mark.parametrize("execution_number", range(len(list(itertools.combinations(['.avi', '.mp4', '.mov', '.mkv', '.mpg', '.mpeg', '.webm', '.ogg'], 2)))))
     def test_output(self, format_pairs, execution_number, tmp_path, testvideo_avi):
         fex_from, fex_to = format_pairs[execution_number]
+        # .ogg (Theora) conversion needs libtheora, which some FFmpeg builds (e.g. on
+        # macOS/Windows CI) don't include — skip rather than fail on those platforms.
+        if '.ogg' in (fex_from, fex_to) and not ffmpeg_has_encoder('libtheora'):
+            pytest.skip("FFmpeg build lacks the libtheora encoder for .ogg conversion")
         target_name = str(tmp_path).replace("\\", "/") + \
             "/testvideo_converted" + fex_to
         startfile = ""
