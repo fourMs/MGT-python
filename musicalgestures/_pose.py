@@ -1343,93 +1343,55 @@ def _save_pose_txt(of, data, headers, data_format, target_name_data, overwrite):
 
 def download_model(modeltype):
     """
-    Helper function to automatically download model (.caffemodel) files.
+    Download the OpenPose Caffe weights (.caffemodel) for the given model type into the package's
+    ``pose/`` folder.
+
+    Uses Python's ``urllib`` directly (cross-platform, no external ``wget`` / shell scripts /
+    bundled binary). The ``.prototxt`` configs ship with the package; only the large weights file
+    is fetched.
     """
-    import platform
-    import subprocess
     import os
+    import ssl
+    import urllib.request
+    import urllib.error
     import musicalgestures
 
     module_path = os.path.abspath(os.path.dirname(musicalgestures.__file__))
+    base = ("https://www.uio.no/ritmo/english/research/labs/fourms/software/"
+            "musicalgesturestoolbox/mgt-python/pose-models/")
+    # model key -> (url, local folder, filename)
+    models = {
+        'mpi':     (base + 'mpi/pose_iter_160000.caffemodel',   'mpi',     'pose_iter_160000.caffemodel'),
+        'coco':    (base + 'coco/pose_iter_440000.caffemodel',  'coco',    'pose_iter_440000.caffemodel'),
+        'body_25': (base + 'body25/pose_iter_584000.caffemodel', 'body_25', 'pose_iter_584000.caffemodel'),
+    }
+    key = modeltype.lower()
+    if key not in models:
+        raise ValueError(f"Unknown pose model '{modeltype}'. Choose from {sorted(models)}.")
 
-    batch, shell, shell_colab = '_remote.bat', '_remote.sh', '_remote_colab.sh'
+    url, folder, fname = models[key]
+    target_folder = os.path.join(module_path, 'pose', folder)
+    os.makedirs(target_folder, exist_ok=True)
+    target_path = os.path.join(target_folder, fname)
 
-    the_system = platform.system()
+    pb = MgProgressbar(total=100, prefix=f'Downloading {key.upper()} model:')
 
-    pb_prefix = ''
-    mpi_script = module_path + '/pose/getMPI'
-    coco_script = module_path + '/pose/getCOCO'
-    body_25_script = module_path + '/pose/getBODY_25'
-    wget_win = musicalgestures._utils.wrap_str(
-        module_path + '/3rdparty/windows/wget/wget.exe')
-    target_folder_mpi = musicalgestures._utils.wrap_str(
-        module_path + '/pose/mpi')
-    target_folder_coco = musicalgestures._utils.wrap_str(
-        module_path + '/pose/coco')
-    target_folder_body_25 = musicalgestures._utils.wrap_str(
-        module_path + '/pose/body_25')
-
-    if the_system == 'Windows':
-        mpi_script += batch
-        coco_script += batch
-        body_25_script += batch
-    elif in_colab():
-        mpi_script += shell_colab
-        coco_script += shell_colab
-        body_25_script += shell_colab
-    else:
-        mpi_script += shell
-        coco_script += shell
-        body_25_script += shell
-
-    if modeltype.lower() == 'mpi':
-        command = musicalgestures._utils.wrap_str(mpi_script)
-        if the_system == 'Windows':
-            command += f' {wget_win} {target_folder_mpi}'
-        else:
-            command = 'bash ' + command
-            command += f' {target_folder_mpi}'
-        pb_prefix = 'Downloading MPI model:'
-    elif modeltype.lower() == 'coco':
-        command = coco_script
-        if the_system == 'Windows':
-            command += f' {wget_win} {target_folder_coco}'
-        else:
-            command = 'bash ' + command
-            command += f' {target_folder_coco}'
-        pb_prefix = 'Downloading COCO model:'
-    elif modeltype.lower() == 'body_25':
-        command = body_25_script
-        if the_system == 'Windows':
-            command += f' {wget_win} {target_folder_body_25}'
-        else:
-            command = 'bash ' + command
-            command += f' {target_folder_body_25}'
-        pb_prefix = 'Downloading BODY_25 model:'
-
-    pb = MgProgressbar(total=100, prefix=pb_prefix)
-
-    process = subprocess.Popen(
-        command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True, shell=True)
+    def _hook(block_num, block_size, total_size):
+        if total_size > 0:
+            pb.progress(min(100.0, block_num * block_size * 100.0 / total_size))
 
     try:
-        i = 0
-        while True:
-            out = process.stdout.readline()
-            if out == '':
-                process.wait()
-                break
-            elif out.find('%') != -1:
-                percentage_place = out.find('%')
-                percent = out[percentage_place-2:percentage_place]
-                pb.progress(float(percent))
-            # else:
-            #     print(out)
-
-    except KeyboardInterrupt:
+        urllib.request.urlretrieve(url, target_path, _hook)
+    except urllib.error.URLError:
+        # Fall back to a lenient TLS context (mirrors the previous scripts' --no-check-certificate).
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=ctx))
+        urllib.request.install_opener(opener)
         try:
-            process.terminate()
-        except OSError:
-            pass
-        process.wait()
-        raise KeyboardInterrupt
+            urllib.request.urlretrieve(url, target_path, _hook)
+        finally:
+            urllib.request.install_opener(urllib.request.build_opener())  # reset to default opener
+    pb.progress(100)
+    return target_path
