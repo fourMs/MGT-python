@@ -195,13 +195,15 @@ def render_average_pose(data, names, connections, width, height, fps, avg_frame,
     return MgImage(target_name)
 
 
-def render_trajectories(data, names, width, height, fps, target_name, overwrite=False, transparent=False):
+def render_trajectories(data, names, width, height, fps, target_name, overwrite=False,
+                        transparent=False, labels=False):
     """
     Render every marker's spatial trajectory across the whole video.
 
-    When ``transparent`` is True the background is left transparent (and labels are
-    drawn for contrast on either light or dark footage), so the PNG can be overlaid
-    on the original video later. Returns an MgImage, or None if there are too few frames.
+    When ``transparent`` is True the background is left transparent, so the PNG can be
+    overlaid on the original video later. Set ``labels=True`` to annotate each trajectory
+    with its marker name (off by default). Returns an MgImage, or None if there are too few
+    frames.
     """
     n_points = len(names)
     coords, times = _positions_from_data(data, n_points)
@@ -232,13 +234,14 @@ def render_trajectories(data, names, width, height, fps, target_name, overwrite=
             continue
         color = cmap(i / max(n_points - 1, 1))
         ax.plot(path[:, 0], path[:, 1], color=color, lw=0.8, alpha=0.9 if transparent else 0.7, zorder=2)
-        mean_xy = np.nanmean(path, axis=0)
-        if not np.isnan(mean_xy).any():
-            # On a transparent background, don't paint an opaque label box over the (future) video
-            label_bg = 'none' if transparent else 'black'
-            ax.text(mean_xy[0], mean_xy[1], names[i], color=color, fontsize=6,
-                    ha='center', va='center', zorder=3,
-                    bbox=dict(boxstyle='round,pad=0.12', facecolor=label_bg, edgecolor=color, alpha=0.7))
+        if labels:
+            mean_xy = np.nanmean(path, axis=0)
+            if not np.isnan(mean_xy).any():
+                # On a transparent background, don't paint an opaque label box over the (future) video
+                label_bg = 'none' if transparent else 'black'
+                ax.text(mean_xy[0], mean_xy[1], names[i], color=color, fontsize=6,
+                        ha='center', va='center', zorder=3,
+                        bbox=dict(boxstyle='round,pad=0.12', facecolor=label_bg, edgecolor=color, alpha=0.7))
 
     ax.set_xlim(0, width)
     ax.set_ylim(height, 0)
