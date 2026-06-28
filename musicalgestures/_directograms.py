@@ -3,7 +3,6 @@ from __future__ import annotations
 import cv2
 import os
 import numpy as np
-from numba import jit
 import matplotlib.pyplot as plt
 from matplotlib import colors
 
@@ -13,7 +12,24 @@ from musicalgestures._utils import MgProgressbar, MgFigure, convert_to_avi, gene
 
 HISTOGRAM_BINS = np.linspace(-np.pi, np.pi, 100)
 
-@jit(nopython=True)
+# numba is imported lazily (its `import numba` pulls in LLVM and costs ~0.13s of
+# `import musicalgestures`). `_ensure_numba()` JIT-compiles the kernels on first use and
+# rebinds the module globals in dependency order: `directogram` calls `matrix3D_norm`, so the
+# inner kernel must already be a numba Dispatcher in the module namespace when the outer kernel
+# is compiled (numba resolves globals from the function's __globals__ at compile time).
+_numba_ready = False
+
+
+def _ensure_numba():
+    global matrix3D_norm, directogram, _numba_ready
+    if _numba_ready:
+        return
+    from numba import jit
+    matrix3D_norm = jit(nopython=True)(matrix3D_norm)
+    directogram = jit(nopython=True)(directogram)
+    _numba_ready = True
+
+
 def matrix3D_norm(matrix):
     n, m, o = matrix.shape
     norm = np.zeros((n,m))
@@ -23,7 +39,6 @@ def matrix3D_norm(matrix):
             norm[i][j] = np.sqrt(np.sum(np.abs(matrix[i][j]) ** 2)) # Frobenius norm
     return norm
 
-@jit(nopython=True)
 def directogram(optical_flow):
     norms = matrix3D_norm(optical_flow)  # norm of the matrix
     # Compute angles for the optical flow of the input frame
@@ -71,6 +86,8 @@ def mg_directograms(self, title: str | None = None, filtertype: str = 'Adaptativ
         filename = of + fex
     else:
         filename = self.filename
+
+    _ensure_numba()  # JIT-compile the directogram kernels on first use
 
     vidcap = cv2.VideoCapture(filename)
     fps = int(vidcap.get(cv2.CAP_PROP_FPS))

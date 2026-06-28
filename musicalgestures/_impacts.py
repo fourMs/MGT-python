@@ -3,12 +3,25 @@ from __future__ import annotations
 import cv2
 import os
 import numpy as np
-from numba import jit
 import matplotlib.pyplot as plt
 import musicalgestures
-from musicalgestures._directograms import directogram
+from musicalgestures import _directograms
 from musicalgestures._utils import MgProgressbar, MgFigure, convert_to_avi, generate_outfilename, resolve_filename
 from musicalgestures._filter import filter_frame
+
+# numba is imported lazily to keep `import musicalgestures` fast; `_ensure_numba()` JIT-compiles
+# `impact_detection` on first use. The directogram kernels are compiled via the _directograms
+# module so both modules share the same Dispatcher instances.
+_numba_ready = False
+
+
+def _ensure_numba():
+    global impact_detection, _numba_ready
+    if _numba_ready:
+        return
+    from numba import jit
+    impact_detection = jit(nopython=True)(impact_detection)
+    _numba_ready = True
 
 def impact_envelope(directogram: np.ndarray, kernel_size: int = 5):
 
@@ -28,7 +41,6 @@ def impact_envelope(directogram: np.ndarray, kernel_size: int = 5):
 
     return impact_envelope
 
-@jit(nopython=True)
 def impact_detection(envelopes, time, fps, local_mean=0.1, local_maxima=0.15):
 
     global_max = envelopes.max()
@@ -90,6 +102,9 @@ def mg_impacts(self, title: str | None = None, detection: bool = True, local_mea
     else:
         filename = self.filename
 
+    _directograms._ensure_numba()  # JIT-compile the directogram kernels on first use
+    _ensure_numba()                # JIT-compile impact_detection on first use
+
     vidcap = cv2.VideoCapture(filename)
     fps = int(vidcap.get(cv2.CAP_PROP_FPS))
     width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -123,7 +138,7 @@ def mg_impacts(self, title: str | None = None, detection: bool = True, local_mea
             # The description of the matching parameters are taken from the cv2 documentation.
             optical_flow = cv2.calcOpticalFlowFarneback(
                 prev_frame, next_frame, None, 0.5, 3, 15, 3, 5, 1.2, 0)
-            directograms.append(directogram(optical_flow))
+            directograms.append(_directograms.directogram(optical_flow))
             directogram_times.append(len(directograms) / fps) 
             prev_frame = next_frame
 

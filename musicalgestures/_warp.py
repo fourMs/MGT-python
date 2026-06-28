@@ -1,24 +1,38 @@
+from __future__ import annotations
+
 import cv2
 import os
 import numpy as np
 import librosa
 import soundfile as sf
 import subprocess
-from numba import jit
 
 import musicalgestures
 from musicalgestures._directograms import mg_directograms
 from musicalgestures._impacts import impact_envelope
 from musicalgestures._utils import MgProgressbar, generate_outfilename, wrap_str
 
-@jit(nopython=True)
+# numba is imported lazily to keep `import musicalgestures` fast; `_ensure_numba()` JIT-compiles
+# `beats_diff` on first use.
+_numba_ready = False
+
+
+def _ensure_numba():
+    global beats_diff, _numba_ready
+    if _numba_ready:
+        return
+    from numba import jit
+    beats_diff = jit(nopython=True)(beats_diff)
+    _numba_ready = True
+
+
 def beats_diff(beats, media):
     beat = beats[0]
     diff = np.append(beat, np.diff(beats))
     beats_diff = np.append(diff, media.shape[0] - beats[-1])
     return beats_diff
 
-def mg_warp_audiovisual_beats(self, audio_file, speed=(0.5,2), data=None, filtertype='Adaptative', threshold=0.05, kernel_size=5, target_name=None, overwrite=True) -> "musicalgestures.MgVideo":
+def mg_warp_audiovisual_beats(self, audio_file: str, speed: tuple = (0.5, 2), data=None, filtertype: str = 'Adaptative', threshold: float = 0.05, kernel_size: int = 5, target_name: str | None = None, overwrite: bool = True) -> "musicalgestures.MgVideo":
     """
     Warp audio beats with visual beats (patterns of motion that can be shifted in time to control visual rhythm).
     Visual beats are warped after computing a directogram which factors the magnitude of motion in the video into different angles.
@@ -72,6 +86,7 @@ def mg_warp_audiovisual_beats(self, audio_file, speed=(0.5,2), data=None, filter
 
     # WARP AUDIO AND VISUAL BEATS -----------------------------------------------------------------------------------------------
 
+    _ensure_numba()  # JIT-compile beats_diff on first use
     audio_differences = beats_diff(audio_beats[1], signal)
     pb.progress(30)
     visual_differences = beats_diff(visual_beats[1], np.ndarray.flatten(directograms))

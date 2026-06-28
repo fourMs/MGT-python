@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Faster import** (#349): `import musicalgestures` dropped from ~0.65s to ~0.52s by deferring
+  `import numba` (it pulls in LLVM). The `@jit` kernels in `_directograms`, `_impacts` and `_warp`
+  are now compiled lazily on first use. The nested directogram case (`directogram` calls
+  `matrix3D_norm`) is handled by compiling the inner kernel and rebinding the module global before
+  the outer kernel compiles — the issue that reverted the first attempt. Adds
+  `tests/test_numba_kernels.py` to pin the deferral and nested-jit behaviour.
+- Also added the missing parameter type hints to `mg_warp_audiovisual_beats` (a follow-on to #345).
+
 ---
 
 ## [1.6.6] – 2026-06-28
