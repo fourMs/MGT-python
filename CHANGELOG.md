@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.6.4] – 2026-06-28
+
+### Added
+- **Type hints + `py.typed`** — the `MgVideo`/`MgAudio`/`MgImage`/`MgFigure` constructors are typed
+  and ~45 public methods now declare their return types (the audio suite, space-time
+  visualisations, the audio–movement reports, motion/pose/flow/ssm/videograms, etc.). A `py.typed`
+  marker is shipped (PEP 561) so the hints are consumed by downstream type checkers. (Parameter
+  annotations and stricter CI mypy remain an ongoing follow-up — see #345.)
+
+### Internal
+- Extended the `resolve_filename()` output-path helper (1.6.3) to the remaining single-target
+  methods: the space-time visualisations, the audio–movement reports, `beat_statistics`/
+  `tempo_similarity`, both `videograms` passes, `history`/`history_cv2`, `pixelarray`/
+  `pixelarray_cv2`, and `flow.dense`/`flow.sparse`/the velocity plot (#344). ~38 sites total now
+  use the shared helper, removing the copy-paste `target_name`/`overwrite` bug class for all
+  standard single-target outputs.
+
+---
+
 ## [1.6.3] – 2026-06-27
 
 ### Changed
@@ -430,7 +449,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.6.3...HEAD
+[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.6.4...HEAD
+[1.6.4]: https://github.com/fourMs/MGT-python/compare/v1.6.3...v1.6.4
 [1.6.3]: https://github.com/fourMs/MGT-python/compare/v1.6.2...v1.6.3
 [1.6.2]: https://github.com/fourMs/MGT-python/compare/v1.6.1...v1.6.2
 [1.6.1]: https://github.com/fourMs/MGT-python/compare/v1.6.0...v1.6.1

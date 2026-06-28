@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.6.3**.
+The current stable release is **MGT-python 1.6.4**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,13 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.6.4
+
+- Type hints on the core classes and ~45 public-method return types, plus a shipped `py.typed`
+  marker so type checkers/IDEs use them.
+- Extended the `resolve_filename()` output-path helper to the remaining single-target methods
+  (~38 sites), eliminating the copy-paste `target_name`/`overwrite` bug class.
 
 ### 1.6.3
 
