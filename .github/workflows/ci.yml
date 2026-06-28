@@ -82,4 +82,6 @@ jobs:
       run: ruff format --check musicalgestures/ || true
 
     - name: Mypy type check
-      run: mypy musicalgestures/ --ignore-missing-imports --no-error-summary || true
+      # Non-blocking: the public API is typed (params + returns + py.typed), but the internals
+      # still have a backlog of errors. Settings (follow_imports/exclude) come from pyproject.toml.
+      run: mypy musicalgestures/ || true

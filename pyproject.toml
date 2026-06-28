@@ -90,3 +90,7 @@ addopts = "--tb=short"
 python_version = "3.10"
 ignore_missing_imports = true
 warn_return_any = true
+# Don't descend into imported third-party sources — some ship 3.12-only syntax that aborts the
+# run on our 3.10 target (e.g. tifffile's `type` statement). We only type-check our own package.
+follow_imports = "skip"
+exclude = "musicalgestures/(deprecated|3rdparty)/"

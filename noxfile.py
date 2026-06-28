@@ -26,7 +26,8 @@ def lint(session: nox.Session) -> None:
 def typecheck(session: nox.Session) -> None:
     """Run mypy type checker."""
     session.install("-e", ".[dev]")
-    session.run("mypy", "musicalgestures/", "--ignore-missing-imports", "--no-error-summary")
+    # follow_imports/exclude/ignore_missing_imports come from [tool.mypy] in pyproject.toml.
+    session.run("mypy", "musicalgestures/")
 
 
 @nox.session(python="3.12")
