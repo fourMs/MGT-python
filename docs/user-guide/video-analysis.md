@@ -72,6 +72,9 @@ motion_video.show()
 mv.show(key='motion')           # equivalent shorthand
 ```
 
+![Motion video of dance.avi](../images/examples/motion.gif)
+*The motion video: bright where the image changes between frames.*
+
 ### Shortcuts
 
 ```python
@@ -257,9 +260,14 @@ md.show()                                    # QoM time series + power spectrum
 ```
 
 The spectral descriptors use a **Hann window** by default to reduce leakage from the finite QoM
-segment; pass `window='none'` for a rectangular window. The scalars are also written to a
+segment; pass `window='none'` for a rectangular window. The dominant frequency and spectral
+centroid are searched within a movement band (`fmin`/`fmax`, default 0.2–10 Hz) so slow amplitude
+drift near 0 Hz doesn't masquerade as the movement rhythm. The scalars are also written to a
 `_motiondescriptors.csv` (set `save_data=False` to skip), and `data['frequencies']`/`data['power']`
 hold the full spectrum.
+
+![Motion descriptors of dance.avi](../images/examples/motiondescriptors.png)
+*Quantity of motion over time and its Hann-windowed power spectrum, with the dominant movement frequency marked; the energy / SPARC smoothness / entropy / spectral-centroid scalars are shown above.*
 
 ---
 
@@ -271,6 +279,9 @@ hold the full spectrum.
 mvecs = mv.motionvectors()      # returns MgVideo
 mvecs.show()
 ```
+
+![Motion vectors of dance.avi](../images/examples/motionvectors.gif)
+*Per-block motion vectors drawn by the decoder's `codecview` filter.*
 
 !!! note
     Intra-only formats (e.g. MJPEG in many `.avi` files) carry no motion vectors. Convert to an mp4/H.264 source first to see them.
@@ -290,8 +301,8 @@ evm = mv.eulerian(mode='motion', freq_low=0.4, freq_high=3.0, amplification=20)
 evm.show()
 ```
 
-![Eulerian video magnification frame of dance.avi](../images/examples/eulerian.png)
-*Eulerian video magnification: a single frame from the output video, with subtle changes amplified.*
+![Eulerian video magnification of dance.avi](../images/examples/eulerian.gif)
+*Eulerian video magnification: subtle changes amplified across the output video.*
 
 - `mode='color'` uses a Gaussian pyramid + ideal FFT temporal band-pass (two-pass, low memory)
 - `mode='motion'` uses a Laplacian pyramid + streaming IIR band-pass (frame-by-frame, low memory)
@@ -398,8 +409,8 @@ history.show()
 mv.show(key='history')
 ```
 
-![History video frame of dance.avi](../images/examples/history.png)
-*History: a single frame from the output video, with the last `history_length` frames overlaid to trace the trajectory of motion.*
+![History video of dance.avi](../images/examples/history.gif)
+*History applied to a motion video: each frame overlays the last `history_length` frames, tracing the trajectory of motion.*
 
 Applying history to a motion video emphasises movement traces:
 
@@ -624,6 +635,9 @@ flow_sparse.show()
 mv.show(key='sparse')
 ```
 
+![Sparse optical flow of dance.avi](../images/examples/flow_sparse.gif)
+*Sparse optical flow: tracked feature points and their trajectories.*
+
 ### Dense
 
 Dense optical flow estimates movement at every pixel, colour-coding direction.
@@ -634,6 +648,9 @@ flow_dense = mv.flow.dense(use_gpu=True)        # CUDA acceleration with CPU fal
 flow_dense.show()
 mv.show(key='dense')
 ```
+
+![Dense optical flow of dance.avi](../images/examples/flow_dense.gif)
+*Dense optical flow: hue encodes direction, brightness encodes speed, at every pixel.*
 
 ### Velocity
 

@@ -84,6 +84,7 @@ def _qom_spectrum(qom: np.ndarray, fps: float, window: str = 'hann') -> tuple[np
 
 
 def mg_motiondescriptors(self, window: str = 'hann', entropy_bins: int = 50,
+                         fmin: float = 0.2, fmax: float = 10.0,
                          save_data: bool = True, save_plot: bool = True,
                          data_format: str = 'csv', target_name: str | None = None,
                          overwrite: bool = True) -> "MgFigure":
@@ -105,6 +106,10 @@ def mg_motiondescriptors(self, window: str = 'hann', entropy_bins: int = 50,
         window (str, optional): FFT window for the spectral descriptors — 'hann' (default,
             recommended to reduce leakage) or 'none' for a rectangular window.
         entropy_bins (int, optional): Number of histogram bins for the entropy estimate. Defaults to 50.
+        fmin (float, optional): Lowest frequency (Hz) considered for the dominant frequency and
+            spectral centroid, excluding slow amplitude drift near DC. Defaults to 0.2.
+        fmax (float, optional): Highest frequency (Hz) considered for those spectral descriptors.
+            Defaults to 10.0.
         save_data (bool, optional): Save the descriptors to a data file. Defaults to True.
         save_plot (bool, optional): Save the figure (QoM time series + power spectrum). Defaults to True.
         data_format (str, optional): Data file format: 'csv', 'tsv' or 'txt'. Defaults to 'csv'.
@@ -125,11 +130,16 @@ def mg_motiondescriptors(self, window: str = 'hann', entropy_bins: int = 50,
     motion_entropy = _motion_entropy(qom, bins=entropy_bins)
     freqs, power = _qom_spectrum(qom, fps, window=window)
 
-    if power.size > 1 and power[1:].any():
-        dominant_freq = float(freqs[1 + int(np.argmax(power[1:]))])  # skip the 0 Hz bin
+    # Restrict the spectral descriptors to a movement band so slow amplitude drift near DC
+    # doesn't masquerade as the dominant movement rhythm.
+    band = (freqs >= fmin) & (freqs <= fmax)
+    if band.any() and power[band].any():
+        f_band, p_band = freqs[band], power[band]
+        dominant_freq = float(f_band[int(np.argmax(p_band))])
+        spectral_centroid = float(np.sum(f_band * p_band) / np.sum(p_band))
     else:
         dominant_freq = 0.0
-    spectral_centroid = float(np.sum(freqs * power) / np.sum(power)) if power.sum() > 0 else 0.0
+        spectral_centroid = 0.0
 
     d = {
         'of': self.of,
@@ -141,6 +151,8 @@ def mg_motiondescriptors(self, window: str = 'hann', entropy_bins: int = 50,
         'dominant_freq': dominant_freq,
         'spectral_centroid': spectral_centroid,
         'window': window,
+        'fmin': fmin,
+        'fmax': fmax,
         'qom': qom,
         'frequencies': freqs,
         'power': power,
@@ -192,7 +204,7 @@ def _save_descriptors(of: str, d: dict, data_format: str, overwrite: bool) -> No
     """Write the scalar descriptors to a key/value data file (one descriptor per row)."""
     formats = data_format if isinstance(data_format, list) else [data_format]
     keys = ['fps', 'n_frames', 'motion_energy', 'motion_smoothness', 'motion_entropy',
-            'dominant_freq', 'spectral_centroid', 'window']
+            'dominant_freq', 'spectral_centroid', 'window', 'fmin', 'fmax']
     for fmt in formats:
         sep = '\t' if fmt in ('tsv', 'txt') else ','
         ext = '.tsv' if fmt == 'tsv' else ('.txt' if fmt == 'txt' else '.csv')
