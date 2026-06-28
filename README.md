@@ -39,6 +39,7 @@ v.heatmap().show()              # where the video changes most
 # Motion analysis
 v.motion().show()
 v.motiontempo().show()          # dominant movement tempo (Hz/BPM)
+v.motiondescriptors().show()    # motion energy, smoothness, entropy, spectral descriptors
 v.eulerian(mode='motion').show()  # amplify subtle motion (EVM)
 
 # Audio analysis
@@ -79,7 +80,7 @@ v.pose(model='mediapipe').show()
 
 ## Features
 
-- **Video Analysis**: Motion detection, optical flow, motion vectors, movement tempo, Eulerian Video Magnification, frame-rate/speed resampling (`resample()`)
+- **Video Analysis**: Motion detection, optical flow, motion vectors, movement tempo, Eulerian Video Magnification, frame-rate/speed resampling (`resample()`), motion descriptors (energy/smoothness/entropy/spectral via `motiondescriptors()`)
 - **Pose Estimation**: MediaPipe (default; fast on plain CPU, GPU-capable) and OpenPose (multi-person) backends, with average-pose and trajectory summaries (per-marker quantity of motion + dominant frequency), optional marker motion trails, a 3D pose waterfall (`pose_waterfall()`), per-segment circular statistics (`pose_segments()`), centroid centring (`pose_center()`), and per-marker distance travelled (`pose_distance()`)
 - **Audio–movement analysis**: Compare a single performer's sound and motion — tempo similarity, phase synchrony, structural similarity, per-body-part audio coupling, and loudness/dynamics coupling
 - **Audio Processing**: Waveforms, spectrograms, MFCC, chromagrams, tempo/beat tracking, spectral descriptors

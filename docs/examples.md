@@ -198,6 +198,19 @@ dec  = mv.resample(skip=2)        # discard 2 frames for every one kept
 mv25.show()
 ```
 
+### Example: Motion descriptors
+
+```python
+import musicalgestures as mg
+mv = mg.MgVideo(mg.examples.dance)
+md = mv.motiondescriptors()                 # returns MgFigure
+print(md.data['motion_energy'], md.data['motion_smoothness'])
+print(md.data['motion_entropy'], md.data['dominant_freq'])
+md.show()                                    # QoM time series + power spectrum
+```
+
+![Motion descriptors of dance.avi](images/examples/motiondescriptors.png)
+
 ### Example 8c: Pose waterfall and segment statistics
 
 ```python
@@ -342,6 +355,262 @@ mg.MgVideo(mg.examples.dance, skip=3).motionvideo().history(normalize=True).show
 # Chain motion → average image → show
 mg.MgVideo(mg.examples.dance, skip=15).motionvideo().average().show()
 ```
+
+## Gallery
+
+A visual tour of the outputs produced by the methods above. Each image was rendered from one of the bundled example clips (`mg.examples.dance` or `mg.examples.pianist`).
+
+### Motion
+
+**Motion video**
+
+![Motion video](images/examples/motion.gif)
+
+*`mv.motion()` — frame-difference motion video.*
+
+**Horizontal motiongram**
+
+![Horizontal motiongram](images/examples/motiongram_h.png)
+
+*`mv.motiongrams()[0]` — motion collapsed over rows, time on the x-axis.*
+
+**Vertical motiongram**
+
+![Vertical motiongram](images/examples/motiongram_v.png)
+
+*`mv.motiongrams()[1]` — motion collapsed over columns, time on the y-axis.*
+
+**Motion history**
+
+![Motion history](images/examples/motionhistory.png)
+
+*`mv.motionhistory()` — accumulated motion trails in a single image.*
+
+**Motion heatmap**
+
+![Motion heatmap](images/examples/heatmap.png)
+
+*Spatial distribution of where motion occurs across the clip.*
+
+**Average image**
+
+![Average image](images/examples/average.png)
+
+*`mv.average()` — pixel-wise average of all frames.*
+
+**History video**
+
+![History video](images/examples/history.gif)
+
+*`mv.history()` — recent frames overlaid on the current frame.*
+
+**Motion descriptors**
+
+![Motion descriptors](images/examples/motiondescriptors.png)
+
+*`mv.motiondescriptors()` — quantity-of-motion time series and its power spectrum.*
+
+**Motion tempo**
+
+![Motion tempo](images/examples/motiontempo.png)
+
+*Periodicity of the movement signal over time.*
+
+### Space-time
+
+**Stroboscope**
+
+![Stroboscope](images/examples/stroboscope.png)
+
+*`mv.stroboscope()` — successive poses superimposed in one frame.*
+
+**Silhouette waterfall**
+
+![Silhouette waterfall](images/examples/silhouette_waterfall.png)
+
+*Stacked silhouettes revealing the body's path through time.*
+
+### Motion vectors & optical flow
+
+**Motion vectors**
+
+![Motion vectors](images/examples/motionvectors.gif)
+
+*`mv.motionvectors()` — block motion vectors overlaid on the video.*
+
+**Dense optical flow**
+
+![Dense optical flow](images/examples/flow_dense.gif)
+
+*`mv.flow.dense()` — colour encodes direction, brightness encodes speed.*
+
+**Sparse optical flow**
+
+![Sparse optical flow](images/examples/flow_sparse.gif)
+
+*`mv.flow.sparse()` — tracked feature points and their trajectories.*
+
+### Eulerian
+
+**Eulerian magnification**
+
+![Eulerian magnification](images/examples/eulerian.gif)
+
+*`mv.motion()`-style amplification of subtle, otherwise invisible motion.*
+
+### Videograms & SSM
+
+**Horizontal videogram**
+
+![Horizontal videogram](images/examples/videogram_h.png)
+
+*`mv.videograms()[0]` — raw frames collapsed over rows.*
+
+**Vertical videogram**
+
+![Vertical videogram](images/examples/videogram_v.png)
+
+*`mv.videograms()[1]` — raw frames collapsed over columns.*
+
+**Self-similarity matrix**
+
+![Self-similarity matrix](images/examples/ssm.png)
+
+*`mv.ssm()` — recurrence structure of the visual content over time.*
+
+### Directograms & impacts
+
+**Directogram**
+
+![Directogram](images/examples/directograms.png)
+
+*Distribution of motion directions over time.*
+
+**Impacts**
+
+![Impacts](images/examples/impacts.png)
+
+*Detected movement impacts / accents.*
+
+### Pose
+
+**Pose average**
+
+![Pose average](images/examples/pose_average.png)
+
+*Average pose across the clip.*
+
+**Pose trajectories**
+
+![Pose trajectories](images/examples/pose_trajectories.png)
+
+*Paths traced by each tracked landmark.*
+
+**Pose waterfall (trajectories)**
+
+![Pose waterfall trajectories](images/examples/pose_waterfall_trajectories.png)
+
+*`mv.pose_waterfall(style='trajectories')` — 3D spatio-temporal landmark paths.*
+
+**Pose waterfall (skeleton)**
+
+![Pose waterfall skeleton](images/examples/pose_waterfall_skeleton.png)
+
+*`mv.pose_waterfall(style='skeleton')` — stacked skeletons through time.*
+
+**Pose segments**
+
+![Pose segments](images/examples/pose_segments.png)
+
+*`mv.pose_segments()` — circular statistics per body segment.*
+
+**Pose center**
+
+![Pose center](images/examples/pose_center.png)
+
+*Trajectory of the body's centre of mass.*
+
+**Pose distance**
+
+![Pose distance](images/examples/pose_distance.png)
+
+*Inter-landmark distances over time.*
+
+### Audio
+
+**Waveform**
+
+![Waveform](images/examples/waveform.png)
+
+*`mv.audio.waveform()` — amplitude envelope.*
+
+**Spectrogram**
+
+![Spectrogram](images/examples/spectrogram.png)
+
+*`mv.audio.spectrogram()` — time-frequency energy.*
+
+**MFCC**
+
+![MFCC](images/examples/mfcc.png)
+
+*Mel-frequency cepstral coefficients.*
+
+**Chromagram**
+
+![Chromagram](images/examples/chromagram.png)
+
+*Pitch-class energy over time.*
+
+**Tempogram**
+
+![Tempogram](images/examples/tempogram.png)
+
+*`mv.audio.tempogram()` — local tempo estimates.*
+
+**Tempo**
+
+![Tempo](images/examples/tempo.png)
+
+*Estimated beat / tempo curve.*
+
+**Audio descriptors**
+
+![Audio descriptors](images/examples/descriptors.png)
+
+*`mv.audio.descriptors()` — combined audio feature summary.*
+
+### Audio–movement
+
+**Tempo similarity**
+
+![Tempo similarity](images/examples/tempo_similarity.png)
+
+*`mv.tempo_similarity()` — audio tempo vs. movement tempo.*
+
+**Phase synchrony**
+
+![Phase synchrony](images/examples/phase_synchrony.png)
+
+*`mv.phase_synchrony()` — phase-locking between audio and movement rhythm.*
+
+**Structure comparison**
+
+![Structure comparison](images/examples/structure_comparison.png)
+
+*`mv.structure_comparison()` — audio SSM vs. movement SSM.*
+
+**Body–audio coupling**
+
+![Body–audio coupling](images/examples/body_audio_coupling.png)
+
+*`mv.body_audio_coupling()` — which body parts track the music.*
+
+**Dynamics coupling**
+
+![Dynamics coupling](images/examples/dynamics_coupling.png)
+
+*`mv.dynamics_coupling()` — loudness vs. quantity of motion.*
 
 ## Next Steps
 
