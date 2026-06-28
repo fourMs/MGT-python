@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.6.4**.
+The current stable release is **MGT-python 1.6.5**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,12 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.6.5
+
+- Faster chained space-time analyses: the average background frame (recomputed by
+  `stroboscope`, `silhouette_waterfall` and `spacetime_volume`) is now decoded once and cached
+  per `MgVideo`, joining the existing quantity-of-motion and audio-envelope caches (#347).
 
 ### 1.6.4
 

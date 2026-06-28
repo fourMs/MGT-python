@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [1.6.5] – 2026-06-28
+
 ### Internal
 - **Cached average-frame decode** for the space-time analyses (#347). `stroboscope`,
   `silhouette_waterfall` and `spacetime_volume` all reconstruct the same average background frame
