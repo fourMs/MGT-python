@@ -1,7 +1,7 @@
 import numpy as np
 import os
 import cv2
-from musicalgestures._utils import MgImage, MgProgressbar, generate_outfilename, get_framecount, get_length, ffmpeg_cmd
+from musicalgestures._utils import MgImage, MgProgressbar, generate_outfilename, resolve_filename, get_framecount, get_length, ffmpeg_cmd
 
 
 def mg_pixelarray(self, width=640, target_name=None, overwrite=True):
@@ -27,10 +27,7 @@ def mg_pixelarray(self, width=640, target_name=None, overwrite=True):
         MgImage: A new MgImage pointing to the output frame-averaged pixel array image file.
     """
     
-    if target_name is None:
-        target_name = f"{self.of}_pixelarray_{width}.png"
-    if not overwrite:
-        target_name = generate_outfilename(target_name)
+    target_name = resolve_filename(self.of, f"_pixelarray_{width}.png", target_name, overwrite)
     
     # Get video properties
     frames = get_framecount(self.filename)
@@ -69,10 +66,7 @@ def mg_pixelarray_cv2(self, width=640, target_name=None, overwrite=True):
         MgImage: A new MgImage pointing to the output frame-averaged pixel array image file.
     """
     
-    if target_name is None:
-        target_name = f"{self.of}_pixelarray_cv2_{width}.png"
-    if not overwrite:
-        target_name = generate_outfilename(target_name)
+    target_name = resolve_filename(self.of, f"_pixelarray_cv2_{width}.png", target_name, overwrite)
     
     # Open video
     cap = cv2.VideoCapture(self.filename)

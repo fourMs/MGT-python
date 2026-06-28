@@ -6,7 +6,7 @@ import weakref
 import matplotlib.pyplot as plt
 
 import musicalgestures
-from musicalgestures._utils import MgFigure, extract_wav, embed_audio_in_video, MgProgressbar, convert_to_avi, generate_outfilename, ffmpeg_cmd, get_cuda_device_count, cuda_unavailable_reason
+from musicalgestures._utils import MgFigure, extract_wav, embed_audio_in_video, MgProgressbar, convert_to_avi, generate_outfilename, resolve_filename, ffmpeg_cmd, get_cuda_device_count, cuda_unavailable_reason
 
 
 class Flow:
@@ -129,10 +129,7 @@ class Flow:
         else:
             pb = MgProgressbar(total=length, prefix='Rendering dense optical flow video:')
 
-            if target_name is None:
-                target_name = of + '_flow_dense' + fex
-            if not overwrite:
-                target_name = generate_outfilename(target_name)
+            target_name = resolve_filename(of, '_flow_dense' + fex, target_name, overwrite)
 
             cmd = ['ffmpeg', '-y', '-s', '{}x{}'.format(width, height),
                    '-r', str(fps), '-f', 'rawvideo', '-pix_fmt', 'bgr24', '-vcodec', 'rawvideo',
@@ -241,14 +238,7 @@ class Flow:
 
             fig.tight_layout()
 
-            if target_name is None:
-                target_name = of + '_velocity.png'
-
-            else:
-                # enforce png
-                target_name = os.path.splitext(target_name)[0] + '.png'
-            if not overwrite:
-                target_name = generate_outfilename(target_name)
+            target_name = resolve_filename(of, '_velocity.png', target_name, overwrite)
 
             plt.savefig(target_name, format='png', transparent=False)
             plt.close()
@@ -390,10 +380,7 @@ class Flow:
         pb = MgProgressbar(
             total=length, prefix='Rendering sparse optical flow video:')
 
-        if target_name is None:
-            target_name = of + '_flow_sparse' + fex
-        if not overwrite:
-            target_name = generate_outfilename(target_name)
+        target_name = resolve_filename(of, '_flow_sparse' + fex, target_name, overwrite)
 
         cmd = ['ffmpeg', '-y', '-s', '{}x{}'.format(width, height),
                '-r', str(fps), '-f', 'rawvideo', '-pix_fmt', 'bgr24', '-vcodec', 'rawvideo',

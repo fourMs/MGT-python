@@ -1,7 +1,7 @@
 import cv2
 import os
 import numpy as np
-from musicalgestures._utils import extract_wav, embed_audio_in_video, MgProgressbar, ffmpeg_cmd, get_length, generate_outfilename, convert_to_avi
+from musicalgestures._utils import extract_wav, embed_audio_in_video, MgProgressbar, ffmpeg_cmd, get_length, generate_outfilename, resolve_filename, convert_to_avi
 from musicalgestures._exceptions import MgInputError
 import musicalgestures
 
@@ -79,10 +79,7 @@ def history_ffmpeg(self, filename=None, history_length=10, weights=1, normalize=
             raise MgInputError(
                 'Wrong type used for norm_smooth. Use only int.')
 
-    if target_name is None:
-        target_name = of + '_history' + fex
-    if not overwrite:
-        target_name = generate_outfilename(target_name)
+    target_name = resolve_filename(of, '_history' + fex, target_name, overwrite)
 
     if normalize:
         if norm_smooth != 0:
@@ -146,10 +143,7 @@ def history_cv2(self, filename=None, history_length=10, weights=1, convert=True,
 
     pb = MgProgressbar(total=length, prefix='Rendering history video:')
 
-    if target_name is None:
-        target_name = of + '_history' + fex
-    if not overwrite:
-        target_name = generate_outfilename(target_name)
+    target_name = resolve_filename(of, '_history' + fex, target_name, overwrite)
 
     out = cv2.VideoWriter(target_name, fourcc, fps, (width, height))
 
