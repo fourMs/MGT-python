@@ -24,11 +24,11 @@ class MgAudio:
     """
 
     def __init__(
-            self, 
-            filename,
-            sr=None,
-            n_fft=2048, 
-            hop_length=512,
+            self,
+            filename: str,
+            sr: int = None,
+            n_fft: int = 2048,
+            hop_length: int = 512,
             ):
         """
         Initializes the MgAudio class.

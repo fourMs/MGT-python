@@ -209,7 +209,7 @@ class MgImage():
     Class for handling images in the Musical Gestures Toolbox.
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename: str):
         """
         Initializes the MgImage object.
 
@@ -263,7 +263,8 @@ class MgFigure():
     Class for working with figures and plots within the Musical Gestures Toolbox.
     """
 
-    def __init__(self, figure=None, figure_type=None, data=None, layers=None, image=None):
+    def __init__(self, figure=None, figure_type: str = None, data: dict = None,
+                 layers: list = None, image=None):
         """
         Initializes the MgFigure object.
 
