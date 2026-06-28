@@ -174,6 +174,7 @@ class MgVideo(MgAudio):
     # (source='audio' delegates to the audio analysis; source='motion' uses movement onsets).
     from musicalgestures._movementbeats import mg_beat_statistics as beat_statistics
     from musicalgestures._movementbeats import mg_tempo_similarity as tempo_similarity
+    from musicalgestures._motiondescriptors import mg_motiondescriptors as motiondescriptors
     from musicalgestures._audio_video import (
         mg_phase_synchrony as phase_synchrony,
         mg_structure_comparison as structure_comparison,

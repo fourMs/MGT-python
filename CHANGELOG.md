@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **`motiondescriptors()`** (#210) — higher-level scalar movement descriptors from the
+  quantity-of-motion signal: **motion energy** (mean squared QoM), **motion smoothness**
+  (SPARC — spectral arc length, a dimensionless validated smoothness metric), **motion entropy**
+  (normalised 0–1 Shannon entropy of the QoM magnitude distribution), and **spectral descriptors**
+  (dominant frequency + spectral centroid from the Hann-windowed QoM power spectrum). Returns an
+  `MgFigure` (QoM time series + power spectrum) with the scalars and full spectrum in `.data`, and
+  writes a `_motiondescriptors.csv`. Hann windowing is the documented default (with `window='none'`
+  for rectangular), answering the windowing question raised in the issue.
+
 ---
 
 ## [1.6.8] – 2026-06-28

@@ -27,6 +27,7 @@ commonly confused pairs — one line each:
 | `pose_waterfall()` | pose **markers** flowing through `(x, time, y)` space (needs pose data). |
 | `silhouette_waterfall()` | the **silhouette** profile cascading over a time axis (no pose needed). |
 | `motiontempo()` | the dominant **movement** tempo (from the quantity-of-motion signal). |
+| `motiondescriptors()` | scalar summaries of *how* something moves: motion energy, smoothness (SPARC), entropy, and spectral descriptors. |
 | audio `tempo()` / `tempogram()` | the **audio** tempo / rhythmic periodicity. |
 | `tempo_similarity()` | to **compare** movement tempo against audio tempo. |
 
@@ -231,6 +232,34 @@ mt.show()                                   # QoM signal + movement spectrum
 *Movement tempo: the quantity-of-motion signal and its FFT movement spectrum, with the dominant tempo marked.*
 
 Restrict the search band with `fmin`/`fmax` (Hz).
+
+---
+
+## Motion descriptors
+
+`motiondescriptors()` summarises *how* something moves with a compact set of higher-level scalar
+descriptors computed from the quantity-of-motion (QoM) signal — complementing the per-frame data
+from `motion()`:
+
+| descriptor | meaning |
+| --- | --- |
+| `motion_energy` | mean squared QoM — the overall amount of movement. |
+| `motion_smoothness` | **SPARC** (spectral arc length), a dimensionless, validated smoothness metric. It is non-positive; *less* negative = smoother, *more* negative = jerkier. |
+| `motion_entropy` | normalised (0–1) Shannon entropy of the QoM magnitude distribution — the complexity/variedness of the motion. |
+| `dominant_freq` | the main movement-rhythm rate (Hz) from the QoM power spectrum. |
+| `spectral_centroid` | the "centre of mass" (Hz) of the movement spectrum. |
+
+```python
+md = mv.motiondescriptors()                 # returns MgFigure
+print(md.data['motion_smoothness'])         # SPARC smoothness
+print(md.data['motion_entropy'])            # 0–1
+md.show()                                    # QoM time series + power spectrum
+```
+
+The spectral descriptors use a **Hann window** by default to reduce leakage from the finite QoM
+segment; pass `window='none'` for a rectangular window. The scalars are also written to a
+`_motiondescriptors.csv` (set `save_data=False` to skip), and `data['frequencies']`/`data['power']`
+hold the full spectrum.
 
 ---
 
