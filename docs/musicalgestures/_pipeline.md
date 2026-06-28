@@ -41,7 +41,7 @@ array([0.25, 0.5 , 1.  ])
 
 ## MgPipeline
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pipeline.py#L64)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pipeline.py#L63)
 
 ```python
 class MgPipeline():
@@ -74,7 +74,7 @@ array([-1.41421356, -0.70710678,  0.        ,  0.70710678,  1.41421356])
 
 ### MgPipeline().add_step
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pipeline.py#L100)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pipeline.py#L99)
 
 ```python
 def add_step(step: MgStep | tuple[str, Callable]) -> 'MgPipeline':
@@ -94,7 +94,7 @@ MgPipeline
 
 ### MgPipeline().describe
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pipeline.py#L209)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pipeline.py#L208)
 
 ```python
 def describe() -> list[dict[str, Any]]:
@@ -108,7 +108,7 @@ list[dict[str, Any]]
 
 ### MgPipeline().fit
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pipeline.py#L160)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pipeline.py#L159)
 
 ```python
 def fit(X: Any, y: Any = None) -> 'MgPipeline':
@@ -133,7 +133,7 @@ MgPipeline
 
 ### MgPipeline().fit_transform
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pipeline.py#L188)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pipeline.py#L187)
 
 ```python
 def fit_transform(X: Any, y: Any = None) -> Any:
@@ -154,7 +154,7 @@ Any
 
 ### MgPipeline().transform
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pipeline.py#L139)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pipeline.py#L138)
 
 ```python
 def transform(X: Any) -> Any:
@@ -174,7 +174,7 @@ Any
 
 ## MgStep
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pipeline.py#L39)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pipeline.py#L38)
 
 ```python
 dataclass
@@ -196,7 +196,7 @@ kwargs:
 
 ### MgStep().\_\_call\_\_
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pipeline.py#L57)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pipeline.py#L56)
 
 ```python
 def __call__(X: Any) -> Any:

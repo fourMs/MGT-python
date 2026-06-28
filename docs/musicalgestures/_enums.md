@@ -76,10 +76,12 @@ TSV:
     Tab-separated values.
 TXT:
     Plain text (space-separated).
-JSON:
-    JSON with metadata.
-HDF5:
-    HDF5 / Zarr for large feature matrices.
+
+Note
+----
+``JSON`` and ``HDF5`` are reserved for future use and are not yet
+implemented by any processing function.  Passing them will silently
+fall back to CSV.  Use 'csv', 'tsv', or 'txt'.
 
 ## FilterType
 
@@ -94,9 +96,9 @@ Pixel-value filter applied to the frame-difference stream.
 Attributes
 ----------
 REGULAR:
-    Values below *thresh* are set to 0; values above are kept as-is.
+    Values below *threshold* are set to 0; values above are kept as-is.
 BINARY:
-    Values below *thresh* → 0; values above *thresh* → 255.
+    Values below *threshold* → 0; values above *threshold* → 255.
 BLOB:
     Individual pixels are removed with an erosion filter.
 

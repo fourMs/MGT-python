@@ -7,8 +7,12 @@
     - [FFprobeError](#ffprobeerror)
     - [FilesNotMatchError](#filesnotmatcherror)
     - [MgFigure](#mgfigure)
+        - [MgFigure().save](#mgfiguresave)
         - [MgFigure().show](#mgfigureshow)
+        - [MgFigure().to_html](#mgfigureto_html)
     - [MgImage](#mgimage)
+        - [MgImage().save](#mgimagesave)
+        - [MgImage().to_html](#mgimageto_html)
     - [MgProgressbar](#mgprogressbar)
         - [MgProgressbar().adjust_printlength](#mgprogressbaradjust_printlength)
         - [MgProgressbar().get_now](#mgprogressbarget_now)
@@ -26,11 +30,14 @@
     - [convert_to_mp4](#convert_to_mp4)
     - [convert_to_webm](#convert_to_webm)
     - [crop_ffmpeg](#crop_ffmpeg)
+    - [cuda_build_available](#cuda_build_available)
+    - [cuda_unavailable_reason](#cuda_unavailable_reason)
     - [embed_audio_in_video](#embed_audio_in_video)
     - [extract_frame](#extract_frame)
     - [extract_subclip](#extract_subclip)
     - [extract_wav](#extract_wav)
     - [ffmpeg_cmd](#ffmpeg_cmd)
+    - [ffmpeg_has_encoder](#ffmpeg_has_encoder)
     - [ffprobe](#ffprobe)
     - [frame2ms](#frame2ms)
     - [framediff_ffmpeg](#framediff_ffmpeg)
@@ -42,6 +49,7 @@
     - [get_frame_planecount](#get_frame_planecount)
     - [get_framecount](#get_framecount)
     - [get_length](#get_length)
+    - [get_rotation](#get_rotation)
     - [get_widthheight](#get_widthheight)
     - [has_audio](#has_audio)
     - [in_colab](#in_colab)
@@ -49,9 +57,11 @@
     - [merge_videos](#merge_videos)
     - [motiongrams_ffmpeg](#motiongrams_ffmpeg)
     - [motionvideo_ffmpeg](#motionvideo_ffmpeg)
+    - [normalize_rotation](#normalize_rotation)
     - [pass_if_container_is](#pass_if_container_is)
     - [pass_if_containers_match](#pass_if_containers_match)
     - [quality_metrics](#quality_metrics)
+    - [resolve_filename](#resolve_filename)
     - [rotate_video](#rotate_video)
     - [roundup](#roundup)
     - [scale_array](#scale_array)
@@ -64,7 +74,7 @@
 
 ## FFmpegError
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1502)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1698)
 
 ```python
 class FFmpegError(Exception):
@@ -73,7 +83,7 @@ class FFmpegError(Exception):
 
 ## FFprobeError
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1107)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1216)
 
 ```python
 class FFprobeError(Exception):
@@ -82,7 +92,7 @@ class FFprobeError(Exception):
 
 ## FilesNotMatchError
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1698)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1937)
 
 ```python
 class FilesNotMatchError(Exception):
@@ -91,30 +101,62 @@ class FilesNotMatchError(Exception):
 
 ## MgFigure
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L250)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L261)
 
 ```python
 class MgFigure():
     def __init__(
         figure=None,
-        figure_type=None,
-        data=None,
-        layers=None,
+        figure_type: str = None,
+        data: dict = None,
+        layers: list = None,
         image=None,
     ):
 ```
 
 Class for working with figures and plots within the Musical Gestures Toolbox.
 
-### MgFigure().show
+### MgFigure().save
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L275)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L287)
 
 ```python
-def show():
+def save(target_name: str):
 ```
 
-Shows the internal matplotlib.pyplot.figure.
+Save the rendered figure to ``target_name``.
+
+Copies the rendered PNG if one exists, otherwise re-saves the internal matplotlib
+figure. Returns an MgImage pointing to the saved file (or None if nothing to save).
+
+### MgFigure().show
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L305)
+
+```python
+def show(**kwargs):
+```
+
+Display the rendered figure.
+
+In a Jupyter notebook the saved image is shown inline; otherwise it is opened
+in a viewer window. Additional keyword arguments are forwarded to the underlying
+MgImage.show(). If no rendered image is available, the internal matplotlib figure
+is returned instead.
+
+### MgFigure().to_html
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L323)
+
+```python
+def to_html() -> str:
+```
+
+Return an HTML snippet embedding the rendered figure (base64-encoded).
+
+NB: This is intentionally **not** exposed as ``_repr_html_``, so an MgFigure
+is not auto-rendered as the last expression of a Jupyter cell. Use ``show()``
+to display the figure.
 
 ## MgImage
 
@@ -122,10 +164,34 @@ Shows the internal matplotlib.pyplot.figure.
 
 ```python
 class MgImage():
-    def __init__(filename):
+    def __init__(filename: str):
 ```
 
 Class for handling images in the Musical Gestures Toolbox.
+
+### MgImage().save
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L228)
+
+```python
+def save(target_name: str) -> 'MgImage':
+```
+
+Save (copy) the image to ``target_name`` and return a new MgImage pointing to it.
+
+### MgImage().to_html
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L237)
+
+```python
+def to_html() -> str:
+```
+
+Return an HTML snippet embedding the image (base64-encoded).
+
+NB: This is intentionally **not** exposed as ``_repr_html_``, so an MgImage
+is not auto-rendered as the last expression of a Jupyter cell. Use ``show()``
+to display the image.
 
 ## MgProgressbar
 
@@ -198,7 +264,7 @@ Progresses the progress bar to the next step.
 
 ## NoDurationError
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1116)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1225)
 
 ```python
 class NoDurationError(FFprobeError):
@@ -210,7 +276,7 @@ class NoDurationError(FFprobeError):
 
 ## NoStreamError
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1112)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1221)
 
 ```python
 class NoStreamError(FFprobeError):
@@ -222,7 +288,7 @@ class NoStreamError(FFprobeError):
 
 ## WrongContainer
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L474)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L548)
 
 ```python
 class WrongContainer(Exception):
@@ -231,14 +297,14 @@ class WrongContainer(Exception):
 
 ## audio_dilate
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1432)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1628)
 
 ```python
 def audio_dilate(
     filename,
     dilation_ratio=1,
     target_name=None,
-    overwrite=False,
+    overwrite=True,
 ):
 ```
 
@@ -249,7 +315,7 @@ Time-stretches or -shrinks (dilates) an audio file using ffmpeg.
 - `filename` *str* - Path to the audio file to dilate.
 - `dilation_ratio` *float, optional* - The source file's length divided by the resulting file's length. Defaults to 1.
 - `target_name` *str, optional* - The name of the output video. Defaults to None (which assumes that the input filename with the suffix "_dilated" should be used).
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
 #### Returns
 
@@ -257,10 +323,10 @@ Time-stretches or -shrinks (dilates) an audio file using ffmpeg.
 
 ## cast_into_avi
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L628)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L737)
 
 ```python
-def cast_into_avi(filename, target_name=None, overwrite=False):
+def cast_into_avi(filename, target_name=None, overwrite=True):
 ```
 
 *Experimental*
@@ -271,7 +337,7 @@ but does not always work well with cv2 or built-in video players.
 
 - `filename` *str* - Path to the input video file.
 - `target_name` *str, optional* - Target filename as path. Defaults to None (which assumes that the input filename should be used).
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
 #### Returns
 
@@ -279,7 +345,7 @@ but does not always work well with cv2 or built-in video players.
 
 ## clamp
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L327)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L371)
 
 ```python
 def clamp(num, min_value, max_value):
@@ -299,10 +365,10 @@ Clamps a number between a minimum and maximum value.
 
 ## convert
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L513)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L612)
 
 ```python
-def convert(filename, target_name, overwrite=False):
+def convert(filename, target_name, overwrite=True):
 ```
 
 Converts a video to another format/container using ffmpeg.
@@ -311,7 +377,7 @@ Converts a video to another format/container using ffmpeg.
 
 - `filename` *str* - Path to the input video file to convert.
 - `target_name` *str* - Target filename as path.
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
 #### Returns
 
@@ -319,10 +385,10 @@ Converts a video to another format/container using ffmpeg.
 
 ## convert_to_avi
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L541)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L650)
 
 ```python
-def convert_to_avi(filename, target_name=None, overwrite=False):
+def convert_to_avi(filename, target_name=None, overwrite=True):
 ```
 
 Converts a video to one with .avi extension using ffmpeg.
@@ -331,7 +397,7 @@ Converts a video to one with .avi extension using ffmpeg.
 
 - `filename` *str* - Path to the input video file to convert.
 - `target_name` *str, optional* - Target filename as path. Defaults to None (which assumes that the input filename should be used).
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
 #### Returns
 
@@ -339,10 +405,10 @@ Converts a video to one with .avi extension using ffmpeg.
 
 ## convert_to_grayscale
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L802)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L911)
 
 ```python
-def convert_to_grayscale(filename, target_name=None, overwrite=False):
+def convert_to_grayscale(filename, target_name=None, overwrite=True):
 ```
 
 Converts a video to grayscale using ffmpeg.
@@ -351,7 +417,7 @@ Converts a video to grayscale using ffmpeg.
 
 - `filename` *str* - Path to the input video file.
 - `target_name` *str, optional* - Target filename as path. Defaults to None (which assumes that the input filename with the suffix "_gray" should be used).
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
 #### Returns
 
@@ -359,10 +425,10 @@ Converts a video to grayscale using ffmpeg.
 
 ## convert_to_mp4
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L570)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L679)
 
 ```python
-def convert_to_mp4(filename, target_name=None, overwrite=False):
+def convert_to_mp4(filename, target_name=None, overwrite=True):
 ```
 
 Converts a video to one with .mp4 extension using ffmpeg.
@@ -371,7 +437,7 @@ Converts a video to one with .mp4 extension using ffmpeg.
 
 - `filename` *str* - Path to the input video file to convert.
 - `target_name` *str, optional* - Target filename as path. Defaults to None (which assumes that the input filename should be used).
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
 #### Returns
 
@@ -379,10 +445,10 @@ Converts a video to one with .mp4 extension using ffmpeg.
 
 ## convert_to_webm
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L599)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L708)
 
 ```python
-def convert_to_webm(filename, target_name=None, overwrite=False):
+def convert_to_webm(filename, target_name=None, overwrite=True):
 ```
 
 Converts a video to one with .webm extension using ffmpeg.
@@ -391,7 +457,7 @@ Converts a video to one with .webm extension using ffmpeg.
 
 - `filename` *str* - Path to the input video file to convert.
 - `target_name` *str, optional* - Target filename as path. Defaults to None (which assumes that the input filename should be used).
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
 #### Returns
 
@@ -399,10 +465,10 @@ Converts a video to one with .webm extension using ffmpeg.
 
 ## crop_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1039)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1148)
 
 ```python
-def crop_ffmpeg(filename, w, h, x, y, target_name=None, overwrite=False):
+def crop_ffmpeg(filename, w, h, x, y, target_name=None, overwrite=True):
 ```
 
 Crops a video using ffmpeg.
@@ -415,15 +481,46 @@ Crops a video using ffmpeg.
 - `x` *int* - The horizontal coordinate of the top left pixel of the cropping rectangle.
 - `y` *int* - The vertical coordinate of the top left pixel of the cropping rectangle.
 - `target_name` *str, optional* - The name of the output video. Defaults to None (which assumes that the input filename with the suffix "_crop" should be used).
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
 #### Returns
 
 - `str` - Path to the output video.
 
+## cuda_build_available
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1860)
+
+```python
+def cuda_build_available():
+```
+
+Returns whether the installed OpenCV was compiled with CUDA support.
+
+#### Returns
+
+- `bool` - True if OpenCV's build information reports CUDA support, else False.
+
+## cuda_unavailable_reason
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1879)
+
+```python
+def cuda_unavailable_reason():
+```
+
+Returns a short, actionable explanation of why the OpenCV CUDA backend is unavailable.
+
+Distinguishes the common case (the pip OpenCV wheels are built without CUDA) from the
+case where OpenCV has CUDA but no GPU/driver is detected.
+
+#### Returns
+
+- `str` - A human-readable explanation.
+
 ## embed_audio_in_video
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1462)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1658)
 
 ```python
 def embed_audio_in_video(source_audio, destination_video, dilation_ratio=1):
@@ -439,7 +536,7 @@ Embeds an audio file as the audio channel of a video file using ffmpeg.
 
 ## extract_frame
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L655)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L764)
 
 ```python
 def extract_frame(
@@ -458,15 +555,15 @@ Extracts a single frame from a video using ffmpeg.
 - `filename` *str* - Path to the input video file.
 - `frame` *int* - The frame number to extract.
 time (Union[str, float]): The time in HH:MM:ss.ms where to extract the frame from. If float, it is interpreted as seconds from the start of the video.
-- `target_name` *str, optional* - The name for the output file. If None, the name will be \<input name\>FRAME\<frame number\>.\<file extension\>. Defaults to None.
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+- `target_name` *str, optional* - The name for the output file. If None, the name will be <input name>FRAME<frame number>.<file extension>. Defaults to None.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
 ## extract_subclip
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L711)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L820)
 
 ```python
-def extract_subclip(filename, t1, t2, target_name=None, overwrite=False):
+def extract_subclip(filename, t1, t2, target_name=None, overwrite=True):
 ```
 
 Extracts a section of the video using ffmpeg.
@@ -476,8 +573,8 @@ Extracts a section of the video using ffmpeg.
 - `filename` *str* - Path to the input video file.
 - `t1` *float* - The start of the section to extract in seconds.
 - `t2` *float* - The end of the section to extract in seconds.
-- `target_name` *str, optional* - The name for the output file. If None, the name will be \<input name\>SUB\<start time in ms\>_\<end time in ms\>.\<file extension\>. Defaults to None.
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+- `target_name` *str, optional* - The name for the output file. If None, the name will be <input name>SUB<start time in ms>_<end time in ms>.<file extension>. Defaults to None.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
 #### Returns
 
@@ -485,10 +582,10 @@ Extracts a section of the video using ffmpeg.
 
 ## extract_wav
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1075)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1184)
 
 ```python
-def extract_wav(filename, target_name=None, overwrite=False):
+def extract_wav(filename, target_name=None, overwrite=True):
 ```
 
 Extracts audio from video into a .wav file via ffmpeg.
@@ -497,7 +594,7 @@ Extracts audio from video into a .wav file via ffmpeg.
 
 - `filename` *str* - Path to the video file from which the audio track shall be extracted.
 - `target_name` *str, optional* - The name of the output video. Defaults to None (which assumes that the input filename should be used).
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
 #### Returns
 
@@ -505,7 +602,7 @@ Extracts audio from video into a .wav file via ffmpeg.
 
 ## ffmpeg_cmd
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1507)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1703)
 
 ```python
 def ffmpeg_cmd(
@@ -534,15 +631,31 @@ Run an ffmpeg command in a subprocess and show progress using an MgProgressbar.
 - `KeyboardInterrupt` - If the user stops the process.
 - `FFmpegError` - If the ffmpeg process was unsuccessful.
 
+## ffmpeg_has_encoder
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L590)
+
+```python
+def ffmpeg_has_encoder(name):
+```
+
+Returns True if the installed FFmpeg has the named encoder (e.g. 'libtheora').
+
+Useful for guarding format conversions whose codec may be missing from a given
+FFmpeg build (notably libtheora/libvorbis for .ogg on some macOS/Windows builds).
+
 ## ffprobe
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1119)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1234)
 
 ```python
 def ffprobe(filename):
 ```
 
 Returns info about video/audio file using FFprobe.
+
+The result is cached per file (keyed by path + modification time + size), so
+repeated probes of an unchanged file don't spawn a new subprocess each time.
 
 #### Arguments
 
@@ -554,7 +667,7 @@ Returns info about video/audio file using FFprobe.
 
 ## frame2ms
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L459)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L533)
 
 ```python
 def frame2ms(frame, fps):
@@ -573,10 +686,10 @@ Converts frames to milliseconds.
 
 ## framediff_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L830)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L939)
 
 ```python
-def framediff_ffmpeg(filename, target_name=None, color=True, overwrite=False):
+def framediff_ffmpeg(filename, target_name=None, color=True, overwrite=True):
 ```
 
 Renders a frame difference video from the input using ffmpeg.
@@ -586,7 +699,7 @@ Renders a frame difference video from the input using ffmpeg.
 - `filename` *str* - Path to the input video file.
 - `target_name` *str, optional* - The name of the output video. Defaults to None (which assumes that the input filename with the suffix "_framediff" should be used).
 - `color` *bool, optional* - If False, the output will be grayscale. Defaults to True.
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
 #### Returns
 
@@ -594,7 +707,7 @@ Renders a frame difference video from the input using ffmpeg.
 
 ## generate_outfilename
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L380)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L424)
 
 ```python
 def generate_outfilename(requested_name):
@@ -613,7 +726,7 @@ filename if necessary by appending an integer, like "_0" or "_1", etc to the fil
 
 ## get_box_video_ratio
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1357)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1553)
 
 ```python
 def get_box_video_ratio(filename, box_width=800, box_height=600):
@@ -633,7 +746,7 @@ Gets the box-to-video ratio between an arbitrarily defind box and the video dime
 
 ## get_cuda_device_count
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1649)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1845)
 
 ```python
 def get_cuda_device_count():
@@ -648,14 +761,14 @@ Returns the number of CUDA-capable GPU devices visible to OpenCV.
 
 ## get_first_frame_as_image
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1325)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1521)
 
 ```python
 def get_first_frame_as_image(
     filename,
     target_name=None,
     pict_format='.png',
-    overwrite=False,
+    overwrite=True,
 ):
 ```
 
@@ -666,7 +779,7 @@ Extracts the first frame of a video and saves it as an image using ffmpeg.
 - `filename` *str* - Path to the input video file.
 - `target_name` *str, optional* - The name for the output image. Defaults to None (which assumes that the input filename should be used).
 - `pict_format` *str, optional* - The format to use for the output image. Defaults to '.png'.
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
 #### Returns
 
@@ -674,7 +787,7 @@ Extracts the first frame of a video and saves it as an image using ffmpeg.
 
 ## get_fps
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1292)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1488)
 
 ```python
 def get_fps(filename):
@@ -692,7 +805,7 @@ Gets the FPS (frames per second) value of a video using FFprobe.
 
 ## get_frame_planecount
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L444)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L518)
 
 ```python
 def get_frame_planecount(frame):
@@ -710,7 +823,7 @@ frame (numpy array): A frame extracted by `cv2.VideoCapture().read()`.
 
 ## get_framecount
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1242)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1438)
 
 ```python
 def get_framecount(filename, fast=True):
@@ -728,7 +841,7 @@ Returns the number of frames in a video using FFprobe.
 
 ## get_length
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1214)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1410)
 
 ```python
 def get_length(filename: str) -> float:
@@ -744,9 +857,28 @@ Gets the length (in seconds) of a video using FFprobe.
 
 - `float` - The length of the input video file in seconds.
 
+## get_rotation
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1345)
+
+```python
+def get_rotation(filename):
+```
+
+Returns the display rotation (degrees) stored in a video's metadata.
+
+Phone/portrait videos often store landscape pixels plus a rotation flag (display
+matrix). FFmpeg's frame pipe applies this automatically while OpenCV's VideoCapture
+does not, which can leave some processes rotated. This reads the flag so the
+orientation can be normalised.
+
+#### Returns
+
+- `int` - rotation in degrees (e.g. 0, 90, 180, 270), or 0 if none/unknown.
+
 ## get_widthheight
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1147)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1278)
 
 ```python
 def get_widthheight(filename: str) -> Tuple[int, int]:
@@ -765,7 +897,7 @@ Gets the width and height of a video using FFprobe.
 
 ## has_audio
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1188)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1319)
 
 ```python
 def has_audio(filename):
@@ -783,7 +915,7 @@ Checks if video has audio track using FFprobe.
 
 ## in_colab
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1663)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1902)
 
 ```python
 def in_colab():
@@ -797,7 +929,7 @@ Check's if the environment is a Google Colab document.
 
 ## in_ipynb
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1678)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1917)
 
 ```python
 def in_ipynb():
@@ -812,7 +944,7 @@ Taken from https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-
 
 ## merge_videos
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1703)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1942)
 
 ```python
 def merge_videos(
@@ -829,7 +961,7 @@ Merges a list of video files into a single video file using ffmpeg.
 
 - `media_paths` *list* - List of paths to the video files to merge.
 - `target_name` *str, optional* - The name of the output video. Defaults to None (which assumes that the input filename with the suffix "_merged" should be used).
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
 #### Returns
 
@@ -837,7 +969,7 @@ Merges a list of video files into a single video file using ffmpeg.
 
 ## motiongrams_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L963)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1072)
 
 ```python
 def motiongrams_ffmpeg(
@@ -851,7 +983,7 @@ def motiongrams_ffmpeg(
     invert=False,
     target_name_x=None,
     target_name_y=None,
-    overwrite=False,
+    overwrite=True,
 ):
 ```
 
@@ -861,15 +993,15 @@ Renders horizontal and vertical motiongrams using ffmpeg.
 
 - `filename` *str* - Path to the input video file.
 - `color` *bool, optional* - If False the input is converted to grayscale at the start of the process. This can significantly reduce render time. Defaults to True.
-- `filtertype` *str, optional* - 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
-- `thresh` *float, optional* - Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
+- `filtertype` *str, optional* - 'Regular' turns all values below `threshold` to 0. 'Binary' turns all values below `threshold` to 0, above `threshold` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
+- `threshold` *float, optional* - Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
 - `blur` *str, optional* - 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
 - `use_median` *bool, optional* - If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
 - `kernel_size` *int, optional* - Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
 - `invert` *bool, optional* - If True, inverts colors of the motiongrams. Defaults to False.
 - `target_name_x` *str, optional* - Target output name for the motiongram on the X axis. Defaults to None (which assumes that the input filename with the suffix "_mgx_ffmpeg" should be used).
 - `target_name_y` *str, optional* - Target output name for the motiongram on the Y axis. Defaults to None (which assumes that the input filename with the suffix "_mgy_ffmpeg" should be used).
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
 #### Returns
 
@@ -878,7 +1010,7 @@ Renders horizontal and vertical motiongrams using ffmpeg.
 
 ## motionvideo_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L907)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1016)
 
 ```python
 def motionvideo_ffmpeg(
@@ -891,7 +1023,7 @@ def motionvideo_ffmpeg(
     kernel_size=5,
     invert=False,
     target_name=None,
-    overwrite=False,
+    overwrite=True,
 ):
 ```
 
@@ -901,22 +1033,45 @@ Renders a motion video using ffmpeg.
 
 - `filename` *str* - Path to the input video file.
 - `color` *bool, optional* - If False the input is converted to grayscale at the start of the process. This can significantly reduce render time. Defaults to True.
-- `filtertype` *str, optional* - 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
-- `thresh` *float, optional* - Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
+- `filtertype` *str, optional* - 'Regular' turns all values below `threshold` to 0. 'Binary' turns all values below `threshold` to 0, above `threshold` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
+- `threshold` *float, optional* - Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
 - `blur` *str, optional* - 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
 - `use_median` *bool, optional* - If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
 - `kernel_size` *int, optional* - Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
 - `invert` *bool, optional* - If True, inverts colors of the motion video. Defaults to False.
 - `target_name` *str, optional* - Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
 #### Returns
 
 - `str` - Path to the output video.
 
+## normalize_rotation
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1375)
+
+```python
+def normalize_rotation(filename, overwrite=True):
+```
+
+If a video carries a display-rotation flag (e.g. a phone portrait recording with
+landscape pixels), re-encode it so the rotation is baked into the pixels and the
+flag removed. This makes every downstream reader (FFmpeg pipe, OpenCV, filters)
+agree on the orientation, preventing some processes from coming out rotated.
+
+#### Arguments
+
+- `filename` *str* - Path to the video file.
+- `overwrite` *bool* - Overwrite the "_oriented" output if it exists. Defaults to True.
+
+#### Returns
+
+- `str` - Path to an upright video — the original if it had no rotation, otherwise a
+    new "_oriented" copy.
+
 ## pass_if_container_is
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L497)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L571)
 
 ```python
 def pass_if_container_is(container, file):
@@ -935,7 +1090,7 @@ Checks if a file's extension matches a desired one. Passes if so, raises WrongCo
 
 ## pass_if_containers_match
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L479)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L553)
 
 ```python
 def pass_if_containers_match(file_1, file_2):
@@ -954,7 +1109,7 @@ Checks if file extensions match between two files. If they do it passes, is they
 
 ## quality_metrics
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1383)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1579)
 
 ```python
 def quality_metrics(original, processed, metric=None):
@@ -976,12 +1131,40 @@ Possible to compute three major video quality metrics used for objective evaluat
 - `processed` *str* - Path to the processed/distorted video file.
 - `metric` *str, optional* - Type of quality metric to compute ('vmaf', 'ssim', or 'psnr'). Defaults to None (which computes all the metrics).
 
-## rotate_video
+## resolve_filename
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L764)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L488)
 
 ```python
-def rotate_video(filename, angle, target_name=None, overwrite=False):
+def resolve_filename(stem, suffix, target_name=None, overwrite=True):
+```
+
+Resolve an output filename for a rendered result.
+
+Centralises the ``target_name``/``overwrite`` logic that most methods repeat: use
+``stem + suffix`` when no name is given, otherwise honour the provided ``target_name`` but
+enforce the extension from ``suffix``; when ``overwrite`` is False, auto-increment the name so
+nothing is clobbered.
+
+#### Arguments
+
+- `stem` *str* - Input filename stem (e.g. ``self.of``), used when ``target_name`` is None.
+- `suffix` *str* - Suffix incl. extension to append to ``stem`` (e.g. ``'_grid.png'``); its
+    extension is also the one enforced on a provided ``target_name``.
+- `target_name` *str, optional* - Explicit output path (its extension is normalised to the
+    ``suffix`` extension). Defaults to None.
+- `overwrite` *bool, optional* - If False, auto-increment to avoid overwriting. Defaults to True.
+
+#### Returns
+
+- `str` - The resolved output path.
+
+## rotate_video
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L873)
+
+```python
+def rotate_video(filename, angle, target_name=None, overwrite=True):
 ```
 
 Rotates a video by an `angle` using ffmpeg.
@@ -991,7 +1174,7 @@ Rotates a video by an `angle` using ffmpeg.
 - `filename` *str* - Path to the input video file.
 - `angle` *float* - The angle (in degrees) specifying the amount of rotation. Positive values rotate clockwise.
 - `target_name` *str, optional* - Target filename as path. Defaults to None (which assumes that the input filename with the suffix "_rot" should be used).
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
 #### Returns
 
@@ -999,7 +1182,7 @@ Rotates a video by an `angle` using ffmpeg.
 
 ## roundup
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L312)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L356)
 
 ```python
 def roundup(num, modulo_num):
@@ -1018,7 +1201,7 @@ Rounds up a number to the next integer multiple of another.
 
 ## scale_array
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L360)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L404)
 
 ```python
 def scale_array(array, out_low, out_high):
@@ -1038,7 +1221,7 @@ Scales an array linearly.
 
 ## scale_num
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L342)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L386)
 
 ```python
 def scale_num(val, in_low, in_high, out_low, out_high):
@@ -1087,7 +1270,7 @@ when the output is captured by a logging framework where the repeated
 
 ## str2sec
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1596)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1792)
 
 ```python
 def str2sec(time_string):
@@ -1105,7 +1288,7 @@ Converts a time code string into seconds.
 
 ## threshold_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L863)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L972)
 
 ```python
 def threshold_ffmpeg(
@@ -1113,7 +1296,7 @@ def threshold_ffmpeg(
     threshold=0.1,
     target_name=None,
     binary=False,
-    overwrite=False,
+    overwrite=True,
 ):
 ```
 
@@ -1125,7 +1308,7 @@ Renders a pixel-thresholded video from the input using ffmpeg.
 - `threshold` *float, optional* - The normalized pixel value to use as the threshold. Pixels below the threshold will turn black. Defaults to 0.1.
 - `target_name` *str, optional* - The name of the output video. Defaults to None (which assumes that the input filename with the suffix "_thresh" should be used).
 - `binary` *bool, optional* - If True, the pixels above the threshold will turn white. Defaults to False.
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
 #### Returns
 
@@ -1133,7 +1316,7 @@ Renders a pixel-thresholded video from the input using ffmpeg.
 
 ## unwrap_str
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1631)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1827)
 
 ```python
 def unwrap_str(string):
@@ -1151,7 +1334,7 @@ Unwraps a string from quotes.
 
 ## wrap_str
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1610)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_utils.py#L1806)
 
 ```python
 def wrap_str(string, matchers=[' ', '(', ')']):

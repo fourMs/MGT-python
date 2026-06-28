@@ -22,8 +22,8 @@ def mg_subtract(
     bg_img=None,
     bg_color='#000000',
     target_name=None,
-    overwrite=False,
-):
+    overwrite=True,
+) -> 'musicalgestures.MgVideo':
 ```
 
 Renders background subtraction using ffmpeg.
@@ -31,7 +31,7 @@ Renders background subtraction using ffmpeg.
 #### Arguments
 
 - `color` *bool, optional* - If False the input is converted to grayscale at the start of the process. This can significantly reduce render time. Defaults to True.
-- `filtertype` *str, optional* - 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
+- `filtertype` *str, optional* - 'Regular' turns all values below `threshold` to 0. 'Binary' turns all values below `threshold` to 0, above `threshold` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
 - `threshold` *float, optional* - Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
 - `blur` *bool, optional* - Whether to apply a smartblur ffmpeg filter or not. Defaults to False.
 - `curves` *int, optional* - Apply curves and equalisation threshold filter to subtract the background. Ranges from 0 to 1. Defaults to 0.15.
@@ -39,8 +39,8 @@ Renders background subtraction using ffmpeg.
 - `kernel_size` *int, optional* - Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
 - `bg_img` *str, optional* - Path to a background image (.png) that needs to be subtracted from the video. If set to None, it uses an average image of all frames in the video. Defaults to None.
 - `bg_color` *str, optional* - Set the background color in the video file in hex value. Defaults to '#000000' (black).
-- `target_name` *str, optional* - Target output name for the motiongram. Defaults to None.
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+- `target_name` *str, optional* - Target output name for the subtracted video. Defaults to None.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
 #### Returns
 

@@ -12,7 +12,7 @@
 
 ## Flow
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L13)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L12)
 
 ```python
 class Flow():
@@ -23,7 +23,7 @@ Class container for the sparse and dense optical flow processes.
 
 ### Flow().dense
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L33)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L32)
 
 ```python
 def dense(
@@ -43,9 +43,10 @@ def dense(
     scaledown=1,
     skip_empty=False,
     use_gpu=False,
+    convert=True,
     target_name=None,
-    overwrite=False,
-):
+    overwrite=True,
+) -> 'musicalgestures.MgVideo':
 ```
 
 Renders a dense optical flow video of the input video file using `cv2.calcOpticalFlowFarneback()`. The description of the matching parameters are taken from the cv2 documentation.
@@ -69,7 +70,7 @@ Renders a dense optical flow video of the input video file using `cv2.calcOptica
 - `skip_empty` *bool, optional* - If True, repeats previous frame in the output when encounters an empty frame. Defaults to False.
 - `use_gpu` *bool, optional* - Whether to attempt GPU (CUDA) acceleration using `cv2.cuda.FarnebackOpticalFlow`. When `True`, falls back to CPU automatically if CUDA is unavailable or the required OpenCV CUDA modules are not installed. When `False`, CPU processing is used unconditionally. Defaults to False.
 - `target_name` *str, optional* - Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_flow_dense" should be used).
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
 #### Returns
 
@@ -77,7 +78,7 @@ Renders a dense optical flow video of the input video file using `cv2.calcOptica
 
 ### Flow().get_acceleration
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L288)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L279)
 
 ```python
 def get_acceleration(velocity, fps):
@@ -85,7 +86,7 @@ def get_acceleration(velocity, fps):
 
 ### Flow().get_velocity
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L298)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L289)
 
 ```python
 def get_velocity(
@@ -101,7 +102,7 @@ def get_velocity(
 
 ### Flow().sparse
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L313)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L304)
 
 ```python
 def sparse(
@@ -114,9 +115,10 @@ def sparse(
     of_max_level=2,
     of_criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03),
     use_gpu=False,
+    convert=True,
     target_name=None,
-    overwrite=False,
-):
+    overwrite=True,
+) -> 'musicalgestures.MgVideo':
 ```
 
 Renders a sparse optical flow video of the input video file using `cv2.calcOpticalFlowPyrLK()`. `cv2.goodFeaturesToTrack()` is used for the corner estimation. The description of the matching parameters are taken from the cv2 documentation.
@@ -133,7 +135,7 @@ Renders a sparse optical flow video of the input video file using `cv2.calcOptic
 - `of_criteria` *tuple, optional* - Specifies the termination criteria of the iterative search algorithm (after the specified maximum number of iterations criteria.maxCount or when the search window moves by less than criteria.epsilon). Defaults to (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03).
 - `use_gpu` *bool, optional* - Whether to attempt GPU (CUDA) acceleration using `cv2.cuda.SparsePyrLKOpticalFlow`. When `True`, falls back to CPU automatically if CUDA is unavailable or the required OpenCV CUDA modules are not installed. When `False`, CPU processing is used unconditionally. Defaults to False.
 - `target_name` *str, optional* - Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_flow_sparse" should be used).
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
 #### Returns
 
@@ -141,7 +143,7 @@ Renders a sparse optical flow video of the input video file using `cv2.calcOptic
 
 ### Flow().velocity_meters_per_second
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L306)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L297)
 
 ```python
 def velocity_meters_per_second(

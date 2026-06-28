@@ -8,7 +8,7 @@
 
 ## ReadError
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_videoreader.py#L9)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_videoreader.py#L7)
 
 ```python
 class ReadError(Exception):
@@ -18,7 +18,7 @@ Base class for file read errors.
 
 ## mg_videoreader
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_videoreader.py#L14)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_videoreader.py#L12)
 
 ```python
 def mg_videoreader(

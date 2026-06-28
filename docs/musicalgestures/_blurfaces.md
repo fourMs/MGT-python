@@ -11,7 +11,7 @@
 
 ## centroid_mask
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_blurfaces.py#L40)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_blurfaces.py#L38)
 
 ```python
 def centroid_mask(data):
@@ -19,7 +19,7 @@ def centroid_mask(data):
 
 ## heatmap_data
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_blurfaces.py#L51)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_blurfaces.py#L49)
 
 ```python
 def heatmap_data(data, resolution, data_min, data_max):
@@ -27,7 +27,7 @@ def heatmap_data(data, resolution, data_min, data_max):
 
 ## mg_blurfaces
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_blurfaces.py#L71)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_blurfaces.py#L69)
 
 ```python
 def mg_blurfaces(
@@ -45,7 +45,7 @@ def mg_blurfaces(
     color=(0, 0, 0),
     use_gpu=False,
     target_name=None,
-    overwrite=False,
+    overwrite=True,
 ):
 ```
 
@@ -70,7 +70,7 @@ Credits: `centerface.onnx` (original) and `centerface.py` are based on https://g
 - `color` *tuple, optional* - Customized color of the rectangle boxes. Defaults to black (0, 0, 0).
 - `use_gpu` *bool, optional* - Whether to attempt GPU (CUDA) acceleration for face detection. Falls back to CPU automatically if CUDA is unavailable. Defaults to False.
 - `target_name` *str, optional* - Target output name. Defaults to None (which assumes that the input filename with the suffix "_blurred" should be used).
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
 #### Returns
 
@@ -78,7 +78,7 @@ Credits: `centerface.onnx` (original) and `centerface.py` are based on https://g
 
 ## nearest_neighbours
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_blurfaces.py#L56)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_blurfaces.py#L54)
 
 ```python
 def nearest_neighbours(x, y, width, height, resolution, n_neighbours):
@@ -86,7 +86,7 @@ def nearest_neighbours(x, y, width, height, resolution, n_neighbours):
 
 ## scaling_mask
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_blurfaces.py#L18)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_blurfaces.py#L16)
 
 ```python
 def scaling_mask(x1, y1, x2, y2, mask_scale=1.0):

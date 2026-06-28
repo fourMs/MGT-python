@@ -145,6 +145,20 @@ mkdocs serve          # live preview at http://127.0.0.1:8000
 mkdocs build --clean  # build static site in site/
 ```
 
+### Regenerating the API reference
+
+The API-reference pages under `docs/musicalgestures/` and `docs/MODULES.md` are auto-generated
+from the source docstrings with [handsdown](https://pypi.org/project/handsdown/) and committed to
+the repo. Regenerate them whenever the public API changes:
+
+```bash
+pip install "handsdown==1.1.0" "setuptools<81"   # 1.1.0 matches the committed format
+./scripts/regenerate_api_docs.sh
+```
+
+The script only rewrites the auto-generated stubs — the hand-written pages (`index.md`, `README.md`,
+`quickstart.md`, `installation.md`, `user-guide/*`, `releases.md`) are left untouched.
+
 ### Docstring style
 
 Use NumPy-style docstrings consistently:

@@ -34,11 +34,12 @@ def mg_directograms(
     self,
     title=None,
     filtertype='Adaptative',
-    thresh=0.05,
+    threshold=0.05,
     kernel_size=5,
+    convert=True,
     target_name=None,
-    overwrite=False,
-):
+    overwrite=True,
+) -> 'MgFigure':
 ```
 
 Compute a directogram to factor the magnitude of motion into different angles.
@@ -49,11 +50,12 @@ Source: Abe Davis -- [Visual Rhythm and Beat](http://www.abedavis.com/files/pape
 #### Arguments
 
 - `title` *str, optional* - Optionally add title to the figure. Defaults to None, which uses 'Directogram' as a title. Defaults to None.
-- `filtertype` *str, optional* - 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. 'Adaptative' perform adaptative threshold as the weighted sum of 11 neighborhood pixels where weights are a Gaussian window. Defaults to 'Adaptative'.
-- `thresh` *float, optional* - Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
+- `filtertype` *str, optional* - 'Regular' turns all values below `threshold` to 0. 'Binary' turns all values below `threshold` to 0, above `threshold` to 1. 'Blob' removes individual pixels with erosion method. 'Adaptative' perform adaptative threshold as the weighted sum of 11 neighborhood pixels where weights are a Gaussian window. Defaults to 'Adaptative'.
+- `threshold` *float, optional* - Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
 - `kernel_size` *int, optional* - Size of structuring element. Defaults to 5.
+- `convert` *bool, optional* - If True (default), non-AVI input is first converted to an all-intra MJPEG `.avi` (cached as `self.as_avi`) for frame-accurate decoding. Set to False to read the source file directly. Defaults to True.
 - `target_name` *str, optional* - Target output name for the directogram. Defaults to None (which assumes that the input filename with the suffix "_dg" should be used).
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
 #### Returns
 

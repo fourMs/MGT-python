@@ -12,7 +12,7 @@
 [[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_frameaverage.py#L7)
 
 ```python
-def mg_pixelarray(self, width=640, target_name=None, overwrite=False):
+def mg_pixelarray(self, width=640, target_name=None, overwrite=True):
 ```
 
 Creates a 'Frame-Averaged Pixel Array' of a video by reducing each frame to a single pixel
@@ -31,7 +31,7 @@ Based on the original bash script concept:
 - `target_name` *str, optional* - The name of the output image file. If None, uses input filename
                            with '_framearray_<width>' suffix. Defaults to None.
 - `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically
-                          increment target filenames to avoid overwriting. Defaults to False.
+                          increment target filenames to avoid overwriting. Defaults to True.
 
 #### Returns
 
@@ -39,10 +39,10 @@ Based on the original bash script concept:
 
 ## mg_pixelarray_cv2
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_frameaverage.py#L62)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_frameaverage.py#L54)
 
 ```python
-def mg_pixelarray_cv2(self, width=640, target_name=None, overwrite=False):
+def mg_pixelarray_cv2(self, width=640, target_name=None, overwrite=True):
 ```
 
 Alternative implementation using OpenCV for more control over the process.
@@ -53,7 +53,7 @@ and arranging these average colors in a grid.
 
 - `width` *int, optional* - Width of the output image in pixels. Defaults to 640.
 - `target_name` *str, optional* - The name of the output image file. Defaults to None.
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files. Defaults to True.
 
 #### Returns
 
@@ -61,7 +61,7 @@ and arranging these average colors in a grid.
 
 ## mg_pixelarray_stats
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_frameaverage.py#L144)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_frameaverage.py#L125)
 
 ```python
 def mg_pixelarray_stats(self, width=640, include_stats=True):

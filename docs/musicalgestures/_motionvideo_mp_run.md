@@ -12,7 +12,7 @@
 
 ## TrackMultiProgress
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo_mp_run.py#L328)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo_mp_run.py#L329)
 
 ```python
 class TrackMultiProgress():
@@ -21,7 +21,7 @@ class TrackMultiProgress():
 
 ### TrackMultiProgress().progress
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo_mp_run.py#L333)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo_mp_run.py#L334)
 
 ```python
 def progress(node, iteration):
@@ -29,7 +29,7 @@ def progress(node, iteration):
 
 ### TrackMultiProgress().reset
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo_mp_run.py#L337)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo_mp_run.py#L338)
 
 ```python
 def reset():
@@ -37,13 +37,13 @@ def reset():
 
 ## concat_videos
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo_mp_run.py#L341)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo_mp_run.py#L342)
 
 ```python
 def concat_videos(
     list_of_videos,
     target_name=None,
-    overwrite=False,
+    overwrite=True,
     pb_prefix='Concatenating videos:',
     stream=True,
 ):
@@ -57,7 +57,7 @@ def concat_videos(
 def mg_motion_mp(
     self,
     filtertype='Regular',
-    thresh=0.05,
+    threshold=0.05,
     blur='None',
     kernel_size=5,
     inverted_motionvideo=False,
@@ -65,7 +65,7 @@ def mg_motion_mp(
     unit='seconds',
     equalize_motiongram=True,
     save_plot=True,
-    plot_title=None,
+    title=None,
     save_data=True,
     data_format='csv',
     save_motiongrams=True,
@@ -75,14 +75,15 @@ def mg_motion_mp(
     target_name_data=None,
     target_name_mgx=None,
     target_name_mgy=None,
-    overwrite=False,
+    convert=True,
+    overwrite=True,
     num_processes=-1,
-):
+) -> 'musicalgestures.MgVideo':
 ```
 
 ## run_socket_server
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo_mp_run.py#L295)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_motionvideo_mp_run.py#L296)
 
 ```python
 def run_socket_server(host, port, pb, numprocesses):

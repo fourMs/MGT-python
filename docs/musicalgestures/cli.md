@@ -14,7 +14,7 @@ Usage
 
 ```python
 musicalgestures --help
-musicalgestures motion dancer.avi --thresh 0.05 --filtertype Regular
+musicalgestures motion dancer.avi --threshold 0.05 --filtertype Regular
 musicalgestures videograms dancer.avi
 musicalgestures average dancer.avi
 musicalgestures info dancer.avi

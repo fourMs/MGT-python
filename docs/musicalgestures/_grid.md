@@ -14,11 +14,11 @@ def mg_grid(
     self,
     height=300,
     rows=3,
-    cols=3,
+    columns=3,
     padding=0,
     margin=0,
     target_name=None,
-    overwrite=False,
+    overwrite=True,
     return_array=False,
 ):
 ```
@@ -29,11 +29,11 @@ Generates frame strip video preview using ffmpeg.
 
 - `height` *int, optional* - Frame height, width is adjusted automatically to keep the correct aspect ratio. Defaults to 300.
 - `rows` *int, optional* - Number of rows of the grid. Defaults to 3.
-- `cols` *int, optional* - Number of columns of the grid. Defaults to 3.
+- `columns` *int, optional* - Number of columns of the grid. Defaults to 3.
 - `padding` *int, optional* - Padding size between the frames. Defaults to 0.
 - `margin` *int, optional* - Margin size for the grid. Defaults to 0.
 - `target_name` *[type], optional* - Target output name for the grid image. Defaults to None.
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 - `return_array` *bool, optional* - Whether to return an array of not. If set to False the function writes the grid image to disk. Defaults to False.
 
 #### Returns

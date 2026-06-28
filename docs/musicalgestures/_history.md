@@ -3,23 +3,12 @@
 > Auto-generated documentation for [musicalgestures._history](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_history.py) module.
 
 - [Mgt-python](../README.md#mgt-python) / [Modules](../MODULES.md#mgt-python-modules) / [Musicalgestures](index.md#musicalgestures) / History
-    - [ParameterError](#parametererror)
     - [history_cv2](#history_cv2)
     - [history_ffmpeg](#history_ffmpeg)
 
-## ParameterError
-
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_history.py#L8)
-
-```python
-class ParameterError(Exception):
-```
-
-Base class for argument errors.
-
 ## history_cv2
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_history.py#L111)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_history.py#L104)
 
 ```python
 def history_cv2(
@@ -27,8 +16,9 @@ def history_cv2(
     filename=None,
     history_length=10,
     weights=1,
+    convert=True,
     target_name=None,
-    overwrite=False,
+    overwrite=True,
 ):
 ```
 
@@ -39,8 +29,9 @@ This function  creates a video where each frame is the average of the N previous
 - `filename` *str, optional* - Path to the input video file. If None, the video file of the MgVideo is used. Defaults to None.
 - `history_length` *int, optional* - Number of frames to be saved in the history tail. Defaults to 10.
 - `weights` *int/float/list, optional* - Defines the weight or weights applied to the frames in the history tail. If given as list the first element in the list will correspond to the weight of the newest frame in the tail. Defaults to 1.
+- `convert` *bool, optional* - If True (default), non-AVI input is first converted to an all-intra MJPEG `.avi` (cached as `self.as_avi`) for frame-accurate decoding. Set to False to read the source file directly. Defaults to True.
 - `target_name` *str, optional* - Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_history" should be used).
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
 #### Returns
 
@@ -48,7 +39,7 @@ This function  creates a video where each frame is the average of the N previous
 
 ## history_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_history.py#L13)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_history.py#L9)
 
 ```python
 def history_ffmpeg(
@@ -60,7 +51,7 @@ def history_ffmpeg(
     norm_strength=1,
     norm_smooth=0,
     target_name=None,
-    overwrite=False,
+    overwrite=True,
 ):
 ```
 
@@ -75,7 +66,7 @@ This function  creates a video where each frame is the average of the N previous
 - `norm_strength` *int/float, optional* - Defines the strength of the normalization where 1 represents full strength. Defaults to 1.
 - `norm_smooth` *int, optional* - Defines the number of previous frames to use for temporal smoothing. The input range of each channel is smoothed using a rolling average over the current frame and the `norm_smooth` previous frames. Defaults to 0.
 - `target_name` *str, optional* - Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_history" should be used).
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
 #### Returns
 

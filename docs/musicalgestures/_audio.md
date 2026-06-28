@@ -4,11 +4,16 @@
 
 - [Mgt-python](../README.md#mgt-python) / [Modules](../MODULES.md#mgt-python-modules) / [Musicalgestures](index.md#musicalgestures) / Audio
     - [MgAudio](#mgaudio)
+        - [MgAudio().beat_statistics](#mgaudiobeat_statistics)
+        - [MgAudio().chromagram](#mgaudiochromagram)
         - [MgAudio().descriptors](#mgaudiodescriptors)
+        - [MgAudio().duration](#mgaudioduration)
         - [MgAudio().format_time](#mgaudioformat_time)
         - [MgAudio().hpss](#mgaudiohpss)
+        - [MgAudio().mfcc](#mgaudiomfcc)
         - [MgAudio().numpy](#mgaudionumpy)
         - [MgAudio().spectrogram](#mgaudiospectrogram)
+        - [MgAudio().tempo](#mgaudiotempo)
         - [MgAudio().tempogram](#mgaudiotempogram)
         - [MgAudio().waveform](#mgaudiowaveform)
 
@@ -18,14 +23,113 @@
 
 ```python
 class MgAudio():
-    def __init__(filename, sr=None, n_fft=2048, hop_length=512):
+    def __init__(
+        filename: str,
+        sr: int = None,
+        n_fft: int = 2048,
+        hop_length: int = 512,
+    ):
 ```
 
 Class container for audio analysis processes.
 
+### MgAudio().beat_statistics
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L1046)
+
+```python
+def beat_statistics(
+    n_bins=32,
+    cmap='YlOrRd',
+    dpi=300,
+    autoshow=True,
+    title=None,
+    target_name=None,
+    overwrite=True,
+) -> MgFigure:
+```
+
+Renders circular statistics of beat-timing consistency.
+
+Fits an ideal isochronous beat grid to the detected beats and visualises how
+each beat deviates from it: a polar histogram of beat phases (with the mean
+resultant vector) and a time series of millisecond deviations. This reveals
+whether a performer rushes, drags, or keeps steady time.
+
+#### Arguments
+
+- `n_bins` *int, optional* - Number of bins in the polar phase histogram. Defaults to 32.
+- `cmap` *str, optional* - Matplotlib colormap for the polar histogram. Defaults to 'YlOrRd'.
+- `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
+- `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
+- `title` *str, optional* - Optionally add title to the figure. Use 'filename' to set the filename as title. Defaults to None.
+- `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_beatstats.png" should be used).
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
+
+#### Returns
+
+- `MgFigure` - An MgFigure object whose ``.data`` mirrors the beat statistics from tempo(),
+    or None if fewer than four beats are detected.
+
+#### See also
+
+- [MgFigure](_utils.md#mgfigure)
+
+### MgAudio().chromagram
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L749)
+
+```python
+def chromagram(
+    n_chroma=12,
+    norm=np.inf,
+    chroma_type='cqt',
+    cmap='coolwarm',
+    dpi=300,
+    autoshow=True,
+    raw=False,
+    original_time=False,
+    title=None,
+    target_name=None,
+    overwrite=True,
+) -> MgFigure:
+```
+
+Renders a figure showing the chromagram of the video/audio file.
+
+A chromagram maps audio energy onto the 12 pitch classes (C, C#, D, …, B) over time,
+making it useful for analysing harmony and chord progressions.
+
+#### Arguments
+
+- `n_chroma` *int, optional* - Number of chroma bins (pitch classes). Defaults to 12.
+norm (float or None, optional): Column-wise normalisation. np.inf gives maximum-norm,
+    1 gives L1-norm, 2 gives L2-norm, None disables normalisation. Defaults to np.inf.
+- `chroma_type` *str, optional* - Algorithm used to compute the chroma features.
+    'cqt'  — Constant-Q transform (best for music, handles low frequencies well).
+    'stft' — Short-time Fourier transform (faster, slightly lower pitch resolution).
+    'cens' — Chroma Energy Normalised Statistics (robust to dynamics and timbre).
+    Defaults to 'cqt'.
+- `cmap` *str, optional* - Matplotlib colormap for the chromagram display. Defaults to 'coolwarm'.
+- `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
+- `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
+- `raw` *bool, optional* - Whether to show labels and ticks on the plot. Defaults to False.
+- `original_time` *bool, optional* - Whether to plot original time or not. Defaults to False.
+- `title` *str, optional* - Optionally add title to the figure. Use 'filename' to set the filename as title. Defaults to None.
+- `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_chromagram.png" should be used).
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
+
+#### Returns
+
+- `MgFigure` - An MgFigure object referring to the internal figure and its data.
+
+#### See also
+
+- [MgFigure](_utils.md#mgfigure)
+
 ### MgAudio().descriptors
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L569)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L597)
 
 ```python
 def descriptors(
@@ -38,8 +142,11 @@ def descriptors(
     original_time=False,
     title=None,
     target_name=None,
-    overwrite=False,
-):
+    save_data=False,
+    data_format='csv',
+    target_name_data=None,
+    overwrite=True,
+) -> MgFigure:
 ```
 
 Renders a figure of plots showing spectral/loudness descriptors, including RMS energy, spectral flatness, centroid, bandwidth, rolloff of the video/audio file.
@@ -55,15 +162,33 @@ Renders a figure of plots showing spectral/loudness descriptors, including RMS e
 - `original_time` *bool, optional* - Whether to plot original time or not. This parameter can be useful if the file has been shortened beforehand (e.g. skip). Defaults to False.
 - `title` *str, optional* - Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
 - `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_descriptors.png" should be used).
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+- `save_data` *bool, optional* - Whether to also save the per-frame descriptor time series (time, RMS, centroid, bandwidth, rolloff, rolloff_min, flatness) to a data file. Defaults to False.
+- `data_format` *str/list, optional* - Format of the saved descriptor data. Accepted values are 'csv', 'tsv' and 'txt'. For multiple formats, use a list, e.g. ['csv', 'txt']. Defaults to 'csv'.
+- `target_name_data` *str, optional* - The name of the output data file. Defaults to None (which uses the input filename with the suffix "_descriptors").
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
 #### Returns
 
 - `MgFigure` - An MgFigure object referring to the internal figure and its data.
 
+#### See also
+
+- [MgFigure](_utils.md#mgfigure)
+
+### MgAudio().duration
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L59)
+
+```python
+@property
+def duration() -> float:
+```
+
+Audio duration in **seconds** (for an MgAudio this equals ``self.length``).
+
 ### MgAudio().format_time
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L61)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L92)
 
 ```python
 def format_time(ax, original_time=True, original_duration=None):
@@ -79,7 +204,7 @@ Format time for audio plotting of video file. This is useful if one wants to plo
 
 ### MgAudio().hpss
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L419)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L451)
 
 ```python
 def hpss(
@@ -98,8 +223,8 @@ def hpss(
     original_time=False,
     title=None,
     target_name=None,
-    overwrite=False,
-):
+    overwrite=True,
+) -> MgFigure:
 ```
 
 Renders a figure with a plots of harmonic and percussive components of the audio file.
@@ -120,16 +245,63 @@ margin (float or tuple, optional): Margin size(s) for the masks (as described in
 - `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
 - `original_time` *bool, optional* - Whether to plot original time or not. This parameter can be useful if the video file has been shortened beforehand (e.g. skip). Defaults to False.
 - `title` *str, optional* - Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
-- `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_tempogram.png" should be used).
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+- `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_hpss.png" should be used).
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
 #### Returns
 
 - `MgFigure` - An MgFigure object referring to the internal figure and its data.
 
+#### See also
+
+- [MgFigure](_utils.md#mgfigure)
+
+### MgAudio().mfcc
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L850)
+
+```python
+def mfcc(
+    n_mfcc=13,
+    cmap='RdBu_r',
+    dpi=300,
+    autoshow=True,
+    raw=False,
+    original_time=False,
+    title=None,
+    target_name=None,
+    overwrite=True,
+) -> MgFigure:
+```
+
+Renders a figure showing the Mel-frequency cepstral coefficients (MFCCs) of the video/audio file.
+
+MFCCs compactly describe the spectral envelope (timbre) of a sound over time and are
+widely used as features for audio classification and similarity.
+
+#### Arguments
+
+- `n_mfcc` *int, optional* - Number of MFCCs to compute. Defaults to 13.
+- `cmap` *str, optional* - Matplotlib colormap for the display. Defaults to 'RdBu_r'.
+- `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
+- `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
+- `raw` *bool, optional* - Whether to show labels and ticks on the plot. Defaults to False.
+- `original_time` *bool, optional* - Whether to plot original time or not. Defaults to False.
+- `title` *str, optional* - Optionally add title to the figure. Use 'filename' to set the filename as title. Defaults to None.
+- `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_mfcc.png" should be used).
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
+
+#### Returns
+
+- `MgFigure` - An MgFigure object referring to the internal figure and its data.
+
+#### See also
+
+- [MgFigure](_utils.md#mgfigure)
+
 ### MgAudio().numpy
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L55)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L86)
 
 ```python
 def numpy():
@@ -139,7 +311,7 @@ Read the original file of the MgAudio object as a numpy array using librosa.
 
 ### MgAudio().spectrogram
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L210)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L237)
 
 ```python
 def spectrogram(
@@ -154,8 +326,8 @@ def spectrogram(
     original_time=False,
     title=None,
     target_name=None,
-    overwrite=False,
-):
+    overwrite=True,
+) -> MgFigure:
 ```
 
 Renders a figure showing the mel-scaled spectrogram of the video/audio file.
@@ -173,26 +345,75 @@ Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 - `original_time` *bool, optional* - Whether to plot original time or not. This parameter can be useful if the video file has been shortened beforehand (e.g. skip). Defaults to False.
 - `title` *str, optional* - Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
 - `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_spectrogram.png" should be used).
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
 #### Returns
 
 - `MgFigure` - An MgFigure object referring to the internal figure and its data.
 
-### MgAudio().tempogram
+#### See also
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L321)
+- [MgFigure](_utils.md#mgfigure)
+
+### MgAudio().tempo
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L930)
 
 ```python
-def tempogram(
+def tempo(
     dpi=300,
     autoshow=True,
     raw=False,
     original_time=False,
     title=None,
     target_name=None,
-    overwrite=False,
-):
+    overwrite=True,
+) -> MgFigure:
+```
+
+Estimates tempo and beat positions, and renders the waveform with beat markers.
+
+Uses librosa's beat tracker. In addition to the figure, the returned object's
+``.data`` dictionary contains the estimated tempo, beat times, inter-beat
+intervals, a beat-regularity measure, and circular beat statistics (phase
+deviation of each beat from a fitted ideal grid, plus a Rayleigh test of
+timing consistency).
+
+#### Arguments
+
+- `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
+- `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
+- `raw` *bool, optional* - Whether to show labels and ticks on the plot. Defaults to False.
+- `original_time` *bool, optional* - Whether to plot original time or not. Defaults to False.
+- `title` *str, optional* - Optionally add title to the figure. Use 'filename' to set the filename as title. Defaults to None.
+- `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_tempo.png" should be used).
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
+
+#### Returns
+
+- `MgFigure` - An MgFigure object. Access numeric results via ``.data``:
+    'tempo', 'beat_times', 'ibi', 'beat_regularity', 'beat_phases',
+    'deviations_s', 'R_beat', 'mu_beat', 'T_fit', 't0_fit', 'p_rayleigh'.
+
+#### See also
+
+- [MgFigure](_utils.md#mgfigure)
+
+### MgAudio().tempogram
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L346)
+
+```python
+def tempogram(
+    dpi=300,
+    autoshow=True,
+    raw=False,
+    onset_strength=True,
+    original_time=False,
+    title=None,
+    target_name=None,
+    overwrite=True,
+) -> MgFigure:
 ```
 
 Renders a figure with a plots of onset strength and tempogram of the video/audio file.
@@ -202,18 +423,25 @@ Renders a figure with a plots of onset strength and tempogram of the video/audio
 - `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
 - `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
 - `raw` *bool, optional* - Whether to show labels and ticks on the plot. Defaults to False.
+- `onset_strength` *bool, optional* - Whether to include the onset-strength panel above the
+    tempogram. Set to False for just the tempogram in a single-panel figure (the same
+    size as spectrogram/chromagram). Defaults to True.
 - `original_time` *bool, optional* - Whether to plot original time or not. This parameter can be useful if the video file has been shortened beforehand (e.g. skip). Defaults to False.
 - `title` *str, optional* - Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
 - `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_tempogram.png" should be used).
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
 #### Returns
 
 - `MgFigure` - An MgFigure object referring to the internal figure and its data.
 
+#### See also
+
+- [MgFigure](_utils.md#mgfigure)
+
 ### MgAudio().waveform
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L99)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L130)
 
 ```python
 def waveform(
@@ -229,8 +457,8 @@ def waveform(
     original_time=True,
     title=None,
     target_name=None,
-    overwrite=False,
-):
+    overwrite=True,
+) -> MgFigure:
 ```
 
 Renders a figure showing the waveform of the video/audio file.
@@ -249,8 +477,12 @@ Renders a figure showing the waveform of the video/audio file.
 - `original_time` *bool, optional* - Whether to plot original time or not. This parameter can be useful if the video file has been shortened beforehand (e.g. skip). Defaults to True.
 - `title` *str, optional* - Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
 - `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_waveform.png" should be used).
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
 #### Returns
 
 - `MgFigure` - An MgFigure object referring to the internal figure and its data.
+
+#### See also
+
+- [MgFigure](_utils.md#mgfigure)

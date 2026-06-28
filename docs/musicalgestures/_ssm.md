@@ -9,25 +9,26 @@
 
 ## mg_ssm
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_ssm.py#L67)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_ssm.py#L66)
 
 ```python
 def mg_ssm(
     self,
     features='motiongrams',
     filtertype='Regular',
-    thresh=0.05,
+    threshold=0.05,
     blur='None',
     norm=np.inf,
-    threshold=0.001,
+    norm_threshold=0.001,
     cmap='gray_r',
     use_median=False,
     kernel_size=5,
     invert_yaxis=True,
+    combine=False,
     title=None,
     target_name=None,
-    overwrite=False,
-):
+    overwrite=True,
+) -> 'MgList | MgImage':
 ```
 
 Compute Self-Similarity Matrix (SSM) by converting the input signal into a suitable feature sequence and comparing each element of the feature sequence with all other elements of the sequence.
@@ -36,18 +37,21 @@ SSMs can be computed over different input features such as 'motiongrams', 'spect
 #### Arguments
 
 - `features` *str, optional* - Defines the type of features on which to compute SSM. Possible to compute SSM on 'motiongrams', 'videograms', 'spectrogram', 'chromagram' and 'tempogram'. Defaults to 'motiongrams'.
-- `filtertype` *str, optional* - 'Regular' turns all values below `thresh` to 0. 'Binary' turns all values below `thresh` to 0, above `thresh` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
-- `thresh` *float, optional* - Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
+- `filtertype` *str, optional* - 'Regular' turns all values below `threshold` to 0. 'Binary' turns all values below `threshold` to 0, above `threshold` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
+- `threshold` *float, optional* - Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
 - `blur` *str, optional* - 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
 - `norm` *int, optional* - Normalize the columns of the feature sequence. Possible to compute Manhattan norm (1), Euclidean norm (2), Minimum norm (-np.inf), Maximum norm (np.inf), etc. Defaults to np.inf.
-- `threshold` *float, optional* - Only the columns with norm at least the amount of `threshold` indicated are normalized. Defaults to 0.001.
+- `norm_threshold` *float, optional* - Only the columns with norm at least `norm_threshold` are normalized. Defaults to 0.001.
+- `combine` *bool, optional* - For 'motiongrams', compute a single SSM from the concatenated
+    horizontal + vertical motiongram features (both axes of motion in one display) and
+    return a single MgImage instead of an MgList of two. Defaults to False.
 - `cmap` *str, optional* - A Colormap instance or registered colormap name. The colormap maps the C values to colors. Defaults to 'gray_r'.
 - `use_median` *bool, optional* - If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
 - `kernel_size` *int, optional* - Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
-- `invert_axis` *bool, optional* - Whether to invert the y axis of the SSM. Defaults to True.
+- `invert_yaxis` *bool, optional* - Whether to invert the y axis of the SSM. Defaults to True.
 - `title` *str, optional* - Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
 - `target_name` *[type], optional* - Target output name for the SSM. Defaults to None.
-- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to False.
+- `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
 #### Returns
 
@@ -58,7 +62,7 @@ SSMs can be computed over different input features such as 'motiongrams', 'spect
 
 ## slow_dot
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_ssm.py#L48)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_ssm.py#L47)
 
 ```python
 def slow_dot(X, Y, length):
@@ -68,7 +72,7 @@ Low-memory implementation of dot product
 
 ## smooth_downsample_feature_sequence
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_ssm.py#L19)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_ssm.py#L17)
 
 ```python
 def smooth_downsample_feature_sequence(
