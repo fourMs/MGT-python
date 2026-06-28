@@ -12,7 +12,7 @@ import numpy as np
 import cv2
 import matplotlib
 import matplotlib.pyplot as plt
-from musicalgestures._utils import MgFigure, generate_outfilename, has_audio
+from musicalgestures._utils import MgFigure, generate_outfilename, resolve_filename, has_audio
 
 
 def _audio_env(self, kind='onset'):
@@ -81,12 +81,7 @@ def mg_phase_synchrony(self, fmin=0.5, fmax=4.0, fs=50.0, n_bins=36, dpi=300,
         print('The video has no audio track.')
         return None
 
-    if target_name is None:
-        target_name = self.of + '_phase_synchrony.png'
-    else:
-        target_name = os.path.splitext(target_name)[0] + '.png'
-    if not overwrite:
-        target_name = generate_outfilename(target_name)
+    target_name = resolve_filename(self.of, '_phase_synchrony.png', target_name, overwrite)
 
     oenv, t_a, sr = _audio_env(self, 'onset')
     qom, fps = _movement_qom(self)
@@ -176,12 +171,7 @@ def mg_structure_comparison(self, n=200, dpi=300, cmap='magma', autoshow=True,
         print('The video has no audio track.')
         return None
 
-    if target_name is None:
-        target_name = self.of + '_structure_comparison.png'
-    else:
-        target_name = os.path.splitext(target_name)[0] + '.png'
-    if not overwrite:
-        target_name = generate_outfilename(target_name)
+    target_name = resolve_filename(self.of, '_structure_comparison.png', target_name, overwrite)
 
     # Audio feature matrix (MFCC) → resample to n columns
     y, sr = self._load()
@@ -271,12 +261,7 @@ def mg_body_audio_coupling(self, dpi=300, cmap='coolwarm', dot_size=260, autosho
     names, connections = c['names'], c.get('connections') or []
     width, height, fps = c['width'], c['height'], c['fps']
 
-    if target_name is None:
-        target_name = c['of'] + '_body_audio_coupling.png'
-    else:
-        target_name = os.path.splitext(target_name)[0] + '.png'
-    if not overwrite:
-        target_name = generate_outfilename(target_name)
+    target_name = resolve_filename(c['of'], '_body_audio_coupling.png', target_name, overwrite)
 
     coords, _ = _positions_from_data(c['data'], len(names))  # (T, n, 2) normalised
     px = coords * np.array([width, height])
@@ -365,12 +350,7 @@ def mg_dynamics_coupling(self, fs=50.0, max_lag=2.0, dpi=300, autoshow=True,
         print('The video has no audio track.')
         return None
 
-    if target_name is None:
-        target_name = self.of + '_dynamics_coupling.png'
-    else:
-        target_name = os.path.splitext(target_name)[0] + '.png'
-    if not overwrite:
-        target_name = generate_outfilename(target_name)
+    target_name = resolve_filename(self.of, '_dynamics_coupling.png', target_name, overwrite)
 
     rms, t_a, sr = _audio_env(self, 'rms')
     qom, fps = _movement_qom(self)

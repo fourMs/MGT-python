@@ -10,7 +10,7 @@ import os
 import numpy as np
 import cv2
 import musicalgestures
-from musicalgestures._utils import MgImage, MgFigure, MgProgressbar, generate_outfilename, ffmpeg_cmd
+from musicalgestures._utils import MgImage, MgFigure, MgProgressbar, generate_outfilename, resolve_filename, ffmpeg_cmd
 
 
 # ---------------------------------------------------------------------------
@@ -141,12 +141,7 @@ def mg_stroboscope(self, n_samples=12, method='auto', threshold=0.1, kernel_size
     Returns:
         MgImage: the stroboscope image.
     """
-    if target_name is None:
-        target_name = self.of + '_stroboscope.png'
-    else:
-        target_name = os.path.splitext(target_name)[0] + '.png'
-    if not overwrite:
-        target_name = generate_outfilename(target_name)
+    target_name = resolve_filename(self.of, '_stroboscope.png', target_name, overwrite)
 
     avg = _average_frame(self)
     bg_gray = cv2.cvtColor(avg, cv2.COLOR_BGR2GRAY).astype(np.float32)
@@ -232,12 +227,7 @@ def mg_silhouette_waterfall(self, n_samples=40, method='auto', threshold=0.1, ke
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 (registers 3d projection)
 
-    if target_name is None:
-        target_name = self.of + '_silhouette_waterfall.png'
-    else:
-        target_name = os.path.splitext(target_name)[0] + '.png'
-    if not overwrite:
-        target_name = generate_outfilename(target_name)
+    target_name = resolve_filename(self.of, '_silhouette_waterfall.png', target_name, overwrite)
 
     avg = _average_frame(self)
     bg_gray = cv2.cvtColor(avg, cv2.COLOR_BGR2GRAY).astype(np.float32)
@@ -350,12 +340,7 @@ def mg_motionhistory(self, threshold=0.05, decay=0.3, normalize=False, blur=0,
     import matplotlib
     import matplotlib.pyplot as plt
 
-    if target_name is None:
-        target_name = self.of + '_mhi.png'
-    else:
-        target_name = os.path.splitext(target_name)[0] + '.png'
-    if not overwrite:
-        target_name = generate_outfilename(target_name)
+    target_name = resolve_filename(self.of, '_mhi.png', target_name, overwrite)
 
     total = max(int(self.length), 1)
     decay_frames = max(1, int(decay * total))
@@ -433,12 +418,7 @@ def mg_spacetime_volume(self, n_samples=50, downsample=8, method='auto', thresho
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 (registers 3d projection)
 
-    if target_name is None:
-        target_name = self.of + '_spacetime_volume.png'
-    else:
-        target_name = os.path.splitext(target_name)[0] + '.png'
-    if not overwrite:
-        target_name = generate_outfilename(target_name)
+    target_name = resolve_filename(self.of, '_spacetime_volume.png', target_name, overwrite)
 
     avg = _average_frame(self)
     bg_gray = cv2.cvtColor(avg, cv2.COLOR_BGR2GRAY).astype(np.float32)

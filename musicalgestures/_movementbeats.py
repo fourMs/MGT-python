@@ -11,7 +11,7 @@ import numpy as np
 import cv2
 import matplotlib
 import matplotlib.pyplot as plt
-from musicalgestures._utils import MgFigure, MgProgressbar, generate_outfilename
+from musicalgestures._utils import MgFigure, MgProgressbar, generate_outfilename, resolve_filename
 
 
 def _movement_qom(self):
@@ -137,12 +137,7 @@ def mg_beat_statistics(self, source='motion', n_bins=32, cmap='YlOrRd', dpi=300,
         'qom': qom,
     }
 
-    if target_name is None:
-        target_name = self.of + '_movement_beatstats.png'
-    else:
-        target_name = os.path.splitext(target_name)[0] + '.png'
-    if not overwrite:
-        target_name = generate_outfilename(target_name)
+    target_name = resolve_filename(self.of, '_movement_beatstats.png', target_name, overwrite)
 
     deviations_ms = deviations_s * 1000
     R, mu = R_beat, mu_beat
@@ -231,12 +226,7 @@ def mg_tempo_similarity(self, dpi=300, autoshow=True, title=None, target_name=No
         print('The video has no audio track — cannot compare audio and movement tempo.')
         return None
 
-    if target_name is None:
-        target_name = self.of + '_tempo_similarity.png'
-    else:
-        target_name = os.path.splitext(target_name)[0] + '.png'
-    if not overwrite:
-        target_name = generate_outfilename(target_name)
+    target_name = resolve_filename(self.of, '_tempo_similarity.png', target_name, overwrite)
 
     # --- Audio envelope + tempo ---
     y, sr = self._load()

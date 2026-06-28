@@ -1,5 +1,5 @@
 import os
-from musicalgestures._utils import MgImage, get_widthheight, get_framecount, get_length, ffmpeg_cmd, generate_outfilename
+from musicalgestures._utils import MgImage, get_widthheight, get_framecount, get_length, ffmpeg_cmd, generate_outfilename, resolve_filename
 from musicalgestures._mglist import MgList
 from musicalgestures._videoadjust import skip_frames_ffmpeg
 import math
@@ -55,13 +55,8 @@ def videograms_ffmpeg(self, target_name_x=None, target_name_y=None, overwrite=Tr
         framecount = get_framecount(shortened_file)
         length = get_length(shortened_file)
 
-        if target_name_x is None:
-            target_name_x = skip_of+'_vgv.png'
-        if target_name_y is None:
-            target_name_y = skip_of+'_vgh.png'
-        if not overwrite:
-            target_name_x = generate_outfilename(target_name_x)
-            target_name_y = generate_outfilename(target_name_y)
+        target_name_x = resolve_filename(skip_of, '_vgv.png', target_name_x, overwrite)
+        target_name_y = resolve_filename(skip_of, '_vgh.png', target_name_y, overwrite)
 
         cmd = ['ffmpeg', '-y', '-i', shortened_file, '-vf',
                f'scale=1:{height}:sws_flags=area,normalize,tile={framecount}x1', '-aspect', f'{framecount}:{height}', '-frames', '1', target_name_y]
@@ -82,13 +77,8 @@ def videograms_ffmpeg(self, target_name_x=None, target_name_y=None, overwrite=Tr
     else:
         length = get_length(self.filename)
 
-        if target_name_x is None:
-            target_name_x = self.of +'_vgv.png'
-        if target_name_y is None:
-            target_name_y = self.of+'_vgh.png'
-        if not overwrite:
-            target_name_x = generate_outfilename(target_name_x)
-            target_name_y = generate_outfilename(target_name_y)
+        target_name_x = resolve_filename(self.of, '_vgv.png', target_name_x, overwrite)
+        target_name_y = resolve_filename(self.of, '_vgh.png', target_name_y, overwrite)
 
         cmd = ['ffmpeg', '-y', '-i', self.filename, '-frames', '1', '-vf',
                f'scale=1:{height}:sws_flags=area,normalize,tile={framecount}x1', '-aspect', f'{framecount}:{height}', target_name_y]
