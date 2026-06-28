@@ -8,28 +8,27 @@
 
 ## beats_diff
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_warp.py#L14)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_warp.py#L29)
 
 ```python
-@jit(nopython=True)
 def beats_diff(beats, media):
 ```
 
 ## mg_warp_audiovisual_beats
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_warp.py#L21)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_warp.py#L35)
 
 ```python
 def mg_warp_audiovisual_beats(
     self,
-    audio_file,
-    speed=(0.5, 2),
+    audio_file: str,
+    speed: tuple = (0.5, 2),
     data=None,
-    filtertype='Adaptative',
-    threshold=0.05,
-    kernel_size=5,
-    target_name=None,
-    overwrite=True,
+    filtertype: str = 'Adaptative',
+    threshold: float = 0.05,
+    kernel_size: int = 5,
+    target_name: str | None = None,
+    overwrite: bool = True,
 ) -> 'musicalgestures.MgVideo':
 ```
 

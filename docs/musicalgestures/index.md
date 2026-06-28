@@ -33,6 +33,7 @@
         - [Logging](_logging.md#logging)
         - [MgList](_mglist.md#mglist)
         - [Motionanalysis](_motionanalysis.md#motionanalysis)
+        - [Motiondescriptors](_motiondescriptors.md#motiondescriptors)
         - [Motiontempo](_motiontempo.md#motiontempo)
         - [Motionvectors](_motionvectors.md#motionvectors)
         - [Motionvideo](_motionvideo.md#motionvideo)

@@ -7,20 +7,20 @@
 
 ## mg_heatmap
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_heatmap.py#L8)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_heatmap.py#L10)
 
 ```python
 def mg_heatmap(
     self,
-    colormap='inferno',
-    overlay=True,
-    alpha=0.75,
-    background_dim=0.4,
-    blur=0,
-    normalize=True,
-    gamma=0.5,
-    target_name=None,
-    overwrite=True,
+    colormap: str = 'inferno',
+    overlay: bool = True,
+    alpha: float = 0.75,
+    background_dim: float = 0.4,
+    blur: int = 0,
+    normalize: bool = True,
+    gamma: float = 0.5,
+    target_name: str | None = None,
+    overwrite: bool = True,
 ) -> 'MgImage':
 ```
 

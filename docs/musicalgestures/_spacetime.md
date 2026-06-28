@@ -16,19 +16,19 @@ to background subtraction against the average frame (good for static-camera reco
 
 ## mg_motionhistory
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_spacetime.py#L309)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_spacetime.py#L322)
 
 ```python
 def mg_motionhistory(
     self,
-    threshold=0.05,
-    decay=0.3,
-    normalize=False,
-    blur=0,
-    cmap='hot',
-    dpi=300,
-    target_name=None,
-    overwrite=True,
+    threshold: float = 0.05,
+    decay: float = 0.3,
+    normalize: bool = False,
+    blur: int = 0,
+    cmap: str = 'hot',
+    dpi: int = 300,
+    target_name: str | None = None,
+    overwrite: bool = True,
 ) -> 'MgImage':
 ```
 
@@ -64,25 +64,25 @@ for shorter (less crowded) trails.
 
 ## mg_silhouette_waterfall
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_spacetime.py#L194)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_spacetime.py#L207)
 
 ```python
 def mg_silhouette_waterfall(
     self,
-    n_samples=40,
-    method='auto',
-    threshold=0.1,
-    kernel_size=5,
-    keep_largest=False,
-    axis='horizontal',
-    cmap='viridis',
-    dpi=200,
-    elev=35,
-    azim=-60,
-    axes=True,
-    crop=False,
-    target_name=None,
-    overwrite=True,
+    n_samples: int = 40,
+    method: str = 'auto',
+    threshold: float = 0.1,
+    kernel_size: int = 5,
+    keep_largest: bool = False,
+    axis: str = 'horizontal',
+    cmap: str = 'viridis',
+    dpi: int = 200,
+    elev: float = 35,
+    azim: float = -60,
+    axes: bool = True,
+    crop: bool = False,
+    target_name: str | None = None,
+    overwrite: bool = True,
 ) -> 'MgFigure':
 ```
 
@@ -118,23 +118,23 @@ For a single person on a static background, raise ``threshold`` and/or set
 
 ## mg_spacetime_volume
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_spacetime.py#L392)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_spacetime.py#L405)
 
 ```python
 def mg_spacetime_volume(
     self,
-    n_samples=50,
-    downsample=8,
-    method='auto',
-    threshold=0.1,
-    kernel_size=5,
-    keep_largest=False,
-    cmap='viridis',
-    dpi=200,
-    elev=20,
-    azim=-60,
-    target_name=None,
-    overwrite=True,
+    n_samples: int = 50,
+    downsample: int = 8,
+    method: str = 'auto',
+    threshold: float = 0.1,
+    kernel_size: int = 5,
+    keep_largest: bool = False,
+    cmap: str = 'viridis',
+    dpi: int = 200,
+    elev: float = 20,
+    azim: float = -60,
+    target_name: str | None = None,
+    overwrite: bool = True,
 ) -> 'MgFigure':
 ```
 
@@ -163,20 +163,20 @@ occupies space through time.
 
 ## mg_stroboscope
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_spacetime.py#L118)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_spacetime.py#L131)
 
 ```python
 def mg_stroboscope(
     self,
-    n_samples=12,
-    method='auto',
-    threshold=0.1,
-    kernel_size=5,
-    keep_largest=False,
-    colorize=True,
-    background='average',
-    target_name=None,
-    overwrite=True,
+    n_samples: int = 12,
+    method: str = 'auto',
+    threshold: float = 0.1,
+    kernel_size: int = 5,
+    keep_largest: bool = False,
+    colorize: bool = True,
+    background: str = 'average',
+    target_name: str | None = None,
+    overwrite: bool = True,
 ) -> 'MgImage':
 ```
 

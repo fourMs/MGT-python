@@ -9,36 +9,34 @@
 
 ## directogram
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_directograms.py#L24)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_directograms.py#L42)
 
 ```python
-@jit(nopython=True)
 def directogram(optical_flow):
 ```
 
 ## matrix3D_norm
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_directograms.py#L14)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_directograms.py#L33)
 
 ```python
-@jit(nopython=True)
 def matrix3D_norm(matrix):
 ```
 
 ## mg_directograms
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_directograms.py#L39)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_directograms.py#L56)
 
 ```python
 def mg_directograms(
     self,
-    title=None,
-    filtertype='Adaptative',
-    threshold=0.05,
-    kernel_size=5,
-    convert=True,
-    target_name=None,
-    overwrite=True,
+    title: str | None = None,
+    filtertype: str = 'Adaptative',
+    threshold: float = 0.05,
+    kernel_size: int = 5,
+    convert: bool = True,
+    target_name: str | None = None,
+    overwrite: bool = True,
 ) -> 'MgFigure':
 ```
 

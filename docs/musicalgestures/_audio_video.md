@@ -17,18 +17,18 @@ results in ``.data``); most also save a CSV next to the image.
 
 ## mg_body_audio_coupling
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio_video.py#L236)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio_video.py#L238)
 
 ```python
 def mg_body_audio_coupling(
     self,
-    dpi=300,
-    cmap='coolwarm',
-    dot_size=260,
-    autoshow=True,
-    title=None,
-    target_name=None,
-    overwrite=True,
+    dpi: int = 300,
+    cmap: str = 'coolwarm',
+    dot_size: int = 260,
+    autoshow: bool = True,
+    title: str | None = None,
+    target_name: str | None = None,
+    overwrite: bool = True,
     **pose_kwargs,
 ) -> 'MgFigure':
 ```
@@ -45,18 +45,18 @@ Returns an MgFigure (per-marker correlations in ``.data``), or None if the video
 
 ## mg_dynamics_coupling
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio_video.py#L335)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio_video.py#L337)
 
 ```python
 def mg_dynamics_coupling(
     self,
-    fs=50.0,
-    max_lag=2.0,
-    dpi=300,
-    autoshow=True,
-    title=None,
-    target_name=None,
-    overwrite=True,
+    fs: float = 50.0,
+    max_lag: float = 2.0,
+    dpi: int = 300,
+    autoshow: bool = True,
+    title: str | None = None,
+    target_name: str | None = None,
+    overwrite: bool = True,
 ) -> 'MgFigure':
 ```
 
@@ -71,20 +71,20 @@ Returns an MgFigure (metrics in ``.data``), or None if the video has no audio.
 
 ## mg_phase_synchrony
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio_video.py#L65)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio_video.py#L67)
 
 ```python
 def mg_phase_synchrony(
     self,
-    fmin=0.5,
-    fmax=4.0,
-    fs=50.0,
-    n_bins=36,
-    dpi=300,
-    autoshow=True,
-    title=None,
-    target_name=None,
-    overwrite=True,
+    fmin: float = 0.5,
+    fmax: float = 4.0,
+    fs: float = 50.0,
+    n_bins: int = 36,
+    dpi: int = 300,
+    autoshow: bool = True,
+    title: str | None = None,
+    target_name: str | None = None,
+    overwrite: bool = True,
 ) -> 'MgFigure':
 ```
 
@@ -99,18 +99,18 @@ Returns an MgFigure (metrics in ``.data``), or None if the video has no audio.
 
 ## mg_structure_comparison
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio_video.py#L156)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio_video.py#L158)
 
 ```python
 def mg_structure_comparison(
     self,
-    n=200,
-    dpi=300,
-    cmap='magma',
-    autoshow=True,
-    title=None,
-    target_name=None,
-    overwrite=True,
+    n: int = 200,
+    dpi: int = 300,
+    cmap: str = 'magma',
+    autoshow: bool = True,
+    title: str | None = None,
+    target_name: str | None = None,
+    overwrite: bool = True,
 ) -> 'MgFigure':
 ```
 

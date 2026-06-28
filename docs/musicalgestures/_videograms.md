@@ -7,14 +7,14 @@
 
 ## videograms_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_videograms.py#L8)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_videograms.py#L10)
 
 ```python
 def videograms_ffmpeg(
     self,
-    target_name_x=None,
-    target_name_y=None,
-    overwrite=True,
+    target_name_x: str | None = None,
+    target_name_y: str | None = None,
+    overwrite: bool = True,
 ) -> 'MgList':
 ```
 

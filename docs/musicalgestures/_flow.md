@@ -12,7 +12,7 @@
 
 ## Flow
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L12)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L14)
 
 ```python
 class Flow():
@@ -23,29 +23,29 @@ Class container for the sparse and dense optical flow processes.
 
 ### Flow().dense
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L32)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L34)
 
 ```python
 def dense(
-    filename=None,
-    pyr_scale=0.5,
-    levels=3,
-    winsize=15,
-    iterations=3,
-    poly_n=5,
-    poly_sigma=1.2,
-    flags=0,
-    velocity=False,
-    distance=None,
-    timestep=1,
-    move_step=1,
-    angle_of_view=0,
-    scaledown=1,
-    skip_empty=False,
-    use_gpu=False,
-    convert=True,
-    target_name=None,
-    overwrite=True,
+    filename: str | None = None,
+    pyr_scale: float = 0.5,
+    levels: int = 3,
+    winsize: int = 15,
+    iterations: int = 3,
+    poly_n: int = 5,
+    poly_sigma: float = 1.2,
+    flags: int = 0,
+    velocity: bool = False,
+    distance: int | None = None,
+    timestep: int = 1,
+    move_step: int = 1,
+    angle_of_view: int = 0,
+    scaledown: int = 1,
+    skip_empty: bool = False,
+    use_gpu: bool = False,
+    convert: bool = True,
+    target_name: str | None = None,
+    overwrite: bool = True,
 ) -> 'musicalgestures.MgVideo':
 ```
 
@@ -78,46 +78,46 @@ Renders a dense optical flow video of the input video file using `cv2.calcOptica
 
 ### Flow().get_acceleration
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L279)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L281)
 
 ```python
-def get_acceleration(velocity, fps):
+def get_acceleration(velocity: list, fps: int):
 ```
 
 ### Flow().get_velocity
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L289)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L291)
 
 ```python
 def get_velocity(
-    flow,
-    sum_flow_pixels,
-    flow_shape,
-    distance_meters,
-    timestep_seconds,
-    move_step,
-    angle_of_view,
+    flow: np.ndarray,
+    sum_flow_pixels: float,
+    flow_shape: int,
+    distance_meters: int | float | None,
+    timestep_seconds: int | float,
+    move_step: int,
+    angle_of_view: int | float,
 ):
 ```
 
 ### Flow().sparse
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L304)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L306)
 
 ```python
 def sparse(
-    filename=None,
-    corner_max_corners=100,
-    corner_quality_level=0.3,
-    corner_min_distance=7,
-    corner_block_size=7,
-    of_win_size=(15, 15),
-    of_max_level=2,
-    of_criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03),
-    use_gpu=False,
-    convert=True,
-    target_name=None,
-    overwrite=True,
+    filename: str | None = None,
+    corner_max_corners: int = 100,
+    corner_quality_level: float = 0.3,
+    corner_min_distance: int = 7,
+    corner_block_size: int = 7,
+    of_win_size: tuple = (15, 15),
+    of_max_level: int = 2,
+    of_criteria: tuple = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03),
+    use_gpu: bool = False,
+    convert: bool = True,
+    target_name: str | None = None,
+    overwrite: bool = True,
 ) -> 'musicalgestures.MgVideo':
 ```
 
@@ -143,13 +143,13 @@ Renders a sparse optical flow video of the input video file using `cv2.calcOptic
 
 ### Flow().velocity_meters_per_second
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L297)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_flow.py#L299)
 
 ```python
 def velocity_meters_per_second(
-    velocity_pixels_per_second,
-    flow_shape,
-    distance_meters,
-    angle_of_view,
+    velocity_pixels_per_second: float,
+    flow_shape: int,
+    distance_meters: int | float,
+    angle_of_view: int | float,
 ):
 ```

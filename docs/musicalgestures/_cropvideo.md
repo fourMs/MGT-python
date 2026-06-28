@@ -12,29 +12,29 @@
 
 ## async_subprocess
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L239)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L241)
 
 ```python
-async def async_subprocess(command):
+async def async_subprocess(command: str):
 ```
 
 ## cropping_window
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L96)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L98)
 
 ```python
-def cropping_window(filename):
+def cropping_window(filename: str):
 ```
 
 ## find_motion_box_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L6)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L8)
 
 ```python
 def find_motion_box_ffmpeg(
-    filename,
-    motion_box_thresh=0.1,
-    motion_box_margin=12,
+    filename: str,
+    motion_box_thresh: float = 0.1,
+    motion_box_margin: int = 12,
 ):
 ```
 
@@ -59,7 +59,7 @@ Helper function to find the area of motion in a video, using ffmpeg.
 
 ## manual_text_input
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L282)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L284)
 
 ```python
 def manual_text_input():
@@ -74,16 +74,16 @@ In this case we can't display the windowed cropping UI, so we ask for the values
 
 ## mg_cropvideo_ffmpeg
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L168)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L170)
 
 ```python
 def mg_cropvideo_ffmpeg(
-    filename,
-    crop_movement='Auto',
-    motion_box_thresh=0.1,
-    motion_box_margin=12,
-    target_name=None,
-    overwrite=True,
+    filename: str,
+    crop_movement: str = 'Auto',
+    motion_box_thresh: float = 0.1,
+    motion_box_margin: int = 12,
+    target_name: str | None = None,
+    overwrite: bool = True,
 ):
 ```
 
@@ -104,8 +104,13 @@ Crops the video using ffmpeg.
 
 ## run_cropping_window
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L258)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_cropvideo.py#L260)
 
 ```python
-def run_cropping_window(imgpath, scale_ratio, scaled_width, scaled_height):
+def run_cropping_window(
+    imgpath: str,
+    scale_ratio: float,
+    scaled_width: int,
+    scaled_height: int,
+):
 ```

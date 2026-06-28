@@ -19,7 +19,7 @@
 
 ## MgAudio
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L21)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L22)
 
 ```python
 class MgAudio():
@@ -35,17 +35,17 @@ Class container for audio analysis processes.
 
 ### MgAudio().beat_statistics
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L1046)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L1047)
 
 ```python
 def beat_statistics(
-    n_bins=32,
-    cmap='YlOrRd',
-    dpi=300,
-    autoshow=True,
-    title=None,
-    target_name=None,
-    overwrite=True,
+    n_bins: int = 32,
+    cmap: str = 'YlOrRd',
+    dpi: int = 300,
+    autoshow: bool = True,
+    title: str | None = None,
+    target_name: str | None = None,
+    overwrite: bool = True,
 ) -> MgFigure:
 ```
 
@@ -77,21 +77,21 @@ whether a performer rushes, drags, or keeps steady time.
 
 ### MgAudio().chromagram
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L749)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L750)
 
 ```python
 def chromagram(
-    n_chroma=12,
-    norm=np.inf,
-    chroma_type='cqt',
-    cmap='coolwarm',
-    dpi=300,
-    autoshow=True,
-    raw=False,
-    original_time=False,
-    title=None,
-    target_name=None,
-    overwrite=True,
+    n_chroma: int = 12,
+    norm: float | None = np.inf,
+    chroma_type: str = 'cqt',
+    cmap: str = 'coolwarm',
+    dpi: int = 300,
+    autoshow: bool = True,
+    raw: bool = False,
+    original_time: bool = False,
+    title: str | None = None,
+    target_name: str | None = None,
+    overwrite: bool = True,
 ) -> MgFigure:
 ```
 
@@ -129,23 +129,23 @@ norm (float or None, optional): Column-wise normalisation. np.inf gives maximum-
 
 ### MgAudio().descriptors
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L597)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L598)
 
 ```python
 def descriptors(
-    n_mels=128,
-    fmin=0.0,
-    fmax=None,
-    power=2,
-    dpi=300,
-    autoshow=True,
-    original_time=False,
-    title=None,
-    target_name=None,
-    save_data=False,
-    data_format='csv',
-    target_name_data=None,
-    overwrite=True,
+    n_mels: int = 128,
+    fmin: float = 0.0,
+    fmax: float | None = None,
+    power: int = 2,
+    dpi: int = 300,
+    autoshow: bool = True,
+    original_time: bool = False,
+    title: str | None = None,
+    target_name: str | None = None,
+    save_data: bool = False,
+    data_format: str | list = 'csv',
+    target_name_data: str | None = None,
+    overwrite: bool = True,
 ) -> MgFigure:
 ```
 
@@ -177,7 +177,7 @@ Renders a figure of plots showing spectral/loudness descriptors, including RMS e
 
 ### MgAudio().duration
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L59)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L60)
 
 ```python
 @property
@@ -188,10 +188,10 @@ Audio duration in **seconds** (for an MgAudio this equals ``self.length``).
 
 ### MgAudio().format_time
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L92)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L93)
 
 ```python
-def format_time(ax, original_time=True, original_duration=None):
+def format_time(ax, original_time: bool = True, original_duration=None):
 ```
 
 Format time for audio plotting of video file. This is useful if one wants to plot the original time of the video when frames have been skipped beforehand.
@@ -204,26 +204,26 @@ Format time for audio plotting of video file. This is useful if one wants to plo
 
 ### MgAudio().hpss
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L451)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L452)
 
 ```python
 def hpss(
-    dim=2,
-    n_mels=128,
-    fmin=0.0,
-    fmax=None,
-    kernel_size=31,
-    margin=(1.0, 5.0),
-    power=2.0,
-    top_db=80.0,
-    mask=False,
-    residual=False,
-    dpi=300,
-    autoshow=True,
-    original_time=False,
-    title=None,
-    target_name=None,
-    overwrite=True,
+    dim: int = 2,
+    n_mels: int = 128,
+    fmin: float = 0.0,
+    fmax: float | None = None,
+    kernel_size: int | tuple = 31,
+    margin: float | tuple = (1.0, 5.0),
+    power: float = 2.0,
+    top_db: float = 80.0,
+    mask: bool = False,
+    residual: bool = False,
+    dpi: int = 300,
+    autoshow: bool = True,
+    original_time: bool = False,
+    title: str | None = None,
+    target_name: str | None = None,
+    overwrite: bool = True,
 ) -> MgFigure:
 ```
 
@@ -258,19 +258,19 @@ margin (float or tuple, optional): Margin size(s) for the masks (as described in
 
 ### MgAudio().mfcc
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L850)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L851)
 
 ```python
 def mfcc(
-    n_mfcc=13,
-    cmap='RdBu_r',
-    dpi=300,
-    autoshow=True,
-    raw=False,
-    original_time=False,
-    title=None,
-    target_name=None,
-    overwrite=True,
+    n_mfcc: int = 13,
+    cmap: str = 'RdBu_r',
+    dpi: int = 300,
+    autoshow: bool = True,
+    raw: bool = False,
+    original_time: bool = False,
+    title: str | None = None,
+    target_name: str | None = None,
+    overwrite: bool = True,
 ) -> MgFigure:
 ```
 
@@ -301,7 +301,7 @@ widely used as features for audio classification and similarity.
 
 ### MgAudio().numpy
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L86)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L87)
 
 ```python
 def numpy():
@@ -311,22 +311,22 @@ Read the original file of the MgAudio object as a numpy array using librosa.
 
 ### MgAudio().spectrogram
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L237)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L238)
 
 ```python
 def spectrogram(
-    fmin=0.0,
-    fmax=None,
-    n_mels=128,
-    power=2.0,
-    top_db=80.0,
-    dpi=300,
-    autoshow=True,
-    raw=False,
-    original_time=False,
-    title=None,
-    target_name=None,
-    overwrite=True,
+    fmin: float = 0.0,
+    fmax: float | None = None,
+    n_mels: int = 128,
+    power: float = 2.0,
+    top_db: float = 80.0,
+    dpi: int = 300,
+    autoshow: bool = True,
+    raw: bool = False,
+    original_time: bool = False,
+    title: str | None = None,
+    target_name: str | None = None,
+    overwrite: bool = True,
 ) -> MgFigure:
 ```
 
@@ -357,17 +357,17 @@ Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
 ### MgAudio().tempo
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L930)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L931)
 
 ```python
 def tempo(
-    dpi=300,
-    autoshow=True,
-    raw=False,
-    original_time=False,
-    title=None,
-    target_name=None,
-    overwrite=True,
+    dpi: int = 300,
+    autoshow: bool = True,
+    raw: bool = False,
+    original_time: bool = False,
+    title: str | None = None,
+    target_name: str | None = None,
+    overwrite: bool = True,
 ) -> MgFigure:
 ```
 
@@ -401,18 +401,18 @@ timing consistency).
 
 ### MgAudio().tempogram
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L346)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L347)
 
 ```python
 def tempogram(
-    dpi=300,
-    autoshow=True,
-    raw=False,
-    onset_strength=True,
-    original_time=False,
-    title=None,
-    target_name=None,
-    overwrite=True,
+    dpi: int = 300,
+    autoshow: bool = True,
+    raw: bool = False,
+    onset_strength: bool = True,
+    original_time: bool = False,
+    title: str | None = None,
+    target_name: str | None = None,
+    overwrite: bool = True,
 ) -> MgFigure:
 ```
 
@@ -441,23 +441,23 @@ Renders a figure with a plots of onset strength and tempogram of the video/audio
 
 ### MgAudio().waveform
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L130)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio.py#L131)
 
 ```python
 def waveform(
-    dpi=300,
-    autoshow=True,
-    raw=False,
-    colored=False,
-    image_width=2500,
-    image_height=500,
-    fmin=500,
-    fmax=None,
-    cmap='freesound',
-    original_time=True,
-    title=None,
-    target_name=None,
-    overwrite=True,
+    dpi: int = 300,
+    autoshow: bool = True,
+    raw: bool = False,
+    colored: bool = False,
+    image_width: int = 2500,
+    image_height: int = 500,
+    fmin: int = 500,
+    fmax: int | None = None,
+    cmap: str = 'freesound',
+    original_time: bool = True,
+    title: str | None = None,
+    target_name: str | None = None,
+    overwrite: bool = True,
 ) -> MgFigure:
 ```
 

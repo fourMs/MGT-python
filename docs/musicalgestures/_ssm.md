@@ -9,25 +9,25 @@
 
 ## mg_ssm
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_ssm.py#L66)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_ssm.py#L68)
 
 ```python
 def mg_ssm(
     self,
-    features='motiongrams',
-    filtertype='Regular',
-    threshold=0.05,
-    blur='None',
-    norm=np.inf,
-    norm_threshold=0.001,
-    cmap='gray_r',
-    use_median=False,
-    kernel_size=5,
-    invert_yaxis=True,
-    combine=False,
-    title=None,
-    target_name=None,
-    overwrite=True,
+    features: str = 'motiongrams',
+    filtertype: str = 'Regular',
+    threshold: float = 0.05,
+    blur: str = 'None',
+    norm: int | float = np.inf,
+    norm_threshold: float = 0.001,
+    cmap: str = 'gray_r',
+    use_median: bool = False,
+    kernel_size: int = 5,
+    invert_yaxis: bool = True,
+    combine: bool = False,
+    title: str | None = None,
+    target_name: str | None = None,
+    overwrite: bool = True,
 ) -> 'MgList | MgImage':
 ```
 
@@ -62,25 +62,25 @@ SSMs can be computed over different input features such as 'motiongrams', 'spect
 
 ## slow_dot
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_ssm.py#L47)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_ssm.py#L49)
 
 ```python
-def slow_dot(X, Y, length):
+def slow_dot(X: np.ndarray, Y: np.ndarray, length: int):
 ```
 
 Low-memory implementation of dot product
 
 ## smooth_downsample_feature_sequence
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_ssm.py#L17)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_ssm.py#L19)
 
 ```python
 def smooth_downsample_feature_sequence(
-    X,
-    sr,
-    filt_len=41,
-    down_sampling=10,
-    w_type='boxcar',
+    X: np.ndarray,
+    sr: int,
+    filt_len: int = 41,
+    down_sampling: int = 10,
+    w_type: str = 'boxcar',
 ):
 ```
 

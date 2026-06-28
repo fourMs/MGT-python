@@ -15,7 +15,7 @@
 
 ## MgVideo
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L19)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L21)
 
 ```python
 class MgVideo(MgAudio):
@@ -61,7 +61,7 @@ These preprocesses will apply upon creating the MgVideo. Further processes are a
 
 ### MgVideo().average
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L211)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L214)
 
 ```python
 def average(**kwargs):
@@ -81,7 +81,7 @@ Creates an average image of all frames in the video.
 
 ### MgVideo().duration
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L202)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L205)
 
 ```python
 @property
@@ -95,7 +95,7 @@ seconds for an MgAudio); use this property when you want seconds.
 
 ### MgVideo().extract_frame
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L411)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L414)
 
 ```python
 def extract_frame(**kwargs):
@@ -117,10 +117,14 @@ see _utils.extract_frame for details.
 
 ### MgVideo().from_numpy
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L356)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L359)
 
 ```python
-def from_numpy(array, fps, target_name=None):
+def from_numpy(
+    array: np.ndarray,
+    fps: float,
+    target_name: str | None = None,
+) -> None:
 ```
 
 Writes a numpy array of video frames to a video file using FFmpeg.
@@ -139,7 +143,7 @@ refer to the newly created file.
 
 ### MgVideo().get_video
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L243)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L246)
 
 ```python
 def get_video():
@@ -153,7 +157,7 @@ NB: For an [MgVideo](#mgvideo), ``self.length`` is the number of **frames** (fro
 
 ### MgVideo().n_frames
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L197)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L200)
 
 ```python
 @property
@@ -164,7 +168,7 @@ Number of frames in the video (an alias for the frame-count ``length``).
 
 ### MgVideo().numpy
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L337)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L340)
 
 ```python
 def numpy():
@@ -180,7 +184,7 @@ Read all video frames into a numpy array using FFmpeg.
 
 ### MgVideo().test_input
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L228)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_video.py#L231)
 
 ```python
 def test_input():

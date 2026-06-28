@@ -34,6 +34,7 @@ Full list of [Mgt-python](README.md#mgt-python) project modules.
     - [Logging](musicalgestures/_logging.md#logging)
     - [MgList](musicalgestures/_mglist.md#mglist)
     - [Motionanalysis](musicalgestures/_motionanalysis.md#motionanalysis)
+    - [Motiondescriptors](musicalgestures/_motiondescriptors.md#motiondescriptors)
     - [Motiontempo](musicalgestures/_motiontempo.md#motiontempo)
     - [Motionvectors](musicalgestures/_motionvectors.md#motionvectors)
     - [Motionvideo](musicalgestures/_motionvideo.md#motionvideo)

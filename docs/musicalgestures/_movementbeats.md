@@ -14,21 +14,21 @@ rhythm is, analogous to the audio version.
 
 ## mg_beat_statistics
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_movementbeats.py#L52)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_movementbeats.py#L54)
 
 ```python
 def mg_beat_statistics(
     self,
-    source='motion',
-    n_bins=32,
-    cmap='YlOrRd',
-    dpi=300,
-    autoshow=True,
-    title=None,
-    target_name=None,
-    overwrite=True,
-    fmin=0.2,
-    fmax=8.0,
+    source: str = 'motion',
+    n_bins: int = 32,
+    cmap: str = 'YlOrRd',
+    dpi: int = 300,
+    autoshow: bool = True,
+    title: str | None = None,
+    target_name: str | None = None,
+    overwrite: bool = True,
+    fmin: float = 0.2,
+    fmax: float = 8.0,
 ) -> 'MgFigure':
 ```
 
@@ -60,16 +60,16 @@ steady. Requires at least four detected beats.
 
 ## mg_tempo_similarity
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_movementbeats.py#L200)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_movementbeats.py#L202)
 
 ```python
 def mg_tempo_similarity(
     self,
-    dpi=300,
-    autoshow=True,
-    title=None,
-    target_name=None,
-    overwrite=True,
+    dpi: int = 300,
+    autoshow: bool = True,
+    title: str | None = None,
+    target_name: str | None = None,
+    overwrite: bool = True,
 ) -> 'MgFigure':
 ```
 

@@ -17,10 +17,10 @@
 
 ## download_model
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py#L1347)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py#L1348)
 
 ```python
-def download_model(modeltype):
+def download_model(modeltype: str):
 ```
 
 Download the OpenPose Caffe weights (.caffemodel) for the given model type into the package's
@@ -32,15 +32,15 @@ is fetched.
 
 ## mg_pose_center
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py#L961)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py#L962)
 
 ```python
 def mg_pose_center(
     self,
-    save_data=True,
-    dpi=200,
-    target_name=None,
-    overwrite=True,
+    save_data: bool = True,
+    dpi: int = 200,
+    target_name: str | None = None,
+    overwrite: bool = True,
     **pose_kwargs,
 ) -> 'MgFigure':
 ```
@@ -69,14 +69,14 @@ coordinates and ``.data['offset']`` the removed centroid. None if there are too 
 
 ## mg_pose_distance
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py#L1011)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py#L1012)
 
 ```python
 def mg_pose_distance(
     self,
-    dpi=200,
-    target_name=None,
-    overwrite=True,
+    dpi: int = 200,
+    target_name: str | None = None,
+    overwrite: bool = True,
     **pose_kwargs,
 ) -> 'MgFigure':
 ```
@@ -104,18 +104,18 @@ average) is saved. Uses cached pose keypoints when available, otherwise runs ``p
 
 ## mg_pose_segments
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py#L916)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py#L917)
 
 ```python
 def mg_pose_segments(
     self,
-    segments=None,
-    n_bins=36,
-    cmap='viridis',
-    dpi=200,
-    ncols=6,
-    target_name=None,
-    overwrite=True,
+    segments: list | None = None,
+    n_bins: int = 36,
+    cmap: str = 'viridis',
+    dpi: int = 200,
+    ncols: int = 6,
+    target_name: str | None = None,
+    overwrite: bool = True,
     **pose_kwargs,
 ) -> 'MgFigure':
 ```
@@ -148,24 +148,24 @@ runs pose estimation first (``model``/``device``/… are forwarded to ``pose()``
 
 ## mg_pose_waterfall
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py#L861)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py#L862)
 
 ```python
 def mg_pose_waterfall(
     self,
-    style='trajectories',
-    n_samples=40,
-    markers=None,
-    color_by=None,
-    cmap='hsv',
-    dpi=200,
-    elev=20,
-    azim=-60,
-    lw=1.0,
-    axes=True,
-    crop=False,
-    target_name=None,
-    overwrite=True,
+    style: str = 'trajectories',
+    n_samples: int = 40,
+    markers: list | None = None,
+    color_by: str | None = None,
+    cmap: str = 'hsv',
+    dpi: int = 200,
+    elev: float = 20,
+    azim: float = -60,
+    lw: float = 1.0,
+    axes: bool = True,
+    crop: bool = False,
+    target_name: str | None = None,
+    overwrite: bool = True,
     **pose_kwargs,
 ) -> 'MgFigure':
 ```
@@ -206,35 +206,35 @@ keyword arguments such as ``model``/``device``/``downsampling_factor`` are forwa
 
 ## pose
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py#L104)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py#L105)
 
 ```python
 def pose(
     self,
-    model='mediapipe',
-    device='gpu',
-    threshold=0.1,
-    downsampling_factor=2,
-    use_cache=True,
-    save_data=True,
-    data_format='csv',
-    save_video=True,
-    style='both',
-    overlay=True,
-    background='black',
-    convert=None,
-    quiet=True,
-    marker_history=0,
-    save_average_pose=True,
-    save_trajectories=True,
-    transparent_trajectories=None,
-    trajectory_background=None,
-    trajectory_labels=False,
-    target_name_video=None,
-    target_name_data=None,
-    target_name_average=None,
-    target_name_trajectories=None,
-    overwrite=True,
+    model: str = 'mediapipe',
+    device: str = 'gpu',
+    threshold: float = 0.1,
+    downsampling_factor: int = 2,
+    use_cache: bool = True,
+    save_data: bool = True,
+    data_format: str | list = 'csv',
+    save_video: bool = True,
+    style: str = 'both',
+    overlay: bool = True,
+    background: str = 'black',
+    convert: bool | None = None,
+    quiet: bool = True,
+    marker_history: int = 0,
+    save_average_pose: bool = True,
+    save_trajectories: bool = True,
+    transparent_trajectories: bool | None = None,
+    trajectory_background: str | None = None,
+    trajectory_labels: bool = False,
+    target_name_video: str | None = None,
+    target_name_data: str | None = None,
+    target_name_average: str | None = None,
+    target_name_trajectories: str | None = None,
+    overwrite: bool = True,
 ) -> 'musicalgestures.MgVideo':
 ```
 

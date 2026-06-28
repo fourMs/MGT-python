@@ -9,38 +9,37 @@
 
 ## impact_detection
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_impacts.py#L29)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_impacts.py#L44)
 
 ```python
-@jit(nopython=True)
 def impact_detection(envelopes, time, fps, local_mean=0.1, local_maxima=0.15):
 ```
 
 ## impact_envelope
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_impacts.py#L11)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_impacts.py#L26)
 
 ```python
-def impact_envelope(directogram, kernel_size=5):
+def impact_envelope(directogram: np.ndarray, kernel_size: int = 5):
 ```
 
 ## mg_impacts
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_impacts.py#L50)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_impacts.py#L64)
 
 ```python
 def mg_impacts(
     self,
-    title=None,
-    detection=True,
-    local_mean=0.1,
-    local_maxima=0.15,
-    filtertype='Adaptative',
-    threshold=0.05,
-    kernel_size=5,
-    convert=True,
-    target_name=None,
-    overwrite=True,
+    title: str | None = None,
+    detection: bool = True,
+    local_mean: float = 0.1,
+    local_maxima: float = 0.15,
+    filtertype: str = 'Adaptative',
+    threshold: float = 0.05,
+    kernel_size: int = 5,
+    convert: bool = True,
+    target_name: str | None = None,
+    overwrite: bool = True,
 ) -> 'MgFigure':
 ```
 
