@@ -47,3 +47,6 @@ musicalgestures/examples/*
 !musicalgestures/examples/Filtering.ipynb
 !musicalgestures/examples/test_dance.py
 !musicalgestures/examples/test_pianist.py
+
+# Local scratch folder (blog drafts etc.) — not tracked
+temp/
