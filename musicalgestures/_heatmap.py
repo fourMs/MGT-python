@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import numpy as np
 import os
 import cv2
@@ -7,15 +9,15 @@ from musicalgestures._utils import MgImage, MgProgressbar, generate_outfilename,
 
 def mg_heatmap(
         self,
-        colormap='inferno',
-        overlay=True,
-        alpha=0.75,
-        background_dim=0.4,
-        blur=0,
-        normalize=True,
-        gamma=0.5,
-        target_name=None,
-        overwrite=True) -> "MgImage":
+        colormap: str = 'inferno',
+        overlay: bool = True,
+        alpha: float = 0.75,
+        background_dim: float = 0.4,
+        blur: int = 0,
+        normalize: bool = True,
+        gamma: float = 0.5,
+        target_name: str | None = None,
+        overwrite: bool = True) -> "MgImage":
     """
     Renders a motion heatmap showing which parts of the video change the most.
 

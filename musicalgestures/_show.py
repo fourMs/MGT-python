@@ -1,11 +1,12 @@
 # import cv2
 # import numpy as np
+from __future__ import annotations
 import os
 from base64 import b64encode
 import musicalgestures
 
 
-def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, window_height=480, window_title=None, **ipython_kwargs):
+def mg_show(self, filename: str | None = None, key: str | None = None, mode: str = 'windowed', window_width: int = 640, window_height: int = 480, window_title: str | None = None, **ipython_kwargs):
     # def mg_show(self, filename=None, mode='windowed', window_width=640, window_height=480, window_title=None):
     """
     General method to show an image or video file either in a window, or inline in a jupyter notebook.
@@ -287,7 +288,7 @@ def mg_show(self, filename=None, key=None, mode='windowed', window_width=640, wi
     return self
 
 
-def show_in_new_process(cmd):
+def show_in_new_process(cmd: str):
     import subprocess
     import sys
 

@@ -1,3 +1,4 @@
+from __future__ import annotations
 import os
 import librosa
 import librosa.display
@@ -89,7 +90,7 @@ class MgAudio:
         return self.y
 
 
-    def format_time(self, ax, original_time=True, original_duration=None):
+    def format_time(self, ax, original_time: bool = True, original_duration=None):
             """
             Format time for audio plotting of video file. This is useful if one wants to plot the original time of the video when frames have been skipped beforehand.
 
@@ -127,7 +128,7 @@ class MgAudio:
             else:  
                 ax.xaxis.set_major_formatter(ticker.FixedFormatter(list(time)))
 
-    def waveform(self, dpi=300, autoshow=True, raw=False, colored=False, image_width=2500, image_height=500, fmin=500, fmax=None, cmap='freesound', original_time=True, title=None, target_name=None, overwrite=True) -> MgFigure:
+    def waveform(self, dpi: int = 300, autoshow: bool = True, raw: bool = False, colored: bool = False, image_width: int = 2500, image_height: int = 500, fmin: int = 500, fmax: int | None = None, cmap: str = 'freesound', original_time: bool = True, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure:
         """
         Renders a figure showing the waveform of the video/audio file.
 
@@ -234,7 +235,7 @@ class MgAudio:
         return mgf
 
 
-    def spectrogram(self, fmin=0.0, fmax=None, n_mels=128, power=2.0, top_db=80.0, dpi=300, autoshow=True, raw=False, original_time=False, title=None, target_name=None, overwrite=True) -> MgFigure:
+    def spectrogram(self, fmin: float = 0.0, fmax: float | None = None, n_mels: int = 128, power: float = 2.0, top_db: float = 80.0, dpi: int = 300, autoshow: bool = True, raw: bool = False, original_time: bool = False, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure:
         """
         Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
@@ -343,7 +344,7 @@ class MgAudio:
 
         return mgf
 
-    def tempogram(self, dpi=300, autoshow=True, raw=False, onset_strength=True, original_time=False, title=None, target_name=None, overwrite=True) -> MgFigure:
+    def tempogram(self, dpi: int = 300, autoshow: bool = True, raw: bool = False, onset_strength: bool = True, original_time: bool = False, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure:
         """
         Renders a figure with a plots of onset strength and tempogram of the video/audio file.
 
@@ -448,7 +449,7 @@ class MgAudio:
 
         return mgf
     
-    def hpss(self, dim=2, n_mels=128, fmin=0.0, fmax=None, kernel_size=31, margin=(1.0,5.0), power=2.0, top_db=80.0, mask=False, residual=False, dpi=300, autoshow=True, original_time=False, title=None, target_name=None, overwrite=True) -> MgFigure:
+    def hpss(self, dim: int = 2, n_mels: int = 128, fmin: float = 0.0, fmax: float | None = None, kernel_size: int | tuple = 31, margin: float | tuple = (1.0,5.0), power: float = 2.0, top_db: float = 80.0, mask: bool = False, residual: bool = False, dpi: int = 300, autoshow: bool = True, original_time: bool = False, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure:
         """
         Renders a figure with a plots of harmonic and percussive components of the audio file.
 
@@ -594,7 +595,7 @@ class MgAudio:
         return mgf
 
 
-    def descriptors(self, n_mels=128, fmin=0.0, fmax=None, power=2, dpi=300, autoshow=True, original_time=False, title=None, target_name=None, save_data=False, data_format='csv', target_name_data=None, overwrite=True) -> MgFigure:
+    def descriptors(self, n_mels: int = 128, fmin: float = 0.0, fmax: float | None = None, power: int = 2, dpi: int = 300, autoshow: bool = True, original_time: bool = False, title: str | None = None, target_name: str | None = None, save_data: bool = False, data_format: str | list = 'csv', target_name_data: str | None = None, overwrite: bool = True) -> MgFigure:
         """
         Renders a figure of plots showing spectral/loudness descriptors, including RMS energy, spectral flatness, centroid, bandwidth, rolloff of the video/audio file.
 
@@ -746,7 +747,7 @@ class MgAudio:
 
         return mgf
 
-    def chromagram(self, n_chroma=12, norm=np.inf, chroma_type='cqt', cmap='coolwarm', dpi=300, autoshow=True, raw=False, original_time=False, title=None, target_name=None, overwrite=True) -> MgFigure:
+    def chromagram(self, n_chroma: int = 12, norm: float | None = np.inf, chroma_type: str = 'cqt', cmap: str = 'coolwarm', dpi: int = 300, autoshow: bool = True, raw: bool = False, original_time: bool = False, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure:
         """
         Renders a figure showing the chromagram of the video/audio file.
 
@@ -847,7 +848,7 @@ class MgAudio:
 
         return mgf
 
-    def mfcc(self, n_mfcc=13, cmap='RdBu_r', dpi=300, autoshow=True, raw=False, original_time=False, title=None, target_name=None, overwrite=True) -> MgFigure:
+    def mfcc(self, n_mfcc: int = 13, cmap: str = 'RdBu_r', dpi: int = 300, autoshow: bool = True, raw: bool = False, original_time: bool = False, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure:
         """
         Renders a figure showing the Mel-frequency cepstral coefficients (MFCCs) of the video/audio file.
 
@@ -927,7 +928,7 @@ class MgAudio:
 
         return mgf
 
-    def tempo(self, dpi=300, autoshow=True, raw=False, original_time=False, title=None, target_name=None, overwrite=True) -> MgFigure:
+    def tempo(self, dpi: int = 300, autoshow: bool = True, raw: bool = False, original_time: bool = False, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure:
         """
         Estimates tempo and beat positions, and renders the waveform with beat markers.
 
@@ -1043,7 +1044,7 @@ class MgAudio:
 
         return mgf
 
-    def beat_statistics(self, n_bins=32, cmap='YlOrRd', dpi=300, autoshow=True, title=None, target_name=None, overwrite=True) -> MgFigure:
+    def beat_statistics(self, n_bins: int = 32, cmap: str = 'YlOrRd', dpi: int = 300, autoshow: bool = True, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure:
         """
         Renders circular statistics of beat-timing consistency.
 
@@ -1141,7 +1142,7 @@ class MgAudio:
 
         return mgf
 
-def _save_audio_data(of, columns, data_format, target_name_data, overwrite):
+def _save_audio_data(of: str, columns: dict, data_format: str | list, target_name_data: str | None, overwrite: bool):
     """
     Save a dictionary of equal-length 1-D arrays as a data file (csv/tsv/txt).
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import cv2
 import numpy as np
@@ -31,25 +33,25 @@ class Flow:
     
     def dense(
             self,
-            filename=None,
-            pyr_scale=0.5,
-            levels=3,
-            winsize=15,
-            iterations=3,
-            poly_n=5,
-            poly_sigma=1.2,
-            flags=0,
-            velocity=False,
-            distance=None, 
-            timestep=1,
-            move_step=1, 
-            angle_of_view=0, 
-            scaledown=1,      
-            skip_empty=False,
-            use_gpu=False,
-            convert=True,
-            target_name=None,
-            overwrite=True) -> "musicalgestures.MgVideo":
+            filename: str | None = None,
+            pyr_scale: float = 0.5,
+            levels: int = 3,
+            winsize: int = 15,
+            iterations: int = 3,
+            poly_n: int = 5,
+            poly_sigma: float = 1.2,
+            flags: int = 0,
+            velocity: bool = False,
+            distance: int | None = None,
+            timestep: int = 1,
+            move_step: int = 1,
+            angle_of_view: int = 0,
+            scaledown: int = 1,
+            skip_empty: bool = False,
+            use_gpu: bool = False,
+            convert: bool = True,
+            target_name: str | None = None,
+            overwrite: bool = True) -> "musicalgestures.MgVideo":
         """
         Renders a dense optical flow video of the input video file using `cv2.calcOpticalFlowFarneback()`. The description of the matching parameters are taken from the cv2 documentation.
 
@@ -276,7 +278,7 @@ class Flow:
 
             return self.parent().flow_dense_video
 
-    def get_acceleration(self, velocity, fps):
+    def get_acceleration(self, velocity: list, fps: int):
 
         acceleration = np.zeros(len(velocity))
         velocity = np.abs(velocity)
@@ -286,7 +288,7 @@ class Flow:
             
         return acceleration[:-1]
 
-    def get_velocity(self, flow, sum_flow_pixels, flow_shape, distance_meters, timestep_seconds, move_step, angle_of_view):
+    def get_velocity(self, flow: np.ndarray, sum_flow_pixels: float, flow_shape: int, distance_meters: int | float | None, timestep_seconds: int | float, move_step: int, angle_of_view: int | float):
 
         pixel_count = (flow.shape[0] * flow.shape[1]) / move_step**2
         average_velocity_pixels_per_second = (sum_flow_pixels / pixel_count / timestep_seconds)
@@ -294,7 +296,7 @@ class Flow:
         return (self.velocity_meters_per_second(average_velocity_pixels_per_second, flow_shape, distance_meters, angle_of_view)
                 if angle_of_view and distance_meters else average_velocity_pixels_per_second)
 
-    def velocity_meters_per_second(self, velocity_pixels_per_second, flow_shape, distance_meters, angle_of_view):
+    def velocity_meters_per_second(self, velocity_pixels_per_second: float, flow_shape: int, distance_meters: int | float, angle_of_view: int | float):
 
         distance_pixels = ((flow_shape / 2) / math.tan(angle_of_view / 2))
         pixels_per_meter = distance_pixels / distance_meters
@@ -303,19 +305,19 @@ class Flow:
 
     def sparse(
             self,
-            filename=None,
-            corner_max_corners=100,
-            corner_quality_level=0.3,
-            corner_min_distance=7,
-            corner_block_size=7,
-            of_win_size=(15, 15),
-            of_max_level=2,
-            of_criteria=(cv2.TERM_CRITERIA_EPS |
+            filename: str | None = None,
+            corner_max_corners: int = 100,
+            corner_quality_level: float = 0.3,
+            corner_min_distance: int = 7,
+            corner_block_size: int = 7,
+            of_win_size: tuple = (15, 15),
+            of_max_level: int = 2,
+            of_criteria: tuple = (cv2.TERM_CRITERIA_EPS |
                          cv2.TERM_CRITERIA_COUNT, 10, 0.03),
-            use_gpu=False,
-            convert=True,
-            target_name=None,
-            overwrite=True) -> "musicalgestures.MgVideo":
+            use_gpu: bool = False,
+            convert: bool = True,
+            target_name: str | None = None,
+            overwrite: bool = True) -> "musicalgestures.MgVideo":
         """
         Renders a sparse optical flow video of the input video file using `cv2.calcOpticalFlowPyrLK()`. `cv2.goodFeaturesToTrack()` is used for the corner estimation. The description of the matching parameters are taken from the cv2 documentation.
 

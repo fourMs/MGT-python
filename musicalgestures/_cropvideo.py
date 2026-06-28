@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import cv2
 import os
 import asyncio
 from musicalgestures._utils import MgProgressbar, get_length, get_widthheight, get_first_frame_as_image, get_box_video_ratio, roundup, crop_ffmpeg, wrap_str, in_colab
 
-def find_motion_box_ffmpeg(filename, motion_box_thresh=0.1, motion_box_margin=12):
+def find_motion_box_ffmpeg(filename: str, motion_box_thresh: float = 0.1, motion_box_margin: int = 12):
     """
     Helper function to find the area of motion in a video, using ffmpeg.
 
@@ -93,7 +95,7 @@ def find_motion_box_ffmpeg(filename, motion_box_thresh=0.1, motion_box_margin=12
 drawing = False # True if mouse is pressed
 xi, yi = -1, -1
 
-def cropping_window(filename):
+def cropping_window(filename: str):
 
     def draw_rectangle(event, x, y, flags, param):
         # grab references to the global variables
@@ -166,12 +168,12 @@ def cropping_window(filename):
     return w, h, x, y
 
 def mg_cropvideo_ffmpeg(
-        filename,
-        crop_movement='Auto',
-        motion_box_thresh=0.1,
-        motion_box_margin=12,
-        target_name=None,
-        overwrite=True):
+        filename: str,
+        crop_movement: str = 'Auto',
+        motion_box_thresh: float = 0.1,
+        motion_box_margin: int = 12,
+        target_name: str | None = None,
+        overwrite: bool = True):
     """
     Crops the video using ffmpeg.
 
@@ -236,7 +238,7 @@ def mg_cropvideo_ffmpeg(
     return cropped_video
 
 
-async def async_subprocess(command):
+async def async_subprocess(command: str):
 
     global w, h, x, y
 
@@ -255,7 +257,7 @@ async def async_subprocess(command):
     if stderr:
         print(f'[stderr]\n{stderr.decode()}')
 
-def run_cropping_window(imgpath, scale_ratio, scaled_width, scaled_height):
+def run_cropping_window(imgpath: str, scale_ratio: float, scaled_width: int, scaled_height: int):
 
     import platform
     import musicalgestures

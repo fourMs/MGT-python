@@ -1,3 +1,4 @@
+from __future__ import annotations
 
 import cv2
 import os
@@ -103,30 +104,30 @@ def _pose_canvas_and_colors(frame, overlay, background):
 
 def pose(
         self,
-        model='mediapipe',
-        device='gpu',
-        threshold=0.1,
-        downsampling_factor=2,
-        use_cache=True,
-        save_data=True,
-        data_format='csv',
-        save_video=True,
-        style='both',
-        overlay=True,
-        background='black',
-        convert=None,
-        quiet=True,
-        marker_history=0,
-        save_average_pose=True,
-        save_trajectories=True,
-        transparent_trajectories=None,
-        trajectory_background=None,
-        trajectory_labels=False,
-        target_name_video=None,
-        target_name_data=None,
-        target_name_average=None,
-        target_name_trajectories=None,
-        overwrite=True) -> "musicalgestures.MgVideo":
+        model: str = 'mediapipe',
+        device: str = 'gpu',
+        threshold: float = 0.1,
+        downsampling_factor: int = 2,
+        use_cache: bool = True,
+        save_data: bool = True,
+        data_format: str | list = 'csv',
+        save_video: bool = True,
+        style: str = 'both',
+        overlay: bool = True,
+        background: str = 'black',
+        convert: bool | None = None,
+        quiet: bool = True,
+        marker_history: int = 0,
+        save_average_pose: bool = True,
+        save_trajectories: bool = True,
+        transparent_trajectories: bool | None = None,
+        trajectory_background: str | None = None,
+        trajectory_labels: bool = False,
+        target_name_video: str | None = None,
+        target_name_data: str | None = None,
+        target_name_average: str | None = None,
+        target_name_trajectories: str | None = None,
+        overwrite: bool = True) -> "musicalgestures.MgVideo":
     """
     Renders a video with the pose estimation (aka. "keypoint detection" or "skeleton tracking") overlaid on it.
     Outputs the predictions in a text file containing the normalized x and y coordinates of each keypoint
@@ -858,9 +859,9 @@ def _ensure_pose_keypoints(self, **pose_kwargs):
     return self._pose_keypoints
 
 
-def mg_pose_waterfall(self, style='trajectories', n_samples=40, markers=None, color_by=None,
-                      cmap='hsv', dpi=200, elev=20, azim=-60, lw=1.0, axes=True, crop=False,
-                      target_name=None, overwrite=True, **pose_kwargs) -> "MgFigure":
+def mg_pose_waterfall(self, style: str = 'trajectories', n_samples: int = 40, markers: list | None = None, color_by: str | None = None,
+                      cmap: str = 'hsv', dpi: int = 200, elev: float = 20, azim: float = -60, lw: float = 1.0, axes: bool = True, crop: bool = False,
+                      target_name: str | None = None, overwrite: bool = True, **pose_kwargs) -> "MgFigure":
     """
     Render a 3D spatio-temporal waterfall of the pose, cascading along the time (depth) axis —
     a pose-based counterpart to ``silhouette_waterfall()``. Uses cached pose keypoints from a
@@ -913,8 +914,8 @@ def mg_pose_waterfall(self, style='trajectories', n_samples=40, markers=None, co
     return mgf
 
 
-def mg_pose_segments(self, segments=None, n_bins=36, cmap='viridis', dpi=200, ncols=6,
-                     target_name=None, overwrite=True, **pose_kwargs) -> "MgFigure":
+def mg_pose_segments(self, segments: list | None = None, n_bins: int = 36, cmap: str = 'viridis', dpi: int = 200, ncols: int = 6,
+                     target_name: str | None = None, overwrite: bool = True, **pose_kwargs) -> "MgFigure":
     """
     Circular (polar) motion plots and statistics for each body segment.
 
@@ -958,7 +959,7 @@ def mg_pose_segments(self, segments=None, n_bins=36, cmap='viridis', dpi=200, nc
     return mgf
 
 
-def mg_pose_center(self, save_data=True, dpi=200, target_name=None, overwrite=True, **pose_kwargs) -> "MgFigure":
+def mg_pose_center(self, save_data: bool = True, dpi: int = 200, target_name: str | None = None, overwrite: bool = True, **pose_kwargs) -> "MgFigure":
     """
     Centre the pose data on its global centroid — a 2D port of the MoCap Toolbox ``mccenter``.
 
@@ -1008,7 +1009,7 @@ def mg_pose_center(self, save_data=True, dpi=200, target_name=None, overwrite=Tr
     return mgf
 
 
-def mg_pose_distance(self, dpi=200, target_name=None, overwrite=True, **pose_kwargs) -> "MgFigure":
+def mg_pose_distance(self, dpi: int = 200, target_name: str | None = None, overwrite: bool = True, **pose_kwargs) -> "MgFigure":
     """
     Per-marker distance travelled and the average across markers — a 2D port of the MoCap Toolbox
     ``mccumdist``.
@@ -1344,7 +1345,7 @@ def _save_pose_txt(of, data, headers, data_format, target_name_data, overwrite):
                 _save_single(fmt)
 
 
-def download_model(modeltype):
+def download_model(modeltype: str):
     """
     Download the OpenPose Caffe weights (.caffemodel) for the given model type into the package's
     ``pose/`` folder.

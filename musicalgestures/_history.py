@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import cv2
 import os
 import numpy as np
@@ -6,7 +8,7 @@ from musicalgestures._exceptions import MgInputError
 import musicalgestures
 
 
-def history_ffmpeg(self, filename=None, history_length=10, weights=1, normalize=False, norm_strength=1, norm_smooth=0, target_name=None, overwrite=True):
+def history_ffmpeg(self, filename: str | None = None, history_length: int = 10, weights: int | float | list | str = 1, normalize: bool = False, norm_strength: int | float = 1, norm_smooth: int = 0, target_name: str | None = None, overwrite: bool = True):
     """
     This function  creates a video where each frame is the average of the N previous frames, where n is determined by `history_length`. The history frames are summed up and normalized, and added to the current frame to show the history. Uses ffmpeg.
 
@@ -101,7 +103,7 @@ def history_ffmpeg(self, filename=None, history_length=10, weights=1, normalize=
     return self.history_video
 
 
-def history_cv2(self, filename=None, history_length=10, weights=1, convert=True, target_name=None, overwrite=True):
+def history_cv2(self, filename: str | None = None, history_length: int = 10, weights: int | float | list = 1, convert: bool = True, target_name: str | None = None, overwrite: bool = True):
     """
     This function  creates a video where each frame is the average of the N previous frames, where n is determined by `history_length`. The history frames are summed up and normalized, and added to the current frame to show the history. Uses cv2.
 

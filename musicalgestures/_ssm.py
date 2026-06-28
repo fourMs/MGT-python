@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import cv2
 import numpy as np
@@ -14,7 +16,7 @@ from musicalgestures._videograms import videograms_ffmpeg
 from musicalgestures._mglist import MgList
 from musicalgestures._utils import MgProgressbar, MgImage, MgFigure, has_audio, generate_outfilename, get_widthheight
 
-def smooth_downsample_feature_sequence(X, sr, filt_len=41, down_sampling=10, w_type='boxcar'):
+def smooth_downsample_feature_sequence(X: np.ndarray, sr: int, filt_len: int = 41, down_sampling: int = 10, w_type: str = 'boxcar'):
     """
     Smoothes and downsamples a feature sequence. Smoothing is achieved by convolution with a filter kernel
 
@@ -44,7 +46,7 @@ def smooth_downsample_feature_sequence(X, sr, filt_len=41, down_sampling=10, w_t
     sr_feature = sr / down_sampling
     return X_smooth, sr_feature, formatter
 
-def slow_dot(X, Y, length):
+def slow_dot(X: np.ndarray, Y: np.ndarray, length: int):
     """
     Low-memory implementation of dot product
     """
@@ -65,20 +67,20 @@ def slow_dot(X, Y, length):
 
 def mg_ssm(
         self,
-        features='motiongrams',
-        filtertype='Regular',
-        threshold=0.05,
-        blur='None',
-        norm=np.inf,
-        norm_threshold=0.001,
-        cmap='gray_r',
-        use_median=False,
-        kernel_size=5,
-        invert_yaxis=True,
-        combine=False,
-        title=None,
-        target_name=None,
-        overwrite=True) -> "MgList | MgImage":
+        features: str = 'motiongrams',
+        filtertype: str = 'Regular',
+        threshold: float = 0.05,
+        blur: str = 'None',
+        norm: int | float = np.inf,
+        norm_threshold: float = 0.001,
+        cmap: str = 'gray_r',
+        use_median: bool = False,
+        kernel_size: int = 5,
+        invert_yaxis: bool = True,
+        combine: bool = False,
+        title: str | None = None,
+        target_name: str | None = None,
+        overwrite: bool = True) -> "MgList | MgImage":
     """
     Compute Self-Similarity Matrix (SSM) by converting the input signal into a suitable feature sequence and comparing each element of the feature sequence with all other elements of the sequence.
     SSMs can be computed over different input features such as 'motiongrams', 'spectrogram', 'chromagram' and 'tempogram'.

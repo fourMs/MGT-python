@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import numpy as np
 from typing import Union, List
@@ -353,7 +355,7 @@ class MgVideo(MgAudio):
 
         return array, self.fps
 
-    def from_numpy(self, array, fps, target_name=None):
+    def from_numpy(self, array: np.ndarray, fps: float, target_name: str | None = None) -> None:
         """
         Writes a numpy array of video frames to a video file using FFmpeg.
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 from musicalgestures._utils import MgImage, get_widthheight, get_framecount, get_length, ffmpeg_cmd, generate_outfilename, resolve_filename
 from musicalgestures._mglist import MgList
@@ -5,7 +7,7 @@ from musicalgestures._videoadjust import skip_frames_ffmpeg
 import math
 
 
-def videograms_ffmpeg(self, target_name_x=None, target_name_y=None, overwrite=True) -> "MgList":
+def videograms_ffmpeg(self, target_name_x: str | None = None, target_name_y: str | None = None, overwrite: bool = True) -> "MgList":
     """
     Renders horizontal and vertical videograms of the source video using ffmpeg. Averages videoframes by axes, 
     and creates two images of the horizontal-axis and vertical-axis stacks. In these stacks, a single row or 

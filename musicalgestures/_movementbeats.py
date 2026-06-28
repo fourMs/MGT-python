@@ -6,6 +6,8 @@ This lets ``MgVideo.beat_statistics(source='motion')`` reveal how consistent the
 rhythm is, analogous to the audio version.
 """
 
+from __future__ import annotations
+
 import os
 import numpy as np
 import cv2
@@ -49,9 +51,9 @@ def _movement_qom(self):
     return qom, fps
 
 
-def mg_beat_statistics(self, source='motion', n_bins=32, cmap='YlOrRd', dpi=300,
-                       autoshow=True, title=None, target_name=None, overwrite=True,
-                       fmin=0.2, fmax=8.0) -> "MgFigure":
+def mg_beat_statistics(self, source: str = 'motion', n_bins: int = 32, cmap: str = 'YlOrRd', dpi: int = 300,
+                       autoshow: bool = True, title: str | None = None, target_name: str | None = None, overwrite: bool = True,
+                       fmin: float = 0.2, fmax: float = 8.0) -> "MgFigure":
     """
     Circular statistics of beat-timing consistency, from the **audio** or from the **movement**.
 
@@ -189,7 +191,7 @@ def mg_beat_statistics(self, source='motion', n_bins=32, cmap='YlOrRd', dpi=300,
     return mgf
 
 
-def _nearest_harmonic_ratio(ratio):
+def _nearest_harmonic_ratio(ratio: float):
     """Return (nearest_simple_ratio, label) for a tempo ratio (e.g. 2.02 -> (2.0, '2:1'))."""
     candidates = {1/3: '1:3', 1/2: '1:2', 2/3: '2:3', 1.0: '1:1',
                   3/2: '3:2', 2.0: '2:1', 3.0: '3:1'}
@@ -197,7 +199,7 @@ def _nearest_harmonic_ratio(ratio):
     return best, candidates[best]
 
 
-def mg_tempo_similarity(self, dpi=300, autoshow=True, title=None, target_name=None, overwrite=True) -> "MgFigure":
+def mg_tempo_similarity(self, dpi: int = 300, autoshow: bool = True, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> "MgFigure":
     """
     Compare the **audio** tempo/rhythm with the **movement** tempo/rhythm and report how similar
     they are.

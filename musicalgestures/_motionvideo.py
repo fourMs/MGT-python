@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import musicalgestures
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
@@ -17,31 +19,31 @@ from musicalgestures._mglist import MgList
 
 def mg_motion(
         self,
-        filtertype='Regular',
-        threshold=0.05,
-        blur='None',
-        kernel_size=5,
-        use_median=False,
-        unit='seconds',
-        atadenoise=False,
-        motion_analysis='all',
-        inverted_motionvideo=False,
-        inverted_motiongram=False,
-        equalize_motiongram=False,
-        audio_descriptors=False,
-        save_plot=True,
-        title=None,
-        save_data=True,
-        data_format="csv",
-        save_motiongrams=True,
-        save_video=True,
-        target_name_video=None,
-        target_name_plot=None,
-        target_name_data=None,
-        target_name_mgx=None,
-        target_name_mgy=None,
-        overwrite=True,
-        normalize=None) -> "musicalgestures.MgVideo":
+        filtertype: str = 'Regular',
+        threshold: float = 0.05,
+        blur: str = 'None',
+        kernel_size: int = 5,
+        use_median: bool = False,
+        unit: str = 'seconds',
+        atadenoise: bool = False,
+        motion_analysis: str = 'all',
+        inverted_motionvideo: bool = False,
+        inverted_motiongram: bool = False,
+        equalize_motiongram: bool = False,
+        audio_descriptors: bool = False,
+        save_plot: bool = True,
+        title: str | None = None,
+        save_data: bool = True,
+        data_format: str | list = "csv",
+        save_motiongrams: bool = True,
+        save_video: bool = True,
+        target_name_video: str | None = None,
+        target_name_plot: str | None = None,
+        target_name_data: str | None = None,
+        target_name_mgx: str | None = None,
+        target_name_mgy: str | None = None,
+        overwrite: bool = True,
+        normalize: bool | None = None) -> "musicalgestures.MgVideo":
     """
     Finds the difference in pixel value from one frame to the next in an input video, and saves the frames into a new video. 
     Describes the motion in the recording. Outputs: a motion video, a plot describing the centroid of motion and the 
@@ -281,18 +283,18 @@ def mg_motion(
 
 def mg_motiongrams(
         self,
-        filtertype='Regular',
-        threshold=0.05,
-        blur='None',
-        use_median=False,
-        atadenoise=False,
-        kernel_size=5,
-        inverted_motiongram=False,
-        equalize_motiongram=True,
-        target_name_mgx=None,
-        target_name_mgy=None,
-        overwrite=True,
-        normalize=None) -> "MgList":
+        filtertype: str = 'Regular',
+        threshold: float = 0.05,
+        blur: str = 'None',
+        use_median: bool = False,
+        atadenoise: bool = False,
+        kernel_size: int = 5,
+        inverted_motiongram: bool = False,
+        equalize_motiongram: bool = True,
+        target_name_mgx: str | None = None,
+        target_name_mgy: str | None = None,
+        overwrite: bool = True,
+        normalize: bool | None = None) -> "MgList":
     """
     Shortcut for `mg_motion` to only render motiongrams.
 
@@ -347,14 +349,14 @@ def mg_motiongrams(
 
 def mg_motionvideo(
         self,
-        filtertype='Regular',
-        threshold=0.05,
-        blur='None',
-        use_median=False,
-        kernel_size=5,
-        inverted_motionvideo=False,
-        target_name=None,
-        overwrite=True) -> "musicalgestures.MgVideo":
+        filtertype: str = 'Regular',
+        threshold: float = 0.05,
+        blur: str = 'None',
+        use_median: bool = False,
+        kernel_size: int = 5,
+        inverted_motionvideo: bool = False,
+        target_name: str | None = None,
+        overwrite: bool = True) -> "musicalgestures.MgVideo":
     """
     Shortcut to only render the motion video. Uses musicalgestures._utils.motionvideo_ffmpeg. Note that this does not apply median filter by default. If you need it use `use_median=True`.
 
@@ -393,16 +395,16 @@ def mg_motionvideo(
 
 def mg_motiondata(
         self,
-        filtertype='Regular',
-        threshold=0.05,
-        blur='None',
-        kernel_size=5,
-        atadenoise=False,
-        use_median=False,
-        motion_analysis='all',
-        data_format="csv",
-        target_name=None,
-        overwrite=True) -> "list":
+        filtertype: str = 'Regular',
+        threshold: float = 0.05,
+        blur: str = 'None',
+        kernel_size: int = 5,
+        atadenoise: bool = False,
+        use_median: bool = False,
+        motion_analysis: str = 'all',
+        data_format: str | list = "csv",
+        target_name: str | None = None,
+        overwrite: bool = True) -> "list":
     """
     Shortcut for `mg_motion` to only render motion data.
 
@@ -471,18 +473,18 @@ def mg_motiondata(
 
 def mg_motionplots(
         self,
-        filtertype='Regular',
-        threshold=0.05,
-        blur='None',
-        kernel_size=5,
-        use_median=False,
-        atadenoise=False,
-        motion_analysis='all',
-        audio_descriptors=False,
-        unit='seconds',
-        title=None,
-        target_name=None,
-        overwrite=True) -> "MgImage":
+        filtertype: str = 'Regular',
+        threshold: float = 0.05,
+        blur: str = 'None',
+        kernel_size: int = 5,
+        use_median: bool = False,
+        atadenoise: bool = False,
+        motion_analysis: str = 'all',
+        audio_descriptors: bool = False,
+        unit: str = 'seconds',
+        title: str | None = None,
+        target_name: str | None = None,
+        overwrite: bool = True) -> "MgImage":
     """
     Shortcut for `mg_motion` to only render motion plots.
 

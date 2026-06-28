@@ -6,6 +6,8 @@ Silhouettes are extracted with MediaPipe selfie segmentation when available, fal
 to background subtraction against the average frame (good for static-camera recordings).
 """
 
+from __future__ import annotations
+
 import os
 import numpy as np
 import cv2
@@ -35,7 +37,7 @@ def _iter_frames(self):
             pass
 
 
-def _make_segmenter(method):
+def _make_segmenter(method: str):
     """
     Return a callable ``rgb_frame -> float mask in [0,1]`` for person segmentation,
     or None to use background subtraction.
@@ -54,7 +56,7 @@ def _make_segmenter(method):
         return None
 
 
-def _silhouette(frame, seg_fn, bg_gray, threshold, kernel_size=5, keep_largest=False):
+def _silhouette(frame: np.ndarray, seg_fn, bg_gray: np.ndarray, threshold: float, kernel_size: int = 5, keep_largest: bool = False):
     """
     Return a boolean person/foreground mask for a BGR frame.
 
@@ -126,9 +128,9 @@ def _average_frame(self):
 # 1. Stroboscope (chronophotography)
 # ---------------------------------------------------------------------------
 
-def mg_stroboscope(self, n_samples=12, method='auto', threshold=0.1, kernel_size=5,
-                   keep_largest=False, colorize=True, background='average',
-                   target_name=None, overwrite=True) -> "MgImage":
+def mg_stroboscope(self, n_samples: int = 12, method: str = 'auto', threshold: float = 0.1, kernel_size: int = 5,
+                   keep_largest: bool = False, colorize: bool = True, background: str = 'average',
+                   target_name: str | None = None, overwrite: bool = True) -> "MgImage":
     """
     Renders a stroboscope / chronophotography image: the person's silhouette at evenly
     sampled times composited onto a single frame, showing the body moving through space
@@ -202,9 +204,9 @@ def mg_stroboscope(self, n_samples=12, method='auto', threshold=0.1, kernel_size
 # 2. Silhouette waterfall
 # ---------------------------------------------------------------------------
 
-def mg_silhouette_waterfall(self, n_samples=40, method='auto', threshold=0.1, kernel_size=5,
-                            keep_largest=False, axis='horizontal', cmap='viridis', dpi=200,
-                            elev=35, azim=-60, axes=True, crop=False, target_name=None, overwrite=True) -> "MgFigure":
+def mg_silhouette_waterfall(self, n_samples: int = 40, method: str = 'auto', threshold: float = 0.1, kernel_size: int = 5,
+                            keep_largest: bool = False, axis: str = 'horizontal', cmap: str = 'viridis', dpi: int = 200,
+                            elev: float = 35, azim: float = -60, axes: bool = True, crop: bool = False, target_name: str | None = None, overwrite: bool = True) -> "MgFigure":
     """
     Renders a 3D silhouette waterfall: the per-frame silhouette projected onto one spatial
     axis and stacked as cascading curves along a time (depth) axis, so the body's occupancy
@@ -317,8 +319,8 @@ def mg_silhouette_waterfall(self, n_samples=40, method='auto', threshold=0.1, ke
 # 3. Motion History Image (MHI)
 # ---------------------------------------------------------------------------
 
-def mg_motionhistory(self, threshold=0.05, decay=0.3, normalize=False, blur=0,
-                     cmap='hot', dpi=300, target_name=None, overwrite=True) -> "MgImage":
+def mg_motionhistory(self, threshold: float = 0.05, decay: float = 0.3, normalize: bool = False, blur: int = 0,
+                     cmap: str = 'hot', dpi: int = 300, target_name: str | None = None, overwrite: bool = True) -> "MgImage":
     """
     Renders a Motion History Image (Bobick & Davis): a single image where intensity encodes
     how recently motion occurred at each pixel (recent motion bright, older motion fades out).
@@ -400,9 +402,9 @@ def mg_motionhistory(self, threshold=0.05, decay=0.3, normalize=False, blur=0,
 # 4. 3D space-time silhouette volume
 # ---------------------------------------------------------------------------
 
-def mg_spacetime_volume(self, n_samples=50, downsample=8, method='auto', threshold=0.1,
-                        kernel_size=5, keep_largest=False, cmap='viridis', dpi=200,
-                        elev=20, azim=-60, target_name=None, overwrite=True) -> "MgFigure":
+def mg_spacetime_volume(self, n_samples: int = 50, downsample: int = 8, method: str = 'auto', threshold: float = 0.1,
+                        kernel_size: int = 5, keep_largest: bool = False, cmap: str = 'viridis', dpi: int = 200,
+                        elev: float = 20, azim: float = -60, target_name: str | None = None, overwrite: bool = True) -> "MgFigure":
     """
     Renders a 3D space-time scatter of the person's silhouette: points (x, y, t) where the
     silhouette is present, with time on the depth axis and colour, showing how the body

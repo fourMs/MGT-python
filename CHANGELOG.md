@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Parameter type hints across the public API** (#345). Every public analysis method now
+  annotates its parameters (not just its return type): the motion methods, motiongrams/
+  motionvideo/motiondata/motionplots, optical flow (`Flow.dense`/`sparse` and the velocity
+  helpers), pose (`pose`, `pose_waterfall`/`segments`/`center`/`distance`), the space-time
+  visualisations, directograms/impacts, SSM, cropping, heatmap, history, videograms, the audio
+  methods and the audio–movement suite, plus the public `_utils` helpers and the `MgVideo`
+  inline methods. Modules now use `from __future__ import annotations` so hints are lazy
+  (no runtime/import-speed cost) and use modern `str | None` syntax. Combined with the `py.typed`
+  marker shipped in 1.6.4, downstream IDEs and type checkers now see a fully-typed public API.
+
 ---
 
 ## [1.6.5] – 2026-06-28

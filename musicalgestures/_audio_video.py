@@ -7,6 +7,8 @@ All functions are bound as ``MgVideo`` methods and return an ``MgFigure`` (with 
 results in ``.data``); most also save a CSV next to the image.
 """
 
+from __future__ import annotations
+
 import os
 import numpy as np
 import cv2
@@ -15,7 +17,7 @@ import matplotlib.pyplot as plt
 from musicalgestures._utils import MgFigure, generate_outfilename, resolve_filename, has_audio
 
 
-def _audio_env(self, kind='onset'):
+def _audio_env(self, kind: str = 'onset'):
     """Return (env, times, sr): the audio onset-strength ('onset') or loudness ('rms') envelope.
 
     Cached on the MgVideo (keyed by filename + kind) so repeated audio–movement analyses reuse it.
@@ -38,7 +40,7 @@ def _audio_env(self, kind='onset'):
     return result
 
 
-def _common_grid(t_a, a, t_m, m, fs=50.0):
+def _common_grid(t_a: np.ndarray, a: np.ndarray, t_m: np.ndarray, m: np.ndarray, fs: float = 50.0):
     """Resample two (time, value) series onto a shared uniform grid spanning their overlap."""
     dur = min(t_a[-1] if len(t_a) else 0, t_m[-1] if len(t_m) else 0)
     if dur <= 0:
@@ -47,12 +49,12 @@ def _common_grid(t_a, a, t_m, m, fs=50.0):
     return t, np.interp(t, t_a, a), np.interp(t, t_m, m)
 
 
-def _z(x):
+def _z(x: np.ndarray):
     x = np.asarray(x, dtype=float)
     return (x - x.mean()) / (x.std() + 1e-9)
 
 
-def _safe_corr(a, b):
+def _safe_corr(a: np.ndarray, b: np.ndarray):
     a, b = np.asarray(a, dtype=float), np.asarray(b, dtype=float)
     if a.std() < 1e-9 or b.std() < 1e-9 or len(a) < 2:
         return 0.0
@@ -62,8 +64,8 @@ def _safe_corr(a, b):
 # ---------------------------------------------------------------------------
 # 1) Phase synchrony (phase-locking value)
 # ---------------------------------------------------------------------------
-def mg_phase_synchrony(self, fmin=0.5, fmax=4.0, fs=50.0, n_bins=36, dpi=300,
-                       autoshow=True, title=None, target_name=None, overwrite=True) -> "MgFigure":
+def mg_phase_synchrony(self, fmin: float = 0.5, fmax: float = 4.0, fs: float = 50.0, n_bins: int = 36, dpi: int = 300,
+                       autoshow: bool = True, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> "MgFigure":
     """
     Quantify how phase-locked the movement is to the audio rhythm.
 
@@ -142,7 +144,7 @@ def mg_phase_synchrony(self, fmin=0.5, fmax=4.0, fs=50.0, n_bins=36, dpi=300,
 # ---------------------------------------------------------------------------
 # 2) Structural similarity: audio SSM vs motion SSM + difference
 # ---------------------------------------------------------------------------
-def _ssm_from_features(feat):
+def _ssm_from_features(feat: np.ndarray):
     """Cosine self-similarity matrix from a (T, d) feature array, normalised to [0, 1]."""
     feat = np.asarray(feat, dtype=float)
     norm = np.linalg.norm(feat, axis=1, keepdims=True)
@@ -153,8 +155,8 @@ def _ssm_from_features(feat):
     return (ssm - lo) / (hi - lo) if hi > lo else ssm
 
 
-def mg_structure_comparison(self, n=200, dpi=300, cmap='magma', autoshow=True,
-                            title=None, target_name=None, overwrite=True) -> "MgFigure":
+def mg_structure_comparison(self, n: int = 200, dpi: int = 300, cmap: str = 'magma', autoshow: bool = True,
+                            title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> "MgFigure":
     """
     Compare the temporal **structure** of the audio with that of the movement.
 
@@ -233,8 +235,8 @@ def mg_structure_comparison(self, n=200, dpi=300, cmap='magma', autoshow=True,
 # ---------------------------------------------------------------------------
 # 3) Per-body-part audio coupling
 # ---------------------------------------------------------------------------
-def mg_body_audio_coupling(self, dpi=300, cmap='coolwarm', dot_size=260, autoshow=True,
-                           title=None, target_name=None, overwrite=True, **pose_kwargs) -> "MgFigure":
+def mg_body_audio_coupling(self, dpi: int = 300, cmap: str = 'coolwarm', dot_size: int = 260, autoshow: bool = True,
+                           title: str | None = None, target_name: str | None = None, overwrite: bool = True, **pose_kwargs) -> "MgFigure":
     """
     Map which body parts are most rhythmically coupled to the music.
 
@@ -332,8 +334,8 @@ def mg_body_audio_coupling(self, dpi=300, cmap='coolwarm', dot_size=260, autosho
 # ---------------------------------------------------------------------------
 # 4) Energy / dynamics coupling
 # ---------------------------------------------------------------------------
-def mg_dynamics_coupling(self, fs=50.0, max_lag=2.0, dpi=300, autoshow=True,
-                         title=None, target_name=None, overwrite=True) -> "MgFigure":
+def mg_dynamics_coupling(self, fs: float = 50.0, max_lag: float = 2.0, dpi: int = 300, autoshow: bool = True,
+                         title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> "MgFigure":
     """
     Compare audio **loudness** with movement **quantity** — does the dancer move more when the
     music is louder?

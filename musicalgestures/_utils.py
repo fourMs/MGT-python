@@ -1,4 +1,11 @@
-from typing import Union, Tuple
+from __future__ import annotations
+
+from typing import Union, Tuple, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    # numpy is imported lazily inside functions (import-speed optimization); make the name
+    # available to type checkers for the np.ndarray annotations without importing at runtime.
+    import numpy as np
 
 #: Module-level flag controlling whether progress bars are shown.
 #: Use :func:`show_progress` to change this setting.
@@ -33,13 +40,13 @@ class MgProgressbar():
 
     def __init__(
             self,
-            total=100,
-            time_limit=0.5,
-            prefix='Progress',
-            suffix='Complete',
-            decimals=1,
-            length=40,
-            fill='█'):
+            total: int = 100,
+            time_limit: float = 0.5,
+            prefix: str = 'Progress',
+            suffix: str = 'Complete',
+            decimals: int = 1,
+            length: int = 40,
+            fill: str = '█'):
         """
         Initialize the MgProgressbar object.
 
@@ -77,7 +84,7 @@ class MgProgressbar():
         from datetime import datetime
         return datetime.timestamp(datetime.now())
 
-    def over_time_limit(self):
+    def over_time_limit(self) -> bool:
         """
         Checks if we should redraw the progress bar at this moment.
 
@@ -87,7 +94,7 @@ class MgProgressbar():
         callback_time = self.get_now()
         return callback_time - self.now >= self.time_limit
 
-    def adjust_printlength(self):
+    def adjust_printlength(self) -> None:
         if self.tw_width <= 0:
             return
         elif self.could_not_get_terminal_window:
@@ -149,7 +156,7 @@ class MgProgressbar():
                                 else:  # display only percent
                                     self.display_only_percent = True
 
-    def progress(self, iteration):
+    def progress(self, iteration: float) -> None:
         """
         Progresses the progress bar to the next step.
 
@@ -353,7 +360,7 @@ class MgFigure():
             )
         return f"<i>MgFigure(type={self.figure_type!r}) – no image available</i>"
 
-def roundup(num, modulo_num):
+def roundup(num: int, modulo_num: int) -> int:
     """
     Rounds up a number to the next integer multiple of another.
 
@@ -368,7 +375,7 @@ def roundup(num, modulo_num):
     return num - (num % modulo_num) + modulo_num*((num % modulo_num) != 0)
 
 
-def clamp(num, min_value, max_value):
+def clamp(num: float, min_value: float, max_value: float) -> float:
     """
     Clamps a number between a minimum and maximum value.
 
@@ -383,7 +390,7 @@ def clamp(num, min_value, max_value):
     return max(min(num, max_value), min_value)
 
 
-def scale_num(val, in_low, in_high, out_low, out_high):
+def scale_num(val: float, in_low: float, in_high: float, out_low: float, out_high: float) -> float:
     """
     Scales a number linearly.
 
@@ -401,7 +408,7 @@ def scale_num(val, in_low, in_high, out_low, out_high):
     return ((val - in_low) * (out_high - out_low)) / (in_high - in_low) + out_low
 
 
-def scale_array(array, out_low, out_high):
+def scale_array(array: np.ndarray, out_low: float, out_high: float) -> np.ndarray:
     """
     Scales an array linearly.
 
@@ -421,7 +428,7 @@ def scale_array(array, out_low, out_high):
     return m * array + b
 
 
-def generate_outfilename(requested_name):
+def generate_outfilename(requested_name: str) -> str:
     """Returns a unique filepath to avoid overwriting existing files. Increments requested 
     filename if necessary by appending an integer, like "_0" or "_1", etc to the file name.
 
@@ -485,7 +492,7 @@ def generate_outfilename(requested_name):
     return f'{req_of}_{out_increment}{req_fex}'
 
 
-def resolve_filename(stem, suffix, target_name=None, overwrite=True):
+def resolve_filename(stem: str, suffix: str, target_name: str | None = None, overwrite: bool = True) -> str:
     """Resolve an output filename for a rendered result.
 
     Centralises the ``target_name``/``overwrite`` logic that most methods repeat: use
@@ -515,7 +522,7 @@ def resolve_filename(stem, suffix, target_name=None, overwrite=True):
     return target_name
 
 
-def get_frame_planecount(frame):
+def get_frame_planecount(frame: np.ndarray) -> int:
     """
     Gets the planecount (color channel count) of a video frame.
 
@@ -530,7 +537,7 @@ def get_frame_planecount(frame):
     return 3 if len(np.array(frame).shape) == 3 else 1
 
 
-def frame2ms(frame, fps):
+def frame2ms(frame: int, fps: int) -> int:
     """
     Converts frames to milliseconds.
 
@@ -550,7 +557,7 @@ class WrongContainer(Exception):
         self.message = message
 
 
-def pass_if_containers_match(file_1, file_2):
+def pass_if_containers_match(file_1: str, file_2: str) -> None:
     """Checks if file extensions match between two files. If they do it passes, is they don't it raises WrongContainer exception.
 
     Args:
@@ -568,7 +575,7 @@ def pass_if_containers_match(file_1, file_2):
             f"Container mismatch: {fex_1} vs {fex_2}; between {file_1} and {file_2}.")
 
 
-def pass_if_container_is(container, file):
+def pass_if_container_is(container: str, file: str) -> None:
     """Checks if a file's extension matches a desired one. Passes if so, raises WrongContainer if not.
 
     Args:
@@ -587,7 +594,7 @@ def pass_if_container_is(container, file):
 _ENCODER_CACHE = {}
 
 
-def ffmpeg_has_encoder(name):
+def ffmpeg_has_encoder(name: str) -> bool:
     """
     Returns True if the installed FFmpeg has the named encoder (e.g. 'libtheora').
 
@@ -609,7 +616,7 @@ def ffmpeg_has_encoder(name):
     return available
 
 
-def convert(filename, target_name, overwrite=True):
+def convert(filename: str, target_name: str, overwrite: bool = True) -> str:
     """
     Converts a video to another format/container using ffmpeg.
 
@@ -647,7 +654,7 @@ def convert(filename, target_name, overwrite=True):
     return target_name
 
 
-def convert_to_avi(filename, target_name=None, overwrite=True):
+def convert_to_avi(filename: str, target_name: str | None = None, overwrite: bool = True) -> str:
     """
     Converts a video to one with .avi extension using ffmpeg.
 
@@ -676,7 +683,7 @@ def convert_to_avi(filename, target_name=None, overwrite=True):
     return target_name
 
 
-def convert_to_mp4(filename, target_name=None, overwrite=True):
+def convert_to_mp4(filename: str, target_name: str | None = None, overwrite: bool = True) -> str:
     """
     Converts a video to one with .mp4 extension using ffmpeg.
 
@@ -705,7 +712,7 @@ def convert_to_mp4(filename, target_name=None, overwrite=True):
     return target_name
 
 
-def convert_to_webm(filename, target_name=None, overwrite=True):
+def convert_to_webm(filename: str, target_name: str | None = None, overwrite: bool = True) -> str:
     """
     Converts a video to one with .webm extension using ffmpeg.
 
@@ -734,7 +741,7 @@ def convert_to_webm(filename, target_name=None, overwrite=True):
     return target_name
 
 
-def cast_into_avi(filename, target_name=None, overwrite=True):
+def cast_into_avi(filename: str, target_name: str | None = None, overwrite: bool = True) -> str:
     """
     *Experimental*
     Casts a video into and .avi container using ffmpeg. Much faster than `convert_to_avi`,
@@ -817,7 +824,7 @@ def extract_frame(
     return target_name
 
 
-def extract_subclip(filename, t1, t2, target_name=None, overwrite=True):
+def extract_subclip(filename: str, t1: float, t2: float, target_name: str | None = None, overwrite: bool = True) -> str:
     """
     Extracts a section of the video using ffmpeg.
 
@@ -870,7 +877,7 @@ def extract_subclip(filename, t1, t2, target_name=None, overwrite=True):
     return target_name
 
 
-def rotate_video(filename, angle, target_name=None, overwrite=True):
+def rotate_video(filename: str, angle: float, target_name: str | None = None, overwrite: bool = True) -> str:
     """
     Rotates a video by an `angle` using ffmpeg.
 
@@ -908,7 +915,7 @@ def rotate_video(filename, angle, target_name=None, overwrite=True):
                pb_prefix=f"Rotating video by {angle} degrees:")
     return target_name
 
-def convert_to_grayscale(filename, target_name=None, overwrite=True):
+def convert_to_grayscale(filename: str, target_name: str | None = None, overwrite: bool = True) -> str:
     """
     Converts a video to grayscale using ffmpeg.
 
@@ -936,7 +943,7 @@ def convert_to_grayscale(filename, target_name=None, overwrite=True):
     ffmpeg_cmd(cmds, get_length(filename), pb_prefix='Converting to grayscale:')
     return target_name
 
-def framediff_ffmpeg(filename, target_name=None, color=True, overwrite=True):
+def framediff_ffmpeg(filename: str, target_name: str | None = None, color: bool = True, overwrite: bool = True) -> str:
     """
     Renders a frame difference video from the input using ffmpeg.
 
@@ -969,7 +976,7 @@ def framediff_ffmpeg(filename, target_name=None, color=True, overwrite=True):
     return target_name
 
 
-def threshold_ffmpeg(filename, threshold=0.1, target_name=None, binary=False, overwrite=True):
+def threshold_ffmpeg(filename: str, threshold: float = 0.1, target_name: str | None = None, binary: bool = False, overwrite: bool = True) -> str:
     """
     Renders a pixel-thresholded video from the input using ffmpeg.
 
@@ -1014,16 +1021,16 @@ def threshold_ffmpeg(filename, threshold=0.1, target_name=None, binary=False, ov
 
 
 def motionvideo_ffmpeg(
-        filename,
-        color=True,
-        filtertype='regular',
-        threshold=0.05,
-        blur='none',
-        use_median=False,
-        kernel_size=5,
-        invert=False,
-        target_name=None,
-        overwrite=True):
+        filename: str,
+        color: bool = True,
+        filtertype: str = 'regular',
+        threshold: float = 0.05,
+        blur: str = 'none',
+        use_median: bool = False,
+        kernel_size: int = 5,
+        invert: bool = False,
+        target_name: str | None = None,
+        overwrite: bool = True) -> str:
     """
     Renders a motion video using ffmpeg. 
 
@@ -1070,17 +1077,17 @@ def motionvideo_ffmpeg(
 
 
 def motiongrams_ffmpeg(
-        filename,
-        color=True,
-        filtertype='regular',
-        threshold=0.05,
-        blur='none',
-        use_median=False,
-        kernel_size=5,
-        invert=False,
-        target_name_x=None,
-        target_name_y=None,
-        overwrite=True):
+        filename: str,
+        color: bool = True,
+        filtertype: str = 'regular',
+        threshold: float = 0.05,
+        blur: str = 'none',
+        use_median: bool = False,
+        kernel_size: int = 5,
+        invert: bool = False,
+        target_name_x: str | None = None,
+        target_name_y: str | None = None,
+        overwrite: bool = True) -> tuple:
     """
     Renders horizontal and vertical motiongrams using ffmpeg. 
 
@@ -1145,7 +1152,7 @@ def motiongrams_ffmpeg(
     return target_name_x, target_name_y
 
 
-def crop_ffmpeg(filename, w, h, x, y, target_name=None, overwrite=True):
+def crop_ffmpeg(filename: str, w: int, h: int, x: int, y: int, target_name: str | None = None, overwrite: bool = True) -> str:
     """
     Crops a video using ffmpeg.
 
@@ -1181,7 +1188,7 @@ def crop_ffmpeg(filename, w, h, x, y, target_name=None, overwrite=True):
     return target_name
 
 
-def extract_wav(filename, target_name=None, overwrite=True):
+def extract_wav(filename: str, target_name: str | None = None, overwrite: bool = True) -> str:
     """
     Extracts audio from video into a .wav file via ffmpeg.
 
@@ -1231,7 +1238,7 @@ class NoDurationError(FFprobeError):
 _FFPROBE_CACHE = {}
 
 
-def ffprobe(filename):
+def ffprobe(filename: str) -> str:
     """
     Returns info about video/audio file using FFprobe.
 
@@ -1316,7 +1323,7 @@ def get_widthheight(filename: str) -> Tuple[int, int]:
     return width, height
 
 
-def has_audio(filename):
+def has_audio(filename: str) -> bool:
     """
     Checks if video has audio track using FFprobe.
 
@@ -1342,7 +1349,7 @@ def has_audio(filename):
         return True
 
 
-def get_rotation(filename):
+def get_rotation(filename: str) -> int:
     """
     Returns the display rotation (degrees) stored in a video's metadata.
 
@@ -1372,7 +1379,7 @@ def get_rotation(filename):
     return 0
 
 
-def normalize_rotation(filename, overwrite=True):
+def normalize_rotation(filename: str, overwrite: bool = True) -> str:
     """
     If a video carries a display-rotation flag (e.g. a phone portrait recording with
     landscape pixels), re-encode it so the rotation is baked into the pixels and the
@@ -1435,7 +1442,7 @@ def get_length(filename: str) -> float:
     return elems[0]*3600 + elems[1]*60 + elems[2]
 
 
-def get_framecount(filename, fast=True):
+def get_framecount(filename: str, fast: bool = True) -> int:
     """
     Returns the number of frames in a video using FFprobe.
 
@@ -1485,7 +1492,7 @@ def get_framecount(filename, fast=True):
                 "Could not count frames. (Is this a video file?). If you are working with audio file use MgAudio instead.")
 
 
-def get_fps(filename):
+def get_fps(filename: str) -> float:
     """
     Gets the FPS (frames per second) value of a video using FFprobe.
 
@@ -1518,7 +1525,7 @@ def get_fps(filename):
     return fps
 
 
-def get_first_frame_as_image(filename, target_name=None, pict_format='.png', overwrite=True):
+def get_first_frame_as_image(filename: str, target_name: str | None = None, pict_format: str = '.png', overwrite: bool = True) -> str:
     """
     Extracts the first frame of a video and saves it as an image using ffmpeg.
 
@@ -1550,7 +1557,7 @@ def get_first_frame_as_image(filename, target_name=None, pict_format='.png', ove
     return target_name
 
 
-def get_box_video_ratio(filename, box_width=800, box_height=600):
+def get_box_video_ratio(filename: str, box_width: int = 800, box_height: int = 600) -> float:
     """
     Gets the box-to-video ratio between an arbitrarily defind box and the video dimensions. Useful to fit windows into a certain area.
 
@@ -1576,7 +1583,7 @@ def get_box_video_ratio(filename, box_width=800, box_height=600):
     return smallest_ratio
 
 
-def quality_metrics(original, processed, metric=None):
+def quality_metrics(original: str, processed: str, metric: str | None = None) -> None:
     """
     Compute video quality metrics between two video files for comparing the quality of video codecs or measuring the efficacy of encoding configuration.
     Possible to compute three major video quality metrics used for objective evaluation, namely:
@@ -1625,7 +1632,7 @@ def quality_metrics(original, processed, metric=None):
             print(splitted[index])
 
 
-def audio_dilate(filename, dilation_ratio=1, target_name=None, overwrite=True):
+def audio_dilate(filename: str, dilation_ratio: float = 1, target_name: str | None = None, overwrite: bool = True) -> str:
     """
     Time-stretches or -shrinks (dilates) an audio file using ffmpeg.
 
@@ -1655,7 +1662,7 @@ def audio_dilate(filename, dilation_ratio=1, target_name=None, overwrite=True):
     return target_name
 
 
-def embed_audio_in_video(source_audio, destination_video, dilation_ratio=1):
+def embed_audio_in_video(source_audio: str, destination_video: str, dilation_ratio: float = 1) -> None:
     """
     Embeds an audio file as the audio channel of a video file using ffmpeg.
 
@@ -1700,7 +1707,7 @@ class FFmpegError(Exception):
         self.message = message
 
 
-def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, stream=True, pipe=None):
+def ffmpeg_cmd(command: list, total_time: float, pb_prefix: str = 'Progress', print_cmd: bool = False, stream: bool = True, pipe: str | None = None):
     """
     Run an ffmpeg command in a subprocess and show progress using an MgProgressbar.
 
@@ -1789,7 +1796,7 @@ def ffmpeg_cmd(command, total_time, pb_prefix='Progress', print_cmd=False, strea
             raise KeyboardInterrupt
 
 
-def str2sec(time_string):
+def str2sec(time_string: str) -> float:
     """
     Converts a time code string into seconds.
 
@@ -1803,7 +1810,7 @@ def str2sec(time_string):
     return elems[0]*3600 + elems[1]*60 + elems[2]
 
 
-def wrap_str(string, matchers=[" ", "(", ")"]):
+def wrap_str(string: str, matchers: list = [" ", "(", ")"]) -> str:
     """
     Wraps a string in double quotes if it contains any of `matchers` - by default: space or parentheses.
     Useful when working with shell commands.
@@ -1824,7 +1831,7 @@ def wrap_str(string, matchers=[" ", "(", ")"]):
         return string
 
 
-def unwrap_str(string):
+def unwrap_str(string: str) -> str:
     """
     Unwraps a string from quotes.
 
@@ -1842,7 +1849,7 @@ def unwrap_str(string):
         return string
 
 
-def get_cuda_device_count():
+def get_cuda_device_count() -> int:
     """
     Returns the number of CUDA-capable GPU devices visible to OpenCV.
 
@@ -1857,7 +1864,7 @@ def get_cuda_device_count():
         return 0
 
 
-def cuda_build_available():
+def cuda_build_available() -> bool:
     """
     Returns whether the installed OpenCV was compiled with CUDA support.
 
@@ -1876,7 +1883,7 @@ def cuda_build_available():
     return False
 
 
-def cuda_unavailable_reason():
+def cuda_unavailable_reason() -> str:
     """
     Returns a short, actionable explanation of why the OpenCV CUDA backend is unavailable.
 
@@ -1899,7 +1906,7 @@ def cuda_unavailable_reason():
     )
 
 
-def in_colab():
+def in_colab() -> bool:
     """
     Check's if the environment is a Google Colab document.
 
@@ -1914,7 +1921,7 @@ def in_colab():
     return result
 
 
-def in_ipynb():
+def in_ipynb() -> bool:
     """
     Check if the environment is a Jupyter notebook.
     Taken from https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-is-executed-in-the-ipython-notebook.
