@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.6.6**.
+The current stable release is **MGT-python 1.6.7**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,12 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.6.7
+
+- Faster import: `import musicalgestures` dropped from ~0.65s to ~0.52s by deferring `import numba`
+  (it loads LLVM); the JIT kernels in directograms/impacts/warp now compile lazily on first use
+  (#349). Continues the startup-speed work from 1.6.3.
 
 ### 1.6.6
 
