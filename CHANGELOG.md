@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Internal
+- **Cached average-frame decode** for the space-time analyses (#347). `stroboscope`,
+  `silhouette_waterfall` and `spacetime_volume` all reconstruct the same average background frame
+  by decoding the whole video; this is now computed once and cached per `MgVideo` (keyed by
+  filename, invalidated when it changes), so chained space-time calls reuse it instead of
+  re-decoding. Joins the existing derived-signal caches (quantity-of-motion, audio envelope).
+  Full raw-frame shared decoding is intentionally avoided — caching the decoded frame stack is too
+  memory-heavy for typical videos (>1 GB), so only small derived signals are cached.
+
 ---
 
 ## [1.6.4] – 2026-06-28

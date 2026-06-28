@@ -97,7 +97,16 @@ def _silhouette(frame, seg_fn, bg_gray, threshold, kernel_size=5, keep_largest=F
 
 
 def _average_frame(self):
-    """Accumulate the average BGR frame (a clean background for static cameras)."""
+    """Accumulate the average BGR frame (a clean background for static cameras).
+
+    Cached on the MgVideo (keyed by filename) so chained space-time analyses
+    (stroboscope, silhouette_waterfall, spacetime_volume) don't each re-decode the whole
+    video just to recompute the same background. Only this small derived frame is cached —
+    not the raw frame stack, which would be too large for typical videos.
+    """
+    cache = getattr(self, '_avg_frame_cache', None)
+    if cache is not None and cache[0] == self.filename:
+        return cache[1]
     acc = np.zeros((self.height, self.width, 3), dtype=np.float64)
     n = 0
     pb = MgProgressbar(total=self.length, prefix='Computing background:')
@@ -108,7 +117,9 @@ def _average_frame(self):
     pb.progress(self.length)
     if n == 0:
         raise RuntimeError(f"Could not read frames from {self.filename}.")
-    return (acc / n).astype(np.uint8)
+    result = (acc / n).astype(np.uint8)
+    self._avg_frame_cache = (self.filename, result)
+    return result
 
 
 # ---------------------------------------------------------------------------
