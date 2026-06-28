@@ -1448,18 +1448,26 @@ def get_framecount(filename: str, fast: bool = True) -> int:
 
     Args:
         filename (str): Path to the video file to measure.
+        fast (bool, optional): If True (default), count demuxed video packets
+            (``-count_packets``). This is fast (no decoding) and — unlike the container's
+            ``nb_frames`` metadata, which is unreliable (e.g. off by one on many AVIs, or absent
+            on WebM) — matches the true decoded frame count for normal video streams. If False,
+            fully decode and count frames (``-count_frames``): the ground truth, but slower.
+            Defaults to True.
 
     Returns:
         int: The number of frames in the input video file.
     """
     import subprocess
-    command_query_container = 'ffprobe -v error -select_streams v:0 -show_entries stream=nb_frames -of default=nokey=1:noprint_wrappers=1'.split(
+    # Counting packets is the "fast" path: it does not decode, yet (one packet ≈ one frame for
+    # video) it agrees with the decoded count, whereas the container's nb_frames metadata does not.
+    command_count_packets = 'ffprobe -v error -select_streams v:0 -count_packets -show_entries stream=nb_read_packets -of default=nokey=1:noprint_wrappers=1'.split(
         ' ')
-    command_query_container.append(filename)
+    command_count_packets.append(filename)
     command_count = 'ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of default=nokey=1:noprint_wrappers=1'.split(
         ' ')
     command_count.append(filename)
-    command = command_query_container if fast else command_count
+    command = command_count_packets if fast else command_count
 
     process = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)

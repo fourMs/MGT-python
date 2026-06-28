@@ -919,7 +919,22 @@ class Test_get_framecount:
     def test_get_framecount(self):
         result = get_framecount(musicalgestures.examples.dance)
         assert type(result) == int
-        assert abs(result - 1571) <= 1
+        # The default (fast) path now counts packets, so it is exact — not the off-by-one
+        # container-metadata estimate that motivated #239/#242.
+        assert result == 1571
+
+    def test_fast_matches_exact_across_containers(self, tmp_path):
+        """The fast (packet) count must equal the exact (decoded) count — the #242 fix.
+
+        Container nb_frames metadata used to disagree with the decoded count (e.g. +1 on AVI,
+        absent on WebM); counting packets fixes that without paying for a full decode.
+        """
+        base = str(tmp_path).replace("\\", "/")
+        avi = convert_to_avi(musicalgestures.examples.dance, target_name=base + "/fc.avi")
+        mp4 = convert_to_mp4(musicalgestures.examples.dance, target_name=base + "/fc.mp4")
+        webm = convert_to_webm(musicalgestures.examples.dance, target_name=base + "/fc.webm")
+        for f in (musicalgestures.examples.dance, avi, mp4, webm):
+            assert get_framecount(f, fast=True) == get_framecount(f, fast=False)
 
 
 class Test_get_fps:

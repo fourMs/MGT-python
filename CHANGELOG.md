@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Accurate frame counts** (#242, #239). `get_framecount(fast=True)` — used to set `MgVideo.length`
+  — read the container's `nb_frames` metadata, which is unreliable (off by one on many AVIs, absent
+  on WebM); this was the "extra frame after conversion" reported in #239. It now counts demuxed
+  video packets (`-count_packets`), which matches the true decoded frame count across containers
+  while still avoiding a full decode (it is in fact marginally *faster* than the old metadata
+  query). `fast=False` still does the exhaustive decode-and-count. Added a regression test that
+  pins `fast == exact` for AVI/MP4/WebM.
+
 ---
 
 ## [1.6.7] – 2026-06-28
