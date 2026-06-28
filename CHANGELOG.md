@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [1.6.8] – 2026-06-28
+
 ### Fixed
 - **Accurate frame counts** (#242, #239). `get_framecount(fast=True)` — used to set `MgVideo.length`
   — read the container's `nb_frames` metadata, which is unreliable (off by one on many AVIs, absent

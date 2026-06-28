@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.6.7**.
+The current stable release is **MGT-python 1.6.8**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,13 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.6.8
+
+- Accurate frame counts: `get_framecount()` (which sets `MgVideo.length`) now counts demuxed
+  packets instead of trusting unreliable container metadata, fixing the spurious "extra frame
+  after conversion" (off-by-one on AVIs, missing on WebM) without paying for a full decode
+  (#242, #239).
 
 ### 1.6.7
 
