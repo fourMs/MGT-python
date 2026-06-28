@@ -41,7 +41,7 @@ def mg_motion(
         target_name_mgx=None,
         target_name_mgy=None,
         overwrite=True,
-        normalize=None):
+        normalize=None) -> "musicalgestures.MgVideo":
     """
     Finds the difference in pixel value from one frame to the next in an input video, and saves the frames into a new video. 
     Describes the motion in the recording. Outputs: a motion video, a plot describing the centroid of motion and the 
@@ -292,7 +292,7 @@ def mg_motiongrams(
         target_name_mgx=None,
         target_name_mgy=None,
         overwrite=True,
-        normalize=None):
+        normalize=None) -> "MgList":
     """
     Shortcut for `mg_motion` to only render motiongrams.
 
@@ -354,7 +354,7 @@ def mg_motionvideo(
         kernel_size=5,
         inverted_motionvideo=False,
         target_name=None,
-        overwrite=True):
+        overwrite=True) -> "musicalgestures.MgVideo":
     """
     Shortcut to only render the motion video. Uses musicalgestures._utils.motionvideo_ffmpeg. Note that this does not apply median filter by default. If you need it use `use_median=True`.
 
@@ -402,7 +402,7 @@ def mg_motiondata(
         motion_analysis='all',
         data_format="csv",
         target_name=None,
-        overwrite=True):
+        overwrite=True) -> "list":
     """
     Shortcut for `mg_motion` to only render motion data.
 
@@ -482,7 +482,7 @@ def mg_motionplots(
         unit='seconds',
         title=None,
         target_name=None,
-        overwrite=True):
+        overwrite=True) -> "MgImage":
     """
     Shortcut for `mg_motion` to only render motion plots.
 
@@ -532,7 +532,7 @@ def mg_motionplots(
     return MgImage(target_name)
 
 
-def mg_motionscore(self):
+def mg_motionscore(self) -> "float":
     """
     Computes the average VMAF motion score of the video using FFmpeg.
 

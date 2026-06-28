@@ -17,7 +17,7 @@ def mg_subtract(
         bg_img=None,
         bg_color='#000000',
         target_name=None,
-        overwrite=True):
+        overwrite=True) -> "musicalgestures.MgVideo":
     """
     Renders background subtraction using ffmpeg. 
 

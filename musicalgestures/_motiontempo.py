@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from musicalgestures._utils import MgFigure, MgProgressbar, generate_outfilename, resolve_filename
 
 
-def mg_motiontempo(self, fmin=0.2, fmax=8.0, dpi=300, autoshow=True, title=None, target_name=None, overwrite=True):
+def mg_motiontempo(self, fmin=0.2, fmax=8.0, dpi=300, autoshow=True, title=None, target_name=None, overwrite=True) -> "MgFigure":
     """
     Estimates the dominant movement tempo of a video from its quantity of motion.
 

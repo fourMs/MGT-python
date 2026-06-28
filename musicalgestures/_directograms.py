@@ -36,7 +36,7 @@ def directogram(optical_flow):
 
     return directogram
 
-def mg_directograms(self, title=None, filtertype='Adaptative', threshold=0.05, kernel_size=5, convert=True, target_name=None, overwrite=True):
+def mg_directograms(self, title=None, filtertype='Adaptative', threshold=0.05, kernel_size=5, convert=True, target_name=None, overwrite=True) -> "MgFigure":
     """
     Compute a directogram to factor the magnitude of motion into different angles.
     Each columun of the directogram is computed as the weighted histogram (HISTOGRAM_BINS) of angles for the optical flow of an input frame.

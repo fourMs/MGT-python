@@ -63,7 +63,7 @@ def _safe_corr(a, b):
 # 1) Phase synchrony (phase-locking value)
 # ---------------------------------------------------------------------------
 def mg_phase_synchrony(self, fmin=0.5, fmax=4.0, fs=50.0, n_bins=36, dpi=300,
-                       autoshow=True, title=None, target_name=None, overwrite=True):
+                       autoshow=True, title=None, target_name=None, overwrite=True) -> "MgFigure":
     """
     Quantify how phase-locked the movement is to the audio rhythm.
 
@@ -154,7 +154,7 @@ def _ssm_from_features(feat):
 
 
 def mg_structure_comparison(self, n=200, dpi=300, cmap='magma', autoshow=True,
-                            title=None, target_name=None, overwrite=True):
+                            title=None, target_name=None, overwrite=True) -> "MgFigure":
     """
     Compare the temporal **structure** of the audio with that of the movement.
 
@@ -234,7 +234,7 @@ def mg_structure_comparison(self, n=200, dpi=300, cmap='magma', autoshow=True,
 # 3) Per-body-part audio coupling
 # ---------------------------------------------------------------------------
 def mg_body_audio_coupling(self, dpi=300, cmap='coolwarm', dot_size=260, autoshow=True,
-                           title=None, target_name=None, overwrite=True, **pose_kwargs):
+                           title=None, target_name=None, overwrite=True, **pose_kwargs) -> "MgFigure":
     """
     Map which body parts are most rhythmically coupled to the music.
 
@@ -333,7 +333,7 @@ def mg_body_audio_coupling(self, dpi=300, cmap='coolwarm', dot_size=260, autosho
 # 4) Energy / dynamics coupling
 # ---------------------------------------------------------------------------
 def mg_dynamics_coupling(self, fs=50.0, max_lag=2.0, dpi=300, autoshow=True,
-                         title=None, target_name=None, overwrite=True):
+                         title=None, target_name=None, overwrite=True) -> "MgFigure":
     """
     Compare audio **loudness** with movement **quantity** — does the dancer move more when the
     music is louder?

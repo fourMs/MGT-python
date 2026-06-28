@@ -51,7 +51,7 @@ def _movement_qom(self):
 
 def mg_beat_statistics(self, source='motion', n_bins=32, cmap='YlOrRd', dpi=300,
                        autoshow=True, title=None, target_name=None, overwrite=True,
-                       fmin=0.2, fmax=8.0):
+                       fmin=0.2, fmax=8.0) -> "MgFigure":
     """
     Circular statistics of beat-timing consistency, from the **audio** or from the **movement**.
 
@@ -197,7 +197,7 @@ def _nearest_harmonic_ratio(ratio):
     return best, candidates[best]
 
 
-def mg_tempo_similarity(self, dpi=300, autoshow=True, title=None, target_name=None, overwrite=True):
+def mg_tempo_similarity(self, dpi=300, autoshow=True, title=None, target_name=None, overwrite=True) -> "MgFigure":
     """
     Compare the **audio** tempo/rhythm with the **movement** tempo/rhythm and report how similar
     they are.

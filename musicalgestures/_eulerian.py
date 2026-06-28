@@ -61,7 +61,7 @@ def mg_eulerian(
         chroma_attenuation=1.0,
         lambda_cutoff=16,
         target_name=None,
-        overwrite=True):
+        overwrite=True) -> "musicalgestures.MgVideo":
     """
     Applies Eulerian Video Magnification (EVM) to reveal subtle changes in a video.
 

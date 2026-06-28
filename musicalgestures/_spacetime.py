@@ -117,7 +117,7 @@ def _average_frame(self):
 
 def mg_stroboscope(self, n_samples=12, method='auto', threshold=0.1, kernel_size=5,
                    keep_largest=False, colorize=True, background='average',
-                   target_name=None, overwrite=True):
+                   target_name=None, overwrite=True) -> "MgImage":
     """
     Renders a stroboscope / chronophotography image: the person's silhouette at evenly
     sampled times composited onto a single frame, showing the body moving through space
@@ -193,7 +193,7 @@ def mg_stroboscope(self, n_samples=12, method='auto', threshold=0.1, kernel_size
 
 def mg_silhouette_waterfall(self, n_samples=40, method='auto', threshold=0.1, kernel_size=5,
                             keep_largest=False, axis='horizontal', cmap='viridis', dpi=200,
-                            elev=35, azim=-60, axes=True, crop=False, target_name=None, overwrite=True):
+                            elev=35, azim=-60, axes=True, crop=False, target_name=None, overwrite=True) -> "MgFigure":
     """
     Renders a 3D silhouette waterfall: the per-frame silhouette projected onto one spatial
     axis and stacked as cascading curves along a time (depth) axis, so the body's occupancy
@@ -307,7 +307,7 @@ def mg_silhouette_waterfall(self, n_samples=40, method='auto', threshold=0.1, ke
 # ---------------------------------------------------------------------------
 
 def mg_motionhistory(self, threshold=0.05, decay=0.3, normalize=False, blur=0,
-                     cmap='hot', dpi=300, target_name=None, overwrite=True):
+                     cmap='hot', dpi=300, target_name=None, overwrite=True) -> "MgImage":
     """
     Renders a Motion History Image (Bobick & Davis): a single image where intensity encodes
     how recently motion occurred at each pixel (recent motion bright, older motion fades out).
@@ -391,7 +391,7 @@ def mg_motionhistory(self, threshold=0.05, decay=0.3, normalize=False, blur=0,
 
 def mg_spacetime_volume(self, n_samples=50, downsample=8, method='auto', threshold=0.1,
                         kernel_size=5, keep_largest=False, cmap='viridis', dpi=200,
-                        elev=20, azim=-60, target_name=None, overwrite=True):
+                        elev=20, azim=-60, target_name=None, overwrite=True) -> "MgFigure":
     """
     Renders a 3D space-time scatter of the person's silhouette: points (x, y, t) where the
     silhouette is present, with time on the depth axis and colour, showing how the body

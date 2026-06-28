@@ -36,7 +36,7 @@ def mg_motion_mp(
         target_name_mgy=None,
         convert=True,
         overwrite=True,
-        num_processes=-1):
+        num_processes=-1) -> "musicalgestures.MgVideo":
 
     of, fex = self.of, self.fex
 

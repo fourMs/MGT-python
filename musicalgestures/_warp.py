@@ -18,7 +18,7 @@ def beats_diff(beats, media):
     beats_diff = np.append(diff, media.shape[0] - beats[-1])
     return beats_diff
 
-def mg_warp_audiovisual_beats(self, audio_file, speed=(0.5,2), data=None, filtertype='Adaptative', threshold=0.05, kernel_size=5, target_name=None, overwrite=True):
+def mg_warp_audiovisual_beats(self, audio_file, speed=(0.5,2), data=None, filtertype='Adaptative', threshold=0.05, kernel_size=5, target_name=None, overwrite=True) -> "musicalgestures.MgVideo":
     """
     Warp audio beats with visual beats (patterns of motion that can be shifted in time to control visual rhythm).
     Visual beats are warped after computing a directogram which factors the magnitude of motion in the video into different angles.

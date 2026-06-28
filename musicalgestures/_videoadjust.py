@@ -178,7 +178,7 @@ def fixed_frames_ffmpeg(filename, frames=0, target_name=None, overwrite=True):
     return target_name
 
 
-def mg_resample(self, fps=None, speed=None, skip=None, target_name=None, overwrite=True):
+def mg_resample(self, fps=None, speed=None, skip=None, target_name=None, overwrite=True) -> "musicalgestures.MgVideo":
     """
     Resample the (already loaded) video and return a **new** MgVideo, leaving the original
     object untouched.

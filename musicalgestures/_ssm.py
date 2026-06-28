@@ -78,7 +78,7 @@ def mg_ssm(
         combine=False,
         title=None,
         target_name=None,
-        overwrite=True):
+        overwrite=True) -> "MgList | MgImage":
     """
     Compute Self-Similarity Matrix (SSM) by converting the input signal into a suitable feature sequence and comparing each element of the feature sequence with all other elements of the sequence.
     SSMs can be computed over different input features such as 'motiongrams', 'spectrogram', 'chromagram' and 'tempogram'.

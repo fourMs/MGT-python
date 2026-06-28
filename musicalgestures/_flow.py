@@ -49,7 +49,7 @@ class Flow:
             use_gpu=False,
             convert=True,
             target_name=None,
-            overwrite=True):
+            overwrite=True) -> "musicalgestures.MgVideo":
         """
         Renders a dense optical flow video of the input video file using `cv2.calcOpticalFlowFarneback()`. The description of the matching parameters are taken from the cv2 documentation.
 
@@ -315,7 +315,7 @@ class Flow:
             use_gpu=False,
             convert=True,
             target_name=None,
-            overwrite=True):
+            overwrite=True) -> "musicalgestures.MgVideo":
         """
         Renders a sparse optical flow video of the input video file using `cv2.calcOpticalFlowPyrLK()`. `cv2.goodFeaturesToTrack()` is used for the corner estimation. The description of the matching parameters are taken from the cv2 documentation.
 

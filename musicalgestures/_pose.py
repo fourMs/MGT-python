@@ -123,7 +123,7 @@ def pose(
         target_name_data=None,
         target_name_average=None,
         target_name_trajectories=None,
-        overwrite=True):
+        overwrite=True) -> "musicalgestures.MgVideo":
     """
     Renders a video with the pose estimation (aka. "keypoint detection" or "skeleton tracking") overlaid on it.
     Outputs the predictions in a text file containing the normalized x and y coordinates of each keypoint
@@ -857,7 +857,7 @@ def _ensure_pose_keypoints(self, **pose_kwargs):
 
 def mg_pose_waterfall(self, style='trajectories', n_samples=40, markers=None, color_by=None,
                       cmap='hsv', dpi=200, elev=20, azim=-60, lw=1.0, axes=True, crop=False,
-                      target_name=None, overwrite=True, **pose_kwargs):
+                      target_name=None, overwrite=True, **pose_kwargs) -> "MgFigure":
     """
     Render a 3D spatio-temporal waterfall of the pose, cascading along the time (depth) axis —
     a pose-based counterpart to ``silhouette_waterfall()``. Uses cached pose keypoints from a
@@ -911,7 +911,7 @@ def mg_pose_waterfall(self, style='trajectories', n_samples=40, markers=None, co
 
 
 def mg_pose_segments(self, segments=None, n_bins=36, cmap='viridis', dpi=200, ncols=6,
-                     target_name=None, overwrite=True, **pose_kwargs):
+                     target_name=None, overwrite=True, **pose_kwargs) -> "MgFigure":
     """
     Circular (polar) motion plots and statistics for each body segment.
 
@@ -955,7 +955,7 @@ def mg_pose_segments(self, segments=None, n_bins=36, cmap='viridis', dpi=200, nc
     return mgf
 
 
-def mg_pose_center(self, save_data=True, dpi=200, target_name=None, overwrite=True, **pose_kwargs):
+def mg_pose_center(self, save_data=True, dpi=200, target_name=None, overwrite=True, **pose_kwargs) -> "MgFigure":
     """
     Centre the pose data on its global centroid — a 2D port of the MoCap Toolbox ``mccenter``.
 
@@ -1005,7 +1005,7 @@ def mg_pose_center(self, save_data=True, dpi=200, target_name=None, overwrite=Tr
     return mgf
 
 
-def mg_pose_distance(self, dpi=200, target_name=None, overwrite=True, **pose_kwargs):
+def mg_pose_distance(self, dpi=200, target_name=None, overwrite=True, **pose_kwargs) -> "MgFigure":
     """
     Per-marker distance travelled and the average across markers — a 2D port of the MoCap Toolbox
     ``mccumdist``.

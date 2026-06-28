@@ -47,7 +47,7 @@ def impact_detection(envelopes, time, fps, local_mean=0.1, local_maxima=0.15):
     return impact 
 
 
-def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.15, filtertype='Adaptative', threshold=0.05, kernel_size=5, convert=True, target_name=None, overwrite=True):
+def mg_impacts(self, title=None, detection=True, local_mean=0.1, local_maxima=0.15, filtertype='Adaptative', threshold=0.05, kernel_size=5, convert=True, target_name=None, overwrite=True) -> "MgFigure":
     """
     Compute a visual analogue of an onset envelope, aslo known as an impact envelope (Abe Davis).
     This is computed by summing over positive entries in the columns of the directogram. This gives an impact envelope with precisely the same
