@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.6.5**.
+The current stable release is **MGT-python 1.6.6**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,14 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.6.6
+
+- The **public API is now fully typed**: parameter annotations on every public analysis method
+  (motion, flow, pose, space-time, audio and the audio–movement suite, and more), on top of the
+  return types and `py.typed` marker shipped in 1.6.4 — so IDEs and type checkers see complete
+  signatures (#345). Hints are lazy (`from __future__ import annotations`), so import speed is
+  unchanged.
 
 ### 1.6.5
 

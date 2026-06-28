@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [1.6.6] – 2026-06-28
+
 ### Added
 - **Parameter type hints across the public API** (#345). Every public analysis method now
   annotates its parameters (not just its return type): the motion methods, motiongrams/
@@ -17,6 +21,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   inline methods. Modules now use `from __future__ import annotations` so hints are lazy
   (no runtime/import-speed cost) and use modern `str | None` syntax. Combined with the `py.typed`
   marker shipped in 1.6.4, downstream IDEs and type checkers now see a fully-typed public API.
+
+### Internal
+- **Fixed the CI mypy step** (#345), which was aborting on a third-party file (`tifffile` ships
+  3.12-only syntax, fatal on our 3.10 target) before it ever checked our code. Settings are now
+  centralised in `[tool.mypy]` (`follow_imports=skip`, exclude deprecated/3rdparty) and shared by
+  CI and `nox -s typecheck`. The step stays non-blocking while the internal-typing backlog is
+  worked through (#350).
 
 ---
 
