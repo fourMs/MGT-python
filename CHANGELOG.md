@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [1.6.9] – 2026-06-28
+
 ### Added
 - **`motiondescriptors()`** (#210) — higher-level scalar movement descriptors from the
   quantity-of-motion signal: **motion energy** (mean squared QoM), **motion smoothness**
@@ -15,7 +19,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (dominant frequency + spectral centroid from the Hann-windowed QoM power spectrum). Returns an
   `MgFigure` (QoM time series + power spectrum) with the scalars and full spectrum in `.data`, and
   writes a `_motiondescriptors.csv`. Hann windowing is the documented default (with `window='none'`
-  for rectangular), answering the windowing question raised in the issue.
+  for rectangular), answering the windowing question raised in the issue; the dominant frequency
+  and spectral centroid are searched within a movement band (`fmin`/`fmax`, default 0.2–10 Hz).
+
+### Documentation
+- Lightweight animated GIFs for the video-producing methods (motion, history, motion vectors,
+  Eulerian magnification, dense/sparse optical flow), a `motiondescriptors` figure, and a new
+  visual **Gallery** in the examples page; `scripts/generate_example_media.py` regenerates them.
+  README, the video-analysis user guide and the wiki updated for `motiondescriptors()`.
 
 ---
 

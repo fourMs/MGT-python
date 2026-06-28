@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.6.8**.
+The current stable release is **MGT-python 1.6.9**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,14 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.6.9
+
+- New **`motiondescriptors()`** — scalar movement descriptors from the quantity-of-motion signal:
+  motion energy, smoothness (SPARC), entropy, and spectral descriptors (dominant frequency +
+  spectral centroid), as an `MgFigure` plus a CSV (#210).
+- Documentation refresh: animated GIFs for the video outputs, a new examples **Gallery**, and
+  README/user-guide/wiki updates.
 
 ### 1.6.8
 
