@@ -7,6 +7,9 @@ import pandas as pd
 from musicalgestures._utils import MgProgressbar, convert_to_avi, extract_wav, embed_audio_in_video, roundup, frame2ms, generate_outfilename, in_colab, get_cuda_device_count, cuda_unavailable_reason, ffmpeg_cmd
 import musicalgestures
 import itertools
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:  # for the -> "MgFigure" return annotations on the pose_* methods
+    from musicalgestures._utils import MgFigure
 
 # implementation mainly inspired by: https://github.com/spmallick/learnopencv/blob/master/OpenPose/OpenPoseVideo.py
 

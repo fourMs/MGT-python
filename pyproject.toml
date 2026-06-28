@@ -57,7 +57,7 @@ where = ["."]
 include = ["musicalgestures*"]
 
 [tool.setuptools.package-data]
-musicalgestures = ["*.avi", "*.ipynb", "examples/*", "pose/*", "models/*", "3rdparty/**/*"]
+musicalgestures = ["py.typed", "*.avi", "*.ipynb", "examples/*", "pose/*", "models/*"]
 
 [tool.ruff]
 # Exclude the most problematic legacy directories from linting
