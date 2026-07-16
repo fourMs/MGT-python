@@ -108,6 +108,10 @@ class TestFitAccelerando:
         _, t_double, _ = fit_accelerando(t, ioi)
         assert np.isinf(t_double)
 
+    def test_degenerate_input_gives_nan(self):
+        ioi0, t_double, r2 = fit_accelerando([0.0, 1.0], [2.0, 1.0])
+        assert np.isnan(ioi0) and np.isnan(t_double) and np.isnan(r2)
+
 
 class TestMotionOnsets:
     def test_recovers_ramp_onsets(self):

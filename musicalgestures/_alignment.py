@@ -58,7 +58,7 @@ def xcorr_lag(x, y, fs, max_lag=1.5):
     # Near-exact ties are floating-point noise; prefer the smallest |lag|.
     cand = np.flatnonzero(cc >= cc.max() - 1e-9)
     best = cand[np.argmin(np.abs(lags[cand]))]
-    return lags[best] / fs, float(cc[best])
+    return float(lags[best] / fs), float(cc[best])
 
 
 def envelope_lag(x, y, rate, max_lag_s=1.5):
@@ -142,13 +142,20 @@ def anchor_and_match(times_a, times_b, anchor_a=None, anchor_b=None,
     Per-take relative event alignment between two streams with independent
     clocks: both streams are shifted so that their anchor events -- by
     default the strongest event of each stream, physically the same moment
-    (e.g. the hardest strike) -- sit at t = 0; then every non-anchor event
-    of stream `a` is matched to the nearest event of stream `b` within
+    (e.g. the hardest strike) -- sit at t = 0; then non-anchor events of
+    stream `a` are matched to non-anchor events of stream `b` within
     +/- `window` seconds, and the signed offset (`b` minus `a`; positive =
     `b` later) is recorded. The anchor pair contributes an offset of 0 by
-    construction and is excluded. No absolute cross-stream synchronisation
-    is claimed: the result measures whether the two streams agree on the
-    RELATIVE timing of the remaining events.
+    construction and is excluded from BOTH streams -- `b`'s anchor is
+    dropped from the match pool symmetrically with `a`'s, so a non-anchor
+    `a` event near t = 0 cannot spuriously match `b`'s anchor. Matching is
+    one-to-one: every candidate pair within the window is considered in
+    order of increasing |offset| and greedily claimed, each `a` and `b`
+    event usable in at most one match (consistent with
+    `per_cycle_motion_delta`'s claim semantics), so a single `b` event
+    cannot be double-counted against multiple `a` events. No absolute
+    cross-stream synchronisation is claimed: the result measures whether
+    the two streams agree on the RELATIVE timing of the remaining events.
 
     The default matching window of 0.15 s is a PROVISIONAL default,
     reimplemented from the cymbal-comparison paper's method description.
@@ -192,14 +199,30 @@ def anchor_and_match(times_a, times_b, anchor_a=None, anchor_b=None,
     b0 = pick_anchor(times_b, anchor_b, weights_b, "b")
     a = times_a - a0
     b = times_b - b0
-    a = a[np.abs(a) > 1e-12]        # exclude the anchor itself
+    a = a[np.abs(a) > 1e-12]        # exclude a's anchor
+    b = b[np.abs(b) > 1e-12]        # exclude b's anchor, symmetrically
     if len(a) == 0 or len(b) == 0:
         return np.array([])
+
+    # All candidate pairs within the window, greedily claimed nearest-first
+    # so the match is one-to-one (an a event and a b event are each used
+    # in at most one pair), mirroring per_cycle_motion_delta's claiming.
+    ai, bi = np.meshgrid(np.arange(len(a)), np.arange(len(b)), indexing="ij")
+    diffs = b[bi] - a[ai]
+    within = np.abs(diffs) <= window
+    ai, bi, diffs = ai[within], bi[within], diffs[within]
+    order = np.argsort(np.abs(diffs))
+
+    claimed_a = np.zeros(len(a), dtype=bool)
+    claimed_b = np.zeros(len(b), dtype=bool)
     offsets = []
-    for t in a:
-        j = int(np.argmin(np.abs(b - t)))
-        if abs(b[j] - t) <= window:
-            offsets.append(b[j] - t)
+    for k in order:
+        i, j = ai[k], bi[k]
+        if claimed_a[i] or claimed_b[j]:
+            continue
+        claimed_a[i] = True
+        claimed_b[j] = True
+        offsets.append(diffs[k])
     return np.asarray(offsets, float)
 
 

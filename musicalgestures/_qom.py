@@ -117,23 +117,39 @@ def band_limited_qom(pos, fs, lo=0.3, hi=15.0, order=4, auto_decimate=True):
 
     Returns:
         tuple: `(speed, fs_out)` where `speed` is the per-frame speed series
-            (length N-1, or shorter when decimated; empty if the input is too
-            short) and `fs_out` is its sampling rate (equal to `fs` unless
-            decimated).
+            (length N-1, or shorter when decimated) and `fs_out` is its
+            sampling rate (equal to `fs` unless decimated). `speed` is empty
+            (and `fs_out` equals the input `fs`) when the input has fewer
+            than `int(fs) + 5` samples, or when it still contains non-finite
+            samples after per-dimension interpolation (i.e. a dimension had
+            fewer than 3 finite samples to interpolate from). In the
+            auto-decimate regime, `speed` is also empty (with `fs_out` the
+            decimated rate) when decimation leaves fewer than ~30 samples --
+            too few for a stable SOS band-pass.
+
+    Raises:
+        ValueError: If the band is invalid, i.e. does not satisfy
+            `0 < lo < hi <= 0.45*fs` (after `hi` is clipped to 0.9 x Nyquist).
     """
     from scipy import signal
     pos = np.asarray(pos, float)
     if pos.ndim == 1:
         pos = pos[:, None]
     pos = np.column_stack([_interp_nans(pos[:, i]) for i in range(pos.shape[1])])
+
+    hi_eff = min(hi, 0.9 * fs / 2)
+    if not (0 < lo < hi_eff <= 0.45 * fs + 1e-9):
+        raise ValueError("band must satisfy 0 < lo < hi <= 0.45*fs")
+
     if len(pos) < int(fs) + 5 or not np.isfinite(pos).all():
         return np.array([]), fs
 
-    hi_eff = min(hi, 0.9 * fs / 2)
     if auto_decimate and fs / hi_eff >= 40:
         q = int(min(13, fs // (20 * hi_eff)))
         pos = signal.decimate(pos, q, axis=0, zero_phase=True)
         fs_out = fs / q
+        if len(pos) < 30:
+            return np.array([]), fs_out
         sos = signal.butter(2, [lo / (fs_out / 2), hi_eff / (fs_out / 2)],
                             btype="band", output="sos")
         filtered = signal.sosfiltfilt(sos, pos, axis=0)
@@ -303,12 +319,21 @@ def normalized_qom(landmarks, fs, scale=None, lo=0.3, hi=5.0,
 
     Returns:
         tuple: `(qom, speed, fs_out)` as in `group_qom`, with both `qom` and
-            `speed` divided by the body scale.
+            `speed` divided by the body scale. When `scale` is non-finite
+            (e.g. `body_scale` found no finite torso-length sample) or not
+            strictly positive (degenerate, coincident upper/lower landmarks),
+            division would otherwise silently propagate NaN/inf through
+            `qom` and `speed`; instead both are explicitly returned as NaN
+            (`qom` as a NaN scalar, `speed` as an all-NaN array of the same
+            shape) so the invalid-scale case is unambiguous rather than
+            merely inferred from the arithmetic.
     """
     landmarks = np.asarray(landmarks, float)
     if scale is None:
         scale = body_scale(landmarks, upper=upper, lower=lower)
     qom, speed, fs_out = pose_qom(landmarks, fs, lo=lo, hi=hi, **kwargs)
+    if not np.isfinite(scale) or scale <= 0:
+        return float("nan"), np.full_like(speed, np.nan), fs_out
     return qom / scale, speed / scale, fs_out
 
 
@@ -335,8 +360,14 @@ def grid_qom(frames, grid=(6, 4), region=(0.0, 1.0, 0.0, 1.0), threshold=8.0):
         tuple: `(series, heat)` where `series` has shape (T-1, rows*cols)
             (cells in row-major order) and `heat` has shape (rows, cols) with
             each cell's time-mean motion.
+
+    Raises:
+        ValueError: If `frames` is not 3-D (T, H, W), as in
+            `_motionanalysis.motiongram_data`.
     """
     frames = np.asarray(frames, dtype=np.float32)
+    if frames.ndim != 3:
+        raise ValueError("grid_qom expects frames of shape (T, H, W)")
     T, H, W = frames.shape
     gx, gy = grid
     x0, x1, y0, y1 = region

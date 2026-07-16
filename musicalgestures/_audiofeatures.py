@@ -139,13 +139,15 @@ def energy_onsets(y, sr, window=0.02, rel_threshold=0.15, min_interval=0.06):
 def t60_backward_decay(y, sr, window=0.02, spans=((-5, -35), (-5, -25)),
                        rerise_db=6.0):
     """
-    T60-style reverberation time by an ISO-3382-style backward-decay method:
-    the RMS envelope is converted to dB relative to its peak; from the peak
-    the decay is followed (stopping if the envelope re-rises by more than
-    `rerise_db` dB, marking a new onset), and T60 is estimated by linear
-    regression of the dB curve over the first available level span --
-    by default -5 to -35 dB (a T30 measure, extrapolated x2), falling back
-    to -5 to -25 dB (T20, x3) when the deeper level is not reached.
+    T60-style reverberation time by an ISO-3382-inspired level-span
+    regression on the RMS envelope (without Schroeder backward
+    integration): the RMS envelope is converted to dB relative to its peak;
+    from the peak the decay is followed (stopping if the envelope re-rises
+    by more than `rerise_db` dB, marking a new onset), and T60 is estimated
+    by linear regression of the dB curve over the first available level
+    span -- by default -5 to -35 dB (a T30 measure, extrapolated x2),
+    falling back to -5 to -25 dB (T20, x3) when the deeper level is not
+    reached.
 
     The constants (20 ms window, -5/-35 with -5/-25 fallback, 6 dB re-rise
     stop) are PROVISIONAL defaults reimplemented from the cymbal-comparison

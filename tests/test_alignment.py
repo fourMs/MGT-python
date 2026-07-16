@@ -56,10 +56,16 @@ class TestXcorrLag:
         assert r > 0.99
 
     def test_envelope_lag_wrapper_agrees(self):
+        # Ground truth: y is built by rolling x by exactly 0.25 s, so the
+        # wrapper must recover that known lag (not merely equal whatever
+        # xcorr_lag happens to return).
         fs = 50.0
         x = noisy_envelope(fs, seed=3)
-        y = np.roll(x, int(0.2 * fs))
-        assert envelope_lag(x, y, fs) == xcorr_lag(x, y, fs)
+        shift = int(0.25 * fs)
+        y = np.roll(x, shift)
+        lag, r = envelope_lag(x[shift:-shift], y[shift:-shift], fs)
+        assert lag == pytest.approx(0.25, abs=1.5 / fs)
+        assert r > 0.9
 
 
 class TestPerCycleMotionDelta:
@@ -103,6 +109,27 @@ class TestAnchorAndMatch:
     def test_requires_anchor_or_weights(self):
         with pytest.raises(ValueError):
             anchor_and_match([0.0, 1.0], [0.0, 1.0])
+
+    def test_a_event_does_not_match_b_anchor(self):
+        # a has a non-anchor event within `window` of t = 0 (b's anchor,
+        # also at t = 0 after shifting); with no other b event nearby, this
+        # must NOT match -- b's anchor has to be excluded from the match
+        # pool symmetrically with a's, or this would spuriously match with
+        # a near-zero offset.
+        a = np.array([0.0, 0.05])         # anchor at 0.0, other event near it
+        b = np.array([0.0, 5.0])          # anchor at 0.0, no other nearby event
+        off = anchor_and_match(a, b, anchor_a=0.0, anchor_b=0.0, window=0.15)
+        assert len(off) == 0
+
+    def test_matching_is_one_to_one(self):
+        # Two a events both fall within `window` of the same single b
+        # event: only the nearer one may claim it, yielding exactly one
+        # match (not two, as many-to-one matching would give).
+        a = np.array([0.0, 1.0, 1.08])
+        b = np.array([0.0, 1.02])
+        off = anchor_and_match(a, b, anchor_a=0.0, anchor_b=0.0, window=0.15)
+        assert len(off) == 1
+        assert off[0] == pytest.approx(0.02)   # 1.02 - 1.0, the nearer pair
 
     def test_offset_stats(self):
         off = np.array([-0.02, 0.0, 0.02, 0.04])

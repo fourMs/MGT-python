@@ -249,11 +249,16 @@ def fit_accelerando(times, iois):
         tuple: `(ioi0, t_double, r2)` where `ioi0` is the fitted IOI at t=0 (s),
             `t_double` is the tempo-doubling time (s; `np.inf` if the sequence is
             not accelerating), and `r2` is the fit's coefficient of determination
-            on log2(IOI).
+            on log2(IOI). Degenerate input -- fewer than 3 valid (finite,
+            strictly positive) IOI points, too few to constrain the 2-parameter
+            fit -- returns `(nan, nan, nan)`.
     """
     t = np.asarray(times, float)
     ioi = np.asarray(iois, float)
     m = np.isfinite(t) & np.isfinite(ioi) & (ioi > 0)
+    if m.sum() < 3:
+        nan = float("nan")
+        return nan, nan, nan
     t, ioi = t[m], np.log2(ioi[m])
     A = np.vstack([t, np.ones_like(t)]).T
     (slope, intercept), *_ = np.linalg.lstsq(A, ioi, rcond=None)
