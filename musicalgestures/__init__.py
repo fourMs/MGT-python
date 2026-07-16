@@ -109,3 +109,29 @@ from musicalgestures._audiofeatures import (
     attack_spectral_centroid,
 )
 from musicalgestures._motionanalysis import motiongram_data
+from musicalgestures._posture import (
+    cop_sway_metrics,
+    confidence_ellipse_area,
+    convex_hull_area,
+    stabilogram_diffusion,
+    dfa,
+    sample_entropy,
+    spectral_edges,
+    sway_texture,
+    sway_orientation,
+    axial_rayleigh,
+    spatial_extent,
+    principal_axis_projection,
+)
+from musicalgestures._physio import (
+    respiration_rate,
+    spectral_band_fractions,
+)
+# NOTE: musicalgestures._mocap also defines `dominant_frequency` (a Welch-peak
+# variant from the Westney study). To avoid shadowing the pre-existing
+# `_analysis.dominant_frequency` exported above, it is intentionally NOT
+# re-exported here; reach it as `musicalgestures._mocap.dominant_frequency`.
+from musicalgestures._mocap import (
+    read_qtm_tsv,
+    compare_modality_envelopes,
+)
