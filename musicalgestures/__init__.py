@@ -135,3 +135,12 @@ from musicalgestures._mocap import (
     read_qtm_tsv,
     compare_modality_envelopes,
 )
+# Landmark-trajectory pose tools. extract_pose_landmarks needs the optional
+# mediapipe package ([pose] extra) but imports it lazily, so this is safe
+# without it; the other helpers are numpy-only.
+from musicalgestures._posetools import (
+    extract_pose_landmarks,
+    midpoint,
+    limb_speed_from_landmarks,
+    impact_events,
+)
