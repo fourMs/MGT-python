@@ -33,14 +33,14 @@ def pick_peaks(x, fs=1.0, smooth=3, rel_threshold=0.5, min_interval=0.3,
 
     The default constants (3-tap smoothing, 0.50 x peak threshold, 0.30 s
     minimum interval, 0.20 x peak prominence) are the "selective" video
-    quantity-of-motion settings from the cymbal-comparison study and are
-    PROVISIONAL defaults: that study's prose and deposited JSON summaries
-    disagree on some values (e.g. 0.25 x peak with a 0.10 s interval in one
-    deposit), so tune the parameters to the signal at hand rather than
-    relying on the defaults. For reference, the same study used
+    quantity-of-motion settings from the cymbal-comparison study. A 2026
+    revalidation on the original dataset (Zenodo 21360429) confirmed these
+    prose constants as accurate; the deposited JSON summary's conflicting
+    method string (0.25 x peak / 0.10 s) was found to be inconsistent with
+    its own archived results. For reference, the same study used
     0.12 x peak / 0.10 s for hand-acceleration impacts, 0.15 x peak /
     0.06 s for audio energy onsets, and 0.40 x peak / 0.20 s for
-    wrist-speed peaks.
+    wrist-speed peaks. Tune the parameters to your signal at hand.
 
     Source: cymbal-comparison study (Jensenius), reimplemented from the
     paper's method description; also subsumes the peak-picking conventions

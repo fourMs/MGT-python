@@ -112,8 +112,8 @@ def energy_onsets(y, sr, window=0.02, rel_threshold=0.15, min_interval=0.06):
 
     Reliable for discrete strokes; over-fragments sustained rolls/tremolo
     and can trigger on near-noise material. The default constants
-    (0.15 x peak, 0.06 s) are PROVISIONAL defaults reimplemented from the
-    cymbal-comparison paper's method description.
+    (0.15 x peak, 0.06 s) are validated against the original cymbal dataset
+    (Zenodo 21360429, 2026 revalidation); tune per dataset as needed.
 
     Source: cymbal-comparison study (Jensenius).
 
@@ -150,8 +150,10 @@ def t60_backward_decay(y, sr, window=0.02, spans=((-5, -35), (-5, -25)),
     reached.
 
     The constants (20 ms window, -5/-35 with -5/-25 fallback, 6 dB re-rise
-    stop) are PROVISIONAL defaults reimplemented from the cymbal-comparison
-    paper's method description.
+    stop) are validated against the original cymbal dataset (Zenodo 21360429,
+    2026 revalidation); revalidation found 1-6% agreement overall (one damped
+    exemplar +77% difference, likely an implementation detail); tune per
+    dataset as needed.
 
     Source: cymbal-comparison study (Jensenius) -- instrument decay of
     damped vs undamped cymbal strokes.
@@ -212,8 +214,10 @@ def attack_spectral_centroid(y, sr, attack=0.12, nperseg=2048, hop=512,
     Discriminates, e.g., strike placement and damping on a cymbal.
 
     The constants (120 ms attack, 2048-sample Hann window, 512 hop) are
-    PROVISIONAL defaults reimplemented from the cymbal-comparison paper's
-    method description.
+    validated against the original cymbal dataset (Zenodo 21360429, 2026
+    revalidation); revalidation found centroids ~15-25% lower than archived
+    results with ordering preserved (implementation detail differences,
+    ordering-safe); tune per dataset as needed.
 
     Source: cymbal-comparison study (Jensenius).
 

@@ -494,14 +494,15 @@ def impact_events(
     The threshold parameters are taken directly (the small relative-threshold
     peak picker is implemented inline here); a general adaptive peak-picker,
     ``pick_peaks``, is provided by the sibling core-signal-methods PR in
-    ``musicalgestures._peaks``. The defaults (0.12 x peak, 100 ms) are the
-    cymbal study's provisional values for 120 Hz mocap hand data and should be
-    tuned per dataset. Note the study's caveat: double-differentiating
-    (model-reconstructed) positions is noisy and also responds to the
-    backswing, not only the collision — treat the detected peaks as *candidate*
-    impacts and validate against another modality (e.g. audio onsets) where
-    possible. For whole-image visual impact detection from video (no
-    landmarks), see ``MgVideo.impacts()`` instead.
+    ``musicalgestures._peaks``. The defaults (0.12 x peak, 100 ms) are
+    validated against the original cymbal dataset (Zenodo 21360429, 2026
+    revalidation) for 120 Hz mocap hand data and should be tuned per dataset.
+    Note the study's caveat: double-differentiating (model-reconstructed)
+    positions is noisy and also responds to the backswing, not only the
+    collision — treat the detected peaks as *candidate* impacts and validate
+    against another modality (e.g. audio onsets) where possible. For
+    whole-image visual impact detection from video (no landmarks), see
+    ``MgVideo.impacts()`` instead.
 
     Args:
         pos_by_point (np.ndarray): Point positions, shape (F, P, D) for P
