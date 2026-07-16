@@ -28,7 +28,8 @@ def respiration_rate(waveform, fs, *, band=(0.1, 0.6), window_s=30,
     its dominant frequency is taken as the Welch spectral peak inside that
     band; the rate is that frequency times 60. Windows advance by ``step_s``
     seconds. The default band ``(0.1, 0.6)`` Hz corresponds to about
-    6-36 breaths/min.
+    6-36 breaths/min. Each window must contain at least 15 seconds of valid
+    samples for spectral estimation.
 
     Source: still standing study (Jensenius), Deichman respiration analysis
     (``compute_qom_resp``).
@@ -70,7 +71,7 @@ def respiration_rate(waveform, fs, *, band=(0.1, 0.6), window_s=30,
     times = []
     for start in range(0, max(len(xf) - win + 1, 1), step):
         seg = xf[start:start + win]
-        if len(seg) < int(fs * 5):  # need at least ~5 s
+        if len(seg) < int(fs * 15):  # need at least 15 s for spectral estimation
             rates.append(np.nan)
             times.append((start + win / 2) / fs)
             continue
@@ -101,7 +102,9 @@ def spectral_band_fractions(signal, fs, bands, *, total_band=(0.1, 8.0),
     for the "cardiorespiratory QoM artifact" analysis (e.g. how much of a
     chest-accelerometer QoM signal sits in a cardiac vs a respiration band),
     with the bands supplied by the caller so there is no built-in dependence
-    on a heart-rate or respiration sensor.
+    on a heart-rate or respiration sensor. Power is bin-summed on the Welch
+    grid; the study source integrated with trapz, which yields nearly
+    identical results on the uniform frequency spacing of Welch.
 
     Source: still standing study (Jensenius), Deichman chest-QoM
     cardiorespiratory spectral-composition analysis (``deichman_full``).
@@ -129,10 +132,10 @@ def spectral_band_fractions(signal, fs, bands, *, total_band=(0.1, 8.0),
     nperseg = min(len(x), max(8, int(fs * nperseg_s)))
     f, P = welch(x - x.mean(), fs, nperseg=nperseg)
     tlo, thi = total_band
-    total = P[(f >= tlo) & (f <= thi)].sum()
+    total = P[(f >= tlo) & (f < thi)].sum()
     if total <= 0:
         return {name: np.nan for name in bands}
     out = {}
     for name, (lo, hi) in bands.items():
-        out[name] = float(P[(f >= lo) & (f <= hi)].sum() / total)
+        out[name] = float(P[(f >= lo) & (f < hi)].sum() / total)
     return out

@@ -170,7 +170,10 @@ def compare_modality_envelopes(env_a, env_b, fs_a, fs_b):
     returns the Pearson correlation -- the video-vs-mocap (or view-vs-view)
     agreement measure. Both inputs are treated as already-computed motion
     envelopes (e.g. per-frame band-limited quantity-of-motion), keeping this
-    function decoupled from the QoM computation itself.
+    function decoupled from the QoM computation itself. The per-second binning
+    uses an integer-rounded step, so non-integer frame rates (e.g. 29.97 fps)
+    drift slightly over long signals; this function is intended for validation
+    rather than precise alignment.
 
     Source: still standing / Westney-comparisons study (Jensenius),
     MediaPipe-vs-mocap validation (``compare_mp_mocap``).

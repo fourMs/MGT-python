@@ -203,7 +203,9 @@ def principal_axis_projection(xy):
 
     Runs a PCA on the mean-removed points and returns the 1-D coordinate
     along the direction of greatest variance -- the natural 1-D reduction of
-    a sway path used by the dynamics/complexity measures.
+    a sway path used by the dynamics/complexity measures. The PCA eigenvector
+    sign is arbitrary; the projection may be globally flipped across calls or
+    datasets.
 
     Source: still standing study (Jensenius), sway-dynamics analysis.
 
