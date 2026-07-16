@@ -69,3 +69,43 @@ from musicalgestures._analysis import (
     rayleigh_test,
     synchrony,
 )
+
+# --- Sound--motion signal methods (ro / stillstanding / cymbal / Westney studies) ---
+from musicalgestures._peaks import pick_peaks
+from musicalgestures._pulse import (
+    Cycle,
+    group_strokes,
+    segment_cycles,
+    cycle_table,
+    fit_accelerando,
+    motion_onsets,
+)
+from musicalgestures._qom import (
+    band_limited_qom,
+    accel_to_speed,
+    group_qom,
+    pose_qom,
+    body_scale,
+    normalized_qom,
+    grid_qom,
+    envelope,
+    bin_series,
+)
+from musicalgestures._alignment import (
+    xcorr_lag,
+    envelope_lag,
+    per_cycle_motion_delta,
+    anchor_and_match,
+    offset_stats,
+    sliding_correlation,
+    envelope_agreement,
+)
+from musicalgestures._audiofeatures import (
+    rms_envelope,
+    spectral_flux,
+    spectral_flux_onsets,
+    energy_onsets,
+    t60_backward_decay,
+    attack_spectral_centroid,
+)
+from musicalgestures._motionanalysis import motiongram_data
