@@ -91,3 +91,12 @@ from musicalgestures._qom import (
     envelope,
     bin_series,
 )
+from musicalgestures._alignment import (
+    xcorr_lag,
+    envelope_lag,
+    per_cycle_motion_delta,
+    anchor_and_match,
+    offset_stats,
+    sliding_correlation,
+    envelope_agreement,
+)
