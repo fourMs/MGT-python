@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Sound–movement analysis toolkit** (#351, #352, #353) — a family of plain-numpy functions
+  ported from the author's ro / stillstanding / Westney / cymbal research pipelines, all
+  importable directly from `musicalgestures`:
+  - `_peaks.pick_peaks` — the canonical adaptive peak-picker shared by every detector below.
+  - `_pulse` — `Cycle`, `group_strokes`, `segment_cycles`, `cycle_table`, `fit_accelerando`,
+    `motion_onsets`: onset grouping into rhythmic cycles and accelerando fitting.
+  - `_alignment` — `xcorr_lag`, `envelope_lag`, `per_cycle_motion_delta`, `anchor_and_match`,
+    `offset_stats`, `sliding_correlation`, `envelope_agreement`: cross-modal lead/lag and
+    coupling.
+  - `_qom` — `band_limited_qom`, `accel_to_speed`, `group_qom`, `pose_qom`, `body_scale`,
+    `normalized_qom`, `grid_qom`, `envelope`, `bin_series`: quantity-of-motion cores, including
+    body-scale (framing-invariant) normalization.
+  - `_audiofeatures` — `rms_envelope`, `spectral_flux`, `spectral_flux_onsets`, `energy_onsets`,
+    `t60_backward_decay`, `attack_spectral_centroid`: scipy-only audio features and onsets.
+  - `motiongram_data()` (`_motionanalysis`) gained an `orientation='vertical'|'horizontal'` option.
+  - `_posture` — 12 posturography/sway-dynamics functions (`cop_sway_metrics`,
+    `stabilogram_diffusion`, `dfa`, `sample_entropy`, ...).
+  - `_physio` — `respiration_rate`, `spectral_band_fractions`.
+  - `_mocap` — `read_qtm_tsv`, `compare_modality_envelopes` (its own `dominant_frequency` is
+    intentionally not re-exported at top level to avoid shadowing `_analysis.dominant_frequency`).
+  - `_posetools` — `extract_pose_landmarks` (needs the new optional `[pose]` extra:
+    `pip install musicalgestures[pose]`; supports both the legacy MediaPipe Solutions API and the
+    newer Tasks API), `midpoint`, `limb_speed_from_landmarks`, `impact_events`.
+
+  See the README's "Sound–Movement Analysis Toolkit" section and the new
+  [user guide page](https://fourms.github.io/MGT-python/user-guide/sound-movement-toolkit/) for
+  usage; API reference pages were regenerated for all nine new modules.
+
 ---
 
 ## [1.6.9] – 2026-06-28

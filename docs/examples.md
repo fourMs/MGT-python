@@ -251,6 +251,31 @@ mv.dynamics_coupling().show()     # loudness vs. quantity of motion
 
 ![Audio–movement tempo similarity](images/examples/tempo_similarity.png)
 
+### Example 12b: Sound–movement toolkit (pulse segmentation)
+
+The [sound–movement analysis toolkit](user-guide/sound-movement-toolkit.md) is a set of
+plain-numpy functions (not `MgVideo`/`MgAudio` methods) ported from the author's ro /
+stillstanding / Westney / cymbal studies. They operate on arrays, so no video file is needed
+for this example — a list of stroke onset times is enough:
+
+```python
+import numpy as np
+from musicalgestures import segment_cycles, cycle_table, fit_accelerando
+
+# Onset times (s) of an accelerating sequence of double strokes
+onsets = np.array([0.10, 0.34, 1.02, 1.24, 1.85, 2.02, 2.55, 2.68, 3.05, 3.15])
+
+cycles = segment_cycles(onsets)                  # -> list[Cycle], grouped by DP over stroke gaps
+table = cycle_table(cycles, clip_id='demo')       # per-cycle DataFrame (t, ioi, n_strokes, ...)
+ioi0, t_double, r2 = fit_accelerando(table['t'], table['ioi'])
+
+print(table)
+print(f"tempo doubles every {t_double:.2f}s (R²={r2:.2f})")
+```
+
+See the toolkit's [user guide](user-guide/sound-movement-toolkit.md) for the quantity-of-motion,
+alignment, posturography, physiology, mocap-I/O and pose-trajectory function families.
+
 ## Research Examples
 
 ### Example 9: Motion Feature Extraction

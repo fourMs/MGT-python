@@ -19,7 +19,7 @@ The **Musical Gestures Toolbox for Python** is a collection of tools for visuali
 pip install musicalgestures
 ```
 
-`musicalgestures` installs its core Python dependencies automatically. You still need a working `ffmpeg` installation on your system for video processing.
+`musicalgestures` installs its core Python dependencies automatically. You still need a working `ffmpeg` installation on your system for video processing. For the pose-landmark-trajectory tools (`extract_pose_landmarks`, see below), add the optional `[pose]` extra: `pip install musicalgestures[pose]` (installs MediaPipe).
 
 ### Basic Usage
 
@@ -75,6 +75,7 @@ v.pose(model='mediapipe').show()
 - [Installation Guide](https://fourms.github.io/MGT-python/installation/)
 - [Quick Start Tutorial](https://fourms.github.io/MGT-python/quickstart/)
 - [API Reference](https://fourms.github.io/MGT-python/musicalgestures/)
+- [Sound–Movement Analysis Toolkit](#soundmovement-analysis-toolkit)
 - [Wiki & How-Tos](https://github.com/fourMs/MGT-python/wiki)
 - [Contributing](docs/contributing.md)
 
@@ -83,11 +84,98 @@ v.pose(model='mediapipe').show()
 - **Video Analysis**: Motion detection, optical flow, motion vectors, movement tempo, Eulerian Video Magnification, frame-rate/speed resampling (`resample()`), motion descriptors (energy/smoothness/entropy/spectral via `motiondescriptors()`)
 - **Pose Estimation**: MediaPipe (default; fast on plain CPU, GPU-capable) and OpenPose (multi-person) backends, with average-pose and trajectory summaries (per-marker quantity of motion + dominant frequency), optional marker motion trails, a 3D pose waterfall (`pose_waterfall()`), per-segment circular statistics (`pose_segments()`), centroid centring (`pose_center()`), and per-marker distance travelled (`pose_distance()`)
 - **Audio–movement analysis**: Compare a single performer's sound and motion — tempo similarity, phase synchrony, structural similarity, per-body-part audio coupling, and loudness/dynamics coupling
+- **Sound–movement research toolkit**: Lower-level, array-based functions from the author's ro/stillstanding/Westney/cymbal studies — pulse/cycle segmentation, cross-modal alignment, body-scale-normalized quantity of motion, postural sway metrics, physiology features, mocap I/O, and pose-landmark trajectory extraction (see [Sound–Movement Analysis Toolkit](#soundmovement-analysis-toolkit) below)
 - **Audio Processing**: Waveforms, spectrograms, MFCC, chromagrams, tempo/beat tracking, spectral descriptors
 - **Visualizations**: Motiongrams, videograms, motion history, heatmaps, sonomotiongrams (motion → sound)
 - **Space-time displays**: Stroboscope (chronophotography), silhouette waterfall, Motion History Image, 3D space-time volume, combined motion SSM
 - **Integration**: Works with NumPy, SciPy, librosa, and Matplotlib ecosystems
 - **Cross-platform**: Linux, macOS, Windows support
+
+## Sound–Movement Analysis Toolkit
+
+Alongside the `MgVideo`/`MgAudio` methods above, MGT-python exposes a lower-level toolkit of
+plain-numpy sound–movement analysis functions, ported from the author's own research pipelines
+(the **ro** ritual-drumming study, the **stillstanding**/standstill-championship posturography
+study, the **Westney** with/without-audience piano comparisons, and the **cymbal**-comparison
+striking study). They work on arrays — not on `MgVideo`/`MgAudio` objects — so they drop straight
+into notebooks, batch scripts, or your own analysis pipeline, and are all importable directly from
+`musicalgestures`:
+
+- **`_peaks`** — `pick_peaks`: the one adaptive peak-picker (smoothing, relative threshold, minimum
+  interval, prominence gate) shared by every event detector below.
+- **`_pulse`** — `Cycle`, `group_strokes`, `segment_cycles`, `cycle_table`, `fit_accelerando`,
+  `motion_onsets`: group onsets into rhythmic cycles and fit an exponential accelerando.
+- **`_alignment`** — `xcorr_lag`, `envelope_lag`, `per_cycle_motion_delta`, `anchor_and_match`,
+  `offset_stats`, `sliding_correlation`, `envelope_agreement`: lead/lag and coupling between two
+  (or more) time-aligned signals.
+- **`_qom`** — `band_limited_qom`, `accel_to_speed`, `group_qom`, `pose_qom`, `body_scale`,
+  `normalized_qom`, `grid_qom`, `envelope`, `bin_series`: quantity-of-motion cores for position,
+  pose-landmark and accelerometer data, including body-scale (framing-invariant) normalization.
+- **`_audiofeatures`** — `rms_envelope`, `spectral_flux`, `spectral_flux_onsets`, `energy_onsets`,
+  `t60_backward_decay`, `attack_spectral_centroid`: scipy-only audio features and onset detectors.
+- **`_posture`** — `cop_sway_metrics`, `confidence_ellipse_area`, `convex_hull_area`,
+  `stabilogram_diffusion`, `dfa`, `sample_entropy`, `spectral_edges`, `sway_texture`,
+  `sway_orientation`, `axial_rayleigh`, `spatial_extent`, `principal_axis_projection`: standing-sway
+  and postural-control metrics from a centre-of-pressure or marker trace.
+- **`_physio`** — `respiration_rate`, `spectral_band_fractions`: breathing rate and spectral
+  composition of physiological waveforms.
+- **`_mocap`** — `read_qtm_tsv`, `compare_modality_envelopes`: a robust Qualisys (QTM) TSV reader
+  and cross-modality envelope comparison. (`_mocap` also defines its own `dominant_frequency`, a
+  Welch-peak variant kept as `musicalgestures._mocap.dominant_frequency` rather than re-exported at
+  top level, since it would otherwise shadow the pre-existing `musicalgestures.dominant_frequency`.)
+- **`_posetools`** — `extract_pose_landmarks`, `midpoint`, `limb_speed_from_landmarks`,
+  `impact_events`: video → tidy per-landmark trajectory arrays, plus derived limb-speed and
+  impact-event signals. `extract_pose_landmarks` needs MediaPipe (`pip install musicalgestures[pose]`),
+  imported lazily — the derived-signal helpers are numpy-only.
+- **`motiongram_data`** (in `_motionanalysis`) gained an `orientation='vertical'|'horizontal'`
+  option for the numpy-level motiongram, matching the two `motiongrams()` render directions.
+
+A few illustrative snippets:
+
+```python
+# Pulse-train segmentation: group stroke onsets into rhythmic cycles and fit
+# an accelerando (ro study)
+import numpy as np
+from musicalgestures import segment_cycles, cycle_table, fit_accelerando
+
+onsets = np.array([0.10, 0.34, 1.02, 1.24, 1.85, 2.02, 2.55, 2.68])  # seconds
+cycles = segment_cycles(onsets)                  # -> list[Cycle]
+table = cycle_table(cycles, clip_id='ro_2023')    # per-cycle DataFrame
+ioi0, t_double, r2 = fit_accelerando(table['t'], table['ioi'])
+print(f"tempo doubles every {t_double:.1f}s (R²={r2:.2f})")
+```
+
+```python
+# Quantity of motion + body-scale normalization: framing-invariant QoM in
+# body-lengths/second, comparable across recordings/zoom levels (Westney study)
+from musicalgestures import extract_pose_landmarks, normalized_qom
+
+traj = extract_pose_landmarks('performance.mp4', fps=25, width=480)
+qom, speed, fs_out = normalized_qom(traj['landmarks'][..., :2], traj['fps'])
+print(f"{qom:.3f} body-lengths/s")
+```
+
+```python
+# Standing-sway metrics from a centre-of-pressure (or marker) trace (stillstanding study)
+from musicalgestures import cop_sway_metrics
+
+metrics = cop_sway_metrics(cop_xy, fs=100.0)     # cop_xy: (T, 2) array [ML, AP], mm
+print(metrics['path_len'], metrics['area95'], metrics['ap_ml_sd_ratio'])
+```
+
+```python
+# Pose-trajectory extraction and impact detection from striking gestures (cymbal study)
+from musicalgestures import extract_pose_landmarks, limb_speed_from_landmarks, impact_events
+
+traj = extract_pose_landmarks('strike.mp4', fps=30, width=640)
+wrists = traj['landmarks'][:, [15, 16], :2]           # left/right wrist, px
+conf = traj['landmarks'][:, [15, 16], 2]
+speed = limb_speed_from_landmarks(wrists, conf, traj['fps'])   # px/s, bilateral max
+impacts = impact_events(wrists, traj['fps'])                   # acceleration-peak events
+```
+
+See the [API reference](https://fourms.github.io/MGT-python/musicalgestures/) for full signatures
+and each function's provenance note.
 
 ## Presentation
 

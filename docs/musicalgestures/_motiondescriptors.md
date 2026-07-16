@@ -14,6 +14,8 @@ def mg_motiondescriptors(
     self,
     window: str = 'hann',
     entropy_bins: int = 50,
+    fmin: float = 0.2,
+    fmax: float = 10.0,
     save_data: bool = True,
     save_plot: bool = True,
     data_format: str = 'csv',
@@ -41,6 +43,10 @@ complementing the per-frame motion data from :func:`motion`:
 - `window` *str, optional* - FFT window for the spectral descriptors — 'hann' (default,
     recommended to reduce leakage) or 'none' for a rectangular window.
 - `entropy_bins` *int, optional* - Number of histogram bins for the entropy estimate. Defaults to 50.
+- `fmin` *float, optional* - Lowest frequency (Hz) considered for the dominant frequency and
+    spectral centroid, excluding slow amplitude drift near DC. Defaults to 0.2.
+- `fmax` *float, optional* - Highest frequency (Hz) considered for those spectral descriptors.
+    Defaults to 10.0.
 - `save_data` *bool, optional* - Save the descriptors to a data file. Defaults to True.
 - `save_plot` *bool, optional* - Save the figure (QoM time series + power spectrum). Defaults to True.
 - `data_format` *str, optional* - Data file format: 'csv', 'tsv' or 'txt'. Defaults to 'csv'.
