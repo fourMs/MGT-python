@@ -274,6 +274,14 @@ def test_import_safe_without_mediapipe():
     assert "IMPORT_SAFE_OK" in out.stdout
 
 
+def test_invalid_model_complexity_raises():
+    """model_complexity must be 0, 1 or 2; validated up front so both the
+    Solutions and Tasks backends behave identically (and mediapipe need not
+    be installed for this to raise)."""
+    with pytest.raises(ValueError):
+        extract_pose_landmarks("does_not_matter.mp4", model_complexity=3)
+
+
 def _mediapipe_available():
     try:
         import mediapipe  # noqa: F401

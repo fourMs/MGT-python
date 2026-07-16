@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import os
 import subprocess
+import threading
 import warnings
 
 import numpy as np
@@ -130,6 +131,10 @@ def extract_pose_landmarks(
         (mp_extract_westney.py, pose_motion.py) and Westney-comparisons
         (concert_mediapipe.py, reh_pose.py, a1_labstage.py) (Jensenius).
     """
+    if model_complexity not in (0, 1, 2):
+        raise ValueError(
+            f"model_complexity must be 0, 1 or 2, got {model_complexity!r}")
+
     try:
         import mediapipe as mp
     except ImportError as exc:
@@ -168,6 +173,22 @@ def extract_pose_landmarks(
     # The study scripts were written against the legacy Solutions API
     # (mediapipe 0.10.14); newer 0.10.x wheels (e.g. 0.10.35, as used in the
     # cymbal study) removed it in favour of the Tasks API. Support both.
+    #
+    # `use_solutions` prefers the Solutions API whenever it is present: this
+    # is purely for fidelity to the original study pipeline (the papers'
+    # numbers were produced with Solutions, not Tasks), not because Solutions
+    # is otherwise preferable.
+    #
+    # IMPORTANT: the Solutions branch below (`if use_solutions:`) is a
+    # faithful port of the study scripts' mediapipe<=0.10.14 Solutions code,
+    # but it is UNTESTABLE on modern wheels — mediapipe>=0.10.26 removed
+    # `mp.solutions` entirely, so no environment this project can currently
+    # install exercises this branch (it is only reachable with an old, pinned
+    # mediapipe wheel). Keep it faithful to the source scripts rather than
+    # "improving" it blind.
+    # TODO: once the legacy Solutions-API mediapipe family (<=0.10.14) is
+    # fully retired (no supported environment can install it any more), drop
+    # this preference and the Solutions branch, and always use the Tasks API.
     use_solutions = hasattr(mp, "solutions")
 
     def _read_result(lms, wlms):
@@ -184,6 +205,20 @@ def extract_pose_landmarks(
     frame_bytes = w * h * 3
     stopped_early = False
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    # Drain FFmpeg's stderr on a background thread as it is produced, rather
+    # than only reading it in the `finally` block below: the stdout-reading
+    # loop can run far longer than the OS pipe buffer takes to fill (a few
+    # dozen KB), and if FFmpeg blocks on a full stderr pipe while we are only
+    # consuming stdout, decoding stalls. The drained chunks are joined at the
+    # end to preserve the existing error-reporting behaviour.
+    stderr_chunks: list[bytes] = []
+
+    def _drain_stderr():
+        for chunk in iter(lambda: proc.stderr.read(4096), b""):
+            stderr_chunks.append(chunk)
+
+    stderr_thread = threading.Thread(target=_drain_stderr, daemon=True)
+    stderr_thread.start()
     try:
         with _suppress_native_stderr(quiet):
             if use_solutions:
@@ -206,6 +241,8 @@ def extract_pose_landmarks(
                 # Tasks API: reuse the model download/cache logic of the
                 # per-frame estimator so both pose workflows share one model
                 # file in musicalgestures/models/.
+                # TODO: promote _get_model_path to a public helper in
+                # _pose_estimator; this is a private cross-module call.
                 from musicalgestures._pose_estimator import MediaPipePoseEstimator
                 model_path = MediaPipePoseEstimator(
                     model_complexity=model_complexity)._get_model_path()
@@ -257,9 +294,10 @@ def extract_pose_landmarks(
                 close_backend()
     finally:
         proc.stdout.close()
-        err = proc.stderr.read().decode(errors="replace").strip()
-        proc.stderr.close()
         proc.wait()
+        stderr_thread.join()
+        proc.stderr.close()
+        err = b"".join(stderr_chunks).decode(errors="replace").strip()
         # Stopping at max_frames breaks FFmpeg's output pipe on purpose, so
         # suppress its resulting broken-pipe complaints.
         if err and not stopped_early:
@@ -379,7 +417,12 @@ def limb_speed_from_landmarks(
             speeds. Defaults to "max_lr".
         smooth_taps (int, optional): Length of the NaN-aware moving-average
             smoother applied after merging. Use 0 or 1 to disable. Defaults
-            to 3.
+            to 3. With ``smooth_taps > 1``, samples right at the edge of a
+            confidence-gated (NaN) region can be partially reconstructed:
+            the NaN-aware average only requires *some* finite values inside
+            its window, so an edge sample whose window straddles both valid
+            and gated frames is averaged from the valid ones rather than
+            staying NaN.
 
     Returns:
         np.ndarray: Speed in px/s: shape (F,) when merged, else (F, L). NaN
