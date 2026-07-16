@@ -69,3 +69,14 @@ from musicalgestures._analysis import (
     rayleigh_test,
     synchrony,
 )
+
+# --- Sound--motion signal methods (ro / stillstanding / cymbal / Westney studies) ---
+from musicalgestures._peaks import pick_peaks
+from musicalgestures._pulse import (
+    Cycle,
+    group_strokes,
+    segment_cycles,
+    cycle_table,
+    fit_accelerando,
+    motion_onsets,
+)
