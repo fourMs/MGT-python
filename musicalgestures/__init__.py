@@ -108,3 +108,4 @@ from musicalgestures._audiofeatures import (
     t60_backward_decay,
     attack_spectral_centroid,
 )
+from musicalgestures._motionanalysis import motiongram_data
