@@ -100,3 +100,11 @@ from musicalgestures._alignment import (
     sliding_correlation,
     envelope_agreement,
 )
+from musicalgestures._audiofeatures import (
+    rms_envelope,
+    spectral_flux,
+    spectral_flux_onsets,
+    energy_onsets,
+    t60_backward_decay,
+    attack_spectral_centroid,
+)
