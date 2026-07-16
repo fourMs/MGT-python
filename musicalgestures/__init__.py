@@ -87,3 +87,11 @@ from musicalgestures._physio import (
     respiration_rate,
     spectral_band_fractions,
 )
+# NOTE: musicalgestures._mocap also defines `dominant_frequency` (a Welch-peak
+# variant from the Westney study). To avoid shadowing the pre-existing
+# `_analysis.dominant_frequency` exported above, it is intentionally NOT
+# re-exported here; reach it as `musicalgestures._mocap.dominant_frequency`.
+from musicalgestures._mocap import (
+    read_qtm_tsv,
+    compare_modality_envelopes,
+)
