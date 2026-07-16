@@ -69,3 +69,21 @@ from musicalgestures._analysis import (
     rayleigh_test,
     synchrony,
 )
+from musicalgestures._posture import (
+    cop_sway_metrics,
+    confidence_ellipse_area,
+    convex_hull_area,
+    stabilogram_diffusion,
+    dfa,
+    sample_entropy,
+    spectral_edges,
+    sway_texture,
+    sway_orientation,
+    axial_rayleigh,
+    spatial_extent,
+    principal_axis_projection,
+)
+from musicalgestures._physio import (
+    respiration_rate,
+    spectral_band_fractions,
+)
