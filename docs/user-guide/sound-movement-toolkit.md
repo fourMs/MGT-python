@@ -84,19 +84,16 @@ accelerometer-to-speed integration, per-landmark-group pose QoM, body-scale norm
 framing-invariant comparisons, spatial grid QoM, and small envelope/binning helpers.
 
 ```python
-from musicalgestures import extract_pose_landmarks, normalized_qom
+from musicalgestures import band_limited_qom, accel_to_speed
 
-traj = extract_pose_landmarks('performance.mp4', fps=25, width=480)   # needs [pose] extra
-qom, speed, fs_out = normalized_qom(traj['landmarks'][..., :2], traj['fps'])
-print(f"{qom:.3f} body-lengths/s")   # dimensionless -- comparable across framing/zoom
+speed, fs_out = band_limited_qom(marker_xyz, fs=100.0, lo=0.3, hi=15.0)   # px or mm per second
 ```
 
-`normalized_qom()` divides `pose_qom()` by `body_scale()` (median torso length, shoulder
-midpoint to hip midpoint), so the result is invariant to camera framing and zoom — the
-technique used for the Westney study's with/without-audience piano comparison. `group_qom()`
-generalises `pose_qom()` to any group of marker/landmark trajectories (mocap markers included),
-and `accel_to_speed()` integrates a 3-axis accelerometer to a speed signal (the "corpus method"
-from the stillstanding study).
+`group_qom()` generalises `band_limited_qom()` to any group of marker/landmark trajectories
+(mocap markers included), and `accel_to_speed()` integrates a 3-axis accelerometer to a speed
+signal (the "corpus method" from the stillstanding study). For the pose-specific
+`pose_qom()`/`body_scale()`/`normalized_qom()` (framing-invariant QoM from MediaPipe landmarks),
+see the dedicated [Pose Tracking](pose-tracking.md#derived-signals) page.
 
 ---
 
@@ -171,30 +168,13 @@ a common per-second grid and correlates them.
 ## Pose-landmark trajectory extraction (`_posetools`)
 
 The *array-level* pose workflow: video file → tidy per-landmark trajectory arrays (and
-optionally CSV) → derived motion signals (limb speed, impact events). It complements — and does
-not replace — the rendering-oriented `MgVideo.pose()` pipeline; use `_posetools` when you want
-plain numpy trajectories for downstream signal analysis rather than rendered output.
-
-```python
-from musicalgestures import extract_pose_landmarks, limb_speed_from_landmarks, impact_events
-
-traj = extract_pose_landmarks('strike.mp4', fps=30, width=640)   # needs the [pose] extra
-wrists = traj['landmarks'][:, [15, 16], :2]           # left/right wrist, px
-conf = traj['landmarks'][:, [15, 16], 2]              # MediaPipe visibility
-speed = limb_speed_from_landmarks(wrists, conf, traj['fps'])   # px/s, bilateral max
-impacts = impact_events(wrists, traj['fps'])                   # candidate strike events
-```
-
-Only `extract_pose_landmarks()` needs MediaPipe — install it with the optional extra:
-
-```bash
-pip install musicalgestures[pose]
-```
-
-It is imported lazily, so importing `musicalgestures` (and using the numpy-only helpers
-`midpoint`, `limb_speed_from_landmarks`, `impact_events`) works without MediaPipe installed.
-`extract_pose_landmarks()` supports both MediaPipe API families (the legacy Solutions API and
-the newer Tasks API), since the wheels that removed Solutions vary across environments.
+optionally CSV) → derived motion signals (limb speed, impact events), complementing — not
+replacing — the rendering-oriented `MgVideo.pose()` pipeline. This is covered in full on its own
+page: **[Pose Tracking](pose-tracking.md)** — installing the `[pose]` extra,
+`extract_pose_landmarks()` (NaN/dropout semantics, detection-rate reporting), the derived-signal
+helpers `midpoint()`, `limb_speed_from_landmarks()`, `impact_events()`, `pose_qom()`/
+`body_scale()`, and validating a video-derived pose signal against motion capture with
+`read_qtm_tsv()`/`compare_modality_envelopes()`.
 
 ---
 
@@ -214,5 +194,7 @@ as data for further analysis, e.g. feeding it to `grid_qom()` or a peak-picker.
 
 - [Audio-Video Analysis](audio-video.md) — the `MgVideo`-method-level audio–movement comparisons
   (`tempo_similarity`, `phase_synchrony`, `body_audio_coupling`, ...)
+- [Pose Tracking](pose-tracking.md) — the full pose story: `MgVideo.pose()` rendering,
+  `extract_pose_landmarks()`, derived signals, and motion-capture validation
 - [API Reference](../musicalgestures/index.md) — full signatures for every function above
 - [Examples](../examples.md) — a runnable pulse-segmentation example

@@ -50,6 +50,7 @@ nav:
     - Video Analysis: user-guide/video-analysis.md
     - Audio Analysis: user-guide/audio-analysis.md
     - Audio-Video Analysis: user-guide/audio-video.md
+    - Pose Tracking: user-guide/pose-tracking.md
     - Sound-Movement Analysis Toolkit: user-guide/sound-movement-toolkit.md
     - Working with Results: user-guide/results.md
   - API Reference:
