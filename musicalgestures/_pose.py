@@ -1353,6 +1353,8 @@ def download_model(modeltype: str):
     Uses Python's ``urllib`` directly (cross-platform, no external ``wget`` / shell scripts /
     bundled binary). The ``.prototxt`` configs ship with the package; only the large weights file
     is fetched.
+
+    Returns the downloaded file path on success, or ``None`` if download attempts fail.
     """
     import os
     import ssl
@@ -1386,7 +1388,7 @@ def download_model(modeltype: str):
 
     try:
         urllib.request.urlretrieve(url, target_path, _hook)
-    except urllib.error.URLError:
+    except urllib.error.URLError as initial_download_error:
         # Fall back to a lenient TLS context (mirrors the previous scripts' --no-check-certificate).
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
@@ -1395,6 +1397,16 @@ def download_model(modeltype: str):
         urllib.request.install_opener(opener)
         try:
             urllib.request.urlretrieve(url, target_path, _hook)
+        except urllib.error.URLError as retry_download_error:
+            print(f"Could not download pose model from {url}.")
+            print(f"  Initial download attempt failed with: {initial_download_error}")
+            print(f"  Retry with lenient TLS failed with: {retry_download_error}")
+            if os.path.exists(target_path):
+                try:
+                    os.remove(target_path)
+                except OSError as cleanup_error:
+                    print(f"Could not remove incomplete model file {target_path}: {cleanup_error}")
+            return None
         finally:
             urllib.request.install_opener(urllib.request.build_opener())  # reset to default opener
     pb.progress(100)
