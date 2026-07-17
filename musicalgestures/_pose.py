@@ -1386,7 +1386,7 @@ def download_model(modeltype: str):
 
     try:
         urllib.request.urlretrieve(url, target_path, _hook)
-    except urllib.error.URLError:
+    except urllib.error.URLError as first_error:
         # Fall back to a lenient TLS context (mirrors the previous scripts' --no-check-certificate).
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
@@ -1395,6 +1395,16 @@ def download_model(modeltype: str):
         urllib.request.install_opener(opener)
         try:
             urllib.request.urlretrieve(url, target_path, _hook)
+        except urllib.error.URLError as second_error:
+            print(f"Could not download pose model from {url}.")
+            print(f"  First attempt failed with: {first_error}")
+            print(f"  Retry failed with: {second_error}")
+            if os.path.exists(target_path):
+                try:
+                    os.remove(target_path)
+                except OSError:
+                    pass
+            return None
         finally:
             urllib.request.install_opener(urllib.request.build_opener())  # reset to default opener
     pb.progress(100)
