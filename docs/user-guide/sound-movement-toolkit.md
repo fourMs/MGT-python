@@ -46,6 +46,8 @@ print(f"tempo doubles every {t_double:.1f}s (R²={r2:.2f})")
 motion_times = motion_onsets(qom_signal, fs=25.0)
 ```
 
+![Pulse segmentation: detected onsets are grouped into numbered stroke cycles, and fit_accelerando fits an exponential accelerando to the per-cycle IOIs](../images/examples/pulse_segmentation.gif)
+
 `group_strokes()` (used internally by `segment_cycles`) segments onsets by dynamic programming
 over candidate group boundaries, encoding structural priors for accelerating cyclic patterns
 (group-size cost, within-group gap plausibility, ordering, and a non-increasing-gap
@@ -75,6 +77,8 @@ lag, corr = xcorr_lag(audio_envelope, motion_envelope, fs=25.0, max_lag=1.5)
 print(f"movement lags audio by {lag:.3f}s (r={corr:.2f})")
 ```
 
+![xcorr_lag: the motion envelope slides against the audio envelope while the correlation-vs-lag curve fills in; the peak marks the lag that aligns the two](../images/examples/alignment_xcorr.gif)
+
 ---
 
 ## Quantity-of-motion cores (`_qom`)
@@ -88,6 +92,8 @@ from musicalgestures import band_limited_qom, accel_to_speed
 
 speed, fs_out = band_limited_qom(marker_xyz, fs=100.0, lo=0.3, hi=15.0)   # px or mm per second
 ```
+
+![grid_qom on dancer.avi: per-cell quantity of motion on a 6×4 grid, overlaid on the video as a heatmap that follows the dancer's movement](../images/examples/grid_qom.gif)
 
 `group_qom()` generalises `band_limited_qom()` to any group of marker/landmark trajectories
 (mocap markers included), and `accel_to_speed()` integrates a 3-axis accelerometer to a speed
@@ -130,6 +136,8 @@ from musicalgestures import cop_sway_metrics
 metrics = cop_sway_metrics(cop_xy, fs=100.0)   # cop_xy: (T, 2) array [ML, AP], mm
 print(metrics['path_len'], metrics['area95'], metrics['ap_ml_sd_ratio'])
 ```
+
+![cop_sway_metrics on a synthetic centre-of-pressure path: the sway trajectory draws itself, then the 95% confidence ellipse, principal sway axis and summary metrics appear](../images/examples/posturography.gif)
 
 `cop_sway_metrics()` returns CoP path length/rate, the 95% confidence-ellipse area,
 medio-lateral (ML) and antero-posterior (AP) ranges/standard deviations and their ratios, and
@@ -187,6 +195,8 @@ frames, with a selectable `orientation` — `'vertical'` collapses each frame to
 per-column mean (image column vs. time, side-to-side motion). It is the numpy-level counterpart
 of `MgVideo.motiongrams()`'s rendered `_mgv`/`_mgh` images — use it when you want the motiongram
 as data for further analysis, e.g. feeding it to `grid_qom()` or a peak-picker.
+
+![motiongram_data of dancer.avi building up over time, first with orientation='horizontal' (image column vs time), then the 'vertical' variant (image row vs time)](../images/examples/motiongram_orientation.gif)
 
 ---
 

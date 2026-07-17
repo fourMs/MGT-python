@@ -145,6 +145,8 @@ ioi0, t_double, r2 = fit_accelerando(table['t'], table['ioi'])
 print(f"tempo doubles every {t_double:.1f}s (R²={r2:.2f})")
 ```
 
+![Pulse segmentation: onsets grouped into stroke cycles with a fitted accelerando](https://raw.githubusercontent.com/fourMs/MGT-python/master/docs/images/examples/pulse_segmentation.gif)
+
 ```python
 # Quantity of motion + body-scale normalization: framing-invariant QoM in
 # body-lengths/second, comparable across recordings/zoom levels (Westney study)

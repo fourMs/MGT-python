@@ -126,6 +126,8 @@ traj['fps'], traj['width'], traj['height']
 traj['names']            # the 33 MediaPipe landmark names, row order of the landmark axis
 ```
 
+![extract_pose_landmarks on dancer.avi: MediaPipe landmark dots overlaid on each frame (wrists highlighted), with the wrist-speed signal from limb_speed_from_landmarks growing below](../images/examples/pose_landmarks.gif)
+
 **NaN/dropout semantics:** on any frame where MediaPipe doesn't detect a pose, the corresponding
 row of `traj['landmarks']` (and `traj['world']`, if requested) is filled with `NaN` across all 33
 landmarks and 3 channels, rather than zeros or a dropped row — every frame index still has a
