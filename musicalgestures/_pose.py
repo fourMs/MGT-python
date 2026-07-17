@@ -1402,8 +1402,8 @@ def download_model(modeltype: str):
             if os.path.exists(target_path):
                 try:
                     os.remove(target_path)
-                except OSError:
-                    pass
+                except OSError as cleanup_error:
+                    print(f"Could not remove incomplete model file {target_path}: {cleanup_error}")
             return None
         finally:
             urllib.request.install_opener(urllib.request.build_opener())  # reset to default opener
