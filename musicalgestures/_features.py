@@ -129,6 +129,24 @@ class MgFeatures:
         """Time axis in seconds."""
         return self._times
 
+    def absolute_times(self) -> np.ndarray:
+        """Wall-clock time stamps (epoch seconds) for each sample.
+
+        Requires ``metadata["start_datetime"]`` — a ``datetime`` or ISO
+        string, e.g. from ``musicalgestures._timecode.media_start_datetime``.
+        """
+        import datetime as _dt
+
+        start = (self.metadata or {}).get("start_datetime")
+        if start is None:
+            raise ValueError(
+                "no metadata['start_datetime']; set it (see "
+                "musicalgestures._timecode) to place features on the "
+                "wall clock")
+        if isinstance(start, str):
+            start = _dt.datetime.fromisoformat(start)
+        return start.timestamp() + np.asarray(self.times, dtype=float)
+
     # ------------------------------------------------------------------
     # Sequence / array protocols
     # ------------------------------------------------------------------
