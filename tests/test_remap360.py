@@ -67,3 +67,41 @@ def test_write_remap_pgm_roundtrip(tmp_path):
     data = raw[raw.rindex(b"65535") + 6:]
     got = np.frombuffer(data, dtype=">u2").reshape(3, 4)
     assert np.array_equal(got, xmap)
+
+
+from musicalgestures._remap360 import gopro_maps
+
+
+def _maps_max():
+    return gopro_maps(4096, 1344, 1376, 1344, 32, 512, 256)
+
+
+def test_gopro_maps_front_center():
+    xL, yL, xR, yR, alpha = _maps_max()
+    # lon=0, lat=0 -> FRONT face centre -> strip 1, x = sidewidth + cw/2
+    r, c = 128, 256                      # centre of a 512x256 equirect
+    assert alpha[r, c] == 0
+    assert abs(xL[r, c] - (1344 + 1376 / 2)) < 3
+    assert abs(yL[r, c] - 1344 / 2) < 3
+
+
+def test_gopro_maps_back_in_second_strip():
+    xL, yL, xR, yR, alpha = _maps_max()
+    r, c = 128, 0                        # lon=-180 -> BACK -> strip 2
+    assert yL[r, c] >= 1344              # vstacked: second strip below first
+
+
+def test_gopro_maps_poles_in_second_strip():
+    xL, yL, xR, yR, alpha = _maps_max()
+    assert yL[2, 256] >= 1344            # lat ~ +90 -> TOP -> strip 2
+    assert yL[253, 256] >= 1344          # lat ~ -90 -> DOWN -> strip 2
+
+
+def test_gopro_maps_blend_zone_exists_and_bounded():
+    xL, yL, xR, yR, alpha = _maps_max()
+    assert 0.0 <= alpha.min() and alpha.max() <= 1.0
+    assert (alpha > 0).any()             # some pixels blend
+    assert (alpha > 0).mean() < 0.2      # ...but only near the four seams
+    # where alpha==0, both maps agree (single-sample region)
+    same = alpha == 0
+    assert np.allclose(xL[same], xR[same], atol=0.51)
