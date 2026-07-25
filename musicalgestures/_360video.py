@@ -91,6 +91,16 @@ CAMERA = {
         "ext": "MP4",
         "projection": Projection.erp,
     },
+    "gopro max2": {
+        "ext": "360",
+        "projection": Projection.gopro_360,   # probe-scaled; experimental
+    },
+    # legacy rotated dual-fisheye: use _remap360.flatten_theta360, plain
+    # v360=dfisheye cannot unwrap the 90-degree in-plane rotation
+    "ricoh theta s": {
+        "ext": "MP4",
+        "projection": Projection.dfisheye,
+    },
 }
 
 
@@ -313,35 +323,12 @@ class Mg360Video(MgVideo):
             assert target_projection in [
                 Projection.equirect,
                 Projection.equirectangular,
-                Projection.dfisheye,
             ], (
-                f"Invalid target projection from gopro_360: {target_projection}, only equirect, equirectangular, and dfisheye are supported."
+                f"Invalid target projection from gopro_360: {target_projection}, only equirect and equirectangular are supported."
             )
 
-            output_name = generate_outfilename(
-                f"{self.filename.split('.')[0]}_{target_projection}.mp4"
-            )
-            if target_projection == Projection.dfisheye:
-                script = "ffmpeg-convert-dual-fisheye.sh"
-            else:
-                script = "ffmpeg-convert-v3.sh"
-            script_path = Path(__file__).parent / "gopromax-conversion-tools/scripts" / script
-
-            cmds = [
-                script_path,
-                "-i",
-                self.filename,
-                "-n",
-                output_name,
-            ]
-            if options:
-                for k, v in options.items():
-                    cmds.append(k)
-                    cmds.append(v)
-
-            if test:
-                print(f"=> Command: {' '.join([str(cmd) for cmd in cmds])}")
-            subprocess.run(cmds)
+            from musicalgestures._remap360 import flatten_gopro360
+            output_name = flatten_gopro360(self.filename)
             self.filename = output_name
             self.projection = target_projection
 

@@ -1,6 +1,7 @@
 """Legacy-360 remap flattening: GoPro MAX EAC and Ricoh Theta S."""
 import shutil
 import subprocess
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -105,3 +106,114 @@ def test_gopro_maps_blend_zone_exists_and_bounded():
     # where alpha==0, both maps agree (single-sample region)
     same = alpha == 0
     assert np.allclose(xL[same], xR[same], atol=0.51)
+
+
+import cv2
+
+from musicalgestures._remap360 import flatten_gopro360
+
+
+def _eac_fixture(folder, track_w=512, track_h=168):
+    """Render a test pattern into two GoPro-EAC strips (inverse mapping,
+    written independently of gopro_maps: strip pixel -> direction ->
+    pattern), muxed with stereo AAC + 4ch PCM audio."""
+    cw = round(track_w * 1376 / 4096)
+    sw = round(track_w * 1344 / 4096)
+    bw = max(2, round(track_w * 32 / 4096))
+
+    def pattern(lon, lat):
+        r = 128 + 100 * np.sin(4 * lon) * np.cos(3 * lat)
+        g = 128 + 100 * np.cos(5 * lon + 1.0)
+        b = 128 + 100 * np.sin(6 * lat + 0.5)
+        return np.clip(np.stack([b, g, r], -1), 0, 255).astype(np.uint8)
+
+    strips = []
+    for strip_i in range(2):
+        img = np.zeros((track_h, track_w, 3), np.uint8)
+        jj, ii = np.meshgrid(np.arange(track_h), np.arange(track_w),
+                             indexing="ij")
+        for slot, x0, w_f in (("l", 0, sw), ("c", sw, cw),
+                              ("r", sw + cw, sw)):
+            m = (ii >= x0) & (ii < x0 + w_f)
+            u_phys = (ii - x0 + 0.5) / w_f
+            v = (jj + 0.5) / track_h
+            if slot == "c":
+                u = u_phys
+            else:                          # invert the seam split
+                duv = bw / sw
+                u = np.where(u_phys < 0.5,
+                             u_phys / (2 * (0.5 - duv)),
+                             (u_phys - 0.5 - duv) / (2 * (0.5 - duv)) + 0.5)
+                u = np.clip(u, 0, 1)
+            face = {("l", 0): "LEFT", ("c", 0): "FRONT", ("r", 0): "RIGHT",
+                    ("l", 1): "DOWN", ("c", 1): "BACK", ("r", 1): "TOP"}[
+                        (slot, strip_i)]
+            uu, vv = u.copy(), v.copy()
+            if face in ("DOWN", "BACK", "TOP"):    # invert RotateUV90
+                uu, vv = 1 - vv, uu
+            t_a = np.tan((2 * uu - 1) * np.pi / 4)  # inverse EAC
+            t_b = np.tan((2 * vv - 1) * np.pi / 4)
+            if face == "LEFT":
+                x, y, z = -np.ones_like(t_a), t_a, t_b
+            elif face == "RIGHT":
+                x, y, z = np.ones_like(t_a), -t_a, t_b
+            elif face == "FRONT":
+                x, y, z = t_a, np.ones_like(t_a), t_b
+            elif face == "BACK":
+                x, y, z = -t_a, -np.ones_like(t_a), t_b
+            elif face == "TOP":
+                x, y, z = -t_a, t_b, np.ones_like(t_a)
+            else:                                   # DOWN
+                x, y, z = -t_a, -t_b, -np.ones_like(t_a)
+            lon = np.arctan2(x, y)
+            lat = np.arctan2(z, np.hypot(x, y))
+            img[m] = pattern(lon, lat)[m]
+        p = str(folder / f"strip{strip_i}.png")
+        cv2.imwrite(p, img)
+        strips.append(p)
+
+    out = str(folder / "synthetic.360")
+    subprocess.run(
+        ["ffmpeg", "-y", "-v", "error",
+         "-loop", "1", "-t", "1", "-r", "10", "-i", strips[0],
+         "-loop", "1", "-t", "1", "-r", "10", "-i", strips[1],
+         "-f", "lavfi", "-i", "sine=frequency=440:duration=1",
+         "-f", "lavfi", "-i", "anoisesrc=d=1:c=pink",
+         "-filter_complex", "[3:a]pan=4.0|c0=c0|c1=c0|c2=c0|c3=c0[a4]",
+         "-map", "0:v", "-map", "1:v", "-map", "2:a", "-map", "[a4]",
+         "-c:v", "libx264", "-pix_fmt", "yuv420p",
+         "-c:a:0", "aac", "-c:a:1", "pcm_s32le", "-shortest",
+         "-f", "mov", out], check=True)
+    return out, pattern
+
+
+def test_flatten_gopro360_round_trip(tmp_path):
+    src, pattern = _eac_fixture(tmp_path)
+    out = flatten_gopro360(src, target_name=str(tmp_path / "flat.mp4"),
+                           width=504, height=252)
+    frame_png = str(tmp_path / "flat.png")
+    subprocess.run(["ffmpeg", "-y", "-v", "error", "-ss", "0.5", "-i", out,
+                    "-frames:v", "1", frame_png], check=True)
+    got = cv2.imread(frame_png).astype(float)
+    jj, ii = np.meshgrid(np.arange(252), np.arange(504), indexing="ij")
+    lon = (ii + 0.5) / 504 * 2 * np.pi - np.pi
+    lat = np.pi / 2 - (jj + 0.5) / 252 * np.pi
+    ref = pattern(lon, lat).astype(float)
+    band = slice(252 // 4, 3 * 252 // 4)          # away from the poles
+    corr = np.corrcoef(got[band].ravel(), ref[band].ravel())[0, 1]
+    assert corr > 0.9
+
+
+def test_flatten_gopro360_accepts_mkv(tmp_path):
+    src, _ = _eac_fixture(tmp_path)
+    mkv = str(tmp_path / "merged.mkv")
+    subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", src,
+                    "-map", "0", "-c", "copy", mkv], check=True)
+    out = flatten_gopro360(mkv, target_name=str(tmp_path / "flat2.mp4"),
+                           width=504, height=252)
+    assert Path(out).is_file()
+
+
+def test_camera_registry_has_max2():
+    from musicalgestures._360video import CAMERA
+    assert "gopro max2" in CAMERA

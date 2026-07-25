@@ -19,6 +19,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+import cv2
 import numpy as np
 
 # (track_w, track_h) -> (centerwidth, sidewidth, blendwidth); the last 32
@@ -174,3 +175,59 @@ def gopro_maps(track_w, track_h, centerwidth, sidewidth, blendwidth,
     xR = x0 + np.where(center, u, u_r) * w_face
     y = y_off + v * track_h
     return xL, y.copy(), xR, y.copy(), alpha
+
+
+def flatten_gopro360(path, target_name=None, width=None, height=None,
+                     crf=21, preset="fast", print_cmd=False):
+    """Flatten a GoPro MAX/MAX2 .360 (or chunk-merged .mkv) to equirect.
+
+    vstacks the two EAC strips, runs two `remap` passes (left/right seam
+    samples) and blends the unstitched zones with `maskedmerge`. The best
+    audio stream (most channels — the ambisonic PCM track on a MAX) is
+    carried over as AAC. Files that are not exact GoPro templates (e.g.
+    MAX2) use proportionally scaled geometry and are experimental.
+    """
+    from musicalgestures._utils import (ffmpeg_cmd, generate_outfilename,
+                                        get_length)
+
+    path = str(path)
+    info = probe_gopro360(path)
+    w, h = info["video"][0]["width"], info["video"][0]["height"]
+    if width is None:
+        width = (3 * h) // 2 * 2
+    if height is None:
+        height = width // 2
+    if target_name is None:
+        target_name = os.path.splitext(path)[0] + "_equirect.mp4"
+    target_name = generate_outfilename(target_name)
+
+    xL, yL, xR, yR, alpha = gopro_maps(
+        w, h, info["centerwidth"], info["sidewidth"], info["blendwidth"],
+        width, height)
+    tmpdir = tempfile.mkdtemp(prefix="mgt_remap360_")
+    xlp, ylp = write_remap_pgm(np.rint(xL), np.rint(yL), tmpdir)
+    os.rename(xlp, os.path.join(tmpdir, "xl.pgm"))
+    os.rename(ylp, os.path.join(tmpdir, "yl.pgm"))
+    xrp, yrp = write_remap_pgm(np.rint(xR), np.rint(yR), tmpdir)
+    mask = os.path.join(tmpdir, "alpha.png")
+    cv2.imwrite(mask, (alpha * 255).astype(np.uint8))
+    xlp, ylp = os.path.join(tmpdir, "xl.pgm"), os.path.join(tmpdir, "yl.pgm")
+
+    best_a = max(info["audio"], key=lambda a: a["channels"], default=None)
+    graph = (f"[0:v:0][0:v:1]vstack[st];"
+             f"[st]format=gbrp,split[s1][s2];"
+             f"[s1][1:v][2:v]remap[l];"
+             f"[s2][3:v][4:v]remap[r];"
+             f"[5:v]format=gray,scale={width}:{height}[m];"
+             f"[l][r][m]maskedmerge,format=yuv420p[out]")
+    cmds = ["ffmpeg", "-y", "-i", path,
+            "-i", xlp, "-i", ylp, "-i", xrp, "-i", yrp, "-i", mask,
+            "-filter_complex", graph, "-map", "[out]"]
+    if best_a is not None:
+        astream = info["audio"].index(best_a)
+        cmds += ["-map", f"0:a:{astream}", "-c:a", "aac", "-b:a", "192k"]
+    cmds += ["-shortest", "-c:v", "libx264", "-crf", str(crf),
+             "-preset", preset, target_name]
+    ffmpeg_cmd(cmds, get_length(path),
+               pb_prefix="Flattening GoPro 360:", print_cmd=print_cmd)
+    return target_name
