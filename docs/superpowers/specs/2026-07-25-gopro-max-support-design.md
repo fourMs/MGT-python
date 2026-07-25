@@ -1,11 +1,13 @@
-# GoPro MAX / MAX2 support in MGT-python and ambiscape — design
+# GoPro MAX / MAX2 and Ricoh Theta legacy support in MGT-python and ambiscape — design
 
 Approved approach: pure remap tables + stock ffmpeg for video (MGT), and
 best-audio-stream selection for ingest (ambiscape). No new binary or build
 dependencies in either toolbox. Documentation-driven (no sample files
-available yet): everything layout-specific is probed from the file, synthetic
-fixtures stand in for real recordings, and unknown layouts fail with a
-message that says exactly what was found.
+available yet): everything layout-specific is probed from the file where
+detection is possible, synthetic fixtures stand in for real recordings, and
+unknown layouts fail with a message that says exactly what was found. The
+same remap-table machinery serves both legacy formats: GoPro's custom EAC
+strips and the Ricoh Theta S single-file dual-fisheye.
 
 ## Facts and assumptions
 
@@ -47,10 +49,23 @@ message that says exactly what was found.
   matches the two-strip pattern at any resolution, everything works
   unchanged; if the layout differs, the probe raises with the observed track
   inventory. MAX2 support is labeled experimental until a real file passes.
+- **Ricoh Theta S (legacy, SMC 2024 §3.4 + the owner's 2020 remap
+  workflow):** one `.MP4` with a single H.264 video stream, 1920×1080 —
+  16:9, not 2:1: two side-by-side fisheye circles with a black band at the
+  bottom, and an unusual twist: **each spherical view is rotated 90° in
+  plane**, which is why plain `v360=dfisheye` cannot unwrap it and the
+  historical route was hand-made xmap/ymap PGM remap files
+  (ThetaS-video-remap). Audio is mono AAC at 32 kHz — ambiscape ingests it
+  already (mono mode); no audio work needed. Unlike GoPro, the layout is
+  not reliably auto-detectable (any 16:9 MP4 could be anything), so Theta
+  flattening is explicitly invoked, never probed-and-guessed.
 
-## MGT-python: `musicalgestures/_gopro360.py` (new module)
+## MGT-python: `musicalgestures/_remap360.py` (new module)
 
-Three units, mirroring the Insta360 stitcher's structure (`_360video.py`):
+One module owns remap-table flattening for legacy 360 formats. A shared
+`write_remap_pgm(xmap, ymap, tmpdir)` helper writes 16-bit PGM tables for
+ffmpeg's `remap` filter; two format-specific generators feed it. GoPro
+units, mirroring the Insta360 stitcher's structure (`_360video.py`):
 
 1. `probe_gopro360(path) -> dict` — ffprobe the container; identify the two
    video streams (indices, width, height), derive face size `h` and per-seam
@@ -72,20 +87,41 @@ Three units, mirroring the Insta360 stitcher's structure (`_360video.py`):
    Follows `stitch_dual_fisheye`'s conventions (generate_outfilename,
    ffmpeg_cmd progress, single-frame mask input, `-shortest` semantics).
 
+Theta units in the same module:
+
+4. `build_theta_remap(in_w, in_h, out_w, out_h) -> (xmap, ymap)` — mapping
+   from equirect output pixels to the Theta S frame: two fisheye lenses
+   side by side (each nominally 190° FOV), each with the 90° in-plane
+   rotation, ignoring the black band below 960 px. Lens FOV and per-lens
+   roll are parameters with Theta S defaults, so a real file can be
+   fine-tuned the way the Insta360 FOV calibration works.
+5. `flatten_theta360(path, target_name=None, width=1920, height=960,
+   crf=21, preset="fast", print_cmd=False) -> str` — one ffmpeg run: `remap`
+   with the generated tables → equirect H.264 (1920×960 default, matching
+   the official app's export size), audio stream passed through as AAC.
+   Explicit invocation only (no auto-probe — see facts).
+
 Wiring: `Mg360Video.convert_projection` replaces the dead
 `gopromax-conversion-tools/scripts` branch with `flatten_gopro360`; the
 empty scripts directory is removed. `CAMERA` registry gains
-`"gopro max2": {"ext": "360", "projection": Projection.gopro_360}`.
+`"gopro max2": {"ext": "360", "projection": Projection.gopro_360}` and
+`"ricoh theta s": {"ext": "MP4", "projection": Projection.dfisheye}` with a
+comment pointing at `flatten_theta360` for the legacy rotated dual-fisheye
+files (plain `v360=dfisheye` does not handle the 90° in-plane rotation).
 
-Tests (`tests/test_gopro360.py`): a synthetic fixture renders a known
+Tests (`tests/test_remap360.py`): a synthetic fixture renders a known
 equirect test pattern, inverse-maps it in numpy into two EAC strip videos,
 muxes them with a stereo AAC track plus a 4-channel PCM track into a
 `.360`-named MOV; then (a) probe returns the right geometry, (b)
 `flatten_gopro360` output correlates > 0.9 with the source pattern away from
 the poles, (c) a single-video-track file raises the informative ValueError.
-The inverse mapping in the fixture and the forward mapping in the module are
-written independently (fixture from the equirect→cube math, module from the
-cube→equirect direction) so the round trip is a real check, not an identity.
+For Theta: the same equirect pattern inverse-mapped into a synthetic
+1920×1080 dual-fisheye frame (two rotated circles + black band) →
+`flatten_theta360` → correlation > 0.9 away from poles and seams. In both
+cases the fixture's inverse mapping and the module's forward mapping are
+written independently (fixture from the equirect→lens math, module from the
+lens→equirect direction) so the round trips are real checks, not
+identities.
 
 ## ambiscape: best-audio-stream selection in `_ensure_readable` (io.py)
 
@@ -117,5 +153,8 @@ before.
 ## Out of scope (YAGNI)
 
 GPMF metadata extraction, .LRV handling beyond what already works, GoPro
-battery/HERO formats, gyro-based horizon leveling, and any GUI. No changes
-to the `soundscape` adapter — it inherits the ingest fix for free.
+battery/HERO formats, gyro-based horizon leveling, and any GUI. Newer Ricoh
+Theta models (X and successors) already record standard equirectangular —
+the existing `erp` registry entry covers them; only the legacy Theta S
+dual-fisheye needs the remap path. No changes to the `soundscape` adapter —
+it inherits the ingest fix for free.
