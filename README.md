@@ -11,6 +11,17 @@ The **Musical Gestures Toolbox for Python** is a collection of tools for visuali
 
 📖 **[Documentation & Examples](https://fourms.github.io/MGT-python/)**
 
+## Scope: MGT and ambiscape
+
+MGT-python and [ambiscape](https://github.com/fourMs/ambiscape) are sister
+toolboxes: **MGT owns the pixels** (motion analysis, pose, 360° handling,
+video visualization), **ambiscape owns the samples** (soundscape levels,
+spatial audio, sound-event taxonomies). MGT's audio functions cover quick
+looks; for serious soundscape work, install the bridge —
+`pip install "musicalgestures[soundscape]"` — and pull ambiscape's
+session features straight into `MgFeatures` on a shared wall-clock time
+base (see `musicalgestures._soundscape` and `musicalgestures._timecode`).
+
 ## Quick Start
 
 ### Installation
