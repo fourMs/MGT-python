@@ -16,13 +16,32 @@ message that says exactly what was found.
   (rotated). The authoritative per-pixel mapping is Paul Bourke's
   `max2sphere` (paulbourke.net/panorama/gopromax2sphere/, C source on
   GitHub); the implementation ports that math to numpy.
-- Audio in the MAX `.360`: one **stereo AAC** stream and one **4-channel
-  32-bit PCM** stream (the spatial track), plus GPMF data streams
-  (documented in the owner's own analysis, arj.no 2023-05-25).
-- **Assumption (documented, to validate with a real file):** the 4-channel
-  track is first-order ambisonics in ambiX (ACN/SN3D) order, matching what
-  GoPro Player exports. ambiscape already treats 4-channel input as `ambix`;
-  a one-clap direction test on a real recording is the validation step.
+- Audio in the MAX `.360`: one **stereo AAC** stream (189 kb/s) and one
+  **4-channel PCM s32 planar** stream (6,144 kb/s), plus three data streams
+  (GPMF metadata, TCD timecode, SOS recovery). The `.LRV` proxy carries its
+  own, different stereo AAC. Sources: the owner's format analysis (arj.no
+  2023-05-25) and the lab's two studies — Guo, Riaz & Jensenius (SMC 2024,
+  four-camera video comparison) and Riaz, Guo & Jensenius (spatial-audio
+  comparison).
+- **Verified fact (Riaz et al.):** the MAX 4-channel track is first-order
+  B-format **AmbiX (ACN/SN3D, W-Y-Z-X)** — confirmed empirically via
+  channel-amplitude norms. ambiscape's existing 4-channel → `ambix` mapping
+  is therefore correct for GoPro. Garmin VIRB 360 4-channel is also AmbiX
+  (with an empty Z — "planar spatial audio") and works as-is.
+- **Insta360 caveat (Riaz et al.):** X3-era recordings may carry a
+  4-channel AAC stream that is *not* B-format (amplitude norms don't match;
+  mic orientation undocumented). ambiscape's channel-count heuristic will
+  still label it `ambix`; the ingest docstring documents this mislabeling
+  risk and recommends treating Insta360 4-channel spatial metrics as
+  unreliable until the layout is established.
+- **Chunking:** GoPro splits recordings at 4 GB and Insta360 at 1 minute;
+  MGT already merges chunks losslessly (concat → MKV, from the SMC 2024
+  work). The GoPro probe/flatten path must accept those merged MKVs, not
+  only `.360` files — covered by making the probe container-agnostic and by
+  a test case.
+- **Free win, docs only:** the MAX `.LRV` is a single-file dual-fisheye
+  (1408×704) — `stitch_dual_fisheye`/`v360` paths shipped this week already
+  handle that projection for quick previews.
 - **MAX2 is unknown territory:** presumed the same two-track EAC layout at
   higher (8K-class) resolution. Support is *probe-driven*: if a MAX2 file
   matches the two-strip pattern at any resolution, everything works
@@ -73,10 +92,13 @@ cube→equirect direction) so the round trip is a real check, not an identity.
 Replace the fixed `-map a:0` with stream selection: ffprobe the container's
 audio streams (`codec_name`, `channels`); choose the stream with the most
 channels whose codec ffmpeg can decode (skip `none`/unknown codecs — the
-iPhone APAC case); tie-break to the lower stream index. Decode that stream
-to the cached WAV exactly as today. Behavior for single-audio-stream files
-is unchanged; the cache key/invalidation is unchanged. A short note lands in
-the module docstring; version bumps to 0.19.0 (user-facing ingest change).
+iPhone APAC case); tie-break to the lower stream index. Decode to the cached
+WAV as today, except the sample format follows the source: sources deeper
+than 16-bit (the MAX's s32 ambisonic track) decode to `pcm_s24le`, others
+stay `pcm_s16le`. Behavior for single-audio-stream files is unchanged; the
+cache key/invalidation is unchanged. The module docstring gains two notes:
+the stream-selection rule, and the Insta360 4-channel-is-not-B-format
+caveat. Version bumps to 0.19.0 (user-facing ingest change).
 
 Tests (`tests/test_io_features.py`): a fixture MOV named `.360` with a
 stereo AAC stream *first* and a 4-channel PCM stream second → `open_session`
