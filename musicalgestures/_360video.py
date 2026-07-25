@@ -148,7 +148,8 @@ def calibrate_dual_fisheye_fov(front_file, back_file, time_s: float = 1.0,
     import numpy as np
 
     if candidates is None:
-        candidates = [185, 188, 191, 193, 195, 197, 199, 201, 203]
+        # up to 205: Garmin VIRB 360 RAW-mode hemispheres are ~200 deg
+        candidates = [185, 188, 191, 193, 195, 197, 200, 203, 205]
     with tempfile.TemporaryDirectory() as tmp:
         frames = {}
         for name, f in (("front", front_file), ("back", back_file)):
@@ -197,6 +198,8 @@ def stitch_dual_fisheye(front_file, back_file, target_name: str = None,
     (back lens at yaw 180) and the two are merged with a soft column mask,
     which avoids the hard seams of a plain `v360=dfisheye` conversion.
     Audio is taken from the front-lens file when present.
+    Also fits Garmin VIRB 360 RAW-mode recordings, which store the two
+    ~200-degree hemispheres as separate files.
     Args:
         front_file (str): Video of the front lens.
         back_file (str): Video of the back lens.

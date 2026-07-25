@@ -89,3 +89,12 @@ def test_from_dual_fisheye(fisheye_pair, tmp_path):
         width=384, height=192)
     assert v.projection == Projection.equirect
     assert os.path.isfile(v.filename)
+
+
+def test_default_candidates_cover_garmin_raw(fisheye_pair, tmp_path):
+    """Garmin VIRB RAW hemispheres are ~200 deg; defaults must reach 205."""
+    import inspect
+
+    from musicalgestures._360video import calibrate_dual_fisheye_fov
+    src = inspect.getsource(calibrate_dual_fisheye_fov)
+    assert "205" in src and "200" in src
