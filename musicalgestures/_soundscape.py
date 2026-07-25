@@ -34,8 +34,7 @@ def soundscape_features(session_folder, features_dir=None) -> MgFeatures:
     sess = asc.open_session(session_folder)
     out = Path(features_dir) if features_dir else \
         session_folder / "analysis" / "features"
-    npz = sorted(out.glob("*.npz")) or \
-        afeat.extract_session(sess, out, verbose=False)
+    npz = afeat.extract_session(sess, out, verbose=False)
     F = afeat.load_features(sorted(Path(p) for p in npz))
 
     level_db = 20 * np.log10(np.asarray(F["rms_w"], float) + 1e-12)
