@@ -276,3 +276,9 @@ def test_flatten_theta360_round_trip(tmp_path):
     band = slice(240 // 4, 3 * 240 // 4)
     corr = np.corrcoef(got[band].ravel(), ref[band].ravel())[0, 1]
     assert corr > 0.9
+
+
+def test_theta_alpha_reaches_half_at_seam():
+    from musicalgestures._remap360 import theta_maps
+    *_, alpha = theta_maps(1920, 1080, 480, 240)
+    assert 0.49 < alpha.max() <= 0.5

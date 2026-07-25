@@ -273,12 +273,14 @@ def theta_maps(in_w, in_h, out_w, out_h, fov_deg=191.5,
     yL = np.where(use1, y1m, y0m)
     xR = np.where(use1, x0m, x1m)          # the *other* lens
     yR = np.where(use1, y0m, y1m)
-    # blend where both lenses see the point (theta near 90 deg on both)
+    # blend where both lenses see the point (theta near 90 deg on both);
+    # ramps 0 -> 0.5 over the last `margin` radians, reaching 0.5 exactly
+    # at the geometric seam (theta == pi/2 on both lenses)
     margin = (fov / 2) - np.pi / 2         # half-overlap beyond a hemisphere
     prim = np.minimum(th0, th1)
     alpha = np.where(margin > 0,
-                     np.clip((prim - (np.pi / 2 - margin)) / (2 * margin),
-                             0, 1) * 0.5, 0.0)
+                     0.5 * np.clip((prim - (np.pi / 2 - margin)) / margin,
+                                   0.0, 1.0), 0.0)
     return xL, yL, xR, yR, alpha
 
 
