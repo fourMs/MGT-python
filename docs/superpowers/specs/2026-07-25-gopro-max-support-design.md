@@ -1,4 +1,4 @@
-# GoPro MAX / MAX2 and Ricoh Theta legacy support in MGT-python and ambiscape — design
+# GoPro MAX / MAX2, Ricoh Theta legacy, and Garmin VIRB 360 support in MGT-python and ambiscape — design
 
 Approved approach: pure remap tables + stock ffmpeg for video (MGT), and
 best-audio-stream selection for ingest (ambiscape). No new binary or build
@@ -49,6 +49,22 @@ strips and the Ricoh Theta S single-file dual-fisheye.
   matches the two-strip pattern at any resolution, everything works
   unchanged; if the layout differs, the probe raises with the observed track
   inventory. MAX2 support is labeled experimental until a real file passes.
+- **Garmin VIRB 360 (SMC 2024 §3.3 + Riaz et al.):** the friendly one.
+  Normal recordings are already **in-camera-stitched equirectangular**
+  (`.MP4` 3840×2160 H.264 + `.GLV` 1280×720 proxy, one video + one audio
+  stream each) — no flattening needed, and MGT's `CAMERA` registry already
+  lists it as `erp`. ambiscape ingests both since Phase 1 added `.glv`; the
+  single audio stream is 4-channel AAC AmbiX, so the existing 4-ch → ambix
+  mapping is right. Three format quirks worth capturing:
+  (a) the **Z channel is empty** ("planar spatial audio") — azimuth is
+  valid, elevation is meaningless; documented so spatial metrics are read
+  accordingly; (b) the **RAW 5.7K mode** writes the two 200° hemispheres as
+  *separate fisheye files* — exactly the two-file case `stitch_dual_fisheye`
+  already handles (its FOV calibration sweep must extend to ~205° to cover
+  Garmin's 200° lenses; today's candidate list tops out at 203); (c) VIRB
+  Edit's "360" export writes a 4-channel FOA track with only the first
+  channel non-zero (a software bug found by Riaz et al.) — prefer in-camera
+  originals over VIRB Edit exports; documented in the ingest notes.
 - **Ricoh Theta S (legacy, SMC 2024 §3.4 + the owner's 2020 remap
   workflow):** one `.MP4` with a single H.264 video stream, 1920×1080 —
   16:9, not 2:1: two side-by-side fisheye circles with a black band at the
@@ -101,6 +117,11 @@ Theta units in the same module:
    the official app's export size), audio stream passed through as AAC.
    Explicit invocation only (no auto-probe — see facts).
 
+Garmin work in existing modules (no new units): widen
+`calibrate_dual_fisheye_fov`'s default candidate list to reach 205° so RAW
+5.7K hemisphere pairs calibrate, and note the Garmin RAW case in
+`stitch_dual_fisheye`'s docstring. Registry entry for the camera exists.
+
 Wiring: `Mg360Video.convert_projection` replaces the dead
 `gopromax-conversion-tools/scripts` branch with `flatten_gopro360`; the
 empty scripts directory is removed. `CAMERA` registry gains
@@ -132,9 +153,11 @@ iPhone APAC case); tie-break to the lower stream index. Decode to the cached
 WAV as today, except the sample format follows the source: sources deeper
 than 16-bit (the MAX's s32 ambisonic track) decode to `pcm_s24le`, others
 stay `pcm_s16le`. Behavior for single-audio-stream files is unchanged; the
-cache key/invalidation is unchanged. The module docstring gains two notes:
-the stream-selection rule, and the Insta360 4-channel-is-not-B-format
-caveat. Version bumps to 0.19.0 (user-facing ingest change).
+cache key/invalidation is unchanged. The module docstring gains three
+notes: the stream-selection rule; the Insta360 4-channel-is-not-B-format
+caveat; and the Garmin notes (empty Z ⇒ elevation metrics meaningless;
+prefer in-camera originals over VIRB Edit's bugged FOA exports). Version
+bumps to 0.19.0 (user-facing ingest change).
 
 Tests (`tests/test_io_features.py`): a fixture MOV named `.360` with a
 stereo AAC stream *first* and a 4-channel PCM stream second → `open_session`
