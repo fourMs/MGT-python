@@ -38,3 +38,19 @@ def test_soundscape_features_roundtrip(tmp_path):
     assert abs(t_abs[0]
                - dt.datetime(2026, 7, 24, 12, 0, 0).timestamp()) < 2.0
     assert 5 <= mgf.n_samples <= 13
+
+
+def test_merge_into_summary(tmp_path):
+    import json
+    from musicalgestures._features import MgFeatures
+    from musicalgestures._soundscape import merge_into_summary
+
+    summary = tmp_path / "summary.json"
+    summary.write_text(json.dumps({"leq_dbfs": -25.0}))
+    mgf = MgFeatures({"qom": np.array([0.0, 1.0, 2.0, 3.0])},
+                     times=np.arange(4.0), sr=1.0)
+    merge_into_summary(mgf, summary)
+    doc = json.loads(summary.read_text())
+    assert doc["leq_dbfs"] == -25.0            # existing keys preserved
+    assert doc["mot_qom_median"] == 1.5
+    assert doc["mot_qom_iqr"] == 1.5
