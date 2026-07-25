@@ -231,3 +231,98 @@ def flatten_gopro360(path, target_name=None, width=None, height=None,
     ffmpeg_cmd(cmds, get_length(path),
                pb_prefix="Flattening GoPro 360:", print_cmd=print_cmd)
     return target_name
+
+
+def theta_maps(in_w, in_h, out_w, out_h, fov_deg=191.5,
+               roll_deg=(90.0, -90.0)):
+    """Equirect -> Ricoh Theta S rotated dual-fisheye source coordinates.
+
+    Legacy Theta S videos hold two fisheye circles side by side, each
+    rotated 90 degrees in plane, in a 16:9 frame whose bottom band is
+    unused. Front lens = left circle (axis +y), back = right (axis -y);
+    equidistant fisheye model. Returns dual maps + seam-blend alpha like
+    `gopro_maps`. fov_deg and roll_deg are tunable against a real file.
+    """
+    R = in_w / 4.0
+    cy = R
+    centers = (in_w / 4.0, 3.0 * in_w / 4.0)
+    rolls = tuple(np.radians(r) for r in roll_deg)
+    fov = np.radians(fov_deg)
+
+    jj, ii = np.meshgrid(np.arange(out_h), np.arange(out_w), indexing="ij")
+    lon = (ii + 0.5) / out_w * 2 * np.pi - np.pi
+    lat = np.pi / 2 - (jj + 0.5) / out_h * np.pi
+    sx = np.cos(lat) * np.sin(lon)
+    sy = np.cos(lat) * np.cos(lon)
+    sz = np.sin(lat)
+
+    maps = []
+    for lens in range(2):
+        axis = 1 if lens == 0 else -1
+        costh = axis * sy
+        theta = np.arccos(np.clip(costh, -1, 1))
+        phi = np.arctan2(-sz, axis * sx)
+        r = np.where(fov > 0, theta / (fov / 2), 0.0)
+        x = centers[lens] + r * R * np.cos(phi + rolls[lens])
+        y = cy + r * R * np.sin(phi + rolls[lens])
+        maps.append((x, y, theta))
+
+    (x0m, y0m, th0), (x1m, y1m, th1) = maps
+    use1 = th1 < th0                       # back lens closer to its axis
+    xL = np.where(use1, x1m, x0m)
+    yL = np.where(use1, y1m, y0m)
+    xR = np.where(use1, x0m, x1m)          # the *other* lens
+    yR = np.where(use1, y0m, y1m)
+    # blend where both lenses see the point (theta near 90 deg on both)
+    margin = (fov / 2) - np.pi / 2         # half-overlap beyond a hemisphere
+    prim = np.minimum(th0, th1)
+    alpha = np.where(margin > 0,
+                     np.clip((prim - (np.pi / 2 - margin)) / (2 * margin),
+                             0, 1) * 0.5, 0.0)
+    return xL, yL, xR, yR, alpha
+
+
+def flatten_theta360(path, target_name=None, width=1920, height=960,
+                     fov_deg=191.5, roll_deg=(90.0, -90.0), crf=21,
+                     preset="fast", print_cmd=False):
+    """Flatten a legacy Ricoh Theta S dual-fisheye MP4 to equirectangular.
+
+    Explicit invocation only: a 16:9 MP4 is not identifiable as a Theta
+    file by probing. Audio (mono on the Theta S) is passed through as AAC.
+    """
+    from musicalgestures._utils import (ffmpeg_cmd, generate_outfilename,
+                                        get_length, get_widthheight,
+                                        has_audio)
+
+    path = str(path)
+    in_w, in_h = get_widthheight(path)
+    if target_name is None:
+        target_name = os.path.splitext(path)[0] + "_equirect.mp4"
+    target_name = generate_outfilename(target_name)
+
+    xL, yL, xR, yR, alpha = theta_maps(in_w, in_h, width, height,
+                                       fov_deg=fov_deg, roll_deg=roll_deg)
+    tmpdir = tempfile.mkdtemp(prefix="mgt_remap360_")
+    xlp, ylp = write_remap_pgm(np.rint(xL), np.rint(yL), tmpdir)
+    os.rename(xlp, os.path.join(tmpdir, "xl.pgm"))
+    os.rename(ylp, os.path.join(tmpdir, "yl.pgm"))
+    xrp, yrp = write_remap_pgm(np.rint(xR), np.rint(yR), tmpdir)
+    mask = os.path.join(tmpdir, "alpha.png")
+    cv2.imwrite(mask, (alpha * 255).astype(np.uint8))
+    xlp, ylp = os.path.join(tmpdir, "xl.pgm"), os.path.join(tmpdir, "yl.pgm")
+
+    graph = (f"[0:v]format=gbrp,split[s1][s2];"
+             f"[s1][1:v][2:v]remap[l];"
+             f"[s2][3:v][4:v]remap[r];"
+             f"[5:v]format=gray,scale={width}:{height}[m];"
+             f"[l][r][m]maskedmerge,format=yuv420p[out]")
+    cmds = ["ffmpeg", "-y", "-i", path,
+            "-i", xlp, "-i", ylp, "-i", xrp, "-i", yrp, "-i", mask,
+            "-filter_complex", graph, "-map", "[out]"]
+    if has_audio(path):
+        cmds += ["-map", "0:a:0", "-c:a", "aac", "-b:a", "128k"]
+    cmds += ["-shortest", "-c:v", "libx264", "-crf", str(crf),
+             "-preset", preset, target_name]
+    ffmpeg_cmd(cmds, get_length(path),
+               pb_prefix="Flattening Theta 360:", print_cmd=print_cmd)
+    return target_name

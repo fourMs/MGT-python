@@ -217,3 +217,62 @@ def test_flatten_gopro360_accepts_mkv(tmp_path):
 def test_camera_registry_has_max2():
     from musicalgestures._360video import CAMERA
     assert "gopro max2" in CAMERA
+
+
+from musicalgestures._remap360 import flatten_theta360, theta_maps
+
+
+def _theta_fixture(folder, w=960, h=540):
+    """Inverse-render the pattern into a rotated dual-fisheye frame
+    (each lens 191.5 deg, +90/-90 deg in-plane rotation, black band)."""
+    R = w // 4
+    cy = R
+    img = np.zeros((h, w, 3), np.uint8)
+    jj, ii = np.meshgrid(np.arange(h), np.arange(w), indexing="ij")
+    fov = np.radians(191.5)
+    for lens, (cx, roll, axis) in enumerate(
+            (((w // 4), np.radians(90.0), +1),
+             ((3 * w // 4), np.radians(-90.0), -1))):
+        dx, dy = ii - cx, jj - cy
+        r = np.hypot(dx, dy) / R
+        inside = (r <= 1.0) & (jj < 2 * R)
+        theta = r * fov / 2                       # equidistant fisheye
+        phi = np.arctan2(dy, dx) - roll
+        # lens axis +y (front) or -y (back)
+        sy = axis * np.cos(theta)
+        sx = np.sin(theta) * np.cos(phi) * axis
+        sz = -np.sin(theta) * np.sin(phi)
+        lon = np.arctan2(sx, sy)
+        lat = np.arctan2(sz, np.hypot(sx, sy))
+        rch = 128 + 100 * np.sin(4 * lon) * np.cos(3 * lat)
+        gch = 128 + 100 * np.cos(5 * lon + 1.0)
+        bch = 128 + 100 * np.sin(6 * lat + 0.5)
+        pat = np.clip(np.stack([bch, gch, rch], -1), 0, 255).astype(np.uint8)
+        img[inside] = pat[inside]
+    p = str(folder / "theta.png")
+    cv2.imwrite(p, img)
+    out = str(folder / "theta.mp4")
+    subprocess.run(["ffmpeg", "-y", "-v", "error", "-loop", "1", "-t", "1",
+                    "-r", "10", "-i", p, "-c:v", "libx264", "-pix_fmt",
+                    "yuv420p", out], check=True)
+    return out
+
+
+def test_flatten_theta360_round_trip(tmp_path):
+    src = _theta_fixture(tmp_path)
+    out = flatten_theta360(src, target_name=str(tmp_path / "flat.mp4"),
+                           width=480, height=240)
+    frame_png = str(tmp_path / "flat.png")
+    subprocess.run(["ffmpeg", "-y", "-v", "error", "-ss", "0.5", "-i", out,
+                    "-frames:v", "1", frame_png], check=True)
+    got = cv2.imread(frame_png).astype(float)
+    jj, ii = np.meshgrid(np.arange(240), np.arange(480), indexing="ij")
+    lon = (ii + 0.5) / 480 * 2 * np.pi - np.pi
+    lat = np.pi / 2 - (jj + 0.5) / 240 * np.pi
+    rch = 128 + 100 * np.sin(4 * lon) * np.cos(3 * lat)
+    gch = 128 + 100 * np.cos(5 * lon + 1.0)
+    bch = 128 + 100 * np.sin(6 * lat + 0.5)
+    ref = np.clip(np.stack([bch, gch, rch], -1), 0, 255).astype(float)
+    band = slice(240 // 4, 3 * 240 // 4)
+    corr = np.corrcoef(got[band].ravel(), ref[band].ravel())[0, 1]
+    assert corr > 0.9
