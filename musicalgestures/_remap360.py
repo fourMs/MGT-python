@@ -17,7 +17,6 @@ import json
 import os
 import subprocess
 import tempfile
-from pathlib import Path
 
 import cv2
 import numpy as np
@@ -110,15 +109,23 @@ def gopro_maps(track_w, track_h, centerwidth, sidewidth, blendwidth,
     # centred (i+0.5)/width sample. Matching that here (rather than the
     # brief's +0.5-centred formula) is required for FRONT/BACK/TOP/DOWN
     # face boundaries to land where the test data expects them.
-    jj, ii = np.meshgrid(np.arange(out_h), np.arange(out_w), indexing="ij")
+    #
+    # Coordinates never exceed a handful of thousand pixels, far below
+    # float32's ~7-significant-digit precision floor, so the geometry
+    # below runs in float32 throughout; large intermediates are freed as
+    # soon as they are no longer needed to keep peak memory down.
+    jj, ii = np.meshgrid(np.arange(out_h, dtype=np.float32),
+                         np.arange(out_w, dtype=np.float32), indexing="ij")
     lon = ii / out_w * 2 * np.pi - np.pi             # -pi..pi
     lat = np.pi / 2 - jj / out_h * np.pi             # +pi/2..-pi/2
+    del jj, ii
     px = np.cos(lat) * np.sin(lon)
     py = np.cos(lat) * np.cos(lon)
     pz = np.sin(lat)
+    del lon, lat
 
     ax, ay, az = np.abs(px), np.abs(py), np.abs(pz)
-    face = np.full(lon.shape, _FRONT, dtype=np.int8)
+    face = np.full((out_h, out_w), _FRONT, dtype=np.int8)
     face = np.where((ax >= ay) & (ax >= az) & (px < 0), _LEFT, face)
     face = np.where((ax >= ay) & (ax >= az) & (px >= 0), _RIGHT, face)
     face = np.where((ay > ax) & (ay >= az) & (py >= 0), _FRONT, face)
@@ -131,9 +138,11 @@ def gopro_maps(track_w, track_h, centerwidth, sidewidth, blendwidth,
                      face == _BACK, face == _TOP, face == _DOWN],
                     [ax, ax, ay, ay, az, az])
     dom = np.maximum(dom, 1e-12)
+    del ax, ay, az
     qx = np.arctan(px / dom) * fourdivpi
     qy = np.arctan(py / dom) * fourdivpi
     qz = np.arctan(pz / dom) * fourdivpi
+    del px, py, pz, dom
 
     u = np.select(
         [face == _LEFT, face == _RIGHT, face == _FRONT,
@@ -145,17 +154,19 @@ def gopro_maps(track_w, track_h, centerwidth, sidewidth, blendwidth,
         [(qz + 1), (qz + 1), (qz + 1), (qz + 1), (qy + 1), (1 - qy)]) / 2
     u = np.clip(u, 0, 1 - 1e-9)
     v = np.clip(v, 0, 1 - 1e-9)
+    del qx, qy, qz
 
     # RotateUV90 for DOWN, BACK, TOP (port-check Step 0 verified this)
     rot = (face == _DOWN) | (face == _BACK) | (face == _TOP)
     u, v = np.where(rot, v, u), np.where(rot, 1 - u, v)
 
     second = (face == _BACK) | (face == _DOWN) | (face == _TOP)
-    y_off = np.where(second, track_h, 0)
+    y_off = np.where(second, np.float32(track_h), np.float32(0))
     center = (face == _FRONT) | (face == _BACK)
     left_slot = (face == _LEFT) | (face == _DOWN)
-    x0 = np.where(center, sidewidth,
-                  np.where(left_slot, 0, sidewidth + centerwidth))
+    x0 = np.where(center, np.float32(sidewidth),
+                  np.where(left_slot, np.float32(0),
+                           np.float32(sidewidth + centerwidth)))
 
     # side faces: split halves + seam blend (GetColour)
     duv = blendwidth / sidewidth
@@ -170,7 +181,7 @@ def gopro_maps(track_w, track_h, centerwidth, sidewidth, blendwidth,
 
     u_l = np.where(right_only, uR, uL)     # L map: left sample unless right-only
     u_r = np.where(left_only, uL, uR)      # R map: right sample unless left-only
-    w_face = np.where(center, centerwidth, sidewidth)
+    w_face = np.where(center, np.float32(centerwidth), np.float32(sidewidth))
     xL = x0 + np.where(center, u, u_l) * w_face
     xR = x0 + np.where(center, u, u_r) * w_face
     y = y_off + v * track_h
@@ -186,6 +197,10 @@ def flatten_gopro360(path, target_name=None, width=None, height=None,
     audio stream (most channels — the ambisonic PCM track on a MAX) is
     carried over as AAC. Files that are not exact GoPro templates (e.g.
     MAX2) use proportionally scaled geometry and are experimental.
+
+    Geometry is validated against synthetic fixtures and the max2sphere
+    reference; strip order/orientation against real camera files is still
+    unverified.
     """
     from musicalgestures._utils import (ffmpeg_cmd, generate_outfilename,
                                         get_length)
@@ -291,6 +306,10 @@ def flatten_theta360(path, target_name=None, width=1920, height=960,
 
     Explicit invocation only: a 16:9 MP4 is not identifiable as a Theta
     file by probing. Audio (mono on the Theta S) is passed through as AAC.
+
+    The 191.5-degree/±90-degree defaults are validated only against
+    synthetic fixtures; a real Theta S recording may need fov_deg/roll_deg
+    fine-tuning.
     """
     from musicalgestures._utils import (ffmpeg_cmd, generate_outfilename,
                                         get_length, get_widthheight,

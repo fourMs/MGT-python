@@ -3,7 +3,6 @@ import subprocess
 import tempfile
 from enum import Enum
 from typing import Dict, Union
-from pathlib import Path
 from functools import partial
 from musicalgestures._video import MgVideo
 from musicalgestures._utils import (ffmpeg_cmd, get_length,
@@ -140,7 +139,7 @@ def calibrate_dual_fisheye_fov(front_file, back_file, time_s: float = 1.0,
         front_file (str): Video of the front lens.
         back_file (str): Video of the back lens.
         time_s (float): Timestamp of the probe frame.
-        candidates (list): FOVs (degrees) to try. Default 185–203.
+        candidates (list): FOVs (degrees) to try. Default 185–205.
     Returns:
         float: The FOV with the smallest seam mismatch.
     """
@@ -322,7 +321,6 @@ class Mg360Video(MgVideo):
                     f"=> Test mode: would convert {self.filename} to {target_projection} with options {options}."
                 )
 
-            # use special gopro conversion scripts
             assert target_projection in [
                 Projection.equirect,
                 Projection.equirectangular,
