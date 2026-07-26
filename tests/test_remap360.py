@@ -136,7 +136,7 @@ def _eac_fixture(folder, track_w=512, track_h=168):
                               ("r", sw + cw, sw)):
             m = (ii >= x0) & (ii < x0 + w_f)
             u_phys = (ii - x0 + 0.5) / w_f
-            v = (jj + 0.5) / track_h
+            v = 1.0 - (jj + 0.5) / track_h   # faces stored v-flipped
             if slot == "c":
                 u = u_phys
             else:                          # invert the seam split
@@ -241,7 +241,7 @@ def _theta_fixture(folder, w=960, h=540):
         # lens axis +y (front) or -y (back)
         sy = axis * np.cos(theta)
         sx = np.sin(theta) * np.cos(phi) * axis
-        sz = -np.sin(theta) * np.sin(phi)
+        sz = np.sin(theta) * np.sin(phi)   # real-file vertical convention
         lon = np.arctan2(sx, sy)
         lat = np.arctan2(sz, np.hypot(sx, sy))
         rch = 128 + 100 * np.sin(4 * lon) * np.cos(3 * lat)

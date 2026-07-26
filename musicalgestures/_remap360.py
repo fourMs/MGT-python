@@ -159,6 +159,11 @@ def gopro_maps(track_w, track_h, centerwidth, sidewidth, blendwidth,
     # RotateUV90 for DOWN, BACK, TOP (port-check Step 0 verified this)
     rot = (face == _DOWN) | (face == _BACK) | (face == _TOP)
     u, v = np.where(rot, v, u), np.where(rot, 1 - u, v)
+    # real GoPro MAX files store every face with v inverted in the
+    # face-local (post-rotation) frame relative to the max2sphere
+    # formulas — validated on 2023-12-18 lab footage, where the
+    # un-flipped mapping renders the equatorial band upside-down
+    v = np.clip(1.0 - v, 0, 1 - 1e-9)
 
     second = (face == _BACK) | (face == _DOWN) | (face == _TOP)
     y_off = np.where(second, np.float32(track_h), np.float32(0))
@@ -229,6 +234,10 @@ def flatten_gopro360(path, target_name=None, width=None, height=None,
     xlp, ylp = os.path.join(tmpdir, "xl.pgm"), os.path.join(tmpdir, "yl.pgm")
 
     best_a = max(info["audio"], key=lambda a: a["channels"], default=None)
+    # GoPro tags its spatial PCM track 'ambisonic 1', a channel ORDER the
+    # AAC encoder rejects outright; remap to a plain named layout (a no-op
+    # for already-plain layouts). Unknown counts downmix to stereo.
+    _LAYOUTS = {1: "mono", 2: "stereo", 4: "4.0"}
     graph = (f"[0:v:0][0:v:1]vstack[st];"
              f"[st]format=gbrp,split[s1][s2];"
              f"[s1][1:v][2:v]remap[l];"
@@ -240,7 +249,14 @@ def flatten_gopro360(path, target_name=None, width=None, height=None,
             "-filter_complex", graph, "-map", "[out]"]
     if best_a is not None:
         astream = info["audio"].index(best_a)
-        cmds += ["-map", f"0:a:{astream}", "-c:a", "aac", "-b:a", "192k"]
+        cmds += ["-map", f"0:a:{astream}"]
+        layout = _LAYOUTS.get(int(best_a["channels"]))
+        if layout:
+            chmap = "|".join(str(i) for i in range(int(best_a["channels"])))
+            cmds += ["-af", f"channelmap={chmap}:{layout}"]
+        else:
+            cmds += ["-ac", "2"]
+        cmds += ["-c:a", "aac", "-b:a", "192k"]
     cmds += ["-shortest", "-c:v", "libx264", "-crf", str(crf),
              "-preset", preset, target_name]
     ffmpeg_cmd(cmds, get_length(path),
@@ -266,7 +282,9 @@ def theta_maps(in_w, in_h, out_w, out_h, fov_deg=191.5,
 
     jj, ii = np.meshgrid(np.arange(out_h), np.arange(out_w), indexing="ij")
     lon = (ii + 0.5) / out_w * 2 * np.pi - np.pi
-    lat = np.pi / 2 - (jj + 0.5) / out_h * np.pi
+    # top-down rows: latitude runs south->north (validated against the
+    # RICOH THETA app's own equirect export of the same file)
+    lat = (jj + 0.5) / out_h * np.pi - np.pi / 2
     sx = np.cos(lat) * np.sin(lon)
     sy = np.cos(lat) * np.cos(lon)
     sz = np.sin(lat)
