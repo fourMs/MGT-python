@@ -24,6 +24,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
+    "micromotion>=0.3",
     "numpy",
     "pandas",
     "matplotlib",
