@@ -50,3 +50,6 @@ musicalgestures/examples/*
 
 # Local scratch folder (blog drafts etc.) — not tracked
 temp/
+
+# mkdocs build output (site_dir in mkdocs.yml); published by CI, not committed
+site/

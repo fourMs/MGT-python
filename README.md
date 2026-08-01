@@ -229,3 +229,14 @@ If you use this toolbox in your research, please cite this article:
 ## License
 
 This toolbox is released under the [GNU General Public License 3.0 license](https://www.gnu.org/licenses/gpl-3.0.en.html).
+
+## Related toolboxes
+
+These four toolboxes come out of the [fourMs lab](https://github.com/fourMs) at the University of
+Oslo. They are separate packages with separate release cycles, but they are built to be used
+together and share several implementations, so a measure computed in one agrees with the same
+measure computed in another.
+
+- [ambiscape](https://github.com/fourMs/ambiscape) — soundscapes: the sonic ambience of a place, across level, spectral, spatial, temporal, ecological and source descriptors
+- [musiscape](https://github.com/fourMs/musiscape) — music collections: comparing many tracks and albums held as audio files in folders
+- [micromotion](https://github.com/fourMs/micromotion) — human micromotion: quantity of motion from optical markers, accelerometers, respiration belts and force plates
