@@ -6,8 +6,9 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from musicalgestures._remap360 import (GOPRO_TEMPLATES, gopro360_to_dual_fisheye,
-                                       probe_gopro360, write_remap_pgm)
+from musicalgestures._remap360 import (GOPRO_TEMPLATES, gopro360_dual_fisheye_average,
+                                       gopro360_to_dual_fisheye, probe_gopro360,
+                                       write_remap_pgm)
 
 pytestmark = pytest.mark.skipif(shutil.which("ffmpeg") is None,
                                 reason="ffmpeg not on PATH")
@@ -328,3 +329,30 @@ def test_gopro360_dual_fisheye_circular_can_be_turned_off(tmp_path):
                                    fov=180, size=128, circular=False)
     g = _first_frame(out, str(tmp_path / "sq.png")).mean(axis=2)
     assert g[:, :128][0, 0] > 8            # corner carries image, not mask
+
+
+def test_gopro360_dual_fisheye_average_is_rgba_and_masked(tmp_path):
+    """The average is one RGBA image, transparent outside each circle."""
+    src, _ = _eac_fixture(tmp_path)
+    out = gopro360_dual_fisheye_average(src, target_name=str(tmp_path / "avg.png"),
+                                        fov=180, size=128, fps=2)
+    a = cv2.imread(out, cv2.IMREAD_UNCHANGED)
+    assert a.shape == (128, 256, 4)
+    assert a[0, 0, 3] == 0 and a[0, 255, 3] == 0        # corners transparent
+    assert a[64, 64, 3] == 255 and a[64, 192, 3] == 255  # both circle centres opaque
+
+
+def test_gopro360_average_accepts_several_chapters(tmp_path):
+    """A recording split across files averages as one, weighted by frame count.
+
+    Averaging the same file twice must give the same image as averaging it once -- the arithmetic
+    the chapter handling relies on, and the reason it can skip concatenating an 8 GB session.
+    """
+    src, _ = _eac_fixture(tmp_path)
+    one = gopro360_dual_fisheye_average(src, target_name=str(tmp_path / "one.png"),
+                                        fov=180, size=64, fps=2)
+    two = gopro360_dual_fisheye_average([src, src], target_name=str(tmp_path / "two.png"),
+                                        fov=180, size=64, fps=2)
+    a = cv2.imread(one, cv2.IMREAD_UNCHANGED).astype(float)
+    b = cv2.imread(two, cv2.IMREAD_UNCHANGED).astype(float)
+    assert np.abs(a - b).max() <= 1        # allow a rounding step, not a shift

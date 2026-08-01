@@ -193,12 +193,17 @@ def gopro_maps(track_w, track_h, centerwidth, sidewidth, blendwidth,
     return xL, y.copy(), xR, y.copy(), alpha
 
 
-def _gopro_remap_stage(path, info, width, height):
+def _gopro_remap_stage(path, info, width, height, fps=None):
     """Inputs and filter graph that turn a two-strip .360 into one equirect frame.
 
     Shared by `flatten_gopro360` and `gopro360_to_dual_fisheye` so the two cannot drift: the remap
     tables, the seam handling and the blend are defined once, and each caller only decides what to
     do with the `[eq]` label at the end.
+
+    `fps` decimates BEFORE the remap. That placement is the whole point of the parameter: the remap
+    and the projection are the expensive stages, so dropping frames after them saves nothing. Put
+    the same filter after `[eq]` and an averaging pass runs about fifteen times longer for an
+    identical result.
 
     Returns (extra_inputs, graph, tmpdir). The graph ends in `[eq]` and assumes the .360 is input 0.
     """
@@ -214,7 +219,10 @@ def _gopro_remap_stage(path, info, width, height):
     mask = os.path.join(tmpdir, "alpha.png")
     cv2.imwrite(mask, (alpha * 255).astype(np.uint8))
     xlp, ylp = os.path.join(tmpdir, "xl.pgm"), os.path.join(tmpdir, "yl.pgm")
-    graph = (f"[0:v:0][0:v:1]vstack[st];"
+    rate = f",fps={fps}" if fps else ""
+    graph = (f"[0:v:0]setpts=PTS-STARTPTS{rate}[v0];"
+             f"[0:v:1]setpts=PTS-STARTPTS{rate}[v1];"
+             f"[v0][v1]vstack[st];"
              f"[st]format=gbrp,split[s1][s2];"
              f"[s1][1:v][2:v]remap[l];"
              f"[s2][3:v][4:v]remap[r];"
@@ -240,6 +248,84 @@ def _gopro_audio_args(info):
     else:
         out += ["-ac", "2"]
     return out + ["-c:a", "aac", "-b:a", "192k"]
+
+
+def gopro360_dual_fisheye_average(path, target_name=None, fov=180.0, size=704,
+                                  fps=2.0, transparent=True, print_cmd=False):
+    """The time-average of a .360 as one dual-fisheye image, without writing a video first.
+
+    For a recording of somebody standing still this is the useful still: whatever held position
+    resolves, whatever moved smears, and a single frame cannot show either. Returns the path to a
+    PNG, RGBA with the area outside each circle transparent when `transparent` is set.
+
+    `fps` decimates before averaging. The mean of a stationary scene converges long before every
+    frame is used -- a few hundred samples is plenty -- and decoding 4K equi-angular cubemap frames
+    is the whole cost of this operation, so sampling at 2 Hz rather than 30 does the same job for a
+    fifteenth of the work. Pass `fps=None` to average every frame.
+
+    Frames are accumulated in float64 from a raw pipe rather than written out and re-read. An 8-bit
+    running mean over a few hundred frames loses roughly a bit of precision at the point where the
+    averaging is meant to be revealing motion smaller than a pixel.
+
+    `path` may be several files. GoPro splits a recording into chapters, and averaging each chapter
+    separately and combining the means weighted by frame count is arithmetically identical to
+    averaging their concatenation -- while skipping the concatenation, which for a full session is
+    an 8 GB lossless copy written and read back before any useful work starts.
+
+    See `gopro360_to_dual_fisheye` for what `fov` means and why it has to be recorded.
+    """
+    from musicalgestures._utils import generate_outfilename
+
+    paths = [str(path)] if isinstance(path, (str, os.PathLike)) else [str(p) for p in path]
+    path = paths[0]
+    info = probe_gopro360(path)
+    h = info["video"][0]["height"]
+    eq_w = (3 * h) // 2 * 2
+    if target_name is None:
+        target_name = os.path.splitext(path)[0] + "_dualfisheye_average.png"
+    target_name = generate_outfilename(target_name)
+
+    extra, graph, tmpdir = _gopro_remap_stage(path, info, eq_w, eq_w // 2, fps=fps)
+    graph += (f";[eq]format=gbrp,split[e1][e2];"
+              f"[e1]v360=input=e:output=fisheye:h_fov={fov}:v_fov={fov}:"
+              f"w={size}:h={size}[front];"
+              f"[e2]v360=input=e:output=fisheye:h_fov={fov}:v_fov={fov}:yaw=180:"
+              f"w={size}:h={size}[back];"
+              f"[front][back]hstack=inputs=2,format=rgb24[out]")
+    nbytes = size * 2 * size * 3
+    acc = np.zeros((size, size * 2, 3), np.float64)
+    n = 0
+    for src in paths:
+        cmds = (["ffmpeg", "-v", "error", "-i", src] + extra
+                + ["-filter_complex", graph, "-map", "[out]", "-an",
+                   "-f", "rawvideo", "-pix_fmt", "rgb24", "-"])
+        if print_cmd:
+            print(" ".join(cmds))
+        proc = subprocess.Popen(cmds, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                bufsize=nbytes)
+        try:
+            while True:
+                buf = proc.stdout.read(nbytes)
+                if len(buf) < nbytes:
+                    break
+                acc += np.frombuffer(buf, np.uint8).reshape(size, size * 2, 3)
+                n += 1
+        finally:
+            proc.stdout.close()
+            err = proc.stderr.read().decode(errors="replace")
+            proc.wait()
+    if n == 0:
+        raise RuntimeError(f"no frames decoded from {paths}\n{err.strip()[:500]}")
+
+    img = np.rint(acc / n).astype(np.uint8)[:, :, ::-1]          # RGB -> BGR for cv2
+    if transparent:
+        yy, xx = np.mgrid[0:size, 0:size]
+        r = np.hypot(yy - (size - 1) / 2, xx - (size - 1) / 2)
+        disc = (r <= size / 2).astype(np.uint8) * 255
+        alpha = np.hstack([disc, disc])
+        img = np.dstack([img, alpha])
+    cv2.imwrite(target_name, img)
+    return target_name
 
 
 def _circle_mask_png(size, tmpdir):
