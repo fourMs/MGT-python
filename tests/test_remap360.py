@@ -6,8 +6,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from musicalgestures._remap360 import (GOPRO_TEMPLATES, probe_gopro360,
-                                       write_remap_pgm)
+from musicalgestures._remap360 import (GOPRO_TEMPLATES, gopro360_to_dual_fisheye,
+                                       probe_gopro360, write_remap_pgm)
 
 pytestmark = pytest.mark.skipif(shutil.which("ffmpeg") is None,
                                 reason="ffmpeg not on PATH")
@@ -282,3 +282,49 @@ def test_theta_alpha_reaches_half_at_seam():
     from musicalgestures._remap360 import theta_maps
     *_, alpha = theta_maps(1920, 1080, 480, 240)
     assert 0.49 < alpha.max() <= 0.5
+
+
+def _first_frame(path, png):
+    subprocess.run(["ffmpeg", "-y", "-v", "error", "-ss", "0.5", "-i", path,
+                    "-frames:v", "1", png], check=True)
+    return cv2.imread(png)
+
+
+def test_gopro360_to_dual_fisheye_geometry(tmp_path):
+    """Two square circles side by side, masked outside the inscribed disc."""
+    src, _ = _eac_fixture(tmp_path)
+    out = gopro360_to_dual_fisheye(src, target_name=str(tmp_path / "df.mp4"),
+                                   fov=180, size=128)
+    got = _first_frame(out, str(tmp_path / "df.png"))
+    assert got.shape[:2] == (128, 256)
+    g = got.mean(axis=2)
+    # every corner outside the inscribed circle is masked; the centres are not
+    for half in (g[:, :128], g[:, 128:]):
+        assert half[0, 0] < 8 and half[-1, -1] < 8
+        assert half[64, 64] > 8
+
+
+def test_gopro360_dual_fisheye_fov_changes_the_angular_scale(tmp_path):
+    """195 degrees is not 180 degrees rendered larger -- it is a different mapping.
+
+    Both fill the same circle, so a test on dimensions alone would pass for either and the
+    distinction that matters would go unnoticed. Compare the images instead: a wider field packs
+    the same content closer to the centre, so the two frames must not be identical.
+    """
+    src, _ = _eac_fixture(tmp_path)
+    a = gopro360_to_dual_fisheye(src, target_name=str(tmp_path / "a.mp4"),
+                                 fov=180, size=128)
+    b = gopro360_to_dual_fisheye(src, target_name=str(tmp_path / "b.mp4"),
+                                 fov=195, size=128)
+    ga = _first_frame(a, str(tmp_path / "a.png")).astype(float)
+    gb = _first_frame(b, str(tmp_path / "b.png")).astype(float)
+    assert ga.shape == gb.shape
+    assert np.abs(ga - gb).mean() > 1.0
+
+
+def test_gopro360_dual_fisheye_circular_can_be_turned_off(tmp_path):
+    src, _ = _eac_fixture(tmp_path)
+    out = gopro360_to_dual_fisheye(src, target_name=str(tmp_path / "sq.mp4"),
+                                   fov=180, size=128, circular=False)
+    g = _first_frame(out, str(tmp_path / "sq.png")).mean(axis=2)
+    assert g[:, :128][0, 0] > 8            # corner carries image, not mask

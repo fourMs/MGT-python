@@ -193,6 +193,134 @@ def gopro_maps(track_w, track_h, centerwidth, sidewidth, blendwidth,
     return xL, y.copy(), xR, y.copy(), alpha
 
 
+def _gopro_remap_stage(path, info, width, height):
+    """Inputs and filter graph that turn a two-strip .360 into one equirect frame.
+
+    Shared by `flatten_gopro360` and `gopro360_to_dual_fisheye` so the two cannot drift: the remap
+    tables, the seam handling and the blend are defined once, and each caller only decides what to
+    do with the `[eq]` label at the end.
+
+    Returns (extra_inputs, graph, tmpdir). The graph ends in `[eq]` and assumes the .360 is input 0.
+    """
+    w, h = info["video"][0]["width"], info["video"][0]["height"]
+    xL, yL, xR, yR, alpha = gopro_maps(
+        w, h, info["centerwidth"], info["sidewidth"], info["blendwidth"],
+        width, height)
+    tmpdir = tempfile.mkdtemp(prefix="mgt_remap360_")
+    xlp, ylp = write_remap_pgm(np.rint(xL), np.rint(yL), tmpdir)
+    os.rename(xlp, os.path.join(tmpdir, "xl.pgm"))
+    os.rename(ylp, os.path.join(tmpdir, "yl.pgm"))
+    xrp, yrp = write_remap_pgm(np.rint(xR), np.rint(yR), tmpdir)
+    mask = os.path.join(tmpdir, "alpha.png")
+    cv2.imwrite(mask, (alpha * 255).astype(np.uint8))
+    xlp, ylp = os.path.join(tmpdir, "xl.pgm"), os.path.join(tmpdir, "yl.pgm")
+    graph = (f"[0:v:0][0:v:1]vstack[st];"
+             f"[st]format=gbrp,split[s1][s2];"
+             f"[s1][1:v][2:v]remap[l];"
+             f"[s2][3:v][4:v]remap[r];"
+             f"[5:v]format=gray,scale={width}:{height}[m];"
+             f"[l][r][m]maskedmerge[eq]")
+    return ["-i", xlp, "-i", ylp, "-i", xrp, "-i", yrp, "-i", mask], graph, tmpdir
+
+
+def _gopro_audio_args(info):
+    """Map and re-encode the best audio stream, or nothing if the file carries none."""
+    best_a = max(info["audio"], key=lambda a: a["channels"], default=None)
+    if best_a is None:
+        return []
+    # GoPro tags its spatial PCM track 'ambisonic 1', a channel ORDER the
+    # AAC encoder rejects outright; remap to a plain named layout (a no-op
+    # for already-plain layouts). Unknown counts downmix to stereo.
+    _LAYOUTS = {1: "mono", 2: "stereo", 4: "4.0"}
+    out = ["-map", f"0:a:{info['audio'].index(best_a)}"]
+    layout = _LAYOUTS.get(int(best_a["channels"]))
+    if layout:
+        chmap = "|".join(str(i) for i in range(int(best_a["channels"])))
+        out += ["-af", f"channelmap={chmap}:{layout}"]
+    else:
+        out += ["-ac", "2"]
+    return out + ["-c:a", "aac", "-b:a", "192k"]
+
+
+def _circle_mask_png(size, tmpdir):
+    """A white disc inscribed in a black square, for masking outside the fisheye circle."""
+    m = np.zeros((size, size), np.uint8)
+    cv2.circle(m, (size // 2, size // 2), size // 2, 255, -1)
+    p = os.path.join(tmpdir, "circle.png")
+    cv2.imwrite(p, m)
+    return p
+
+
+def gopro360_to_dual_fisheye(path, target_name=None, fov=180.0, size=704,
+                             circular=True, crf=21, preset="fast",
+                             print_cmd=False):
+    """Convert a GoPro MAX .360 to side-by-side fisheye circles, front then back.
+
+    The output is `2*size` by `size`: two inscribed circles of `size` pixels, the layout GoPro's
+    own LRV proxies use and what most dual-fisheye viewers expect.
+
+    `fov` is the angular width each circle covers, and it is a parameter to set deliberately rather
+    than leave at a default. At 180 degrees a circle holds exactly a hemisphere and the two together
+    hold the sphere with nothing to spare. Above 180 each holds more than a hemisphere, the pair
+    overlap, and a given real-world direction lands closer to the centre of the circle --- at 195
+    degrees by a factor of 180/195, about eight per cent at the rim. Two renders at different `fov`
+    have identical pixel dimensions and are not comparable as measurements, so anything measuring
+    direction or angular size in the result must record which was used.
+
+    Why this is not `v360=input=eac` on the strips. GoPro's `.360` is a custom equi-angular cubemap
+    that stock ffmpeg cannot unwrap: pointing `v360` at one 4096x1344 strip, or at the two stacked,
+    yields a plausible-looking frame with scrambled corners rather than an error. The sphere is
+    recovered here with the same remap tables `flatten_gopro360` uses, and only then projected.
+
+    `circular` masks everything outside the inscribed circle to black, which is the convention for
+    dual-fisheye files and what GoPro's own proxies look like. Without it `v360` fills the square
+    out to the corners, and those corners hold real image content at an angle wider than `fov` --
+    harmless to look at, wrong to measure, and enough to make two otherwise identical renders
+    disagree about where the image ends.
+
+    Geometry is validated against synthetic fixtures and the max2sphere reference; strip
+    order/orientation against real camera files is still unverified, as for `flatten_gopro360`.
+    """
+    from musicalgestures._utils import (ffmpeg_cmd, generate_outfilename,
+                                        get_length)
+
+    path = str(path)
+    info = probe_gopro360(path)
+    h = info["video"][0]["height"]
+    eq_w = (3 * h) // 2 * 2
+    eq_h = eq_w // 2
+    if target_name is None:
+        target_name = os.path.splitext(path)[0] + "_dualfisheye.mp4"
+    target_name = generate_outfilename(target_name)
+
+    extra, graph, tmpdir = _gopro_remap_stage(path, info, eq_w, eq_h)
+    # one equirect frame, projected twice: forward, and the same rotated half a turn
+    graph += (f";[eq]format=gbrp,split[e1][e2];"
+              f"[e1]v360=input=e:output=fisheye:h_fov={fov}:v_fov={fov}:"
+              f"w={size}:h={size}[front];"
+              f"[e2]v360=input=e:output=fisheye:h_fov={fov}:v_fov={fov}:yaw=180:"
+              f"w={size}:h={size}[back]")
+    if circular:
+        mask = _circle_mask_png(size, tmpdir)
+        n = len(extra) // 2 + 1                     # next free input index
+        extra = extra + ["-i", mask]
+        graph += (f";[{n}:v]format=gbrp,split[mk1][mk2];"
+                  f"[front][mk1]blend=all_mode=multiply[fc];"
+                  f"[back][mk2]blend=all_mode=multiply[bc];"
+                  f"[fc][bc]hstack=inputs=2,format=yuv420p[out]")
+    else:
+        graph += ";[front][back]hstack=inputs=2,format=yuv420p[out]"
+    cmds = (["ffmpeg", "-y", "-i", path] + extra
+            + ["-filter_complex", graph, "-map", "[out]"]
+            + _gopro_audio_args(info)
+            + ["-shortest", "-c:v", "libx264", "-crf", str(crf),
+               "-preset", preset, target_name])
+    ffmpeg_cmd(cmds, get_length(path),
+               pb_prefix=f"GoPro 360 to dual fisheye ({fov:g} deg):",
+               print_cmd=print_cmd)
+    return target_name
+
+
 def flatten_gopro360(path, target_name=None, width=None, height=None,
                      crf=21, preset="fast", print_cmd=False):
     """Flatten a GoPro MAX/MAX2 .360 (or chunk-merged .mkv) to equirect.
@@ -212,7 +340,7 @@ def flatten_gopro360(path, target_name=None, width=None, height=None,
 
     path = str(path)
     info = probe_gopro360(path)
-    w, h = info["video"][0]["width"], info["video"][0]["height"]
+    h = info["video"][0]["height"]
     if width is None:
         width = (3 * h) // 2 * 2
     if height is None:
@@ -221,44 +349,13 @@ def flatten_gopro360(path, target_name=None, width=None, height=None,
         target_name = os.path.splitext(path)[0] + "_equirect.mp4"
     target_name = generate_outfilename(target_name)
 
-    xL, yL, xR, yR, alpha = gopro_maps(
-        w, h, info["centerwidth"], info["sidewidth"], info["blendwidth"],
-        width, height)
-    tmpdir = tempfile.mkdtemp(prefix="mgt_remap360_")
-    xlp, ylp = write_remap_pgm(np.rint(xL), np.rint(yL), tmpdir)
-    os.rename(xlp, os.path.join(tmpdir, "xl.pgm"))
-    os.rename(ylp, os.path.join(tmpdir, "yl.pgm"))
-    xrp, yrp = write_remap_pgm(np.rint(xR), np.rint(yR), tmpdir)
-    mask = os.path.join(tmpdir, "alpha.png")
-    cv2.imwrite(mask, (alpha * 255).astype(np.uint8))
-    xlp, ylp = os.path.join(tmpdir, "xl.pgm"), os.path.join(tmpdir, "yl.pgm")
-
-    best_a = max(info["audio"], key=lambda a: a["channels"], default=None)
-    # GoPro tags its spatial PCM track 'ambisonic 1', a channel ORDER the
-    # AAC encoder rejects outright; remap to a plain named layout (a no-op
-    # for already-plain layouts). Unknown counts downmix to stereo.
-    _LAYOUTS = {1: "mono", 2: "stereo", 4: "4.0"}
-    graph = (f"[0:v:0][0:v:1]vstack[st];"
-             f"[st]format=gbrp,split[s1][s2];"
-             f"[s1][1:v][2:v]remap[l];"
-             f"[s2][3:v][4:v]remap[r];"
-             f"[5:v]format=gray,scale={width}:{height}[m];"
-             f"[l][r][m]maskedmerge,format=yuv420p[out]")
-    cmds = ["ffmpeg", "-y", "-i", path,
-            "-i", xlp, "-i", ylp, "-i", xrp, "-i", yrp, "-i", mask,
-            "-filter_complex", graph, "-map", "[out]"]
-    if best_a is not None:
-        astream = info["audio"].index(best_a)
-        cmds += ["-map", f"0:a:{astream}"]
-        layout = _LAYOUTS.get(int(best_a["channels"]))
-        if layout:
-            chmap = "|".join(str(i) for i in range(int(best_a["channels"])))
-            cmds += ["-af", f"channelmap={chmap}:{layout}"]
-        else:
-            cmds += ["-ac", "2"]
-        cmds += ["-c:a", "aac", "-b:a", "192k"]
-    cmds += ["-shortest", "-c:v", "libx264", "-crf", str(crf),
-             "-preset", preset, target_name]
+    extra, graph, _ = _gopro_remap_stage(path, info, width, height)
+    graph += ";[eq]format=yuv420p[out]"
+    cmds = (["ffmpeg", "-y", "-i", path] + extra
+            + ["-filter_complex", graph, "-map", "[out]"]
+            + _gopro_audio_args(info)
+            + ["-shortest", "-c:v", "libx264", "-crf", str(crf),
+               "-preset", preset, target_name])
     ffmpeg_cmd(cmds, get_length(path),
                pb_prefix="Flattening GoPro 360:", print_cmd=print_cmd)
     return target_name
