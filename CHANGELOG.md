@@ -474,7 +474,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Restored consistent behaviour of the threshold/filtertype options in `motiongrams()`.
 
 ### Added
-- `info(type='summary')` now reports video codec/profile, pixel format, color space,
+- `info(type='summary')` now reports video codec/profile, pixel format, colour space,
   and audio codec/sample-rate/bit-rate alongside resolution, frames, fps, and duration.
 - `audio.mfcc()`, `audio.tempo()` (beat tracking with tempo, beat times, inter-beat
   intervals and beat regularity), and `audio.beat_statistics()` (circular timing analysis).

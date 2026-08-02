@@ -5,7 +5,7 @@
 [![CI](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml/badge.svg)](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml)
 [![Documentation](https://github.com/fourMs/MGT-python/actions/workflows/docs.yml/badge.svg)](https://fourms.github.io/MGT-python/)
 
-The **Musical Gestures Toolbox for Python** is a collection of tools for visualization and analysis of audio and video, with a focus on motion capture and musical gesture analysis.
+The **Musical Gestures Toolbox for Python** is a collection of tools for visualisation and analysis of audio and video, with a focus on motion capture and musical gesture analysis.
 
 ![MGT python demo](https://raw.githubusercontent.com/fourMs/MGT-python/master/musicalgestures/documentation/figures/promo/ipython_example.gif)
 
@@ -13,9 +13,9 @@ The **Musical Gestures Toolbox for Python** is a collection of tools for visuali
 
 MGT-python provides researchers, artists, and developers with powerful tools to:
 
-- **Analyze motion** in video recordings
+- **Analyse motion** in video recordings
 - **Extract audio features** from multimedia files  
-- **Generate visualizations** like motiongrams, videograms, and motion history images
+- **Generate visualisations** like motiongrams, videograms, and motion history images
 - **Process and manipulate** video content with computer vision techniques
 - **Integrate seamlessly** with scientific Python ecosystem (NumPy, SciPy, Matplotlib)
 
@@ -31,12 +31,12 @@ MGT-python provides researchers, artists, and developers with powerful tools to:
 
 ### 🎵 Audio Processing
 
-- Waveform analysis and visualization
+- Waveform analysis and visualisation
 - Spectrograms and chromagrams
 - Tempo and beat tracking
 - Audio feature extraction
 
-### 📊 Visualization Tools
+### 📊 Visualisation Tools
 
 - Motiongrams (motion over time)
 - Videograms (pixel intensity over time)
@@ -91,7 +91,7 @@ spectrogram = audio.spectrogram()
 - **[Examples](examples.md)** - Sample code and use cases
 - **[User Guide](user-guide/core-classes.md)** - Comprehensive documentation
 
-## Runtime Behavior
+## Runtime Behaviour
 
 - `pose()` defaults to the MediaPipe backend and downloads its weights on demand; the OpenPose models download their larger Caffe weights on first use instead.
 - In notebook and batch execution, pose weight downloads are attempted automatically instead of prompting for stdin.

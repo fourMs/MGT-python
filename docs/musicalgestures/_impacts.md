@@ -46,7 +46,7 @@ def mg_impacts(
 Compute a visual analogue of an onset envelope, aslo known as an impact envelope (Abe Davis).
 This is computed by summing over positive entries in the columns of the directogram. This gives an impact envelope with precisely the same
 form as an onset envelope. To account for large outlying spikes that sometimes happen at shot boundaries (i.e., cuts), the 99th percentile
-of the impact envelope values are clipped to the 98th percentile. Then, the impact envelopes are normalized by their maximum to make calculations
+of the impact envelope values are clipped to the 98th percentile. Then, the impact envelopes are normalised by their maximum to make calculations
 more consistent across video resolutions. Fianlly, the local mean of the impact envelopes are calculated using a 0.1-second window, and local maxima
 using a 0.15-second window. Impacts are defined as local maxima that are above their local mean by at least 10% of the envelope’s global maximum.
 

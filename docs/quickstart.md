@@ -87,9 +87,9 @@ print(data.head())
 
 Recent motion-analysis fixes ensure centroid-of-motion coordinates are computed as scalar values during `motion()` and `motiondata()` runs, which makes notebook and batch execution more robust.
 
-### 2. Create Visualizations
+### 2. Create Visualisations
 
-Generate various visualizations:
+Generate various visualisations:
 
 ```python
 mv = mg.MgVideo(examples.pianist)
@@ -118,7 +118,7 @@ blurred.show(mode='notebook')
 
 ### 3. Audio Analysis
 
-Analyze the audio component:
+Analyse the audio component:
 
 ```python
 mv = mg.MgVideo(examples.pianist)
@@ -250,7 +250,7 @@ MGT-python creates several types of output files:
 
 ### Video Files
 - `*_motion.avi` - Motion detection video
-- `*_history.avi` - Motion history visualization
+- `*_history.avi` - Motion history visualisation
 
 ### Image Files
 - `*_average.png` - Average of all frames

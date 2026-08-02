@@ -157,7 +157,7 @@ xvel = velocity.data['xvel']
 yvel = velocity.data['yvel']
 ```
 
-### Example 8: Custom Visualization Parameters
+### Example 8: Custom Visualisation Parameters
 
 ```python
 import musicalgestures as mg

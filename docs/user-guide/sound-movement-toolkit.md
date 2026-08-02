@@ -84,7 +84,7 @@ print(f"movement lags audio by {lag:.3f}s (r={corr:.2f})")
 ## Quantity-of-motion cores (`_qom`)
 
 Band-limited QoM (with an automatic decimate+SOS regime for very low frequency bands),
-accelerometer-to-speed integration, per-landmark-group pose QoM, body-scale normalization for
+accelerometer-to-speed integration, per-landmark-group pose QoM, body-scale normalisation for
 framing-invariant comparisons, spatial grid QoM, and small envelope/binning helpers.
 
 ```python

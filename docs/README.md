@@ -7,7 +7,7 @@
 [![CI](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml/badge.svg)](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml)
 [![Documentation](https://github.com/fourMs/MGT-python/actions/workflows/docs.yml/badge.svg)](https://fourms.github.io/MGT-python/)
 
-The **Musical Gestures Toolbox for Python** is a collection of tools for visualizing and analysing audio and video files.
+The **Musical Gestures Toolbox for Python** is a collection of tools for visualising and analysing audio and video files.
 
 ![MGT python](https://raw.githubusercontent.com/fourMs/MGT-python/master/musicalgestures/documentation/figures/promo/ipython_example.gif)
 
@@ -79,7 +79,7 @@ Full Mgt-python project documentation can be found in [Modules](MODULES.md#mgt-p
 
 - **Video Analysis**: Motion detection, optical flow, pose estimation
 - **Audio Processing**: Spectrograms, audio descriptors, tempo analysis
-- **Visualizations**: Motiongrams, videograms, motion history
+- **Visualisations**: Motiongrams, videograms, motion history
 - **Integration**: Works with NumPy, SciPy, and Matplotlib ecosystems
 - **Cross-platform**: Linux, macOS, Windows support
 

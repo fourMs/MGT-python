@@ -79,7 +79,7 @@ Key parameters (see the [full signature](video-analysis.md#pose-estimation) for 
   (`'body_25'`, `'coco'`, `'mpi'`).
 - `device` — `'cpu'` or `'gpu'`. For MediaPipe this selects the inference delegate (GPU falls back
   to CPU automatically if unavailable). For OpenPose, GPU needs a CUDA-enabled OpenCV build.
-- `threshold` — normalized confidence below which a keypoint is discarded (substituted with
+- `threshold` — normalised confidence below which a keypoint is discarded (substituted with
   `(0, 0)`). Defaults to `0.1`.
 - `use_cache` — when `True` (default), a second `pose()` call with the same `model`/`threshold`
   reuses the already-computed keypoints to re-render a different `style`/`overlay`/`background`

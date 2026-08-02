@@ -862,7 +862,7 @@ Gets the FPS (frames per second) value of a video using FFprobe.
 def get_frame_planecount(frame: np.ndarray) -> int:
 ```
 
-Gets the planecount (color channel count) of a video frame.
+Gets the planecount (colour channel count) of a video frame.
 
 #### Arguments
 
@@ -1055,7 +1055,7 @@ Renders horizontal and vertical motiongrams using ffmpeg.
 - `blur` *str, optional* - 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
 - `use_median` *bool, optional* - If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
 - `kernel_size` *int, optional* - Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
-- `invert` *bool, optional* - If True, inverts colors of the motiongrams. Defaults to False.
+- `invert` *bool, optional* - If True, inverts colours of the motiongrams. Defaults to False.
 - `target_name_x` *str, optional* - Target output name for the motiongram on the X axis. Defaults to None (which assumes that the input filename with the suffix "_mgx_ffmpeg" should be used).
 - `target_name_y` *str, optional* - Target output name for the motiongram on the Y axis. Defaults to None (which assumes that the input filename with the suffix "_mgy_ffmpeg" should be used).
 - `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
@@ -1095,7 +1095,7 @@ Renders a motion video using ffmpeg.
 - `blur` *str, optional* - 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
 - `use_median` *bool, optional* - If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
 - `kernel_size` *int, optional* - Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
-- `invert` *bool, optional* - If True, inverts colors of the motion video. Defaults to False.
+- `invert` *bool, optional* - If True, inverts colours of the motion video. Defaults to False.
 - `target_name` *str, optional* - Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).
 - `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 

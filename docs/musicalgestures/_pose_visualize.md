@@ -1,8 +1,8 @@
-# Pose Visualize
+# Pose Visualise
 
 > Auto-generated documentation for [musicalgestures._pose_visualize](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose_visualize.py) module.
 
-- [Mgt-python](../README.md#mgt-python) / [Modules](../MODULES.md#mgt-python-modules) / [Musicalgestures](index.md#musicalgestures) / Pose Visualize
+- [Mgt-python](../README.md#mgt-python) / [Modules](../MODULES.md#mgt-python-modules) / [Musicalgestures](index.md#musicalgestures) / Pose Visualise
     - [pose_center](#pose_center)
     - [pose_distance](#pose_distance)
     - [render_average_pose](#render_average_pose)

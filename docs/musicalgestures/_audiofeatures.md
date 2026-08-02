@@ -130,7 +130,7 @@ def spectral_flux(y, sr, nperseg=2048, noverlap=1536):
 ```
 
 Spectral-flux onset-detection function: the positive first difference of
-the STFT magnitude, summed over frequency and normalized to a maximum of
+the STFT magnitude, summed over frequency and normalised to a maximum of
 1. Rises sharply at note/percussion onsets.
 
 Source: Westney-comparisons study (Jensenius).

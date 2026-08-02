@@ -29,7 +29,7 @@ Applies Eulerian Video Magnification (EVM) to reveal subtle changes in a video.
 EVM amplifies small temporal variations that are normally invisible. Two modes are
 available:
 
-* ``mode='color'`` — amplifies subtle **colour** changes (e.g. blood flow / pulse,
+* ``mode='colour'`` — amplifies subtle **colour** changes (e.g. blood flow / pulse,
   breathing). Uses a Gaussian pyramid and an ideal (FFT) temporal band-pass filter.
   Processed in two passes so only a small down-sampled stack is held in memory.
 * ``mode='motion'`` — amplifies subtle **motion**. Uses a Laplacian pyramid with a
@@ -41,12 +41,12 @@ World" (SIGGRAPH 2012).
 
 #### Arguments
 
-- `mode` *str, optional* - 'color' or 'motion'. Defaults to 'color'.
+- `mode` *str, optional* - 'colour' or 'motion'. Defaults to 'colour'.
 - `freq_low` *float, optional* - Lower temporal cutoff in Hz. Defaults to 0.83 (~50 bpm).
 - `freq_high` *float, optional* - Upper temporal cutoff in Hz. Defaults to 1.0 (~60 bpm).
 - `amplification` *float, optional* - Amplification factor (alpha). Defaults to 50.
 - `levels` *int, optional* - Number of spatial pyramid levels. Defaults to 4.
-- `chroma_attenuation` *float, optional* - Chrominance attenuation in [0, 1] (color mode).
+- `chroma_attenuation` *float, optional* - Chrominance attenuation in [0, 1] (colour mode).
     Lower values reduce colour artefacts. Defaults to 1.0.
 - `lambda_cutoff` *float, optional* - Spatial wavelength cutoff for amplitude attenuation
     (motion mode). Defaults to 16.

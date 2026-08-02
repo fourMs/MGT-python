@@ -6,7 +6,7 @@
 [![CI](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml/badge.svg)](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml)
 [![Documentation](https://github.com/fourMs/MGT-python/actions/workflows/docs.yml/badge.svg)](https://fourms.github.io/MGT-python/)
 
-The **Musical Gestures Toolbox for Python** is a collection of tools for visualizing and analysing audio and video files.
+The **Musical Gestures Toolbox for Python** is a collection of tools for visualising and analysing audio and video files.
 
 ![MGT python](https://raw.githubusercontent.com/fourMs/MGT-python/master/musicalgestures/documentation/figures/promo/ipython_example.gif)
 
@@ -16,7 +16,7 @@ The **Musical Gestures Toolbox for Python** is a collection of tools for visuali
 
 MGT-python and [ambiscape](https://github.com/fourMs/ambiscape) are sister
 toolboxes: **MGT owns the pixels** (motion analysis, pose, 360° handling,
-video visualization), **ambiscape owns the samples** (soundscape levels,
+video visualisation), **ambiscape owns the samples** (soundscape levels,
 spatial audio, sound-event taxonomies). MGT's audio functions cover quick
 looks; for serious soundscape work, install the bridge—`pip install
 "musicalgestures[soundscape]"`—and pull ambiscape's
@@ -96,9 +96,9 @@ v.pose(model='mediapipe').show()
 - **Video Analysis**: Motion detection, optical flow, motion vectors, movement tempo, Eulerian Video Magnification, frame-rate/speed resampling (`resample()`), motion descriptors (energy/smoothness/entropy/spectral via `motiondescriptors()`)
 - **Pose Estimation**: MediaPipe (default; fast on plain CPU, GPU-capable) and OpenPose (multi-person) backends, with average-pose and trajectory summaries (per-marker quantity of motion + dominant frequency), optional marker motion trails, a 3D pose waterfall (`pose_waterfall()`), per-segment circular statistics (`pose_segments()`), centroid centring (`pose_center()`), and per-marker distance travelled (`pose_distance()`)
 - **Audio–movement analysis**: Compare a single performer's sound and motion, covering tempo similarity, phase synchrony, structural similarity, per-body-part audio coupling, and loudness/dynamics coupling
-- **Sound–movement research toolkit**: Lower-level, array-based functions from the author's ro/stillstanding/Westney/cymbal studies, for pulse/cycle segmentation, cross-modal alignment, body-scale-normalized quantity of motion, postural sway metrics, physiology features, mocap I/O, and pose-landmark trajectory extraction (see [Sound–Movement Analysis Toolkit](#soundmovement-analysis-toolkit) below)
+- **Sound–movement research toolkit**: Lower-level, array-based functions from the author's ro/stillstanding/Westney/cymbal studies, for pulse/cycle segmentation, cross-modal alignment, body-scale-normalised quantity of motion, postural sway metrics, physiology features, mocap I/O, and pose-landmark trajectory extraction (see [Sound–Movement Analysis Toolkit](#soundmovement-analysis-toolkit) below)
 - **Audio Processing**: Waveforms, spectrograms, MFCC, chromagrams, tempo/beat tracking, spectral descriptors
-- **Visualizations**: Motiongrams, videograms, motion history, heatmaps, sonomotiongrams (motion → sound)
+- **Visualisations**: Motiongrams, videograms, motion history, heatmaps, sonomotiongrams (motion → sound)
 - **Space-time displays**: Stroboscope (chronophotography), silhouette waterfall, Motion History Image, 3D space-time volume, combined motion SSM
 - **Integration**: Works with NumPy, SciPy, librosa, and Matplotlib ecosystems
 - **Cross-platform**: Linux, macOS, Windows support
@@ -122,7 +122,7 @@ into notebooks, batch scripts, or your own analysis pipeline, and are all import
   (or more) time-aligned signals.
 - **`_qom`** — `band_limited_qom`, `accel_to_speed`, `group_qom`, `pose_qom`, `body_scale`,
   `normalized_qom`, `grid_qom`, `envelope`, `bin_series`: quantity-of-motion cores for position,
-  pose-landmark and accelerometer data, including body-scale (framing-invariant) normalization.
+  pose-landmark and accelerometer data, including body-scale (framing-invariant) normalisation.
 - **`_audiofeatures`** — `rms_envelope`, `spectral_flux`, `spectral_flux_onsets`, `energy_onsets`,
   `t60_backward_decay`, `attack_spectral_centroid`: scipy-only audio features and onset detectors.
 - **`_posture`** — `cop_sway_metrics`, `confidence_ellipse_area`, `convex_hull_area`,

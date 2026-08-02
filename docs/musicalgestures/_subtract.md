@@ -38,7 +38,7 @@ Renders background subtraction using ffmpeg.
 - `use_median` *bool, optional* - If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
 - `kernel_size` *int, optional* - Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
 - `bg_img` *str, optional* - Path to a background image (.png) that needs to be subtracted from the video. If set to None, it uses an average image of all frames in the video. Defaults to None.
-- `bg_color` *str, optional* - Set the background color in the video file in hex value. Defaults to '#000000' (black).
+- `bg_color` *str, optional* - Set the background colour in the video file in hex value. Defaults to '#000000' (black).
 - `target_name` *str, optional* - Target output name for the subtracted video. Defaults to None.
 - `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 

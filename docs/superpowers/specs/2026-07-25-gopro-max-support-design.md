@@ -152,7 +152,7 @@ channels whose codec ffmpeg can decode (skip `none`/unknown codecs, the
 iPhone APAC case); tie-break to the lower stream index. Decode to the cached
 WAV as today, except the sample format follows the source: sources deeper
 than 16-bit (the MAX's s32 ambisonic track) decode to `pcm_s24le`, others
-stay `pcm_s16le`. Behavior for single-audio-stream files is unchanged; the
+stay `pcm_s16le`. Behaviour for single-audio-stream files is unchanged; the
 cache key/invalidation is unchanged. The module docstring gains three
 notes: the stream-selection rule; the Insta360 4-channel-is-not-B-format
 caveat; and the Garmin notes (empty Z ⇒ elevation metrics meaningless;

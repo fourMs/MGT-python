@@ -34,7 +34,7 @@ MGT-python automatically installs the following core dependencies:
 - `numpy` - Numerical computing
 - `pandas` - Data manipulation and analysis  
 - `scipy` - Scientific computing
-- `matplotlib` - Plotting and visualization
+- `matplotlib` - Plotting and visualisation
 
 ### Computer Vision & Media Processing
 - `opencv-python` - Computer vision algorithms
@@ -279,10 +279,10 @@ Once installed successfully:
 - **[Examples](examples.md)** - Sample code and tutorials
 - **[User Guide](user-guide/core-classes.md)** - Comprehensive documentation
 
-## Performance Optimization
+## Performance Optimisation
 
 ### For Large Video Files
-Consider installing additional optimized libraries:
+Consider installing additional optimised libraries:
 
 ```bash
 # For faster NumPy operations

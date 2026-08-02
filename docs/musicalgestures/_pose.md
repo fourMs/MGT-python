@@ -239,7 +239,7 @@ def pose(
 ```
 
 Renders a video with the pose estimation (aka. "keypoint detection" or "skeleton tracking") overlaid on it.
-Outputs the predictions in a text file containing the normalized x and y coordinates of each keypoint
+Outputs the predictions in a text file containing the normalised x and y coordinates of each keypoint
 (default format is csv).
 
 Supports two backends:
@@ -265,7 +265,7 @@ Supports two backends:
 - `device` *str, optional* - Compute backend ('cpu' or 'gpu'). For OpenPose models this
     selects the OpenCV DNN backend (GPU needs a CUDA-enabled OpenCV). For MediaPipe
     it selects the inference delegate (GPU delegate with CPU fallback). Defaults to 'gpu'.
-- `threshold` *float, optional* - The normalized confidence threshold that decides whether we
+- `threshold` *float, optional* - The normalised confidence threshold that decides whether we
     keep or discard a predicted point. Discarded points get substituted with (0, 0) in the
     output data. Defaults to 0.1.
 - `downsampling_factor` *int, optional* - Decides how much we downsample the video before we
