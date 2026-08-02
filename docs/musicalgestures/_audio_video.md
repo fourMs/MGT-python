@@ -3,7 +3,7 @@
 > Auto-generated documentation for [musicalgestures._audio_video](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audio_video.py) module.
 
 Audio–movement comparison reports for a single performer: tools to reveal how a dancer's
-movement relates to the sound — phase synchrony, structural similarity, per-body-part coupling,
+movement relates to the sound, through phase synchrony, structural similarity, per-body-part coupling,
 and energy/dynamics coupling.
 
 - [Mgt-python](../README.md#mgt-python) / [Modules](../MODULES.md#mgt-python-modules) / [Musicalgestures](index.md#musicalgestures) / Audio Video
@@ -36,8 +36,8 @@ def mg_body_audio_coupling(
 Map which body parts are most rhythmically coupled to the music.
 
 For every pose marker the per-frame speed is correlated with the audio onset-strength
-envelope (sampled at the video frame rate). The result is shown as a body map — the average
-pose with each marker coloured by its correlation — plus a sorted bar chart, and a CSV of the
+envelope (sampled at the video frame rate). The result is shown as a body map—the average
+pose with each marker coloured by its correlation—plus a sorted bar chart, and a CSV of the
 per-marker correlations. Uses cached pose keypoints when available, otherwise runs ``pose()``
 first (``**pose_kwargs`` are forwarded).
 
@@ -60,7 +60,7 @@ def mg_dynamics_coupling(
 ) -> 'MgFigure':
 ```
 
-Compare audio **loudness** with movement **quantity** — does the dancer move more when the
+Compare audio **loudness** with movement **quantity**. Does the dancer move more when the
 music is louder?
 
 Aligns the audio RMS-loudness envelope with the quantity-of-motion envelope and reports their
@@ -118,7 +118,7 @@ Compare the temporal **structure** of the audio with that of the movement.
 
 Builds a self-similarity matrix (SSM) of the audio (from MFCC frames) and of the video
 (from low-resolution frame appearance), resampled to the same ``n`` time points, and shows
-them side by side with their absolute **difference map** — bright regions in the difference
+them side by side with their absolute **difference map**. Bright regions in the difference
 are where the musical structure and the movement structure diverge.
 
 Returns an MgFigure (mean structural agreement in ``.data``), or None if the video has no audio.

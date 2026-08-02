@@ -29,10 +29,10 @@ Scalar movement descriptors derived from the quantity-of-motion (QoM) signal.
 Computes a compact set of higher-level descriptors that summarise *how* something moves,
 complementing the per-frame motion data from :func:`motion`:
 
-- **motion_energy** — mean squared QoM; the overall amount of movement.
-- **motion_smoothness** — SPARC (spectral arc length) of the QoM profile; a dimensionless,
+- **motion_energy**—mean squared QoM; the overall amount of movement.
+- **motion_smoothness**—SPARC (spectral arc length) of the QoM profile; a dimensionless,
   validated smoothness metric (less negative = smoother, more negative = jerkier).
-- **motion_entropy** — normalised (0–1) Shannon entropy of the QoM magnitude distribution;
+- **motion_entropy**—normalised (0–1) Shannon entropy of the QoM magnitude distribution;
   the complexity/variedness of the motion.
 - **spectral descriptors** of the QoM signal (Hann-windowed by default): the **dominant
   frequency** (Hz, the main movement-rhythm rate) and the **spectral centroid** (Hz, the
@@ -40,7 +40,7 @@ complementing the per-frame motion data from :func:`motion`:
 
 #### Arguments
 
-- `window` *str, optional* - FFT window for the spectral descriptors — 'hann' (default,
+- `window` *str, optional* - FFT window for the spectral descriptors—'hann' (default,
     recommended to reduce leakage) or 'none' for a rectangular window.
 - `entropy_bins` *int, optional* - Number of histogram bins for the entropy estimate. Defaults to 50.
 - `fmin` *float, optional* - Lowest frequency (Hz) considered for the dominant frequency and

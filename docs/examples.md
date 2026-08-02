@@ -256,7 +256,7 @@ mv.dynamics_coupling().show()     # loudness vs. quantity of motion
 The [sound–movement analysis toolkit](user-guide/sound-movement-toolkit.md) is a set of
 plain-numpy functions (not `MgVideo`/`MgAudio` methods) ported from the author's ro /
 stillstanding / Westney / cymbal studies. They operate on arrays, so no video file is needed
-for this example — a list of stroke onset times is enough:
+for this example, since a list of stroke onset times is enough:
 
 ```python
 import numpy as np
@@ -639,6 +639,6 @@ A visual tour of the outputs produced by the methods above. Each image was rende
 
 ## Next Steps
 
-- **[User Guide](user-guide/loading.md)** — Loading, preprocessing, and all analysis methods
-- **[API Reference](musicalgestures/index.md)** — Complete function reference
-- **[Wiki](https://github.com/fourMs/MGT-python/wiki)** — Visual examples and how-tos
+- **[User Guide](user-guide/loading.md)**—Loading, preprocessing, and all analysis methods
+- **[API Reference](musicalgestures/index.md)**—Complete function reference
+- **[Wiki](https://github.com/fourMs/MGT-python/wiki)**—Visual examples and how-tos

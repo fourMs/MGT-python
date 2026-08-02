@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- **Sound–movement analysis toolkit** (#351, #352, #353) — a family of plain-numpy functions
+- **Sound–movement analysis toolkit** (#351, #352, #353)—a family of plain-numpy functions
   ported from the author's ro / stillstanding / Westney / cymbal research pipelines, all
   importable directly from `musicalgestures`:
   - `_peaks.pick_peaks` — the canonical adaptive peak-picker shared by every detector below.
@@ -38,12 +38,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.6.9] – 2026-06-28
+## [1.6.9]–2026-06-28
 
 ### Added
-- **`motiondescriptors()`** (#210) — higher-level scalar movement descriptors from the
+- **`motiondescriptors()`** (#210)—higher-level scalar movement descriptors from the
   quantity-of-motion signal: **motion energy** (mean squared QoM), **motion smoothness**
-  (SPARC — spectral arc length, a dimensionless validated smoothness metric), **motion entropy**
+  (SPARC, spectral arc length, a dimensionless validated smoothness metric), **motion entropy**
   (normalised 0–1 Shannon entropy of the QoM magnitude distribution), and **spectral descriptors**
   (dominant frequency + spectral centroid from the Hann-windowed QoM power spectrum). Returns an
   `MgFigure` (QoM time series + power spectrum) with the scalars and full spectrum in `.data`, and
@@ -59,11 +59,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.6.8] – 2026-06-28
+## [1.6.8]–2026-06-28
 
 ### Fixed
-- **Accurate frame counts** (#242, #239). `get_framecount(fast=True)` — used to set `MgVideo.length`
-  — read the container's `nb_frames` metadata, which is unreliable (off by one on many AVIs, absent
+- **Accurate frame counts** (#242, #239). `get_framecount(fast=True)`—used to set `MgVideo.length`—read the container's `nb_frames` metadata, which is unreliable (off by one on many AVIs, absent
   on WebM); this was the "extra frame after conversion" reported in #239. It now counts demuxed
   video packets (`-count_packets`), which matches the true decoded frame count across containers
   while still avoiding a full decode (it is in fact marginally *faster* than the old metadata
@@ -72,20 +71,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.6.7] – 2026-06-28
+## [1.6.7]–2026-06-28
 
 ### Changed
 - **Faster import** (#349): `import musicalgestures` dropped from ~0.65s to ~0.52s by deferring
   `import numba` (it pulls in LLVM). The `@jit` kernels in `_directograms`, `_impacts` and `_warp`
   are now compiled lazily on first use. The nested directogram case (`directogram` calls
   `matrix3D_norm`) is handled by compiling the inner kernel and rebinding the module global before
-  the outer kernel compiles — the issue that reverted the first attempt. Adds
+  the outer kernel compiles, the issue that reverted the first attempt. Adds
   `tests/test_numba_kernels.py` to pin the deferral and nested-jit behaviour.
 - Also added the missing parameter type hints to `mg_warp_audiovisual_beats` (a follow-on to #345).
 
 ---
 
-## [1.6.6] – 2026-06-28
+## [1.6.6]–2026-06-28
 
 ### Added
 - **Parameter type hints across the public API** (#345). Every public analysis method now
@@ -107,7 +106,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.6.5] – 2026-06-28
+## [1.6.5]–2026-06-28
 
 ### Internal
 - **Cached average-frame decode** for the space-time analyses (#347). `stroboscope`,
@@ -115,19 +114,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   by decoding the whole video; this is now computed once and cached per `MgVideo` (keyed by
   filename, invalidated when it changes), so chained space-time calls reuse it instead of
   re-decoding. Joins the existing derived-signal caches (quantity-of-motion, audio envelope).
-  Full raw-frame shared decoding is intentionally avoided — caching the decoded frame stack is too
+  Full raw-frame shared decoding is intentionally avoided. Caching the decoded frame stack is too
   memory-heavy for typical videos (>1 GB), so only small derived signals are cached.
 
 ---
 
-## [1.6.4] – 2026-06-28
+## [1.6.4]–2026-06-28
 
 ### Added
-- **Type hints + `py.typed`** — the `MgVideo`/`MgAudio`/`MgImage`/`MgFigure` constructors are typed
+- **Type hints + `py.typed`**—the `MgVideo`/`MgAudio`/`MgImage`/`MgFigure` constructors are typed
   and ~45 public methods now declare their return types (the audio suite, space-time
   visualisations, the audio–movement reports, motion/pose/flow/ssm/videograms, etc.). A `py.typed`
   marker is shipped (PEP 561) so the hints are consumed by downstream type checkers. (Parameter
-  annotations and stricter CI mypy remain an ongoing follow-up — see #345.)
+  annotations and stricter CI mypy remain an ongoing follow-up; see #345.)
 
 ### Internal
 - Extended the `resolve_filename()` output-path helper (1.6.3) to the remaining single-target
@@ -139,14 +138,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.6.3] – 2026-06-27
+## [1.6.3]–2026-06-27
 
 ### Changed
 - **Faster import**: `import musicalgestures` dropped from ~1.5s to ~0.7s by lazy-loading heavy
   dependencies (`scipy.signal`, `scipy.stats`, `IPython.display`) that are only needed by specific
   methods.
 - **Pose model download** now uses Python's `urllib` instead of a bundled Windows `wget.exe` and
-  platform-specific shell scripts — removes the 3.8 MB binary from the wheel and is fully
+  platform-specific shell scripts, which removes the 3.8 MB binary from the wheel and is fully
   cross-platform.
 
 ### Internal
@@ -158,7 +157,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.6.2] – 2026-06-27
+## [1.6.2]–2026-06-27
 
 ### Fixed
 - `pose()` defaults to the MediaPipe backend (the optional `[pose]` extra). On installs without
@@ -183,7 +182,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.6.1] – 2026-06-27
+## [1.6.1]–2026-06-27
 
 ### Added
 - `pose_center()` — centre the pose data on its global centroid (a 2D port of the MoCap Toolbox
@@ -207,7 +206,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.6.0] – 2026-06-27
+## [1.6.0]–2026-06-27
 
 ### Added
 - **Audio–movement analysis suite** for comparing a single performer's sound and motion:
@@ -240,7 +239,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.5.0] – 2026-06-27
+## [1.5.0]–2026-06-27
 
 ### Changed
 - **Motiongram/videogram output filenames** now use direction-of-movement suffixes: `_mgh`/`_vgh`
@@ -255,7 +254,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.4.9] – 2026-06-27
+## [1.4.9]–2026-06-27
 
 ### Added
 - `pose_waterfall(style=...)`: new `'markers'`, `'skeleton'`, and `'both'` styles that draw the
@@ -270,8 +269,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   of auto-incrementing the filename. Pass `overwrite=False` for the old behaviour.
 - `MgVideo.beat_statistics()` now defaults to `source='motion'` (analyses the movement rhythm),
   so it differs from `video.audio.beat_statistics()`. Use `source='audio'` for the audio track.
-- `pose()`: `convert` defaults to `None` ("auto") — MediaPipe reads the source directly (no
-  intermediate AVI), OpenPose still converts for frame-accurate decoding. The result video is
+- `pose()`: `convert` defaults to `None` ("auto"). MediaPipe reads the source directly (no
+  intermediate AVI), while OpenPose still converts for frame-accurate decoding. The result video is
   written in the **original container** (mp4 in → mp4 out; no avi→mp4 round-trip).
 - Pose images decluttered: removed the titles from the trajectories and waterfall images and
   the average-pose image, and removed the average-pose colorbar. The trajectories image omits
@@ -284,11 +283,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.4.8] – 2026-06-27
+## [1.4.8]–2026-06-27
 
 ### Added
 - `pose_waterfall()`: a 3D spatio-temporal waterfall where each marker's trajectory flows
-  through (x, time, y) space — a pose-based counterpart to `silhouette_waterfall()`. Reuses
+  through (x, time, y) space, a pose-based counterpart to `silhouette_waterfall()`. Reuses
   cached pose keypoints when available; `color_by='marker'/'time'`, marker subsets supported.
 - `pose(marker_history=N)`: draw a motion trail for each marker over the last N frames
   (works in the OpenPose, MediaPipe, and cached re-render paths).
@@ -316,17 +315,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.4.7] – 2026-06-27
+## [1.4.7]–2026-06-27
 
 ### Fixed
 - **GPU detection**: `_utils.py` never imported `cv2`, so `get_cuda_device_count()` and
-  `cuda_build_available()` always reported no CUDA — GPU was never used even with a
+  `cuda_build_available()` always reported no CUDA. The GPU was never used even with a
   CUDA-enabled OpenCV. Now fixed: `pose(device='gpu')` (OpenPose), `flow.dense(use_gpu=True)`,
   and `flow.sparse(use_gpu=True)` use the GPU on a CUDA build.
 - GPU sparse optical flow: corrected point shapes (1×N CV_32FC2) and `calc()` return
   handling so the CUDA path works (it was never exercised before the detection fix).
-- `MgList.show(key='mgx'/'vgx'/…)` on motiongrams/videograms results no longer crashes —
-  it selects the matching panel.
+- `MgList.show(key='mgx'/'vgx'/…)` on motiongrams/videograms results no longer crashes. It
+   selects the matching panel.
 - CI on macOS/Windows: skip `.ogg` conversion tests when the FFmpeg build lacks libtheora;
   force the Matplotlib Agg backend in tests (no more Windows `_tkinter` crash).
 - Audio cache: methods inherited by `MgVideo` (e.g. `video.spectrogram()`) no longer fail
@@ -347,7 +346,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.4.6] – 2026-06-27
+## [1.4.6]–2026-06-27
 
 ### Added
 - Space-time person visualisations (`musicalgestures/_spacetime.py`): `stroboscope()`
@@ -371,7 +370,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.4.5] – 2026-06-26
+## [1.4.5]–2026-06-26
 
 ### Added
 - `pose()` now also exports an **average-pose image** (each marker coloured/labelled
@@ -389,7 +388,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **Display model**: analysis results (`MgImage`/`MgFigure`) no longer auto-render as a
-  notebook cell's last expression — display happens only via `show()`. HTML is available
+  notebook cell's last expression. Display happens only via `show()`. HTML is available
   via `to_html()`. `MgList.as_figure()` and `info('frame')` updated accordingly
   (`info('frame')` returns an `MgImage`).
 - `blur_faces()` writes **MP4/libx264** (via the FFmpeg pipe) instead of MJPEG-AVI,
@@ -407,7 +406,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.4.4] – 2026-06-26
+## [1.4.4]–2026-06-26
 
 ### Added
 - `MgVideo.eulerian()` — Eulerian Video Magnification (Wu et al., SIGGRAPH 2012)
@@ -430,7 +429,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.4.3] – 2026-06-26
+## [1.4.3]–2026-06-26
 
 ### Added
 - `MgVideo.heatmap()`: a motion heatmap showing which parts of the video change
@@ -464,7 +463,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.4.2] – 2026-06-26
+## [1.4.2]–2026-06-26
 
 ### Fixed
 - **Critical:** repaired a `thresholdold` corruption (from a botched `thresh`→`threshold`
@@ -485,7 +484,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.4.1] – 2026-06-26
+## [1.4.1]–2026-06-26
 
 ### Fixed
 - `average()` now correctly ignores both `method=` and `normalize=` legacy kwargs (1.4.0 only filtered `normalize=`).
@@ -494,11 +493,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.4.0] – 2026-06-26
+## [1.4.0]–2026-06-26
 
 ### Added
 
-#### Phase 1 – Foundation
+#### Phase 1–Foundation
 - Migrated project metadata and build configuration to `pyproject.toml` (PEP 517/518/621).
   `setup.py` and `setup.cfg` are now stubs pointing to the new file.
 - Raised minimum Python version to 3.10; updated CI matrix to test 3.10, 3.11, and 3.12.
@@ -509,23 +508,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `musicalgestures/_exceptions.py`: typed exception hierarchy (`MgError` → `MgInputError`, `MgProcessingError`, `MgIOError`, `MgDependencyError`).
 - Added `musicalgestures/_logging.py`: module-level `logging.getLogger('musicalgestures')` logger with a `NullHandler` and a `set_log_level()` helper.
 
-#### Phase 2 – Data Structures
+#### Phase 2–Data Structures
 - Added `musicalgestures/_features.py`: `MgFeatures` – a named time-series container for motion and audio descriptors. Supports `to_numpy()`, `to_dataframe()`, `to_json()`, `from_json()`, `from_dataframe()`, NumPy array protocol, and a rich Jupyter `_repr_html_` display.
 - Added `musicalgestures/_stream.py`: `MgVideoReader` – a context-manager-based streaming frame iterator (lazy, low-memory, FFmpeg-backed).
 - Added `_repr_html_()` and `_repr_mimebundle_()` to `MgImage` and `MgFigure` for rich inline display in Jupyter notebooks.
 
-#### Phase 3 – Pose Modernisation
+#### Phase 3–Pose Modernisation
 - Added `musicalgestures/_pose_estimator.py`: abstract `PoseEstimator` base class, `PoseEstimatorResult` container, `MediaPipePoseEstimator` (Google MediaPipe Pose, 33 landmarks, no model download required), `OpenPosePoseEstimator` (compatibility shim for the legacy OpenPose backend), and `get_pose_estimator()` factory function.
 
-#### Phase 4 – ML Integration
+#### Phase 4–ML Integration
 - Added `musicalgestures/_pipeline.py`: `MgPipeline` – a scikit-learn–style pipeline that chains named `MgStep` objects. Supports `transform()`, `fit()`, `fit_transform()`, and a `describe()` method.
 - Added `musicalgestures/_dataset.py`: `MgDataset` – labelled collection of media files with `from_directory()`, `from_json()`, `train_test_split()`, `filter()`, `to_json()`, and Jupyter `_repr_html_`. Also includes `MgCorpus` (directory-scanning convenience subclass) and `MediaItem`.
 
-#### Phase 5 – Documentation
+#### Phase 5–Documentation
 - Added `CHANGELOG.md` following the Keep-a-Changelog format.
 - Added `CONTRIBUTING.md` with a complete developer guide.
 
-#### Phase 6 – Ecosystem
+#### Phase 6–Ecosystem
 - Added `musicalgestures/cli.py`: click-based command-line interface (`musicalgestures info`, `motion`, `videograms`, `average`, `history`, `motiongrams`, `convert`).
 - Updated `musicalgestures/__init__.py` to export all new public classes (`MgFeatures`, `MgVideoReader`, `MgPipeline`, `MgStep`, `MgDataset`, `MgCorpus`, `MediaItem`, `PoseEstimator`, `MediaPipePoseEstimator`, `PoseEstimatorResult`, `get_pose_estimator`, enums, exceptions, `set_log_level`).
 
@@ -553,7 +552,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.3.3] – 2024-01-01
+## [1.3.3]–2024-01-01
 
 ### Changed
 - Minor changes for v1.3.3.

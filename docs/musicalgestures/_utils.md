@@ -886,9 +886,9 @@ Returns the number of frames in a video using FFprobe.
 
 - `filename` *str* - Path to the video file to measure.
 - `fast` *bool, optional* - If True (default), count demuxed video packets
-    (``-count_packets``). This is fast (no decoding) and — unlike the container's
+    (``-count_packets``). This is fast (no decoding) and—unlike the container's
     ``nb_frames`` metadata, which is unreliable (e.g. off by one on many AVIs, or absent
-    on WebM) — matches the true decoded frame count for normal video streams. If False,
+    on WebM)—matches the true decoded frame count for normal video streams. If False,
     fully decode and count frames (``-count_frames``): the ground truth, but slower.
     Defaults to True.
 
@@ -1123,7 +1123,7 @@ agree on the orientation, preventing some processes from coming out rotated.
 
 #### Returns
 
-- `str` - Path to an upright video — the original if it had no rotation, otherwise a
+- `str` - Path to an upright video—the original if it had no rotation, otherwise a
     new "_oriented" copy.
 
 ## pass_if_container_is

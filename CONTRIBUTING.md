@@ -108,7 +108,7 @@ pytest tests/ --cov=musicalgestures --cov-report=term-missing
 
 - Add a new test file `tests/test_<feature>.py`.
 - Use `pytest.fixture` for shared resources.
-- Assert on **array shapes**, **file existence**, and **return types** – not just that code runs without error.
+- Assert on **array shapes**, **file existence**, and **return types**–not just that code runs without error.
 - Mark slow tests with `@pytest.mark.slow` and skip in fast CI runs.
 
 Example:
@@ -156,7 +156,7 @@ pip install "handsdown==1.1.0" "setuptools<81"   # 1.1.0 matches the committed f
 ./scripts/regenerate_api_docs.sh
 ```
 
-The script only rewrites the auto-generated stubs — the hand-written pages (`index.md`, `README.md`,
+The script only rewrites the auto-generated stubs, the hand-written pages (`index.md`, `README.md`,
 `quickstart.md`, `installation.md`, `user-guide/*`, `releases.md`) are left untouched.
 
 ### Docstring style
@@ -197,7 +197,7 @@ def my_function(x: np.ndarray, threshold: float = 0.5) -> float:
    git checkout -b feature/my-feature
    ```
 
-2. **Make focused commits** – one logical change per commit. Use conventional commits format:
+2. **Make focused commits**–one logical change per commit. Use conventional commits format:
    ```
    feat: add MgFeatures.to_zarr() method
    fix: handle empty video in MgVideoReader

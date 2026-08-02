@@ -93,9 +93,9 @@ mv25.show()
 
 Three independent, combinable operations:
 
-- `fps`: retime to a target frame rate via FFmpeg's `fps` filter — **duration-preserving** (frames are dropped/duplicated to hit the rate), e.g. 30 → 25 fps.
+- `fps`: retime to a target frame rate via FFmpeg's `fps` filter, **duration-preserving** (frames are dropped/duplicated to hit the rate), e.g. 30 → 25 fps.
 - `speed`: change playback speed by a factor (`>1` faster/shorter, `<1` slower/longer); the video (`setpts`) and the audio (`atempo`) are retimed together so they stay in sync.
-- `skip`: integer frame decimation — discard `skip` frames for every one kept (this also shortens/speeds up the clip), matching the loader's `skip` parameter.
+- `skip`: integer frame decimation, discarding `skip` frames for every one kept (this also shortens/speeds up the clip), matching the loader's `skip` parameter.
 
 When more than one is given they are applied in order: `skip` → `speed`/`fps`. The output filename defaults to the input name with a `_resampled` suffix; `target_name` and `overwrite` work as for the other methods.
 
@@ -115,8 +115,8 @@ This produces files like `video_trim.avi`, `video_trim_skip.avi`, `video_trim_sk
 
 Every analysis method accepts `target_name` and `overwrite`:
 
-- `target_name` sets the output file path. If `None` (default), a suffix is appended to the source name — for example, `history` on `dance.avi` produces `dance_history.avi` in the same directory.
-- `overwrite=True` (default) replaces the existing file in place — re-running a method overwrites the previous result instead of leaving stale copies behind.
+- `target_name` sets the output file path. If `None` (default), a suffix is appended to the source name. For example, `history` on `dance.avi` produces `dance_history.avi` in the same directory.
+- `overwrite=True` (default) replaces the existing file in place, so re-running a method overwrites the previous result instead of leaving stale copies behind.
 - `overwrite=False` silently increments the filename if one already exists: `dance_history.avi` → `dance_history_0.avi` → `dance_history_1.avi`, and so on (the old auto-increment behaviour).
 
 ```python
@@ -126,5 +126,5 @@ mv.history(target_name='/output/my_history.avi', overwrite=False)   # keep every
 
 ## Next steps
 
-- [Video Analysis](video-analysis.md) — run motion analysis, optical flow, and more
-- [Loading & Showing](loading.md) — how to load and display results
+- [Video Analysis](video-analysis.md)—run motion analysis, optical flow, and more
+- [Loading & Showing](loading.md)—how to load and display results

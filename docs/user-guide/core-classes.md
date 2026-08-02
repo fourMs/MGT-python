@@ -123,9 +123,9 @@ mv.heatmap().save('out/heatmap.png').show()
 
 ## Next steps
 
-- [Loading & Showing](loading.md) — how to load videos and display results
-- [Preprocessing](preprocessing.md) — trim, crop, rotate, and adjust at load time
-- [Video Analysis](video-analysis.md) — motion, optical flow, pose estimation, and more
-- [Audio Analysis](audio-analysis.md) — waveforms, spectrograms, and audio features
-- [Working with Results](results.md) — MgFigure, MgImage, MgList, and chaining
-- [API Reference](../musicalgestures/index.md) — complete method documentation
+- [Loading & Showing](loading.md)—how to load videos and display results
+- [Preprocessing](preprocessing.md)—trim, crop, rotate, and adjust at load time
+- [Video Analysis](video-analysis.md)—motion, optical flow, pose estimation, and more
+- [Audio Analysis](audio-analysis.md)—waveforms, spectrograms, and audio features
+- [Working with Results](results.md)—MgFigure, MgImage, MgList, and chaining
+- [API Reference](../musicalgestures/index.md)—complete method documentation

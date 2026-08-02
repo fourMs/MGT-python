@@ -18,8 +18,8 @@ MGT-python and [ambiscape](https://github.com/fourMs/ambiscape) are sister
 toolboxes: **MGT owns the pixels** (motion analysis, pose, 360° handling,
 video visualization), **ambiscape owns the samples** (soundscape levels,
 spatial audio, sound-event taxonomies). MGT's audio functions cover quick
-looks; for serious soundscape work, install the bridge —
-`pip install "musicalgestures[soundscape]"` — and pull ambiscape's
+looks; for serious soundscape work, install the bridge—`pip install
+"musicalgestures[soundscape]"`—and pull ambiscape's
 session features straight into `MgFeatures` on a shared wall-clock time
 base (see `musicalgestures._soundscape` and `musicalgestures._timecode`).
 
@@ -95,8 +95,8 @@ v.pose(model='mediapipe').show()
 
 - **Video Analysis**: Motion detection, optical flow, motion vectors, movement tempo, Eulerian Video Magnification, frame-rate/speed resampling (`resample()`), motion descriptors (energy/smoothness/entropy/spectral via `motiondescriptors()`)
 - **Pose Estimation**: MediaPipe (default; fast on plain CPU, GPU-capable) and OpenPose (multi-person) backends, with average-pose and trajectory summaries (per-marker quantity of motion + dominant frequency), optional marker motion trails, a 3D pose waterfall (`pose_waterfall()`), per-segment circular statistics (`pose_segments()`), centroid centring (`pose_center()`), and per-marker distance travelled (`pose_distance()`)
-- **Audio–movement analysis**: Compare a single performer's sound and motion — tempo similarity, phase synchrony, structural similarity, per-body-part audio coupling, and loudness/dynamics coupling
-- **Sound–movement research toolkit**: Lower-level, array-based functions from the author's ro/stillstanding/Westney/cymbal studies — pulse/cycle segmentation, cross-modal alignment, body-scale-normalized quantity of motion, postural sway metrics, physiology features, mocap I/O, and pose-landmark trajectory extraction (see [Sound–Movement Analysis Toolkit](#soundmovement-analysis-toolkit) below)
+- **Audio–movement analysis**: Compare a single performer's sound and motion, covering tempo similarity, phase synchrony, structural similarity, per-body-part audio coupling, and loudness/dynamics coupling
+- **Sound–movement research toolkit**: Lower-level, array-based functions from the author's ro/stillstanding/Westney/cymbal studies, for pulse/cycle segmentation, cross-modal alignment, body-scale-normalized quantity of motion, postural sway metrics, physiology features, mocap I/O, and pose-landmark trajectory extraction (see [Sound–Movement Analysis Toolkit](#soundmovement-analysis-toolkit) below)
 - **Audio Processing**: Waveforms, spectrograms, MFCC, chromagrams, tempo/beat tracking, spectral descriptors
 - **Visualizations**: Motiongrams, videograms, motion history, heatmaps, sonomotiongrams (motion → sound)
 - **Space-time displays**: Stroboscope (chronophotography), silhouette waterfall, Motion History Image, 3D space-time volume, combined motion SSM
@@ -109,7 +109,7 @@ Alongside the `MgVideo`/`MgAudio` methods above, MGT-python exposes a lower-leve
 plain-numpy sound–movement analysis functions, ported from the author's own research pipelines
 (the **ro** ritual-drumming study, the **stillstanding**/standstill-championship posturography
 study, the **Westney** with/without-audience piano comparisons, and the **cymbal**-comparison
-striking study). They work on arrays — not on `MgVideo`/`MgAudio` objects — so they drop straight
+striking study). They work on arrays—not on `MgVideo`/`MgAudio` objects—so they drop straight
 into notebooks, batch scripts, or your own analysis pipeline, and are all importable directly from
 `musicalgestures`:
 
@@ -138,7 +138,7 @@ into notebooks, batch scripts, or your own analysis pipeline, and are all import
 - **`_posetools`** — `extract_pose_landmarks`, `midpoint`, `limb_speed_from_landmarks`,
   `impact_events`: video → tidy per-landmark trajectory arrays, plus derived limb-speed and
   impact-event signals. `extract_pose_landmarks` needs MediaPipe (`pip install musicalgestures[pose]`),
-  imported lazily — the derived-signal helpers are numpy-only.
+  imported lazily, while the derived-signal helpers are numpy-only.
 - **`motiongram_data`** (in `_motionanalysis`) gained an `orientation='vertical'|'horizontal'`
   option for the numpy-level motiongram, matching the two `motiongrams()` render directions.
 
@@ -237,6 +237,6 @@ Oslo. They are separate packages with separate release cycles, but they are buil
 together and share several implementations, so a measure computed in one agrees with the same
 measure computed in another.
 
-- [ambiscape](https://github.com/fourMs/ambiscape) — soundscapes: the sonic ambience of a place, across level, spectral, spatial, temporal, ecological and source descriptors
-- [musiscape](https://github.com/fourMs/musiscape) — music collections: comparing many tracks and albums held as audio files in folders
-- [micromotion](https://github.com/fourMs/micromotion) — human micromotion: quantity of motion from optical markers, accelerometers, respiration belts and force plates
+- [ambiscape](https://github.com/fourMs/ambiscape)—soundscapes: the sonic ambience of a place, across level, spectral, spatial, temporal, ecological and source descriptors
+- [musiscape](https://github.com/fourMs/musiscape)—music collections: comparing many tracks and albums held as audio files in folders
+- [micromotion](https://github.com/fourMs/micromotion)—human micromotion: quantity of motion from optical markers, accelerometers, respiration belts and force plates

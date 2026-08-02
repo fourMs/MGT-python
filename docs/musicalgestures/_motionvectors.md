@@ -25,7 +25,7 @@ how macroblocks move between frames. This method uses FFmpeg's ``codecview`` fil
 giving a quick, decoder-level view of motion without any re-computation.
 
 NB: Only codecs that actually carry motion vectors will show arrows. Intra-only
-formats (e.g. MJPEG, common in ``.avi`` files) have none — convert to an inter-frame
+formats (e.g. MJPEG, common in ``.avi`` files) have none. Convert to an inter-frame
 codec first (e.g. via ``show(mode='notebook')`` which makes an mp4, or any mp4/h264
 source) to see motion vectors.
 

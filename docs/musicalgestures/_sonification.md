@@ -26,7 +26,7 @@ def mg_sonomotiongram(
 Creates a *sonomotiongram*: a sonification of the video's motiongram.
 
 The motiongram (a time–space image of where motion happens) is treated as a magnitude
-spectrogram — spatial position maps to frequency, motion intensity to amplitude — and
+spectrogram—spatial position maps to frequency, motion intensity to amplitude—and
 converted back to audio with an inverse STFT (Griffin–Lim phase estimation). The result
 lets you *hear* the motion. Based on Jensenius, "Some video abstraction techniques for
 displaying body movement in analysis and performance" / sonomotiongrams (SMC 2013).

@@ -22,8 +22,8 @@ def pose_center(data, names):
 
 Centre pose data on its global centroid (a 2D port of the MoCap Toolbox ``mccenter``).
 
-Computes a single offset per coordinate dimension — the mean of the per-marker temporal means
-(missing detections ignored) — and subtracts it from every marker so the overall
+Computes a single offset per coordinate dimension—the mean of the per-marker temporal means
+(missing detections ignored)—and subtracts it from every marker so the overall
 spatiotemporal centroid sits at the origin (0, 0).
 
 #### Arguments
@@ -165,8 +165,8 @@ def render_pose_waterfall(
 ):
 ```
 
-Render a 3D spatio-temporal waterfall of the pose, cascading along the time (depth) axis —
-a pose-based counterpart to ``silhouette_waterfall()``.
+Render a 3D spatio-temporal waterfall of the pose, cascading along the time (depth) axis, a
+ pose-based counterpart to ``silhouette_waterfall()``.
 
 ``style`` selects what is drawn:
 

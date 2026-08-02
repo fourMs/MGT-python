@@ -88,7 +88,7 @@ def mg_silhouette_waterfall(
 
 Renders a 3D silhouette waterfall: the per-frame silhouette projected onto one spatial
 axis and stacked as cascading curves along a time (depth) axis, so the body's occupancy
-profile "flows" through time — like a 3D spectrogram waterfall.
+profile "flows" through time, like a 3D spectrogram waterfall.
 
 For a single person on a static background, raise ``threshold`` and/or set
 ``keep_largest=True`` for a cleaner profile.

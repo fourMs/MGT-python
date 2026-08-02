@@ -3,7 +3,7 @@
 MGT-python analysis methods return one of three result types: `MgFigure`, `MgImage`, or `MgList`. All three implement `show()` and can be combined into stacked, time-aligned figures.
 
 !!! note "Display happens via `show()`"
-    Result objects do **not** auto-render as the last expression of a notebook cell — call `show()` to display them. This keeps a single, predictable display and avoids duplicate output. (An HTML snippet is still available programmatically via `to_html()` on `MgImage`/`MgFigure`.)
+    Result objects do **not** auto-render as the last expression of a notebook cell. Call `show()` to display them. This keeps a single, predictable display and avoids duplicate output. (An HTML snippet is still available programmatically via `to_html()` on `MgImage`/`MgFigure`.)
 
 ---
 
@@ -41,7 +41,7 @@ print(img.of)         # path/to/image  (no extension)
 print(img.fex)        # .png
 ```
 
-Methods that return still images — `average()`, `motionplots()`, `grid()`, `motiongrams()[0]` — return `MgImage`.
+Methods that return still images—`average()`, `motionplots()`, `grid()`, `motiongrams()[0]`—return `MgImage`.
 
 ---
 
@@ -125,13 +125,13 @@ One-liners work too:
 mg.MgVideo('/path/to/video.avi', skip=4, crop='auto').motion().history().average().show()
 ```
 
-This loads the video with preprocessing, renders a motion video, builds a motion history, computes the average of that history, and displays the result — in a single expression.
+This loads the video with preprocessing, renders a motion video, builds a motion history, computes the average of that history, and displays the result, in a single expression.
 
 ---
 
 ## Next steps
 
-- [Video Analysis](video-analysis.md) — full list of video analysis methods
-- [Audio Analysis](audio-analysis.md) — full list of audio analysis methods
-- [API Reference](../musicalgestures/_utils.md) — MgFigure and MgImage signatures
-- [MgList Reference](../musicalgestures/_mglist.md) — MgList method signatures
+- [Video Analysis](video-analysis.md)—full list of video analysis methods
+- [Audio Analysis](audio-analysis.md)—full list of audio analysis methods
+- [API Reference](../musicalgestures/_utils.md)—MgFigure and MgImage signatures
+- [MgList Reference](../musicalgestures/_mglist.md)—MgList method signatures

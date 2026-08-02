@@ -5,8 +5,8 @@ plain-numpy sound–movement analysis functions, ported from the author's own re
 pipelines: the **ro** ritual-drumming study, the **stillstanding**/standstill-championship
 posturography study, the **Westney** with/without-audience piano comparisons, and the
 **cymbal**-comparison striking study. Unlike the `MgVideo`/`MgAudio` methods, these functions
-operate directly on numpy arrays (onset times, position/landmark trajectories, waveforms) —
-no video decoding or rendering — so they drop straight into notebooks, batch scripts, or your
+operate directly on numpy arrays (onset times, position/landmark trajectories, waveforms)—no
+ video decoding or rendering—so they drop straight into notebooks, batch scripts, or your
 own analysis pipeline. Every function is importable directly from `musicalgestures` (except
 where noted) and documents its own provenance and default-parameter caveats in its docstring;
 see the [API Reference](../musicalgestures/index.md) for full signatures.
@@ -16,9 +16,9 @@ see the [API Reference](../musicalgestures/index.md) for full signatures.
 ## Peak-picking core
 
 `pick_peaks(x, fs=1.0, smooth=3, rel_threshold=0.5, min_interval=0.3, rel_prominence=0.2, ...)`
-(`_peaks`) is the single adaptive peak-picker — moving-average smoothing, a relative or
-absolute amplitude threshold, a minimum inter-peak interval, and an optional prominence gate —
-shared by every event detector in the toolkit (`_pulse`, `_alignment`, `_qom`,
+(`_peaks`) is the single adaptive peak-picker—moving-average smoothing, a relative or
+absolute amplitude threshold, a minimum inter-peak interval, and an optional prominence gate—shared
+ by every event detector in the toolkit (`_pulse`, `_alignment`, `_qom`,
 `_audiofeatures`). Its docstring records the provisional per-signal-type defaults used across
 the source studies (e.g. hand-acceleration impacts vs. audio energy onsets vs. wrist-speed
 peaks); tune the parameters to the signal at hand rather than relying on the defaults.
@@ -58,7 +58,7 @@ plus `t_start`/`n_strokes`/`stroke_gap` properties).
 
 ## Cross-modal alignment (`_alignment`)
 
-Lead/lag and coupling between two (or more) time-aligned signals — the audio-vs-movement
+Lead/lag and coupling between two (or more) time-aligned signals, the audio-vs-movement
 counterpart of the `_pulse` module.
 
 - `xcorr_lag(x, y, fs, max_lag=1.5)` / `envelope_lag(...)` — cross-correlation lead/lag between
@@ -122,7 +122,7 @@ onsets = energy_onsets(y, sr)     # onset times (s) from the RMS envelope
 ## Postural sway metrics (`_posture`)
 
 Posturography ported from the stillstanding study, operating on plain centre-of-pressure (CoP)
-or marker-position arrays — no study-specific loaders or axis conventions:
+or marker-position arrays, with no study-specific loaders or axis conventions:
 
 - **Sway amount / geometry** — `cop_sway_metrics`, `confidence_ellipse_area`, `convex_hull_area`.
 - **Control dynamics / complexity** — `stabilogram_diffusion` (Collins–De Luca SDA), `dfa`
@@ -149,7 +149,7 @@ validated in the test suite against known-answer synthetic signals.
 ## Physiology features (`_physio`)
 
 `respiration_rate(waveform, fs, band=(0.1, 0.6), window_s=30, step_s=30)` — windowed breathing
-rate (breaths/min) via band-pass filtering and a per-window Welch spectral peak — and
+rate (breaths/min) via band-pass filtering and a per-window Welch spectral peak, and
 `spectral_band_fractions(...)` — the fraction of a signal's Welch power in each of a set of
 caller-supplied named frequency bands (a generic spectral-composition diagnostic, e.g. for
 cardiorespiratory QoM), both ported from the stillstanding study's Deichman/Equivital
@@ -176,9 +176,9 @@ a common per-second grid and correlates them.
 ## Pose-landmark trajectory extraction (`_posetools`)
 
 The *array-level* pose workflow: video file → tidy per-landmark trajectory arrays (and
-optionally CSV) → derived motion signals (limb speed, impact events), complementing — not
-replacing — the rendering-oriented `MgVideo.pose()` pipeline. This is covered in full on its own
-page: **[Pose Tracking](pose-tracking.md)** — installing the `[pose]` extra,
+optionally CSV) → derived motion signals (limb speed, impact events), complementing—not
+replacing—the rendering-oriented `MgVideo.pose()` pipeline. This is covered in full on its own
+page: **[Pose Tracking](pose-tracking.md)**, which covers installing the `[pose]` extra,
 `extract_pose_landmarks()` (NaN/dropout semantics, detection-rate reporting), the derived-signal
 helpers `midpoint()`, `limb_speed_from_landmarks()`, `impact_events()`, `pose_qom()`/
 `body_scale()`, and validating a video-derived pose signal against motion capture with
@@ -190,10 +190,10 @@ helpers `midpoint()`, `limb_speed_from_landmarks()`, `impact_events()`, `pose_qo
 
 `motiongram_data(frames, orientation='vertical', frame_diff=True, normalize=True)` (in
 `_motionanalysis`) computes a motiongram as a plain numpy array from a stack of grayscale
-frames, with a selectable `orientation` — `'vertical'` collapses each frame to its per-row mean
+frames, with a selectable `orientation`: `'vertical'` collapses each frame to its per-row mean
 (image row vs. time, e.g. a mallet's approach-and-rebound path), `'horizontal'` to its
 per-column mean (image column vs. time, side-to-side motion). It is the numpy-level counterpart
-of `MgVideo.motiongrams()`'s rendered `_mgv`/`_mgh` images — use it when you want the motiongram
+of `MgVideo.motiongrams()`'s rendered `_mgv`/`_mgh` images. Use it when you want the motiongram
 as data for further analysis, e.g. feeding it to `grid_qom()` or a peak-picker.
 
 ![motiongram_data of dancer.avi building up over time, first with orientation='horizontal' (image column vs time), then the 'vertical' variant (image row vs time)](../images/examples/motiongram_orientation.gif)
@@ -202,9 +202,9 @@ as data for further analysis, e.g. feeding it to `grid_qom()` or a peak-picker.
 
 ## Next steps
 
-- [Audio-Video Analysis](audio-video.md) — the `MgVideo`-method-level audio–movement comparisons
+- [Audio-Video Analysis](audio-video.md)—the `MgVideo`-method-level audio–movement comparisons
   (`tempo_similarity`, `phase_synchrony`, `body_audio_coupling`, ...)
-- [Pose Tracking](pose-tracking.md) — the full pose story: `MgVideo.pose()` rendering,
+- [Pose Tracking](pose-tracking.md)—the full pose story: `MgVideo.pose()` rendering,
   `extract_pose_landmarks()`, derived signals, and motion-capture validation
-- [API Reference](../musicalgestures/index.md) — full signatures for every function above
-- [Examples](../examples.md) — a runnable pulse-segmentation example
+- [API Reference](../musicalgestures/index.md)—full signatures for every function above
+- [Examples](../examples.md)—a runnable pulse-segmentation example

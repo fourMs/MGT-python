@@ -1,4 +1,4 @@
-# GoPro MAX / MAX2, Ricoh Theta legacy, and Garmin VIRB 360 support in MGT-python and ambiscape — design
+# GoPro MAX / MAX2, Ricoh Theta legacy, and Garmin VIRB 360 support in MGT-python and ambiscape—design
 
 Approved approach: pure remap tables + stock ffmpeg for video (MGT), and
 best-audio-stream selection for ingest (ambiscape). No new binary or build
@@ -22,14 +22,14 @@ strips and the Ricoh Theta S single-file dual-fisheye.
   **4-channel PCM s32 planar** stream (6,144 kb/s), plus three data streams
   (GPMF metadata, TCD timecode, SOS recovery). The `.LRV` proxy carries its
   own, different stereo AAC. Sources: the owner's format analysis (arj.no
-  2023-05-25) and the lab's two studies — Guo, Riaz & Jensenius (SMC 2024,
+  2023-05-25) and the lab's two studies—Guo, Riaz & Jensenius (SMC 2024,
   four-camera video comparison) and Riaz, Guo & Jensenius (spatial-audio
   comparison).
 - **Verified fact (Riaz et al.):** the MAX 4-channel track is first-order
-  B-format **AmbiX (ACN/SN3D, W-Y-Z-X)** — confirmed empirically via
+  B-format **AmbiX (ACN/SN3D, W-Y-Z-X)**—confirmed empirically via
   channel-amplitude norms. ambiscape's existing 4-channel → `ambix` mapping
   is therefore correct for GoPro. Garmin VIRB 360 4-channel is also AmbiX
-  (with an empty Z — "planar spatial audio") and works as-is.
+  (with an empty Z—"planar spatial audio") and works as-is.
 - **Insta360 caveat (Riaz et al.):** X3-era recordings may carry a
   4-channel AAC stream that is *not* B-format (amplitude norms don't match;
   mic orientation undocumented). ambiscape's channel-count heuristic will
@@ -39,7 +39,7 @@ strips and the Ricoh Theta S single-file dual-fisheye.
 - **Chunking:** GoPro splits recordings at 4 GB and Insta360 at 1 minute;
   MGT already merges chunks losslessly (concat → MKV, from the SMC 2024
   work). The GoPro probe/flatten path must accept those merged MKVs, not
-  only `.360` files — covered by making the probe container-agnostic and by
+  only `.360` files—covered by making the probe container-agnostic and by
   a test case.
 - **Free win, docs only:** the MAX `.LRV` is a single-file dual-fisheye
   (1408×704) — `stitch_dual_fisheye`/`v360` paths shipped this week already
@@ -52,26 +52,26 @@ strips and the Ricoh Theta S single-file dual-fisheye.
 - **Garmin VIRB 360 (SMC 2024 §3.3 + Riaz et al.):** the friendly one.
   Normal recordings are already **in-camera-stitched equirectangular**
   (`.MP4` 3840×2160 H.264 + `.GLV` 1280×720 proxy, one video + one audio
-  stream each) — no flattening needed, and MGT's `CAMERA` registry already
+  stream each)—no flattening needed, and MGT's `CAMERA` registry already
   lists it as `erp`. ambiscape ingests both since Phase 1 added `.glv`; the
   single audio stream is 4-channel AAC AmbiX, so the existing 4-ch → ambix
   mapping is right. Three format quirks worth capturing:
-  (a) the **Z channel is empty** ("planar spatial audio") — azimuth is
+  (a) the **Z channel is empty** ("planar spatial audio")—azimuth is
   valid, elevation is meaningless; documented so spatial metrics are read
   accordingly; (b) the **RAW 5.7K mode** writes the two 200° hemispheres as
-  *separate fisheye files* — exactly the two-file case `stitch_dual_fisheye`
+  *separate fisheye files*—exactly the two-file case `stitch_dual_fisheye`
   already handles (its FOV calibration sweep must extend to ~205° to cover
   Garmin's 200° lenses; today's candidate list tops out at 203); (c) VIRB
   Edit's "360" export writes a 4-channel FOA track with only the first
-  channel non-zero (a software bug found by Riaz et al.) — prefer in-camera
+  channel non-zero (a software bug found by Riaz et al.)—prefer in-camera
   originals over VIRB Edit exports; documented in the ingest notes.
 - **Ricoh Theta S (legacy, SMC 2024 §3.4 + the owner's 2020 remap
-  workflow):** one `.MP4` with a single H.264 video stream, 1920×1080 —
-  16:9, not 2:1: two side-by-side fisheye circles with a black band at the
+  workflow):** one `.MP4` with a single H.264 video stream, 1920×1080—16:9,
+   not 2:1: two side-by-side fisheye circles with a black band at the
   bottom, and an unusual twist: **each spherical view is rotated 90° in
   plane**, which is why plain `v360=dfisheye` cannot unwrap it and the
   historical route was hand-made xmap/ymap PGM remap files
-  (ThetaS-video-remap). Audio is mono AAC at 32 kHz — ambiscape ingests it
+  (ThetaS-video-remap). Audio is mono AAC at 32 kHz—ambiscape ingests it
   already (mono mode); no audio work needed. Unlike GoPro, the layout is
   not reliably auto-detectable (any 16:9 MP4 could be anything), so Theta
   flattening is explicitly invoked, never probed-and-guessed.
@@ -89,13 +89,13 @@ units, mirroring the Insta360 stitcher's structure (`_360video.py`):
    channels). Raises `ValueError` naming the actual streams found when the
    file does not match the two-strip pattern (h·3 ≤ w, equal-sized tracks).
 2. `build_gopro_remap(track_w, track_h, out_w, out_h, tmpdir) -> (xmap.pgm,
-   ymap.pgm, blend_mask.png)` — numpy port of the max2sphere mapping from
+   ymap.pgm, blend_mask.png)`—numpy port of the max2sphere mapping from
    equirect output pixels to (stacked-strip) input pixels, written as
    16-bit PGM remap tables for ffmpeg's `remap` filter, plus a feathered
    blend mask for the four unstitched face seams. Pure numpy; sized from the
    probe, so MAX2 resolutions generate their own tables.
 3. `flatten_gopro360(path, target_name=None, width=None, height=None,
-   crf=21, preset="fast", print_cmd=False) -> str` — one ffmpeg run:
+   crf=21, preset="fast", print_cmd=False) -> str`—one ffmpeg run:
    `vstack` the two video tracks → `remap` with the generated tables →
    equirect H.264, mapping the best audio stream (most channels, AAC-encoded
    in the output). Default output size derived from input:
@@ -115,7 +115,7 @@ Theta units in the same module:
    crf=21, preset="fast", print_cmd=False) -> str` — one ffmpeg run: `remap`
    with the generated tables → equirect H.264 (1920×960 default, matching
    the official app's export size), audio stream passed through as AAC.
-   Explicit invocation only (no auto-probe — see facts).
+   Explicit invocation only (no auto-probe—see facts).
 
 Garmin work in existing modules (no new units): widen
 `calibrate_dual_fisheye_fov`'s default candidate list to reach 205° so RAW
@@ -148,7 +148,7 @@ identities.
 
 Replace the fixed `-map a:0` with stream selection: ffprobe the container's
 audio streams (`codec_name`, `channels`); choose the stream with the most
-channels whose codec ffmpeg can decode (skip `none`/unknown codecs — the
+channels whose codec ffmpeg can decode (skip `none`/unknown codecs, the
 iPhone APAC case); tie-break to the lower stream index. Decode to the cached
 WAV as today, except the sample format follows the source: sources deeper
 than 16-bit (the MAX's s32 ambisonic track) decode to `pcm_s24le`, others
@@ -167,7 +167,7 @@ before.
 ## Error handling
 
 - MGT probe failure: `ValueError("not a GoPro two-strip .360: found …")`
-  listing the stream inventory — the message a MAX2 owner needs to file a
+  listing the stream inventory—the message a MAX2 owner needs to file a
   useful report.
 - ambiscape: if no audio stream is decodable, the existing RuntimeError path
   stays; the selection never silently falls back to a worse stream than
@@ -177,7 +177,7 @@ before.
 
 GPMF metadata extraction, .LRV handling beyond what already works, GoPro
 battery/HERO formats, gyro-based horizon leveling, and any GUI. Newer Ricoh
-Theta models (X and successors) already record standard equirectangular —
-the existing `erp` registry entry covers them; only the legacy Theta S
-dual-fisheye needs the remap path. No changes to the `soundscape` adapter —
-it inherits the ingest fix for free.
+Theta models (X and successors) already record standard equirectangular, the
+ existing `erp` registry entry covers them; only the legacy Theta S
+dual-fisheye needs the remap path. No changes to the `soundscape` adapter. It
+ inherits the ingest fix for free.

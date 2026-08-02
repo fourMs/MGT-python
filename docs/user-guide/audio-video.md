@@ -1,7 +1,7 @@
 # Audio-Video Processing & Analysis
 
 MGT-python treats sound and movement as two views of the same performance. This page collects the
-tools that **cross** the two domains — converting between them, aligning them, and measuring how
+tools that **cross** the two domains, converting between them, aligning them, and measuring how
 similar a performer's movement is to the sound they make. They are especially useful for studying a
 single dancer who is also the sound source.
 
@@ -119,7 +119,7 @@ bc.show()
 
 ### Dynamics coupling
 
-`dynamics_coupling()` compares audio **loudness** (RMS) with movement **quantity** (QoM) — does the
+`dynamics_coupling()` compares audio **loudness** (RMS) with movement **quantity** (QoM). Does the
 performer move more when the music is louder? It aligns the two envelopes and reports their
 correlation at zero lag and at the best lag within `max_lag` seconds; the figure overlays the
 normalised envelopes and shows a loudness-vs-motion scatter.

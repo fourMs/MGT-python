@@ -176,7 +176,7 @@ Available `.data` keys: `tempo`, `beat_times`, `ibi` (inter-beat intervals), `be
 
 ## Beat statistics (timing consistency)
 
-`beat_statistics()` fits an ideal isochronous grid to the detected beats and visualises how each beat deviates from it — a polar phase histogram plus a millisecond-deviation time series. This shows whether a performer rushes, drags, or keeps steady time. Requires at least four detected beats.
+`beat_statistics()` fits an ideal isochronous grid to the detected beats and visualises how each beat deviates from it, in a polar phase histogram plus a millisecond-deviation time series. This shows whether a performer rushes, drags, or keeps steady time. Requires at least four detected beats.
 
 ```python
 stats = audio.beat_statistics()
@@ -197,7 +197,7 @@ mv.beat_statistics(source='audio')    # the audio track instead
 mv.audio.beat_statistics()            # the audio track (always audio)
 ```
 
-`source='motion'` returns an `MgFigure` whose `.data` holds the movement tempo, beat times, regularity, and phase deviations — the same fields as the audio version.
+`source='motion'` returns an `MgFigure` whose `.data` holds the movement tempo, beat times, regularity, and phase deviations, the same fields as the audio version.
 
 ---
 
@@ -211,7 +211,7 @@ chromassm  = audio.ssm(features='chromagram', cmap='magma', norm=2)
 spectrossm.show()
 ```
 
-SSMs can also be computed on visual features from `MgVideo` — see [Video Analysis](video-analysis.md#self-similarity-matrix-ssm).
+SSMs can also be computed on visual features from `MgVideo`. See [Video Analysis](video-analysis.md#self-similarity-matrix-ssm).
 
 ---
 
@@ -316,6 +316,6 @@ descriptors = audio.descriptors(title='My Video - Spectral Descriptors')
 
 ## Next steps
 
-- [Working with Results](results.md) — combine audio and video figures into stacked plots
-- [Video Analysis](video-analysis.md) — motion, optical flow, and SSMs on visual data
-- [API Reference](../musicalgestures/_audio.md) — complete audio method signatures
+- [Working with Results](results.md)—combine audio and video figures into stacked plots
+- [Video Analysis](video-analysis.md)—motion, optical flow, and SSMs on visual data
+- [API Reference](../musicalgestures/_audio.md)—complete audio method signatures

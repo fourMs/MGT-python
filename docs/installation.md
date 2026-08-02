@@ -84,8 +84,8 @@ sudo apt install libgl1-mesa-glx libglib2.0-0
 
 ## Optional Dependencies (Extras)
 
-The core `pip install musicalgestures` already covers the large majority of features —
-motion analysis, motiongrams/videograms, average/blend, heatmap, space-time visualisations
+The core `pip install musicalgestures` already covers the large majority of features, including motion
+ analysis, motiongrams/videograms, average/blend, heatmap, space-time visualisations
 (stroboscope, silhouette waterfall, motion history), audio analysis (librosa), optical flow
 on the CPU, face blurring, and more. A few capabilities need an optional dependency or a
 specially-built OpenCV. Install only what you need:
@@ -101,14 +101,14 @@ specially-built OpenCV. Install only what you need:
 
 `pose()` works **with or without** an extra installed:
 
-- With `musicalgestures[pose]`, the default **MediaPipe** backend is used — recommended:
+- With `musicalgestures[pose]`, the default **MediaPipe** backend is used, which is recommended:
   faster on CPU, 33 landmarks, and no CUDA-enabled OpenCV build needed.
 - If MediaPipe is **not** installed, `pose()` automatically falls back to the OpenPose
   `body_25` backend. This uses the always-present OpenCV DNN module and auto-downloads
-  ~200 MB of Caffe weights on first use — so pose estimation works either way.
+  ~200 MB of Caffe weights on first use, so pose estimation works either way.
 
 Pose model weights are downloaded automatically on first use via Python's `urllib`
-(cross-platform, no `wget` or platform-specific download scripts) — nothing extra to install.
+(cross-platform, no `wget` or platform-specific download scripts), nothing extra to install.
 
 ### C3D export
 
@@ -133,7 +133,7 @@ mg.cuda_unavailable_reason() # human-readable explanation when CUDA is missing
 ```
 
 The MediaPipe pose backend is the exception: `pose(model='mediapipe', device='gpu')` can use a
-GPU through MediaPipe's own delegate with the standard pip OpenCV — no CUDA build required.
+GPU through MediaPipe's own delegate with the standard pip OpenCV, no CUDA build required.
 
 ### Other extras
 
@@ -258,7 +258,7 @@ pip install jupyter ipywidgets
 
 #### 5. Pose estimation in notebooks
 
-The `pose()` workflow downloads its model weights on first use — MediaPipe weights for the default backend, or the larger OpenPose Caffe weights when an OpenPose model (`'body_25'`/`'coco'`/`'mpi'`) is selected. In non-interactive environments such as notebooks, the download is attempted automatically rather than prompting for input. If CUDA-backed OpenCV DNN support is unavailable, OpenPose models fall back to CPU execution (MediaPipe runs on plain CPU regardless).
+The `pose()` workflow downloads its model weights on first use, either MediaPipe weights for the default backend, or the larger OpenPose Caffe weights when an OpenPose model (`'body_25'`/`'coco'`/`'mpi'`) is selected. In non-interactive environments such as notebooks, the download is attempted automatically rather than prompting for input. If CUDA-backed OpenCV DNN support is unavailable, OpenPose models fall back to CPU execution (MediaPipe runs on plain CPU regardless).
 
 ### Getting Help
 
@@ -290,7 +290,7 @@ pip install mkl
 ```
 
 > **GPU acceleration** is *not* provided by the PyPI `opencv-python`/`opencv-contrib-python`
-> wheels — they are CPU-only. The CUDA-accelerated paths (`flow.dense(use_gpu=True)`,
+> wheels. They are CPU-only. The CUDA-accelerated paths (`flow.dense(use_gpu=True)`,
 > `flow.sparse(use_gpu=True)`, `blur_faces(use_gpu=True)`, OpenPose `device='gpu'`) require an
 > OpenCV **built from source with CUDA**. See [GPU / CUDA acceleration](#gpu--cuda-acceleration).
 

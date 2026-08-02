@@ -184,4 +184,4 @@ By default every item is shown. The keys ``'horizontal'`` and ``'vertical'`` sel
 single panel, e.g. ``mv.motiongrams().show(key='horizontal')``. The aliases 'mgh'/'vgh'
 (horizontal) and 'mgv'/'vgv' (vertical) work too, as do the legacy 'mgx'/'vgx' and
 'mgy'/'vgy' (the literal x/y files). (The key identifies *which item in the list*
-to show — it is not forwarded to the individual images.)
+to show. It is not forwarded to the individual images.)

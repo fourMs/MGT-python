@@ -79,7 +79,7 @@ mv.info('audio')    # audio stream metadata only
 mv.info('format')   # container/format metadata only
 ```
 
-For a quick human-readable overview, use `info('summary')` — it prints resolution, frame count, fps, duration, colour mode, video codec/profile, colour profile, and audio codec/sample-rate/bit-rate, and returns the values as a dict:
+For a quick human-readable overview, use `info('summary')`, which prints resolution, frame count, fps, duration, colour mode, video codec/profile, colour profile, and audio codec/sample-rate/bit-rate, and returns the values as a dict:
 
 ```python
 summary = mv.info('summary')
@@ -119,6 +119,6 @@ mv.color        # True for colour, False for grayscale
 
 ## Next steps
 
-- [Preprocessing](preprocessing.md) — trim, crop, rotate, and adjust before analysis
-- [Video Analysis](video-analysis.md) — motion, optical flow, pose, and more
-- [Working with Results](results.md) — MgFigure, MgImage, MgList, and method chaining
+- [Preprocessing](preprocessing.md)—trim, crop, rotate, and adjust before analysis
+- [Video Analysis](video-analysis.md)—motion, optical flow, pose, and more
+- [Working with Results](results.md)—MgFigure, MgImage, MgList, and method chaining

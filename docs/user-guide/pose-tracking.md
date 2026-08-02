@@ -2,11 +2,11 @@
 
 MGT-python's pose story spans two complementary layers:
 
-- **`MgVideo.pose()`** — the rendering-oriented pipeline: overlaid skeleton video, an
+- **`MgVideo.pose()`**—the rendering-oriented pipeline: overlaid skeleton video, an
   average-pose image, a marker-trajectories image, and a keypoint data file (CSV/TSV/TXT/C3D).
   See the [Video Analysis](video-analysis.md#pose-estimation) page for the full method reference,
   including `pose_waterfall()`, `pose_segments()`, `pose_center()` and `pose_distance()`.
-- **The array-level pose toolkit** (`_posetools`, `_qom`, `_mocap`) — plain numpy trajectories and
+- **The array-level pose toolkit** (`_posetools`, `_qom`, `_mocap`)—plain numpy trajectories and
   derived motion signals for batch processing, event detection, and cross-modality validation, with
   no video rendering involved.
 
@@ -25,17 +25,17 @@ The default pose backend (MediaPipe) is an optional dependency:
 pip install musicalgestures[pose]
 ```
 
-This pulls in `mediapipe>=0.10`. Without it, `MgVideo.pose()` still works — it falls back to the
+This pulls in `mediapipe>=0.10`. Without it, `MgVideo.pose()` still works—it falls back to the
 always-available OpenPose `body_25` backend (Caffe weights, ~200 MB, auto-downloaded on first
-use) — but the array-level `extract_pose_landmarks()` requires MediaPipe and raises `ImportError`
+use)—but the array-level `extract_pose_landmarks()` requires MediaPipe and raises `ImportError`
 if it's missing.
 
-!!! note "MediaPipe has two API families — both are supported"
+!!! note "MediaPipe has two API families—both are supported"
     MediaPipe's Python API changed generations mid-stream:
 
     - The legacy **Solutions API** (`mp.solutions.pose.Pose`) — present in wheels up to roughly
       `mediapipe==0.10.14`.
-    - The newer **Tasks API** (`PoseLandmarker`, `mp.tasks.vision`) — the only option in newer
+    - The newer **Tasks API** (`PoseLandmarker`, `mp.tasks.vision`), the only option in newer
       `0.10.x` wheels (e.g. `0.10.35`), which dropped `mp.solutions` entirely.
 
     `extract_pose_landmarks()` detects which family is available at runtime
@@ -46,7 +46,7 @@ if it's missing.
     With the Tasks API, the pose-landmarker model is a `.task` file (~8–28 MB depending on
     `model_complexity`: lite/full/heavy) downloaded from Google's model storage on first use and
     cached in `musicalgestures/models/`, shared by `MgVideo.pose()` and `extract_pose_landmarks()`
-    alike. Subsequent calls reuse the cached file — no repeat download.
+    alike. Subsequent calls reuse the cached file, no repeat download.
 
 ---
 
@@ -104,7 +104,7 @@ notice and transparently falls back to the OpenPose `body_25` backend.
 For downstream numeric analysis (quantity of motion, event detection, cross-modal alignment)
 rather than a rendered video, use the array-level `extract_pose_landmarks()`. It decodes the
 video through an FFmpeg raw-video pipe (optionally resampled/resized first), runs MediaPipe Pose
-per frame, and returns tidy numpy trajectories — no OpenCV frame-accurate conversion, no video
+per frame, and returns tidy numpy trajectories, no OpenCV frame-accurate conversion, no video
 output.
 
 ```python
@@ -130,7 +130,7 @@ traj['names']            # the 33 MediaPipe landmark names, row order of the lan
 
 **NaN/dropout semantics:** on any frame where MediaPipe doesn't detect a pose, the corresponding
 row of `traj['landmarks']` (and `traj['world']`, if requested) is filled with `NaN` across all 33
-landmarks and 3 channels, rather than zeros or a dropped row — every frame index still has a
+landmarks and 3 channels, rather than zeros or a dropped row. Every frame index still has a
 timestamp in `traj['time']`, so downstream signals stay aligned in time even across dropouts. The
 derived-signal helpers below are NaN-aware and propagate these gaps rather than silently treating
 them as valid zero-motion samples.
@@ -153,8 +153,8 @@ MediaPipe installed.
 
 ## Derived signals
 
-Once you have landmark trajectories — from `extract_pose_landmarks()`, `MgVideo.pose()`'s saved
-CSV, or any other source (OpenPose, YOLO-pose, motion capture) — a small set of numpy-only
+Once you have landmark trajectories—from `extract_pose_landmarks()`, `MgVideo.pose()`'s saved
+CSV, or any other source (OpenPose, YOLO-pose, motion capture)—a small set of numpy-only
 functions turn them into motion signals and events.
 
 ### `midpoint` — a proxy point between two landmarks
@@ -189,14 +189,14 @@ moving average (`smooth_taps=3` by default).
 !!! warning "Speed precedes contact"
     A limb-speed peak marks the moment of **maximum downstroke speed**, not the moment of
     contact/arrest. Physically, a striking limb decelerates sharply *at* impact, so the speed
-    peak — and any peak-picker run on this signal — systematically occurs slightly **before** the
+    peak—and any peak-picker run on this signal—systematically occurs slightly **before** the
     actual contact event that an audio onset or an acceleration peak would register. Account for
     this bias when comparing event times derived from `limb_speed_from_landmarks()` against other
     modalities (audio onsets, `impact_events()` on acceleration, motion capture). This is also a
     single-camera 2D signal: motion toward/away from the lens is foreshortened, so pixel speed is
     not metric speed.
 
-Peak-picking on the returned signal is left to the caller — MGT-python's general adaptive
+Peak-picking on the returned signal is left to the caller. MGT-python's general adaptive
 peak-picker `pick_peaks` (`_peaks` module, see the
 [Sound–Movement Analysis Toolkit](sound-movement-toolkit.md#peak-picking-core) page) is a good
 default.
@@ -215,8 +215,8 @@ impacts['accel']       # the full merged acceleration-magnitude signal, for plot
 Each candidate point (e.g. the two wrist landmarks) is double-differentiated (central
 differences) to acceleration, merged by element-wise maximum across points, and peak-picked with
 a relative threshold (`rel_thresh` × the signal's max) and a minimum inter-impact interval
-(`min_interval_s`). Because double-differentiation is noisy and also responds to the backswing —
-not only the collision — treat the results as *candidate* impacts and validate against another
+(`min_interval_s`). Because double-differentiation is noisy and also responds to the backswing—not
+ only the collision—treat the results as *candidate* impacts and validate against another
 modality (e.g. audio onsets, or the mocap comparison workflow below) where possible. For
 whole-image visual impact detection from video with no landmarks at all, use `MgVideo.impacts()`
 instead.
@@ -239,8 +239,8 @@ print(f"{qom_norm:.3f} body-lengths/s")   # dimensionless -- comparable across f
 
 `pose_qom()` is a thin wrapper around the general `group_qom()` (any group of marker/landmark
 trajectories, mocap included), band-limited to 0.3–5 Hz for image-space pose data.
-`body_scale()` computes the median torso length — the distance between the shoulder midpoint
-(landmarks 11/12 by default) and the hip midpoint (23/24) — preferred over shoulder width because
+`body_scale()` computes the median torso length—the distance between the shoulder midpoint
+(landmarks 11/12 by default) and the hip midpoint (23/24)—preferred over shoulder width because
 it stays robust in profile view. `normalized_qom()` divides the pose QoM by `body_scale()`,
 producing a dimensionless body-lengths-per-second figure that's invariant to camera framing and
 zoom, so it's comparable across recordings and cameras (used in the Westney study's
@@ -250,8 +250,8 @@ with/without-audience piano comparison).
 
 ## Validating video-derived pose against motion capture
 
-For quality assurance — or when both a video and a synchronised motion-capture recording exist —
-`_mocap` provides a reader for Qualisys Track Manager (QTM) exports and a correlation check
+For quality assurance—or when both a video and a synchronised motion-capture recording exist—`_mocap`
+ provides a reader for Qualisys Track Manager (QTM) exports and a correlation check
 against any other motion envelope, e.g. one derived from `extract_pose_landmarks()`.
 
 ```python
@@ -278,19 +278,19 @@ print(f"video vs. mocap agreement: r={result['r']:.2f} over {result['n']} s")
 `read_qtm_tsv(path)` returns `(marker_names, data, fs)`: `data` has shape `(T, M, 3)`, with
 Qualisys's exact-zero gap fills converted to `NaN`, marker names recovered from the
 `MARKER_NAMES` header row, and a UTF-8 → latin-1 encoding fallback. `compare_modality_envelopes`
-deliberately takes *precomputed* 1-D envelopes rather than computing quantity-of-motion itself —
-resampling both to a common one-sample-per-second grid, then returning their Pearson correlation
+deliberately takes *precomputed* 1-D envelopes rather than computing quantity-of-motion itself, resampling
+ both to a common one-sample-per-second grid, then returning their Pearson correlation
 (`r`) and the number of overlapping seconds (`n`); `r` is `NaN` if fewer than three seconds
 overlap or either envelope is constant. Because the per-second binning uses an integer-rounded
-step, non-integer frame rates (e.g. 29.97 fps) drift slightly over long signals — treat this as a
+step, non-integer frame rates (e.g. 29.97 fps) drift slightly over long signals. Treat this as a
 validation check, not a precise-alignment tool.
 
 ---
 
 ## Next steps
 
-- [Video Analysis](video-analysis.md#pose-estimation) — full `MgVideo.pose()` reference, plus
+- [Video Analysis](video-analysis.md#pose-estimation)—full `MgVideo.pose()` reference, plus
   `pose_waterfall()`, `pose_segments()`, `pose_center()`, `pose_distance()`
-- [Sound–Movement Analysis Toolkit](sound-movement-toolkit.md) — the wider array-level toolkit
+- [Sound–Movement Analysis Toolkit](sound-movement-toolkit.md)—the wider array-level toolkit
   (`_qom`, `_peaks`, `_alignment`, `_posture`, ...) that the derived-signal functions here belong to
-- [API Reference](../musicalgestures/index.md) — complete function signatures
+- [API Reference](../musicalgestures/index.md)—complete function signatures

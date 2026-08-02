@@ -10,7 +10,7 @@ pip install --upgrade musicalgestures
 
 ## Full changelog
 
-The complete, version-by-version history — including every Added / Changed / Fixed entry — is
+The complete, version-by-version history—including every Added / Changed / Fixed entry—is
 maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/CHANGELOG.md),
 which is the single source of truth for release notes.
 
@@ -18,7 +18,7 @@ which is the single source of truth for release notes.
 
 ### 1.6.9
 
-- New **`motiondescriptors()`** — scalar movement descriptors from the quantity-of-motion signal:
+- New **`motiondescriptors()`**—scalar movement descriptors from the quantity-of-motion signal:
   motion energy, smoothness (SPARC), entropy, and spectral descriptors (dominant frequency +
   spectral centroid), as an `MgFigure` plus a CSV (#210).
 - Documentation refresh: animated GIFs for the video outputs, a new examples **Gallery**, and
@@ -41,7 +41,7 @@ which is the single source of truth for release notes.
 
 - The **public API is now fully typed**: parameter annotations on every public analysis method
   (motion, flow, pose, space-time, audio and the audio–movement suite, and more), on top of the
-  return types and `py.typed` marker shipped in 1.6.4 — so IDEs and type checkers see complete
+  return types and `py.typed` marker shipped in 1.6.4, so IDEs and type checkers see complete
   signatures (#345). Hints are lazy (`from __future__ import annotations`), so import speed is
   unchanged.
 
@@ -76,7 +76,7 @@ which is the single source of truth for release notes.
 ### 1.6.1
 
 - `pose_center()` (centre on the global centroid) and `pose_distance()` (per-marker cumulative
-  distance travelled + average) — 2D ports of the MoCap Toolbox `mccenter`/`mccumdist`.
+  distance travelled + average), both 2D ports of the MoCap Toolbox `mccenter`/`mccumdist`.
 - Dedicated **Audio-Video Processing & Analysis** documentation page.
 - Faster repeated audio–movement analyses (cached video/audio decode) and a leaner repo
   (removed committed example artifacts).
