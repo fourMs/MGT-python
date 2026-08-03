@@ -356,3 +356,48 @@ def test_gopro360_average_accepts_several_chapters(tmp_path):
     a = cv2.imread(one, cv2.IMREAD_UNCHANGED).astype(float)
     b = cv2.imread(two, cv2.IMREAD_UNCHANGED).astype(float)
     assert np.abs(a - b).max() <= 1        # allow a rounding step, not a shift
+
+
+def _temp_stage_dirs():
+    """The remap-table scratch directories currently on disk."""
+    import glob
+    import tempfile
+    return set(glob.glob(str(Path(tempfile.gettempdir()) / "mgt_remap360_*")))
+
+
+def test_remap_stage_leaves_no_scratch_directory(tmp_path):
+    """The remap tables are written to a temp dir that ffmpeg reads as input files.
+
+    It therefore has to outlive the function that builds it, and for a long time nothing removed
+    it. A build over 364 GoPro recordings left 22 GB across 348 directories and filled the disk,
+    which surfaced as two failures that looked like corrupt recordings and were not.
+    """
+    f = _mux_two_strips(tmp_path)
+    before = _temp_stage_dirs()
+    gopro360_dual_fisheye_average(f, target_name=str(tmp_path / "avg.png"), size=64, fps=None)
+    assert _temp_stage_dirs() == before
+
+
+def test_remap_stage_cleans_up_when_the_body_raises(tmp_path):
+    """Cleanup has to survive the failure path, which is where the disk is most likely full."""
+    from musicalgestures._remap360 import _gopro_remap_stage
+
+    f = _mux_two_strips(tmp_path)
+    info = probe_gopro360(f)
+    before = _temp_stage_dirs()
+    with pytest.raises(ZeroDivisionError):
+        with _gopro_remap_stage(f, info, 256, 128) as (_extra, _graph, tmpdir):
+            assert Path(tmpdir).is_dir()
+            raise ZeroDivisionError("simulated failure inside the stage")
+    assert _temp_stage_dirs() == before
+
+
+def test_imwrite_raises_rather_than_returning_false(tmp_path):
+    """cv2.imwrite reports failure by return value, and every call here used to ignore it.
+
+    That is how a full disk became `expected RGBA, got None` several steps later.
+    """
+    from musicalgestures._remap360 import _imwrite
+
+    with pytest.raises(OSError):
+        _imwrite(str(tmp_path / "nonexistent-dir" / "x.png"), np.zeros((4, 4), np.uint8))

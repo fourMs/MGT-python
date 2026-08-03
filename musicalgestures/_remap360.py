@@ -13,8 +13,10 @@ The GoPro mapping is a port of Paul Bourke's max2sphere reference
 handled by proportional template scaling and are experimental until
 validated against a real recording.
 """
+import contextlib
 import json
 import os
+import shutil
 import subprocess
 import tempfile
 
@@ -193,6 +195,22 @@ def gopro_maps(track_w, track_h, centerwidth, sidewidth, blendwidth,
     return xL, y.copy(), xR, y.copy(), alpha
 
 
+def _imwrite(path, img):
+    """cv2.imwrite, but it raises instead of returning False.
+
+    cv2.imwrite reports failure by return value, and every call in this module ignored it. On a
+    full disk that turns "no space left" into a PNG that was never written, and the error surfaces
+    later and somewhere else as a file that reads back as None. Two days of a StillStanding365
+    build were reported as corrupt recordings on 2026-08-02 for exactly this reason; both sources
+    probed clean.
+    """
+    if not cv2.imwrite(path, img):
+        raise OSError(f"cv2.imwrite could not write {path} "
+                      f"(disk full, unwritable directory, or unsupported extension)")
+    return path
+
+
+@contextlib.contextmanager
 def _gopro_remap_stage(path, info, width, height, fps=None):
     """Inputs and filter graph that turn a two-strip .360 into one equirect frame.
 
@@ -205,30 +223,42 @@ def _gopro_remap_stage(path, info, width, height, fps=None):
     the same filter after `[eq]` and an averaging pass runs about fifteen times longer for an
     identical result.
 
-    Returns (extra_inputs, graph, tmpdir). The graph ends in `[eq]` and assumes the .360 is input 0.
+    A CONTEXT MANAGER, and that is the whole reason it is one. The remap tables are written to a
+    temporary directory that ffmpeg reads as input files, so it has to outlive this function and
+    the caller has to remove it. Three call sites did not, and one of them discarded the path
+    outright, so there was no way to. A build over 364 GoPro recordings left 22 GB across 348
+    directories and filled the disk, which then surfaced as two unrelated-looking failures: one
+    honest `OSError: [Errno 28]`, and one `expected RGBA, got None` that read like a corrupt
+    recording and was `cv2.imwrite` silently failing on a full disk. Yielding rather than returning
+    means the next call site cannot forget.
+
+    Yields (extra_inputs, graph). The graph ends in `[eq]` and assumes the .360 is input 0.
     """
     w, h = info["video"][0]["width"], info["video"][0]["height"]
     xL, yL, xR, yR, alpha = gopro_maps(
         w, h, info["centerwidth"], info["sidewidth"], info["blendwidth"],
         width, height)
     tmpdir = tempfile.mkdtemp(prefix="mgt_remap360_")
-    xlp, ylp = write_remap_pgm(np.rint(xL), np.rint(yL), tmpdir)
-    os.rename(xlp, os.path.join(tmpdir, "xl.pgm"))
-    os.rename(ylp, os.path.join(tmpdir, "yl.pgm"))
-    xrp, yrp = write_remap_pgm(np.rint(xR), np.rint(yR), tmpdir)
-    mask = os.path.join(tmpdir, "alpha.png")
-    cv2.imwrite(mask, (alpha * 255).astype(np.uint8))
-    xlp, ylp = os.path.join(tmpdir, "xl.pgm"), os.path.join(tmpdir, "yl.pgm")
-    rate = f",fps={fps}" if fps else ""
-    graph = (f"[0:v:0]setpts=PTS-STARTPTS{rate}[v0];"
-             f"[0:v:1]setpts=PTS-STARTPTS{rate}[v1];"
-             f"[v0][v1]vstack[st];"
-             f"[st]format=gbrp,split[s1][s2];"
-             f"[s1][1:v][2:v]remap[l];"
-             f"[s2][3:v][4:v]remap[r];"
-             f"[5:v]format=gray,scale={width}:{height}[m];"
-             f"[l][r][m]maskedmerge[eq]")
-    return ["-i", xlp, "-i", ylp, "-i", xrp, "-i", yrp, "-i", mask], graph, tmpdir
+    try:
+        xlp, ylp = write_remap_pgm(np.rint(xL), np.rint(yL), tmpdir)
+        os.rename(xlp, os.path.join(tmpdir, "xl.pgm"))
+        os.rename(ylp, os.path.join(tmpdir, "yl.pgm"))
+        xrp, yrp = write_remap_pgm(np.rint(xR), np.rint(yR), tmpdir)
+        mask = os.path.join(tmpdir, "alpha.png")
+        _imwrite(mask, (alpha * 255).astype(np.uint8))
+        xlp, ylp = os.path.join(tmpdir, "xl.pgm"), os.path.join(tmpdir, "yl.pgm")
+        rate = f",fps={fps}" if fps else ""
+        graph = (f"[0:v:0]setpts=PTS-STARTPTS{rate}[v0];"
+                 f"[0:v:1]setpts=PTS-STARTPTS{rate}[v1];"
+                 f"[v0][v1]vstack[st];"
+                 f"[st]format=gbrp,split[s1][s2];"
+                 f"[s1][1:v][2:v]remap[l];"
+                 f"[s2][3:v][4:v]remap[r];"
+                 f"[5:v]format=gray,scale={width}:{height}[m];"
+                 f"[l][r][m]maskedmerge[eq]")
+        yield ["-i", xlp, "-i", ylp, "-i", xrp, "-i", yrp, "-i", mask], graph, tmpdir
+    finally:
+        shutil.rmtree(tmpdir, ignore_errors=True)
 
 
 def _gopro_audio_args(info):
@@ -285,37 +315,38 @@ def gopro360_dual_fisheye_average(path, target_name=None, fov=180.0, size=704,
         target_name = os.path.splitext(path)[0] + "_dualfisheye_average.png"
     target_name = generate_outfilename(target_name)
 
-    extra, graph, tmpdir = _gopro_remap_stage(path, info, eq_w, eq_w // 2, fps=fps)
-    graph += (f";[eq]format=gbrp,split[e1][e2];"
-              f"[e1]v360=input=e:output=fisheye:h_fov={fov}:v_fov={fov}:"
-              f"w={size}:h={size}[front];"
-              f"[e2]v360=input=e:output=fisheye:h_fov={fov}:v_fov={fov}:yaw=180:"
-              f"w={size}:h={size}[back];"
-              f"[front][back]hstack=inputs=2,format=rgb24[out]")
-    nbytes = size * 2 * size * 3
-    acc = np.zeros((size, size * 2, 3), np.float64)
-    n = 0
-    for src in paths:
-        cmds = (["ffmpeg", "-v", "error", "-i", src] + extra
-                + ["-filter_complex", graph, "-map", "[out]", "-an",
-                   "-f", "rawvideo", "-pix_fmt", "rgb24", "-"])
-        if print_cmd:
-            print(" ".join(cmds))
-        proc = subprocess.Popen(cmds, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                bufsize=nbytes)
-        try:
-            while True:
-                buf = proc.stdout.read(nbytes)
-                if len(buf) < nbytes:
-                    break
-                acc += np.frombuffer(buf, np.uint8).reshape(size, size * 2, 3)
-                n += 1
-        finally:
-            proc.stdout.close()
-            err = proc.stderr.read().decode(errors="replace")
-            proc.wait()
-    if n == 0:
-        raise RuntimeError(f"no frames decoded from {paths}\n{err.strip()[:500]}")
+    with _gopro_remap_stage(path, info, eq_w, eq_w // 2, fps=fps) as (extra, graph, _tmp):
+        graph += (f";[eq]format=gbrp,split[e1][e2];"
+                  f"[e1]v360=input=e:output=fisheye:h_fov={fov}:v_fov={fov}:"
+                  f"w={size}:h={size}[front];"
+                  f"[e2]v360=input=e:output=fisheye:h_fov={fov}:v_fov={fov}:yaw=180:"
+                  f"w={size}:h={size}[back];"
+                  f"[front][back]hstack=inputs=2,format=rgb24[out]")
+        nbytes = size * 2 * size * 3
+        acc = np.zeros((size, size * 2, 3), np.float64)
+        n = 0
+        err = ""
+        for src in paths:
+            cmds = (["ffmpeg", "-v", "error", "-i", src] + extra
+                    + ["-filter_complex", graph, "-map", "[out]", "-an",
+                       "-f", "rawvideo", "-pix_fmt", "rgb24", "-"])
+            if print_cmd:
+                print(" ".join(cmds))
+            proc = subprocess.Popen(cmds, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                    bufsize=nbytes)
+            try:
+                while True:
+                    buf = proc.stdout.read(nbytes)
+                    if len(buf) < nbytes:
+                        break
+                    acc += np.frombuffer(buf, np.uint8).reshape(size, size * 2, 3)
+                    n += 1
+            finally:
+                proc.stdout.close()
+                err = proc.stderr.read().decode(errors="replace")
+                proc.wait()
+        if n == 0:
+            raise RuntimeError(f"no frames decoded from {paths}\n{err.strip()[:500]}")
 
     img = np.rint(acc / n).astype(np.uint8)[:, :, ::-1]          # RGB -> BGR for cv2
     if transparent:
@@ -324,7 +355,7 @@ def gopro360_dual_fisheye_average(path, target_name=None, fov=180.0, size=704,
         disc = (r <= size / 2).astype(np.uint8) * 255
         alpha = np.hstack([disc, disc])
         img = np.dstack([img, alpha])
-    cv2.imwrite(target_name, img)
+    _imwrite(target_name, img)
     return target_name
 
 
@@ -332,9 +363,7 @@ def _circle_mask_png(size, tmpdir):
     """A white disc inscribed in a black square, for masking outside the fisheye circle."""
     m = np.zeros((size, size), np.uint8)
     cv2.circle(m, (size // 2, size // 2), size // 2, 255, -1)
-    p = os.path.join(tmpdir, "circle.png")
-    cv2.imwrite(p, m)
-    return p
+    return _imwrite(os.path.join(tmpdir, "circle.png"), m)
 
 
 def gopro360_to_dual_fisheye(path, target_name=None, fov=180.0, size=704,
@@ -379,31 +408,31 @@ def gopro360_to_dual_fisheye(path, target_name=None, fov=180.0, size=704,
         target_name = os.path.splitext(path)[0] + "_dualfisheye.mp4"
     target_name = generate_outfilename(target_name)
 
-    extra, graph, tmpdir = _gopro_remap_stage(path, info, eq_w, eq_h)
-    # one equirect frame, projected twice: forward, and the same rotated half a turn
-    graph += (f";[eq]format=gbrp,split[e1][e2];"
-              f"[e1]v360=input=e:output=fisheye:h_fov={fov}:v_fov={fov}:"
-              f"w={size}:h={size}[front];"
-              f"[e2]v360=input=e:output=fisheye:h_fov={fov}:v_fov={fov}:yaw=180:"
-              f"w={size}:h={size}[back]")
-    if circular:
-        mask = _circle_mask_png(size, tmpdir)
-        n = len(extra) // 2 + 1                     # next free input index
-        extra = extra + ["-i", mask]
-        graph += (f";[{n}:v]format=gbrp,split[mk1][mk2];"
-                  f"[front][mk1]blend=all_mode=multiply[fc];"
-                  f"[back][mk2]blend=all_mode=multiply[bc];"
-                  f"[fc][bc]hstack=inputs=2,format=yuv420p[out]")
-    else:
-        graph += ";[front][back]hstack=inputs=2,format=yuv420p[out]"
-    cmds = (["ffmpeg", "-y", "-i", path] + extra
-            + ["-filter_complex", graph, "-map", "[out]"]
-            + _gopro_audio_args(info)
-            + ["-shortest", "-c:v", "libx264", "-crf", str(crf),
-               "-preset", preset, target_name])
-    ffmpeg_cmd(cmds, get_length(path),
-               pb_prefix=f"GoPro 360 to dual fisheye ({fov:g} deg):",
-               print_cmd=print_cmd)
+    with _gopro_remap_stage(path, info, eq_w, eq_h) as (extra, graph, tmpdir):
+        # one equirect frame, projected twice: forward, and the same rotated half a turn
+        graph += (f";[eq]format=gbrp,split[e1][e2];"
+                  f"[e1]v360=input=e:output=fisheye:h_fov={fov}:v_fov={fov}:"
+                  f"w={size}:h={size}[front];"
+                  f"[e2]v360=input=e:output=fisheye:h_fov={fov}:v_fov={fov}:yaw=180:"
+                  f"w={size}:h={size}[back]")
+        if circular:
+            mask = _circle_mask_png(size, tmpdir)
+            n = len(extra) // 2 + 1                     # next free input index
+            extra = extra + ["-i", mask]
+            graph += (f";[{n}:v]format=gbrp,split[mk1][mk2];"
+                      f"[front][mk1]blend=all_mode=multiply[fc];"
+                      f"[back][mk2]blend=all_mode=multiply[bc];"
+                      f"[fc][bc]hstack=inputs=2,format=yuv420p[out]")
+        else:
+            graph += ";[front][back]hstack=inputs=2,format=yuv420p[out]"
+        cmds = (["ffmpeg", "-y", "-i", path] + extra
+                + ["-filter_complex", graph, "-map", "[out]"]
+                + _gopro_audio_args(info)
+                + ["-shortest", "-c:v", "libx264", "-crf", str(crf),
+                   "-preset", preset, target_name])
+        ffmpeg_cmd(cmds, get_length(path),
+                   pb_prefix=f"GoPro 360 to dual fisheye ({fov:g} deg):",
+                   print_cmd=print_cmd)
     return target_name
 
 
@@ -435,15 +464,15 @@ def flatten_gopro360(path, target_name=None, width=None, height=None,
         target_name = os.path.splitext(path)[0] + "_equirect.mp4"
     target_name = generate_outfilename(target_name)
 
-    extra, graph, _ = _gopro_remap_stage(path, info, width, height)
-    graph += ";[eq]format=yuv420p[out]"
-    cmds = (["ffmpeg", "-y", "-i", path] + extra
-            + ["-filter_complex", graph, "-map", "[out]"]
-            + _gopro_audio_args(info)
-            + ["-shortest", "-c:v", "libx264", "-crf", str(crf),
-               "-preset", preset, target_name])
-    ffmpeg_cmd(cmds, get_length(path),
-               pb_prefix="Flattening GoPro 360:", print_cmd=print_cmd)
+    with _gopro_remap_stage(path, info, width, height) as (extra, graph, _tmp):
+        graph += ";[eq]format=yuv420p[out]"
+        cmds = (["ffmpeg", "-y", "-i", path] + extra
+                + ["-filter_complex", graph, "-map", "[out]"]
+                + _gopro_audio_args(info)
+                + ["-shortest", "-c:v", "libx264", "-crf", str(crf),
+                   "-preset", preset, target_name])
+        ffmpeg_cmd(cmds, get_length(path),
+                   pb_prefix="Flattening GoPro 360:", print_cmd=print_cmd)
     return target_name
 
 
@@ -525,26 +554,29 @@ def flatten_theta360(path, target_name=None, width=1920, height=960,
     xL, yL, xR, yR, alpha = theta_maps(in_w, in_h, width, height,
                                        fov_deg=fov_deg, roll_deg=roll_deg)
     tmpdir = tempfile.mkdtemp(prefix="mgt_remap360_")
-    xlp, ylp = write_remap_pgm(np.rint(xL), np.rint(yL), tmpdir)
-    os.rename(xlp, os.path.join(tmpdir, "xl.pgm"))
-    os.rename(ylp, os.path.join(tmpdir, "yl.pgm"))
-    xrp, yrp = write_remap_pgm(np.rint(xR), np.rint(yR), tmpdir)
-    mask = os.path.join(tmpdir, "alpha.png")
-    cv2.imwrite(mask, (alpha * 255).astype(np.uint8))
-    xlp, ylp = os.path.join(tmpdir, "xl.pgm"), os.path.join(tmpdir, "yl.pgm")
+    try:
+        xlp, ylp = write_remap_pgm(np.rint(xL), np.rint(yL), tmpdir)
+        os.rename(xlp, os.path.join(tmpdir, "xl.pgm"))
+        os.rename(ylp, os.path.join(tmpdir, "yl.pgm"))
+        xrp, yrp = write_remap_pgm(np.rint(xR), np.rint(yR), tmpdir)
+        mask = os.path.join(tmpdir, "alpha.png")
+        _imwrite(mask, (alpha * 255).astype(np.uint8))
+        xlp, ylp = os.path.join(tmpdir, "xl.pgm"), os.path.join(tmpdir, "yl.pgm")
 
-    graph = (f"[0:v]format=gbrp,split[s1][s2];"
-             f"[s1][1:v][2:v]remap[l];"
-             f"[s2][3:v][4:v]remap[r];"
-             f"[5:v]format=gray,scale={width}:{height}[m];"
-             f"[l][r][m]maskedmerge,format=yuv420p[out]")
-    cmds = ["ffmpeg", "-y", "-i", path,
-            "-i", xlp, "-i", ylp, "-i", xrp, "-i", yrp, "-i", mask,
-            "-filter_complex", graph, "-map", "[out]"]
-    if has_audio(path):
-        cmds += ["-map", "0:a:0", "-c:a", "aac", "-b:a", "128k"]
-    cmds += ["-shortest", "-c:v", "libx264", "-crf", str(crf),
-             "-preset", preset, target_name]
-    ffmpeg_cmd(cmds, get_length(path),
-               pb_prefix="Flattening Theta 360:", print_cmd=print_cmd)
+        graph = (f"[0:v]format=gbrp,split[s1][s2];"
+                 f"[s1][1:v][2:v]remap[l];"
+                 f"[s2][3:v][4:v]remap[r];"
+                 f"[5:v]format=gray,scale={width}:{height}[m];"
+                 f"[l][r][m]maskedmerge,format=yuv420p[out]")
+        cmds = ["ffmpeg", "-y", "-i", path,
+                "-i", xlp, "-i", ylp, "-i", xrp, "-i", yrp, "-i", mask,
+                "-filter_complex", graph, "-map", "[out]"]
+        if has_audio(path):
+            cmds += ["-map", "0:a:0", "-c:a", "aac", "-b:a", "128k"]
+        cmds += ["-shortest", "-c:v", "libx264", "-crf", str(crf),
+                 "-preset", preset, target_name]
+        ffmpeg_cmd(cmds, get_length(path),
+                   pb_prefix="Flattening Theta 360:", print_cmd=print_cmd)
+    finally:
+        shutil.rmtree(tmpdir, ignore_errors=True)
     return target_name
