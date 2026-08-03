@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.6.9**.
+The current stable release is **MGT-python 1.7.0**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,24 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.7.0
+
+- **GoPro MAX `.360` support.** `gopro360_to_dual_fisheye()` converts the two-strip equi-angular
+  cubemap that stock ffmpeg cannot unwrap, with the field of view as a parameter, and
+  `gopro360_dual_fisheye_average()` time-averages a recording straight to one dual-fisheye image
+  without writing a video first. The average samples BEFORE the remap rather than after, which is
+  about fifteen times faster for an identical result. Both have now run over a full year of daily
+  standstill recordings, 365 days in three views.
+- **Fixed: the remap-table scratch directories were never removed.** They were created in four
+  places and deleted in none, and one call site discarded the path so there was no way to. A build
+  over 364 recordings left 22 GB across 348 directories and filled the disk. The stage is now a
+  context manager, so a future call site cannot forget.
+- **Fixed: `cv2.imwrite` failures were discarded.** It reports failure by return value and every
+  call in `_remap360` ignored it, so a full disk produced a PNG that was never written and an error
+  several steps later that read like a corrupt recording. Writes now raise.
+- Three regression tests for the above, each checked against the previous commit to confirm it
+  fails there.
 
 ### 1.6.9
 

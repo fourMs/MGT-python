@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.0] — 2026-08-03
+
+### Added
+- GoPro MAX `.360` support: `gopro360_to_dual_fisheye()` with the field of view as a parameter, and
+  `gopro360_dual_fisheye_average()`, which time-averages a recording straight to a dual-fisheye
+  image without writing a video first. It decimates BEFORE the remap rather than after, which is
+  about fifteen times faster for an identical result.
+
+### Fixed
+- The remap-table scratch directories were created in four places and removed in none, and one call
+  site discarded the path so there was no way to. A build over 364 recordings left 22 GB across 348
+  directories and filled the disk. `_gopro_remap_stage` is now a context manager.
+- `cv2.imwrite` failures were discarded throughout `_remap360`. It reports failure by return value,
+  so a full disk produced a PNG that was never written and an error several steps later that read
+  like a corrupt recording. Writes now raise.
+
+### Tests
+- Three regression tests for the above, each verified to fail against the previous commit.
+
+
 ### Added
 - **Sound–movement analysis toolkit** (#351, #352, #353)—a family of plain-numpy functions
   ported from the author's ro / stillstanding / Westney / cymbal research pipelines, all
