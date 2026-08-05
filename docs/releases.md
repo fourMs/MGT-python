@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.7.1**.
+The current stable release is **MGT-python 1.8.0**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,15 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.8.0
+
+- **Quantity of motion over a group of markers returns a different number, and the old one was
+  confounded.** `group_qom`, `pose_qom` and `normalized_qom` come from `micromotion`, which
+  released 1.0.0 today. They used to average over every marker at every frame while gaps were
+  interpolated, so an occluded marker contributed almost no speed and still counted in the divisor,
+  and the result tracked camera coverage rather than movement. The new default excludes a marker at
+  the frames where it was absent. Pass `normalize="worn"` to reproduce an older figure.
 
 ### 1.7.1
 
