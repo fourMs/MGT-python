@@ -15,7 +15,7 @@ fourMs sound--motion studies: video file -> tidy per-landmark trajectory
 arrays (and optionally CSV) -> derived motion signals (limb speed, impact
 events).
 
-It complements—and does not replace—the rendering-oriented
+It complements — and does not replace — the rendering-oriented
 ``MgVideo.pose()`` pipeline in :mod:[Pose](_pose.md#pose) (overlaid skeleton
 video, average-pose image, trajectory image, keypoint CSV) and the per-frame
 :class:[PoseEstimator](_pose_estimator.md#poseestimator) interface. Use this
@@ -158,14 +158,15 @@ interval of ``min_interval_s``.
 The threshold parameters are taken directly (the small relative-threshold
 peak picker is implemented inline here); a general adaptive peak-picker,
 ``pick_peaks``, is provided by the sibling core-signal-methods PR in
-[Peaks](_peaks.md#peaks). The defaults (0.12 x peak, 100 ms) are the
-cymbal study's provisional values for 120 Hz mocap hand data and should be
-tuned per dataset. Note the study's caveat: double-differentiating
-(model-reconstructed) positions is noisy and also responds to the
-backswing, not only the collision. Treat the detected peaks as *candidate*
-impacts and validate against another modality (e.g. audio onsets) where
-possible. For whole-image visual impact detection from video (no
-landmarks), see ``MgVideo.impacts()`` instead.
+[Peaks](_peaks.md#peaks). The defaults (0.12 x peak, 100 ms) are
+validated against the original cymbal dataset (Zenodo 21360429, 2026
+revalidation) for 120 Hz mocap hand data and should be tuned per dataset.
+Note the study's caveat: double-differentiating (model-reconstructed)
+positions is noisy and also responds to the backswing, not only the
+collision — treat the detected peaks as *candidate* impacts and validate
+against another modality (e.g. audio onsets) where possible. For
+whole-image visual impact detection from video (no landmarks), see
+``MgVideo.impacts()`` instead.
 
 #### Arguments
 
@@ -217,13 +218,13 @@ For each candidate limb (e.g. the left and right wrist), frames whose
 landmark confidence/visibility falls below ``conf_gate`` are masked out
 (NaN), and the limb speed is formed as the central-difference magnitude of
 the pixel path (px/s). Candidate limbs are then merged by element-wise
-maximum—so that motion of *either* limb registers, mirroring the
-bilateral merge used for inertial hand data—and lightly smoothed with a
+maximum — so that motion of *either* limb registers, mirroring the
+bilateral merge used for inertial hand data — and lightly smoothed with a
 short NaN-aware moving average. Peaks of the resulting signal mark, e.g.,
 strike downstrokes of the striking wrist.
 
 Caveats (from the cymbal study): these are 2D apparent kinematics from a
-single camera, so motion toward/away from the lens is foreshortened and pixel
+single camera — motion toward/away from the lens is foreshortened and pixel
 speed is not metric speed. Moreover, a limb-speed peak marks *maximum
 downstroke speed*, which systematically precedes the contact/arrest that an
 audio onset or an acceleration peak registers; account for this bias when

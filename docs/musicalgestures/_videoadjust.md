@@ -78,11 +78,11 @@ object untouched.
 
 Three independent, combinable operations:
 
-* ``fps``: retime to a target frame rate using FFmpeg's ``fps`` filter, **duration-preserving**
+* ``fps``: retime to a target frame rate using FFmpeg's ``fps`` filter — **duration-preserving**
   (frames are dropped/duplicated to hit the rate), e.g. 30 → 25 fps.
 * ``speed``: change playback speed by a factor (>1 faster/shorter, <1 slower/longer); the video
   is retimed with ``setpts`` and the audio with ``atempo`` so they stay in sync.
-* ``skip``: integer frame decimation, discarding ``skip`` frames for every one kept (this also
+* ``skip``: integer frame decimation — discard ``skip`` frames for every one kept (this also
   shortens/speeds up the clip), matching the loader's ``skip`` parameter.
 
 When more than one is given they are applied in order: ``skip`` → ``speed``/``fps``.

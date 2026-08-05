@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.7.0**.
+The current stable release is **MGT-python 1.7.1**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,17 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.7.1
+
+- **The published API pages described a band the package no longer uses.** They showed
+  `group_qom(points, fs, lo=0.3, hi=15.0)` and linked into source lines that stopped existing when
+  those functions moved to `micromotion`. The generated pages are rebuilt from the current source
+  and the two hand-written user-guide pages, which the regeneration script does not touch, were
+  corrected. The band is `micromotion.BAND`, 0.2–5 Hz.
+- **The `micromotion` requirement was `>=0.3`.** No such release exists on PyPI below 0.6, and the
+  functions this package re-exports arrived much later, so the constraint allowed installations in
+  which importing them fails. It is now `>=0.15.2`.
 
 ### 1.7.0
 

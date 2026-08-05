@@ -227,7 +227,7 @@ instead.
 from musicalgestures import pose_qom, body_scale, normalized_qom
 
 qom, speed, fs_out = pose_qom(traj['landmarks'][..., :2], traj['fps'])
-# qom: scalar mean speed (px/s), band-limited to 0.3-5 Hz (landmark jitter dominates above that)
+# qom: scalar mean speed (px/s), band-limited to 0.2-5 Hz (landmark jitter dominates above that)
 # speed: the per-frame envelope, at fs_out Hz
 
 scale = body_scale(traj['landmarks'][..., :2])   # median torso length (shoulders->hips), px
@@ -238,7 +238,9 @@ print(f"{qom_norm:.3f} body-lengths/s")   # dimensionless -- comparable across f
 ```
 
 `pose_qom()` is a thin wrapper around the general `group_qom()` (any group of marker/landmark
-trajectories, mocap included), band-limited to 0.3–5 Hz for image-space pose data.
+trajectories, mocap included), band-limited to 0.2–5 Hz for image-space pose data. That band is
+`micromotion.BAND`, and every quantity of motion in these packages uses it unless you pass your own
+edges.
 `body_scale()` computes the median torso length—the distance between the shoulder midpoint
 (landmarks 11/12 by default) and the hip midpoint (23/24)—preferred over shoulder width because
 it stays robust in profile view. `normalized_qom()` divides the pose QoM by `body_scale()`,

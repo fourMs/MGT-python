@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.1] — 2026-08-05
+
+### Fixed
+- The committed API pages published a band this package no longer uses. They showed
+  `group_qom(points, fs, lo=0.3, hi=15.0)` and deep-linked into `musicalgestures/_qom.py` at line
+  numbers that stopped existing when those functions moved to `micromotion` on 2026-07-29. The
+  pages are regenerated from the current source.
+- `docs/user-guide/pose-tracking.md` and `docs/user-guide/sound-movement-toolkit.md` said the band
+  is 0.3–5 Hz and passed `lo=0.3, hi=15.0`. It is `micromotion.BAND`, 0.2–5 Hz. The regeneration
+  script does not touch hand-written pages, so these were corrected by hand.
+- The `micromotion` floor was `>=0.3`. No such release exists on PyPI below 0.6, and the functions
+  re-exported here arrived far later, so the constraint permitted installations in which
+  `from musicalgestures import group_qom` fails. It is now `>=0.15.2`, which is also the floor that
+  makes the committed API pages true, since they are generated from that package's docstrings.
+
+### Changed
+- The three re-export shims now point at <https://fourms.github.io/micromotion/> for the API
+  reference. Their generated pages describe the shim rather than the functions, which is correct
+  but left a reader with nowhere to go.
+
 ## [1.7.0] — 2026-08-03
 
 ### Added

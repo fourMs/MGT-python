@@ -10,6 +10,7 @@ MgFeatures – a named time-series container for motion and audio descriptors.
         - [MgFeatures().\_\_getitem\_\_](#mgfeatures__getitem__)
         - [MgFeatures().\_\_iter\_\_](#mgfeatures__iter__)
         - [MgFeatures().\_\_len\_\_](#mgfeatures__len__)
+        - [MgFeatures().absolute_times](#mgfeaturesabsolute_times)
         - [MgFeatures().feature_names](#mgfeaturesfeature_names)
         - [MgFeatures.from_dataframe](#mgfeaturesfrom_dataframe)
         - [MgFeatures.from_json](#mgfeaturesfrom_json)
@@ -95,7 +96,7 @@ shape : tuple[int, int]
 
 ### MgFeatures().\_\_array\_\_
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_features.py#L151)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_features.py#L169)
 
 ```python
 def __array__(dtype=None, copy=None) -> np.ndarray:
@@ -105,7 +106,7 @@ Return a 2-D array of shape ``(n_features, n_samples)``.
 
 ### MgFeatures().\_\_getitem\_\_
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_features.py#L140)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_features.py#L158)
 
 ```python
 def __getitem__(key: str) -> np.ndarray:
@@ -115,7 +116,7 @@ Return a single feature array by name.
 
 ### MgFeatures().\_\_iter\_\_
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_features.py#L147)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_features.py#L165)
 
 ```python
 def __iter__():
@@ -125,13 +126,26 @@ Iterate over feature names.
 
 ### MgFeatures().\_\_len\_\_
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_features.py#L136)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_features.py#L154)
 
 ```python
 def __len__() -> int:
 ```
 
 Return the number of feature channels.
+
+### MgFeatures().absolute_times
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_features.py#L132)
+
+```python
+def absolute_times() -> np.ndarray:
+```
+
+Wall-clock time stamps (epoch seconds) for each sample.
+
+Requires ``metadata["start_datetime"]`` — a ``datetime`` or ISO
+string, e.g. from [media_start_datetime](_timecode.md#media_start_datetime).
 
 ### MgFeatures().feature_names
 
@@ -146,7 +160,7 @@ Names of the feature channels.
 
 ### MgFeatures.from_dataframe
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_features.py#L237)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_features.py#L255)
 
 ```python
 @classmethod
@@ -178,7 +192,7 @@ MgFeatures
 
 ### MgFeatures.from_json
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_features.py#L213)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_features.py#L231)
 
 ```python
 @classmethod
@@ -242,7 +256,7 @@ Time axis in seconds.
 
 ### MgFeatures().to_dataframe
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_features.py#L171)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_features.py#L189)
 
 ```python
 def to_dataframe() -> pd.DataFrame:
@@ -257,7 +271,7 @@ pd.DataFrame
 
 ### MgFeatures().to_json
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_features.py#L183)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_features.py#L201)
 
 ```python
 def to_json(path: str | Path | None = None) -> str:
@@ -278,7 +292,7 @@ str
 
 ### MgFeatures().to_numpy
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_features.py#L160)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_features.py#L178)
 
 ```python
 def to_numpy() -> np.ndarray:

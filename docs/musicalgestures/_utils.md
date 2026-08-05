@@ -862,7 +862,7 @@ Gets the FPS (frames per second) value of a video using FFprobe.
 def get_frame_planecount(frame: np.ndarray) -> int:
 ```
 
-Gets the planecount (colour channel count) of a video frame.
+Gets the planecount (color channel count) of a video frame.
 
 #### Arguments
 
@@ -886,9 +886,9 @@ Returns the number of frames in a video using FFprobe.
 
 - `filename` *str* - Path to the video file to measure.
 - `fast` *bool, optional* - If True (default), count demuxed video packets
-    (``-count_packets``). This is fast (no decoding) and—unlike the container's
+    (``-count_packets``). This is fast (no decoding) and — unlike the container's
     ``nb_frames`` metadata, which is unreliable (e.g. off by one on many AVIs, or absent
-    on WebM)—matches the true decoded frame count for normal video streams. If False,
+    on WebM) — matches the true decoded frame count for normal video streams. If False,
     fully decode and count frames (``-count_frames``): the ground truth, but slower.
     Defaults to True.
 
@@ -1055,7 +1055,7 @@ Renders horizontal and vertical motiongrams using ffmpeg.
 - `blur` *str, optional* - 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
 - `use_median` *bool, optional* - If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
 - `kernel_size` *int, optional* - Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
-- `invert` *bool, optional* - If True, inverts colours of the motiongrams. Defaults to False.
+- `invert` *bool, optional* - If True, inverts colors of the motiongrams. Defaults to False.
 - `target_name_x` *str, optional* - Target output name for the motiongram on the X axis. Defaults to None (which assumes that the input filename with the suffix "_mgx_ffmpeg" should be used).
 - `target_name_y` *str, optional* - Target output name for the motiongram on the Y axis. Defaults to None (which assumes that the input filename with the suffix "_mgy_ffmpeg" should be used).
 - `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
@@ -1095,7 +1095,7 @@ Renders a motion video using ffmpeg.
 - `blur` *str, optional* - 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
 - `use_median` *bool, optional* - If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
 - `kernel_size` *int, optional* - Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
-- `invert` *bool, optional* - If True, inverts colours of the motion video. Defaults to False.
+- `invert` *bool, optional* - If True, inverts colors of the motion video. Defaults to False.
 - `target_name` *str, optional* - Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).
 - `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filename to avoid overwriting. Defaults to True.
 
@@ -1123,7 +1123,7 @@ agree on the orientation, preventing some processes from coming out rotated.
 
 #### Returns
 
-- `str` - Path to an upright video—the original if it had no rotation, otherwise a
+- `str` - Path to an upright video — the original if it had no rotation, otherwise a
     new "_oriented" copy.
 
 ## pass_if_container_is

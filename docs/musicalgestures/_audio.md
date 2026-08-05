@@ -156,7 +156,7 @@ Renders a figure of plots showing spectral/loudness descriptors, including RMS e
 - `n_mels` *int, optional* - The number of mel filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 128.
 - `fmin` *float, optional* - Lowest frequency (in Hz). Defaults to 0.0.
 - `fmax` *float, optional* - Highest frequency (in Hz). Defaults to None, use fmax = sr / 2.0
-- `power` *float, optional* - The steepness of the curve for the colour mapping. Defaults to 2.
+- `power` *float, optional* - The steepness of the curve for the color mapping. Defaults to 2.
 - `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
 - `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
 - `original_time` *bool, optional* - Whether to plot original time or not. This parameter can be useful if the file has been shortened beforehand (e.g. skip). Defaults to False.
@@ -337,7 +337,7 @@ Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 - `n_mels` *int, optional* - The number of filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 128.
 - `fmin` *float, optional* - Lowest frequency (in Hz). Defaults to 0.0.
 - `fmax` *float, optional* - Highest frequency (in Hz). Defaults to None, use fmax = sr / 2.0.
-- `power` *float, optional* - The steepness of the curve for the colour mapping. Defaults to 2.
+- `power` *float, optional* - The steepness of the curve for the color mapping. Defaults to 2.
 - `top_db` *float, optional* - threshold the output at top_db below the peak: max(20 * log10(S/ref)) - top_db. Defaults to 80.0.
 - `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
 - `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
@@ -468,12 +468,12 @@ Renders a figure showing the waveform of the video/audio file.
 - `dpi` *int, optional* - Image quality of the rendered figure in DPI. Defaults to 300.
 - `autoshow` *bool, optional* - Whether to show the resulting figure automatically. Defaults to True.
 - `raw` *bool, optional* - Whether to show labels and ticks on the plot. Defaults to False.
-- `colored` *bool, optional* - Whether to create a coloured waveform image (freesound-style) from an audio input file. Defauts to False.
-- `image_width` *int, optional* - Number of pixels for the coloured waveform image width. Defaults to 2500.
-- `image_height` *int, optional* - Number of pixels for the coloured waveform image height. Defaults to 500.
-- `fmin` *int, optional* - Minimum frequency for computing spectral centroid for the coloured waveform image. Defaults to 500.
-- `fmax` *int, optional* - Maximum frequency for computing spectral centroid for the coloured waveform image. Defaults to None (i.e. Nyquist frequency).
-- `cmap` *str, optional* - Colormap used for colouring the waveform, all colormaps included with matplotlib can be used. Defaults to 'freesound'.
+- `colored` *bool, optional* - Whether to create a colored waveform image (freesound-style) from an audio input file. Defauts to False.
+- `image_width` *int, optional* - Number of pixels for the colored waveform image width. Defaults to 2500.
+- `image_height` *int, optional* - Number of pixels for the colored waveform image height. Defaults to 500.
+- `fmin` *int, optional* - Minimum frequency for computing spectral centroid for the colored waveform image. Defaults to 500.
+- `fmax` *int, optional* - Maximum frequency for computing spectral centroid for the colored waveform image. Defaults to None (i.e. Nyquist frequency).
+- `cmap` *str, optional* - Colormap used for coloring the waveform, all colormaps included with matplotlib can be used. Defaults to 'freesound'.
 - `original_time` *bool, optional* - Whether to plot original time or not. This parameter can be useful if the video file has been shortened beforehand (e.g. skip). Defaults to True.
 - `title` *str, optional* - Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
 - `target_name` *str, optional* - The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_waveform.png" should be used).

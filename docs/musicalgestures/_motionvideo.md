@@ -62,9 +62,9 @@ centroid of motion for each frame with timecodes in milliseconds.
 - `unit` *str, optional* - Unit in QoM plot. Accepted values are 'seconds' or 'samples'. Defaults to 'seconds'.
 - `atadenoise` *bool, optional* - If True, applies an adaptive temporal averaging denoiser every 129 frames. Defaults to False.
 - `motion_analysis` *str, optional* - Specify which motion analysis to process or all. 'AoM' renders the Area of Motion. 'CoM' renders the Centroid of Motion. 'QoM' renders the Quantity of Motion. 'all' renders all the motion analysis available. Defaults to 'all'.
-- `inverted_motionvideo` *bool, optional* - If True, inverts colours of the motion video. Defaults to False.
-- `inverted_motiongram` *bool, optional* - If True, inverts colours of the motiongrams. Defaults to False.
-- `equalize_motiongram` *bool, optional* - If True, converts the motiongrams to hsv-colour space and flattens the value channel (v). Defaults to True.
+- `inverted_motionvideo` *bool, optional* - If True, inverts colors of the motion video. Defaults to False.
+- `inverted_motiongram` *bool, optional* - If True, inverts colors of the motiongrams. Defaults to False.
+- `equalize_motiongram` *bool, optional* - If True, converts the motiongrams to hsv-color space and flattens the value channel (v). Defaults to True.
 - `save_plot` *bool, optional* - If True, outputs motion-plot. Defaults to True.
 - `title` *str, optional* - Optionally add title to the plot. Defaults to None, which uses the file name as a title.
 - `save_data` *bool, optional* - If True, outputs motion-data. Defaults to True.
@@ -153,8 +153,8 @@ Shortcut for [mg_motion](#mg_motion) to only render motiongrams.
 - `use_median` *bool, optional* - If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
 - `atadenoise` *bool, optional* - If True, applies an adaptive temporal averaging denoiser every 129 frames. Defaults to False.
 - `kernel_size` *int, optional* - Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
-- `inverted_motiongram` *bool, optional* - If True, inverts colours of the motiongrams. Defaults to False.
-- `equalize_motiongram` *bool, optional* - If True, converts the motiongrams to hsv-colour space and flattens the value channel (v). Defaults to True.
+- `inverted_motiongram` *bool, optional* - If True, inverts colors of the motiongrams. Defaults to False.
+- `equalize_motiongram` *bool, optional* - If True, converts the motiongrams to hsv-color space and flattens the value channel (v). Defaults to True.
 - `target_name_mgx` *str, optional* - Target output name for the vertical motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgv" should be used).
 - `target_name_mgy` *str, optional* - Target output name for the horizontal motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgh" should be used).
 - `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
@@ -247,7 +247,7 @@ Shortcut to only render the motion video. Uses musicalgestures._utils.motionvide
 - `blur` *str, optional* - 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
 - `use_median` *bool, optional* - If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
 - `kernel_size` *int, optional* - Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
-- `inverted_motionvideo` *bool, optional* - If True, inverts colours of the motion video. Defaults to False.
+- `inverted_motionvideo` *bool, optional* - If True, inverts colors of the motion video. Defaults to False.
 - `target_name` *str, optional* - Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).
 - `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
