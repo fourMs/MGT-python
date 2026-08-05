@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "musicalgestures"
-version = "1.7.1"
+version = "1.8.0"
 description = "Musical Gestures Toolbox for Python"
 readme = "README.md"
 license = {text = "GPL-3.0-or-later"}
@@ -25,9 +25,10 @@ classifiers = [
 ]
 dependencies = [
     # >=0.3 was wrong twice over: no such release exists on PyPI below 0.6, and the functions
-    # this package re-exports arrived much later. 0.15.2 is the floor that makes the
-    # committed API pages true, since they are generated from that package's docstrings.
-    "micromotion>=0.15.2",
+    # this package re-exports arrived much later. The floor is now 1.0.0, where `group_qom`
+    # stopped counting markers it could not see. Below that the re-exported function returns a
+    # different, confounded number, so this is a correctness floor and not only a docs one.
+    "micromotion>=1.0.0",
     "numpy",
     "pandas",
     "matplotlib",

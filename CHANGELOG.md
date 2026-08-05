@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.0] — 2026-08-05
+
+### Changed
+- **`group_qom`, `pose_qom` and `normalized_qom` return different numbers.** They are re-exported
+  from `micromotion`, which released 1.0.0 today, and the change is a correctness fix rather than a
+  refinement. They averaged over every marker at every frame while the underlying
+  `band_limited_qom` interpolates gaps, so an occluded marker contributed a near-zero speed and
+  still counted in the divisor. The result tracked how much the cameras saw rather than how much
+  the body moved: 16 to 17 per cent low on a realistic dropout pattern, with the speed series
+  correlating up to +0.70 with the per-frame count of visible markers.
+
+  The new default, `normalize="visible"`, excludes each marker at the frames where that marker was
+  absent, and lands within 0.8 per cent of the unoccluded value. Pass `normalize="worn"` to
+  reproduce a figure published with an earlier release, and say which you used. Pose data from a
+  clean, well-lit recording with no dropouts is unaffected; occluded mocap is affected most.
+
+- The `micromotion` floor is `>=1.0.0`, which is a correctness floor rather than a documentation
+  one: below it the re-exported function returns the confounded number.
+
 ## [1.7.1] — 2026-08-05
 
 ### Fixed
