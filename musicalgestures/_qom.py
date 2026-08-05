@@ -10,7 +10,9 @@ pandas, so someone analysing accelerometer data does not have to install a compu
 stack; MGT already depends on ``ambiscape`` the same way, and neither of those packages
 imports MGT.
 
-Import from ``micromotion`` directly in new code.
+Import from ``micromotion`` directly in new code. Its API reference, including the
+band each function uses and what it returns, is at https://fourms.github.io/micromotion/
+and the functions re-exported here are documented there rather than below.
 """
 
 from micromotion.qom import (  # noqa: F401

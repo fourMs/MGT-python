@@ -63,11 +63,11 @@ Credits: `centerface.onnx` (original) and `centerface.py` are based on https://g
 - `ellipse` *bool, optional* - Mask faces with blurred ellipses. Defaults to True.
 - `draw_heatmap` *bool, optional* - Draw heatmap of the detected faces using the centroid of the face mask. Defaults to False.
 - `neighbours` *int, optional* - Number of neighbours for smoothing the heatmap image. Defaults to 32.
-- `resolution` *int, optional* - Number of pixel resolution for the heatmap visualisation. Defaults to 250.
+- `resolution` *int, optional* - Number of pixel resolution for the heatmap visualization. Defaults to 250.
 - `draw_scores` *bool, optional* - Draw detection faceness scores onto outputs (a score between 0 and 1 that roughly corresponds to the detector's confidence that something is a face). Defaults to False.
 - `save_data` *bool, optional* - Whether to save the scaled coordinates of the face mask (time (ms), x1, y1, x2, y2) for each frame to a file. Defaults to True.
 - `data_format` *str, optional* - Specifies format of blur_faces-data. Accepted values are 'csv', 'tsv' and 'txt'. For multiple output formats, use list, e.g. ['csv', 'txt']. Defaults to 'csv'.
-- `color` *tuple, optional* - Customized colour of the rectangle boxes. Defaults to black (0, 0, 0).
+- `color` *tuple, optional* - Customized color of the rectangle boxes. Defaults to black (0, 0, 0).
 - `use_gpu` *bool, optional* - Whether to attempt GPU (CUDA) acceleration for face detection. Falls back to CPU automatically if CUDA is unavailable. Defaults to False.
 - `target_name` *str, optional* - Target output name. Defaults to None (which assumes that the input filename with the suffix "_blurred" should be used).
 - `overwrite` *bool, optional* - Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.

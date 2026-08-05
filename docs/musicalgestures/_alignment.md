@@ -126,7 +126,7 @@ five camera angles' motion envelopes.
 def envelope_lag(x, y, rate, max_lag_s=1.5):
 ```
 
-Lag (s) of `y` relative to `x` maximising their correlation. Positive
+Lag (s) of `y` relative to `x` maximizing their correlation. Positive
 lag = `y` happens after `x`. Thin wrapper around [xcorr_lag](#xcorr_lag), kept as
 the ro study's interface for envelope-to-envelope lags (e.g. voice
 envelope vs motion envelope).
@@ -254,11 +254,11 @@ def xcorr_lag(x, y, fs, max_lag=1.5):
 ```
 
 Canonical lead/lag estimate between two signals by vectorized
-cross-correlation: the lag of `y` relative to `x` that maximises their
+cross-correlation: the lag of `y` relative to `x` that maximizes their
 correlation, searched within +/- `max_lag` seconds. Positive lag means
 `y` happens after `x`.
 
-Both signals are mean-removed and the correlation is normalised to a
+Both signals are mean-removed and the correlation is normalized to a
 Pearson-like coefficient over the full window. Among near-tied maxima
 (common for periodic envelopes, where peaks recur at +/- one period),
 the smallest-magnitude lag is returned rather than an arbitrary aliased

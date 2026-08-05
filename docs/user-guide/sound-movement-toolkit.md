@@ -90,7 +90,7 @@ framing-invariant comparisons, spatial grid QoM, and small envelope/binning help
 ```python
 from musicalgestures import band_limited_qom, accel_to_speed
 
-speed, fs_out = band_limited_qom(marker_xyz, fs=100.0, lo=0.3, hi=15.0)   # px or mm per second
+speed, fs_out = band_limited_qom(marker_xyz, fs=100.0)   # px or mm per second, 0.2-5 Hz
 ```
 
 ![grid_qom on dancer.avi: per-cell quantity of motion on a 6×4 grid, overlaid on the video as a heatmap that follows the dancer's movement](../images/examples/grid_qom.gif)

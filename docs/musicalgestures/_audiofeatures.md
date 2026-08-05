@@ -25,7 +25,7 @@ Sources: cymbal-comparison study and Westney-comparisons study (Jensenius).
 
 ## attack_spectral_centroid
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audiofeatures.py#L207)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_audiofeatures.py#L209)
 
 ```python
 def attack_spectral_centroid(
@@ -43,8 +43,10 @@ centroid over the first `attack` seconds after the RMS-envelope peak.
 Discriminates, e.g., strike placement and damping on a cymbal.
 
 The constants (120 ms attack, 2048-sample Hann window, 512 hop) are
-PROVISIONAL defaults reimplemented from the cymbal-comparison paper's
-method description.
+validated against the original cymbal dataset (Zenodo 21360429, 2026
+revalidation); revalidation found centroids ~15-25% lower than archived
+results with ordering preserved (implementation detail differences,
+ordering-safe); tune per dataset as needed.
 
 Source: cymbal-comparison study (Jensenius).
 
@@ -78,8 +80,8 @@ relative to the per-file peak, with a minimum inter-onset interval.
 
 Reliable for discrete strokes; over-fragments sustained rolls/tremolo
 and can trigger on near-noise material. The default constants
-(0.15 x peak, 0.06 s) are PROVISIONAL defaults reimplemented from the
-cymbal-comparison paper's method description.
+(0.15 x peak, 0.06 s) are validated against the original cymbal dataset
+(Zenodo 21360429, 2026 revalidation); tune per dataset as needed.
 
 Source: cymbal-comparison study (Jensenius).
 
@@ -130,7 +132,7 @@ def spectral_flux(y, sr, nperseg=2048, noverlap=1536):
 ```
 
 Spectral-flux onset-detection function: the positive first difference of
-the STFT magnitude, summed over frequency and normalised to a maximum of
+the STFT magnitude, summed over frequency and normalized to a maximum of
 1. Rises sharply at note/percussion onsets.
 
 Source: Westney-comparisons study (Jensenius).
@@ -210,8 +212,10 @@ falling back to -5 to -25 dB (T20, x3) when the deeper level is not
 reached.
 
 The constants (20 ms window, -5/-35 with -5/-25 fallback, 6 dB re-rise
-stop) are PROVISIONAL defaults reimplemented from the cymbal-comparison
-paper's method description.
+stop) are validated against the original cymbal dataset (Zenodo 21360429,
+2026 revalidation); revalidation found 1-6% agreement overall (one damped
+exemplar +77% difference, likely an implementation detail); tune per
+dataset as needed.
 
 Source: cymbal-comparison study (Jensenius) -- instrument decay of
 damped vs undamped cymbal strokes.

@@ -55,7 +55,7 @@ def mg_input_test(
 ):
 ```
 
-Gives feedback to user if initialisation from input went wrong.
+Gives feedback to user if initialization from input went wrong.
 
 #### Arguments
 

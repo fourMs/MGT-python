@@ -40,12 +40,12 @@ SSMs can be computed over different input features such as 'motiongrams', 'spect
 - `filtertype` *str, optional* - 'Regular' turns all values below `threshold` to 0. 'Binary' turns all values below `threshold` to 0, above `threshold` to 1. 'Blob' removes individual pixels with erosion method. Defaults to 'Regular'.
 - `threshold` *float, optional* - Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
 - `blur` *str, optional* - 'Average' to apply a 10px * 10px blurring filter, 'None' otherwise. Defaults to 'None'.
-- `norm` *int, optional* - Normalise the columns of the feature sequence. Possible to compute Manhattan norm (1), Euclidean norm (2), Minimum norm (-np.inf), Maximum norm (np.inf), etc. Defaults to np.inf.
-- `norm_threshold` *float, optional* - Only the columns with norm at least `norm_threshold` are normalised. Defaults to 0.001.
+- `norm` *int, optional* - Normalize the columns of the feature sequence. Possible to compute Manhattan norm (1), Euclidean norm (2), Minimum norm (-np.inf), Maximum norm (np.inf), etc. Defaults to np.inf.
+- `norm_threshold` *float, optional* - Only the columns with norm at least `norm_threshold` are normalized. Defaults to 0.001.
 - `combine` *bool, optional* - For 'motiongrams', compute a single SSM from the concatenated
     horizontal + vertical motiongram features (both axes of motion in one display) and
     return a single MgImage instead of an MgList of two. Defaults to False.
-- `cmap` *str, optional* - A Colormap instance or registered colormap name. The colormap maps the C values to colours. Defaults to 'gray_r'.
+- `cmap` *str, optional* - A Colormap instance or registered colormap name. The colormap maps the C values to colors. Defaults to 'gray_r'.
 - `use_median` *bool, optional* - If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
 - `kernel_size` *int, optional* - Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
 - `invert_yaxis` *bool, optional* - Whether to invert the y axis of the SSM. Defaults to True.

@@ -30,6 +30,8 @@ Uses Python's ``urllib`` directly (cross-platform, no external ``wget`` / shell 
 bundled binary). The ``.prototxt`` configs ship with the package; only the large weights file
 is fetched.
 
+Returns the downloaded file path on success, or ``None`` if download attempts fail.
+
 ## mg_pose_center
 
 [[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_pose.py#L962)
@@ -45,12 +47,12 @@ def mg_pose_center(
 ) -> 'MgFigure':
 ```
 
-Centre the pose data on its global centroid, a 2D port of the MoCap Toolbox ``mccenter``.
+Centre the pose data on its global centroid — a 2D port of the MoCap Toolbox ``mccenter``.
 
 A single offset per coordinate (the mean of the per-marker temporal means, missing detections
 ignored) is subtracted from every marker so the overall spatiotemporal centroid sits at the
 origin (0, 0). This removes the performer's absolute position in the frame, leaving relative
-posture/movement, useful before comparing or further analysing trajectories. Plots the centred
+posture/movement — useful before comparing or further analysing trajectories. Plots the centred
 marker trajectories and (by default) saves a CSV of the centred coordinates. Uses cached pose
 keypoints when available, otherwise runs ``pose()`` first (``**pose_kwargs`` are forwarded).
 
@@ -81,7 +83,7 @@ def mg_pose_distance(
 ) -> 'MgFigure':
 ```
 
-Per-marker distance travelled and the average across markers, a 2D port of the MoCap Toolbox
+Per-marker distance travelled and the average across markers — a 2D port of the MoCap Toolbox
 ``mccumdist``.
 
 Sums each marker's frame-to-frame Euclidean displacement (in pixels) and accumulates it over
@@ -125,8 +127,8 @@ Circular (polar) motion plots and statistics for each body segment.
 A *segment* is the bone between two connected joints (e.g. shoulder–elbow). For every segment
 this computes its per-frame orientation angle and draws a polar rose histogram of the angle
 distribution with the mean-direction resultant vector, annotated with circular statistics
-(mean angle, resultant length R, and range of motion). A CSV of the per-segment statistics—mean
- angle, R, circular std, range of motion, and mean angular speed—is saved alongside the
+(mean angle, resultant length R, and range of motion). A CSV of the per-segment statistics —
+mean angle, R, circular std, range of motion, and mean angular speed — is saved alongside the
 image. Uses cached pose keypoints from a previous ``pose()`` call when available; otherwise it
 runs pose estimation first (``model``/``device``/… are forwarded to ``pose()``).
 
@@ -170,8 +172,8 @@ def mg_pose_waterfall(
 ) -> 'MgFigure':
 ```
 
-Render a 3D spatio-temporal waterfall of the pose, cascading along the time (depth) axis, a
- pose-based counterpart to ``silhouette_waterfall()``. Uses cached pose keypoints from a
+Render a 3D spatio-temporal waterfall of the pose, cascading along the time (depth) axis —
+a pose-based counterpart to ``silhouette_waterfall()``. Uses cached pose keypoints from a
 previous ``pose()`` call when available; otherwise it runs pose estimation first (extra
 keyword arguments such as ``model``/``device``/``downsampling_factor`` are forwarded to
 ``pose()``).
@@ -239,7 +241,7 @@ def pose(
 ```
 
 Renders a video with the pose estimation (aka. "keypoint detection" or "skeleton tracking") overlaid on it.
-Outputs the predictions in a text file containing the normalised x and y coordinates of each keypoint
+Outputs the predictions in a text file containing the normalized x and y coordinates of each keypoint
 (default format is csv).
 
 Supports two backends:
@@ -265,14 +267,14 @@ Supports two backends:
 - `device` *str, optional* - Compute backend ('cpu' or 'gpu'). For OpenPose models this
     selects the OpenCV DNN backend (GPU needs a CUDA-enabled OpenCV). For MediaPipe
     it selects the inference delegate (GPU delegate with CPU fallback). Defaults to 'gpu'.
-- `threshold` *float, optional* - The normalised confidence threshold that decides whether we
+- `threshold` *float, optional* - The normalized confidence threshold that decides whether we
     keep or discard a predicted point. Discarded points get substituted with (0, 0) in the
     output data. Defaults to 0.1.
 - `downsampling_factor` *int, optional* - Decides how much we downsample the video before we
     pass it to the neural network. Ignored when ``model='mediapipe'``. Defaults to 2.
 - `use_cache` *bool, optional* - If True (default), reuse keypoints from a previous pose() run on
     this object (same model/threshold) to re-render a different `style`/`overlay`/`background`
-    without re-running the network, e.g. run `style='markers'` then `style='skeleton'` fast.
+    without re-running the network — e.g. run `style='markers'` then `style='skeleton'` fast.
     Defaults to True.
 - `save_data` *bool, optional* - Whether we save the predicted pose data to a file. Defaults to True.
 - `data_format` *str, optional* - Specifies format of pose-data. Accepted values are 'csv', 'tsv',

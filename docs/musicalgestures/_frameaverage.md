@@ -20,7 +20,7 @@ and arranging all frames into a single image. This is equivalent to the bash scr
 scales each frame to 1x1 pixel and then tiles them into a grid.
 
 Based on the original bash script concept:
-- Each frame is reduced to a single pixel (average colour of the frame)
+- Each frame is reduced to a single pixel (average color of the frame)
 - All pixel values are arranged in a grid with specified width
 - Height is calculated automatically based on total frames and width
 
@@ -46,8 +46,8 @@ def mg_pixelarray_cv2(self, width=640, target_name=None, overwrite=True):
 ```
 
 Alternative implementation using OpenCV for more control over the process.
-Creates a 'Frame-Averaged Pixel Array' by reading each frame, calculating its average colour,
-and arranging these average colours in a grid.
+Creates a 'Frame-Averaged Pixel Array' by reading each frame, calculating its average color,
+and arranging these average colors in a grid.
 
 #### Arguments
 
