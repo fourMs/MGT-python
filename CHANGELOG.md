@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.0] — 2026-08-06
+
+### Added
+- 360-degree directional analysis on `Mg360Video`: `anglegram()` (time by
+  azimuth visual motion energy, cos-latitude weighted, ambisonics-aligned),
+  `aem_overlay()` (audio energy maps from ambiscape exports rendered on the
+  video or the anglegram via a file interface), `view()` (non-destructive
+  perspective crops returning a regular `MgVideo`), and projection
+  auto-detection.
+
+### Changed
+- API documentation migrated from handsdown-generated pages to mkdocstrings:
+  docstrings now render at build time, page paths unchanged.
+- Documentation overhaul: beginner-oriented README, thirteen doc-vs-code
+  errors fixed (motiongram index order, `length` vs `duration`, and others),
+  new demo figures and GIFs from genuine tool output.
+
 ## [1.8.0] — 2026-08-05
 
 ### Changed
