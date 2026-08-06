@@ -12,7 +12,7 @@ pip install musicalgestures
 
 ### Python Version
 
-MGT-python requires **Python 3.10 or higher**. We recommend using the latest stable version of Python.
+MGT-python requires **Python 3.10 or higher**. The latest stable version of Python is recommended.
 
 ```bash
 python --version  # Should be 3.10+
@@ -40,6 +40,8 @@ MGT-python automatically installs the following core dependencies:
 - `opencv-python` - Computer vision algorithms
 - `scikit-image` - Image processing
 - `librosa` - Audio analysis
+- `micromotion` - Shared quantity-of-motion, posturography, physiology, and mocap cores
+- `tqdm` - Progress bars
 
 These dependencies are declared in the package metadata and are installed automatically with `pip install musicalgestures`.
 
@@ -137,9 +139,9 @@ GPU through MediaPipe's own delegate with the standard pip OpenCV, no CUDA build
 
 ### Other extras
 
-`musicalgestures[ml]` (scikit-learn/torch) and `musicalgestures[cli]` (the `musicalgestures`
-command-line tool) are also available; `musicalgestures[full]` installs `pose`, `c3d`, `ml`,
-and `cli` together.
+`musicalgestures[ml]` (scikit-learn/torch), `musicalgestures[cli]` (the `musicalgestures`
+command-line tool), and `musicalgestures[soundscape]` (the ambiscape bridge) are also available;
+`musicalgestures[full]` installs `pose`, `c3d`, `ml`, `cli`, and `soundscape` together.
 
 ## Installation Methods
 
@@ -208,8 +210,9 @@ Test your installation:
 ```python
 import musicalgestures as mg
 
-# Check version
-print(mg.__version__)
+# Check the installed version
+from importlib.metadata import version
+print(version('musicalgestures'))
 
 # Load example data
 examples = mg.examples

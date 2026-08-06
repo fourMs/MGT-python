@@ -30,11 +30,11 @@ import musicalgestures as mg
 mv = mg.MgVideo(mg.examples.pianist)
 
 # Video visualizations
-motiongrams = mv.motiongrams()   # MgList: [horizontal MgImage, vertical MgImage]
+motiongrams = mv.motiongrams()   # MgList: [vertical MgImage, horizontal MgImage]
 average_img = mv.average()       # MgImage: pixel average of all frames
 
-motiongrams[0].show()   # horizontal motiongram
-motiongrams[1].show()   # vertical motiongram
+motiongrams[0].show()   # vertical motiongram
+motiongrams[1].show()   # horizontal motiongram
 average_img.show()
 
 # Audio analysis
@@ -66,7 +66,7 @@ mv = mg.MgVideo(
 motion_video = mv.motion()
 motiongrams = mv.motiongrams()
 
-print(f"Duration: {mv.length:.2f}s at {mv.fps} fps")
+print(f"Duration: {mv.duration:.2f}s at {mv.fps} fps")
 ```
 
 ### Example 4: Batch Processing Multiple Videos
@@ -397,13 +397,13 @@ A visual tour of the outputs produced by the methods above. Each image was rende
 
 ![Horizontal motiongram](images/examples/motiongram_h.png)
 
-*`mv.motiongrams()[0]` — motion collapsed over rows, time on the x-axis.*
+*`mv.motiongrams()[1]` — motion collapsed over rows, time on the x-axis.*
 
 **Vertical motiongram**
 
 ![Vertical motiongram](images/examples/motiongram_v.png)
 
-*`mv.motiongrams()[1]` — motion collapsed over columns, time on the y-axis.*
+*`mv.motiongrams()[0]` — motion collapsed over columns, time on the y-axis.*
 
 **Motion history**
 
@@ -489,13 +489,13 @@ A visual tour of the outputs produced by the methods above. Each image was rende
 
 ![Horizontal videogram](images/examples/videogram_h.png)
 
-*`mv.videograms()[0]` — raw frames collapsed over rows.*
+*`mv.videograms()[1]` — raw frames collapsed over rows.*
 
 **Vertical videogram**
 
 ![Vertical videogram](images/examples/videogram_v.png)
 
-*`mv.videograms()[1]` — raw frames collapsed over columns.*
+*`mv.videograms()[0]` — raw frames collapsed over columns.*
 
 **Self-similarity matrix**
 

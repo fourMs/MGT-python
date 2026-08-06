@@ -31,4 +31,4 @@ the index of the source frame.
 
 #### Returns
 
-- `MgList` - An MgList with the MgImage objects referring to the horizontal and vertical videograms respectively.
+- `MgList` - An MgList with the MgImage objects referring to the vertical and horizontal videograms respectively.

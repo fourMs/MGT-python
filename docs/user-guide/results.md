@@ -73,8 +73,8 @@ combined = my_list + mg.MgList(spectrogram)   # concatenate two MgLists
 
 ```python
 motiongrams = mv.motiongrams()
-motiongrams[0].show()   # horizontal motiongram
-motiongrams[1].show()   # vertical motiongram
+motiongrams[0].show()   # vertical motiongram
+motiongrams[1].show()   # horizontal motiongram
 ```
 
 ---

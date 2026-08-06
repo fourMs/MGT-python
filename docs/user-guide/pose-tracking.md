@@ -28,7 +28,7 @@ pip install musicalgestures[pose]
 This pulls in `mediapipe>=0.10`. Without it, `MgVideo.pose()` still works—it falls back to the
 always-available OpenPose `body_25` backend (Caffe weights, ~200 MB, auto-downloaded on first
 use)—but the array-level `extract_pose_landmarks()` requires MediaPipe and raises `ImportError`
-if it's missing.
+if it is missing.
 
 !!! note "MediaPipe has two API families—both are supported"
     MediaPipe's Python API changed generations mid-stream:
@@ -94,7 +94,7 @@ mv.pose(style='skeleton')     # reuses cache — near-instant, no re-inference
   by normalised quantity of motion, labelled with dominant frequency) and a marker-trajectories
   image, each with a companion stats CSV. Both default to `True`.
 
-If MediaPipe isn't installed and `model='mediapipe'` (the default) is requested, `pose()` prints a
+If MediaPipe is not installed and `model='mediapipe'` (the default) is requested, `pose()` prints a
 notice and transparently falls back to the OpenPose `body_25` backend.
 
 ---
@@ -128,7 +128,7 @@ traj['names']            # the 33 MediaPipe landmark names, row order of the lan
 
 ![extract_pose_landmarks on dancer.avi: MediaPipe landmark dots overlaid on each frame (wrists highlighted), with the wrist-speed signal from limb_speed_from_landmarks growing below](../images/examples/pose_landmarks.gif)
 
-**NaN/dropout semantics:** on any frame where MediaPipe doesn't detect a pose, the corresponding
+**NaN/dropout semantics:** on any frame where MediaPipe does not detect a pose, the corresponding
 row of `traj['landmarks']` (and `traj['world']`, if requested) is filled with `NaN` across all 33
 landmarks and 3 channels, rather than zeros or a dropped row. Every frame index still has a
 timestamp in `traj['time']`, so downstream signals stay aligned in time even across dropouts. The
@@ -145,7 +145,7 @@ strike.mp4: 900 frames at 30 fps (640x360), pose detected in 97% of frames.
 `traj['detection_rate']` carries the same number for programmatic use (e.g. flagging low-quality
 takes before running further analysis).
 
-Only `extract_pose_landmarks()` needs MediaPipe; it's imported lazily, so importing
+Only `extract_pose_landmarks()` needs MediaPipe; it is imported lazily, so importing
 `musicalgestures` and using the numpy-only derived-signal helpers below works even without
 MediaPipe installed.
 
@@ -244,8 +244,8 @@ edges.
 `body_scale()` computes the median torso length—the distance between the shoulder midpoint
 (landmarks 11/12 by default) and the hip midpoint (23/24)—preferred over shoulder width because
 it stays robust in profile view. `normalized_qom()` divides the pose QoM by `body_scale()`,
-producing a dimensionless body-lengths-per-second figure that's invariant to camera framing and
-zoom, so it's comparable across recordings and cameras (used in the Westney study's
+producing a dimensionless body-lengths-per-second figure that is invariant to camera framing and
+zoom, so it is comparable across recordings and cameras (used in the Westney study's
 with/without-audience piano comparison).
 
 ---

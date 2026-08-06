@@ -5,52 +5,22 @@
 [![CI](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml/badge.svg)](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml)
 [![Documentation](https://github.com/fourMs/MGT-python/actions/workflows/docs.yml/badge.svg)](https://fourms.github.io/MGT-python/)
 
-The **Musical Gestures Toolbox for Python** is a collection of tools for visualisation and analysis of audio and video, with a focus on motion capture and musical gesture analysis.
+The **Musical Gestures Toolbox for Python** (`musicalgestures`) is a collection of tools for visualising and analysing motion in video recordings, together with the sound that accompanies them. It was developed for research on music-related body motion, but it works on any video or audio file.
 
 ![MGT python demo](https://raw.githubusercontent.com/fourMs/MGT-python/master/musicalgestures/documentation/figures/promo/ipython_example.gif)
 
-## What is MGT-python?
+## What the toolbox does
 
-MGT-python provides researchers, artists, and developers with powerful tools to:
+- **Video analysis**: motion detection, optical flow, motion vectors, movement tempo, Eulerian video magnification, and motion descriptors (energy, smoothness, entropy, spectral)
+- **Visualisations**: motiongrams, videograms, motion history, heatmaps, and space-time displays (stroboscope, silhouette waterfall, 3D space-time volume)
+- **Pose estimation**: MediaPipe (default) and OpenPose backends, with trajectory summaries, motion trails, and per-segment statistics
+- **Audio analysis**: waveforms, spectrograms, MFCC, chromagrams, tempo and beat tracking, and sonomotiongrams (motion turned into sound)
+- **Audio-movement analysis**: tempo similarity, phase synchrony, structural similarity, and per-body-part audio coupling for a single performer
+- **Sound-movement research toolkit**: lower-level, array-based functions for pulse and cycle segmentation, cross-modal alignment, quantity of motion, postural sway, physiology, and motion-capture I/O—see the [Sound-Movement Analysis Toolkit](user-guide/sound-movement-toolkit.md)
+- **360 video**: projection handling, per-direction views, the anglegram, and audio-energy-map overlays—see [Video Analysis](user-guide/video-analysis.md)
+- **Integration**: works with the NumPy, SciPy, librosa, and Matplotlib ecosystems, on Linux, macOS, and Windows
 
-- **Analyse motion** in video recordings
-- **Extract audio features** from multimedia files  
-- **Generate visualisations** like motiongrams, videograms, and motion history images
-- **Process and manipulate** video content with computer vision techniques
-- **Integrate seamlessly** with scientific Python ecosystem (NumPy, SciPy, Matplotlib)
-
-## Key Features
-
-### 🎥 Video Analysis
-
-- Motion detection and tracking
-- Optical flow analysis
-- Pose estimation with automatic model download
-- Frame differencing and motion history
-- Video preprocessing (cropping, filtering, rotation)
-
-### 🎵 Audio Processing
-
-- Waveform analysis and visualisation
-- Spectrograms and chromagrams
-- Tempo and beat tracking
-- Audio feature extraction
-
-### 📊 Visualisation Tools
-
-- Motiongrams (motion over time)
-- Videograms (pixel intensity over time)
-- Average images and motion plots
-- Interactive plotting with Matplotlib
-
-### 🔧 Utilities
-
-- Video format conversion
-- Batch processing capabilities
-- Pose estimation with MediaPipe (default) and OpenPose backends
-- Export functionality for further analysis
-
-## Quick Start
+## Quick start
 
 ### Installation
 
@@ -58,62 +28,65 @@ MGT-python provides researchers, artists, and developers with powerful tools to:
 pip install musicalgestures
 ```
 
-`musicalgestures` installs its Python dependencies automatically. Install `ffmpeg` separately to enable video processing.
+The package installs its Python dependencies automatically. Install `ffmpeg` separately to enable video processing; see the [installation guide](installation.md).
 
-### Basic Usage
+### Basic usage
 
 ```python
 import musicalgestures as mg
 
 # Load a video
-mv = mg.MgVideo('dance.avi')
+v = mg.MgVideo('dance.mp4')
 
-# Generate motion analysis
-motion = mv.motion()
+# Create visualisations — call .show() to display the result
+v.motiongrams().show()
+v.average().show()
 
-# Create visualizations
-motiongram = mv.motiongrams()
-average_image = mv.average()
-
-# Audio analysis
-audio = mg.MgAudio('music.wav')
-spectrogram = audio.spectrogram()
+# Motion and audio analysis
+v.motion().show()
+v.audio.spectrogram().show()
 ```
 
-### Try it Online
+Analysis methods return result objects (`MgVideo`, `MgImage`, or `MgFigure`) and do not auto-render; `.show()` displays them.
+
+### Try it online
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fourMs/MGT-python/blob/master/musicalgestures/MusicalGesturesToolbox.ipynb)
 
-## Getting Started
+## Getting started
 
-- **[Installation Guide](installation.md)** - Detailed setup instructions
-- **[Quick Start Tutorial](quickstart.md)** - Get up and running in minutes
-- **[Examples](examples.md)** - Sample code and use cases
-- **[User Guide](user-guide/core-classes.md)** - Comprehensive documentation
+- **[Installation Guide](installation.md)** — detailed setup instructions
+- **[Quick Start Tutorial](quickstart.md)** — up and running in minutes
+- **[Examples](examples.md)** — sample code and use cases
+- **[User Guide](user-guide/core-classes.md)** — comprehensive documentation
 
-## Runtime Behaviour
+## Runtime behaviour
 
 - `pose()` defaults to the MediaPipe backend and downloads its weights on demand; the OpenPose models download their larger Caffe weights on first use instead.
 - In notebook and batch execution, pose weight downloads are attempted automatically instead of prompting for stdin.
-- If CUDA-backed OpenCV DNN support is unavailable, `pose(device='gpu')` falls back to CPU.
+- If CUDA-backed OpenCV DNN support is unavailable, `pose(device='gpu')` runs on the CPU instead (switching to the MediaPipe backend when it is installed).
 - `flow.dense()`, `flow.sparse()`, and `blur_faces()` run on CPU by default (`use_gpu=False`); pass `use_gpu=True` to attempt CUDA acceleration with automatic CPU fallback.
 - `get_cuda_device_count()` can be used to check CUDA visibility from OpenCV.
-- `blur_faces()` returns the generated `MgVideo` result consistently, including when exporting face-coordinate data.
 
-## Academic Background
+## Related toolboxes
 
-This toolbox builds upon years of research in musical gesture analysis:
+Four toolboxes come out of the [fourMs lab](https://github.com/fourMs) at the University of Oslo. They are separate packages with separate release cycles, but they are built to be used together and share several implementations, so a measure computed in one agrees with the same measure computed in another.
 
-- **[Musical Gestures Toolbox for Max](https://www.uio.no/ritmo/english/research/labs/fourms/software/musicalgesturestoolbox/mgt-max/)** (Original)
-- **[Musical Gestures Toolbox for Matlab](https://github.com/fourMs/MGT-matlab/)** (Previous version)
-- **MGT-python** (Current version)
+- [ambiscape](https://github.com/fourMs/ambiscape)—soundscapes: the sonic ambience of a place, across level, spectral, spatial, temporal, ecological and source descriptors
+- [musiscape](https://github.com/fourMs/musiscape)—music collections: comparing many tracks and albums held as audio files in folders
+- [micromotion](https://github.com/fourMs/micromotion)—human micromotion: quantity of motion from optical markers, accelerometers, respiration belts and force plates
 
-## Support and Community
+MGT-python and ambiscape divide the work cleanly: MGT owns the pixels (motion analysis, pose, 360 handling, video visualisation), while ambiscape owns the samples (soundscape levels, spatial audio, sound-event taxonomies). MGT's audio functions cover quick looks; for serious soundscape work, install the bridge—`pip install "musicalgestures[soundscape]"`—and pull ambiscape's session features straight into `MgFeatures` on a shared wall-clock time base (see `musicalgestures._soundscape` and `musicalgestures._timecode`).
 
-- **Documentation**: You're reading it! 📚
+## Academic background
+
+This toolbox builds on the [Musical Gestures Toolbox for Matlab](https://github.com/fourMs/MGT-matlab/), which again builds on the [Musical Gestures Toolbox for Max](https://www.uio.no/ritmo/english/research/labs/fourms/software/musicalgesturestoolbox/mgt-max/). The software is maintained by the [fourMs lab](https://github.com/fourMs) at [RITMO Centre for Interdisciplinary Studies in Rhythm, Time and Motion](https://www.uio.no/ritmo/english/), University of Oslo.
+
+## Support and community
+
 - **Issues**: [GitHub Issues](https://github.com/fourMs/MGT-python/issues)
-- **Source Code**: [GitHub Repository](https://github.com/fourMs/MGT-python)
-- **Research Group**: [fourMs Lab](https://github.com/fourMs) at [RITMO](https://www.uio.no/ritmo/english/)
+- **Source code**: [GitHub repository](https://github.com/fourMs/MGT-python)
+- **Wiki**: [worked examples and discussion](https://github.com/fourMs/MGT-python/wiki)
 
 ## Citation
 
@@ -135,7 +108,3 @@ If you use MGT-python in your research, please cite this article:
 ## License
 
 MGT-python is released under the [GNU General Public License v3 (GPLv3)](https://github.com/fourMs/MGT-python/blob/master/LICENSE).
-
----
-
-**Ready to explore musical gestures?** Start with our [Quick Start Guide](quickstart.md) or jump into the [examples](examples.md)!

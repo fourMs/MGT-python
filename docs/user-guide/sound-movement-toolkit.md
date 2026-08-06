@@ -18,8 +18,7 @@ see the [API Reference](../musicalgestures/index.md) for full signatures.
 `pick_peaks(x, fs=1.0, smooth=3, rel_threshold=0.5, min_interval=0.3, rel_prominence=0.2, ...)`
 (`_peaks`) is the single adaptive peak-picker—moving-average smoothing, a relative or
 absolute amplitude threshold, a minimum inter-peak interval, and an optional prominence gate—shared
- by every event detector in the toolkit (`_pulse`, `_alignment`, `_qom`,
-`_audiofeatures`). Its docstring records the provisional per-signal-type defaults used across
+by the event detectors in `_pulse` and `_audiofeatures`. Its docstring records the provisional per-signal-type defaults used across
 the source studies (e.g. hand-acceleration impacts vs. audio energy onsets vs. wrist-speed
 peaks); tune the parameters to the signal at hand rather than relying on the defaults.
 
@@ -83,7 +82,7 @@ print(f"movement lags audio by {lag:.3f}s (r={corr:.2f})")
 
 ## Quantity-of-motion cores (`_qom`)
 
-Band-limited QoM (with an automatic decimate+SOS regime for very low frequency bands),
+These functions are implemented in the [micromotion](https://github.com/fourMs/micromotion) package and re-exported by MGT-python; micromotion's documentation is the signature reference. Band-limited QoM (with an automatic decimate+SOS regime for very low frequency bands),
 accelerometer-to-speed integration, per-landmark-group pose QoM, body-scale normalisation for
 framing-invariant comparisons, spatial grid QoM, and small envelope/binning helpers.
 
@@ -121,8 +120,9 @@ onsets = energy_onsets(y, sr)     # onset times (s) from the RMS envelope
 
 ## Postural sway metrics (`_posture`)
 
-Posturography ported from the stillstanding study, operating on plain centre-of-pressure (CoP)
-or marker-position arrays, with no study-specific loaders or axis conventions:
+Posturography from the stillstanding study, implemented in micromotion and re-exported here,
+operating on plain centre-of-pressure (CoP) or marker-position arrays, with no study-specific
+loaders or axis conventions:
 
 - **Sway amount / geometry** — `cop_sway_metrics`, `confidence_ellipse_area`, `convex_hull_area`.
 - **Control dynamics / complexity** — `stabilogram_diffusion` (Collins–De Luca SDA), `dfa`
@@ -141,8 +141,8 @@ print(metrics['path_len'], metrics['area95'], metrics['ap_ml_sd_ratio'])
 
 `cop_sway_metrics()` returns CoP path length/rate, the 95% confidence-ellipse area,
 medio-lateral (ML) and antero-posterior (AP) ranges/standard deviations and their ratios, and
-the mean sway frequency per axis. The from-scratch SDA/DFA/sample-entropy implementations are
-validated in the test suite against known-answer synthetic signals.
+the mean sway frequency per axis. The SDA/DFA/sample-entropy implementations are validated in
+micromotion's test suite against known-answer synthetic signals.
 
 ---
 
@@ -152,16 +152,16 @@ validated in the test suite against known-answer synthetic signals.
 rate (breaths/min) via band-pass filtering and a per-window Welch spectral peak, and
 `spectral_band_fractions(...)` — the fraction of a signal's Welch power in each of a set of
 caller-supplied named frequency bands (a generic spectral-composition diagnostic, e.g. for
-cardiorespiratory QoM), both ported from the stillstanding study's Deichman/Equivital
-physiology analyses.
+cardiorespiratory QoM), both from the stillstanding study's Deichman/Equivital physiology
+analyses and implemented in micromotion.
 
 ---
 
 ## Motion-capture I/O and cross-modality comparison (`_mocap`)
 
-`read_qtm_tsv(path)` is a single robust reader for Qualisys Track Manager (QTM) TSV exports,
-consolidating several near-duplicate study loaders (marker-name recovery, numeric-block
-autodetection, gap-fill-to-NaN conversion, UTF-8/latin-1 fallback).
+`read_qtm_tsv(path)` is a single robust reader for Qualisys Track Manager (QTM) TSV exports
+(marker-name recovery, numeric-block autodetection, gap-fill-to-NaN conversion, UTF-8/latin-1
+fallback), implemented in micromotion and re-exported here.
 `compare_modality_envelopes(...)` resamples two motion envelopes (e.g. video-pose vs. mocap) onto
 a common per-second grid and correlates them.
 

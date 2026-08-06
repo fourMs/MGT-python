@@ -24,7 +24,7 @@ mv.show()                   # opens in a separate window (default)
 mv.show(mode='notebook')    # embeds inline in a Jupyter notebook
 ```
 
-In notebook mode, `show()` converts the video to MP4 automatically if the format is not browser-compatible. In Google Colab, notebook mode is always used regardless of the `mode` argument.
+In notebook mode, `show()` converts the video to MP4 automatically if the format is not browser-compatible. In notebook environments (Jupyter, Colab), notebook mode is always used regardless of the `mode` argument.
 
 ### Referencing results by key
 
@@ -62,8 +62,9 @@ Supported key values:
 | `'dense'` | Dense optical flow video |
 | `'pose'` | Pose estimation video |
 | `'warp'` | Warped audiovisual beats video |
-| `'blur'` | Face-anonymized video |
 | `'subtract'` | Background-subtracted video |
+
+For the face-anonymised video, keep the return value of `blur_faces()` and call `show()` on it directly.
 
 The orientation keys select by *direction of movement*: `'horizontal'` (with aliases `'mgh'`/`'vgh'`) shows the horizontal-movement gram and `'vertical'` (aliases `'mgv'`/`'vgv'`) the vertical one. The legacy `'mgx'`/`'mgy'`/`'vgx'`/`'vgy'` keys still resolve to the literal x/y files.
 
@@ -79,20 +80,21 @@ mv.info('audio')    # audio stream metadata only
 mv.info('format')   # container/format metadata only
 ```
 
-For a quick human-readable overview, use `info('summary')`, which prints resolution, frame count, fps, duration, colour mode, video codec/profile, colour profile, and audio codec/sample-rate/bit-rate, and returns the values as a dict:
+For a quick human-readable overview, use `info('summary')`, which prints resolution, frame count, fps, colour mode, video codec/profile, colour profile, and audio codec/sample-rate/bit-rate, and returns the values as a dict:
 
 ```python
 summary = mv.info('summary')
 # File:         video.avi
 # Resolution:   1920 × 1080 px
 # Frames:       750  @  25 fps
-# Duration:     0:30.00  (30.000 s)
 # Color:        color
 # Video codec:  h264 (High)
 # Audio:        aac (48,000 Hz, 192 kbps)
 # File size:    42.3 MB
 print(summary['fps'], summary['video_codec'])
 ```
+
+Note that the summary's `duration` field is derived from `mv.length`, which for `MgVideo` is the frame count; use `mv.duration` for the duration in seconds.
 
 ### I/P/B frame types
 
@@ -111,9 +113,9 @@ mv = mg.MgVideo('/path/to/video.mp4')
 mv.filename     # full file path
 mv.width        # frame width in pixels
 mv.height       # frame height in pixels
-mv.length       # duration in seconds
+mv.length       # frame count (use mv.n_frames as a clearer alias)
+mv.duration     # duration in seconds
 mv.fps          # frame rate
-mv.framecount   # total number of frames
 mv.color        # True for colour, False for grayscale
 ```
 

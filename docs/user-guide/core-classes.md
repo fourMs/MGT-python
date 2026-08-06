@@ -39,10 +39,11 @@ mg.MgVideo(
     color=True,           # bool — False for grayscale
     contrast=0,           # float -100 to 100
     brightness=0,         # float -100 to 100
-    crop=None,            # None, 'auto', or 'manual'
+    crop='None',          # str — 'None', 'auto', or 'manual' (a string, not Python None)
     keep_all=False,       # bool — keep intermediate preprocessing files
-    target_name=None,     # str — output file name
-    overwrite=True,       # bool — overwrite outputs in place (False = auto-increment)
+    sr=22050,             # int — sample rate for the audio track
+    n_fft=2048,           # int — FFT size for the audio track
+    hop_length=512,       # int — hop length for the audio track
 )
 ```
 
@@ -58,7 +59,6 @@ mv.length       # frame COUNT (number of frames — see the gotcha below)
 mv.n_frames     # frame count (clear alias for length)
 mv.duration     # duration in SECONDS (length / fps)
 mv.fps          # frame rate
-mv.framecount   # total number of frames
 mv.color        # True for colour, False for grayscale
 mv.audio        # MgAudio object for the video's audio track
 mv.flow         # Flow object exposing flow.dense() and flow.sparse()
@@ -92,9 +92,11 @@ print(mv)   # MgVideo('dance.avi', 1572 frames, 25fps, 518x496, audio=True)
 
 ```python
 audio = mg.MgAudio('/path/to/audio.mp3')
-print(audio)           # MgAudio('audio.mp3', 62.88s, sr=22050)
+print(audio)           # MgAudio('audio.mp3', 62.88s, sr=44100)
 print(audio.duration)  # duration in seconds (for MgAudio this equals .length)
 ```
+
+When constructed directly, `MgAudio` keeps the file's native sample rate (`sr=None`). The `mv.audio` object of an `MgVideo` uses the video's audio settings (`sr=22050` by default).
 
 ---
 

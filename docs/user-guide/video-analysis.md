@@ -8,7 +8,7 @@ import musicalgestures as mg
 mv = mg.MgVideo('/path/to/video.avi')
 ```
 
-## Which method should I use?
+## Choosing a method
 
 Several methods have overlapping or similar-sounding names. This table disambiguates the most
 commonly confused pairs, one line each:
@@ -35,7 +35,7 @@ commonly confused pairs, one line each:
 
 Most analysis methods stream frames straight through FFmpeg and run on any container, including MP4, e.g. `motion()`, `motiongrams()`, `average()`/`blend()`, `videograms()`, `heatmap()`, `eulerian()`, `motiontempo()`, `sonomotiongram()`, `grid()`, `subtract()`, and `history()`.
 
-A few methods that decode frame-by-frame with OpenCV first convert the input to an all-intra **MJPEG `.avi`** (cached once as `self.as_avi`) for frame-accurate decoding: `flow.dense()`/`flow.sparse()`, `directograms()`, `impacts()`, `motion_mp()`, and `history_cv2()`. The motion **video output** is also written as `.avi`.
+A few methods that decode frame-by-frame with OpenCV first convert the input to an all-intra **MJPEG `.avi`** (cached once as `self.as_avi`) for frame-accurate decoding: `flow.dense()`/`flow.sparse()`, `directograms()`, `impacts()`, `motion_mp()`, and `history_cv2()`. The motion **video output** keeps the source container: an mp4 in gives `_motion.mp4` out.
 
 If your MP4 decodes reliably and you want to skip that conversion (faster, no extra file), pass `convert=False`:
 
@@ -72,15 +72,15 @@ motion_video.show()
 mv.show(key='motion')           # equivalent shorthand
 ```
 
-![Motion video of dance.avi](../images/examples/motion.gif)
-*The motion video: bright where the image changes between frames.*
+![Input video beside its motion video](../images/examples/motion_side_by_side.gif)
+*Input clip (left) and its motion video (right): only the pixels that change between frames remain.*
 
 ### Shortcuts
 
 ```python
 motion_vid = mv.motionvideo()   # motion video only — returns MgVideo
 
-motiondata = mv.motiondata()    # CSV only — returns list of paths
+motiondata = mv.motiondata()    # data only — the CSV is written as <name>_motiondata.csv
 motiondata = mv.motiondata(motion_analysis='aom')
 
 motionplots = mv.motionplots()  # motion plot image — returns MgImage
@@ -89,8 +89,8 @@ motionplots.show()
 mv.show(key='plot')
 
 motiongrams = mv.motiongrams()        # returns MgList[MgImage, MgImage]
-motiongrams[0].show()                 # horizontal motiongram
-motiongrams[1].show()                 # vertical motiongram
+motiongrams[0].show()                 # vertical motiongram (…_mgv.png)
+motiongrams[1].show()                 # horizontal motiongram (…_mgh.png)
 motiongrams.show(key='horizontal')    # select a panel by orientation
 motiongrams.show(key='vertical')
 mv.show(key='horizontal')             # shorthand from the source MgVideo
@@ -180,7 +180,7 @@ mv.stroboscope(n_samples=10, threshold=0.15, keep_largest=True).show()
 ```
 
 **Motion History Image controls.** `motionhistory()` decays old motion over a window so it
-doesn't accumulate and blow out: `decay` (fraction of the clip a mark persists; smaller = shorter
+does not accumulate and blow out: `decay` (fraction of the clip a mark persists; smaller = shorter
 trails), `threshold` (motion sensitivity), `blur` (speckle suppression), and `normalize`.
 `normalize` now defaults to `False`, since the MHI is already built in `[0, 1]`, and normalising rarely
 helps; when the final frames are static it amplified faint residual trails and over-brightened the
@@ -206,7 +206,7 @@ These single-image summaries look similar but encode different things. The disti
 
 Concrete example, a dancer crossing the frame left → right:
 
-- `heatmap()` / `motion().average()` → a uniformly bright band along the whole path (you can't tell which way they went).
+- `heatmap()` / `motion().average()` → a uniformly bright band along the whole path (you cannot tell which way they went).
 - `motionhistory()` → a **gradient** along the path: dark where they were early, bright where they were recently, so you can read the **direction and progression** of the movement.
 
 In short: use **`heatmap()` / `motion().average()`** for *where and how much* motion (a long-exposure of motion intensity); use **`motionhistory()`** for *where and when* (a recency map that captures the arrow of time).
@@ -262,7 +262,7 @@ md.show()                                    # QoM time series + power spectrum
 The spectral descriptors use a **Hann window** by default to reduce leakage from the finite QoM
 segment; pass `window='none'` for a rectangular window. The dominant frequency and spectral
 centroid are searched within a movement band (`fmin`/`fmax`, default 0.2–10 Hz) so slow amplitude
-drift near 0 Hz doesn't masquerade as the movement rhythm. The scalars are also written to a
+drift near 0 Hz does not masquerade as the movement rhythm. The scalars are also written to a
 `_motiondescriptors.csv` (set `save_data=False` to skip), and `data['frequencies']`/`data['power']`
 hold the full spectrum.
 
@@ -329,8 +329,8 @@ Videograms apply the motiongram technique to the source video directly, without 
 
 ```python
 videograms = mv.videograms()    # returns MgList[MgImage, MgImage]
-videograms[0].show()            # horizontal videogram
-videograms[1].show()            # vertical videogram
+videograms[0].show()            # vertical videogram (…_vgv.png)
+videograms[1].show()            # horizontal videogram (…_vgh.png)
 videograms.show(key='horizontal')
 videograms.show(key='vertical')
 mv.show(key='horizontal')
@@ -476,7 +476,7 @@ pose = mv.pose(marker_history=10)
 - `overlay`: `True` (draw on the video) or `False` (draw on a plain background)
 - `background`: `'black'` (default) or `'white'` — the background colour when `overlay=False`. `'black'` draws bright colours; `'white'` draws a black skeleton and markers for a print-friendly inverted look.
 - `marker_history`: `0` (default) draws nothing extra; when `> 0`, draws a motion trail for each marker by joining its positions over the last N frames. Works in all render paths.
-- `device`: `'cpu'` or `'gpu'`. For OpenPose models, if `device='gpu'` is requested but OpenCV lacks CUDA, `pose()` automatically switches to the MediaPipe backend (when installed) so the GPU is still used; otherwise it falls back to CPU.
+- `device`: `'cpu'` or `'gpu'`. For OpenPose models, if `device='gpu'` is requested but OpenCV lacks CUDA, `pose()` switches to the MediaPipe backend on CPU (when MediaPipe is installed); otherwise it falls back to CPU with the requested model.
 - `downsampling_factor`: reduces input resolution before inference (OpenPose only); higher is faster but less accurate
 - `threshold`: minimum network confidence to accept a keypoint (normalised 0–1)
 - `data_format`: `'csv'` (default), `'tsv'`, `'txt'`, or `'c3d'` (motion-capture format; needs the optional `c3d` package). Combine, e.g. `data_format=['csv', 'c3d']`.
@@ -503,7 +503,7 @@ pv.trajectories.show()     # every marker's spatial path over the whole video
 ![Pose marker trajectories of dance.avi](../images/examples/pose_trajectories.png)
 *Marker trajectories: every marker's spatial path over the whole video. The background follows `trajectory_background` (default `'black'`).*
 
-Both summary images are decluttered: neither carries an in-figure title. The average-pose image no longer draws a colorbar. Markers are still coloured by quantity of motion, and each one is annotated with a `QoM | frequency` number label (normalised QoM 0–1 and dominant frequency in Hz). These labels are automatically laid out so they don't overlap (with thin leader lines back to each marker). The marker-trajectories image shows **no** per-marker name labels by default (`trajectory_labels=False`); re-enable them with `trajectory_labels=True`.
+Both summary images are decluttered: neither carries an in-figure title or colourbar. Markers are coloured by quantity of motion, and each one is annotated with a `QoM | frequency` number label (normalised QoM 0–1 and dominant frequency in Hz). These labels are automatically laid out so they do not overlap (with thin leader lines back to each marker). The marker-trajectories image shows **no** per-marker name labels by default (`trajectory_labels=False`); re-enable them with `trajectory_labels=True`.
 
 Control the trajectories image background with `trajectory_background`: `'black'` (default), `'white'`, or `'transparent'` (so you can overlay the paths on the video afterwards). This supersedes the older `transparent_trajectories` flag, which is still accepted.
 
@@ -675,7 +675,6 @@ blur = mv.blur_faces()                                  # returns MgVideo
 blur = mv.blur_faces(use_gpu=True)
 blur = mv.blur_faces(save_data=True, data_format='csv')
 blur.show()
-mv.show(key='blur')
 
 source_image = '/path/to/mask.jpg'
 mv.blur_faces(mask='image', mask_image=source_image)
@@ -748,7 +747,16 @@ front = v.view(yaw=0, h_fov=90, v_fov=60)    # rectilinear crop as a regular MgV
 front.motiongrams()                          # ...for any standard analysis per direction
 ```
 
-The anglegram's azimuth axis defaults to the ambisonic convention (+90° = left, matching ambiscape's audio anglegram) so the two can be compared side by side. The AEM (Audio Energy Map) arrives through a file only — a CSV/TSV with `time`, `azimuth`, `energy` columns (see `load_aem`); ambiscape is never imported ("ambiscape owns the samples, MGT owns the pixels").
+The anglegram's azimuth axis defaults to the ambisonic convention (+90° = left, matching ambiscape's audio anglegram) so the two can be compared side by side. The AEM (Audio Energy Map) arrives through a file only—a CSV/TSV with `time`, `azimuth`, `energy` columns (see `load_aem`); the anglegram/AEM code never imports ambiscape ("ambiscape owns the samples, MGT owns the pixels").
+
+![Anglegram of a synthetic 360 clip](../images/examples/anglegram.png)
+*Anglegram of a synthetic equirectangular clip: a bright source orbits the camera once (the diagonal trace) while a flickering doorway sits at azimuth −90° (the horizontal band).*
+
+![Anglegram with AEM overlay](../images/examples/anglegram_aem.png)
+*The same anglegram with the AEM overlaid (`on='anglegram'`): visual motion in grey, audio energy in colour, on shared time and azimuth axes.*
+
+![AEM heat strip on the video](../images/examples/aem_overlay.gif)
+*`aem_overlay(on='video')`: a translucent heat strip along the bottom of every frame lights up under the azimuth the sound comes from.*
 
 ---
 

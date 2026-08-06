@@ -20,7 +20,7 @@ def videograms_ffmpeg(self, target_name_x: str | None = None, target_name_y: str
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:
-        MgList: An MgList with the MgImage objects referring to the horizontal and vertical videograms respectively. 
+        MgList: An MgList with the MgImage objects referring to the vertical and horizontal videograms respectively. 
     """
 
     width, height = get_widthheight(self.filename)

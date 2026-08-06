@@ -117,7 +117,7 @@ Every analysis method accepts `target_name` and `overwrite`:
 
 - `target_name` sets the output file path. If `None` (default), a suffix is appended to the source name. For example, `history` on `dance.avi` produces `dance_history.avi` in the same directory.
 - `overwrite=True` (default) replaces the existing file in place, so re-running a method overwrites the previous result instead of leaving stale copies behind.
-- `overwrite=False` silently increments the filename if one already exists: `dance_history.avi` → `dance_history_0.avi` → `dance_history_1.avi`, and so on (the old auto-increment behaviour).
+- `overwrite=False` silently increments the filename if one already exists: `dance_history.avi` → `dance_history_0.avi` → `dance_history_1.avi`, and so on, keeping every run.
 
 ```python
 mv = mg.MgVideo('/path/to/video.avi')

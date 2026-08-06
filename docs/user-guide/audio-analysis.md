@@ -79,7 +79,7 @@ By default the figure includes an onset-strength panel above the tempogram. Pass
 audio.tempogram(onset_strength=False).show()
 ```
 
-The tempogram is drawn with a colorbar (matching the chromagram), and the estimated tempo is shown rounded to one decimal in the plot title, e.g. `Tempogram (estimated tempo = 112.3 BPM)`. The dotted estimated-tempo line is no longer drawn.
+The tempogram is drawn with a colourbar (matching the chromagram), and the estimated tempo is shown rounded to one decimal in the plot title, e.g. `Tempogram (estimated tempo = 112.3 BPM)`.
 
 ---
 

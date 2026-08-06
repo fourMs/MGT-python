@@ -1,6 +1,6 @@
 # Quick Start Guide
 
-Welcome to MGT-python! This guide will get you up and running with the Musical Gestures Toolbox in just a few minutes.
+This guide gets you up and running with the Musical Gestures Toolbox in a few minutes.
 
 ## Prerequisites
 
@@ -12,7 +12,7 @@ pip install musicalgestures
 
 ## Your First MGT-python Script
 
-Let's start with a simple example using the built-in sample videos:
+Start with a simple example using the built-in sample videos:
 
 ```python
 import musicalgestures as mg
@@ -25,7 +25,7 @@ print(f"Pianist video: {examples.pianist}")
 # Load a video
 mv = mg.MgVideo(examples.dance)
 print(f"Loaded: {mv.filename}")
-print(f"Duration: {mv.length:.2f} seconds")
+print(f"Duration: {mv.duration:.2f} seconds")   # .duration is seconds; .length is the frame count
 print(f"Frame rate: {mv.fps} fps")
 ```
 
@@ -85,8 +85,6 @@ data = pd.read_csv(csv_path)
 print(data.head())
 ```
 
-Recent motion-analysis fixes ensure centroid-of-motion coordinates are computed as scalar values during `motion()` and `motiondata()` runs, which makes notebook and batch execution more robust.
-
 ### 2. Create Visualisations
 
 Generate various visualisations:
@@ -94,10 +92,10 @@ Generate various visualisations:
 ```python
 mv = mg.MgVideo(examples.pianist)
 
-# Motiongrams — returns MgList with [horizontal_mgram, vertical_mgram]
+# Motiongrams — returns MgList with [vertical_mgram, horizontal_mgram]
 motiongrams = mv.motiongrams()
-motiongrams[0].show()  # horizontal motiongram
-motiongrams[1].show()  # vertical motiongram
+motiongrams[0].show()  # vertical motiongram
+motiongrams[1].show()  # horizontal motiongram
 mv.show(key='horizontal')  # shorthand from source MgVideo
 
 # Average image (blend of all frames)
@@ -109,7 +107,7 @@ history = mv.history()
 history.show()
 ```
 
-Face anonymization also returns a usable result object even when exporting face-coordinate data:
+Face anonymisation also returns a usable result object when exporting face-coordinate data:
 
 ```python
 blurred = mv.blur_faces(save_data=True, data_format='csv')
@@ -241,7 +239,7 @@ average = mv.average()
 # 4. Analyze audio
 audio_analysis = mv.audio.spectrogram()
 
-print("Analysis complete!")
+print("Analysis complete")
 ```
 
 ## Understanding Output Files
@@ -249,8 +247,8 @@ print("Analysis complete!")
 MGT-python creates several types of output files:
 
 ### Video Files
-- `*_motion.avi` - Motion detection video
-- `*_history.avi` - Motion history visualisation
+- `*_motion.*` - Motion video (same container as the source: an mp4 in gives `_motion.mp4`)
+- `*_history.*` - Motion history video (same container as the source)
 
 ### Image Files
 - `*_average.png` - Average of all frames
@@ -308,7 +306,7 @@ for video_file in video_files:
 
 ## Next Steps
 
-Now that you're familiar with the basics, explore more advanced features:
+Now that you know the basics, explore more advanced features:
 
 - **[Loading & Showing](user-guide/loading.md)** - How to load videos and display results
 - **[Preprocessing](user-guide/preprocessing.md)** - Trim, crop, rotate, and adjust videos
@@ -319,7 +317,7 @@ Now that you're familiar with the basics, explore more advanced features:
 
 ## Common Issues
 
-### Video Won't Load
+### Video does not load
 ```python
 # Check if file exists and is readable
 import os
@@ -351,4 +349,4 @@ mv = mg.MgVideo('large_video.mp4', skip=2)
 mv = mg.MgVideo('large_video.mp4').resample(fps=15)
 ```
 
-Ready to dive deeper? Check out our comprehensive [User Guide](user-guide/core-classes.md)!
+The comprehensive [User Guide](user-guide/core-classes.md) covers the rest of the toolbox.
