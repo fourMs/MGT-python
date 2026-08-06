@@ -1,0 +1,9 @@
+# Dependencies for building the documentation site (mkdocs build / mkdocs serve).
+# Used by .github/workflows/docs.yml and .readthedocs.yml.
+mkdocs>=1.6
+mkdocs-material>=9.5
+mkdocs-git-revision-date-localized-plugin>=1.2
+mkdocs-redirects>=1.2
+# >=1.0 guarantees a python handler with docstring_style: auto (mixed
+# Google/NumPy docstrings in the codebase are auto-detected per docstring).
+mkdocstrings[python]>=1.0

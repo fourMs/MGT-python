@@ -273,7 +273,8 @@ def render_pose_waterfall(data, names, width, height, fps, target_name, overwrit
     Args:
         data (list): Collected pose rows ``[time_ms, x0, y0, x1, y1, ...]`` (normalised coords).
         names (list): Marker names (length n_points).
-        width, height (int): Frame size in pixels (used to scale normalised coords).
+        width (int): Frame width in pixels (used to scale normalised coords).
+        height (int): Frame height in pixels (used to scale normalised coords).
         fps (float): Frames per second (for the time axis).
         target_name (str): Output PNG path.
         overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to True.
@@ -462,7 +463,8 @@ def render_segment_circular(data, names, connections, width, height, fps, target
         data (list): Collected pose rows ``[time_ms, x0, y0, ...]`` (normalised coords).
         names (list): Marker names (length n_points).
         connections (list): Segment connection pairs (joint-index tuples).
-        width, height (int): Frame size in pixels (to scale coordinates).
+        width (int): Frame width in pixels (to scale coordinates).
+        height (int): Frame height in pixels (to scale coordinates).
         fps (float): Frames per second (for angular speed).
         target_name (str): Output PNG path.
         overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to True.
@@ -645,7 +647,8 @@ def pose_distance(data, names, width, height):
     Args:
         data (list): Collected pose rows ``[time_ms, x0, y0, ...]`` (normalised coords).
         names (list): Marker names (length n_points).
-        width, height (int): Frame size in pixels (to scale the normalised coordinates).
+        width (int): Frame width in pixels (to scale the normalised coordinates).
+        height (int): Frame height in pixels (to scale the normalised coordinates).
 
     Returns:
         tuple: ``(cumulative, total, average, times)`` where ``cumulative`` is a (T-1, n) array of

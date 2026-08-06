@@ -416,7 +416,7 @@ class MgVideo(MgAudio):
         Extracts a frame from the video at a given time.
         see _utils.extract_frame for details.
 
-        Args:
+        Keyword Args:
             frame (int): The frame number to extract.
             time (str): The time in HH:MM:ss.ms where to extract the frame from.
             target_name (str, optional): The name for the output file. If None, the name will be <input name>FRAME<frame number>.<file extension>. Defaults to None.

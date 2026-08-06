@@ -12,6 +12,7 @@ __pycache__/
 *.log
 *.synctex.gz
 *.txt
+!docs/requirements.txt
 *.tff
 *.tsv
 .ipynb_checkpoints

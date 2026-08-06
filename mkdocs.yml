@@ -36,6 +36,21 @@ plugins:
   - search
   - git-revision-date-localized:
       enable_creation_date: true
+  # Old page URLs that must keep resolving. mkdocs-redirects writes a small
+  # meta-refresh page at each old path, so an external bookmark still lands.
+  - redirects:
+      redirect_maps:
+        musicalgestures/_centroid.md: musicalgestures/index.md
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [.]
+          options:
+            docstring_style: auto
+            show_source: true
+            members_order: source
+            merge_init_into_class: true
+            separate_signature: true
 
 nav:
   - Home: index.md

@@ -10,7 +10,7 @@ class InputError(Error):
     Exception raised for errors in the input.
 
     Args:
-        Error (str): Explanation of the error.
+        message (str): Explanation of the error.
     """
 
     def __init__(self, message):
