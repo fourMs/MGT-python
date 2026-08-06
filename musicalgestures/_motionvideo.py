@@ -810,7 +810,9 @@ def save_txt(of, time, aom, com, qom, motion_analysis, width, height, data_forma
 
         elif data_format == "csv":
             if target_name_data is None:
-                target_name_data = of + '_motiondata.csv'
+                # Consistent with the tsv/txt branches and with the path
+                # mg_motiondata() reports (previously '_motiondata.csv').
+                target_name_data = of + '_motion.csv'
             else:
                 # take name, but enforce csv
                 target_name_data = os.path.splitext(target_name_data)[0] + '.csv'

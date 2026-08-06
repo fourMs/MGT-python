@@ -55,6 +55,88 @@ MEDIAPIPE_LANDMARK_NAMES: list[str] = [
     "left_foot_index", "right_foot_index",
 ]
 
+# MediaPipe pose model download URLs and file names per complexity level
+# (0 = lite, 1 = full, 2 = heavy).
+_POSE_MODEL_URLS: dict[int, str] = {
+    0: (
+        "https://storage.googleapis.com/mediapipe-models/"
+        "pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task"
+    ),
+    1: (
+        "https://storage.googleapis.com/mediapipe-models/"
+        "pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task"
+    ),
+    2: (
+        "https://storage.googleapis.com/mediapipe-models/"
+        "pose_landmarker/pose_landmarker_heavy/float16/1/pose_landmarker_heavy.task"
+    ),
+}
+_POSE_MODEL_NAMES: dict[int, str] = {
+    0: "pose_landmarker_lite.task",
+    1: "pose_landmarker_full.task",
+    2: "pose_landmarker_heavy.task",
+}
+
+
+def get_pose_model_path(model_complexity: int = 1, models_dir: Path | str | None = None) -> Path:
+    """Return the local path of the MediaPipe pose ``.task`` model file,
+    downloading and caching it on first use.
+
+    This is the shared model download/cache used by both
+    :class:`MediaPipePoseEstimator` (per-frame estimation, ``MgVideo.pose()``)
+    and :func:`musicalgestures.extract_pose_landmarks` (whole-video landmark
+    trajectories), so a given model file is only downloaded once.
+
+    Args:
+        model_complexity (int, optional): MediaPipe model variant: 0 (lite),
+            1 (full) or 2 (heavy). Invalid values fall back to 1 with a
+            warning. Defaults to 1.
+        models_dir (Path or str, optional): Directory to cache the model file
+            in. Defaults to None (the ``musicalgestures/models/`` directory
+            inside the installed package).
+
+    Returns:
+        Path: Path to the cached model file (~8-28 MB, downloaded from
+        Google's model storage if not already present).
+
+    Raises:
+        MgDependencyError: If the model file is missing and the download fails.
+    """
+    if models_dir is None:
+        import musicalgestures as mg
+
+        models_dir = Path(mg.__file__).parent / "models"
+    else:
+        models_dir = Path(models_dir)
+    models_dir.mkdir(exist_ok=True)
+
+    if model_complexity not in _POSE_MODEL_NAMES:
+        logger.warning(
+            "model_complexity %d is not valid (0-2); defaulting to 1.",
+            model_complexity,
+        )
+        model_complexity = 1
+
+    model_path = models_dir / _POSE_MODEL_NAMES[model_complexity]
+    if model_path.exists():
+        return model_path
+
+    url = _POSE_MODEL_URLS[model_complexity]
+    logger.info("Downloading MediaPipe model from %s …", url)
+    print(f"Downloading MediaPipe pose model ({_POSE_MODEL_NAMES[model_complexity]}) …")
+    try:
+        import urllib.request
+
+        urllib.request.urlretrieve(url, model_path)
+        logger.info("Model saved to %s", model_path)
+    except Exception as exc:
+        raise MgDependencyError(
+            f"Failed to download MediaPipe pose model from {url}. "
+            "Please download it manually and place it at: "
+            f"{model_path}"
+        ) from exc
+    return model_path
+
 
 class PoseEstimatorResult:
     """Container for the output of a single-frame pose estimation.
@@ -222,26 +304,12 @@ class MediaPipePoseEstimator(PoseEstimator):
     >>> result.keypoints.shape  # (33, 3)  # doctest: +SKIP
     """
 
-    # Model download URLs for each complexity level
-    _MODEL_URLS: dict[int, str] = {
-        0: (
-            "https://storage.googleapis.com/mediapipe-models/"
-            "pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task"
-        ),
-        1: (
-            "https://storage.googleapis.com/mediapipe-models/"
-            "pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task"
-        ),
-        2: (
-            "https://storage.googleapis.com/mediapipe-models/"
-            "pose_landmarker/pose_landmarker_heavy/float16/1/pose_landmarker_heavy.task"
-        ),
-    }
-    _MODEL_NAMES: dict[int, str] = {
-        0: "pose_landmarker_lite.task",
-        1: "pose_landmarker_full.task",
-        2: "pose_landmarker_heavy.task",
-    }
+    # Model download URLs and file names per complexity level (kept as class
+    # attributes for backward compatibility; the canonical copies are the
+    # module-level _POSE_MODEL_URLS/_POSE_MODEL_NAMES used by
+    # get_pose_model_path()).
+    _MODEL_URLS: dict[int, str] = _POSE_MODEL_URLS
+    _MODEL_NAMES: dict[int, str] = _POSE_MODEL_NAMES
 
     def __init__(
         self,
@@ -258,39 +326,7 @@ class MediaPipePoseEstimator(PoseEstimator):
 
     def _get_model_path(self) -> Path:
         """Return path to the cached model file, downloading if necessary."""
-        import musicalgestures as mg
-
-        module_dir = Path(mg.__file__).parent
-        models_dir = module_dir / "models"
-        models_dir.mkdir(exist_ok=True)
-
-        complexity = self.model_complexity
-        if complexity not in self._MODEL_NAMES:
-            logger.warning(
-                "model_complexity %d is not valid (0-2); defaulting to 1.",
-                complexity,
-            )
-            complexity = 1
-
-        model_path = models_dir / self._MODEL_NAMES[complexity]
-        if model_path.exists():
-            return model_path
-
-        url = self._MODEL_URLS[complexity]
-        logger.info("Downloading MediaPipe model from %s …", url)
-        print(f"Downloading MediaPipe pose model ({self._MODEL_NAMES[complexity]}) …")
-        try:
-            import urllib.request
-
-            urllib.request.urlretrieve(url, model_path)
-            logger.info("Model saved to %s", model_path)
-        except Exception as exc:
-            raise MgDependencyError(
-                f"Failed to download MediaPipe pose model from {url}. "
-                "Please download it manually and place it at: "
-                f"{model_path}"
-            ) from exc
-        return model_path
+        return get_pose_model_path(self.model_complexity)
 
     def _ensure_initialized(self) -> None:
         if self._landmarker is not None:

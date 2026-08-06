@@ -60,6 +60,7 @@ from musicalgestures._pose_estimator import (
     MediaPipePoseEstimator,
     OpenPosePoseEstimator,
     get_pose_estimator,
+    get_pose_model_path,
 )
 from musicalgestures._analysis import (
     smooth,

@@ -13,7 +13,7 @@ def mg_show(self, filename: str | None = None, key: str | None = None, mode: str
 
     Args:
         filename (str, optional): If given, `mg_show` will show this file instead of what it inherits from its parent object. Defaults to None.
-        key (str, optional): If given, `mg_show` will search for file names corresponding to certain processes you have previously rendered on your source. It is meant to be a shortcut, so you don't have to remember the exact name (and path) of eg. a motion video corresponding to your source in your MgVideo, but you rather just use `MgVideo('path/to/vid.mp4').show(key='motion')`. Accepted values are 'horizontal'/'vertical' (motiongram or videogram; aliases 'mgh'/'vgh' for horizontal, 'mgv'/'vgv' for vertical, and the legacy 'mgx'/'mgy'/'vgx'/'vgy' literal x/y files), 'ssm', 'blend', 'plot', 'motion', 'history', 'motionhistory', 'sparse', and 'dense'. Defaults to None.
+        key (str, optional): If given, `mg_show` will search for file names corresponding to certain processes you have previously rendered on your source. It is meant to be a shortcut, so you don't have to remember the exact name (and path) of eg. a motion video corresponding to your source in your MgVideo, but you rather just use `MgVideo('path/to/vid.mp4').show(key='motion')`. Accepted values are 'horizontal'/'vertical' (motiongram or videogram; aliases 'mgh'/'vgh' for horizontal, 'mgv'/'vgv' for vertical, and the legacy 'mgx'/'mgy'/'vgx'/'vgy' literal x/y files), 'ssm', 'blend', 'plot', 'motion', 'history', 'motionhistory', 'sparse', 'dense', 'pose', 'warp', 'blur', and 'subtract'. Defaults to None.
         mode (str, optional): Whether to show things in a separate window or inline in the jupyter notebook. Accepted values are 'windowed' and 'notebook'. Defaults to 'windowed'.
         window_width (int, optional): The width of the window. Defaults to 640.
         window_height (int, optional): The height of the window. Defaults to 480.
@@ -262,14 +262,17 @@ def mg_show(self, filename: str | None = None, key: str | None = None, mode: str
                     "There is no known warp audiovisual beats video for this file.")
 
         elif key.lower() == 'blur':
-            if "blur_faces" in keys:
-                filename = self.blur_faces.filename
+            if "blur_faces_video" in keys:
+                filename = self.blur_faces_video.filename
                 show(file=filename, width=window_width,
                      height=window_height, mode=mode, title=f'Blur Faces Video | {filename}', parent=self, **ipython_kwargs)
+            else:
+                raise FileNotFoundError(
+                    "There is no known blur faces video for this file.")
 
         elif key.lower() == 'subtract':
-            if "subtract" in keys:
-                filename = self.subtract.filename
+            if "subtract_video" in keys:
+                filename = self.subtract_video.filename
                 show(file=filename, width=window_width,
                      height=window_height, mode=mode, title=f'Background Subtraction Video | {filename}', parent=self, **ipython_kwargs)
             else:

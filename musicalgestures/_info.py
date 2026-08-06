@@ -25,9 +25,14 @@ def mg_info(self, type=None, autoshow=True, overwrite=True):
     if type == 'summary':
         framecount = get_framecount(self.filename)
 
-        h = int(self.length // 3600)
-        m = int((self.length % 3600) // 60)
-        s = self.length % 60
+        # NB: for an MgVideo `self.length` is the frame *count*, not seconds
+        # (for an MgAudio it is the duration in seconds and there is no fps).
+        fps = getattr(self, 'fps', None)
+        duration_secs = self.length / fps if fps else float(self.length)
+
+        h = int(duration_secs // 3600)
+        m = int((duration_secs % 3600) // 60)
+        s = duration_secs % 60
         duration_str = f"{h}:{m:02d}:{s:05.2f}" if h else f"{m}:{s:05.2f}"
 
         filesize = os.path.getsize(self.filename)
@@ -60,7 +65,7 @@ def mg_info(self, type=None, autoshow=True, overwrite=True):
             'height':         self.height,
             'fps':            self.fps,
             'frames':         framecount,
-            'duration':       round(self.length, 3),
+            'duration':       round(duration_secs, 3),
             'color':          self.color,
             'video_codec':    video_codec,
             'video_profile':  video_profile,
@@ -77,7 +82,7 @@ def mg_info(self, type=None, autoshow=True, overwrite=True):
         print(f"{'File:':<{col}} {os.path.basename(self.filename)}")
         print(f"{'Resolution:':<{col}} {self.width} × {self.height} px")
         print(f"{'Frames:':<{col}} {framecount}  @  {self.fps:g} fps")
-        print(f"{'Duration:':<{col}} {duration_str}  ({self.length:.3f} s)")
+        print(f"{'Duration:':<{col}} {duration_str}  ({duration_secs:.3f} s)")
         print(f"{'Color:':<{col}} {'color' if self.color else 'grayscale'}")
         codec_str = video_codec or 'unknown'
         if video_profile:

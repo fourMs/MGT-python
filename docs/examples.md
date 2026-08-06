@@ -17,7 +17,7 @@ motion_video.show()
 
 # The motion data CSV is saved alongside the video
 import os, pandas as pd
-csv_path = os.path.splitext(motion_video.filename)[0].replace('_motion', '_motiondata') + '.csv'
+csv_path = os.path.splitext(motion_video.filename)[0] + '.csv'
 df = pd.read_csv(csv_path)
 print(df.head())
 ```
@@ -290,7 +290,7 @@ def extract_motion_features(video_path):
     motion_video = mv.motion()
 
     # CSV columns: Time (ms), Qom, ComX, ComY, AomX1, AomY1, AomX2, AomY2
-    csv_path = os.path.splitext(motion_video.filename)[0].replace('_motion', '_motiondata') + '.csv'
+    csv_path = os.path.splitext(motion_video.filename)[0] + '.csv'
     df = pd.read_csv(csv_path)
 
     features = {
@@ -317,7 +317,7 @@ import matplotlib.pyplot as plt
 import os
 
 def load_motion_csv(motion_video):
-    csv_path = os.path.splitext(motion_video.filename)[0].replace('_motion', '_motiondata') + '.csv'
+    csv_path = os.path.splitext(motion_video.filename)[0] + '.csv'
     return pd.read_csv(csv_path)
 
 mv1 = mg.MgVideo(mg.examples.dance)

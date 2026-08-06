@@ -35,7 +35,7 @@ def mg_subtract(
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:
-        MgVideo: A MgVideo as subtract for parent MgVideo
+        MgVideo: A MgVideo pointing to the subtracted video, also stored as `subtract_video` on the parent MgVideo
     """
 
     of, fex = os.path.splitext(self.filename)
@@ -112,7 +112,9 @@ def mg_subtract(
 
     ffmpeg_cmd(cmd, get_length(self.filename), pb_prefix='Subtracting background:', stream=True)
 
-    # Save subtracted video as subtract for parent MgVideo
-    self.subtract = musicalgestures.MgVideo(target_name, color=color, returned_by_process=True)
+    # Save subtracted video as subtract_video for parent MgVideo. NB: not
+    # `self.subtract`, which would overwrite (shadow) the bound method and
+    # break any subsequent subtract() call on the same object.
+    self.subtract_video = musicalgestures.MgVideo(target_name, color=color, returned_by_process=True)
 
-    return self.subtract
+    return self.subtract_video

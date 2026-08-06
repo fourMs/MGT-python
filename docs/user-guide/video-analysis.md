@@ -80,7 +80,7 @@ mv.show(key='motion')           # equivalent shorthand
 ```python
 motion_vid = mv.motionvideo()   # motion video only — returns MgVideo
 
-motiondata = mv.motiondata()    # data only — the CSV is written as <name>_motiondata.csv
+motiondata = mv.motiondata()    # data only — the CSV is written as <name>_motion.csv
 motiondata = mv.motiondata(motion_analysis='aom')
 
 motionplots = mv.motionplots()  # motion plot image — returns MgImage

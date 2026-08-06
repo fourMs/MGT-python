@@ -191,3 +191,42 @@ class Test_motion:
         result = mg.motion(data_format=["xyz", "csv", "txt"])
         assert type(result) == musicalgestures.MgVideo
         assert os.path.isfile(result.filename) == True
+
+
+class Test_motion_default_data_name:
+    def test_default_csv_is_motion_csv(self, testvideo_avi):
+        # Regression: the default csv used to be written to '_motiondata.csv'
+        # while the tsv/txt branches (and the path mg_motiondata() reports)
+        # use the '_motion' suffix.
+        mg = musicalgestures.MgVideo(testvideo_avi)
+        mg.motion(save_video=False, save_plot=False, save_motiongrams=False)
+        of = os.path.splitext(testvideo_avi)[0]
+        assert os.path.isfile(of + "_motion.csv") == True
+
+
+class Test_subtract:
+    def test_repeated_calls_no_method_shadowing(self, testvideo_avi):
+        # Regression: the result used to be stored as `self.subtract`,
+        # overwriting the bound method so a second subtract() call crashed.
+        mg = musicalgestures.MgVideo(testvideo_avi)
+        result = mg.subtract()
+        assert type(result) == musicalgestures.MgVideo
+        assert os.path.isfile(result.filename) == True
+        assert callable(mg.subtract)
+        result2 = mg.subtract()
+        assert type(result2) == musicalgestures.MgVideo
+        assert mg.subtract_video is result2
+
+
+class Test_sonomotiongram:
+    def test_repeated_calls_no_method_shadowing(self, testvideo_avi):
+        # Regression: the result used to be stored as `self.sonomotiongram`,
+        # overwriting the bound method so a second sonomotiongram() call crashed.
+        mg = musicalgestures.MgVideo(testvideo_avi)
+        result = mg.sonomotiongram(n_iter=4)
+        assert type(result) == musicalgestures.MgAudio
+        assert os.path.isfile(result.filename) == True
+        assert callable(mg.sonomotiongram)
+        result2 = mg.sonomotiongram(n_iter=4)
+        assert type(result2) == musicalgestures.MgAudio
+        assert mg.sonomotiongram_audio is result2

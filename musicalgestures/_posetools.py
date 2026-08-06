@@ -48,6 +48,8 @@ def extract_pose_landmarks(
         filename: str,
         fps: float | None = None,
         width: int | None = None,
+        t0: float = 0.0,
+        duration: float | None = None,
         model_complexity: int = 1,
         world_landmarks: bool = False,
         min_detection_confidence: float = 0.5,
@@ -86,6 +88,12 @@ def extract_pose_landmarks(
             pixels, keeping the aspect ratio. Smaller frames are much faster and
             are usually sufficient for trajectory-level analysis (the studies
             used 256-640 px). Defaults to None (native resolution).
+        t0 (float, optional): Start time of the analysis window in seconds.
+            The window is cut by FFmpeg (input-side seek), so the rest of the
+            file is never decoded. Returned timestamps stay on the source
+            clock, i.e. ``time[0] == t0``. Defaults to 0.0 (start of file).
+        duration (float, optional): Length of the analysis window in seconds
+            (from ``t0``). Defaults to None (until the end of the file).
         model_complexity (int, optional): MediaPipe model variant: 0 (lite),
             1 (full) or 2 (heavy). Defaults to 1.
         world_landmarks (bool, optional): Whether to also collect MediaPipe's 3D
@@ -134,6 +142,10 @@ def extract_pose_landmarks(
     if model_complexity not in (0, 1, 2):
         raise ValueError(
             f"model_complexity must be 0, 1 or 2, got {model_complexity!r}")
+    if t0 < 0:
+        raise ValueError(f"t0 must be >= 0, got {t0!r}")
+    if duration is not None and duration <= 0:
+        raise ValueError(f"duration must be > 0, got {duration!r}")
 
     try:
         import mediapipe as mp
@@ -164,7 +176,15 @@ def extract_pose_landmarks(
         vf.append(f"fps={sample_fps}")
     if width:
         vf.append(f"scale={w}:{h}")
-    cmd = ["ffmpeg", "-v", "error", "-i", filename]
+    cmd = ["ffmpeg", "-v", "error"]
+    if t0:
+        # Input-side seek (-ss before -i): FFmpeg jumps to the nearest
+        # keyframe before t0 and decodes from there, so windowing a long
+        # file never decodes the whole file.
+        cmd += ["-ss", str(t0)]
+    cmd += ["-i", filename]
+    if duration is not None:
+        cmd += ["-t", str(duration)]
     if vf:
         cmd += ["-vf", ",".join(vf)]
     cmd += ["-pix_fmt", "rgb24", "-f", "rawvideo", "-"]
@@ -238,14 +258,10 @@ def extract_pose_landmarks(
                             if getattr(res, "pose_world_landmarks", None) else None)
                     return None, None
             else:
-                # Tasks API: reuse the model download/cache logic of the
-                # per-frame estimator so both pose workflows share one model
-                # file in musicalgestures/models/.
-                # TODO: promote _get_model_path to a public helper in
-                # _pose_estimator; this is a private cross-module call.
-                from musicalgestures._pose_estimator import MediaPipePoseEstimator
-                model_path = MediaPipePoseEstimator(
-                    model_complexity=model_complexity)._get_model_path()
+                # Tasks API: reuse the shared model download/cache so both
+                # pose workflows use one model file in musicalgestures/models/.
+                from musicalgestures._pose_estimator import get_pose_model_path
+                model_path = get_pose_model_path(model_complexity)
                 BaseOptions = mp.tasks.BaseOptions
                 options = mp.tasks.vision.PoseLandmarkerOptions(
                     base_options=BaseOptions(model_asset_path=str(model_path)),
@@ -277,7 +293,9 @@ def extract_pose_landmarks(
                     if buf is None or len(buf) < frame_bytes:
                         break
                     frame = np.frombuffer(buf, np.uint8).reshape(h, w, 3)
-                    t = fi / sample_fps
+                    # Timestamps on the source clock: with a t0 window the
+                    # first analysed frame is at (approximately) t0.
+                    t = t0 + fi / sample_fps
                     a, b = _process(frame, t)
                     if a is None:
                         a = np.full((n_landmarks, 3), np.nan)

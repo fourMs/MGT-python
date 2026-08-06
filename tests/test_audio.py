@@ -138,3 +138,27 @@ class Test_Audio_Tempogram:
         assert result.figure_type == "audio.tempogram"
         assert os.path.isfile(result.image) == True
         assert os.path.splitext(result.image)[1] == ".png"
+
+class Test_Audio_Autoshow:
+    # Regression: the `autoshow` parameter on the MgAudio figure methods used
+    # to be accepted but never acted on.
+
+    def test_autoshow_inert_outside_notebook(self, testvideo_avi, monkeypatch):
+        calls = []
+        monkeypatch.setattr(MgFigure, "show", lambda self, **kw: calls.append(1))
+        result = musicalgestures.MgVideo(testvideo_avi).audio.waveform(autoshow=True)
+        assert type(result) == MgFigure
+        assert calls == []
+
+    def test_autoshow_displays_in_notebook(self, testvideo_avi, monkeypatch):
+        calls = []
+        monkeypatch.setattr(MgFigure, "show", lambda self, **kw: calls.append(1))
+        monkeypatch.setattr(musicalgestures._utils, "in_ipynb", lambda: True)
+        audio = musicalgestures.MgVideo(testvideo_avi).audio
+        result = audio.waveform(autoshow=True)
+        assert type(result) == MgFigure
+        assert calls == [1]
+        audio.spectrogram(autoshow=True)
+        assert calls == [1, 1]
+        audio.spectrogram(autoshow=False)
+        assert calls == [1, 1]

@@ -63,8 +63,7 @@ Supported key values:
 | `'pose'` | Pose estimation video |
 | `'warp'` | Warped audiovisual beats video |
 | `'subtract'` | Background-subtracted video |
-
-For the face-anonymised video, keep the return value of `blur_faces()` and call `show()` on it directly.
+| `'blur'` | Face-anonymised video |
 
 The orientation keys select by *direction of movement*: `'horizontal'` (with aliases `'mgh'`/`'vgh'`) shows the horizontal-movement gram and `'vertical'` (aliases `'mgv'`/`'vgv'`) the vertical one. The legacy `'mgx'`/`'mgy'`/`'vgx'`/`'vgy'` keys still resolve to the literal x/y files.
 

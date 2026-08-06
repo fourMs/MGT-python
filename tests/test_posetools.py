@@ -337,3 +337,78 @@ def test_extract_pose_landmarks_integration(tmp_path):
     assert "left_wrist_x" in header and "left_wrist_v" in header
     assert "left_wrist_wz" in header  # world landmarks requested
     assert len(header) == 1 + 33 * 3 + 33 * 3
+
+
+# ---------------------------------------------------------------------------
+# extract_pose_landmarks windowing (t0/duration)
+
+
+def test_t0_duration_validation():
+    """Invalid windows are rejected before mediapipe is even imported."""
+    with pytest.raises(ValueError):
+        extract_pose_landmarks("does_not_matter.mp4", t0=-1.0)
+    with pytest.raises(ValueError):
+        extract_pose_landmarks("does_not_matter.mp4", duration=0)
+    with pytest.raises(ValueError):
+        extract_pose_landmarks("does_not_matter.mp4", duration=-2.5)
+
+
+@pytest.mark.skipif(not _mediapipe_available(), reason="mediapipe not installed")
+@pytest.mark.skipif(not os.path.exists(EXAMPLE_VIDEO), reason="example video missing")
+def test_extract_pose_landmarks_windowed():
+    """t0/duration cut the analysis window and keep source-clock timestamps."""
+    from musicalgestures._exceptions import MgDependencyError
+
+    try:
+        res = extract_pose_landmarks(
+            EXAMPLE_VIDEO, fps=5, width=256, t0=1.0, duration=1.0,
+            verbose=False)
+    except MgDependencyError as exc:  # model download failed (offline)
+        pytest.skip(f"MediaPipe model unavailable: {exc}")
+
+    n = len(res["time"])
+    # a 1 s window at 5 fps: about 5 frames
+    assert 4 <= n <= 6
+    assert res["time"][0] == pytest.approx(1.0)
+    assert res["time"][-1] <= 1.0 + 1.0 + 1.0 / 5
+    assert res["landmarks"].shape == (n, 33, 3)
+
+
+# ---------------------------------------------------------------------------
+# get_pose_model_path (shared MediaPipe model download/cache)
+
+
+def test_get_pose_model_path_cache(tmp_path, monkeypatch):
+    """The public helper caches the model file and downloads it only once."""
+    import urllib.request
+    from musicalgestures._pose_estimator import get_pose_model_path
+
+    downloads = []
+
+    def fake_urlretrieve(url, path):
+        downloads.append(url)
+        with open(path, "wb") as f:
+            f.write(b"fake model")
+
+    monkeypatch.setattr(urllib.request, "urlretrieve", fake_urlretrieve)
+
+    path1 = get_pose_model_path(1, models_dir=tmp_path)
+    assert path1.name == "pose_landmarker_full.task"
+    assert path1.parent == tmp_path
+    assert path1.exists()
+    assert len(downloads) == 1
+
+    # second call: cached, no new download
+    path2 = get_pose_model_path(1, models_dir=tmp_path)
+    assert path2 == path1
+    assert len(downloads) == 1
+
+    # invalid complexity falls back to 1 (the full model), so it is cached too
+    path3 = get_pose_model_path(7, models_dir=tmp_path)
+    assert path3 == path1
+    assert len(downloads) == 1
+
+    # a different complexity is a different (cached) file
+    path4 = get_pose_model_path(0, models_dir=tmp_path)
+    assert path4.name == "pose_landmarker_lite.task"
+    assert len(downloads) == 2

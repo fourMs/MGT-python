@@ -292,7 +292,7 @@ import pandas as pd, os
 mv = mg.MgVideo('dance.avi')
 motion_video = mv.motion()
 
-csv = os.path.splitext(motion_video.filename)[0].replace('_motion', '_motiondata') + '.csv'
+csv = os.path.splitext(motion_video.filename)[0] + '.csv'
 qom = pd.read_csv(csv)
 onset = mv.audio.tempo(autoshow=False).data   # or compute an onset envelope
 

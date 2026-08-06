@@ -80,7 +80,7 @@ mv.show(key='motion')         # equivalent shorthand via source MgVideo
 # Motion data (QoM, CoM, AoM per frame) is saved as a CSV alongside the video
 import pandas as pd
 import os
-csv_path = os.path.splitext(motion_video.filename)[0].replace('_motion', '_motiondata') + '.csv'
+csv_path = os.path.splitext(motion_video.filename)[0] + '.csv'
 data = pd.read_csv(csv_path)
 print(data.head())
 ```
@@ -256,7 +256,7 @@ MGT-python creates several types of output files:
 - `*_mgv.png` - Vertical motiongram
 
 ### Data Files
-- `*_motiondata.csv` - Numerical motion data
+- `*_motion.csv` - Numerical motion data
 - `*_descriptors.csv` - Audio feature data
 
 ### Working Directory

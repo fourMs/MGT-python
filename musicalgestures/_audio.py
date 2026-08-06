@@ -62,6 +62,16 @@ class MgAudio:
         """Audio duration in **seconds** (for an MgAudio this equals ``self.length``)."""
         return float(self.length)
 
+    def _autoshow(self, mgf: MgFigure, autoshow: bool) -> MgFigure:
+        """Display the rendered figure inline when `autoshow` is True and we are
+        running in a notebook (Jupyter or Colab). Outside a notebook this is a
+        no-op, so scripts and test runs never open viewer windows. Always
+        returns `mgf` so it can wrap a return statement."""
+        import musicalgestures._utils
+        if autoshow and (musicalgestures._utils.in_colab() or musicalgestures._utils.in_ipynb()):
+            mgf.show()
+        return mgf
+
     from musicalgestures._ssm import mg_ssm as ssm
 
     def _load(self):
@@ -134,7 +144,7 @@ class MgAudio:
 
         Args:
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
-            autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+            autoshow (bool, optional): Whether to show the resulting figure automatically (inline, when running in a notebook; a no-op otherwise). Defaults to True.
             raw (bool, optional): Whether to show labels and ticks on the plot. Defaults to False.
             colored (bool, optional): Whether to create a colored waveform image (freesound-style) from an audio input file. Defauts to False.
             image_width (int, optional): Number of pixels for the colored waveform image width. Defaults to 2500.
@@ -232,7 +242,7 @@ class MgAudio:
             layers=None,
             image=target_name)
 
-        return mgf
+        return self._autoshow(mgf, autoshow)
 
 
     def spectrogram(self, fmin: float = 0.0, fmax: float | None = None, n_mels: int = 128, power: float = 2.0, top_db: float = 80.0, dpi: int = 300, autoshow: bool = True, raw: bool = False, original_time: bool = False, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure:
@@ -246,7 +256,7 @@ class MgAudio:
             power (float, optional): The steepness of the curve for the color mapping. Defaults to 2.
             top_db (float, optional): threshold the output at top_db below the peak: max(20 * log10(S/ref)) - top_db. Defaults to 80.0.
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
-            autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+            autoshow (bool, optional): Whether to show the resulting figure automatically (inline, when running in a notebook; a no-op otherwise). Defaults to True.
             raw (bool, optional): Whether to show labels and ticks on the plot. Defaults to False.
             original_time (bool, optional): Whether to plot original time or not. This parameter can be useful if the video file has been shortened beforehand (e.g. skip). Defaults to False.
             title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
@@ -342,7 +352,7 @@ class MgAudio:
             layers=None,
             image=target_name)
 
-        return mgf
+        return self._autoshow(mgf, autoshow)
 
     def tempogram(self, dpi: int = 300, autoshow: bool = True, raw: bool = False, onset_strength: bool = True, original_time: bool = False, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure:
         """
@@ -350,7 +360,7 @@ class MgAudio:
 
         Args:
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
-            autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+            autoshow (bool, optional): Whether to show the resulting figure automatically (inline, when running in a notebook; a no-op otherwise). Defaults to True.
             raw (bool, optional): Whether to show labels and ticks on the plot. Defaults to False.
             onset_strength (bool, optional): Whether to include the onset-strength panel above the
                 tempogram. Set to False for just the tempogram in a single-panel figure (the same
@@ -447,7 +457,7 @@ class MgAudio:
             layers=None,
             image=target_name)
 
-        return mgf
+        return self._autoshow(mgf, autoshow)
     
     def hpss(self, dim: int = 2, n_mels: int = 128, fmin: float = 0.0, fmax: float | None = None, kernel_size: int | tuple = 31, margin: float | tuple = (1.0,5.0), power: float = 2.0, top_db: float = 80.0, mask: bool = False, residual: bool = False, dpi: int = 300, autoshow: bool = True, original_time: bool = False, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure:
         """
@@ -465,7 +475,7 @@ class MgAudio:
             mask (bool, optional): Return the masking matrices instead of components. Defaults to False.
             residual (bool, optional): Whether to return residual components of the audio file or not. Defaults to False.
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
-            autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+            autoshow (bool, optional): Whether to show the resulting figure automatically (inline, when running in a notebook; a no-op otherwise). Defaults to True.
             original_time (bool, optional): Whether to plot original time or not. This parameter can be useful if the video file has been shortened beforehand (e.g. skip). Defaults to False.
             title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_hpss.png" should be used).
@@ -592,7 +602,7 @@ class MgAudio:
             layers=None,
             image=target_name)
 
-        return mgf
+        return self._autoshow(mgf, autoshow)
 
 
     def descriptors(self, n_mels: int = 128, fmin: float = 0.0, fmax: float | None = None, power: int = 2, dpi: int = 300, autoshow: bool = True, original_time: bool = False, title: str | None = None, target_name: str | None = None, save_data: bool = False, data_format: str | list = 'csv', target_name_data: str | None = None, overwrite: bool = True) -> MgFigure:
@@ -605,7 +615,7 @@ class MgAudio:
             fmax (float, optional): Highest frequency (in Hz). Defaults to None, use fmax = sr / 2.0
             power (float, optional): The steepness of the curve for the color mapping. Defaults to 2.
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
-            autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+            autoshow (bool, optional): Whether to show the resulting figure automatically (inline, when running in a notebook; a no-op otherwise). Defaults to True.
             original_time (bool, optional): Whether to plot original time or not. This parameter can be useful if the file has been shortened beforehand (e.g. skip). Defaults to False.
             title (str, optional): Optionally add title to the figure. Possible to set the filename as the title using the string 'filename'. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_descriptors.png" should be used).
@@ -745,7 +755,7 @@ class MgAudio:
             layers=None,
             image=target_name)
 
-        return mgf
+        return self._autoshow(mgf, autoshow)
 
     def chromagram(self, n_chroma: int = 12, norm: float | None = np.inf, chroma_type: str = 'cqt', cmap: str = 'coolwarm', dpi: int = 300, autoshow: bool = True, raw: bool = False, original_time: bool = False, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure:
         """
@@ -765,7 +775,7 @@ class MgAudio:
                 Defaults to 'cqt'.
             cmap (str, optional): Matplotlib colormap for the chromagram display. Defaults to 'coolwarm'.
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
-            autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+            autoshow (bool, optional): Whether to show the resulting figure automatically (inline, when running in a notebook; a no-op otherwise). Defaults to True.
             raw (bool, optional): Whether to show labels and ticks on the plot. Defaults to False.
             original_time (bool, optional): Whether to plot original time or not. Defaults to False.
             title (str, optional): Optionally add title to the figure. Use 'filename' to set the filename as title. Defaults to None.
@@ -846,7 +856,7 @@ class MgAudio:
             layers=None,
             image=target_name)
 
-        return mgf
+        return self._autoshow(mgf, autoshow)
 
     def mfcc(self, n_mfcc: int = 13, cmap: str = 'RdBu_r', dpi: int = 300, autoshow: bool = True, raw: bool = False, original_time: bool = False, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure:
         """
@@ -859,7 +869,7 @@ class MgAudio:
             n_mfcc (int, optional): Number of MFCCs to compute. Defaults to 13.
             cmap (str, optional): Matplotlib colormap for the display. Defaults to 'RdBu_r'.
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
-            autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+            autoshow (bool, optional): Whether to show the resulting figure automatically (inline, when running in a notebook; a no-op otherwise). Defaults to True.
             raw (bool, optional): Whether to show labels and ticks on the plot. Defaults to False.
             original_time (bool, optional): Whether to plot original time or not. Defaults to False.
             title (str, optional): Optionally add title to the figure. Use 'filename' to set the filename as title. Defaults to None.
@@ -926,7 +936,7 @@ class MgAudio:
             layers=None,
             image=target_name)
 
-        return mgf
+        return self._autoshow(mgf, autoshow)
 
     def tempo(self, dpi: int = 300, autoshow: bool = True, raw: bool = False, original_time: bool = False, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure:
         """
@@ -940,7 +950,7 @@ class MgAudio:
 
         Args:
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
-            autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+            autoshow (bool, optional): Whether to show the resulting figure automatically (inline, when running in a notebook; a no-op otherwise). Defaults to True.
             raw (bool, optional): Whether to show labels and ticks on the plot. Defaults to False.
             original_time (bool, optional): Whether to plot original time or not. Defaults to False.
             title (str, optional): Optionally add title to the figure. Use 'filename' to set the filename as title. Defaults to None.
@@ -1042,7 +1052,7 @@ class MgAudio:
             layers=None,
             image=target_name)
 
-        return mgf
+        return self._autoshow(mgf, autoshow)
 
     def beat_statistics(self, n_bins: int = 32, cmap: str = 'YlOrRd', dpi: int = 300, autoshow: bool = True, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure:
         """
@@ -1057,7 +1067,7 @@ class MgAudio:
             n_bins (int, optional): Number of bins in the polar phase histogram. Defaults to 32.
             cmap (str, optional): Matplotlib colormap for the polar histogram. Defaults to 'YlOrRd'.
             dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
-            autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
+            autoshow (bool, optional): Whether to show the resulting figure automatically (inline, when running in a notebook; a no-op otherwise). Defaults to True.
             title (str, optional): Optionally add title to the figure. Use 'filename' to set the filename as title. Defaults to None.
             target_name (str, optional): The name of the output image. Defaults to None (which assumes that the input filename with the suffix "_beatstats.png" should be used).
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
@@ -1140,7 +1150,7 @@ class MgAudio:
             layers=None,
             image=target_name)
 
-        return mgf
+        return self._autoshow(mgf, autoshow)
 
 def _save_audio_data(of: str, columns: dict, data_format: str | list, target_name_data: str | None, overwrite: bool):
     """

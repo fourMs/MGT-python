@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `get_pose_model_path()`: public helper for the shared MediaPipe pose-model
+  download/cache, promoted from the private
+  `MediaPipePoseEstimator._get_model_path` (#360).
+- `extract_pose_landmarks()` accepts `t0`/`duration` parameters to analyse a
+  sub-window of a long video without decoding the whole file; returned
+  timestamps stay on the source clock (#354).
+
+### Fixed
+- `show(key='blur')` looked up a non-existent attribute and silently did
+  nothing; it now shows the face-anonymised video, and raises
+  `FileNotFoundError` when `blur_faces()` has not been run.
+- `subtract()` and `sonomotiongram()` stored their results over their own
+  bound methods, so a second call on the same object crashed. Results are now
+  stored as `subtract_video` and `sonomotiongram_audio`.
+- `info('summary')` reported the frame count as the duration in seconds.
+- The default motion-data CSV is now written to `<name>_motion.csv`, matching
+  the tsv/txt branches and the path `motiondata()` returns (previously
+  `<name>_motiondata.csv`).
+- The `autoshow` parameter on the `MgAudio` figure methods (`waveform()`,
+  `spectrogram()`, `tempogram()`, `hpss()`, `descriptors()`, `chromagram()`,
+  `mfcc()`, `tempo()`, `beat_statistics()`) was accepted but ignored; it now
+  displays the figure inline when running in a notebook.
+
 ## [1.9.0] — 2026-08-06
 
 ### Added

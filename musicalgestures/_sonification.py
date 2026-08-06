@@ -117,5 +117,8 @@ def mg_sonomotiongram(
         from scipy.io import wavfile
         wavfile.write(target_name, sr, (y * 32767).astype(np.int16))
 
-    self.sonomotiongram = musicalgestures.MgAudio(target_name, sr=sr)
-    return self.sonomotiongram
+    # Save the result as sonomotiongram_audio for the parent MgVideo. NB: not
+    # `self.sonomotiongram`, which would overwrite (shadow) the bound method
+    # and break any subsequent sonomotiongram() call on the same object.
+    self.sonomotiongram_audio = musicalgestures.MgAudio(target_name, sr=sr)
+    return self.sonomotiongram_audio
