@@ -1,36 +1,57 @@
 site_name: "MGT-python: Musical Gestures Toolbox"
 site_description: "Musical Gestures Toolbox for Python - Tools for visualization and analysis of audio and video"
-site_url: "https://fourms.github.io/MGT-python/"
-repo_url: "https://github.com/fourMs/MGT-python/"
-edit_uri: "edit/master/docs/"
-site_dir: "site"
-docs_dir: "docs"
+site_url: https://fourms.github.io/MGT-python/
+repo_url: https://github.com/fourMs/MGT-python
+repo_name: fourMs/MGT-python
+edit_uri: edit/master/docs/
 
 theme:
   name: material
-  language: en
-  features:
-    - navigation.tabs
-    - navigation.sections
-    - navigation.expand
-    - navigation.top
-    - search.highlight
-    - content.code.copy
-    - content.action.edit
-    - content.action.view
   palette:
-    - scheme: default
-      primary: indigo
-      accent: indigo
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue
       toggle:
         icon: material/brightness-7
-        name: Switch to dark mode
-    - scheme: slate
-      primary: indigo
-      accent: indigo
+        name: Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
       toggle:
         icon: material/brightness-4
-        name: Switch to light mode
+        name: Light mode
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: installation.md
+      - Quick Start: quickstart.md
+      - Examples: examples.md
+  - User Guide:
+      - Core Classes: user-guide/core-classes.md
+      - Loading & Showing: user-guide/loading.md
+      - Preprocessing: user-guide/preprocessing.md
+      - Video Analysis: user-guide/video-analysis.md
+      - Audio Analysis: user-guide/audio-analysis.md
+      - Audio-Video Analysis: user-guide/audio-video.md
+      - Pose Tracking: user-guide/pose-tracking.md
+      - Sound-Movement Analysis Toolkit: user-guide/sound-movement-toolkit.md
+      - Working with Results: user-guide/results.md
+  - API Reference:
+      - Overview: musicalgestures/index.md
+      - Video: musicalgestures/_video.md
+      - Audio: musicalgestures/_audio.md
+      - Flow: musicalgestures/_flow.md
+      - 360 Video: musicalgestures/_360video.md
+      - Anglegram (360): musicalgestures/_anglegram.md
+      - Utils: musicalgestures/_utils.md
+      - Complete Reference: MODULES.md
+  - Development:
+      - Contributing: contributing.md
 
 plugins:
   - search
@@ -52,43 +73,10 @@ plugins:
             merge_init_into_class: true
             separate_signature: true
 
-nav:
-  - Home: index.md
-  - Getting Started:
-    - Installation: installation.md
-    - Quick Start: quickstart.md
-    - Examples: examples.md
-  - User Guide:
-    - Core Classes: user-guide/core-classes.md
-    - Loading & Showing: user-guide/loading.md
-    - Preprocessing: user-guide/preprocessing.md
-    - Video Analysis: user-guide/video-analysis.md
-    - Audio Analysis: user-guide/audio-analysis.md
-    - Audio-Video Analysis: user-guide/audio-video.md
-    - Pose Tracking: user-guide/pose-tracking.md
-    - Sound-Movement Analysis Toolkit: user-guide/sound-movement-toolkit.md
-    - Working with Results: user-guide/results.md
-  - API Reference:
-    - Overview: musicalgestures/index.md
-    - Video: musicalgestures/_video.md
-    - Audio: musicalgestures/_audio.md
-    - Flow: musicalgestures/_flow.md
-    - 360 Video: musicalgestures/_360video.md
-    - Anglegram (360): musicalgestures/_anglegram.md
-    - Utils: musicalgestures/_utils.md
-    - Complete Reference: MODULES.md
-  - Development:
-    - Contributing: contributing.md
-
 markdown_extensions:
   - admonition
-  - pymdownx.details
+  - tables
+  - pymdownx.highlight
   - pymdownx.superfences
-  - pymdownx.highlight:
-      anchor_linenums: true
-  - pymdownx.inlinehilite
-  - pymdownx.snippets
-  - pymdownx.tabbed:
-      alternate_style: true
   - toc:
       permalink: true
