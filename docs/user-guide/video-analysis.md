@@ -729,6 +729,29 @@ impacts.show()
 
 ---
 
+## 360 video: anglegram and AEM overlay
+
+`Mg360Video` adds directional analyses for equirectangular 360 video (after Jinyue Guo's ambiviz, AMBIENT project). On an equirectangular frame the horizontal axis *is* azimuth, so motion can be read directionally.
+
+```python
+import musicalgestures as mg
+
+v = mg.Mg360Video('walkaround.mp4')          # projection auto-detected (2:1 / spherical metadata)
+
+ag = v.anglegram()                           # time x azimuth heat map of visual motion (MgFigure)
+ag.data['anglegram'], ag.data['azimuth']     # (n_bins, T-1) matrix + bin centers in degrees
+
+v.aem_overlay('aem.tsv', on='anglegram')     # audio energy (from an ambiscape export) over the anglegram
+v.aem_overlay('aem.tsv', on='video')         # translucent heat strip on the video itself
+
+front = v.view(yaw=0, h_fov=90, v_fov=60)    # rectilinear crop as a regular MgVideo
+front.motiongrams()                          # ...for any standard analysis per direction
+```
+
+The anglegram's azimuth axis defaults to the ambisonic convention (+90° = left, matching ambiscape's audio anglegram) so the two can be compared side by side. The AEM (Audio Energy Map) arrives through a file only — a CSV/TSV with `time`, `azimuth`, `energy` columns (see `load_aem`); ambiscape is never imported ("ambiscape owns the samples, MGT owns the pixels").
+
+---
+
 ## Next steps
 
 - [Audio Analysis](audio-analysis.md)—waveforms, spectrograms, and audio features

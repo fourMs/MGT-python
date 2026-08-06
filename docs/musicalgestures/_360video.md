@@ -6,20 +6,22 @@
     - [Mg360Video](#mg360video)
         - [Mg360Video().convert_projection](#mg360videoconvert_projection)
         - [Mg360Video.from_dual_fisheye](#mg360videofrom_dual_fisheye)
+        - [Mg360Video().view](#mg360videoview)
     - [Projection](#projection)
     - [calibrate_dual_fisheye_fov](#calibrate_dual_fisheye_fov)
+    - [detect_projection](#detect_projection)
     - [make_seam_mask](#make_seam_mask)
     - [stitch_dual_fisheye](#stitch_dual_fisheye)
 
 ## Mg360Video
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_360video.py#L255)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_360video.py#L293)
 
 ```python
 class Mg360Video(MgVideo):
     def __init__(
         filename: str,
-        projection: Union[str, Projection],
+        projection: Union[str, Projection] = None,
         camera: str = None,
         **kwargs,
     ):
@@ -34,7 +36,7 @@ Class for 360 videos.
 
 ### Mg360Video().convert_projection
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_360video.py#L299)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_360video.py#L395)
 
 ```python
 def convert_projection(
@@ -59,7 +61,7 @@ options (Dict[str, str], optional): Options for the conversion. Defaults to None
 
 ### Mg360Video.from_dual_fisheye
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_360video.py#L287)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_360video.py#L383)
 
 ```python
 @classmethod
@@ -76,9 +78,53 @@ Insta360 camera) into an equirectangular video and open it as an
 Mg360Video. See [stitch_dual_fisheye](#stitch_dual_fisheye) for the stitching options
 (`fov=None` auto-calibrates the lens FOV on a probe frame).
 
+### Mg360Video().view
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_360video.py#L339)
+
+```python
+def view(
+    yaw: float = 0,
+    pitch: float = 0,
+    roll: float = 0,
+    h_fov: float = 90,
+    v_fov: float = 60,
+    width: int = None,
+    height: int = None,
+    target_name: str = None,
+    print_cmd: bool = False,
+) -> 'MgVideo':
+```
+
+Extract a flat (rectilinear/perspective) view in a chosen direction
+from the 360 video, via ffmpeg's v360 filter, and return it as a
+regular MgVideo — a non-destructive alternative to
+[Mg360Video().convert_projection](#mg360videoconvert_projection) for running any standard MGT analysis
+(motiongrams, optical flow, pose...) on one direction of the scene.
+
+#### Arguments
+
+- `yaw` *float* - Viewing direction, degrees, as ffmpeg v360's `yaw`
+    rotation (0 = the equirectangular center). Note: v360's sign
+    convention is not the ambisonic azimuth convention used by
+    `anglegram`; verify direction on your own footage.
+- `pitch` *float* - Vertical viewing direction in degrees.
+- `roll` *float* - In-plane rotation in degrees.
+h_fov, v_fov (float): Horizontal/vertical field of view of the
+    extracted view in degrees. Defaults to 90 x 60.
+width, height (int): Output size. Defaults to source height *
+    (h_fov/90) by source height * (v_fov/90), rounded to even.
+- `target_name` *str* - Output path. Defaults to
+    `<input>_view_y<yaw>_p<pitch>.mp4`.
+- `print_cmd` *bool* - Print the ffmpeg command. Defaults to False.
+
+#### Returns
+
+- `MgVideo` - The extracted view.
+
 ## Projection
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_360video.py#L13)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_360video.py#L14)
 
 ```python
 class Projection(Enum):
@@ -88,7 +134,7 @@ same as https://ffmpeg.org/ffmpeg-filters.html#v360.
 
 ## calibrate_dual_fisheye_fov
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_360video.py#L131)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_360video.py#L132)
 
 ```python
 def calibrate_dual_fisheye_fov(
@@ -116,9 +162,32 @@ photometric mismatch in the seam bands at longitude ±90°.
 
 - `float` - The FOV with the smallest seam mismatch.
 
+## detect_projection
+
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_360video.py#L256)
+
+```python
+def detect_projection(filename: str):
+```
+
+Guess the projection of a 360 video file. First looks for spherical
+metadata (the `Spherical Mapping` side data that GoPro MAX exports,
+Insta360 Studio, Garmin VIRB, and the RICOH THETA app all write to
+their equirectangular files), then falls back to the frame geometry:
+an exact 2:1 aspect ratio is taken as equirectangular, 1:1 as dual
+fisheye stacked in one square frame is NOT assumed (too ambiguous).
+
+#### Arguments
+
+- `filename` *str* - Path to the video file.
+
+#### Returns
+
+- `Projection` - The detected projection, or None if undetectable.
+
 ## make_seam_mask
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_360video.py#L106)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_360video.py#L107)
 
 ```python
 def make_seam_mask(width: int, height: int, feather_deg: float = 8.0):
@@ -141,7 +210,7 @@ longitude ±90°.
 
 ## stitch_dual_fisheye
 
-[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_360video.py#L188)
+[[find in source code]](https://github.com/fourMs/MGT-python/blob/master/musicalgestures/_360video.py#L189)
 
 ```python
 def stitch_dual_fisheye(

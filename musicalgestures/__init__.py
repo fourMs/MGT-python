@@ -109,6 +109,7 @@ from musicalgestures._audiofeatures import (
     attack_spectral_centroid,
 )
 from musicalgestures._motionanalysis import motiongram_data
+from musicalgestures._anglegram import anglegram_data, load_aem
 from musicalgestures._posture import (
     cop_sway_metrics,
     confidence_ellipse_area,

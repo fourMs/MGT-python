@@ -9,6 +9,7 @@ Full list of [Mgt-python](README.md#mgt-python) project modules.
 - [Musicalgestures](musicalgestures/index.md#musicalgestures)
     - [Alignment](musicalgestures/_alignment.md#alignment)
     - [Analysis](musicalgestures/_analysis.md#analysis)
+    - [Anglegram](musicalgestures/_anglegram.md#anglegram)
     - [Audio](musicalgestures/_audio.md#audio)
     - [Audio Video](musicalgestures/_audio_video.md#audio-video)
     - [Audiofeatures](musicalgestures/_audiofeatures.md#audiofeatures)

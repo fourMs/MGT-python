@@ -1,3 +1,4 @@
+import json
 import os
 import subprocess
 import tempfile
@@ -252,6 +253,43 @@ def stitch_dual_fisheye(front_file, back_file, target_name: str = None,
     return target_name
 
 
+def detect_projection(filename: str):
+    """
+    Guess the projection of a 360 video file. First looks for spherical
+    metadata (the `Spherical Mapping` side data that GoPro MAX exports,
+    Insta360 Studio, Garmin VIRB, and the RICOH THETA app all write to
+    their equirectangular files), then falls back to the frame geometry:
+    an exact 2:1 aspect ratio is taken as equirectangular, 1:1 as dual
+    fisheye stacked in one square frame is NOT assumed (too ambiguous).
+    Args:
+        filename (str): Path to the video file.
+    Returns:
+        Projection: The detected projection, or None if undetectable.
+    """
+    if os.path.splitext(filename)[1].lower() == ".360":
+        return Projection.gopro_360
+    try:
+        out = subprocess.run(
+            ["ffprobe", "-v", "error", "-select_streams", "v:0",
+             "-print_format", "json", "-show_streams", filename],
+            capture_output=True, check=True, text=True).stdout
+        stream = json.loads(out)["streams"][0]
+    except (subprocess.CalledProcessError, KeyError, IndexError,
+            json.JSONDecodeError, FileNotFoundError):
+        return None
+    for sd in stream.get("side_data_list", []):
+        if "spherical" in str(sd.get("side_data_type", "")).lower():
+            proj = str(sd.get("projection", "equirectangular")).lower()
+            if "equirect" in proj:
+                return Projection.equirect
+            if "cubemap" in proj:
+                return Projection.c3x2
+    w, h = stream.get("width"), stream.get("height")
+    if w and h and w == 2 * h:
+        return Projection.equirect
+    return None
+
+
 class Mg360Video(MgVideo):
     """
     Class for 360 videos.
@@ -260,18 +298,28 @@ class Mg360Video(MgVideo):
     def __init__(
         self,
         filename: str,
-        projection: Union[str, Projection],
+        projection: Union[str, Projection] = None,
         camera: str = None,
         **kwargs,
     ):
         """
         Args:
             filename (str): Path to the video file.
-            projection (str, Projection): Projection type.
+            projection (str, Projection, optional): Projection type. Defaults
+                to None, which auto-detects via `detect_projection` (spherical
+                metadata, .360 extension, or 2:1 equirectangular geometry) and
+                raises ValueError if nothing can be inferred.
             camera (str): Camera type.
         """
         super().__init__(filename, **kwargs)
         self.filename = os.path.abspath(self.filename)
+        if projection is None:
+            projection = detect_projection(self.filename)
+            if projection is None:
+                raise ValueError(
+                    f"Could not detect the projection of {self.filename} "
+                    "(no spherical metadata, not 2:1). Pass projection= "
+                    "explicitly; see `Projection` for the options.")
         self.projection = self._parse_projection(projection)
 
         if camera is None:
@@ -283,6 +331,54 @@ class Mg360Video(MgVideo):
 
         # override self.show() with extra ipython_kwarg embed=True
         self.show = partial(self.show, embed=True)
+
+    # directional (azimuthal) analyses, after Guo's ambiviz
+    from musicalgestures._anglegram import mg_anglegram as anglegram
+    from musicalgestures._anglegram import mg_aem_overlay as aem_overlay
+
+    def view(self, yaw: float = 0, pitch: float = 0, roll: float = 0,
+             h_fov: float = 90, v_fov: float = 60, width: int = None,
+             height: int = None, target_name: str = None,
+             print_cmd: bool = False) -> "MgVideo":
+        """
+        Extract a flat (rectilinear/perspective) view in a chosen direction
+        from the 360 video, via ffmpeg's v360 filter, and return it as a
+        regular MgVideo — a non-destructive alternative to
+        `convert_projection` for running any standard MGT analysis
+        (motiongrams, optical flow, pose...) on one direction of the scene.
+        Args:
+            yaw (float): Viewing direction, degrees, as ffmpeg v360's `yaw`
+                rotation (0 = the equirectangular center). Note: v360's sign
+                convention is not the ambisonic azimuth convention used by
+                `anglegram`; verify direction on your own footage.
+            pitch (float): Vertical viewing direction in degrees.
+            roll (float): In-plane rotation in degrees.
+            h_fov, v_fov (float): Horizontal/vertical field of view of the
+                extracted view in degrees. Defaults to 90 x 60.
+            width, height (int): Output size. Defaults to source height *
+                (h_fov/90) by source height * (v_fov/90), rounded to even.
+            target_name (str): Output path. Defaults to
+                `<input>_view_y<yaw>_p<pitch>.mp4`.
+            print_cmd (bool): Print the ffmpeg command. Defaults to False.
+        Returns:
+            MgVideo: The extracted view.
+        """
+        _, src_h = get_widthheight(self.filename)
+        if width is None:
+            width = 2 * round(src_h * h_fov / 180)
+        if height is None:
+            height = 2 * round(src_h * v_fov / 180)
+        if target_name is None:
+            target_name = (f"{os.path.splitext(self.filename)[0]}"
+                           f"_view_y{yaw:g}_p{pitch:g}.mp4")
+        target_name = generate_outfilename(target_name)
+        vf = (f"v360={self.projection}:flat:yaw={yaw}:pitch={pitch}:"
+              f"roll={roll}:h_fov={h_fov}:v_fov={v_fov}:w={width}:h={height}")
+        cmds = ["ffmpeg", "-y", "-i", self.filename, "-vf", vf, target_name]
+        ffmpeg_cmd(cmds, get_length(self.filename),
+                   pb_prefix=f"Extracting view (yaw {yaw}, pitch {pitch}):",
+                   print_cmd=print_cmd)
+        return MgVideo(target_name, returned_by_process=True)
 
     @classmethod
     def from_dual_fisheye(cls, front_file, back_file, camera: str = None,
