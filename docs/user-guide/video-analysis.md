@@ -182,8 +182,8 @@ mv.stroboscope(n_samples=10, threshold=0.15, keep_largest=True).show()
 **Motion History Image controls.** `motionhistory()` decays old motion over a window so it
 does not accumulate and blow out: `decay` (fraction of the clip a mark persists; smaller = shorter
 trails), `threshold` (motion sensitivity), `blur` (speckle suppression), and `normalize`.
-`normalize` now defaults to `False`, since the MHI is already built in `[0, 1]`, and normalising rarely
-helps; when the final frames are static it amplified faint residual trails and over-brightened the
+`normalize` defaults to `False`: the MHI is already built in `[0, 1]`, and normalising rarely
+helps — when the final frames are static it amplifies faint residual trails and over-brightens the
 image. (It is also guarded to skip when peak intensity is very low.) Set `normalize=True` to opt in:
 
 ```python
@@ -505,7 +505,7 @@ pv.trajectories.show()     # every marker's spatial path over the whole video
 
 Both summary images are decluttered: neither carries an in-figure title or colourbar. Markers are coloured by quantity of motion, and each one is annotated with a `QoM | frequency` number label (normalised QoM 0–1 and dominant frequency in Hz). These labels are automatically laid out so they do not overlap (with thin leader lines back to each marker). The marker-trajectories image shows **no** per-marker name labels by default (`trajectory_labels=False`); re-enable them with `trajectory_labels=True`.
 
-Control the trajectories image background with `trajectory_background`: `'black'` (default), `'white'`, or `'transparent'` (so you can overlay the paths on the video afterwards). This supersedes the older `transparent_trajectories` flag, which is still accepted.
+Control the trajectories image background with `trajectory_background`: `'black'` (default), `'white'`, or `'transparent'` (so you can overlay the paths on the video afterwards). The `transparent_trajectories` flag is also accepted as an alias for `trajectory_background='transparent'`.
 
 ```python
 mv.pose(trajectory_background='transparent')   # paths on a transparent PNG for overlay
@@ -608,7 +608,7 @@ print(pd_fig.data['average'])  # mean distance travelled across markers (px)
 
 MGT-python provides a suite of reports that compare a single performer's **sound** with their
 **movement**—tempo similarity, phase synchrony, structural similarity, per-body-part coupling, and
-loudness-vs-motion dynamics coupling—alongside the sonification and beat-warping tools. These now
+loudness-vs-motion dynamics coupling—alongside the sonification and beat-warping tools. These
 have their own page:
 
 ➡️ **[Audio-Video Processing & Analysis](audio-video.md)**
