@@ -4,7 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "musicalgestures"
-version = "1.9.1"
+# Single source of truth: musicalgestures/__init__.py.
+# A second static copy here drifts the moment a bump touches one of
+# them, which is how the sibling toolboxes shipped releases that
+# misreported their own version.
+dynamic = ["version"]
 description = "Musical Gestures Toolbox for Python"
 readme = "README.md"
 license = {text = "GPL-3.0-or-later"}
@@ -57,6 +61,9 @@ Repository = "https://github.com/fourMs/MGT-python"
 
 [project.scripts]
 musicalgestures = "musicalgestures.cli:main"
+
+[tool.setuptools.dynamic]
+version = { attr = "musicalgestures.__version__" }
 
 [tool.setuptools.packages.find]
 where = ["."]

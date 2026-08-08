@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.2] — 2026-08-08
+
+### Added
+- `musicalgestures.__version__`. The package exposed no version attribute
+  at all, so code could only learn the version through the installed
+  metadata, and a script run against a source checkout could not learn it
+  at all.
+
+### Fixed
+- The version has one source. `pyproject.toml` reads
+  `musicalgestures.__version__` through a dynamic version rather than
+  carrying its own copy, so adding the attribute did not create a second
+  number to drift. That drift is not hypothetical across these toolboxes:
+  ambiscape shipped three releases reporting a version other than their
+  own and musiscape shipped one, in both cases because a bump edited
+  `pyproject.toml` alone. `tests/test_version.py` fails if a static
+  version reappears there, if the build stops reading the module
+  attribute, or if the two numbers diverge.
+
+
 ## [1.9.1] — 2026-08-06
 
 ### Added
