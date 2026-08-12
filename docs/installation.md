@@ -101,13 +101,20 @@ specially-built OpenCV. Install only what you need:
 
 ### Pose estimation
 
-`pose()` works **with or without** an extra installed:
+Which backends you can use depends on your OpenCV:
 
 - With `musicalgestures[pose]`, the default **MediaPipe** backend is used, which is recommended:
-  faster on CPU, 33 landmarks, and no CUDA-enabled OpenCV build needed.
-- If MediaPipe is **not** installed, `pose()` automatically falls back to the OpenPose
-  `body_25` backend. This uses the always-present OpenCV DNN module and auto-downloads
-  ~200 MB of Caffe weights on first use, so pose estimation works either way.
+  faster on CPU, 33 landmarks, and no CUDA-enabled OpenCV build needed. It carries its own
+  weights and never touches `cv2.dnn`, so it works on any OpenCV.
+- **On OpenCV 4**, if MediaPipe is not installed, `pose()` falls back to the OpenPose
+  `body_25` backend. This uses OpenCV's DNN module and auto-downloads ~200 MB of Caffe
+  weights on first use.
+- **On OpenCV 5, the OpenPose backends cannot run at all.** OpenCV removed its Caffe importer
+  in 5.0, and `body_25`, `coco` and `mpi` are Caffe models. From 1.11.0 `pose()` says so with
+  an `MgDependencyError` before looking for weights, instead of failing deep in the run after
+  offering a download the environment could never use. Install MediaPipe, or install OpenCV 4
+  (`pip install 'opencv-python<5'`) if you need the OpenPose skeletons. They are not
+  interchangeable: 33 landmarks against BODY_25's 25 is a different skeleton.
 
 Pose model weights are downloaded automatically on first use via Python's `urllib`
 (cross-platform, no `wget` or platform-specific download scripts), nothing extra to install.
