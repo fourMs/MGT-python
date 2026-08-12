@@ -5,7 +5,7 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.11.0] — 2026-08-12
 
 ### Fixed
 - **`pose()` on OpenCV 5 fails with a message instead of an `AttributeError`.** OpenCV removed its
