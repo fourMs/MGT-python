@@ -1,3 +1,34 @@
+"""Motion from video: frame differencing, and what its defaults are for.
+
+**MGT's defaults are tuned to produce a legible picture, not a measurement.**
+That is the right choice for what most of this module makes --- motion videos,
+motiongrams, plots meant to be looked at --- and it is worth stating plainly,
+because the same functions are increasingly used to produce numbers.
+
+Three defaults are visualisation choices:
+
+- `threshold=0.05` discards small pixel differences, which removes sensor
+  noise and compression shimmer and makes a motiongram read cleanly. It also
+  removes small real motion, and there is no reason to think the value that
+  looks best is the value that measures best.
+- `filtertype='Regular'` keeps the magnitude above the threshold. `'Binary'`
+  keeps only whether a pixel moved, which is the fraction of the frame in
+  motion rather than how much it moved.
+- **The exported quantity of motion is divided by each clip's own maximum.**
+  Every clip then peaks at exactly 1.0. This is the one that surprises people,
+  because it is invisible in the numbers themselves: it makes quantity of
+  motion incomparable *between* clips, and lets a single bright frame set the
+  scale for everything around it. Pass `normalize=False` for the raw sum of
+  pixel values, exported as `QomRaw`.
+
+Nothing is smoothed by default. The whole default chain is
+`format=gray -> tblend=all_mode=difference -> threshold`. The smoothing that
+exists is off unless asked for: `atadenoise` (adaptive temporal averaging over
+129 frames, the only temporal one), `use_median` (ffmpeg's spatial median) and
+`blur` (a spatial 10x10 box). A machine-analysis configuration is therefore
+mostly a matter of `threshold` and `normalize`, not of turning filters off.
+
+"""
 from __future__ import annotations
 
 import musicalgestures
@@ -58,6 +89,14 @@ def mg_motion(
         use_median (bool, optional): If True the algorithm applies a median filter on the thresholded frame-difference stream. Defaults to False.
         unit (str, optional): Unit in QoM plot. Accepted values are 'seconds' or 'samples'. Defaults to 'seconds'.
         atadenoise (bool, optional): If True, applies an adaptive temporal averaging denoiser every 129 frames. Defaults to False.
+        normalize (bool | None, optional): Chooses between data for looking at and data for
+            measuring with. True (and None, the long-standing default) writes a `Qom` column
+            divided by that clip's own maximum, so every clip peaks at 1.0 -- what a plot on a
+            0-1 axis wants, and the reason the value exists. It also makes quantity of motion
+            **incomparable between clips** and lets one bright frame set the scale. False writes
+            `QomRaw`, the untouched sum of pixel values in the thresholded difference frame:
+            comparable across clips, on the scale the pixels had. The column is renamed rather
+            than rescaled so a file cannot be misread later.
         motion_analysis (str, optional): Specify which motion analysis to process or all. 'AoM' renders the Area of Motion. 'CoM' renders the Centroid of Motion. 'QoM' renders the Quantity of Motion. 'all' renders all the motion analysis available. Defaults to 'all'.
         inverted_motionvideo (bool, optional): If True, inverts colors of the motion video. Defaults to False.
         inverted_motiongram (bool, optional): If True, inverts colors of the motiongrams. Defaults to False.
@@ -248,8 +287,14 @@ def mg_motion(
             audio_descriptors = self
             
         if save_data:
+            # `normalize` was declared on mg_motion and never used. It now
+            # chooses between the per-clip normalised `Qom` column, which is
+            # what a plot wants, and the raw `QomRaw` sum of pixel values,
+            # which is what a cross-clip measurement needs. None keeps the
+            # long-standing default so no existing call changes.
             save_txt(of, time, aom, com, qom, motion_analysis, self.width, self.height, 
-            data_format=data_format, target_name_data=target_name_data, overwrite=overwrite)
+            data_format=data_format, target_name_data=target_name_data, overwrite=overwrite,
+            normalize=True if normalize is None else bool(normalize))
 
         if save_plot:
             if title is None:
@@ -761,11 +806,29 @@ def save_analysis(of, fps, aom, com, qom, motion_analysis, audio_descriptors, wi
     return target_name_plot
 
 
-def save_txt(of, time, aom, com, qom, motion_analysis, width, height, data_format, target_name_data, overwrite):
+def save_txt(of, time, aom, com, qom, motion_analysis, width, height, data_format, target_name_data, overwrite, normalize=True):
     """
     Helper function to export motion data as textfile(s).
+
+    `normalize` controls the quantity-of-motion column and is the difference
+    between data for looking at and data for measuring with.
+
+    With `normalize=True` (the default, and what every earlier version did)
+    the column is `Qom`, each clip's quantity of motion divided by that clip's
+    own maximum. Every clip then peaks at exactly 1.0, which is what a plot on
+    a 0--1 axis wants and is why the value exists: the same expression appears
+    in the plotting code. It also means **quantity of motion is not comparable
+    between clips** -- a small gesture and a violent one both reach 1.0 -- and
+    that a single bright frame sets the scale for everything around it.
+
+    With `normalize=False` the column is `QomRaw`, the untouched sum of pixel
+    values in the thresholded difference frame. Comparable across clips, and
+    on the scale the pixels actually had. The column is *renamed* rather than
+    merely rescaled so that a file cannot be misread: a `Qom` column is always
+    per-clip normalised and a `QomRaw` column never is, whoever opens it and
+    however long afterwards.
     """
-    def save_single_file(of, time, aom, com, qom, motion_analysis, width, height, data_format, target_name_data, overwrite):
+    def save_single_file(of, time, aom, com, qom, motion_analysis, width, height, data_format, target_name_data, overwrite, normalize=True):
         """
         Helper function to export motion data as a textfile using pandas.
         """
@@ -775,10 +838,12 @@ def save_txt(of, time, aom, com, qom, motion_analysis, width, height, data_forma
             df = pd.DataFrame({'Time': time, 'AomX1': aom.transpose()[0], 'AomY1': aom.transpose()[1], 'AomX2': aom.transpose()[2], 'AomY2': aom.transpose()[3]})
         elif motion_analysis.lower() == 'com':
             df = pd.DataFrame({'Time': time, 'ComX': com.transpose()[0]/width, 'ComY': com.transpose()[1]/height})
-        elif motion_analysis.lower() == 'qom':
-            df = pd.DataFrame({'Time': time, 'Qom': qom/max(qom)}) 
+        qom_name = 'Qom' if normalize else 'QomRaw'
+        qom_col = qom / max(qom) if normalize else qom
+        if motion_analysis.lower() == 'qom':
+            df = pd.DataFrame({'Time': time, qom_name: qom_col})
         elif motion_analysis.lower() == 'all':
-            df = pd.DataFrame({'Time': time, 'Qom': qom/max(qom), 'ComX': com.transpose()[0]/width, 'ComY': com.transpose()[1]/height, 
+            df = pd.DataFrame({'Time': time, qom_name: qom_col, 'ComX': com.transpose()[0]/width, 'ComY': com.transpose()[1]/height, 
                           'AomX1': aom.transpose()[0], 'AomY1': aom.transpose()[1], 'AomX2': aom.transpose()[2], 'AomY2': aom.transpose()[3]})
 
         if data_format == "tsv":
@@ -800,12 +865,17 @@ def save_txt(of, time, aom, com, qom, motion_analysis, width, height, data_forma
                     np.savetxt(f, df.values, delimiter='\t', fmt=['%d', '%.15f', '%.15f'])
             elif motion_analysis.lower() == 'qom':
                 with open(target_name_data, 'wb') as f:
-                    f.write(b'Time\tQom\n')
-                    np.savetxt(f, df.values, delimiter='\t', fmt=['%d', '%d'])
+                    # '%d' here wrote every normalised value as 0 or 1 until
+                    # 2026-08-12: the column had already been divided by its
+                    # maximum, and an integer format discards what is left.
+                    f.write(f'Time\t{qom_name}\n'.encode())
+                    np.savetxt(f, df.values, delimiter='\t',
+                               fmt=['%d', '%d' if not normalize else '%.15f'])
             elif motion_analysis.lower() == 'all':
                 with open(target_name_data, 'wb') as f:
-                    f.write(b'Time\tQom\tComX\tComY\tAomX1\tAomY1\tAomX2\tAomY2\n')
-                    np.savetxt(f, df.values, delimiter='\t', fmt=['%d', '%d', '%.15f', '%.15f', '%.15f', '%.15f', '%.15f', '%.15f'])
+                    f.write(f'Time\t{qom_name}\tComX\tComY\tAomX1\tAomY1\tAomX2\tAomY2\n'.encode())
+                    np.savetxt(f, df.values, delimiter='\t',
+                               fmt=['%d', '%d' if not normalize else '%.15f', '%.15f', '%.15f', '%.15f', '%.15f', '%.15f', '%.15f'])
 
 
         elif data_format == "csv":
@@ -851,16 +921,16 @@ def save_txt(of, time, aom, com, qom, motion_analysis, width, height, data_forma
             print(
                 f"Invalid data format: '{data_format}'.\nFalling back to '.csv'.")
             save_single_file(of, time, aom, com, qom, motion_analysis, width, height, "csv",
-                             target_name_data=target_name_data, overwrite=overwrite)
+                             target_name_data=target_name_data, overwrite=overwrite, normalize=normalize)
 
     if type(data_format) == str:
-        save_single_file(of, time, aom, com, qom, motion_analysis, width, height, data_format, target_name_data=target_name_data, overwrite=overwrite)
+        save_single_file(of, time, aom, com, qom, motion_analysis, width, height, data_format, target_name_data=target_name_data, overwrite=overwrite, normalize=normalize)
 
     elif type(data_format) == list:
         if all([item.lower() in ["csv", "tsv", "txt"] for item in data_format]):
             data_format = list(set(data_format))
-            [save_single_file(of, time, aom, com, qom, motion_analysis, width, height, item, target_name_data=target_name_data, overwrite=overwrite)
+            [save_single_file(of, time, aom, com, qom, motion_analysis, width, height, item, target_name_data=target_name_data, overwrite=overwrite, normalize=normalize)
              for item in data_format]
         else:
             print(f"Unsupported formats in {data_format}.\nFalling back to '.csv'.")
-            save_single_file(of, time, aom, com, qom, motion_analysis, width, height, "csv", target_name_data=target_name_data, overwrite=overwrite)
+            save_single_file(of, time, aom, com, qom, motion_analysis, width, height, "csv", target_name_data=target_name_data, overwrite=overwrite, normalize=normalize)

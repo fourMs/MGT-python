@@ -5,6 +5,40 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.0] — 2026-08-12
+
+### Added
+- **`normalize=False` on `mg_motion`, for machine analysis.** The exported quantity of motion has
+  always been divided by each clip's own maximum, so every clip peaks at exactly 1.0. That is what a
+  plot on a 0–1 axis wants — the same expression appears in the plotting code — and it is invisible
+  in the numbers themselves, which is why it surprises people. It makes quantity of motion
+  **incomparable between clips**: a small gesture and a violent one both reach 1.0, and one bright
+  frame sets the scale for everything around it.
+
+  `normalize=False` exports the untouched sum of pixel values instead. The column is **renamed to
+  `QomRaw`** rather than merely rescaled, so that a file cannot be misread later: a `Qom` column is
+  always per-clip normalised and a `QomRaw` column never is, whoever opens it and however long
+  afterwards. `normalize` was already in `mg_motion`'s signature and had never been used.
+
+### Fixed
+- **TSV export wrote quantity of motion as 0 or 1.** The writer formatted the column with `%d` while
+  the value had already been divided by its maximum, so `np.savetxt` truncated every fraction to an
+  integer. Normalised values now write as floats; `QomRaw` writes as an integer, which is what it is.
+  This changes the content of TSV exports, which ARJ confirms have not been relied on.
+
+### Changed
+- **`_motionvideo` states what its defaults are for.** They are tuned to produce a legible picture,
+  not a measurement — the right choice for motion videos, motiongrams and plots, and worth saying
+  now the same functions are used to produce numbers. Three are visualisation choices:
+  `threshold=0.05`, which removes sensor noise and small real motion alike; `filtertype='Regular'`;
+  and the per-clip normalisation above.
+
+  Nothing is smoothed by default. The whole default chain is
+  `format=gray → tblend=all_mode=difference → threshold`, and the smoothing that exists is off unless
+  asked for — `atadenoise` (adaptive temporal averaging over 129 frames, the only temporal one),
+  `use_median` (spatial), `blur` (spatial). A machine-analysis configuration is therefore a matter of
+  `threshold` and `normalize`, not of turning filters off.
+
 ## [Unreleased]
 
 ## [1.9.2] — 2026-08-08
