@@ -131,7 +131,26 @@ class Test_blur_faces_gpu:
 
 
 class Test_pose_gpu:
+    """Device selection on the OpenPose path.
+
+    Skipped where OpenCV cannot load a Caffe model. Without MediaPipe
+    installed `pose()` uses the OpenPose BODY_25 backend, and OpenCV 5.0
+    removed the Caffe importer those models need --- so on such a build there
+    is no OpenPose device to select and the thing under test does not exist.
+    These two failed with a bare `AttributeError` on OpenCV 5 before the guard
+    in `_pose` was added, which is what made the incompatibility look like a
+    fault in the pose code rather than in the environment.
+    """
+
+    @staticmethod
+    def _skip_without_openpose():
+        from musicalgestures._pose import caffe_supported
+        if not caffe_supported():
+            pytest.skip("OpenCV has no Caffe importer; the OpenPose backends "
+                        "cannot run on this build (OpenCV 5.0 removed it)")
+
     def test_device_cpu(self, testvideo_avi):
+        self._skip_without_openpose()
         mg = musicalgestures.MgVideo(testvideo_avi)
         result = mg.pose(device='cpu', overwrite=True)
         assert type(result) == musicalgestures.MgVideo
@@ -139,6 +158,7 @@ class Test_pose_gpu:
 
     def test_device_gpu_fallback(self, testvideo_avi):
         # device='gpu' should fall back to CPU when CUDA is unavailable
+        self._skip_without_openpose()
         mg = musicalgestures.MgVideo(testvideo_avi)
         result = mg.pose(device='gpu', overwrite=True)
         assert type(result) == musicalgestures.MgVideo

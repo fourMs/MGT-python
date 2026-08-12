@@ -48,6 +48,35 @@ OPENPOSE_NAMES = {
 
 import contextlib
 
+from musicalgestures._exceptions import MgDependencyError
+
+
+def caffe_supported() -> bool:
+    """Can this OpenCV build load a Caffe model?
+
+    OpenCV 5.0 removed the Caffe importer: ``cv2.dnn.readNetFromCaffe`` no
+    longer exists, and ``cv2.dnn.readNet`` raises rather than falling back.
+    The OpenPose backends here (BODY_25, COCO, MPI) are Caffe models, so they
+    cannot run on such a build at all. MediaPipe is unaffected.
+    """
+    return hasattr(cv2.dnn, 'readNetFromCaffe')
+
+
+def _require_caffe_support():
+    """Raise a message naming the cause and the ways out, or return."""
+    if caffe_supported():
+        return
+    raise MgDependencyError(
+        f"The OpenPose backends (body_25, coco, mpi) are Caffe models, and "
+        f"this OpenCV ({cv2.__version__}) has no Caffe importer -- it was "
+        f"removed in OpenCV 5.0. Either use MGT's other pose backend, "
+        f"`pose(model='mediapipe')`, which needs `pip install mediapipe` and "
+        f"gives 33 landmarks rather than BODY_25's 25; or install OpenCV 4 "
+        f"(`pip install 'opencv-python<5'`) to keep the OpenPose skeletons. "
+        f"The two are not interchangeable: the landmark sets differ, so "
+        f"switching backend changes what the columns mean."
+    )
+
 
 @contextlib.contextmanager
 def _suppress_native_stderr(active=True):
@@ -254,7 +283,22 @@ def pose(
     # default backend) but isn't installed, fall back to the OpenPose BODY_25 model — it runs on
     # the always-present OpenCV DNN and auto-downloads its weights — so pose() works on a bare
     # `pip install musicalgestures`.
+    #
+    # That fallback assumed OpenCV could always load a Caffe model, which
+    # stopped being true in OpenCV 5.0. Where it is not true there is nowhere
+    # to fall back *to*, and announcing a fallback that then fails on the
+    # backend it fell back to is worse than saying so plainly.
     if use_mediapipe and not _mediapipe_available():
+        if not caffe_supported():
+            raise MgDependencyError(
+                f"pose() needs MediaPipe on this machine. The default backend "
+                f"is not installed, and the OpenPose fallback cannot run "
+                f"either: its models are Caffe, and OpenCV {cv2.__version__} "
+                f"dropped the Caffe importer in 5.0. Install it with "
+                f"`pip install musicalgestures[pose]`, or install OpenCV 4 "
+                f"(`pip install 'opencv-python<5'`) to use the OpenPose "
+                f"skeletons instead."
+            )
         print("MediaPipe is not installed; falling back to the OpenPose 'body_25' backend. "
               "Install MediaPipe for the default backend with: pip install musicalgestures[pose]")
         use_mediapipe = False
@@ -313,6 +357,18 @@ def pose(
             overwrite=overwrite,
         )
     # -------------------------------------------------------------------------
+
+    # The OpenPose backends are Caffe models, and OpenCV removed its Caffe
+    # importer in 5.0 -- `readNetFromCaffe` is gone and `readNet` refuses the
+    # format outright. Checked here, before the weights are looked for, so an
+    # incompatible environment is not discovered after a 200 MB download and
+    # a full decode; the failure used to surface as `AttributeError: module
+    # 'cv2.dnn' has no attribute 'readNetFromCaffe'` from deep inside the run.
+    #
+    # Not silently switched to MediaPipe. Its 33 landmarks are a different
+    # skeleton from BODY_25's, COCO's or MPI's, so a substituted backend would
+    # return data that looks like what was asked for and is not.
+    _require_caffe_support()
 
     module_path = os.path.abspath(os.path.dirname(musicalgestures.__file__))
 

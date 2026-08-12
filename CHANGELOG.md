@@ -5,6 +5,37 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+- **`pose()` on OpenCV 5 fails with a message instead of an `AttributeError`.** OpenCV removed its
+  Caffe importer in 5.0: `cv2.dnn.readNetFromCaffe` no longer exists and `cv2.dnn.readNet` refuses
+  the format rather than falling back. The OpenPose backends here — BODY_25, COCO and MPI — are
+  Caffe models, so on such a build they cannot run at all. The failure used to surface as
+  `AttributeError: module 'cv2.dnn' has no attribute 'readNetFromCaffe'` from deep inside the run,
+  and only *after* offering to download 200 MB of weights that the environment could never load.
+
+  The check now happens before the weights are looked for, and names both ways out: `pose(model=
+  'mediapipe')` with `pip install musicalgestures[pose]`, or `pip install 'opencv-python<5'` to
+  keep the OpenPose skeletons. It is deliberately **not** an automatic switch to MediaPipe — its 33
+  landmarks are a different skeleton from BODY_25's 25, so a silent substitution would return data
+  that looks like what was asked for and is not.
+
+- **The MediaPipe fallback no longer falls back into a wall.** With MediaPipe missing, `pose()`
+  announced a fallback to BODY_25 and then failed on it, because that fallback assumed OpenCV could
+  always load a Caffe model. Where it cannot, there is nowhere to fall back to, and the error now
+  says so and names the one install that would work.
+
+- **`Test_pose_gpu` skips where OpenPose cannot run.** Its two cases had been failing with the bare
+  `AttributeError` above on any OpenCV 5 machine, which is what made the incompatibility read as a
+  fault in the pose code rather than in the environment. They test device selection on the OpenPose
+  path, so where that path does not exist there is nothing to select and the tests skip with the
+  reason stated.
+
+MediaPipe is unaffected by any of this and remains the default backend; it carries its own weights
+and never touches `cv2.dnn`. Verified end to end on OpenCV 5.0.0 with MediaPipe 1.0.0: 163 frames
+of 33 landmarks off a real clip, a person found in 44 % of them.
+
 ## [1.10.0] — 2026-08-12
 
 ### Added
