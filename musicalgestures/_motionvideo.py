@@ -9,8 +9,29 @@ Three defaults are visualisation choices:
 
 - `threshold=0.05` discards small pixel differences, which removes sensor
   noise and compression shimmer and makes a motiongram read cleanly. It also
-  removes small real motion, and there is no reason to think the value that
-  looks best is the value that measures best.
+  removes small real motion.
+
+  Measured, on 83 clips of a corpus of everyday sound-producing actions, each
+  an event embedded in stillness: no threshold *improves* how far the action
+  stands above the lead-in it interrupts. More clips lose contrast than gain
+  it at every step, consistently enough not to be chance (55 of 83 at this
+  default, sign test p = 0.004), but the median cost at 0.05 is **0.4 %**
+  against a per-clip spread of 0.39 to 2.66. The direction is real and the
+  size is swamped. The picture-legible default is therefore very nearly free
+  for machine analysis of this kind of material; 0.0 is marginally better
+  where the untouched signal is what is wanted.
+
+  Two cautions on that number. It scores one criterion --- action against
+  lead-in --- and a threshold could be free for that and costly for something
+  nobody has measured. And earlier runs of the same code on smaller samples
+  gave 1.2 % at 23 clips and no effect at all at 6: the corpus is heavy-tailed
+  enough that small samples were confidently wrong.
+
+  **A threshold also moves any landmark computed from the same series.**
+  Scored at each threshold's own onset the fall reads as 23 %; with the
+  boundary held still it is 9 %. The remainder is the onset shifting under the
+  threshold and dragging frames across the very boundary the statistic is
+  measured against. That trap is not specific to this measure.
 - `filtertype='Regular'` keeps the magnitude above the threshold. `'Binary'`
   keeps only whether a pixel moved, which is the fraction of the frame in
   motion rather than how much it moved.

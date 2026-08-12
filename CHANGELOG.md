@@ -32,6 +32,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   path, so where that path does not exist there is nothing to select and the tests skip with the
   reason stated.
 
+### Documentation
+- **What the visualisation threshold costs a measurement is now measured, not
+  just flagged.** `_motionvideo`'s header said there was "no reason to think
+  the value that looks best is the value that measures best". On 83 clips of a
+  corpus of everyday sound-producing actions, scored by how far the action
+  stands above the lead-in it interrupts: no threshold improves the
+  separation, more clips lose contrast than gain it at every step (55 of 83 at
+  `threshold=0.05`, sign test p = 0.004), and the median cost at the default is
+  0.4 % against a per-clip spread of 0.39 to 2.66. The default is very nearly
+  free for machine analysis of this material. Two cautions are recorded with
+  it: one criterion was scored, and smaller samples of the same code gave 1.2 %
+  at 23 clips and no effect at 6.
+- Also recorded: a threshold moves any landmark computed from the same series,
+  so a statistic measured across that landmark shows a much larger apparent
+  effect than the signal loss --- 23 % against 9 % here.
+
 MediaPipe is unaffected by any of this and remains the default backend; it carries its own weights
 and never touches `cv2.dnn`. Verified end to end on OpenCV 5.0.0 with MediaPipe 1.0.0: 163 frames
 of 33 landmarks off a real clip, a person found in 44 % of them.
