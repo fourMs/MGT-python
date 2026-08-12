@@ -5,6 +5,18 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- **The threshold figure recorded in 1.11.0 is superseded by the full corpus.** That release
+  quoted a 0.4 % median cost at `threshold=0.05`, measured on 83 clips. The run finished at 345:
+  the cost is **0.2 %**, the direction is still consistent and significant at the lower
+  thresholds (202 of 345 at the default, sign test p = 0.002), and at `threshold=0.2` it stops
+  being significant at all (187 of 345, p = 0.13). The conclusion is unchanged and stronger --- the
+  picture-legible default is free, for practical purposes, for machine analysis of this material.
+  The sequence is recorded in the docstring because it is the useful part: 6 clips said no effect,
+  23 said 1.2 %, 83 said 0.4 %, 345 says 0.2 %.
+
 ## [1.11.0] — 2026-08-12
 
 ### Fixed

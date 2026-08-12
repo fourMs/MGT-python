@@ -11,21 +11,24 @@ Three defaults are visualisation choices:
   noise and compression shimmer and makes a motiongram read cleanly. It also
   removes small real motion.
 
-  Measured, on 83 clips of a corpus of everyday sound-producing actions, each
+  Measured, on 345 clips of a corpus of everyday sound-producing actions, each
   an event embedded in stillness: no threshold *improves* how far the action
   stands above the lead-in it interrupts. More clips lose contrast than gain
-  it at every step, consistently enough not to be chance (55 of 83 at this
-  default, sign test p = 0.004), but the median cost at 0.05 is **0.4 %**
-  against a per-clip spread of 0.39 to 2.66. The direction is real and the
-  size is swamped. The picture-legible default is therefore very nearly free
-  for machine analysis of this kind of material; 0.0 is marginally better
-  where the untouched signal is what is wanted.
+  it at every step, and at the lower thresholds not by chance (202 of 345 at
+  this default, sign test p = 0.002) --- but the median cost at 0.05 is
+  **0.2 %**, against a per-clip spread of 0.39 to 2.66. The direction is real
+  and the size is negligible. The picture-legible default is therefore free,
+  for practical purposes, for machine analysis of this kind of material.
 
-  Two cautions on that number. It scores one criterion --- action against
-  lead-in --- and a threshold could be free for that and costly for something
-  nobody has measured. And earlier runs of the same code on smaller samples
-  gave 1.2 % at 23 clips and no effect at all at 6: the corpus is heavy-tailed
-  enough that small samples were confidently wrong.
+  At `threshold=0.2` the direction stops being significant (187 of 345,
+  p = 0.13) and the mean ratio rises above one, so heavier filtering is not
+  reliably worse either --- it simply stops doing anything consistent.
+
+  One caution. This scores a single criterion, action against lead-in, and a
+  threshold could be free for that while costing something nobody has
+  measured. Note also how the number moved as the sample grew: 6 clips said no
+  effect, 23 said 1.2 %, 83 said 0.4 %, 345 says 0.2 %. The corpus is
+  heavy-tailed and the small samples were confidently wrong.
 
   **A threshold also moves any landmark computed from the same series.**
   Scored at each threshold's own onset the fall reads as 23 %; with the
