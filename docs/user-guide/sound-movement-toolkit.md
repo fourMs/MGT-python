@@ -100,6 +100,37 @@ signal (the "corpus method" from the stillstanding study). For the pose-specific
 `pose_qom()`/`body_scale()`/`normalized_qom()` (framing-invariant QoM from MediaPipe landmarks),
 see the dedicated [Pose Tracking](pose-tracking.md#derived-signals) page.
 
+!!! warning "Never average the raw acceleration magnitude"
+
+    The high-pass inside `accel_to_speed()` is not a refinement. Skip it and the
+    quantity you get back is not motion at all.
+
+    A stationary accelerometer reads 1 g, because it measures gravity. The
+    time-average of the raw vector norm is therefore 1 g plus a small
+    movement term, and between people it varies mostly by how each device is
+    calibrated. It does not measure tilt either: the norm of a vector does not
+    change when the vector is rotated, so a sensor tilted by any angle still
+    reads exactly 1 g while it is still.
+
+    This is not hypothetical. A standstill competition with 56 entrants was
+    ranked on `mean(‖a‖)` from head-worn accelerometers. Eleven of the 56
+    scored *below* 1 g, the lowest by 9.3 per cent, which a correctly
+    calibrated sensor held still cannot do; the whole field spanned 0.907 to
+    1.139 g. Against band-limited quantity of motion from the same recordings
+    the score correlated at rho = 0.16, p = 0.25 — that is, not at all — while
+    real movement across the field spanned a factor of 7.8, from 6.07 to
+    47.46 mm/s. Grouping by which of the eight sensor units a competitor wore,
+    the score separated the groups at H = 48.1, p = 3.4e-08, and the
+    band-limited movement did not, H = 6.8, p = 0.45. The event ranked its
+    instruments. Rescoring on movement moves 40 of 56 people more than ten
+    places, the largest by 53, and leaves no one on the podium.
+
+    Any of `accel_to_speed()`, `band_limited_qom()`, removing the mean, or
+    working in the velocity domain avoids this, and none of them is more work
+    than taking the average. If the units of a file are unknown, start with
+    `micromotion.identify_acceleration_unit()`, which reads them off the same
+    gravity constant.
+
 ---
 
 ## Audio feature extraction (`_audiofeatures`)
