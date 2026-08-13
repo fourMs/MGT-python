@@ -5,7 +5,7 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.11.1] — 2026-08-13
 
 ### Changed
 - **The threshold figure recorded in 1.11.0 is superseded by the full corpus.** That release
@@ -97,8 +97,6 @@ of 33 landmarks off a real clip, a person found in 44 % of them.
   asked for — `atadenoise` (adaptive temporal averaging over 129 frames, the only temporal one),
   `use_median` (spatial), `blur` (spatial). A machine-analysis configuration is therefore a matter of
   `threshold` and `normalize`, not of turning filters off.
-
-## [Unreleased]
 
 ## [1.9.2] — 2026-08-08
 
