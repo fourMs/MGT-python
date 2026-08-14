@@ -26,7 +26,7 @@ import musicalgestures as mg
 mg.MgVideo(
     filename,             # str — path to video file
     array=None,           # np.ndarray — load from array instead of file
-    fps=None,             # float — override detected frame rate
+    fps=None,             # float — frame rate for the `array` input ONLY (see below)
     path=None,            # str — output directory
     filtertype='Regular', # 'Regular', 'Binary', or 'Blob'
     threshold=0.05,       # float 0–1 — motion pixel threshold
@@ -63,6 +63,20 @@ mv.color        # True for colour, False for grayscale
 mv.audio        # MgAudio object for the video's audio track
 mv.flow         # Flow object exposing flow.dense() and flow.sparse()
 ```
+
+!!! warning "`fps=` does not override the rate of a video file"
+    It is the rate at which an `array` is encoded into a file, and nothing else. For a file
+    input the constructor probes the file after the argument is stored and replaces it, so
+    `mg.MgVideo('clip.mp4', fps=99)` on a 29.97 fps file leaves `mv.fps == 29.97`. That is the
+    right answer, but the argument silently did nothing, and code written on the belief that it
+    had would be wrong in a way no output shows. Use `resample(fps=...)` to actually change a
+    file's rate — it returns a new `MgVideo` that has re-read the rate from the new file.
+
+    The same care is needed with `from_numpy` called as a method rather than through the
+    constructor: it writes a file at the rate you give it and does not update `self.fps`, so
+    after `mv.from_numpy(arr, 60)` on a 25 fps `MgVideo` the object still reports 25 while the
+    file it just wrote is 60. Construct a new `MgVideo` from the written file instead. See
+    [the frame rate](loading.md#the-frame-rate-and-what-it-costs-to-be-wrong-about-it).
 
 `MgVideo` also has an informative `repr`, so printing one tells you everything at a glance:
 

@@ -285,6 +285,19 @@ mg.rayleigh_test(phases)                           # (Z, p) non-uniformity test
 mg.synchrony(sig_a, sig_b, times_a, times_b)       # Pearson r after align + normalise
 ```
 
+`dominant_frequency` and `bandpass` take the sampling rate as an argument and cannot check it
+against anything, since they never see the file. Pass `mv.fps` rather than a literal: on a
+29.97 fps clip with a true 2.00 Hz movement rhythm, passing 20 returns 1.33 Hz and passing 15
+returns 1.00 Hz, both of them plausible tempi. See
+[the frame rate](loading.md#the-frame-rate-and-what-it-costs-to-be-wrong-about-it).
+
+`dominant_frequency` also reports the largest FFT bin in `[fmin, fmax]` whether or not there is
+a peak there. On a spectrum that falls steeply with frequency the largest bin is near `fmin`
+whatever the movement was doing, so the answer tracks the band you chose rather than the body —
+and it does not have to land on `fmin` to be doing that. `micromotion.spectral_peak` returns NaN
+in that case and `micromotion.band_edge_sweep` tests an answer already in hand by moving the band
+edge and seeing whether the answer follows.
+
 For example, to quantify audio–motion synchrony, correlate the audio onset strength against the video's quantity of motion:
 
 ```python
