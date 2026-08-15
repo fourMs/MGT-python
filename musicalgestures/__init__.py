@@ -29,6 +29,13 @@ from musicalgestures._mglist import MgList
 
 
 class Examples:
+    """Paths to the sample media shipped with the package, as `musicalgestures.examples`.
+
+    `examples.dance` and `examples.pianist` are the two short videos the documentation and the
+    tests use, and `examples.notebook` is the tutorial notebook. They are absolute paths resolved
+    from the installed package, so they work from any working directory.
+    """
+
     def __init__(self):
         module_path = os.path.realpath(os.path.dirname(__file__)).replace("\\", "/")
         # module_path = os.path.abspath(os.path.dirname(__file__))
