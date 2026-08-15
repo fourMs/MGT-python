@@ -40,6 +40,22 @@ You can also try the toolbox in the browser, with no installation:
 - [Wiki](https://github.com/fourMs/MGT-python/wiki) — worked examples and discussion of the methods
 - [Contributing](docs/contributing.md) — how to report issues and submit changes
 
+## Related toolboxes
+
+These come out of the same lab, as separate packages with separate release cycles. They are built to
+be used together and share several implementations, so a measure computed in one agrees with the
+same measure computed in another.
+
+- [micromotion](https://github.com/fourMs/micromotion)—human micromotion: quantity of motion from
+  optical markers, accelerometers, respiration belts and force plates. This package re-exports its
+  corrected `group_qom` and requires it
+- [ambiscape](https://github.com/fourMs/ambiscape)—soundscapes: the sonic ambience of a place
+- [musiscape](https://github.com/fourMs/musiscape)—music collections: comparing many tracks and
+  albums held as audio files in folders
+
+The boundary is the input rather than the question: this package starts from a VIDEO file, and the
+other three from motion series, a room recording and a music collection.
+
 ## Credits
 
 This toolbox builds on the [Musical Gestures Toolbox for Matlab](https://github.com/fourMs/MGT-matlab/), which again builds on the [Musical Gestures Toolbox for Max](https://www.uio.no/ritmo/english/research/labs/fourms/software/musicalgesturestoolbox/mgt-max/). Many researchers and research assistants have helped its development over the years, including [Balint Laczko](https://github.com/balintlaczko), [Joachim Poutaraud](https://github.com/joachimpoutaraud), [Frida Furmyr](https://github.com/fridafu), [Marcus Widmer](https://github.com/marcuswidmer), and [Alexander Refsum Jensenius](https://github.com/alexarje/).
