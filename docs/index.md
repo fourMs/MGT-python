@@ -108,3 +108,13 @@ If you use MGT-python in your research, please cite this article:
 ## License
 
 MGT-python is released under the [GNU General Public License v3 (GPLv3)](https://github.com/fourMs/MGT-python/blob/master/LICENSE).
+
+
+## Citing
+
+Jensenius, A. R., Laczkó, B., Poutaraud, J., Widmer, M., & Furmyr, F. (2026). *Musical Gestures Toolbox for Python* (Version 1.11.1) [Computer software]. Zenodo.
+<https://doi.org/10.5281/zenodo.21949007>
+
+That is the CONCEPT DOI and it always resolves to the newest version. Where the exact behaviour
+matters, name the version you ran as well: version 1.11.1 is
+<https://doi.org/10.5281/zenodo.21949008>.
