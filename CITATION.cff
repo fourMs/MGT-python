@@ -1,0 +1,34 @@
+cff-version: 1.2.0
+title: "Musical Gestures Toolbox for Python"
+message: "If you use this software, please cite it."
+type: software
+authors:
+  - family-names: Jensenius
+    given-names: "Alexander Refsum"
+    affiliation: "RITMO Centre for Interdisciplinary Studies in Rhythm, Time and Motion, University of Oslo"
+    orcid: "https://orcid.org/0000-0001-6171-8743"
+  - family-names: Laczkó
+    given-names: "Bálint"
+    affiliation: "University of Oslo"
+    orcid: "https://orcid.org/0009-0001-8337-2509"
+  - family-names: Poutaraud
+    given-names: "Joachim"
+    affiliation: "University of Oslo"
+  - family-names: Widmer
+    given-names: "Marcus"
+    affiliation: "University of Oslo"
+  - family-names: Furmyr
+    given-names: "Frida"
+    affiliation: "University of Oslo"
+repository-code: "https://github.com/fourMs/MGT-python"
+abstract: >-
+  A toolbox for visualising and analysing music-related body motion in video, including motiongrams, videograms and quantity-of-motion measures.
+keywords:
+  - music
+  - motion analysis
+  - video analysis
+  - motiongram
+  - musical gestures
+license: GPL-3.0-or-later
+version: 1.11.1
+date-released: "2026-08-13"
