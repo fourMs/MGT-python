@@ -14,7 +14,7 @@ import librosa.display
 from musicalgestures._motionvideo import mg_motiongrams
 from musicalgestures._videograms import videograms_ffmpeg
 from musicalgestures._mglist import MgList
-from musicalgestures._utils import MgProgressbar, MgImage, MgFigure, has_audio, generate_outfilename, get_widthheight
+from musicalgestures._utils import MgProgressbar, MgImage, MgFigure, has_audio, generate_outfilename, get_widthheight, get_samplerate, audio_source
 
 def smooth_downsample_feature_sequence(X: np.ndarray, sr: int, filt_len: int = 41, down_sampling: int = 10, w_type: str = 'boxcar'):
     """
@@ -360,8 +360,10 @@ def mg_ssm(
             print('The video has no audio track.')
             return
 
-        sr = librosa.get_samplerate(self.filename)
-        x, sr = librosa.load(self.filename, sr=sr)
+        # ffprobe for the rate and an extracted track for the samples: librosa 1.0
+        # dropped the audioread fallback and can no longer read a video container.
+        sr = get_samplerate(self.filename)
+        x, sr = librosa.load(audio_source(self.filename), sr=sr)
         frame_length = 512
         hop_length = 128
         spectrogram = np.abs(librosa.stft(x, n_fft=frame_length, hop_length=hop_length))
@@ -414,8 +416,10 @@ def mg_ssm(
             print('The video has no audio track.')
             return
 
-        sr = librosa.get_samplerate(self.filename)
-        x, sr = librosa.load(self.filename, sr=sr)
+        # ffprobe for the rate and an extracted track for the samples: librosa 1.0
+        # dropped the audioread fallback and can no longer read a video container.
+        sr = get_samplerate(self.filename)
+        x, sr = librosa.load(audio_source(self.filename), sr=sr)
         frame_length = 512
         hop_length = 128
         spectrogram = np.abs(librosa.stft(x, n_fft=frame_length, hop_length=hop_length))
@@ -475,15 +479,17 @@ def mg_ssm(
             print('The video has no audio track.')
             return
 
-        sr = librosa.get_samplerate(self.filename)
-        x, sr = librosa.load(self.filename, sr=sr)
+        # ffprobe for the rate and an extracted track for the samples: librosa 1.0
+        # dropped the audioread fallback and can no longer read a video container.
+        sr = get_samplerate(self.filename)
+        x, sr = librosa.load(audio_source(self.filename), sr=sr)
         frame_length = 1024
         hop_length = 512
 
         oenv = librosa.onset.onset_strength(y=x, sr=sr, hop_length=hop_length)
         tempogram = librosa.feature.tempogram(onset_envelope=oenv, sr=sr, hop_length=hop_length, win_length=frame_length)
         # Estimate the global tempo for display purposes
-        tempo = librosa.beat.tempo(onset_envelope=oenv, sr=sr, hop_length=hop_length)[0]
+        tempo = librosa.feature.tempo(onset_envelope=oenv, sr=sr, hop_length=hop_length)[0]
 
         X, sr_X, formatter = smooth_downsample_feature_sequence(tempogram, sr/hop_length)
         # Normalize feature sequence

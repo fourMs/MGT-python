@@ -1442,6 +1442,93 @@ def get_length(filename: str) -> float:
     return elems[0]*3600 + elems[1]*60 + elems[2]
 
 
+def get_samplerate(filename: str) -> int:
+    """
+    Gets the sampling rate (in Hz) of a file's audio track using FFprobe.
+
+    This exists because librosa cannot be asked. Until version 1.0 librosa fell back
+    to audioread (and so to ffmpeg) for containers libsndfile cannot open; 1.0 removed
+    that fallback, so `librosa.get_samplerate` on a video raises
+    `soundfile.LibsndfileError: Format not recognised`. FFprobe reads the container
+    header without decoding it, which is what a constructor should be doing anyway.
+
+    Args:
+        filename (str): Path to the video or audio file to measure.
+
+    Returns:
+        int: The sampling rate of the file's audio track, in Hz.
+
+    Raises:
+        NoStreamError: If the file has no audio track, or ffprobe reports no rate for it.
+    """
+    import re
+
+    out = ffprobe(filename)
+    for line in reversed(out.splitlines()):
+        if "Audio:" not in line:
+            continue
+        # ffprobe writes the rate on the audio stream line, e.g.
+        #   Stream #0:1: Audio: mp3 (U[0][0][0] / 0x0055), 44100 Hz, stereo, fltp, 128 kb/s
+        match = re.search(r"(\d+)\s*Hz", line)
+        if match:
+            return int(match.group(1))
+        raise NoStreamError(f"Could not read a sampling rate for {filename}.")
+    raise NoStreamError(f"{filename} has no audio stream.")
+
+
+#: Cache of extracted audio tracks, keyed by (path, mtime, size) like _FFPROBE_CACHE, so
+#: several analyses of one video share a single extraction instead of re-running ffmpeg.
+_AUDIO_SOURCE_CACHE = {}
+
+
+def audio_source(filename: str) -> str:
+    """
+    Returns a path that libsndfile can open, extracting the audio track if it cannot.
+
+    librosa reads audio through soundfile, which is libsndfile, which knows audio
+    containers and not video ones. Passing it a .avi raises `Format not recognised`.
+    This is the same try-then-convert shape `MgAudioProcessor` already uses in
+    `_colored.py`, lifted out so every librosa call site can share it -- and cached,
+    because a waveform, a spectrogram and a descriptor pass over one video would
+    otherwise each re-extract the same track.
+
+    The extracted file sits beside the source as `<name>.wav`, which is where
+    `extract_wav` and `convert` already put such things.
+
+    Args:
+        filename (str): Path to the audio or video file.
+
+    Returns:
+        str: `filename` itself when libsndfile can open it, else the extracted .wav.
+    """
+    import os
+
+    import soundfile as sf
+
+    try:
+        sf.info(filename)
+        return filename
+    except RuntimeError:
+        # LibsndfileError subclasses RuntimeError, and so did the error soundfile
+        # raised before that class existed, so this catches both vintages.
+        pass
+
+    try:
+        key = (os.path.realpath(filename),) + tuple(
+            getattr(os.stat(filename), a) for a in ("st_mtime", "st_size"))
+    except OSError:
+        key = None
+    if key is not None and key in _AUDIO_SOURCE_CACHE:
+        cached = _AUDIO_SOURCE_CACHE[key]
+        if os.path.isfile(cached):
+            return cached
+
+    target = extract_wav(filename, target_name=filename + ".wav")
+    if key is not None:
+        _AUDIO_SOURCE_CACHE[key] = target
+    return target
+
+
 def get_framecount(filename: str, fast: bool = True) -> int:
     """
     Returns the number of frames in a video using FFprobe.

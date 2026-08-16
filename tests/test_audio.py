@@ -162,3 +162,44 @@ class Test_Audio_Autoshow:
         assert calls == [1, 1]
         audio.spectrogram(autoshow=False)
         assert calls == [1, 1]
+
+
+class Test_Audio_Container_Handling:
+    """librosa 1.0 removed the audioread fallback that used to let it read a video
+    container: it now hands the path straight to libsndfile, which raises
+    `Format not recognised` on .avi and friends. Nothing in the audio layer may
+    depend on librosa opening a container, so these pin the boundary rather than
+    the symptom. See https://librosa.org/doc/latest/ - audioread was deprecated in
+    0.10 and removed in 1.0.
+    """
+
+    def test_samplerate_comes_from_ffprobe_not_librosa(self, testvideo_avi, monkeypatch):
+        import librosa
+
+        def refuse(*args, **kwargs):
+            raise AssertionError(
+                "librosa.get_samplerate was asked to read a container; "
+                "the sample rate must come from ffprobe"
+            )
+
+        monkeypatch.setattr(librosa, "get_samplerate", refuse)
+        assert musicalgestures.MgAudio(testvideo_avi).sr == 44100
+
+    def test_librosa_is_never_handed_a_video_container(self, testvideo_avi, monkeypatch):
+        import librosa
+
+        real_load = librosa.load
+
+        def guarded(path, *args, **kwargs):
+            if str(path).lower().endswith((".avi", ".mp4", ".mov", ".mkv")):
+                raise AssertionError(f"librosa.load was handed a video container: {path}")
+            return real_load(path, *args, **kwargs)
+
+        monkeypatch.setattr(librosa, "load", guarded)
+        y = musicalgestures.MgAudio(testvideo_avi).numpy()
+        assert y.size > 0
+
+    def test_silent_video_reports_no_samplerate(self, testvideo_avi_silent):
+        from musicalgestures._utils import NoStreamError
+        with pytest.raises(NoStreamError):
+            musicalgestures._utils.get_samplerate(testvideo_avi_silent)

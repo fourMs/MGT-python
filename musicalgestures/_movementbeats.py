@@ -234,7 +234,7 @@ def mg_tempo_similarity(self, dpi: int = 300, autoshow: bool = True, title: str 
     y, sr = self._load()
     hop = self.hop_length
     oenv = librosa.onset.onset_strength(y=y, sr=sr, hop_length=hop)
-    audio_tempo = float(np.atleast_1d(librosa.beat.tempo(onset_envelope=oenv, sr=sr, hop_length=hop))[0])
+    audio_tempo = float(np.atleast_1d(librosa.feature.tempo(onset_envelope=oenv, sr=sr, hop_length=hop))[0])
     a_t = librosa.times_like(oenv, sr=sr, hop_length=hop)
 
     # --- Movement envelope + tempo ---
@@ -242,7 +242,7 @@ def mg_tempo_similarity(self, dpi: int = 300, autoshow: bool = True, title: str 
     if len(qom) < 4:
         print('Not enough frames to estimate movement tempo.')
         return None
-    motion_tempo = float(np.atleast_1d(librosa.beat.tempo(onset_envelope=qom, sr=fps, hop_length=1))[0])
+    motion_tempo = float(np.atleast_1d(librosa.feature.tempo(onset_envelope=qom, sr=fps, hop_length=1))[0])
     m_t = np.arange(len(qom)) / max(fps, 1e-9)
 
     # --- Resample both onto a common time grid and cross-correlate ---

@@ -7,7 +7,7 @@ import matplotlib.ticker as ticker
 import matplotlib
 import numpy as np
 
-from musicalgestures._utils import MgFigure, get_length, generate_outfilename, resolve_filename, has_audio
+from musicalgestures._utils import MgFigure, get_length, generate_outfilename, resolve_filename, has_audio, get_samplerate, audio_source
 from musicalgestures._info import mg_info as info
 from musicalgestures._colored import MgAudioProcessor, MgWaveformImage
 
@@ -44,7 +44,9 @@ class MgAudio:
         self.filename = filename
         self.of, self.fex = os.path.splitext(filename)
         if sr is None:
-            self.sr = librosa.get_samplerate(self.filename)
+            # ffprobe rather than librosa: librosa 1.0 dropped the audioread fallback,
+            # so it can no longer read a sampling rate out of a video container.
+            self.sr = get_samplerate(self.filename)
         else:
             self.sr = sr
         self.n_fft = n_fft
@@ -89,7 +91,7 @@ class MgAudio:
         # in its own __init__, so the attribute may be absent on the instance.
         cache = getattr(self, '_y_cache', None)
         if cache is None or cache[1] != self.sr:
-            y, sr = librosa.load(self.filename, sr=self.sr)
+            y, sr = librosa.load(audio_source(self.filename), sr=self.sr)
             cache = (y, sr)
             self._y_cache = cache
         return cache
@@ -388,7 +390,7 @@ class MgAudio:
             onset_envelope=oenv, sr=sr, hop_length=self.hop_length)
 
         # Estimate the global tempo for display purposes
-        tempo = librosa.beat.tempo(
+        tempo = librosa.feature.tempo(
             onset_envelope=oenv, sr=sr, hop_length=self.hop_length)[0]
 
         if onset_strength:

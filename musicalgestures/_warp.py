@@ -10,7 +10,7 @@ import subprocess
 import musicalgestures
 from musicalgestures._directograms import mg_directograms
 from musicalgestures._impacts import impact_envelope
-from musicalgestures._utils import MgProgressbar, generate_outfilename, wrap_str
+from musicalgestures._utils import MgProgressbar, generate_outfilename, wrap_str, audio_source
 
 # numba is imported lazily to keep `import musicalgestures` fast; `_ensure_numba()` JIT-compiles
 # `beats_diff` on first use.
@@ -69,7 +69,9 @@ def mg_warp_audiovisual_beats(self, audio_file: str, speed: tuple = (0.5, 2), da
 
     pb = MgProgressbar(total=130, prefix='Warping audiovisual beats:')
     pb.progress(0)
-    signal, sr = librosa.load(audio_file, mono=True)
+    # audio_source is a no-op for a real audio file and extracts the track if a video
+    # is passed instead, which librosa 1.0 can no longer open by itself.
+    signal, sr = librosa.load(audio_source(audio_file), mono=True)
     pb.progress(5)
 
     # Compute onset and impact envelopes
@@ -162,7 +164,7 @@ def mg_warp_audiovisual_beats(self, audio_file: str, speed: tuple = (0.5, 2), da
 
     pb.progress(75)
     if not os.path.isfile(extended_file_name):
-        data, sample_rate = librosa.load(audio_file, mono=True)
+        data, sample_rate = librosa.load(audio_source(audio_file), mono=True)
         old_length = data.shape[0]
         tail = new_length - old_length * (new_length // old_length)
         extended_data = np.hstack(tuple([data] * (new_length // old_length) + [data[:tail]]))
