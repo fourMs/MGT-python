@@ -5,6 +5,22 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.2] — 2026-08-16
+
+### Changed
+- Documentation and citation metadata only; no change to any code path.
+- `CITATION.cff` states the software's authors, its version and its DOI, and the README carries a
+  DOI badge, so the record Zenodo archives is built from the repository rather than by hand.
+- The one public definition without a docstring, `musicalgestures.examples`, is described.
+- The documentation says where this package stops and its three sibling toolboxes start.
+
+### Note on the archive
+This is the first release since the Zenodo GitHub integration was switched on. The integration
+cannot see a deposition it did not create, so this release begins a NEW concept DOI and the
+hand-made lineage 10.5281/zenodo.21949007 is frozen at 1.11.1. The repository is repointed at the
+new lineage immediately after this release, and `deposit/_curation/toolbox_doi_check.py` in the
+Still Standing project verifies it.
+
 ## [1.11.1] — 2026-08-13
 
 ### Changed
