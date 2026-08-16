@@ -5,7 +5,7 @@
 [![GitHub license](https://img.shields.io/github/license/fourMs/MGT-python.svg)](https://github.com/fourMs/MGT-python/blob/master/LICENSE)
 [![CI](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml/badge.svg)](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml)
 [![Documentation](https://github.com/fourMs/MGT-python/actions/workflows/docs.yml/badge.svg)](https://fourms.github.io/MGT-python/)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21949007.svg)](https://doi.org/10.5281/zenodo.21949007)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21965729.svg)](https://doi.org/10.5281/zenodo.21965729)
 
 The **Musical Gestures Toolbox for Python** (`musicalgestures`) is a collection of tools for visualising and analysing motion in video recordings, together with the sound that accompanies them. It was developed for research on music-related body motion, but it works on any video or audio file.
 
@@ -75,7 +75,7 @@ This toolbox is released under the [GNU General Public License 3.0](https://www.
 Cite the CONCEPT DOI, which always resolves to the newest version:
 
 > Jensenius, A. R., Laczkó, B., Poutaraud, J., Widmer, M., & Furmyr, F. (2026). *Musical Gestures Toolbox for Python* (Version 1.11.1) [Computer software]. Zenodo.
-> https://doi.org/10.5281/zenodo.21949007
+> https://doi.org/10.5281/zenodo.21965729
 
 Where the exact behaviour matters, cite the version you ran instead. Version 1.11.1 is https://doi.org/10.5281/zenodo.21949008.
 
