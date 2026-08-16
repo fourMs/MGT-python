@@ -24,6 +24,18 @@ authors:
     given-names: "Jinyue"
     affiliation: "RITMO Centre for Interdisciplinary Studies in Rhythm, Time and Motion, University of Oslo"
     orcid: "https://orcid.org/0009-0003-7438-1483"
+  - family-names: Clim
+    given-names: "Alena"
+    affiliation: "RITMO Centre for Interdisciplinary Studies in Rhythm, Time and Motion, University of Oslo"
+    orcid: "https://orcid.org/0000-0001-7469-9713"
+  - family-names: Upham
+    given-names: "Finn"
+    affiliation: "RITMO Centre for Interdisciplinary Studies in Rhythm, Time and Motion, University of Oslo"
+    orcid: "https://orcid.org/0000-0002-9948-2024"
+  - family-names: "von Arnim"
+    given-names: "Hugh Alexander"
+    affiliation: "RITMO Centre for Interdisciplinary Studies in Rhythm, Time and Motion, University of Oslo"
+    orcid: "https://orcid.org/0009-0005-7511-9019"
 repository-code: "https://github.com/fourMs/MGT-python"
 abstract: >-
   This is the Python version of the Musical Gestures Toolbox, containing a complete solution for
