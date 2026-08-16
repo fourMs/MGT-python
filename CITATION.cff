@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-title: "Musical Gestures Toolbox for Python"
+title: "musicalgestures: A Python toolbox for visualising and analysing music-related video recordings"
 message: "If you use this software, please cite it."
 type: software
 authors:
@@ -9,20 +9,30 @@ authors:
     orcid: "https://orcid.org/0000-0001-6171-8743"
   - family-names: Laczkó
     given-names: "Bálint"
-    affiliation: "University of Oslo"
+    affiliation: "RITMO Centre for Interdisciplinary Studies in Rhythm, Time and Motion, University of Oslo"
     orcid: "https://orcid.org/0009-0001-8337-2509"
   - family-names: Poutaraud
     given-names: "Joachim"
-    affiliation: "University of Oslo"
+    affiliation: "RITMO Centre for Interdisciplinary Studies in Rhythm, Time and Motion, University of Oslo"
   - family-names: Widmer
     given-names: "Marcus"
-    affiliation: "University of Oslo"
+    affiliation: "RITMO Centre for Interdisciplinary Studies in Rhythm, Time and Motion, University of Oslo"
   - family-names: Furmyr
     given-names: "Frida"
-    affiliation: "University of Oslo"
+    affiliation: "RITMO Centre for Interdisciplinary Studies in Rhythm, Time and Motion, University of Oslo"
+  - family-names: Guo
+    given-names: "Jinyue"
+    affiliation: "RITMO Centre for Interdisciplinary Studies in Rhythm, Time and Motion, University of Oslo"
+    orcid: "https://orcid.org/0009-0003-7438-1483"
 repository-code: "https://github.com/fourMs/MGT-python"
 abstract: >-
-  A toolbox for visualising and analysing music-related body motion in video, including motiongrams, videograms and quantity-of-motion measures.
+  This is the Python version of the Musical Gestures Toolbox, containing a complete solution for
+  loading different types of video recordings (including 360-degree videos). It was originally built
+  to analyse music-related videos, but it works well for many other applications. It includes a
+  large collection of tools for visualising human body motion, including average images, motion
+  images, motion history images, motiongrams, and videograms. It also includes spatial–temporal
+  tools for creating motion history videos. Finally, it wraps different state-of-the-art pose
+  estimation methods (CV2 and MediaPipe) and derives various quantity-of-motion measures.
 keywords:
   - music
   - motion analysis
