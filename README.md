@@ -59,7 +59,7 @@ If you use this toolbox in your research, please cite:
 
 If you want to cite the toolbox itself, use the Zenodo CONCEPT DOI, which always resolves to the newest version:
 
-> Jensenius, A. R., Laczkó, B., Poutaraud, J., Widmer, M., & Furmyr, F. (2026). *Musical Gestures Toolbox for Python* [Computer software]. Zenodo https://doi.org/10.5281/zenodo.21965729
+> Jensenius, A. R., Laczkó, B., Poutaraud, J., Widmer, M., Furmyr, F., Guo, J., Clim, A., Upham, F., & von Arnim, H. A. (2026). *Musical Gestures Toolbox for Python* [Computer software]. Zenodo https://doi.org/10.5281/zenodo.21965729
 
 Where the exact behaviour matters, cite the version you ran.
 
