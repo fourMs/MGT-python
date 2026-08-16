@@ -21,6 +21,25 @@ list. Ten records had to be corrected by hand on 2026-08-16 for this.
 Nothing in CI depends on the prefix: `pypi-publish.yml` triggers on `release: published`, not on a
 tag pattern. Tags made before 2026-08-16 keep their `v` and are left alone.
 
+## A tag on its own publishes NOTHING
+
+Because the trigger is `release: published`, `git push --tags` runs no workflow at all. No job is
+queued, nothing goes red, no mail arrives, and the version simply never reaches PyPI. This is the
+quietest failure in the release path and it has already cost real versions: eight micromotion
+tags between 0.9.0 and 1.1.0 went out this way and were found only when the tags were compared
+against PyPI by hand, ten days later.
+
+So a release is finished when the version is ON PyPI, not when the tag is pushed. Check it:
+
+    pip index versions <package>
+
+and across all four toolboxes at once, from the Still Standing repository:
+
+    python3 deposit/_curation/toolbox_pypi_check.py
+
+which lists every tag that never published and says, for each, whether the release is missing or
+whether the release exists and its run failed -- those two want different repairs.
+
 ## After the release
 
 A release publishes to PyPI and cannot be undone, so it is deliberate rather than routine.
