@@ -55,12 +55,11 @@ The boundary is the input rather than the question: this package starts from a V
 
 If you use this toolbox in your research, please cite:
 
-- Laczkó, B., & Jensenius, A. R. (2021). [Reflections on the Development of the Musical Gestures Toolbox for Python](http://urn.nb.no/URN:NBN:no-91935). *Proceedings of the Nordic Sound and Music Computing Conference*, Copenhagen.
+> Laczkó, B., & Jensenius, A. R. (2021). [Reflections on the Development of the Musical Gestures Toolbox for Python](http://urn.nb.no/URN:NBN:no-91935). *Proceedings of the Nordic Sound and Music Computing Conference*, Copenhagen.
 
 If you want to cite the toolbox itself, use the Zenodo CONCEPT DOI, which always resolves to the newest version:
 
-> Jensenius, A. R., Laczkó, B., Poutaraud, J., Widmer, M., & Furmyr, F. (2026). *Musical Gestures Toolbox for Python* [Computer software]. Zenodo.
-> https://doi.org/10.5281/zenodo.21965729
+> Jensenius, A. R., Laczkó, B., Poutaraud, J., Widmer, M., & Furmyr, F. (2026). *Musical Gestures Toolbox for Python* [Computer software]. Zenodo https://doi.org/10.5281/zenodo.21965729
 
 Where the exact behaviour matters, cite the version you ran.
 
