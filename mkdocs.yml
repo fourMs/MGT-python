@@ -52,6 +52,8 @@ nav:
       - Complete Reference: MODULES.md
   - Development:
       - Contributing: contributing.md
+      - Testing: testing.md
+      - Releasing: releases.md
 
 plugins:
   - search

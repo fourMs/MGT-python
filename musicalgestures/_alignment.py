@@ -30,6 +30,20 @@ def xcorr_lag(x, y, fs, max_lag=1.5):
     the smallest-magnitude lag is returned rather than an arbitrary aliased
     one.
 
+    Since 1.11.3 this delegates to `micromotion.xcorr_lag`, which owns lag
+    estimation for the toolbox family, so the two packages cannot return
+    different numbers for one pair of signals. The convention here is the one
+    that was kept: micromotion returned the opposite sign until its 1.13.0,
+    against its own documentation, and this function's agreement with its
+    docstring is what exposed that. `micromotion` also gained the tie-breaking
+    rule described above, which originated here.
+
+    `difference=False` is passed, preserving this function's behaviour.
+    micromotion differences by default, which guards against the spurious
+    correlation of two drifting series; for envelopes, which do not drift, the
+    undifferenced correlation is the more sensitive of the two. Call
+    `micromotion.xcorr_lag` directly if the inputs may drift.
+
     Source: Westney-comparisons study (Jensenius) -- camera/audio residual
     sync by onset-envelope cross-correlation; unified with the ro study's
     `envelope_lag`.
@@ -45,20 +59,12 @@ def xcorr_lag(x, y, fs, max_lag=1.5):
             seconds (positive = `y` later) and `r` is the normalized correlation
             at that lag.
     """
-    from scipy.signal import correlate, correlation_lags
+    from micromotion import xcorr_lag as _xcorr_lag
     x = np.asarray(x, float)
     y = np.asarray(y, float)
     n = min(len(x), len(y))
-    x, y = x[:n] - x[:n].mean(), y[:n] - y[:n].mean()
-    cc = correlate(y, x, mode="full")
-    lags = correlation_lags(n, n, mode="full")
-    m = np.abs(lags) <= max(1, int(round(max_lag * fs)))
-    cc, lags = cc[m], lags[m]
-    cc = cc / (n * x.std() * y.std() + 1e-12)
-    # Near-exact ties are floating-point noise; prefer the smallest |lag|.
-    cand = np.flatnonzero(cc >= cc.max() - 1e-9)
-    best = cand[np.argmin(np.abs(lags[cand]))]
-    return float(lags[best] / fs), float(cc[best])
+    r = _xcorr_lag(x[:n], y[:n], fs=fs, max_lag_s=max_lag, difference=False)
+    return float(r["lag_s"]), float(r["r"])
 
 
 def envelope_lag(x, y, rate, max_lag_s=1.5):

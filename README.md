@@ -40,15 +40,20 @@ You can also try the toolbox in the browser, with no installation:
 - [Wiki](https://github.com/fourMs/MGT-python/wiki) — worked examples and discussion of the methods
 - [Contributing](docs/contributing.md) — how to report issues and submit changes
 
-## Related toolboxes
+## The four toolboxes
 
-This toolbox, musicalgestures, comes out of the fourMs Lab at the University of Oslo and is built to be used together and share several implementations, so a measure computed in one agrees with the same measure computed in another.
+Four packages from the fourMs Lab at the University of Oslo, each released separately on PyPI. Which one you want is decided by what you have in hand rather than by what you want to know:
 
-- [micromotion](https://github.com/fourMs/micromotion)—human micromotion: quantity of motion from optical markers, accelerometers, respiration belts and force plates. This package re-exports its corrected `group_qom` and requires it
-- [ambiscape](https://github.com/fourMs/ambiscape)—soundscapes: the sonic ambience of a place
-- [musiscape](https://github.com/fourMs/musiscape)—music collections: comparing many tracks and albums held as audio files in folders
+| you have | use | it gives you |
+|---|---|---|
+| a video file, with or without its sound | musicalgestures (this one) | motiongrams, videograms, motion analysis from ordinary video |
+| a motion time series from a body — optical markers, an accelerometer, a respiration belt, a force plate | [micromotion](https://github.com/fourMs/micromotion) | quantity of motion, posture, balance, and the band conventions the others follow |
+| a recording of a place — mono, stereo, binaural or ambisonic | [ambiscape](https://github.com/fourMs/ambiscape) | the sonic ambience of that place: level, spectrum, space, rhythm, sources |
+| a folder of music, or a concert recording | [musiscape](https://github.com/fourMs/musiscape) | many tracks and albums compared at a glance |
 
-The boundary is the input rather than the question: this package starts from a VIDEO file, and the other three from a motion series, a room recording and a music collection.
+Where a measure appears in more than one package it has a single owner and a single implementation, so the answer does not depend on which package you called. This package owns everything that starts from pixels; micromotion owns filtering, lag estimation and circular statistics, and this package requires it, re-exporting its `group_qom`, `bandpass` and `xcorr_lag` rather than keeping its own. A test here checks the numbers against micromotion's and fails if they diverge.
+
+One name is deliberately NOT shared. `musicalgestures.dominant_frequency` takes an FFT peak over 0.5–8.0 Hz, for locomotion and dance; `micromotion.dominant_frequency` takes a Welch peak over 0.3–4.0 Hz, for a body trying to stay still. They answer different questions and can disagree completely, so state which one produced any number you report.
 
 
 ## Citing

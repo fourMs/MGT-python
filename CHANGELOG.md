@@ -5,6 +5,38 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.3] — 2026-08-19
+
+### Changed
+- `bandpass` and `xcorr_lag` now delegate to `micromotion`, which owns filtering and lag
+  estimation for the toolbox family. Their signatures and return types are unchanged, so
+  existing calls keep working, but there is one implementation behind both packages instead
+  of two that had drifted apart.
+- `bandpass` RAISES on a band that is unusable at the given sampling rate. It used to return
+  the signal unfiltered, which handed back data the caller believed was band-limited and was
+  not, a silent wrong answer propagating into everything computed from it. The argument
+  orders still differ between the two packages: `musicalgestures.bandpass(signal, lo, hi,
+  fs)` against `micromotion.bandpass(x, fs, lo, hi)`. micromotion validates against Nyquist,
+  so a call moved between them without reordering raises rather than returning a plausible
+  array.
+
+### Fixed
+- `xcorr_lag` and `micromotion.xcorr_lag` returned opposite signs for the same pair of
+  signals. This package was the correct one, agreeing with its own docstring throughout, and
+  micromotion is corrected in its 1.13.0. Requires `micromotion>=1.13.0`.
+- The tie-breaking rule that prefers the smallest-magnitude lag among near-tied maxima, which
+  originated here and matters for periodic envelopes, moved into micromotion with the
+  delegation, so nothing was lost by it.
+
+### Added
+- `tests/test_analysis.py`. `musicalgestures._analysis` exports six functions at package top
+  level and no test referenced it, which is why the two divergences above went unseen. The
+  new tests pin the delegation, pin that `bandpass` really removes out-of-band energy rather
+  than merely matching the owner, and pin the deliberate difference between this package's
+  `dominant_frequency` (FFT peak, 0.5–8.0 Hz, for locomotion and dance) and micromotion's
+  (Welch peak, 0.3–4.0 Hz, for postural micromotion). That difference is stated in the
+  docstring now rather than only in a source comment in `__init__.py`.
+
 ## [1.11.2] — 2026-08-16
 
 ### Changed

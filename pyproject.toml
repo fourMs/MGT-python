@@ -32,7 +32,7 @@ dependencies = [
     # this package re-exports arrived much later. The floor is now 1.0.0, where `group_qom`
     # stopped counting markers it could not see. Below that the re-exported function returns a
     # different, confounded number, so this is a correctness floor and not only a docs one.
-    "micromotion>=1.0.0",
+    "micromotion>=1.13.0",
     "numpy",
     "pandas",
     "matplotlib",
