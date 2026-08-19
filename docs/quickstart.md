@@ -1,32 +1,45 @@
 # Quick Start Guide
 
-This guide gets you up and running with the Musical Gestures Toolbox in a few minutes.
+## Three lines, one picture
 
-## Prerequisites
-
-Make sure you have MGT-python installed. If not, see the [Installation Guide](installation.md).
-
-```bash
-pip install musicalgestures
-```
-
-## Your First MGT-python Script
-
-Start with a simple example using the built-in sample videos:
+You need `pip install musicalgestures` and [FFmpeg](https://ffmpeg.org) on your system;
+the [Installation Guide](installation.md) covers the optional extras. Then:
 
 ```python
 import musicalgestures as mg
 
-# Access example videos
-examples = mg.examples
-print(f"Dance video: {examples.dance}")
-print(f"Pianist video: {examples.pianist}")
+v = mg.MgVideo(mg.examples.dance)     # a dance video ships with the package
+v.motiongrams().show()
+```
 
-# Load a video
-mv = mg.MgVideo(examples.dance)
-print(f"Loaded: {mv.filename}")
-print(f"Duration: {mv.duration:.2f} seconds")   # .duration is seconds; .length is the frame count
-print(f"Frame rate: {mv.fps} fps")
+That draws motiongrams: images tracing where movement happens in the frame over time,
+like a spectrogram for the body. The video is bundled, so this runs before you have any
+footage of your own — `mg.examples.dance` and `mg.examples.pianist` are both there.
+
+You can also run it in the browser with nothing installed:
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fourMs/MGT-python/blob/master/musicalgestures/MusicalGesturesToolbox.ipynb)
+
+## The three you will use most
+
+Most of what this toolbox gets used for is three calls. Everything further down this page
+is detail to come back for once these make sense.
+
+```python
+v = mg.MgVideo(mg.examples.dance)
+
+v.motion()                # motion video, plus QoM, CoM and AoM per frame as a CSV
+v.motiongrams()           # where movement happened, over time
+v.audio.spectrogram()     # the accompanying sound
+```
+
+Analysis methods return result objects rather than writing and forgetting, and `.show()`
+displays them. Each is expanded under Basic Analysis Workflows below.
+
+## What a video knows about itself
+
+```python
+v = mg.MgVideo(mg.examples.dance)
+print(v.filename, v.duration, v.fps)   # .duration is seconds; .length is the frame count
 ```
 
 ## Core Concepts
@@ -154,7 +167,39 @@ pose_video = mv.pose(model='mpi', device='gpu', downsampling_factor=2)
 
 On first use, pose estimation downloads the requested model weights if they are not already present (MediaPipe weights by default).
 
-### 5. Optional GPU Acceleration
+### 5. Pose segment statistics
+
+`pose_segments()` draws a polar rose plot and circular statistics for each body segment (the bone between two joints):
+
+```python
+mv = mg.MgVideo(examples.dance)
+mv.pose_segments().show()         # reuses cached pose keypoints if available
+```
+
+![Pose segment circular statistics](images/examples/pose_segments.png)
+
+### 6. Audio–movement tempo similarity
+
+`tempo_similarity()` compares the audio tempo with the movement tempo and cross-correlates the two rhythms:
+
+```python
+mv = mg.MgVideo(examples.dance)
+ts = mv.tempo_similarity()
+ts.show()
+print(ts.data['audio_tempo_bpm'], ts.data['motion_tempo_bpm'])
+```
+
+![Audio–movement tempo similarity](images/examples/tempo_similarity.png)
+
+See the dedicated [Audio-Video Processing & Analysis](user-guide/audio-video.md) page for the full suite (phase synchrony, structure comparison, body–audio and dynamics coupling).
+
+## Options and performance
+
+Neither of these is an analysis. They change how the analyses above run, and are
+here rather than among them because a reader meeting the toolbox for the first time
+does not need either.
+
+### Optional GPU acceleration
 
 ```python
 mv = mg.MgVideo(examples.dance)
@@ -172,7 +217,7 @@ blur_gpu = mv.blur_faces(use_gpu=True)
 print(mg.get_cuda_device_count())
 ```
 
-### 6. Resampling (frame rate / speed)
+### Resampling (frame rate / speed)
 
 `resample()` returns a **new** `MgVideo` (the original is untouched) re-timed by frame rate, playback speed, or frame decimation:
 
@@ -183,32 +228,6 @@ mv25 = mv.resample(fps=25)        # retime to 25 fps (duration-preserving)
 fast = mv.resample(speed=2.0)     # 2× faster, video + audio in sync
 mv25.show()
 ```
-
-### 7. Pose segment statistics
-
-`pose_segments()` draws a polar rose plot and circular statistics for each body segment (the bone between two joints):
-
-```python
-mv = mg.MgVideo(examples.dance)
-mv.pose_segments().show()         # reuses cached pose keypoints if available
-```
-
-![Pose segment circular statistics](images/examples/pose_segments.png)
-
-### 8. Audio–movement tempo similarity
-
-`tempo_similarity()` compares the audio tempo with the movement tempo and cross-correlates the two rhythms:
-
-```python
-mv = mg.MgVideo(examples.dance)
-ts = mv.tempo_similarity()
-ts.show()
-print(ts.data['audio_tempo_bpm'], ts.data['motion_tempo_bpm'])
-```
-
-![Audio–movement tempo similarity](images/examples/tempo_similarity.png)
-
-See the dedicated [Audio-Video Processing & Analysis](user-guide/audio-video.md) page for the full suite (phase synchrony, structure comparison, body–audio and dynamics coupling).
 
 ## Working with Your Own Videos
 
