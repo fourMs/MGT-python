@@ -5,7 +5,7 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.11.4] — 2026-08-22
 
 ### Fixed
 - The frame rate is no longer truncated to an integer. Seven call sites read
@@ -850,7 +850,8 @@ of 33 landmarks off a real clip, a person found in 44 % of them.
 
 ---
 
-[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.6.4...HEAD
+[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.11.4...HEAD
+[1.11.4]: https://github.com/fourMs/MGT-python/compare/v1.11.3...v1.11.4
 [1.6.4]: https://github.com/fourMs/MGT-python/compare/v1.6.3...v1.6.4
 [1.6.3]: https://github.com/fourMs/MGT-python/compare/v1.6.2...v1.6.3
 [1.6.2]: https://github.com/fourMs/MGT-python/compare/v1.6.1...v1.6.2

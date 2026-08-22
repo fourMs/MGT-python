@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.8.0**.
+The current stable release is **MGT-python 1.11.4**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,19 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.11.4
+
+- **Two truncations that were quietly wrong are fixed.** Averaged frames are ROUNDED rather than
+  truncated: every averaging path finished with `(acc / n).astype(np.uint8)`, putting the result
+  0.497 levels below the true mean with half the pixels off by one, always downward, in a frame
+  whose purpose is to be a clean background to subtract. And the frame rate is no longer read
+  through `int()`: seven call sites turned 29.97 into 29 on NTSC footage, so every time and
+  frequency they derived was 3.2 % low, and `_flow` and `_history` wrote the truncated rate into
+  the output file as well.
+- **Figures produced before this release are not comparable with figures after it** on
+  non-integer-rate footage, and average images may differ by one level. Both changes are pinned by
+  guard tests that fail if either pattern returns.
 
 ### 1.8.0
 
