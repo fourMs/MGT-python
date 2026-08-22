@@ -5,6 +5,34 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.0] — 2026-08-22
+
+### Added
+- `contact_sheet()` tiles ONE frame from EACH of many videos into a sheet, so a corpus can be
+  scanned by eye. `grid()` does the other case, many frames from one video. On a 366-day export
+  of daily recordings every framing fault found was found by a person looking at a sheet like
+  this and not by a measurement — a crop pointed at a colleague, a frame that cut the subject's
+  feet — because a day framed unlike its neighbours announces itself without a threshold having
+  to be chosen in advance.
+
+  A file that cannot be read gets a tile labelled UNREADABLE rather than a black one. A dark day
+  and an unopenable file look identical otherwise, and on that corpus a day was investigated as
+  a fault when the sheet had simply been built while the file was still being written.
+
+### Fixed
+- `MgVideo('clip.mp4', fps=99)` now warns. `fps` is the rate an ARRAY is encoded at; for a file
+  input the constructor reads the rate from the file and overwrites the argument, so it did
+  nothing — and code written on the belief that it had set the rate was wrong with nothing in
+  any output to show it. The docs had carried this as a standing warning. Use
+  `resample(fps=...)` to change a file's rate.
+
+### Changed
+- Three tests now guard the release itself: that `__version__`, the newest changelog entry and
+  `docs/releases.md` all name the same version, and that every released version in the changelog
+  has a git tag. Preparing 1.11.4 found `docs/releases.md` announcing 1.8.0 while PyPI served
+  1.11.3, and 1.11.3 published with no tag at all. Neither breaks an install, which is why
+  neither had been noticed. v1.11.3 has since been tagged at its own release commit.
+
 ## [1.11.4] — 2026-08-22
 
 ### Fixed
@@ -850,7 +878,8 @@ of 33 landmarks off a real clip, a person found in 44 % of them.
 
 ---
 
-[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.11.4...HEAD
+[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.12.0...HEAD
+[1.12.0]: https://github.com/fourMs/MGT-python/compare/v1.11.4...v1.12.0
 [1.11.4]: https://github.com/fourMs/MGT-python/compare/v1.11.3...v1.11.4
 [1.6.4]: https://github.com/fourMs/MGT-python/compare/v1.6.3...v1.6.4
 [1.6.3]: https://github.com/fourMs/MGT-python/compare/v1.6.2...v1.6.3

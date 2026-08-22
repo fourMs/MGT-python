@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import warnings
 import numpy as np
 from typing import Union, List
 from musicalgestures._input_test import mg_input_test
@@ -124,6 +125,16 @@ class MgVideo(MgAudio):
 
         if all(arg is not None for arg in [self.array, self.fps]):
             self.from_numpy(self.array, self.fps)
+        elif fps is not None:
+            # `fps` is the rate an ARRAY is encoded at. For a file input `get_video()` below reads
+            # the rate from the file and overwrites this unconditionally, so the argument does
+            # nothing --- and code written on the belief that it had set the rate would be wrong
+            # with nothing in any output to show it. Say so rather than let it pass in silence.
+            warnings.warn(
+                "fps= is ignored when MgVideo is given a file: the rate is read from the file "
+                "itself, so this argument has no effect. Use resample(fps=...) to change a "
+                "file's rate, which returns a new MgVideo that has re-read it.",
+                UserWarning, stacklevel=2)
 
         self.get_video()
         self.flow = Flow(self, self.filename, self.color, self.has_audio)

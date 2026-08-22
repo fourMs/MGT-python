@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.11.4**.
+The current stable release is **MGT-python 1.12.0**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,16 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.12.0
+
+- **`contact_sheet()`** tiles one frame from each of many videos, so a corpus can be scanned by
+  eye. `grid()` covers the other case, many frames from one video. An unreadable file gets a
+  labelled tile rather than a black one, because the two look identical otherwise.
+- **`fps=` no longer fails silently on a file input.** It never had any effect there — the rate
+  is read from the file — and now it says so instead of letting code proceed on a false belief.
+- **The release itself is guarded by tests**, after preparing 1.11.4 found this page four
+  versions out of date and one published version with no git tag.
 
 ### 1.11.4
 

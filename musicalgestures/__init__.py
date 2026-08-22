@@ -4,7 +4,7 @@ import os
 # this attribute rather than carrying its own copy. Two static copies
 # drift the moment a bump touches one of them, which is how ambiscape
 # shipped three releases misreporting themselves and musiscape one.
-__version__ = "1.11.4"
+__version__ = "1.12.0"
 from musicalgestures._input_test import mg_input_test
 from musicalgestures._videoreader import mg_videoreader
 from musicalgestures._flow import Flow
@@ -64,6 +64,7 @@ from musicalgestures._exceptions import (
 )
 from musicalgestures._logging import set_log_level
 from musicalgestures._features import MgFeatures
+from musicalgestures._contactsheet import mg_contact_sheet as contact_sheet
 from musicalgestures._stream import MgVideoReader
 from musicalgestures._pipeline import MgPipeline, MgStep
 from musicalgestures._dataset import MgDataset, MgCorpus, MediaItem
