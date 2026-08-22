@@ -107,7 +107,7 @@ waveform = audio.waveform(dpi=300)
 spectrogram = audio.spectrogram()
 tempogram = audio.tempogram()
 hpss_fig = audio.hpss()
-ssm_fig = audio.ssm(features='spectrogram')
+ssm_figure = audio.ssm(features='spectrogram')
 descriptors = audio.descriptors()
 
 # MgFigure objects: access the underlying matplotlib figure via .figure

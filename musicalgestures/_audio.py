@@ -64,6 +64,44 @@ class MgAudio:
         """Audio duration in **seconds** (for an MgAudio this equals ``self.length``)."""
         return float(self.length)
 
+    # Every other stashed result is named `<name>_video`, `_image` or `_figure`;
+    # this one was `ssm_fig`. The canonical name is `ssm_figure` now, and
+    # `ssm_fig` is kept as an alias so existing scripts and notebooks keep
+    # working. See issue #346, which collects the remaining outliers; the alias
+    # goes away in 2.0.
+    #
+    # It has to be a property rather than a second instance attribute, because
+    # the two names would otherwise drift apart the moment either side is
+    # reassigned, and `show(key='ssm')` reads the instance dictionary.
+    @property
+    def ssm_fig(self) -> MgFigure:
+        """Deprecated alias for :attr:`ssm_figure`. Removed in 2.0."""
+        warnings.warn(
+            "ssm_fig is deprecated and will be removed in 2.0; use ssm_figure.",
+            DeprecationWarning, stacklevel=2)
+        try:
+            return self.ssm_figure
+        except AttributeError:
+            # Report the name that was actually asked for, so `hasattr(v, 'ssm_fig')`
+            # is False rather than raising about a different attribute.
+            raise AttributeError(
+                f"{type(self).__name__!r} object has no attribute 'ssm_fig' "
+                "(no self-similarity matrix has been computed yet)") from None
+
+    @ssm_fig.setter
+    def ssm_fig(self, value: MgFigure) -> None:
+        warnings.warn(
+            "ssm_fig is deprecated and will be removed in 2.0; use ssm_figure.",
+            DeprecationWarning, stacklevel=2)
+        self.ssm_figure = value
+
+    @ssm_fig.deleter
+    def ssm_fig(self) -> None:
+        warnings.warn(
+            "ssm_fig is deprecated and will be removed in 2.0; use ssm_figure.",
+            DeprecationWarning, stacklevel=2)
+        del self.ssm_figure
+
     def _autoshow(self, mgf: MgFigure, autoshow: bool) -> MgFigure:
         """Display the rendered figure inline when `autoshow` is True and we are
         running in a notebook (Jupyter or Colab). Outside a notebook this is a

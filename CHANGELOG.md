@@ -5,6 +5,17 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- `ssm()` stores its result as `ssm_figure`, not `ssm_fig`. Every other stashed result on
+  MgVideo already ends in `_video`, `_image` or `_figure`; this one did not, and `show(key='ssm')`
+  resolves the result by attribute name, so the outlier was visible to users rather than internal.
+  `ssm_fig` keeps working as a deprecated alias and is removed in 2.0. The alias is a property
+  rather than a second attribute, so the two names cannot drift apart when either side is
+  reassigned. Part of issue #346, which collects the remaining outliers (`motion_plot`,
+  `ssm_combined`, `pixelarray`).
+
 ## [1.12.1] — 2026-08-22
 
 ### Fixed

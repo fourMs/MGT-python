@@ -186,3 +186,68 @@ class TestSlowDot:
         diag = np.diag(S)
         for i in range(len(diag)):
             assert diag[i] >= S[i, :].max() - 1e-10
+
+
+# ---------------------------------------------------------------------------
+# ssm_figure / ssm_fig attribute naming (issue #346)
+# ---------------------------------------------------------------------------
+
+class TestSsmFigureAlias:
+    """`ssm_figure` is canonical; `ssm_fig` is the deprecated alias.
+
+    The alias has to stay in step with the canonical attribute in both
+    directions, because the point of keeping it is that a script written
+    against the old name still sees what the new code stores.
+    """
+
+    def _obj(self):
+        """An MgAudio-like object without touching the filesystem.
+
+        MgAudio.__init__ wants a real audio file, and the alias is a plain
+        class-level property, so a bare subclass exercises it exactly.
+        """
+        from musicalgestures._audio import MgAudio
+
+        class _Bare(MgAudio):
+            def __init__(self):
+                pass
+
+        return _Bare()
+
+    def test_canonical_attribute_is_visible_through_the_alias(self):
+        obj = self._obj()
+        obj.ssm_figure = "sentinel"
+        with pytest.warns(DeprecationWarning, match="use ssm_figure"):
+            assert obj.ssm_fig == "sentinel"
+
+    def test_writing_the_alias_writes_the_canonical_attribute(self):
+        obj = self._obj()
+        with pytest.warns(DeprecationWarning, match="use ssm_figure"):
+            obj.ssm_fig = "sentinel"
+        assert obj.ssm_figure == "sentinel"
+        # and it lands in the instance dictionary under the canonical name,
+        # which is what show(key='ssm') looks for
+        assert "ssm_figure" in obj.__dict__
+        assert "ssm_fig" not in obj.__dict__
+
+    def test_alias_tracks_later_reassignment(self):
+        obj = self._obj()
+        with pytest.warns(DeprecationWarning):
+            obj.ssm_fig = "first"
+        obj.ssm_figure = "second"
+        with pytest.warns(DeprecationWarning):
+            assert obj.ssm_fig == "second"
+
+    def test_deleting_through_the_alias(self):
+        obj = self._obj()
+        obj.ssm_figure = "sentinel"
+        with pytest.warns(DeprecationWarning):
+            del obj.ssm_fig
+        assert not hasattr(obj, "ssm_figure")
+
+    def test_unset_reports_the_name_that_was_asked_for(self):
+        """`hasattr(obj, 'ssm_fig')` must be False, not raise about ssm_figure."""
+        obj = self._obj()
+        with pytest.warns(DeprecationWarning):
+            with pytest.raises(AttributeError, match="ssm_fig"):
+                obj.ssm_fig

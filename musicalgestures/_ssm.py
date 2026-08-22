@@ -152,8 +152,8 @@ def mg_ssm(
             overwrite=True)
 
         # Normalize feature sequence
-        X = librosa.util.normalize(self.ssm_fig.data[0].astype('float32'), norm=norm, threshold=norm_threshold)
-        Y = librosa.util.normalize(self.ssm_fig.data[1].astype('float32'), norm=norm, threshold=norm_threshold)
+        X = librosa.util.normalize(self.ssm_figure.data[0].astype('float32'), norm=norm, threshold=norm_threshold)
+        Y = librosa.util.normalize(self.ssm_figure.data[1].astype('float32'), norm=norm, threshold=norm_threshold)
 
         # Combined SSM: stack horizontal + vertical motiongram features per frame so a
         # single self-similarity matrix reflects both axes of motion at once.
@@ -347,7 +347,7 @@ def mg_ssm(
         fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax1, aspect=50)
         fig.tight_layout()
 
-        self.ssm_fig = MgFigure(figure=None, figure_type='video.ssm', data=(vgx, vgy), layers=None, image=(target_name_vgx, target_name_vgy))
+        self.ssm_figure = MgFigure(figure=None, figure_type='video.ssm', data=(vgx, vgy), layers=None, image=(target_name_vgx, target_name_vgy))
 
         plt.savefig(out_y, format='png', facecolor='white', transparent=False)
         plt.close()
@@ -404,7 +404,7 @@ def mg_ssm(
         fig.colorbar(img1, ax=ax1, aspect=50, format="%+2.f dB")
         fig.tight_layout()
 
-        self.ssm_fig = MgFigure(figure=fig, figure_type='audio.ssm', data=X_ssm, layers=None, image=target_name)
+        self.ssm_figure = MgFigure(figure=fig, figure_type='audio.ssm', data=X_ssm, layers=None, image=target_name)
 
         plt.savefig(target_name, format='png', facecolor='white', transparent=False)
         plt.close()
@@ -467,7 +467,7 @@ def mg_ssm(
         fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax1, aspect=50)
         fig.tight_layout()
 
-        self.ssm_fig = MgFigure(figure=fig, figure_type='audio.ssm', data=X_ssm, layers=None, image=target_name)
+        self.ssm_figure = MgFigure(figure=fig, figure_type='audio.ssm', data=X_ssm, layers=None, image=target_name)
 
         plt.savefig(target_name, format='png', facecolor='white', transparent=False)
         plt.close()
@@ -533,7 +533,7 @@ def mg_ssm(
         fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax1, aspect=50)
         fig.tight_layout()
 
-        self.ssm_fig = MgFigure(figure=fig, figure_type='audio.ssm', data=X_ssm, layers=None, image=target_name)
+        self.ssm_figure = MgFigure(figure=fig, figure_type='audio.ssm', data=X_ssm, layers=None, image=target_name)
 
         plt.savefig(target_name, format='png', facecolor='white', transparent=False)
         plt.close()
