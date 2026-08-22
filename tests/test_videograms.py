@@ -31,3 +31,36 @@ class Test_videograms:
         for videogram in result:
             assert type(videogram) == musicalgestures.MgImage
             assert os.path.isfile(videogram.filename) == True
+
+    def test_slit_mode(self, testvideo_avi):
+        mg = musicalgestures.MgVideo(testvideo_avi)
+        width, height = musicalgestures._utils.get_widthheight(testvideo_avi)
+        framecount = musicalgestures._utils.get_framecount(testvideo_avi)
+        result = mg.videograms(mode="slit", line_x=0, line_y=0)
+
+        assert os.path.isfile(result[0].filename) == True
+        assert os.path.isfile(result[1].filename) == True
+        assert result[0].filename.endswith("_vgv_slit.png")
+        assert result[1].filename.endswith("_vgh_slit.png")
+
+        x_width, x_height = musicalgestures._utils.get_widthheight(result[0].filename)
+        y_width, y_height = musicalgestures._utils.get_widthheight(result[1].filename)
+        assert x_width == width
+        assert x_height == framecount
+        assert y_width == framecount
+        assert y_height == height
+
+    def test_slit_mode_validates_inputs(self, testvideo_avi):
+        mg = musicalgestures.MgVideo(testvideo_avi)
+        width, height = musicalgestures._utils.get_widthheight(testvideo_avi)
+
+        result = mg.videograms(mode="average", line_x=width, line_y=height)
+        assert os.path.isfile(result[0].filename) == True
+        assert os.path.isfile(result[1].filename) == True
+
+        with pytest.raises(ValueError):
+            mg.videograms(mode="unknown")
+        with pytest.raises(ValueError):
+            mg.videograms(mode="slit", line_x=width)
+        with pytest.raises(ValueError):
+            mg.videograms(mode="slit", line_y=height)
