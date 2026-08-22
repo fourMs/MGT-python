@@ -119,9 +119,9 @@ def main() -> None:
                   type=click.Choice(["average", "slit"], case_sensitive=False),
                   help="Videogram mode: axis average or slit (photo-finish style).")
     @click.option("--line-x", type=int,
-                  help="Column index used for slit mode horizontal videogram.")
+                  help="Column index used for slit mode vertical videogram.")
     @click.option("--line-y", type=int,
-                  help="Row index used for slit mode vertical videogram.")
+                  help="Row index used for slit mode horizontal videogram.")
     @click.option("--overwrite", is_flag=True, help="Overwrite existing output files.")
     def cmd_videograms(filename, mode, line_x, line_y, overwrite):
         """Render horizontal and vertical videograms for FILENAME."""

@@ -54,6 +54,10 @@ class Test_videograms:
         mg = musicalgestures.MgVideo(testvideo_avi)
         width, height = musicalgestures._utils.get_widthheight(testvideo_avi)
 
+        result = mg.videograms(mode="average", line_x=width, line_y=height)
+        assert os.path.isfile(result[0].filename) == True
+        assert os.path.isfile(result[1].filename) == True
+
         with pytest.raises(ValueError):
             mg.videograms(mode="unknown")
         with pytest.raises(ValueError):

@@ -29,9 +29,9 @@ def videograms_ffmpeg(
         mode (str, optional): Either ``'average'`` (default) or ``'slit'``.
             ``'slit'`` uses one column/row line per frame instead of averaging.
         line_x (int, optional): Source x-position (column index) used in slit
-            mode for the horizontal videogram. Defaults to the center column.
+            mode for the vertical videogram. Defaults to the center column.
         line_y (int, optional): Source y-position (row index) used in slit mode
-            for the vertical videogram. Defaults to the center row.
+            for the horizontal videogram. Defaults to the center row.
 
     Returns:
         MgList: An MgList with the MgImage objects referring to the vertical and horizontal videograms respectively. 
@@ -53,8 +53,11 @@ def videograms_ffmpeg(
             raise ValueError(f"{name} must be an integer in the range [0, {max_size - 1}].")
         return line
 
-    slit_x = _resolve_line(line_x, width, "line_x", width // 2)
-    slit_y = _resolve_line(line_y, height, "line_y", height // 2)
+    slit_x = width // 2
+    slit_y = height // 2
+    if mode == "slit":
+        slit_x = _resolve_line(line_x, width, "line_x", width // 2)
+        slit_y = _resolve_line(line_y, height, "line_y", height // 2)
 
     def calc_skipfactor(width, height, framecount):
         """
