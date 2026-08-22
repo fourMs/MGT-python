@@ -5,6 +5,24 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+- Averaged frames are ROUNDED rather than truncated. Every averaging path finished with
+  `(acc / n).astype(np.uint8)`, which discards the fractional part instead of rounding it.
+  On a synthetic stack the result sits 0.497 levels below the true mean and half the pixels
+  differ by one from the rounded answer, always downward — a small, systematic bias in a
+  frame whose purpose is to be a clean background to subtract. Seven places in four files:
+  `_spacetime._average_frame`, `_heatmap`, the three pose average frames, and the two
+  motiongram row and column means. `_remap360` already rounded, which is where the
+  convention came from.
+
+  Output pixel values may therefore change by one level. Nothing about the API changes.
+
+  Pinned by two tests in `tests/test_average.py`, because the existing suite passed either
+  way: that truncation is strictly below the true mean where rounding is not, and a guard
+  that reads the package for any accumulator divided by a count and cast without rounding.
+
 ## [1.11.3] — 2026-08-19
 
 ### Changed
