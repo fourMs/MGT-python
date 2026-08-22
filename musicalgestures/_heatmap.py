@@ -90,7 +90,7 @@ def mg_heatmap(
     if n == 0:
         raise RuntimeError(f"Could not read any frames from {self.filename}.")
 
-    avg_frame = (bg_accum / n).astype(np.uint8)
+    avg_frame = np.rint(bg_accum / n).astype(np.uint8)
 
     # Optional smoothing of the accumulated motion
     if blur and blur > 0:

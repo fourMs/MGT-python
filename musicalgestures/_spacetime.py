@@ -119,7 +119,7 @@ def _average_frame(self):
     pb.progress(self.length)
     if n == 0:
         raise RuntimeError(f"Could not read frames from {self.filename}.")
-    result = (acc / n).astype(np.uint8)
+    result = np.rint(acc / n).astype(np.uint8)
     self._avg_frame_cache = (self.filename, result)
     return result
 

@@ -718,7 +718,7 @@ def pose(
         'filename': filename, 'of': of, 'fex': fex, 'output_fex': output_fex,
         'has_audio': self.has_audio,
     }
-    avg_frame = (avg_acc / avg_n).astype(np.uint8) if (avg_acc is not None and avg_n > 0) else None
+    avg_frame = np.rint(avg_acc / avg_n).astype(np.uint8) if (avg_acc is not None and avg_n > 0) else None
     average_image, trajectories_image = _render_pose_extras(
         data, names, POSE_PAIRS, self.width, self.height, self.fps,
         avg_frame, of, save_average_pose, save_trajectories,
@@ -886,7 +886,7 @@ def _rerender_pose_from_cache(self, style='both', overlay=True, background='blac
         if text_format is not None:
             _save_pose_txt(of, data, headers, text_format, target_name_data, overwrite)
 
-    avg_frame = (avg_acc / avg_n).astype(np.uint8) if (avg_acc is not None and avg_n > 0) else None
+    avg_frame = np.rint(avg_acc / avg_n).astype(np.uint8) if (avg_acc is not None and avg_n > 0) else None
     average_image, trajectories_image = _render_pose_extras(
         data, names, connections, width, height, fps, avg_frame, of,
         save_average_pose, save_trajectories, target_name_average, target_name_trajectories,
@@ -1291,7 +1291,7 @@ def _pose_mediapipe(
         'filename': filename, 'of': of, 'fex': fex, 'output_fex': output_fex,
         'has_audio': self.has_audio,
     }
-    avg_frame = (avg_acc / avg_n).astype(np.uint8) if (avg_acc is not None and avg_n > 0) else None
+    avg_frame = np.rint(avg_acc / avg_n).astype(np.uint8) if (avg_acc is not None and avg_n > 0) else None
     average_image, trajectories_image = _render_pose_extras(
         data, names, MEDIAPIPE_POSE_CONNECTIONS, self.width, self.height, self.fps,
         avg_frame, of, save_average_pose, save_trajectories,

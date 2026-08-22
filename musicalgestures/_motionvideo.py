@@ -240,8 +240,8 @@ def mg_motion(
                         aom = np.append(aom, np.array(aombite).reshape(1, 4), axis=0)
 
             if save_motiongrams:
-                movement_y = np.mean(motion_frame, axis=1).reshape(self.height, 1, 3).astype(np.uint8)
-                movement_x = np.mean(motion_frame, axis=0).reshape(1, self.width, 3).astype(np.uint8)
+                movement_y = np.rint(np.mean(motion_frame, axis=1)).reshape(self.height, 1, 3).astype(np.uint8)
+                movement_x = np.rint(np.mean(motion_frame, axis=0)).reshape(1, self.width, 3).astype(np.uint8)
 
                 gramy = np.append(gramy, movement_y, axis=1).astype(np.uint8)
                 gramx = np.append(gramx, movement_x, axis=0).astype(np.uint8)
