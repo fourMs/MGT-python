@@ -63,7 +63,7 @@ def mg_warp_audiovisual_beats(self, audio_file: str, speed: tuple = (0.5, 2), da
     else:
         directograms = data
         vidcap = cv2.VideoCapture(self.filename)
-        fps = int(vidcap.get(cv2.CAP_PROP_FPS))
+        fps = float(vidcap.get(cv2.CAP_PROP_FPS))
 
     # COMPUTE AUDIO AND VISUAL BEATS --------------------------------------------------------------------------------------------
 

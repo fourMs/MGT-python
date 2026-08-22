@@ -97,7 +97,7 @@ class Flow:
 
         vidcap = cv2.VideoCapture(filename)
 
-        fps = int(vidcap.get(cv2.CAP_PROP_FPS))
+        fps = float(vidcap.get(cv2.CAP_PROP_FPS))
         width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -357,7 +357,7 @@ class Flow:
         vidcap = cv2.VideoCapture(filename)
         ret, frame = vidcap.read()
 
-        fps = int(vidcap.get(cv2.CAP_PROP_FPS))
+        fps = float(vidcap.get(cv2.CAP_PROP_FPS))
         width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))

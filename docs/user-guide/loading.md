@@ -168,14 +168,16 @@ mv = mg.MgVideo('/path/to/video.mp4')
 freq = mg.dominant_frequency(signal, mv.fps, fmin=0.2, fmax=8.0)   # not fps=25
 ```
 
-!!! warning "Seven analyses truncate the rate to an integer"
+!!! note "Seven analyses used to truncate the rate to an integer — fixed 2026-08-22"
     `_directograms`, `_flow` (both call sites), `_history`, `_impacts`, `_warp` and
-    `_videoadjust` read the rate as `int(cv2.CAP_PROP_FPS)`. On any NTSC-rate source that is
-    `int(29.97) == 29`, so every time and frequency they derive is 3.2 % low — the third row of
-    the table above. In `_flow` and `_history` the truncated value is also written into the
-    output file's declared rate, so a 29.97 fps input comes back out as a 29 fps file. This is a
-    known defect and not a convention; treat figures from those six modules as rate-approximate
-    on non-integer-rate footage until it is fixed.
+    `_videoadjust` read the rate as `int(cv2.CAP_PROP_FPS)`. On any NTSC-rate source that was
+    `int(29.97) == 29`, so every time and frequency they derived was 3.2 % low, and in `_flow`
+    and `_history` the truncated value was written into the output file's declared rate, so a
+    29.97 fps input came back out as a 29 fps file. All seven now keep the true rate.
+
+    Figures produced by those modules BEFORE this fix are rate-approximate on non-integer-rate
+    footage and are not comparable with figures produced after it. A guard test in
+    `tests/test_average.py` fails if any module reads the rate through `int()` again.
 
 ### Checking a file's rate against its own contents
 

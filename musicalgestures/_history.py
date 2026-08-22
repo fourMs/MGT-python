@@ -138,7 +138,7 @@ def history_cv2(self, filename: str | None = None, history_length: int = 10, wei
     ret, frame = video.read()
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
 
-    fps = int(video.get(cv2.CAP_PROP_FPS))
+    fps = float(video.get(cv2.CAP_PROP_FPS))
     width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
     length = int(video.get(cv2.CAP_PROP_FRAME_COUNT))

@@ -90,7 +90,7 @@ def mg_directograms(self, title: str | None = None, filtertype: str = 'Adaptativ
     _ensure_numba()  # JIT-compile the directogram kernels on first use
 
     vidcap = cv2.VideoCapture(filename)
-    fps = int(vidcap.get(cv2.CAP_PROP_FPS))
+    fps = float(vidcap.get(cv2.CAP_PROP_FPS))
     length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
 
     pb = MgProgressbar(total=length, prefix='Rendering directogram:')

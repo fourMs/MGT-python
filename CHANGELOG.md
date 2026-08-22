@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- The frame rate is no longer truncated to an integer. Seven call sites read
+  `int(vidcap.get(cv2.CAP_PROP_FPS))` — `_directograms`, `_flow` (twice), `_history`,
+  `_impacts`, `_warp` and `_videoadjust`. On NTSC-rate footage that is `int(29.97) == 29`, so
+  every time and frequency they derived was 3.2 % low, and `_flow` and `_history` also wrote
+  the truncated value into the output file's declared rate, turning a 29.97 fps input into a
+  29 fps file. The docs carried this as a known defect; it is fixed and the note now says so.
+
+  Every use was checked to be safe with a non-integer rate: divisions, `cv2.VideoWriter`,
+  ffmpeg `-r` and librosa `sr` all take a float, and `_impacts` already wrapped `int()` where
+  it needed a whole number. Figures produced before this change are not comparable with
+  figures produced after it on non-integer-rate footage.
+
 - Averaged frames are ROUNDED rather than truncated. Every averaging path finished with
   `(acc / n).astype(np.uint8)`, which discards the fractional part instead of rounding it.
   On a synthetic stack the result sits 0.497 levels below the true mean and half the pixels

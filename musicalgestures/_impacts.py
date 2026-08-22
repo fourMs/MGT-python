@@ -106,7 +106,7 @@ def mg_impacts(self, title: str | None = None, detection: bool = True, local_mea
     _ensure_numba()                # JIT-compile impact_detection on first use
 
     vidcap = cv2.VideoCapture(filename)
-    fps = int(vidcap.get(cv2.CAP_PROP_FPS))
+    fps = float(vidcap.get(cv2.CAP_PROP_FPS))
     width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))

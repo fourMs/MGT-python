@@ -97,3 +97,35 @@ class Test_AverageRounding:
                 if pat.search(line) and "rint" not in line:
                     bad.append(f"{os.path.basename(f)}:{i}: {line.strip()[:70]}")
         assert not bad, "an accumulator is truncated rather than rounded:\n" + "\n".join(bad)
+
+
+class Test_FrameRateNotTruncated:
+    """The frame rate must not be read through `int()`.
+
+    Until 2026-08-22 seven call sites read `int(vidcap.get(cv2.CAP_PROP_FPS))`.
+    On any NTSC-rate source that is `int(29.97) == 29`, so every time and
+    frequency derived from it was 3.2 per cent low, and in `_flow` and
+    `_history` the truncated value was written into the output file's declared
+    rate as well. The docs carried it as a known defect.
+    """
+
+    def test_no_module_truncates_the_rate(self):
+        import glob
+        import os
+        import re
+        here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        bad = []
+        pat = re.compile(r"int\(\s*\w+\.get\(\s*cv2\.CAP_PROP_FPS")
+        for f in glob.glob(os.path.join(here, "musicalgestures", "*.py")):
+            for i, line in enumerate(open(f, encoding="utf-8"), 1):
+                if pat.search(line):
+                    bad.append(f"{os.path.basename(f)}:{i}: {line.strip()[:70]}")
+        assert not bad, "the frame rate is truncated to an integer:\n" + "\n".join(bad)
+
+    def test_ntsc_rate_survives(self):
+        """29.97 must not become 29 anywhere a rate is carried."""
+        ntsc = 30000 / 1001
+        assert int(ntsc) == 29                      # what the old code did
+        assert abs(float(ntsc) - 29.97) < 0.01      # what it does now
+        # 3.2 per cent, the figure the docs quoted
+        assert abs((ntsc - int(ntsc)) / ntsc - 0.0324) < 0.002

@@ -146,7 +146,7 @@ def fixed_frames_ffmpeg(filename, frames=0, target_name=None, overwrite=True):
 
     cap = cv2.VideoCapture(filename)
     nb_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    fps = int(cap.get(cv2.CAP_PROP_FPS))
+    fps = float(cap.get(cv2.CAP_PROP_FPS))
 
     pts_ratio = frames / nb_frames
     atempo_ratio = 1 / pts_ratio
