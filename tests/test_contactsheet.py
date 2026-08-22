@@ -1,5 +1,6 @@
 """One frame from each of many videos, tiled. `grid()` does one video; this does a corpus."""
 import os
+import shutil
 
 import pytest
 
@@ -8,12 +9,18 @@ import musicalgestures
 
 @pytest.fixture(scope="module")
 def clips(tmp_path_factory):
+    """Three stand-ins for a corpus.
+
+    COPIED, not hard-linked. `os.link` raised WinError 17 on the Windows runner --- the temp
+    directory and the packaged example sit on different drives, and a hard link cannot cross one.
+    It passed locally on Linux, which is what CI is for.
+    """
     d = tmp_path_factory.mktemp("corpus")
     src = musicalgestures.examples.dance
     out = []
     for i in range(3):
         p = str(d / f"clip{i}.mp4")
-        os.link(src, p)
+        shutil.copy(src, p)
         out.append(p)
     return out, str(d)
 
