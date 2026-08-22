@@ -40,7 +40,7 @@ class MgList():
 
         self.objectlist = crawler(objectlist)
 
-    from musicalgestures._show import mg_show
+    from musicalgestures._show import mg_show  # type: ignore[misc]
     from musicalgestures._utils import MgFigure, MgImage
 
     def show(self, filename=None, key=None, mode='windowed', window_width=640, window_height=480, window_title=None):

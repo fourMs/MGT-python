@@ -37,8 +37,8 @@ class MgVideo(MgAudio):
         self,
         filename: Union[str, List[str]],
         array=None,
-        fps: float = None,
-        path: str = None,
+        fps: float | None = None,
+        path: str | None = None,
         # Video parameters
         filtertype: str = "Regular",
         threshold: float = 0.05,
@@ -123,7 +123,7 @@ class MgVideo(MgAudio):
         # Check input and if FFmpeg is properly installed
         self.test_input()
 
-        if all(arg is not None for arg in [self.array, self.fps]):
+        if self.array is not None and self.fps is not None:
             self.from_numpy(self.array, self.fps)
         elif fps is not None:
             # `fps` is the rate an ARRAY is encoded at. For a file input `get_video()` below reads
@@ -139,43 +139,46 @@ class MgVideo(MgAudio):
         self.get_video()
         self.flow = Flow(self, self.filename, self.color, self.has_audio)
 
-    from musicalgestures._motionvideo import mg_motion as motion
-    from musicalgestures._motionvideo import mg_motiongrams as motiongrams
-    from musicalgestures._motionvideo import mg_motiondata as motiondata
-    from musicalgestures._motionvideo import mg_motionplots as motionplots
-    from musicalgestures._motionvideo import mg_motionvideo as motionvideo
-    from musicalgestures._motionvideo import mg_motionscore as motionscore
-    from musicalgestures._motionvideo_mp_run import mg_motion_mp as motion_mp
-    from musicalgestures._subtract import mg_subtract as subtract
-    from musicalgestures._ssm import mg_ssm as ssm
-    from musicalgestures._videograms import videograms_ffmpeg as videograms
-    from musicalgestures._directograms import mg_directograms as directograms
-    from musicalgestures._warp import (
+    # Methods are bound by importing the implementing function at class scope. mypy calls this
+    # "Unsupported class scoped import" and it is the toolbox's central idiom, so the ignores
+    # below are permanent rather than a backlog item. Issue #350.
+    from musicalgestures._motionvideo import mg_motion as motion  # type: ignore[misc]
+    from musicalgestures._motionvideo import mg_motiongrams as motiongrams  # type: ignore[misc]
+    from musicalgestures._motionvideo import mg_motiondata as motiondata  # type: ignore[misc]
+    from musicalgestures._motionvideo import mg_motionplots as motionplots  # type: ignore[misc]
+    from musicalgestures._motionvideo import mg_motionvideo as motionvideo  # type: ignore[misc]
+    from musicalgestures._motionvideo import mg_motionscore as motionscore  # type: ignore[misc]
+    from musicalgestures._motionvideo_mp_run import mg_motion_mp as motion_mp  # type: ignore[misc]
+    from musicalgestures._subtract import mg_subtract as subtract  # type: ignore[misc]
+    from musicalgestures._ssm import mg_ssm as ssm  # type: ignore[misc]
+    from musicalgestures._videograms import videograms_ffmpeg as videograms  # type: ignore[misc]
+    from musicalgestures._directograms import mg_directograms as directograms  # type: ignore[misc]
+    from musicalgestures._warp import (  # type: ignore[misc]
         mg_warp_audiovisual_beats as warp_audiovisual_beats,
     )
-    from musicalgestures._blurfaces import mg_blurfaces as blur_faces
-    from musicalgestures._impacts import mg_impacts as impacts
-    from musicalgestures._grid import mg_grid as grid
-    from musicalgestures._videoadjust import mg_resample as resample
-    from musicalgestures._motionvideo import save_analysis
+    from musicalgestures._blurfaces import mg_blurfaces as blur_faces  # type: ignore[misc]
+    from musicalgestures._impacts import mg_impacts as impacts  # type: ignore[misc]
+    from musicalgestures._grid import mg_grid as grid  # type: ignore[misc]
+    from musicalgestures._videoadjust import mg_resample as resample  # type: ignore[misc]
+    from musicalgestures._motionvideo import save_analysis  # type: ignore[misc]
 
     # from musicalgestures._cropvideo import mg_cropvideo, find_motion_box, find_total_motion_box
-    from musicalgestures._show import mg_show as show
-    from musicalgestures._info import mg_info as info
-    from musicalgestures._history import history_ffmpeg as history
-    from musicalgestures._history import history_cv2
-    from musicalgestures._blend import mg_blend_image as blend
-    from musicalgestures._frameaverage import (
+    from musicalgestures._show import mg_show as show  # type: ignore[misc]
+    from musicalgestures._info import mg_info as info  # type: ignore[misc]
+    from musicalgestures._history import history_ffmpeg as history  # type: ignore[misc]
+    from musicalgestures._history import history_cv2  # type: ignore[misc]
+    from musicalgestures._blend import mg_blend_image as blend  # type: ignore[misc]
+    from musicalgestures._frameaverage import (  # type: ignore[misc]
         mg_pixelarray as pixelarray,
         mg_pixelarray_cv2 as pixelarray_cv2,
         mg_pixelarray_stats as pixelarray_stats
     )
-    from musicalgestures._heatmap import mg_heatmap as heatmap
-    from musicalgestures._motiontempo import mg_motiontempo as motiontempo
-    from musicalgestures._motionvectors import mg_motionvectors as motionvectors
-    from musicalgestures._eulerian import mg_eulerian as eulerian
-    from musicalgestures._sonification import mg_sonomotiongram as sonomotiongram
-    from musicalgestures._spacetime import (
+    from musicalgestures._heatmap import mg_heatmap as heatmap  # type: ignore[misc]
+    from musicalgestures._motiontempo import mg_motiontempo as motiontempo  # type: ignore[misc]
+    from musicalgestures._motionvectors import mg_motionvectors as motionvectors  # type: ignore[misc]
+    from musicalgestures._eulerian import mg_eulerian as eulerian  # type: ignore[misc]
+    from musicalgestures._sonification import mg_sonomotiongram as sonomotiongram  # type: ignore[misc]
+    from musicalgestures._spacetime import (  # type: ignore[misc]
         mg_stroboscope as stroboscope,
         mg_silhouette_waterfall as silhouette_waterfall,
         mg_motionhistory as motionhistory,
@@ -183,20 +186,20 @@ class MgVideo(MgAudio):
     )
     # Overrides the inherited audio beat_statistics with a source-aware version
     # (source='audio' delegates to the audio analysis; source='motion' uses movement onsets).
-    from musicalgestures._movementbeats import mg_beat_statistics as beat_statistics
-    from musicalgestures._movementbeats import mg_tempo_similarity as tempo_similarity
-    from musicalgestures._motiondescriptors import mg_motiondescriptors as motiondescriptors
-    from musicalgestures._audio_video import (
+    from musicalgestures._movementbeats import mg_beat_statistics as beat_statistics  # type: ignore[misc]
+    from musicalgestures._movementbeats import mg_tempo_similarity as tempo_similarity  # type: ignore[misc]
+    from musicalgestures._motiondescriptors import mg_motiondescriptors as motiondescriptors  # type: ignore[misc]
+    from musicalgestures._audio_video import (  # type: ignore[misc]
         mg_phase_synchrony as phase_synchrony,
         mg_structure_comparison as structure_comparison,
         mg_body_audio_coupling as body_audio_coupling,
         mg_dynamics_coupling as dynamics_coupling,
     )
-    from musicalgestures._pose import pose
-    from musicalgestures._pose import mg_pose_waterfall as pose_waterfall
-    from musicalgestures._pose import mg_pose_segments as pose_segments
-    from musicalgestures._pose import mg_pose_center as pose_center
-    from musicalgestures._pose import mg_pose_distance as pose_distance
+    from musicalgestures._pose import pose  # type: ignore[misc]
+    from musicalgestures._pose import mg_pose_waterfall as pose_waterfall  # type: ignore[misc]
+    from musicalgestures._pose import mg_pose_segments as pose_segments  # type: ignore[misc]
+    from musicalgestures._pose import mg_pose_center as pose_center  # type: ignore[misc]
+    from musicalgestures._pose import mg_pose_distance as pose_distance  # type: ignore[misc]
 
     def __repr__(self) -> str:
         w, h = getattr(self, 'width', None), getattr(self, 'height', None)
@@ -415,6 +418,8 @@ class MgVideo(MgAudio):
                 ]
                 process = ffmpeg_cmd(cmd, total_time=array.shape[0], pipe="write")
             process.stdin.write(frame.astype(np.uint8))
+        # the loop opens the process on its first frame, so this only holds for a non-empty array
+        assert process is not None, "no frames were written: the array is empty"
         process.stdin.close()
         process.wait()
 

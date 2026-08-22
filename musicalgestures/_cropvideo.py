@@ -42,6 +42,8 @@ def find_motion_box_ffmpeg(filename: str, motion_box_thresh: float = 0.1, motion
 
     process = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+    # stdout=PIPE guarantees a stream; the annotation is Optional for the general case
+    assert process.stdout is not None, "ffmpeg was started without a readable output stream"
 
     try:
         while True:
@@ -94,6 +96,9 @@ def find_motion_box_ffmpeg(filename: str, motion_box_thresh: float = 0.1, motion
 
 drawing = False # True if mouse is pressed
 xi, yi = -1, -1
+ref_point: list = []  # the two corners of the drawn rectangle, set by the mouse callback
+crop = False
+x = y = w = h = 0  # the crop box, set by the cropping window or by manual entry
 
 def cropping_window(filename: str):
 
@@ -150,22 +155,38 @@ def cropping_window(filename: str):
     # close all open windows
     cv2.destroyAllWindows()
 
-    y_start = ref_point[0][1]
-    y_stop = ref_point[1][1]
-    x_start = ref_point[0][0]
-    x_stop = ref_point[1][0] 
+    return crop_box_from_points(ref_point)
+
+
+def crop_box_from_points(points: list) -> tuple[int, int, int, int]:
+    """Turn the two dragged corners into an ffmpeg crop box.
+
+    The corners arrive in the order they were clicked, so either may be the
+    top-left one; the box is normalised here rather than at each call site.
+
+    Args:
+        points (list): The two (x, y) corners of the drawn rectangle.
+
+    Returns:
+        tuple: (w, h, x, y) — the box width, height, and top-left corner.
+
+    Raises:
+        ValueError: If fewer than two corners were recorded, i.e. no rectangle
+            was drawn.
+    """
+    if len(points) < 2:
+        raise ValueError(
+            "No crop area was selected. Drag a rectangle across the frame with the left mouse "
+            "button held down, then press 'c' to crop.")
+
+    (x_start, y_start), (x_stop, y_stop) = points[0], points[1]
 
     if x_stop < x_start:
-        temp = x_start
-        x_start = x_stop
-        x_stop = temp
+        x_start, x_stop = x_stop, x_start
     if y_stop < y_start:
-        temp = y_start
-        y_start = y_stop
-        y_stop = temp
+        y_start, y_stop = y_stop, y_start
 
-    w, h, x, y = x_stop - x_start, y_stop - y_start, x_start, y_start
-    return w, h, x, y
+    return x_stop - x_start, y_stop - y_start, x_start, y_start
 
 def mg_cropvideo_ffmpeg(
         filename: str,

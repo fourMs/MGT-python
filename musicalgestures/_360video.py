@@ -157,7 +157,7 @@ def calibrate_dual_fisheye_fov(front_file, back_file, time_s: float = 1.0,
             subprocess.run(["ffmpeg", "-y", "-v", "error", "-ss", str(time_s),
                             "-i", str(f), "-frames:v", "1", out], check=True)
             frames[name] = out
-        best = (None, float("inf"))
+        best: tuple[float | None, float] = (None, float("inf"))
         for fov in candidates:
             eqs = {}
             for name, yaw in (("front", 0), ("back", 180)):
@@ -186,9 +186,9 @@ def calibrate_dual_fisheye_fov(front_file, back_file, time_s: float = 1.0,
     return best[0]
 
 
-def stitch_dual_fisheye(front_file, back_file, target_name: str = None,
-                        fov: float = None, feather_deg: float = 8.0,
-                        width: int = None, height: int = None,
+def stitch_dual_fisheye(front_file, back_file, target_name: str | None = None,
+                        fov: float | None = None, feather_deg: float = 8.0,
+                        width: int | None = None, height: int | None = None,
                         crf: int = 21, preset: str = "fast",
                         print_cmd: bool = False):
     """
@@ -298,8 +298,8 @@ class Mg360Video(MgVideo):
     def __init__(
         self,
         filename: str,
-        projection: Union[str, Projection] = None,
-        camera: str = None,
+        projection: Union[str, Projection] | None = None,
+        camera: str | None = None,
         **kwargs,
     ):
         """
@@ -333,12 +333,12 @@ class Mg360Video(MgVideo):
         self.show = partial(self.show, embed=True)
 
     # directional (azimuthal) analyses, after Guo's ambiviz
-    from musicalgestures._anglegram import mg_anglegram as anglegram
-    from musicalgestures._anglegram import mg_aem_overlay as aem_overlay
+    from musicalgestures._anglegram import mg_anglegram as anglegram  # type: ignore[misc]
+    from musicalgestures._anglegram import mg_aem_overlay as aem_overlay  # type: ignore[misc]
 
     def view(self, yaw: float = 0, pitch: float = 0, roll: float = 0,
-             h_fov: float = 90, v_fov: float = 60, width: int = None,
-             height: int = None, target_name: str = None,
+             h_fov: float = 90, v_fov: float = 60, width: int | None = None,
+             height: int | None = None, target_name: str | None = None,
              print_cmd: bool = False) -> "MgVideo":
         """
         Extract a flat (rectilinear/perspective) view in a chosen direction
@@ -381,7 +381,7 @@ class Mg360Video(MgVideo):
         return MgVideo(target_name, returned_by_process=True)
 
     @classmethod
-    def from_dual_fisheye(cls, front_file, back_file, camera: str = None,
+    def from_dual_fisheye(cls, front_file, back_file, camera: str | None = None,
                           **stitch_kwargs):
         """
         Stitch a dual-fisheye pair (e.g. the `_00_`/`_10_` .insv files of an
@@ -395,7 +395,7 @@ class Mg360Video(MgVideo):
     def convert_projection(
         self,
         target_projection: Union[Projection, str],
-        options: Dict[str, str] = None,
+        options: Dict[str, str] | None = None,
         print_cmd: bool = False,
         test: bool = False,
     ):
@@ -435,14 +435,15 @@ class Mg360Video(MgVideo):
             )
 
             # parse options
+            options_str = ""
             if options:
-                options = "".join([f"{k}={options[k]}:" for k in options])[:-1]
+                options_str = "".join([f"{k}={options[k]}:" for k in options])[:-1]
                 cmds = [
                     "ffmpeg",
                     "-i",
                     self.filename,
                     "-vf",
-                    f"v360={self.projection}:{target_projection}:{options}",
+                    f"v360={self.projection}:{target_projection}:{options_str}",
                     output_name,
                 ]
             else:

@@ -27,7 +27,7 @@ class MgAudio:
     def __init__(
             self,
             filename: str,
-            sr: int = None,
+            sr: int | None = None,
             n_fft: int = 2048,
             hop_length: int = 512,
             ):
@@ -112,7 +112,7 @@ class MgAudio:
             mgf.show()
         return mgf
 
-    from musicalgestures._ssm import mg_ssm as ssm
+    from musicalgestures._ssm import mg_ssm as ssm  # type: ignore[misc]
 
     def _load(self):
         """
@@ -178,7 +178,7 @@ class MgAudio:
             else:  
                 ax.xaxis.set_major_formatter(ticker.FixedFormatter(list(time)))
 
-    def waveform(self, dpi: int = 300, autoshow: bool = True, raw: bool = False, colored: bool = False, image_width: int = 2500, image_height: int = 500, fmin: int = 500, fmax: int | None = None, cmap: str = 'freesound', original_time: bool = True, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure:
+    def waveform(self, dpi: int = 300, autoshow: bool = True, raw: bool = False, colored: bool = False, image_width: int = 2500, image_height: int = 500, fmin: int = 500, fmax: int | None = None, cmap: str = 'freesound', original_time: bool = True, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure | None:
         """
         Renders a figure showing the waveform of the video/audio file.
 
@@ -198,12 +198,14 @@ class MgAudio:
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
         Returns:
-            MgFigure: An MgFigure object referring to the internal figure and its data.
+            MgFigure | None: An MgFigure object referring to the internal figure and its
+                data, or None when the figure could not be computed (no audio track, or
+                an argument the method reports on and declines).
         """
 
         if not has_audio(self.filename):
             print('The video has no audio track.')
-            return
+            return None
 
         target_name = resolve_filename(self.of, '_waveform.png', target_name, overwrite)
 
@@ -285,7 +287,7 @@ class MgAudio:
         return self._autoshow(mgf, autoshow)
 
 
-    def spectrogram(self, fmin: float = 0.0, fmax: float | None = None, n_mels: int = 128, power: float = 2.0, top_db: float = 80.0, dpi: int = 300, autoshow: bool = True, raw: bool = False, original_time: bool = False, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure:
+    def spectrogram(self, fmin: float = 0.0, fmax: float | None = None, n_mels: int = 128, power: float = 2.0, top_db: float = 80.0, dpi: int = 300, autoshow: bool = True, raw: bool = False, original_time: bool = False, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure | None:
         """
         Renders a figure showing the mel-scaled spectrogram of the video/audio file.
 
@@ -304,12 +306,14 @@ class MgAudio:
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
         Returns:
-            MgFigure: An MgFigure object referring to the internal figure and its data.
+            MgFigure | None: An MgFigure object referring to the internal figure and its
+                data, or None when the figure could not be computed (no audio track, or
+                an argument the method reports on and declines).
         """
 
         if not has_audio(self.filename):
             print('The video has no audio track.')
-            return
+            return None
 
         target_name = resolve_filename(self.of, '_spectrogram.png', target_name, overwrite)
 
@@ -345,9 +349,8 @@ class MgAudio:
         xmax = S.shape[1] * self.hop_length / sr
         ax.set_xlim(0, xmax)
 
-        freq_ticks = [elem*100 for elem in range(10)]
-        freq_ticks = []
-        freq = 100
+        freq_ticks: list[float] = []
+        freq = 100.0
         while freq < sr/2:
             freq_ticks.append(freq)
             freq *= 1.3
@@ -394,7 +397,7 @@ class MgAudio:
 
         return self._autoshow(mgf, autoshow)
 
-    def tempogram(self, dpi: int = 300, autoshow: bool = True, raw: bool = False, onset_strength: bool = True, original_time: bool = False, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure:
+    def tempogram(self, dpi: int = 300, autoshow: bool = True, raw: bool = False, onset_strength: bool = True, original_time: bool = False, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure | None:
         """
         Renders a figure with a plots of onset strength and tempogram of the video/audio file.
 
@@ -411,12 +414,14 @@ class MgAudio:
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
         Returns:
-            MgFigure: An MgFigure object referring to the internal figure and its data.
+            MgFigure | None: An MgFigure object referring to the internal figure and its
+                data, or None when the figure could not be computed (no audio track, or
+                an argument the method reports on and declines).
         """
 
         if not has_audio(self.filename):
             print('The video has no audio track.')
-            return
+            return None
 
         target_name = resolve_filename(self.of, '_tempogram.png', target_name, overwrite)
 
@@ -499,7 +504,7 @@ class MgAudio:
 
         return self._autoshow(mgf, autoshow)
     
-    def hpss(self, dim: int = 2, n_mels: int = 128, fmin: float = 0.0, fmax: float | None = None, kernel_size: int | tuple = 31, margin: float | tuple = (1.0,5.0), power: float = 2.0, top_db: float = 80.0, mask: bool = False, residual: bool = False, dpi: int = 300, autoshow: bool = True, original_time: bool = False, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure:
+    def hpss(self, dim: int = 2, n_mels: int = 128, fmin: float = 0.0, fmax: float | None = None, kernel_size: int | tuple = 31, margin: float | tuple = (1.0,5.0), power: float = 2.0, top_db: float = 80.0, mask: bool = False, residual: bool = False, dpi: int = 300, autoshow: bool = True, original_time: bool = False, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure | None:
         """
         Renders a figure with a plots of harmonic and percussive components of the audio file.
 
@@ -522,12 +527,14 @@ class MgAudio:
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
         Returns:
-            MgFigure: An MgFigure object referring to the internal figure and its data.
+            MgFigure | None: An MgFigure object referring to the internal figure and its
+                data, or None when the figure could not be computed (no audio track, or
+                an argument the method reports on and declines).
         """
 
         if not has_audio(self.filename):
             print('The video has no audio track.')
-            return
+            return None
 
         target_name = resolve_filename(self.of, '_hpss.png', target_name, overwrite)
 
@@ -540,7 +547,7 @@ class MgAudio:
             h, p = librosa.effects.hpss(y)
         else:
             print('MgAudio.hpss() can only be computed on 1 (i.e. waveform) or 2 (i.e. spectrogram) dimensions.')
-            return
+            return None
 
         if dim == 2:
             if residual:
@@ -645,7 +652,7 @@ class MgAudio:
         return self._autoshow(mgf, autoshow)
 
 
-    def descriptors(self, n_mels: int = 128, fmin: float = 0.0, fmax: float | None = None, power: int = 2, dpi: int = 300, autoshow: bool = True, original_time: bool = False, title: str | None = None, target_name: str | None = None, save_data: bool = False, data_format: str | list = 'csv', target_name_data: str | None = None, overwrite: bool = True) -> MgFigure:
+    def descriptors(self, n_mels: int = 128, fmin: float = 0.0, fmax: float | None = None, power: int = 2, dpi: int = 300, autoshow: bool = True, original_time: bool = False, title: str | None = None, target_name: str | None = None, save_data: bool = False, data_format: str | list = 'csv', target_name_data: str | None = None, overwrite: bool = True) -> MgFigure | None:
         """
         Renders a figure of plots showing spectral/loudness descriptors, including RMS energy, spectral flatness, centroid, bandwidth, rolloff of the video/audio file.
 
@@ -665,11 +672,13 @@ class MgAudio:
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
         Returns:
-            MgFigure: An MgFigure object referring to the internal figure and its data.
+            MgFigure | None: An MgFigure object referring to the internal figure and its
+                data, or None when the figure could not be computed (no audio track, or
+                an argument the method reports on and declines).
         """
         if not has_audio(self.filename):
             print('The video has no audio track.')
-            return
+            return None
 
         target_name = resolve_filename(self.of, '_descriptors.png', target_name, overwrite)
 
@@ -713,9 +722,8 @@ class MgAudio:
         xmax = S.shape[1] * self.hop_length / sr
         ax[2].set_xlim(0, xmax)
 
-        freq_ticks = [elem*100 for elem in range(10)]
-        freq_ticks = [250]
-        freq = 500
+        freq_ticks: list[float] = [250.0]
+        freq = 500.0
         while freq < sr/2:
             freq_ticks.append(freq)
             freq *= 1.5
@@ -797,7 +805,7 @@ class MgAudio:
 
         return self._autoshow(mgf, autoshow)
 
-    def chromagram(self, n_chroma: int = 12, norm: float | None = np.inf, chroma_type: str = 'cqt', cmap: str = 'coolwarm', dpi: int = 300, autoshow: bool = True, raw: bool = False, original_time: bool = False, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure:
+    def chromagram(self, n_chroma: int = 12, norm: float | None = np.inf, chroma_type: str = 'cqt', cmap: str = 'coolwarm', dpi: int = 300, autoshow: bool = True, raw: bool = False, original_time: bool = False, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure | None:
         """
         Renders a figure showing the chromagram of the video/audio file.
 
@@ -823,11 +831,13 @@ class MgAudio:
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
         Returns:
-            MgFigure: An MgFigure object referring to the internal figure and its data.
+            MgFigure | None: An MgFigure object referring to the internal figure and its
+                data, or None when the figure could not be computed (no audio track, or
+                an argument the method reports on and declines).
         """
         if not has_audio(self.filename):
             print('The video has no audio track.')
-            return
+            return None
 
         target_name = resolve_filename(self.of, '_chromagram.png', target_name, overwrite)
 
@@ -845,7 +855,7 @@ class MgAudio:
                 y=y, sr=sr, hop_length=self.hop_length, n_chroma=n_chroma, norm=norm)
         else:
             print(f"Unknown chroma_type '{chroma_type}'. Use 'cqt', 'stft', or 'cens'.")
-            return
+            return None
 
         fig, ax = plt.subplots(figsize=(12, 4), dpi=dpi)
         fig.patch.set_facecolor('white')
@@ -898,7 +908,7 @@ class MgAudio:
 
         return self._autoshow(mgf, autoshow)
 
-    def mfcc(self, n_mfcc: int = 13, cmap: str = 'RdBu_r', dpi: int = 300, autoshow: bool = True, raw: bool = False, original_time: bool = False, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure:
+    def mfcc(self, n_mfcc: int = 13, cmap: str = 'RdBu_r', dpi: int = 300, autoshow: bool = True, raw: bool = False, original_time: bool = False, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure | None:
         """
         Renders a figure showing the Mel-frequency cepstral coefficients (MFCCs) of the video/audio file.
 
@@ -917,11 +927,13 @@ class MgAudio:
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
         Returns:
-            MgFigure: An MgFigure object referring to the internal figure and its data.
+            MgFigure | None: An MgFigure object referring to the internal figure and its
+                data, or None when the figure could not be computed (no audio track, or
+                an argument the method reports on and declines).
         """
         if not has_audio(self.filename):
             print('The video has no audio track.')
-            return
+            return None
 
         target_name = resolve_filename(self.of, '_mfcc.png', target_name, overwrite)
 
@@ -978,7 +990,7 @@ class MgAudio:
 
         return self._autoshow(mgf, autoshow)
 
-    def tempo(self, dpi: int = 300, autoshow: bool = True, raw: bool = False, original_time: bool = False, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure:
+    def tempo(self, dpi: int = 300, autoshow: bool = True, raw: bool = False, original_time: bool = False, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure | None:
         """
         Estimates tempo and beat positions, and renders the waveform with beat markers.
 
@@ -998,7 +1010,8 @@ class MgAudio:
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
         Returns:
-            MgFigure: An MgFigure object. Access numeric results via ``.data``:
+            MgFigure | None: An MgFigure object, or None when there is no audio track to
+                analyse. Access numeric results via ``.data``:
                 'tempo', 'beat_times', 'ibi', 'beat_regularity', 'beat_phases',
                 'deviations_s', 'R_beat', 'mu_beat', 'T_fit', 't0_fit', 'p_rayleigh'.
         """
@@ -1006,7 +1019,7 @@ class MgAudio:
 
         if not has_audio(self.filename):
             print('The video has no audio track.')
-            return
+            return None
 
         target_name = resolve_filename(self.of, '_tempo.png', target_name, overwrite)
 
@@ -1094,7 +1107,7 @@ class MgAudio:
 
         return self._autoshow(mgf, autoshow)
 
-    def beat_statistics(self, n_bins: int = 32, cmap: str = 'YlOrRd', dpi: int = 300, autoshow: bool = True, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure:
+    def beat_statistics(self, n_bins: int = 32, cmap: str = 'YlOrRd', dpi: int = 300, autoshow: bool = True, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure | None:
         """
         Renders circular statistics of beat-timing consistency.
 
@@ -1113,24 +1126,28 @@ class MgAudio:
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
         Returns:
-            MgFigure: An MgFigure object whose ``.data`` mirrors the beat statistics from tempo(),
+            MgFigure | None: An MgFigure object, or None when there is no audio track, too
+                few beats to describe, or the tempo analysis produced nothing. Its ``.data``
+                mirrors the beat statistics from tempo(),
                 or None if fewer than four beats are detected.
         """
         if not has_audio(self.filename):
             print('The video has no audio track.')
-            return
+            return None
 
         # Reuse tempo() for the beat analysis (without showing its figure)
         beat_mgf = self.tempo(autoshow=False, overwrite=overwrite)
         if beat_mgf is None:
-            return
+            return None
         plt.close(beat_mgf.figure)
         d = beat_mgf.data
+        # tempo() sets data whenever it returns a figure, so this cannot be None here
+        assert d is not None, "the tempo analysis returned a figure without its data"
 
         beat_phases = d["beat_phases"]
         if len(beat_phases) < 4:
             print('Not enough beats detected for circular statistics (need at least 4).')
-            return
+            return None
 
         target_name = resolve_filename(self.of, '_beatstats.png', target_name, overwrite)
 

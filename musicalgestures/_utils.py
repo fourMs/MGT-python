@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Union, Tuple, TYPE_CHECKING
+from typing import Union, Tuple, TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
     # numpy is imported lazily inside functions (import-speed optimization); make the name
@@ -40,7 +40,7 @@ class MgProgressbar():
 
     def __init__(
             self,
-            total: int = 100,
+            total: float = 100,
             time_limit: float = 0.5,
             prefix: str = 'Progress',
             suffix: str = 'Complete',
@@ -51,7 +51,7 @@ class MgProgressbar():
         Initialize the MgProgressbar object.
 
         Args:
-            total (int, optional): Total iterations. Defaults to 100.
+            total (float, optional): Total iterations, or a duration in seconds. Defaults to 100.
             time_limit (float, optional): The minimum refresh rate of the progressbar in seconds. Defaults to 0.5.
             prefix (str, optional): Prefix string. Defaults to 'Progress'.
             suffix (str, optional): Suffix string. Defaults to 'Complete'.
@@ -92,7 +92,7 @@ class MgProgressbar():
             bool: True if equal or more time has passed than `self.time_limit` since the last redraw.
         """
         callback_time = self.get_now()
-        return callback_time - self.now >= self.time_limit
+        return bool(callback_time - self.now >= self.time_limit)
 
     def adjust_printlength(self) -> None:
         if self.tw_width <= 0:
@@ -227,7 +227,7 @@ class MgImage():
         import os
         self.of = os.path.splitext(self.filename)[0]
         self.fex = os.path.splitext(self.filename)[1]
-    from musicalgestures._show import mg_show as show
+    from musicalgestures._show import mg_show as show  # type: ignore[misc]  # deliberate: binds the function as a method
 
     def __repr__(self):
         return f"MgImage('{self.filename}')"
@@ -270,8 +270,8 @@ class MgFigure():
     Class for working with figures and plots within the Musical Gestures Toolbox.
     """
 
-    def __init__(self, figure=None, figure_type: str = None, data: dict = None,
-                 layers: list = None, image=None):
+    def __init__(self, figure=None, figure_type: str | None = None, data: dict | None = None,
+                 layers: list | None = None, image=None):
         """
         Initializes the MgFigure object.
 
@@ -591,7 +591,7 @@ def pass_if_container_is(container: str, file: str) -> None:
             f"Container should be {container.lower()}, but it is {os.path.splitext(file)[1].lower()} in file {file}.")
 
 
-_ENCODER_CACHE = {}
+_ENCODER_CACHE: dict[str, bool] = {}
 
 
 def ffmpeg_has_encoder(name: str) -> bool:
@@ -770,9 +770,9 @@ def cast_into_avi(filename: str, target_name: str | None = None, overwrite: bool
 
 def extract_frame(
     filename: str,
-    frame: int=None,
-    time: Union[str, float]=None,
-    target_name: str=None,
+    frame: int | None = None,
+    time: Union[str, float] | None = None,
+    target_name: str | None = None,
     overwrite: bool=False,
     )-> str:
     """
@@ -797,8 +797,10 @@ def extract_frame(
     if not target_name:
         if frame is not None:
             target_name = f"{name}_frame_{str(frame)}.png"
-        elif time is not None:
-            time = time if isinstance(time, str) else datetime.datetime.fromtimestamp(time-3600).strftime('%H:%M:%S.%f')
+        else:
+            # the guards above leave exactly one of frame/time set, so this is the time case
+            t = cast(Union[str, float], time)
+            time = t if isinstance(t, str) else datetime.datetime.fromtimestamp(t-3600).strftime('%H:%M:%S.%f')
             target_name = f"{name}_time_{time}.png"
     if not overwrite:
         target_name = generate_outfilename(target_name)
@@ -811,7 +813,7 @@ def extract_frame(
                 "-vsync", "0",
                 # "-vframes", "1",
                 target_name]
-    elif time is not None:
+    else:
         cmds = ['ffmpeg',
                 '-y' if overwrite else "-n",
                 '-i', filename,
@@ -1235,7 +1237,7 @@ class NoDurationError(FFprobeError):
 # Cache of ffprobe output keyed by (path, mtime, size) so the many helpers that
 # probe the same file (get_length, get_widthheight, has_audio, …) share a single
 # subprocess call. The stat key invalidates the cache when the file changes.
-_FFPROBE_CACHE = {}
+_FFPROBE_CACHE: dict[tuple[str, float, int], str] = {}
 
 
 def ffprobe(filename: str) -> str:
@@ -1478,7 +1480,7 @@ def get_samplerate(filename: str) -> int:
 
 #: Cache of extracted audio tracks, keyed by (path, mtime, size) like _FFPROBE_CACHE, so
 #: several analyses of one video share a single extraction instead of re-running ffmpeg.
-_AUDIO_SOURCE_CACHE = {}
+_AUDIO_SOURCE_CACHE: dict[tuple[str, float, int], str] = {}
 
 
 def audio_source(filename: str) -> str:
@@ -1840,8 +1842,8 @@ def ffmpeg_cmd(command: list, total_time: float, pb_prefix: str = 'Progress', pr
     elif pipe == 'load':
         # Define ffmpeg command and load all video frames in memory
         command = command + ['-f', 'image2pipe', '-pix_fmt', 'bgr24', '-vcodec', 'rawvideo', '-preset', 'ultrafast', '-']
-        process = subprocess.run(command, stdout=subprocess.PIPE, bufsize=-1)
-        return process
+        completed = subprocess.run(command, stdout=subprocess.PIPE, bufsize=-1)
+        return completed
     
     elif pipe == 'write':
         # Write the frames of a numpy array to a video file
@@ -1849,21 +1851,23 @@ def ffmpeg_cmd(command: list, total_time: float, pb_prefix: str = 'Progress', pr
         return process
 
     else:
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+        proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+        # stdout=PIPE guarantees a stream; the annotation is Optional for the general case
+        assert proc.stdout is not None, "ffmpeg was started without a readable output stream"
         returncode = None
         all_out = ''
 
         try:
             while True:
                 if stream:
-                    out = process.stdout.readline()
+                    out = proc.stdout.readline()
                 else:
-                    out = process.stdout.read()
+                    out = proc.stdout.read()
                 all_out += out
 
                 if out == '':
-                    process.wait()
-                    returncode = process.returncode
+                    proc.wait()
+                    returncode = proc.returncode
                     break
 
                 elif out.startswith('frame='):
@@ -1884,10 +1888,10 @@ def ffmpeg_cmd(command: list, total_time: float, pb_prefix: str = 'Progress', pr
 
         except KeyboardInterrupt:
             try:
-                process.terminate()
+                proc.terminate()
             except OSError:
                 pass
-            process.wait()
+            proc.wait()
             raise KeyboardInterrupt
 
 
@@ -1954,7 +1958,7 @@ def get_cuda_device_count() -> int:
     """
     try:
         import cv2
-        return cv2.cuda.getCudaEnabledDeviceCount()
+        return int(cv2.cuda.getCudaEnabledDeviceCount())
     except Exception:
         return 0
 
@@ -2010,7 +2014,7 @@ def in_colab() -> bool:
     """
     result = None
     try:
-        result = 'google.colab' in str(get_ipython())
+        result = 'google.colab' in str(get_ipython())  # type: ignore[name-defined]  # IPython injects this into builtins; NameError is caught below
     except NameError:
         result = False
     return result
@@ -2025,7 +2029,7 @@ def in_ipynb() -> bool:
         bool: True if the environment is a Jupyter notebook, otherwise False.
     """
     try:
-        shell = get_ipython().__class__.__name__
+        shell = get_ipython().__class__.__name__  # type: ignore[name-defined]  # IPython injects this into builtins; NameError is caught below
         if shell == 'ZMQInteractiveShell':
             return True   # Jupyter notebook or qtconsole
         elif shell == 'TerminalInteractiveShell':
@@ -2042,7 +2046,7 @@ class FilesNotMatchError(Exception):
 
 
 def merge_videos(
-    media_paths: list, target_name: str = None, overwrite: bool = False, print_cmd: bool = False
+    media_paths: list[str], target_name: str | None = None, overwrite: bool = False, print_cmd: bool = False
 ) -> str:
     """
     Merges a list of video files into a single video file using ffmpeg.

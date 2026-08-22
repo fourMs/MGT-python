@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- The cropping window raised `NameError: name 'ref_point' is not defined` if you pressed "c"
+  without having dragged a rectangle first --- which is what its own on-screen prompt invites you
+  to do. `ref_point` and `crop` were declared `global` inside the mouse callback but never bound
+  at module scope, so they existed only once a mouse event had fired. They are bound now, beside
+  the `drawing`/`xi`/`yi` that already were, and selecting nothing says what to do instead:
+  "No crop area was selected. Drag a rectangle across the frame with the left mouse button held
+  down, then press 'c' to crop."
+
+### Added
+- `crop_box_from_points()` turns the two dragged corners into an ffmpeg crop box. The arithmetic
+  was inline in `cropping_window`, where reaching it needed a window and a mouse, so none of it
+  was tested. Either corner may be dragged first and all four directions normalise to the same
+  box; that is now nine tests rather than an assumption.
+
 ### Changed
 - `ssm()` stores its result as `ssm_figure`, not `ssm_fig`. Every other stashed result on
   MgVideo already ends in `_video`, `_image` or `_figure`; this one did not, and `show(key='ssm')`
@@ -15,6 +30,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   rather than a second attribute, so the two names cannot drift apart when either side is
   reassigned. Part of issue #346, which collects the remaining outliers (`motion_plot`,
   `ssm_combined`, `pixelarray`).
+- Nine `MgAudio` figure methods are annotated `-> MgFigure | None` rather than `-> MgFigure`:
+  `waveform`, `spectrogram`, `tempogram`, `hpss`, `descriptors`, `chromagram`, `mfcc`, `tempo`
+  and `beat_statistics`. All nine already returned None when they could not compute a figure ---
+  no audio track, an unknown `chroma_type`, too few beats --- so this documents what they did
+  rather than changing it, and each docstring now says when you get None back instead of leaving
+  it to be found through an `AttributeError` further down. Their bare `return` statements are
+  explicit `return None`.
+- Internal typing, issue #350: the five files carrying most of the mypy backlog are clean.
+  `mypy musicalgestures/` goes from 248 errors in 32 files to 94 in 22, with `_video.py`,
+  `_utils.py`, `_360video.py`, `_audio.py` and `_cropvideo.py` all at zero. Mostly implicit
+  `Optional` in signatures, cache annotations, and one name per branch where three subprocess
+  types shared one. The class-scoped imports that bind methods on `MgVideo` are the toolbox's
+  central idiom and carry permanent `# type: ignore[misc]` markers rather than being
+  restructured. CI's mypy step stays non-blocking until the remaining 94 are dealt with.
 
 ## [1.12.1] — 2026-08-22
 
