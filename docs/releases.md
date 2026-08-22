@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.12.0**.
+The current stable release is **MGT-python 1.12.1**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,12 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.12.1
+
+- **A test-only fix, released so the tag is green.** `v1.12.0` points at a commit whose Windows CI
+  failed on a test fixture using `os.link` across drives. The package was correct; the tag was
+  misleading. The publish workflow now refuses to run unless CI passed on the exact commit.
 
 ### 1.12.0
 

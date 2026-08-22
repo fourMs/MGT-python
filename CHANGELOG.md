@@ -5,6 +5,19 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.1] — 2026-08-22
+
+### Fixed
+- The contact-sheet test fixture used `os.link`, which cannot cross drives on Windows, so CI
+  failed on all three Windows jobs. Test-only: the 1.12.0 package is correct and this changes
+  nothing a user runs. It is released because the `v1.12.0` tag points at a commit whose CI is
+  red, and a tag that fails its own checks is misleading whatever the wheel contains.
+
+### Changed
+- The PyPI publish workflow now refuses to run unless CI succeeded on the exact commit being
+  released. Publishing fires on a published release, which was independent of CI, which is how
+  1.12.0 went out from a red commit in the first place.
+
 ## [1.12.0] — 2026-08-22
 
 ### Added
@@ -878,7 +891,8 @@ of 33 landmarks off a real clip, a person found in 44 % of them.
 
 ---
 
-[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.12.0...HEAD
+[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.12.1...HEAD
+[1.12.1]: https://github.com/fourMs/MGT-python/compare/v1.12.0...v1.12.1
 [1.12.0]: https://github.com/fourMs/MGT-python/compare/v1.11.4...v1.12.0
 [1.11.4]: https://github.com/fourMs/MGT-python/compare/v1.11.3...v1.11.4
 [1.6.4]: https://github.com/fourMs/MGT-python/compare/v1.6.3...v1.6.4

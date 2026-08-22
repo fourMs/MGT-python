@@ -12,8 +12,37 @@ permissions:
   contents: read
 
 jobs:
+  # Publishing fires on a published release, which is independent of CI. On 2026-08-22 v1.12.0 was
+  # released from a commit whose Windows jobs were failing: the package was fine, a test fixture
+  # used os.link across drives, but the tag points at a red commit for good. This refuses to
+  # publish unless CI succeeded on the exact commit being released.
+  verify:
+    name: Refuse to publish from a commit CI has not passed
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check CI on this commit
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const sha = context.sha;
+            const runs = await github.rest.actions.listWorkflowRunsForRepo({
+              owner: context.repo.owner, repo: context.repo.repo, head_sha: sha, per_page: 100,
+            });
+            const ci = runs.data.workflow_runs.filter(r => r.name === 'CI');
+            if (ci.length === 0) {
+              core.setFailed(`No CI run found for ${sha}. Push the commit and let CI finish first.`);
+              return;
+            }
+            const bad = ci.filter(r => r.conclusion !== 'success');
+            if (bad.length) {
+              core.setFailed(`CI on ${sha} concluded ${bad.map(r => r.conclusion).join(', ')}.`);
+              return;
+            }
+            core.info(`CI passed on ${sha}.`);
+
   build:
     name: Build distribution artifacts
+    needs: verify
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
