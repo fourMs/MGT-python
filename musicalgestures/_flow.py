@@ -51,7 +51,7 @@ class Flow:
             use_gpu: bool = False,
             convert: bool = True,
             target_name: str | None = None,
-            overwrite: bool = True) -> "musicalgestures.MgVideo":
+            overwrite: bool = True) -> "musicalgestures.MgVideo | MgFigure":
         """
         Renders a dense optical flow video of the input video file using `cv2.calcOpticalFlowFarneback()`. The description of the matching parameters are taken from the cv2 documentation.
 
@@ -76,7 +76,8 @@ class Flow:
             overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
         Returns:
-            MgVideo: A new MgVideo pointing to the output video file.
+            MgVideo | MgFigure: A new MgVideo pointing to the output video file, or, when
+                `velocity=True`, an MgFigure of the velocity plot.
         """
 
         if filename is None:

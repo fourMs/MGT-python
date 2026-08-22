@@ -65,7 +65,7 @@ def _safe_corr(a: np.ndarray, b: np.ndarray):
 # 1) Phase synchrony (phase-locking value)
 # ---------------------------------------------------------------------------
 def mg_phase_synchrony(self, fmin: float = 0.5, fmax: float = 4.0, fs: float = 50.0, n_bins: int = 36, dpi: int = 300,
-                       autoshow: bool = True, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> "MgFigure":
+                       autoshow: bool = True, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> "MgFigure | None":
     """
     Quantify how phase-locked the movement is to the audio rhythm.
 
@@ -156,7 +156,7 @@ def _ssm_from_features(feat: np.ndarray):
 
 
 def mg_structure_comparison(self, n: int = 200, dpi: int = 300, cmap: str = 'magma', autoshow: bool = True,
-                            title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> "MgFigure":
+                            title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> "MgFigure | None":
     """
     Compare the temporal **structure** of the audio with that of the movement.
 
@@ -236,7 +236,7 @@ def mg_structure_comparison(self, n: int = 200, dpi: int = 300, cmap: str = 'mag
 # 3) Per-body-part audio coupling
 # ---------------------------------------------------------------------------
 def mg_body_audio_coupling(self, dpi: int = 300, cmap: str = 'coolwarm', dot_size: int = 260, autoshow: bool = True,
-                           title: str | None = None, target_name: str | None = None, overwrite: bool = True, **pose_kwargs) -> "MgFigure":
+                           title: str | None = None, target_name: str | None = None, overwrite: bool = True, **pose_kwargs) -> "MgFigure | None":
     """
     Map which body parts are most rhythmically coupled to the music.
 
@@ -335,7 +335,7 @@ def mg_body_audio_coupling(self, dpi: int = 300, cmap: str = 'coolwarm', dot_siz
 # 4) Energy / dynamics coupling
 # ---------------------------------------------------------------------------
 def mg_dynamics_coupling(self, fs: float = 50.0, max_lag: float = 2.0, dpi: int = 300, autoshow: bool = True,
-                         title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> "MgFigure":
+                         title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> "MgFigure | None":
     """
     Compare audio **loudness** with movement **quantity** — does the dancer move more when the
     music is louder?

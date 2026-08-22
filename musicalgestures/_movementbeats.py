@@ -53,7 +53,7 @@ def _movement_qom(self):
 
 def mg_beat_statistics(self, source: str = 'motion', n_bins: int = 32, cmap: str = 'YlOrRd', dpi: int = 300,
                        autoshow: bool = True, title: str | None = None, target_name: str | None = None, overwrite: bool = True,
-                       fmin: float = 0.2, fmax: float = 8.0) -> "MgFigure":
+                       fmin: float = 0.2, fmax: float = 8.0) -> "MgFigure | None":
     """
     Circular statistics of beat-timing consistency, from the **audio** or from the **movement**.
 
@@ -95,7 +95,7 @@ def mg_beat_statistics(self, source: str = 'motion', n_bins: int = 32, cmap: str
     qom, fps = _movement_qom(self)
     if len(qom) < 8:
         print('Not enough frames to detect movement beats.')
-        return
+        return None
 
     # Detect movement onsets ("beats") as peaks in the quantity-of-motion envelope.
     beat_times = librosa.onset.onset_detect(
@@ -108,7 +108,7 @@ def mg_beat_statistics(self, source: str = 'motion', n_bins: int = 32, cmap: str
 
     if len(beat_times) < 4:
         print('Not enough movement beats detected for circular statistics (need at least 4).')
-        return
+        return None
 
     # Circular grid statistics (same model as the audio version)
     k = np.arange(len(beat_times))
@@ -199,7 +199,7 @@ def _nearest_harmonic_ratio(ratio: float):
     return best, candidates[best]
 
 
-def mg_tempo_similarity(self, dpi: int = 300, autoshow: bool = True, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> "MgFigure":
+def mg_tempo_similarity(self, dpi: int = 300, autoshow: bool = True, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> "MgFigure | None":
     """
     Compare the **audio** tempo/rhythm with the **movement** tempo/rhythm and report how similar
     they are.

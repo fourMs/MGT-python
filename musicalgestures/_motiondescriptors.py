@@ -87,7 +87,7 @@ def mg_motiondescriptors(self, window: str = 'hann', entropy_bins: int = 50,
                          fmin: float = 0.2, fmax: float = 10.0,
                          save_data: bool = True, save_plot: bool = True,
                          data_format: str = 'csv', target_name: str | None = None,
-                         overwrite: bool = True) -> "MgFigure":
+                         overwrite: bool = True) -> "MgFigure | None":
     """Scalar movement descriptors derived from the quantity-of-motion (QoM) signal.
 
     Computes a compact set of higher-level descriptors that summarise *how* something moves,
@@ -117,7 +117,7 @@ def mg_motiondescriptors(self, window: str = 'hann', entropy_bins: int = 50,
         overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to True.
 
     Returns:
-        MgFigure: figure whose ``.data`` holds the scalar descriptors and the spectrum arrays
+        MgFigure | None: figure whose ``.data`` holds the scalar descriptors and the spectrum arrays
         (``frequencies``, ``power``), or None if there are too few frames.
     """
     qom, fps = _movement_qom(self)

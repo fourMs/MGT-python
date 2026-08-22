@@ -603,7 +603,7 @@ def mg_motionplots(
     return MgImage(target_name)
 
 
-def mg_motionscore(self) -> "float":
+def mg_motionscore(self) -> "float | None":
     """
     Computes the average VMAF motion score of the video using FFmpeg.
 

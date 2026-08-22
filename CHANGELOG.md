@@ -37,13 +37,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   rather than changing it, and each docstring now says when you get None back instead of leaving
   it to be found through an `AttributeError` further down. Their bare `return` statements are
   explicit `return None`.
-- Internal typing, issue #350: the five files carrying most of the mypy backlog are clean.
-  `mypy musicalgestures/` goes from 248 errors in 32 files to 94 in 22, with `_video.py`,
-  `_utils.py`, `_360video.py`, `_audio.py` and `_cropvideo.py` all at zero. Mostly implicit
-  `Optional` in signatures, cache annotations, and one name per branch where three subprocess
-  types shared one. The class-scoped imports that bind methods on `MgVideo` are the toolbox's
-  central idiom and carry permanent `# type: ignore[misc]` markers rather than being
-  restructured. CI's mypy step stays non-blocking until the remaining 94 are dealt with.
+- Internal typing, issue #350: `mypy musicalgestures/` goes from 248 errors in 32 files to 74
+  in 19, with `_video.py`, `_utils.py`, `_360video.py`, `_audio.py` and `_cropvideo.py` --- the
+  five files that carried 69 per cent of the backlog --- all at zero. Mostly implicit `Optional`
+  in signatures, cache annotations, and one name per branch where three subprocess types shared
+  one. The class-scoped imports that bind methods on `MgVideo` are the toolbox's central idiom
+  and carry permanent `# type: ignore[misc]` markers rather than being restructured. CI's mypy
+  step stays non-blocking until the remaining 74 are dealt with; they are dominated by
+  `no-any-return` (25) and `union-attr` (18), and each needs reading rather than a sweep.
+- More return annotations corrected to match what the code has always done. `mg_ssm` returns
+  `MgList | MgImage | None`, `mg_motionscore` returns `float | None` (as its own docstring
+  already said), and `Flow.dense` returns `MgVideo | MgFigure` --- with `velocity=True` it has
+  always handed back a figure, while both signature and docstring promised a video.
 
 ## [1.12.1] — 2026-08-22
 

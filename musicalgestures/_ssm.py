@@ -80,7 +80,7 @@ def mg_ssm(
         combine: bool = False,
         title: str | None = None,
         target_name: str | None = None,
-        overwrite: bool = True) -> "MgList | MgImage":
+        overwrite: bool = True) -> "MgList | MgImage | None":
     """
     Compute Self-Similarity Matrix (SSM) by converting the input signal into a suitable feature sequence and comparing each element of the feature sequence with all other elements of the sequence.
     SSMs can be computed over different input features such as 'motiongrams', 'spectrogram', 'chromagram' and 'tempogram'.
@@ -104,10 +104,10 @@ def mg_ssm(
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:
-        # if features='motiongrams':
-        MgList: An MgList pointing to the output SSM images (as MgImages).
-        # else:
-        MgImage: An MgImage to the output SSM.
+        MgList | MgImage | None: With `features='motiongrams'`, an MgList pointing to the
+            output SSM images (as MgImages); otherwise an MgImage of the output SSM. None
+            when the SSM could not be computed, for instance when the file has no audio
+            track to analyse.
     """
 
     # Save figure to png
@@ -126,7 +126,7 @@ def mg_ssm(
                 width, height = get_widthheight(self.filename)
             except:
                 print(f'The "{features}" parameter works only on video files. Try "spectrogram", "chromagram" or "tempogram".')
-                return
+                return None
 
         out_x, out_y = None, None
         target_name_mgx = os.path.splitext(target_name)[0] + '_mgv.png'
@@ -260,7 +260,7 @@ def mg_ssm(
                 width, height = get_widthheight(self.filename)
             except:
                 print(f'The "{features}" parameter works only on video files. Try "spectrogram", "chromagram" or "tempogram".')
-                return
+                return None
             
         out_x, out_y = None, None
         target_name_vgx = os.path.splitext(target_name)[0] + '_vgv.png'
@@ -358,7 +358,7 @@ def mg_ssm(
     elif features == 'spectrogram':
         if not has_audio(self.filename):
             print('The video has no audio track.')
-            return
+            return None
 
         # ffprobe for the rate and an extracted track for the samples: librosa 1.0
         # dropped the audioread fallback and can no longer read a video container.
@@ -414,7 +414,7 @@ def mg_ssm(
     elif features == 'chromagram':
         if not has_audio(self.filename):
             print('The video has no audio track.')
-            return
+            return None
 
         # ffprobe for the rate and an extracted track for the samples: librosa 1.0
         # dropped the audioread fallback and can no longer read a video container.
@@ -477,7 +477,7 @@ def mg_ssm(
     elif features == 'tempogram':
         if not has_audio(self.filename):
             print('The video has no audio track.')
-            return
+            return None
 
         # ffprobe for the rate and an extracted track for the samples: librosa 1.0
         # dropped the audioread fallback and can no longer read a video container.
