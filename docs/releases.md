@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.12.1**.
+The current stable release is **MGT-python 1.13.0**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,18 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.13.0
+
+Every result an analysis method stashes on `MgVideo` is declared on the class now and named after
+what it holds, so an editor completes them and a type checker follows them. Nine attributes were
+renamed and keep their old names as deprecated aliases until 2.0.
+
+Two of those were bug fixes rather than tidying. `pixelarray` was both the method computing the
+frame average and the name its result was stored under, so the result hid the method and a second
+call raised `TypeError`; the result is `frameaverage_image` now. And the package no longer silences
+every warning in the process at import, which had been hiding a crash on audio files over an hour
+and tick labels losing a digit on whole minutes.
 
 ### 1.12.1
 

@@ -2,9 +2,17 @@
 
 Two rules, both learned from getting them wrong.
 
-## Bump the version in both places, in the same commit
+## Bump the version in all THREE places, in the same commit
 
-`__version__` and `CITATION.cff` state the same version, and they are bumped together. Four records
+`__version__`, `CITATION.cff` and `docs/releases.md` state the same version, and they are bumped
+together. This file said "both places" until 2026-08-23, when a release commit bumped the two it
+named and CI went red on five jobs over the third: `docs/releases.md` opens with the current stable
+release and `tests/test_release_consistency.py` checks it, along with the newest CHANGELOG heading.
+Run that file before tagging and it will name whatever was missed:
+
+    python3 -m pytest tests/test_release_consistency.py -q
+
+`__version__` and `CITATION.cff` are bumped together. Four records
 in this project's sibling deposit once stated two different versions about themselves because one
 file was edited and the other was not.
 
