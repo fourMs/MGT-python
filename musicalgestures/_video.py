@@ -149,6 +149,9 @@ class MgVideo(MgAudio):
     # from the instance until a method sets it. `show(key=...)` decides what a
     # video has by looking in `self.__dict__`, so giving any of these a value
     # here would make every video claim every result. See issue #346.
+    _pose_keypoints: dict
+    as_avi: "musicalgestures.MgVideo"
+    average_pose: MgImage
     blend_image: MgImage
     blur_faces_video: "musicalgestures.MgVideo"
     body_audio_coupling_figure: MgFigure
@@ -182,6 +185,7 @@ class MgVideo(MgAudio):
     structure_comparison_figure: MgFigure
     subtract_video: "musicalgestures.MgVideo"
     tempo_similarity_figure: MgFigure
+    trajectories: MgImage
     videogram_horizontal_image: MgImage
     videogram_vertical_image: MgImage
     warp_video: "musicalgestures.MgVideo"

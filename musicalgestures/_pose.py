@@ -132,7 +132,7 @@ def _pose_canvas_and_colors(frame, overlay, background):
 
 
 def pose(
-        self,
+        self: "musicalgestures.MgVideo",
         model: str = 'mediapipe',
         device: str = 'gpu',
         threshold: float = 0.1,
@@ -778,7 +778,7 @@ def _render_pose_extras(data, names, connections, width, height, fps, avg_frame,
     return average_image, trajectories_image
 
 
-def _rerender_pose_from_cache(self, style='both', overlay=True, background='black',
+def _rerender_pose_from_cache(self: "musicalgestures.MgVideo", style='both', overlay=True, background='black',
                               save_data=True, data_format='csv', save_video=True,
                               save_average_pose=True, save_trajectories=True,
                               transparent_trajectories=None, trajectory_background=None,
@@ -904,7 +904,7 @@ def _rerender_pose_from_cache(self, style='both', overlay=True, background='blac
     return self
 
 
-def _ensure_pose_keypoints(self, **pose_kwargs):
+def _ensure_pose_keypoints(self: "musicalgestures.MgVideo", **pose_kwargs):
     """Make sure ``self._pose_keypoints`` exists; if not, run pose() (without writing the video
     or the summary images) to populate it. Extra kwargs are forwarded to pose()."""
     if getattr(self, '_pose_keypoints', None) is None:
@@ -915,7 +915,7 @@ def _ensure_pose_keypoints(self, **pose_kwargs):
     return self._pose_keypoints
 
 
-def mg_pose_waterfall(self, style: str = 'trajectories', n_samples: int = 40, markers: list | None = None, color_by: str | None = None,
+def mg_pose_waterfall(self: "musicalgestures.MgVideo", style: str = 'trajectories', n_samples: int = 40, markers: list | None = None, color_by: str | None = None,
                       cmap: str = 'hsv', dpi: int = 200, elev: float = 20, azim: float = -60, lw: float = 1.0, axes: bool = True, crop: bool = False,
                       target_name: str | None = None, overwrite: bool = True, **pose_kwargs) -> "MgFigure":
     """
@@ -970,7 +970,7 @@ def mg_pose_waterfall(self, style: str = 'trajectories', n_samples: int = 40, ma
     return mgf
 
 
-def mg_pose_segments(self, segments: list | None = None, n_bins: int = 36, cmap: str = 'viridis', dpi: int = 200, ncols: int = 6,
+def mg_pose_segments(self: "musicalgestures.MgVideo", segments: list | None = None, n_bins: int = 36, cmap: str = 'viridis', dpi: int = 200, ncols: int = 6,
                      target_name: str | None = None, overwrite: bool = True, **pose_kwargs) -> "MgFigure":
     """
     Circular (polar) motion plots and statistics for each body segment.
@@ -1015,7 +1015,7 @@ def mg_pose_segments(self, segments: list | None = None, n_bins: int = 36, cmap:
     return mgf
 
 
-def mg_pose_center(self, save_data: bool = True, dpi: int = 200, target_name: str | None = None, overwrite: bool = True, **pose_kwargs) -> "MgFigure":
+def mg_pose_center(self: "musicalgestures.MgVideo", save_data: bool = True, dpi: int = 200, target_name: str | None = None, overwrite: bool = True, **pose_kwargs) -> "MgFigure":
     """
     Centre the pose data on its global centroid — a 2D port of the MoCap Toolbox ``mccenter``.
 
@@ -1065,7 +1065,7 @@ def mg_pose_center(self, save_data: bool = True, dpi: int = 200, target_name: st
     return mgf
 
 
-def mg_pose_distance(self, dpi: int = 200, target_name: str | None = None, overwrite: bool = True, **pose_kwargs) -> "MgFigure":
+def mg_pose_distance(self: "musicalgestures.MgVideo", dpi: int = 200, target_name: str | None = None, overwrite: bool = True, **pose_kwargs) -> "MgFigure":
     """
     Per-marker distance travelled and the average across markers — a 2D port of the MoCap Toolbox
     ``mccumdist``.
@@ -1109,7 +1109,7 @@ def _mediapipe_available():
 
 
 def _pose_mediapipe(
-        self,
+        self: "musicalgestures.MgVideo",
         device='cpu',
         threshold=0.1,
         save_data=True,
