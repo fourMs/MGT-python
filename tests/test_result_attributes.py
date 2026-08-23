@@ -48,6 +48,8 @@ RENAMED = [
     ("motiongram_y", "motiongram_horizontal_image"),
     ("videogram_x", "videogram_vertical_image"),
     ("videogram_y", "videogram_horizontal_image"),
+    ("pixelarray", "frameaverage_image"),
+    ("pixelarray_cv2", "frameaverage_cv2_image"),
 ]
 
 

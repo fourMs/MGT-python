@@ -45,10 +45,10 @@ def mg_pixelarray(self, width=640, target_name=None, overwrite=True):
     
     ffmpeg_cmd(cmd, video_length, pb_prefix='Creating frame-averaged pixel array:')
     
-    # Save result as the pixelarray for parent MgVideo
-    self.pixelarray = MgImage(target_name)
-    
-    return self.pixelarray
+    # Save result as the frameaverage_image for parent MgVideo
+    self.frameaverage_image = MgImage(target_name)
+
+    return self.frameaverage_image
 
 
 def mg_pixelarray_cv2(self, width=640, target_name=None, overwrite=True):
@@ -116,10 +116,10 @@ def mg_pixelarray_cv2(self, width=640, target_name=None, overwrite=True):
     # Save the image
     cv2.imwrite(target_name, output_array)
 
-    # Save result as the pixelarray_cv2 for parent MgVideo
-    self.pixelarray_cv2 = MgImage(target_name)
-    
-    return self.pixelarray_cv2
+    # Save result as the frameaverage_cv2_image for parent MgVideo
+    self.frameaverage_cv2_image = MgImage(target_name)
+
+    return self.frameaverage_cv2_image
 
 
 def mg_pixelarray_stats(self, width=640, include_stats=True):

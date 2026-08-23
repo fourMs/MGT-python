@@ -154,6 +154,8 @@ class MgVideo(MgAudio):
     body_audio_coupling_figure: MgFigure
     dynamics_coupling_figure: MgFigure
     eulerian_video: "musicalgestures.MgVideo"
+    frameaverage_cv2_image: MgImage
+    frameaverage_image: MgImage
     heatmap_image: MgImage
     history_video: "musicalgestures.MgVideo"
     mhi_image: MgImage
@@ -186,6 +188,8 @@ class MgVideo(MgAudio):
     motiongram_y = deprecated_alias("motiongram_y", "motiongram_horizontal_image")
     videogram_x = deprecated_alias("videogram_x", "videogram_vertical_image")
     videogram_y = deprecated_alias("videogram_y", "videogram_horizontal_image")
+    pixelarray = deprecated_alias("pixelarray", "frameaverage_image")
+    pixelarray_cv2 = deprecated_alias("pixelarray_cv2", "frameaverage_cv2_image")
 
     # Methods are bound by importing the implementing function at class scope. mypy calls this
     # "Unsupported class scoped import" and it is the toolbox's central idiom, so the ignores
@@ -217,8 +221,8 @@ class MgVideo(MgAudio):
     from musicalgestures._history import history_cv2  # type: ignore[misc]
     from musicalgestures._blend import mg_blend_image as blend  # type: ignore[misc]
     from musicalgestures._frameaverage import (  # type: ignore[misc]
-        mg_pixelarray as pixelarray,
-        mg_pixelarray_cv2 as pixelarray_cv2,
+        mg_pixelarray as frameaverage,
+        mg_pixelarray_cv2 as frameaverage_cv2,
         mg_pixelarray_stats as pixelarray_stats
     )
     from musicalgestures._heatmap import mg_heatmap as heatmap  # type: ignore[misc]
