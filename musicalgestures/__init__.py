@@ -159,4 +159,5 @@ from musicalgestures._posetools import (
     midpoint,
     limb_speed_from_landmarks,
     impact_events,
+    fuse_pose_views,
 )

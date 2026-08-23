@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `fuse_pose_views()` fuses MediaPipe *world* landmarks from two or more uncalibrated camera
+  views into one consensus skeleton: a single Umeyama rotation-and-scale alignment per view,
+  estimated from the rigid torso landmarks and averaged over the take, then a
+  visibility-weighted average per landmark, with the cross-view residual in millimetres as a
+  quality measure. It takes `extract_pose_landmarks` result dicts or plain `(world, visibility)`
+  arrays, so it is not tied to MediaPipe as a source. Closes #355.
+
+  This consolidates `concert_fuse3d.py` and `reh_fuse3d.py` from the Westney-comparisons study,
+  which held byte-identical copies of the algorithm and differed by one line, a hardcoded list
+  of pieces. It reproduces that study's published fusion on all four concert excerpts to within
+  float32 storage precision, rotations agreeing to 1e-9 and the residuals unchanged.
+
+  Two guards the study code did not have. Its rotation average projected the mean matrix back
+  with a bare `U @ Vt` and no determinant check, so a mean falling nearer a reflection than a
+  rotation would have mirrored the skeleton silently; that is now rejected. And its gap filling
+  said "fill short gaps" in a comment while filling every gap of any length and holding the ends
+  flat, so a long dropout became a straight line through it with nothing marking it; `max_gap`
+  now bounds this. The default is still fill-everything, because that is what the existing
+  results were computed with.
+
+  The residual measures *consistency*, not accuracy: views that agree can agree on a wrong pose.
+
 ### Removed
 - `motion_mp()` is retired. It rendered a motion video across several processes, coordinating them
   with a socket server and an argparse child process, and it raised on its first call: two fields

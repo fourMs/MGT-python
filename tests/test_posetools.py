@@ -412,3 +412,175 @@ def test_get_pose_model_path_cache(tmp_path, monkeypatch):
     path4 = get_pose_model_path(0, models_dir=tmp_path)
     assert path4.name == "pose_landmarker_lite.task"
     assert len(downloads) == 2
+
+
+# ---------------------------------------------------------------------------
+# fuse_pose_views
+# ---------------------------------------------------------------------------
+
+
+def _rotation(axis, degrees):
+    """Right-handed rotation matrix about a unit axis, for building views."""
+    axis = np.asarray(axis, dtype=float)
+    axis = axis / np.linalg.norm(axis)
+    th = np.radians(degrees)
+    K = np.array([[0.0, -axis[2], axis[1]],
+                  [axis[2], 0.0, -axis[0]],
+                  [-axis[1], axis[0], 0.0]])
+    return np.eye(3) + np.sin(th) * K + (1.0 - np.cos(th)) * (K @ K)
+
+
+def _synthetic_skeleton(frames=120, landmarks=33, seed=0):
+    """A moving 33-landmark skeleton: a fixed pose plus a slow global sway.
+
+    Landmarks 11/12/23/24 (shoulders and hips) are placed as a genuinely rigid
+    torso, because those are the ones the alignment is estimated from.
+    """
+    rng = np.random.default_rng(seed)
+    base = rng.normal(scale=0.30, size=(landmarks, 3))
+    base[11] = [-0.20, 0.55, 0.0]      # left shoulder
+    base[12] = [0.20, 0.55, 0.0]       # right shoulder
+    base[23] = [-0.15, 0.0, 0.0]       # left hip
+    base[24] = [0.15, 0.0, 0.0]        # right hip
+
+    t = np.arange(frames) / 25.0
+    sway = np.stack([0.05 * np.sin(2 * np.pi * 0.3 * t),
+                     0.02 * np.sin(2 * np.pi * 0.2 * t),
+                     0.03 * np.cos(2 * np.pi * 0.25 * t)], axis=-1)
+    return base[None, :, :] + sway[:, None, :]
+
+
+def _views_from(truth, transforms):
+    """Turn one ground-truth skeleton into per-view (world, visibility) pairs."""
+    views = []
+    for R, scale in transforms:
+        world = np.einsum("ij,fkj->fki", R, truth) * scale
+        vis = np.ones(truth.shape[:2])
+        views.append((world, vis))
+    return views
+
+
+def test_fuse_pose_views_recovers_a_known_skeleton_from_rotated_views():
+    """Three rigidly transformed views of one skeleton fuse back to that skeleton."""
+    from musicalgestures._posetools import fuse_pose_views
+
+    truth = _synthetic_skeleton()
+    views = _views_from(truth, [
+        (np.eye(3), 1.0),                          # the reference view
+        (_rotation([0, 1, 0], 35.0), 1.4),         # rotated and larger
+        (_rotation([0, 1, 0], -50.0), 0.7),        # rotated the other way, smaller
+    ])
+
+    out = fuse_pose_views(views, smooth=None)
+
+    assert out["fused"].shape == truth.shape
+    np.testing.assert_allclose(out["fused"], truth, atol=1e-6)
+    assert out["residual_mm"] < 1e-3
+
+
+def test_mean_rotation_never_returns_a_reflection():
+    """Averaging rotations can land on a reflection; the fix is to reject it.
+
+    The three 180-degree rotations about x, y and z average to
+    diag(-1/3, -1/3, -1/3), whose determinant is negative. Projecting that
+    with a bare SVD gives an orthogonal matrix with det -1 -- a mirror, which
+    would silently swap the skeleton's left and right.
+    """
+    from musicalgestures._posetools import _mean_rotation
+
+    rots = [np.diag([1.0, -1.0, -1.0]),
+            np.diag([-1.0, 1.0, -1.0]),
+            np.diag([-1.0, -1.0, 1.0])]
+    assert np.linalg.det(np.mean(rots, axis=0)) < 0     # the trap is real
+
+    R = _mean_rotation(rots)
+
+    assert np.linalg.det(R) == pytest.approx(1.0)
+    np.testing.assert_allclose(R @ R.T, np.eye(3), atol=1e-12)
+
+
+def test_umeyama_returns_a_rotation_for_a_degenerate_torso():
+    """Collinear points give a rank-deficient fit; it must still be a rotation."""
+    from musicalgestures._posetools import _umeyama
+
+    src = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0],
+                    [2.0, 0.0, 0.0], [3.0, 0.0, 0.0]])
+    dst = src[::-1].copy()
+
+    R, scale = _umeyama(src, dst)
+
+    assert np.linalg.det(R) == pytest.approx(1.0, abs=1e-9)
+    assert scale > 0
+
+
+def test_fuse_pose_views_ignores_a_landmark_a_view_cannot_see():
+    """A landmark at visibility 0 must not drag the fused position towards it."""
+    from musicalgestures._posetools import fuse_pose_views
+
+    truth = _synthetic_skeleton(frames=60)
+    good = (truth.copy(), np.ones(truth.shape[:2]))
+    blind = truth.copy()
+    blind[:, 7, :] += 5.0                      # a wildly wrong landmark ...
+    blind_vis = np.ones(truth.shape[:2])
+    blind_vis[:, 7] = 0.0                      # ... that this view cannot see
+    second = (truth.copy(), np.ones(truth.shape[:2]))
+
+    out = fuse_pose_views([good, (blind, blind_vis), second], smooth=None)
+
+    np.testing.assert_allclose(out["fused"][:, 7, :], truth[:, 7, :], atol=1e-6)
+
+
+def test_fuse_pose_views_leaves_a_long_dropout_as_nan_when_max_gap_is_set():
+    """A repair longer than max_gap must stay NaN rather than pass for a measurement."""
+    from musicalgestures._posetools import fuse_pose_views
+
+    truth = _synthetic_skeleton(frames=120)
+    views = []
+    for _ in range(3):
+        world = truth.copy()
+        world[40:80, 5, :] = np.nan            # a 40-frame dropout in every view
+        world[90:93, 6, :] = np.nan            # a 3-frame one, short enough to fill
+        views.append((world, np.ones(truth.shape[:2])))
+
+    out = fuse_pose_views(views, smooth=None, max_gap=10)
+
+    assert np.all(np.isnan(out["fused"][40:80, 5, :]))
+    assert np.all(np.isfinite(out["fused"][90:93, 6, :]))
+
+
+def test_fuse_pose_views_accepts_extract_pose_landmarks_results():
+    """The obvious producer's result dict is a valid view, visibility included."""
+    from musicalgestures._posetools import fuse_pose_views
+
+    truth = _synthetic_skeleton(frames=60)
+    R = _rotation([0, 1, 0], 20.0)
+
+    def as_result(world):
+        landmarks = np.zeros((world.shape[0], world.shape[1], 3))
+        landmarks[..., 2] = 1.0                # visibility column
+        return {"world": world, "landmarks": landmarks}
+
+    out = fuse_pose_views(
+        {"side": as_result(truth.copy()),
+         "above": as_result(np.einsum("ij,fkj->fki", R, truth) * 1.2)},
+        reference="side", smooth=None)
+
+    np.testing.assert_allclose(out["fused"], truth, atol=1e-6)
+    assert out["names"] == ["side", "above"]
+
+
+def test_fuse_pose_views_refuses_a_single_view():
+    from musicalgestures._posetools import fuse_pose_views
+
+    truth = _synthetic_skeleton(frames=10)
+    with pytest.raises(ValueError, match="at least two views"):
+        fuse_pose_views([(truth, np.ones(truth.shape[:2]))])
+
+
+def test_fuse_pose_views_says_so_when_a_view_has_no_world_landmarks():
+    from musicalgestures._posetools import fuse_pose_views
+
+    truth = _synthetic_skeleton(frames=10)
+    ok = {"world": truth, "landmarks": np.ones((10, 33, 3))}
+    with pytest.raises(ValueError, match="world_landmarks=True"):
+        fuse_pose_views([ok, {"landmarks": np.ones((10, 33, 3))}])
