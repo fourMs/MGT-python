@@ -135,14 +135,14 @@ def mg_show(self, filename: str | None = None, key: str | None = None, mode: str
 
         elif key.lower() in ('horizontal', 'vertical', 'mgh', 'mgv', 'vgh', 'vgv',
                              'mgx', 'mgy', 'vgx', 'vgy'):
-            # Orientation keys for motiongrams/videograms. Horizontal movement is captured by
-            # the y-axis collapse (motiongram_y / videogram_y), vertical by the x-axis collapse
-            # (motiongram_x / videogram_x). Canonical aliases: mgh/vgh (horizontal),
-            # mgv/vgv (vertical); legacy mgx/mgy/vgx/vgy map to the literal x/y files.
+            # Orientation keys for motiongrams/videograms. Canonical aliases: mgh/vgh
+            # (horizontal), mgv/vgv (vertical); legacy mgx/mgy/vgx/vgy map to the same
+            # orientations they always did, since the x-axis collapse is the vertical
+            # gram and the y-axis collapse is the horizontal one.
             k = key.lower()
             horizontal_keys = ('horizontal', 'mgh', 'vgh', 'mgy', 'vgy')
-            axis = 'y' if k in horizontal_keys else 'x'
-            label = 'Horizontal' if k in horizontal_keys else 'Vertical'
+            orientation = 'horizontal' if k in horizontal_keys else 'vertical'
+            label = orientation.capitalize()
             if k in ('mgh', 'mgv', 'mgx', 'mgy'):
                 kinds = ('motiongram',)
             elif k in ('vgh', 'vgv', 'vgx', 'vgy'):
@@ -151,8 +151,9 @@ def mg_show(self, filename: str | None = None, key: str | None = None, mode: str
                 kinds = ('motiongram', 'videogram')
             target = None
             for kind in kinds:
-                if f"{kind}_{axis}" in keys:
-                    target = (kind, getattr(self, f"{kind}_{axis}").filename)
+                attr = f"{kind}_{orientation}_image"
+                if attr in keys:
+                    target = (kind, getattr(self, attr).filename)
                     break
             if target is None:
                 raise FileNotFoundError(

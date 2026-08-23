@@ -250,7 +250,8 @@ def mg_ssm(
         plt.savefig(out_y, format='png', facecolor='white', transparent=False)
         plt.close()
 
-        # mg_ssm also saves the motiongrams SSM as MgImages to self.motiongram_x and self.motiongram_y of the parent MgVideo
+        # mg_ssm also saves the motiongrams SSM as MgImages to
+        # self.motiongram_vertical_image and self.motiongram_horizontal_image of the parent MgVideo
         return MgList(MgImage(out_x), MgImage(out_y))
     
     elif features == 'videograms':
@@ -352,7 +353,8 @@ def mg_ssm(
         plt.savefig(out_y, format='png', facecolor='white', transparent=False)
         plt.close()
 
-        # mg_ssm also saves the motiongrams SSM as MgImages to self.motiongram_x and self.motiongram_y of the parent MgVideo
+        # mg_ssm also saves the motiongrams SSM as MgImages to
+        # self.motiongram_vertical_image and self.motiongram_horizontal_image of the parent MgVideo
         return MgList(MgImage(out_x), MgImage(out_y))
 
     elif features == 'spectrogram':

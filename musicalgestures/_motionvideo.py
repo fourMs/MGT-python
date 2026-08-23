@@ -304,8 +304,8 @@ def mg_motion(
             self.ssm_figure = MgFigure(figure=None, figure_type='video.ssm', data=data, layers=None, image=(target_name_mgx, target_name_mgy))
 
             # save rendered motiongrams as MgImages into parent MgVideo
-            self.motiongram_x = MgImage(target_name_mgx)
-            self.motiongram_y = MgImage(target_name_mgy)
+            self.motiongram_vertical_image = MgImage(target_name_mgx)
+            self.motiongram_horizontal_image = MgImage(target_name_mgy)
 
         if audio_descriptors:
             audio_descriptors = self

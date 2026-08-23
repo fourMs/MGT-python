@@ -44,6 +44,10 @@ class TestDeclarations:
 
 RENAMED = [
     ("motion_plot", "motion_plot_image"),
+    ("motiongram_x", "motiongram_vertical_image"),
+    ("motiongram_y", "motiongram_horizontal_image"),
+    ("videogram_x", "videogram_vertical_image"),
+    ("videogram_y", "videogram_horizontal_image"),
 ]
 
 
@@ -66,3 +70,18 @@ class TestRenames:
             setattr(v, old, "sentinel")
         assert v.__dict__[new] == "sentinel"
         assert old not in v.__dict__
+
+
+class TestGramOrientation:
+    """The x-collapse produces the vertical gram. Pinning it, because the
+    inverted-looking mapping is correct and has been mistaken for a bug."""
+
+    @pytest.mark.parametrize("kind", ["motiongram", "videogram"])
+    def test_x_maps_to_vertical_and_y_to_horizontal(self, kind):
+        v = mg.MgVideo.__new__(mg.MgVideo)
+        with pytest.warns(DeprecationWarning):
+            setattr(v, f"{kind}_x", "from-x")
+        with pytest.warns(DeprecationWarning):
+            setattr(v, f"{kind}_y", "from-y")
+        assert getattr(v, f"{kind}_vertical_image") == "from-x"
+        assert getattr(v, f"{kind}_horizontal_image") == "from-y"

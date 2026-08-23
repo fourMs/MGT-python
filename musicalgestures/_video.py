@@ -160,6 +160,8 @@ class MgVideo(MgAudio):
     motion_video: "musicalgestures.MgVideo"
     motiondescriptors_figure: MgFigure
     motion_plot_image: MgImage
+    motiongram_horizontal_image: MgImage
+    motiongram_vertical_image: MgImage
     motionvectors_video: "musicalgestures.MgVideo"
     phase_synchrony_figure: MgFigure
     pose_centered_figure: MgFigure
@@ -174,10 +176,16 @@ class MgVideo(MgAudio):
     structure_comparison_figure: MgFigure
     subtract_video: "musicalgestures.MgVideo"
     tempo_similarity_figure: MgFigure
+    videogram_horizontal_image: MgImage
+    videogram_vertical_image: MgImage
     warp_video: "musicalgestures.MgVideo"
 
     # Retired names, kept working for one release. See issue #346.
     motion_plot = deprecated_alias("motion_plot", "motion_plot_image")
+    motiongram_x = deprecated_alias("motiongram_x", "motiongram_vertical_image")
+    motiongram_y = deprecated_alias("motiongram_y", "motiongram_horizontal_image")
+    videogram_x = deprecated_alias("videogram_x", "videogram_vertical_image")
+    videogram_y = deprecated_alias("videogram_y", "videogram_horizontal_image")
 
     # Methods are bound by importing the implementing function at class scope. mypy calls this
     # "Unsupported class scoped import" and it is the toolbox's central idiom, so the ignores

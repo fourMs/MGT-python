@@ -209,8 +209,8 @@ def mg_motion_mp(
             cv2.imwrite(target_name_mgy, gramy.astype(np.uint8))
 
         # save rendered motiongrams as MgImages into parent MgVideo
-        self.motiongram_x = MgImage(target_name_mgx)
-        self.motiongram_y = MgImage(target_name_mgy)
+        self.motiongram_vertical_image = MgImage(target_name_mgx)
+        self.motiongram_horizontal_image = MgImage(target_name_mgy)
 
     if save_data:
         # load time
