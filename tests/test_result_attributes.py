@@ -48,8 +48,6 @@ RENAMED = [
     ("motiongram_y", "motiongram_horizontal_image"),
     ("videogram_x", "videogram_vertical_image"),
     ("videogram_y", "videogram_horizontal_image"),
-    ("pixelarray", "frameaverage_image"),
-    ("pixelarray_cv2", "frameaverage_cv2_image"),
 ]
 
 
@@ -72,6 +70,27 @@ class TestRenames:
             setattr(v, old, "sentinel")
         assert v.__dict__[new] == "sentinel"
         assert old not in v.__dict__
+
+
+class TestFrameAverageHasNoAlias:
+    """`pixelarray` is the METHOD that computes the frame average, so the result
+    cannot also be called that. Storing it there shadowed the bound method and
+    made a second call raise TypeError --- the bug 744169f fixed for `subtract`.
+    The result is `frameaverage_image`, and the old name keeps belonging to the
+    method, so there is deliberately no deprecated alias for this pair."""
+
+    def test_the_method_is_still_callable_and_not_shadowed(self):
+        assert callable(mg.MgVideo.pixelarray)
+        assert callable(mg.MgVideo.pixelarray_cv2)
+
+    def test_the_result_attributes_are_declared(self):
+        for name in ("frameaverage_image", "frameaverage_cv2_image"):
+            assert name in mg.MgVideo.__annotations__
+
+    def test_no_alias_property_was_created(self):
+        for name in ("pixelarray", "pixelarray_cv2"):
+            assert not isinstance(getattr(mg.MgVideo, name), property), (
+                f"{name} must stay the method; an alias property would shadow it")
 
 
 class TestGramOrientation:
