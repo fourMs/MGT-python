@@ -16,7 +16,7 @@ class Flow:
     Class container for the sparse and dense optical flow processes.
     """
 
-    def __init__(self, parent, filename, color, has_audio):
+    def __init__(self, parent: "musicalgestures.MgVideo", filename, color, has_audio):
         """
         Initializes the Flow class.
 

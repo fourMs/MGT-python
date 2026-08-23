@@ -158,6 +158,8 @@ class MgVideo(MgAudio):
     body_audio_coupling_figure: MgFigure
     dynamics_coupling_figure: MgFigure
     eulerian_video: "musicalgestures.MgVideo"
+    flow_dense_video: "musicalgestures.MgVideo"
+    flow_sparse_video: "musicalgestures.MgVideo"
     frameaverage_cv2_image: MgImage
     frameaverage_image: MgImage
     heatmap_image: MgImage
