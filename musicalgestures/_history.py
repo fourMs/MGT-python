@@ -151,7 +151,7 @@ def history_cv2(self, filename: str | None = None, history_length: int = 10, wei
 
     ii = 0
     history: list = []
-    weights_map = [1 for weight in range(history_length+1)]
+    weights_map: list[float] = [1 for weight in range(history_length+1)]
 
     if type(weights) in [int, float]:
         assert isinstance(weights, (int, float))

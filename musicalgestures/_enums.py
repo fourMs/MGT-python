@@ -21,7 +21,7 @@ else:
     class _StrEnumBase(str, Enum):  # type: ignore[no-redef]
         """Backward-compatible StrEnum for Python 3.10."""
         def __str__(self) -> str:
-            return self.value
+            return str(self.value)
 
 
 class _MgEnum(_StrEnumBase):

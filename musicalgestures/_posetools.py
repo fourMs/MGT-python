@@ -227,6 +227,7 @@ def extract_pose_landmarks(
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     # stdout=PIPE guarantees a stream; the annotation is Optional for the general case
     assert proc.stdout is not None, "ffmpeg was started without a readable output stream"
+    assert proc.stderr is not None, "ffmpeg was started without a readable error stream"
     # Drain FFmpeg's stderr on a background thread as it is produced, rather
     # than only reading it in the `finally` block below: the stdout-reading
     # loop can run far longer than the OS pipe buffer takes to fill (a few

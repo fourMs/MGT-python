@@ -86,6 +86,8 @@ jobs:
       run: ruff format --check musicalgestures/ || true
 
     - name: Mypy type check
-      # Non-blocking: the public API is typed (params + returns + py.typed), but the internals
-      # still have a backlog of errors. Settings (follow_imports/exclude) come from pyproject.toml.
-      run: mypy musicalgestures/ || true
+      # Blocking since 2026-08-23. The internal backlog that kept this advisory is gone: it ran
+      # from 248 errors to zero over #350. Settings (follow_imports/exclude) come from
+      # pyproject.toml, and the version is pinned above, because the count this reports moves
+      # with the checker as well as with the code.
+      run: mypy musicalgestures/

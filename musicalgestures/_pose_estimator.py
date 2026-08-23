@@ -407,6 +407,7 @@ class MediaPipePoseEstimator(PoseEstimator):
 
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
+        assert self._landmarker is not None, "the landmarker was not initialised"
         detection_result = self._landmarker.detect(mp_image)
 
         n = len(MEDIAPIPE_LANDMARK_NAMES)

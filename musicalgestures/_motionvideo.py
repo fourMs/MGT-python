@@ -344,6 +344,7 @@ def mg_motion(
                 os.remove(source_audio)
                 
             # Save generated musicalgestures video as the video of the parent MgVideo
+            assert target_name_video is not None  # resolved under `if save_video` above
             self.motion_video = musicalgestures.MgVideo(filename=target_name_video, returned_by_process=True)
             return self.motion_video
         

@@ -156,7 +156,8 @@ class MgVideoReader:
     def __exit__(self, *_) -> None:
         if self._process is not None:
             try:
-                self._process.stdout.close()
+                if self._process.stdout is not None:
+                    self._process.stdout.close()
                 self._process.wait(timeout=5)
             except Exception:
                 self._process.kill()
@@ -177,6 +178,8 @@ class MgVideoReader:
         frame_bytes = self._height * self._width * channels
         fps = self._fps
 
+        # opened with stdout=PIPE in __enter__, which the guard above confirms ran
+        assert self._process.stdout is not None
         while True:
             raw = self._process.stdout.read(frame_bytes)
             if len(raw) < frame_bytes:
