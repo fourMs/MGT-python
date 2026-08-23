@@ -1,10 +1,11 @@
 import numpy as np
 import os
 
+import musicalgestures
 from musicalgestures._utils import MgImage, generate_outfilename, get_framecount, get_length, ffmpeg_cmd
 
 
-def mg_blend_image(self, filename=None, mode='all_mode', component_mode='average', target_name=None, overwrite=True) -> "MgImage":
+def mg_blend_image(self: "musicalgestures.MgVideo", filename=None, mode='all_mode', component_mode='average', target_name=None, overwrite=True) -> "MgImage":
     """
     Finds and saves a blended image of an input video file using FFmpeg. 
     The FFmpeg tblend (time blend) filter takes two consecutive frames from one single stream, and outputs the result obtained by blending the new frame on top of the old frame.
