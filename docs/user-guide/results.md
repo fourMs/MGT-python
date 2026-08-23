@@ -107,6 +107,96 @@ tempogram   = mv.audio.tempogram(title='My Video - Tempogram')
 
 ---
 
+## Results are also kept on the object
+
+Every analysis method returns its result, and it also stores it on the video it
+was called on. The stored name says what the result is: `_video` for an
+`MgVideo`, `_image` for an `MgImage`, `_figure` for an `MgFigure`, `_audio` for
+an `MgAudio`.
+
+```python
+mv = mg.MgVideo('/path/to/video.avi')
+mv.motion()
+mv.motion_video        # the MgVideo the call produced
+mv.motion_plot_image   # and the plot it drew along the way
+```
+
+One call often stores several results, since a method that renders a motion
+video also draws the motiongrams and the plot on its way through.
+
+The attributes are declared on the class, so an editor completes them and a type
+checker follows them. They come into existence when the method that produces
+them runs, which is what `show(key=...)` checks: `mv.show(key='plot')` finds the
+motion plot only if `motionplots()` has been called.
+
+| method | stores |
+|---|---|
+| `motion()`, `motiongrams()`, `motion_mp()` | `motion_video`, `motion_plot_image`, `motiongram_vertical_image`, `motiongram_horizontal_image`, `ssm_figure` |
+| `motionvideo()` | `motion_video` |
+| `videograms()` | `videogram_vertical_image`, `videogram_horizontal_image` |
+| `history()` | `history_video` |
+| `blend()`, and its alias `average()` | `blend_image` |
+| `motionhistory()` | `mhi_image` |
+| `heatmap()` | `heatmap_image` |
+| `stroboscope()` | `stroboscope_image` |
+| `spacetime_volume()` | `spacetime_volume_figure` |
+| `silhouette_waterfall()` | `silhouette_waterfall_figure` |
+| `pixelarray()` | `frameaverage_image` |
+| `pixelarray_cv2()` | `frameaverage_cv2_image` |
+| `ssm()` | `ssm_figure`, `ssm_combined_image` |
+| `pose()` | `pose_video`, `pose_average_image`, `pose_trajectories_image` |
+| `pose_waterfall()`, `pose_segments()`, `pose_center()`, `pose_distance()` | `pose_waterfall_figure`, `pose_segments_figure`, `pose_centered_figure`, `pose_distance_figure` |
+| `subtract()` | `subtract_video` |
+| `blur_faces()` | `blur_faces_video` |
+| `eulerian()` | `eulerian_video` |
+| `motionvectors()` | `motionvectors_video` |
+| `sonomotiongram()` | `sonomotiongram_audio` |
+| `motiondescriptors()` | `motiondescriptors_figure` |
+| `beat_statistics()` | `movement_beat_statistics_figure` |
+| `tempo_similarity()` | `tempo_similarity_figure` |
+| `phase_synchrony()`, `structure_comparison()`, `body_audio_coupling()`, `dynamics_coupling()` | `phase_synchrony_figure`, `structure_comparison_figure`, `body_audio_coupling_figure`, `dynamics_coupling_figure` |
+| `warp_audiovisual_beats()` | `warp_video` |
+
+### Why the grams are named for what they show
+
+`motiongram_vertical_image` is the gram you get by collapsing the **x** axis, and
+`motiongram_horizontal_image` collapses the **y** axis. The older names for these
+were `motiongram_x` and `motiongram_y`, which recorded the axis that was
+collapsed rather than the picture that came out, and reliably read backwards.
+`show()` has long carried `mgh` and `mgv` keys to work around exactly that; the
+attributes now say it themselves.
+
+### Renamed attributes
+
+Older names still work and are removed in 2.0. If a script uses one, the value
+it reads is the same object the new name holds.
+
+| old | new |
+|---|---|
+| `motion_plot` | `motion_plot_image` |
+| `motiongram_x` | `motiongram_vertical_image` |
+| `motiongram_y` | `motiongram_horizontal_image` |
+| `videogram_x` | `videogram_vertical_image` |
+| `videogram_y` | `videogram_horizontal_image` |
+| `ssm_fig` | `ssm_figure` |
+| `ssm_combined` | `ssm_combined_image` |
+| `movement_beat_statistics` | `movement_beat_statistics_figure` |
+| `pose_average` | `pose_average_image` |
+| `pose_trajectories` | `pose_trajectories_image` |
+
+!!! warning "`pixelarray` is the one exception, and it was a bug"
+
+    `pixelarray()` is the method that computes the frame average, and its result
+    used to be stored as `pixelarray` as well. The result then hid the method, so
+    calling `mv.pixelarray()` a second time raised
+    `TypeError: 'MgImage' object is not callable`. The result is called
+    `frameaverage_image` now, the method keeps its name, and there is
+    deliberately no old-name alias for this one, since an alias would bring the
+    collision back. Read `mv.frameaverage_image`; the cv2 variant stores
+    `frameaverage_cv2_image`.
+
+---
+
 ## Method chaining
 
 Every analysis method returns its result object, so calls can be chained:
