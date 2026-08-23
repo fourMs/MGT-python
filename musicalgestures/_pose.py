@@ -486,7 +486,7 @@ def pose(
     avg_acc = np.zeros((self.height, self.width, 3), dtype=np.float64) if save_average_pose else None
     avg_n = 0
     from collections import deque
-    _trail = deque(maxlen=int(marker_history)) if marker_history and marker_history > 0 else None
+    _trail: deque | None = deque(maxlen=int(marker_history)) if marker_history and marker_history > 0 else None
 
     while True:
         # Read frame-by-frame
@@ -509,7 +509,7 @@ def pose(
 
         H = output.shape[2]
         W = output.shape[3]
-        points = []
+        points: list[tuple[int, int] | None] = []
 
         for i in range(nPoints):
 
@@ -824,7 +824,7 @@ def _rerender_pose_from_cache(self: "musicalgestures.MgVideo", style='both', ove
     video_out = None
     frame_bytes = width * height * 3
     from collections import deque
-    _trail = deque(maxlen=int(marker_history)) if marker_history and marker_history > 0 else None
+    _trail: deque | None = deque(maxlen=int(marker_history)) if marker_history and marker_history > 0 else None
     pb = MgProgressbar(total=len(data), prefix='Re-rendering pose (cached):')
 
     for ii, row in enumerate(data):
@@ -920,7 +920,7 @@ def _ensure_pose_keypoints(self: "musicalgestures.MgVideo", **pose_kwargs):
 
 def mg_pose_waterfall(self: "musicalgestures.MgVideo", style: str = 'trajectories', n_samples: int = 40, markers: list | None = None, color_by: str | None = None,
                       cmap: str = 'hsv', dpi: int = 200, elev: float = 20, azim: float = -60, lw: float = 1.0, axes: bool = True, crop: bool = False,
-                      target_name: str | None = None, overwrite: bool = True, **pose_kwargs) -> "MgFigure":
+                      target_name: str | None = None, overwrite: bool = True, **pose_kwargs) -> "MgFigure | None":
     """
     Render a 3D spatio-temporal waterfall of the pose, cascading along the time (depth) axis —
     a pose-based counterpart to ``silhouette_waterfall()``. Uses cached pose keypoints from a
@@ -952,7 +952,7 @@ def mg_pose_waterfall(self: "musicalgestures.MgVideo", style: str = 'trajectorie
         **pose_kwargs: Forwarded to ``pose()`` if keypoints have to be computed.
 
     Returns:
-        MgFigure: the 3D waterfall figure, or None if there are too few frames.
+        MgFigure | None: the 3D waterfall figure, or None if there are too few frames.
     """
     from musicalgestures._pose_visualize import render_pose_waterfall
 
@@ -974,7 +974,7 @@ def mg_pose_waterfall(self: "musicalgestures.MgVideo", style: str = 'trajectorie
 
 
 def mg_pose_segments(self: "musicalgestures.MgVideo", segments: list | None = None, n_bins: int = 36, cmap: str = 'viridis', dpi: int = 200, ncols: int = 6,
-                     target_name: str | None = None, overwrite: bool = True, **pose_kwargs) -> "MgFigure":
+                     target_name: str | None = None, overwrite: bool = True, **pose_kwargs) -> "MgFigure | None":
     """
     Circular (polar) motion plots and statistics for each body segment.
 
@@ -998,7 +998,7 @@ def mg_pose_segments(self: "musicalgestures.MgVideo", segments: list | None = No
         **pose_kwargs: Forwarded to ``pose()`` if keypoints have to be computed.
 
     Returns:
-        MgFigure: the grid of circular plots (per-segment stats in ``.data['stats']``), or None.
+        MgFigure | None: the grid of circular plots (per-segment stats in ``.data['stats']``), or None.
     """
     from musicalgestures._pose_visualize import render_segment_circular
 
@@ -1018,7 +1018,7 @@ def mg_pose_segments(self: "musicalgestures.MgVideo", segments: list | None = No
     return mgf
 
 
-def mg_pose_center(self: "musicalgestures.MgVideo", save_data: bool = True, dpi: int = 200, target_name: str | None = None, overwrite: bool = True, **pose_kwargs) -> "MgFigure":
+def mg_pose_center(self: "musicalgestures.MgVideo", save_data: bool = True, dpi: int = 200, target_name: str | None = None, overwrite: bool = True, **pose_kwargs) -> "MgFigure | None":
     """
     Centre the pose data on its global centroid — a 2D port of the MoCap Toolbox ``mccenter``.
 
@@ -1037,7 +1037,8 @@ def mg_pose_center(self: "musicalgestures.MgVideo", save_data: bool = True, dpi:
         **pose_kwargs: Forwarded to ``pose()`` if keypoints have to be computed.
 
     Returns:
-        MgFigure: the centred-trajectories figure; ``.data['coords']`` holds the (T, n, 2) centred
+        MgFigure | None: the centred-trajectories figure; ``.data['coords']`` holds the (T, n, 2) centred
+            None when the figure could not be built, for instance with too few frames.
         coordinates and ``.data['offset']`` the removed centroid. None if there are too few frames.
     """
     from musicalgestures._pose_visualize import render_pose_center
@@ -1068,7 +1069,7 @@ def mg_pose_center(self: "musicalgestures.MgVideo", save_data: bool = True, dpi:
     return mgf
 
 
-def mg_pose_distance(self: "musicalgestures.MgVideo", dpi: int = 200, target_name: str | None = None, overwrite: bool = True, **pose_kwargs) -> "MgFigure":
+def mg_pose_distance(self: "musicalgestures.MgVideo", dpi: int = 200, target_name: str | None = None, overwrite: bool = True, **pose_kwargs) -> "MgFigure | None":
     """
     Per-marker distance travelled and the average across markers — a 2D port of the MoCap Toolbox
     ``mccumdist``.
@@ -1086,7 +1087,8 @@ def mg_pose_distance(self: "musicalgestures.MgVideo", dpi: int = 200, target_nam
         **pose_kwargs: Forwarded to ``pose()`` if keypoints have to be computed.
 
     Returns:
-        MgFigure: ``.data['total']`` (per-marker totals), ``.data['average']`` (mean total), and
+        MgFigure | None: ``.data['total']`` (per-marker totals), ``.data['average']`` (mean total), and
+            None when the figure could not be built, for instance with too few frames.
         ``.data['cumulative']`` (per-marker cumulative curves). None if there are too few frames.
     """
     from musicalgestures._pose_visualize import render_pose_distance
@@ -1184,7 +1186,7 @@ def _pose_mediapipe(
     avg_acc = np.zeros((self.height, self.width, 3), dtype=np.float64) if save_average_pose else None
     avg_n = 0
     from collections import deque
-    _trail = deque(maxlen=int(marker_history)) if marker_history and marker_history > 0 else None
+    _trail: deque | None = deque(maxlen=int(marker_history)) if marker_history and marker_history > 0 else None
 
     estimator = MediaPipePoseEstimator(device=device.lower())
 
