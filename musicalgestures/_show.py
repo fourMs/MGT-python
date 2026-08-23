@@ -185,8 +185,8 @@ def mg_show(self, filename: str | None = None, key: str | None = None, mode: str
             
         elif key.lower() == 'plot':
             # filename = self.of + '_motion_com_qom.png'
-            if "motion_plot" in keys:
-                filename = self.motion_plot.filename
+            if "motion_plot_image" in keys:
+                filename = self.motion_plot_image.filename
                 show(file=filename, width=window_width,
                      height=window_height, mode=mode, title=f'Centroid and Quantity of Motion | {filename}', parent=self, **ipython_kwargs)
             else:

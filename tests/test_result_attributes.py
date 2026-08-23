@@ -5,6 +5,7 @@ attributes lets a type checker follow them; declaring them as bare
 annotations means they still do not exist until a method assigns one, which
 is what `show(key=...)` relies on when it looks in `self.__dict__`.
 """
+import pytest
 import musicalgestures as mg
 
 CONFORMING = [
@@ -39,3 +40,29 @@ class TestDeclarations:
     def test_every_declared_name_ends_in_its_type(self):
         for name in CONFORMING:
             assert name.endswith(("_video", "_image", "_figure", "_audio")), name
+
+
+RENAMED = [
+    ("motion_plot", "motion_plot_image"),
+]
+
+
+class TestRenames:
+    @pytest.mark.parametrize("old,new", RENAMED)
+    def test_the_new_name_is_declared(self, old, new):
+        assert new in mg.MgVideo.__annotations__
+
+    @pytest.mark.parametrize("old,new", RENAMED)
+    def test_the_old_name_still_works_and_warns(self, old, new):
+        v = mg.MgVideo.__new__(mg.MgVideo)
+        setattr(v, new, "sentinel")
+        with pytest.warns(DeprecationWarning, match=f"use {new}"):
+            assert getattr(v, old) == "sentinel"
+
+    @pytest.mark.parametrize("old,new", RENAMED)
+    def test_writing_the_old_name_lands_under_the_new_one(self, old, new):
+        v = mg.MgVideo.__new__(mg.MgVideo)
+        with pytest.warns(DeprecationWarning):
+            setattr(v, old, "sentinel")
+        assert v.__dict__[new] == "sentinel"
+        assert old not in v.__dict__

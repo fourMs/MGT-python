@@ -16,6 +16,7 @@ from musicalgestures._utils import (
     ffmpeg_cmd,
     merge_videos,
     extract_frame,
+    deprecated_alias,
     MgImage,
     MgFigure
 )
@@ -158,6 +159,7 @@ class MgVideo(MgAudio):
     mhi_image: MgImage
     motion_video: "musicalgestures.MgVideo"
     motiondescriptors_figure: MgFigure
+    motion_plot_image: MgImage
     motionvectors_video: "musicalgestures.MgVideo"
     phase_synchrony_figure: MgFigure
     pose_centered_figure: MgFigure
@@ -173,6 +175,9 @@ class MgVideo(MgAudio):
     subtract_video: "musicalgestures.MgVideo"
     tempo_similarity_figure: MgFigure
     warp_video: "musicalgestures.MgVideo"
+
+    # Retired names, kept working for one release. See issue #346.
+    motion_plot = deprecated_alias("motion_plot", "motion_plot_image")
 
     # Methods are bound by importing the implementing function at class scope. mypy calls this
     # "Unsupported class scoped import" and it is the toolbox's central idiom, so the ignores

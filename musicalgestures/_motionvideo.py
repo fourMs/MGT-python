@@ -324,7 +324,7 @@ def mg_motion(
             if title is None:
                 title = os.path.basename(of + fex)
             # save plot as an MgImage at motion_plot for parent MgVideo
-            self.motion_plot = MgImage(save_analysis(of, self.fps, aom, com, qom, motion_analysis, audio_descriptors, self.width,
+            self.motion_plot_image = MgImage(save_analysis(of, self.fps, aom, com, qom, motion_analysis, audio_descriptors, self.width,
                                         self.height, unit, title, target_name_plot=target_name_plot, overwrite=overwrite))
                 
         # Resetting numpy warnings for dividing by 0
