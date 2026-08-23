@@ -52,7 +52,7 @@ def _ideal_bandpass(stack, fps, freq_low, freq_high):
 # ---------------------------------------------------------------------------
 
 def mg_eulerian(
-        self,
+        self: "musicalgestures.MgVideo",
         mode='color',
         freq_low=0.83,
         freq_high=1.0,
