@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import Union, Tuple, TYPE_CHECKING, cast
+from typing import Any, Union, Tuple, TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
     # numpy is imported lazily inside functions (import-speed optimization); make the name
@@ -1845,7 +1845,7 @@ class FFmpegError(Exception):
         self.message = message
 
 
-def ffmpeg_cmd(command: list, total_time: float, pb_prefix: str = 'Progress', print_cmd: bool = False, stream: bool = True, pipe: str | None = None):
+def ffmpeg_cmd(command: list, total_time: float, pb_prefix: str = 'Progress', print_cmd: bool = False, stream: bool = True, pipe: str | None = None) -> Any:
     """
     Run an ffmpeg command in a subprocess and show progress using an MgProgressbar.
 
@@ -1856,6 +1856,16 @@ def ffmpeg_cmd(command: list, total_time: float, pb_prefix: str = 'Progress', pr
         print_cmd (bool, optional): Whether to print the full ffmpeg command to the console before executing it. Good for debugging. Defaults to False.
         stream (bool, optional): Whether to have a continuous output stream or just (the last) one. Defaults to True (continuous stream).
         pipe (str, optional): Whether to pipe video frames from FFmpeg to numpy array. Possible to read the video frame by frame with pipe='read', to load video in memory with pipe='load', or to write the frames of a numpy array to a video file with pipe='write'. Defaults to None.
+
+    Returns:
+        Any: What comes back depends on `pipe`, and the caller knows which it
+            asked for. `'read'` and `'write'` give a `subprocess.Popen` to read
+            frames from or write frames to, `'load'` gives the
+            `subprocess.CompletedProcess` of a finished run, and the default of
+            None runs the command to completion behind a progress bar and
+            returns nothing. Annotating that precisely would need overloads on
+            the value of a string argument, which would describe the signature
+            more exactly than it deserves.
 
     Raises:
         KeyboardInterrupt: If the user stops the process.

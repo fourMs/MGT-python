@@ -565,6 +565,7 @@ def pose(
 
         if save_video:
             if video_out is None:
+                assert target_name_video is not None  # resolved under `if save_video` above
                 cmd =['ffmpeg', '-y', '-s', '{}x{}'.format(frame.shape[1], frame.shape[0]), 
                     '-r', str(self.fps), '-f', 'rawvideo', '-pix_fmt', 'bgr24', '-vcodec', 'rawvideo', 
                     '-i', '-', '-vcodec', 'libx264', '-pix_fmt', 'yuv420p', target_name_video]
@@ -579,6 +580,8 @@ def pose(
 
     # Terminate the processes
     if save_video:
+        # the writer opens on the first frame, so this only holds for a video that had frames
+        assert video_out is not None, "no frames were written: the video decoded to nothing"
         video_out.stdin.close()
         video_out.wait()
         # Check if the original video fil has audio
@@ -1205,7 +1208,7 @@ def _pose_mediapipe(
         # Collect data row: time + normalised (x, y) for every landmark.
         # Always collected so the images and the keypoint cache are available.
         time_ms = frame2ms(ii, self.fps)
-        row = [time_ms]
+        row: list[float] = [time_ms]
         for i in range(len(MEDIAPIPE_LANDMARK_NAMES)):
             x, y, vis = keypoints[i]
             if vis >= threshold:
@@ -1260,6 +1263,8 @@ def _pose_mediapipe(
         estimator.close()
 
     if save_video:
+        # the writer opens on the first frame, so this only holds for a video that had frames
+        assert video_out is not None, "no frames were written: the video decoded to nothing"
         video_out.stdin.close()
         video_out.wait()
         if self.has_audio:
