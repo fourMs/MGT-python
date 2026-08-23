@@ -412,7 +412,8 @@ def mg_motiongrams(
         target_name_mgy=out_y,
         overwrite=True)
 
-    # mg_motion also saves the motiongrams as MgImages to self.motiongram_x and self.motiongram_y of the parent MgVideo
+    # mg_motion also saves the motiongrams as MgImages to
+    # self.motiongram_vertical_image and self.motiongram_horizontal_image of the parent MgVideo
     return MgList(MgImage(out_x), MgImage(out_y))
 
 
