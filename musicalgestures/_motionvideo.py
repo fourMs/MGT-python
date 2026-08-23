@@ -323,7 +323,7 @@ def mg_motion(
         if save_plot:
             if title is None:
                 title = os.path.basename(of + fex)
-            # save plot as an MgImage at motion_plot for parent MgVideo
+            # save plot as an MgImage at motion_plot_image for parent MgVideo
             self.motion_plot_image = MgImage(save_analysis(of, self.fps, aom, com, qom, motion_analysis, audio_descriptors, self.width,
                                         self.height, unit, title, target_name_plot=target_name_plot, overwrite=overwrite))
                 
@@ -600,7 +600,7 @@ def mg_motionplots(
         target_name_plot=target_name,
         overwrite=overwrite)
 
-    # mg_motion also saves the plot as an MgImage to self.motion_plot of the parent MgVideo
+    # mg_motion also saves the plot as an MgImage to self.motion_plot_image of the parent MgVideo
     return MgImage(target_name)
 
 

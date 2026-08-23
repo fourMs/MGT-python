@@ -152,6 +152,7 @@ class MgVideo(MgAudio):
     _avg_frame_cache: tuple[str, np.ndarray]
     _pose_keypoints: dict
     as_avi: "musicalgestures.MgVideo"
+    as_mp4: "musicalgestures.MgVideo"
     average_pose: MgImage
     blend_image: MgImage
     blur_faces_video: "musicalgestures.MgVideo"

@@ -167,8 +167,8 @@ def mg_show(self, filename: str | None = None, key: str | None = None, mode: str
             if "ssm_figure" in keys:
                 filename = self.ssm_figure.image
                 if len(filename) == 2:
-                    show(file=filename[0], width=window_width, height=window_height, mode=mode, title=f'Horizontal SSM | {filename}', parent=self, **ipython_kwargs)
-                    show(file=filename[1], width=window_width, height=window_height, mode=mode, title=f'Vertical SSM | {filename}', parent=self, **ipython_kwargs)
+                    show(file=filename[0], width=window_width, height=window_height, mode=mode, title=f'Vertical SSM | {filename}', parent=self, **ipython_kwargs)
+                    show(file=filename[1], width=window_width, height=window_height, mode=mode, title=f'Horizontal SSM | {filename}', parent=self, **ipython_kwargs)
                 else:    
                     show(file=filename, width=window_width, height=window_height, mode=mode, title=f'Self-Similarity Matrix | {filename}', parent=self, **ipython_kwargs)
             else:

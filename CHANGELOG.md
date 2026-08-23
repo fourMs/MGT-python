@@ -36,7 +36,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Every result an analysis method stashes on `MgVideo` is now declared on the class and named
   after what it holds: `motion_plot_image`, `ssm_combined_image`, `movement_beat_statistics_figure`,
   `pose_average_image`, `pose_trajectories_image`, and the four grams below. Each old name keeps
-  working as a deprecated alias and is removed in 2.0. Closes #346.
+  working as a deprecated alias and is removed in 2.0. Closes #346. Note that the package
+  silences warnings globally at import (`_audio.py`), so these deprecation warnings are not
+  currently visible in practice; that filter needs narrowing before 2.0 removes the aliases.
 - The motiongrams and videograms are named for what they show rather than for the axis that was
   collapsed to make them: `motiongram_x` was the *vertical* gram and `motiongram_y` the
   *horizontal* one, which is why `show()` grew `mgh`/`mgv` aliases in the first place. They are
