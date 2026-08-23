@@ -179,7 +179,7 @@ def mg_ssm(
             fig.tight_layout()
             plt.savefig(target_name, format='png', facecolor='white', transparent=False)
             plt.close()
-            self.ssm_combined = MgImage(target_name)
+            self.ssm_combined_image = MgImage(target_name)
             return MgImage(target_name)
 
         # Compute SSM using dot product

@@ -187,7 +187,7 @@ def mg_beat_statistics(self, source: str = 'motion', n_bins: int = 32, cmap: str
     plt.close(fig)
 
     mgf = MgFigure(figure=fig, figure_type='video.beat_statistics', data=d, layers=None, image=target_name)
-    self.movement_beat_statistics = mgf
+    self.movement_beat_statistics_figure = mgf
     return mgf
 
 

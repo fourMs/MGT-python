@@ -726,8 +726,8 @@ def pose(
         transparent_trajectories=transparent_trajectories,
         trajectory_background=trajectory_background,
         trajectory_labels=trajectory_labels, style=style, background=background)
-    self.pose_average = average_image
-    self.pose_trajectories = trajectories_image
+    self.pose_average_image = average_image
+    self.pose_trajectories_image = trajectories_image
 
     if save_video:
         # save result as pose_video for parent MgVideo
@@ -893,8 +893,8 @@ def _rerender_pose_from_cache(self, style='both', overlay=True, background='blac
         overwrite, transparent_trajectories=transparent_trajectories,
         trajectory_background=trajectory_background,
         trajectory_labels=trajectory_labels, style=style, background=background)
-    self.pose_average = average_image
-    self.pose_trajectories = trajectories_image
+    self.pose_average_image = average_image
+    self.pose_trajectories_image = trajectories_image
 
     if save_video:
         self.pose_video = musicalgestures.MgVideo(target_name_video, color=self.color, returned_by_process=True)
@@ -1299,8 +1299,8 @@ def _pose_mediapipe(
         transparent_trajectories=transparent_trajectories,
         trajectory_background=trajectory_background,
         trajectory_labels=trajectory_labels, style=style, background=background)
-    self.pose_average = average_image
-    self.pose_trajectories = trajectories_image
+    self.pose_average_image = average_image
+    self.pose_trajectories_image = trajectories_image
 
     if save_video:
         self.pose_video = musicalgestures.MgVideo(target_name_video, color=self.color, returned_by_process=True)

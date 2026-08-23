@@ -48,6 +48,10 @@ RENAMED = [
     ("motiongram_y", "motiongram_horizontal_image"),
     ("videogram_x", "videogram_vertical_image"),
     ("videogram_y", "videogram_horizontal_image"),
+    ("ssm_combined", "ssm_combined_image"),
+    ("movement_beat_statistics", "movement_beat_statistics_figure"),
+    ("pose_average", "pose_average_image"),
+    ("pose_trajectories", "pose_trajectories_image"),
 ]
 
 

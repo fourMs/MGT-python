@@ -165,15 +165,19 @@ class MgVideo(MgAudio):
     motiongram_horizontal_image: MgImage
     motiongram_vertical_image: MgImage
     motionvectors_video: "musicalgestures.MgVideo"
+    movement_beat_statistics_figure: MgFigure
     phase_synchrony_figure: MgFigure
+    pose_average_image: MgImage
     pose_centered_figure: MgFigure
     pose_distance_figure: MgFigure
     pose_segments_figure: MgFigure
+    pose_trajectories_image: MgImage
     pose_video: "musicalgestures.MgVideo"
     pose_waterfall_figure: MgFigure
     silhouette_waterfall_figure: MgFigure
     sonomotiongram_audio: MgAudio
     spacetime_volume_figure: MgFigure
+    ssm_combined_image: MgImage
     stroboscope_image: MgImage
     structure_comparison_figure: MgFigure
     subtract_video: "musicalgestures.MgVideo"
@@ -186,6 +190,11 @@ class MgVideo(MgAudio):
     motion_plot = deprecated_alias("motion_plot", "motion_plot_image")
     motiongram_x = deprecated_alias("motiongram_x", "motiongram_vertical_image")
     motiongram_y = deprecated_alias("motiongram_y", "motiongram_horizontal_image")
+    movement_beat_statistics = deprecated_alias(
+        "movement_beat_statistics", "movement_beat_statistics_figure")
+    pose_average = deprecated_alias("pose_average", "pose_average_image")
+    pose_trajectories = deprecated_alias("pose_trajectories", "pose_trajectories_image")
+    ssm_combined = deprecated_alias("ssm_combined", "ssm_combined_image")
     videogram_x = deprecated_alias("videogram_x", "videogram_vertical_image")
     videogram_y = deprecated_alias("videogram_y", "videogram_horizontal_image")
 
