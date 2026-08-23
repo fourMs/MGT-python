@@ -73,7 +73,7 @@ from musicalgestures._mglist import MgList
 
 
 def mg_motion(
-        self,
+        self: "musicalgestures.MgVideo",
         filtertype: str = 'Regular',
         threshold: float = 0.05,
         blur: str = 'None',
@@ -351,7 +351,7 @@ def mg_motion(
 
 
 def mg_motiongrams(
-        self,
+        self: "musicalgestures.MgVideo",
         filtertype: str = 'Regular',
         threshold: float = 0.05,
         blur: str = 'None',
@@ -418,7 +418,7 @@ def mg_motiongrams(
 
 
 def mg_motionvideo(
-        self,
+        self: "musicalgestures.MgVideo",
         filtertype: str = 'Regular',
         threshold: float = 0.05,
         blur: str = 'None',
@@ -464,7 +464,7 @@ def mg_motionvideo(
 
 
 def mg_motiondata(
-        self,
+        self: "musicalgestures.MgVideo",
         filtertype: str = 'Regular',
         threshold: float = 0.05,
         blur: str = 'None',
@@ -542,7 +542,7 @@ def mg_motiondata(
 
 
 def mg_motionplots(
-        self,
+        self: "musicalgestures.MgVideo",
         filtertype: str = 'Regular',
         threshold: float = 0.05,
         blur: str = 'None',
@@ -604,7 +604,7 @@ def mg_motionplots(
     return MgImage(target_name)
 
 
-def mg_motionscore(self) -> "float | None":
+def mg_motionscore(self: "musicalgestures.MgVideo") -> "float | None":
     """
     Computes the average VMAF motion score of the video using FFmpeg.
 
