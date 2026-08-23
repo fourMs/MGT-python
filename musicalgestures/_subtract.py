@@ -107,8 +107,8 @@ def mg_subtract(
         cmd_filter += 'format=gray,smartblur=1,smartblur=3,'
 
     cmd_filter += f'format=gray [mask];[matte][video][mask] maskedmerge, format={pixformat}' 
-    cmd_filter = ['-filter_complex', cmd_filter]  
-    cmd = cmd + cmd_filter + cmd_end
+    filter_flags = ['-filter_complex', cmd_filter]
+    cmd = cmd + filter_flags + cmd_end
 
     ffmpeg_cmd(cmd, get_length(self.filename), pb_prefix='Subtracting background:', stream=True)
 
