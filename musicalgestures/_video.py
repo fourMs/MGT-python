@@ -183,6 +183,7 @@ class MgVideo(MgAudio):
     mhi_image: MgImage
     motion_video: "musicalgestures.MgVideo"
     motiondescriptors_figure: MgFigure
+    actions: list
     motion_plot_image: MgImage
     motiongram_horizontal_image: MgImage
     motiongram_vertical_image: MgImage
@@ -260,6 +261,7 @@ class MgVideo(MgAudio):
     from musicalgestures._blurfaces import mg_blurfaces as blur_faces  # type: ignore[misc]
     from musicalgestures._impacts import mg_impacts as impacts  # type: ignore[misc]
     from musicalgestures._grid import mg_grid as grid  # type: ignore[misc]
+    from musicalgestures._actions import mg_actions as actions_from_motion  # type: ignore[misc]
     from musicalgestures._videoadjust import mg_resample as resample  # type: ignore[misc]
     from musicalgestures._motionvideo import save_analysis  # type: ignore[misc]
 
