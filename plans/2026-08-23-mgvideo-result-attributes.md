@@ -982,8 +982,13 @@ Under `## [Unreleased]`, in `### Changed`:
   `motiongram_vertical_image`, `motiongram_horizontal_image`, `videogram_vertical_image` and
   `videogram_horizontal_image` now. Every existing `show()` key, including the legacy `mgx`/`mgy`,
   resolves as before.
-- Declaring the attributes also made the producing functions typeable, so `mypy musicalgestures/`
-  falls from 74 errors to about 50 and the toolbox's results now autocomplete in an editor.
+- Declaring the attributes made the producing functions typeable, and typing them turned the type
+  checker on over code it had never read. mypy does not check the body of a function carrying no
+  annotations at all, so annotating `self` in the producers opened ~31 pre-existing problems to
+  view for the first time: `mypy musicalgestures/` reports 90 errors where it reported 74, and the
+  difference is what it can now see rather than anything newly written. The errors this work set
+  out to close did close --- `no-any-return` went from 25 to 7 --- and the toolbox's results now
+  autocomplete in an editor. The remaining 90 are the real number to work against.
 ```
 
 - [ ] **Step 2: Update the design document**
