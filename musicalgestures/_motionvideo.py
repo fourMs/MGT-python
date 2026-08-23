@@ -310,8 +310,11 @@ def mg_motion(
             self.motiongram_vertical_image = MgImage(target_name_mgx)
             self.motiongram_horizontal_image = MgImage(target_name_mgy)
 
+        # `audio_descriptors` arrives as a flag and travels on as the video to read
+        # audio from, which save_analysis expects. Two meanings, two names.
+        audio_descriptors_source: "bool | musicalgestures.MgVideo" = audio_descriptors
         if audio_descriptors:
-            audio_descriptors = self
+            audio_descriptors_source = self
             
         if save_data:
             # `normalize` was declared on mg_motion and never used. It now
@@ -327,7 +330,7 @@ def mg_motion(
             if title is None:
                 title = os.path.basename(of + fex)
             # save plot as an MgImage at motion_plot_image for parent MgVideo
-            self.motion_plot_image = MgImage(save_analysis(of, self.fps, aom, com, qom, motion_analysis, audio_descriptors, self.width,
+            self.motion_plot_image = MgImage(save_analysis(of, self.fps, aom, com, qom, motion_analysis, audio_descriptors_source, self.width,
                                         self.height, unit, title, target_name_plot=target_name_plot, overwrite=overwrite))
                 
         # Resetting numpy warnings for dividing by 0

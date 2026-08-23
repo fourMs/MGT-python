@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import os
+import musicalgestures
 from musicalgestures._utils import scale_num, get_length, ffmpeg_cmd, has_audio, generate_outfilename, convert_to_mp4
 
 

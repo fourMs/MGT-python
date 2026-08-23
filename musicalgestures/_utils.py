@@ -271,7 +271,7 @@ class MgFigure():
     Class for working with figures and plots within the Musical Gestures Toolbox.
     """
 
-    def __init__(self, figure=None, figure_type: str | None = None, data: dict | None = None,
+    def __init__(self, figure=None, figure_type: str | None = None, data: Any = None,
                  layers: list | None = None, image=None):
         """
         Initializes the MgFigure object.
