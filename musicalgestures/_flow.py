@@ -183,6 +183,7 @@ class Flow:
                 next_frame = cv2.cvtColor(cv2.resize(frame2, size), cv2.COLOR_BGR2GRAY)
 
                 if _use_gpu:
+                    assert farneback_gpu is not None  # created under the same flag above
                     gpu_next_frame.upload(next_frame)
                     gpu_flow_result = farneback_gpu.calc(gpu_prev_frame, gpu_next_frame, None)
                     flow = gpu_flow_result.download()

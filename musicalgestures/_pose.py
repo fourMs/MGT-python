@@ -969,7 +969,10 @@ def mg_pose_waterfall(self: "musicalgestures.MgVideo", style: str = 'trajectorie
         overwrite=overwrite, style=style, connections=c.get('connections'),
         n_samples=n_samples, markers=markers, color_by=color_by, cmap=cmap,
         dpi=dpi, elev=elev, azim=azim, lw=lw, axes=axes, crop=crop)
-    self.pose_waterfall_figure = mgf
+    # a figure that could not be built is not a result: leaving the attribute
+    # absent keeps `hasattr` honest, where storing None would not
+    if mgf is not None:
+        self.pose_waterfall_figure = mgf
     return mgf
 
 
@@ -1014,7 +1017,10 @@ def mg_pose_segments(self: "musicalgestures.MgVideo", segments: list | None = No
         c['data'], c['names'], c.get('connections'), c['width'], c['height'], c['fps'],
         target_name, overwrite=overwrite, segments=segments, n_bins=n_bins, cmap=cmap,
         dpi=dpi, ncols=ncols)
-    self.pose_segments_figure = mgf
+    # a figure that could not be built is not a result: leaving the attribute
+    # absent keeps `hasattr` honest, where storing None would not
+    if mgf is not None:
+        self.pose_segments_figure = mgf
     return mgf
 
 
@@ -1065,7 +1071,10 @@ def mg_pose_center(self: "musicalgestures.MgVideo", save_data: bool = True, dpi:
             pd.DataFrame(cols).to_csv(os.path.splitext(target_name)[0] + '.csv', index=False)
         except Exception as e:
             print(f'Warning: could not save CSV: {e}')
-    self.pose_centered_figure = mgf
+    # a figure that could not be built is not a result: leaving the attribute
+    # absent keeps `hasattr` honest, where storing None would not
+    if mgf is not None:
+        self.pose_centered_figure = mgf
     return mgf
 
 
@@ -1103,7 +1112,10 @@ def mg_pose_distance(self: "musicalgestures.MgVideo", dpi: int = 200, target_nam
 
     mgf = render_pose_distance(c['data'], c['names'], c['width'], c['height'], c['fps'],
                                target_name, overwrite=overwrite, dpi=dpi)
-    self.pose_distance_figure = mgf
+    # a figure that could not be built is not a result: leaving the attribute
+    # absent keeps `hasattr` honest, where storing None would not
+    if mgf is not None:
+        self.pose_distance_figure = mgf
     return mgf
 
 

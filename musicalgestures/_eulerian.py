@@ -169,8 +169,8 @@ def mg_eulerian(
         process = _open_reader()
         writer = _open_writer()
 
-        lowpass1 = None
-        lowpass2 = None
+        lowpass1: "list | None" = None
+        lowpass2: "list | None" = None
         # IIR cutoffs derived from the requested band
         r1 = freq_high * 2.0 / fps
         r2 = freq_low * 2.0 / fps
@@ -188,6 +188,8 @@ def mg_eulerian(
                 lowpass2 = [lvl.copy() for lvl in pyr]
                 filtered = [np.zeros_like(lvl) for lvl in pyr]
             else:
+                # built together on the first frame, above, and used together here
+                assert lowpass1 is not None and lowpass2 is not None
                 for k in range(len(pyr)):
                     lowpass1[k] = (1 - r1) * lowpass1[k] + r1 * pyr[k]
                     lowpass2[k] = (1 - r2) * lowpass2[k] + r2 * pyr[k]
