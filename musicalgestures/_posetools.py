@@ -29,12 +29,15 @@ index -> name mapping.
 
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
+
 import os
 import subprocess
 import threading
 import warnings
 
 import numpy as np
+from scipy import signal
 
 from musicalgestures._utils import get_widthheight, get_fps
 
@@ -626,3 +629,292 @@ def _pick_relative_peaks(signal: np.ndarray, rel_thresh: float, min_dist: int) -
         if all(abs(int(i) - j) >= min_dist for j in kept):
             kept.append(int(i))
     return np.array(sorted(kept), dtype=np.intp)
+
+
+def _unpack_views(views) -> tuple[list, list[np.ndarray], list[np.ndarray]]:
+    """Normalise the accepted view forms into names, world arrays, visibilities.
+
+    A view is either an :func:`extract_pose_landmarks` result dict (its
+    ``world`` array, with visibility read from ``landmarks[..., 2]``) or a
+    plain ``(world, visibility)`` pair.
+    """
+    if isinstance(views, dict):
+        items = list(views.items())
+    else:
+        items = list(enumerate(views))
+    if len(items) < 2:
+        raise ValueError(
+            "fuse_pose_views needs at least two views; got "
+            f"{len(items)}. Fusing one view has nothing to fuse it with.")
+
+    names: list = []
+    worlds: list[np.ndarray] = []
+    vis: list[np.ndarray] = []
+    for name, view in items:
+        names.append(name)
+        if isinstance(view, dict):
+            world = view.get("world")
+            if world is None:
+                raise ValueError(
+                    f"view {name!r} has no 'world' array. Call "
+                    "extract_pose_landmarks(..., world_landmarks=True): the "
+                    "fusion is defined on metric 3D landmarks, not pixels.")
+            world = np.asarray(world, dtype=float)
+            lm = view.get("landmarks")
+            v = (np.asarray(lm, dtype=float)[..., 2] if lm is not None
+                 else np.ones(world.shape[:2]))
+        else:
+            world, v = view
+            world = np.asarray(world, dtype=float)
+            v = np.asarray(v, dtype=float)
+        if world.ndim != 3 or world.shape[-1] != 3:
+            raise ValueError(
+                f"view {name!r} world array has shape {world.shape}; "
+                "expected (frames, landmarks, 3).")
+        worlds.append(world)
+        vis.append(v)
+
+    widths = {w.shape[1] for w in worlds}
+    if len(widths) != 1:
+        raise ValueError(
+            f"views disagree on the number of landmarks: {sorted(widths)}. "
+            "All views must come from the same landmark topology.")
+    return names, worlds, vis
+
+
+def _interp_nan(a: np.ndarray, max_gap: int | None = None) -> np.ndarray:
+    """Fill NaN gaps per coordinate by linear interpolation.
+
+    With ``max_gap=None`` every gap is filled, of any length, and the ends are
+    held flat -- which is what the study scripts this came from did. Pass an
+    integer to leave longer dropouts as NaN, so a repair cannot pass for a
+    measurement.
+    """
+    frames = a.shape[0]
+    idx = np.arange(frames)
+    for j in range(a.shape[1]):
+        for c in range(3):
+            x = a[:, j, c]
+            m = np.isfinite(x)
+            if m.sum() < 2:
+                continue
+            filled = np.interp(idx, np.flatnonzero(m), x[m])
+            if max_gap is not None:
+                filled = np.where(_gap_lengths(m) > max_gap, np.nan, filled)
+            a[:, j, c] = filled
+    return a
+
+
+def _gap_lengths(mask: np.ndarray) -> np.ndarray:
+    """Length of the NaN run each sample belongs to; 0 where the sample is finite."""
+    out = np.zeros(mask.shape, dtype=int)
+    start = None
+    for i, ok in enumerate(mask):
+        if not ok and start is None:
+            start = i
+        elif ok and start is not None:
+            out[start:i] = i - start
+            start = None
+    if start is not None:
+        out[start:] = len(mask) - start
+    return out
+
+
+def _umeyama(src: np.ndarray, dst: np.ndarray) -> tuple[np.ndarray, float]:
+    """Similarity transform (rotation, scale) taking ``src`` onto ``dst``.
+
+    Both arrays are (N, 3). Translation is deliberately not returned: the
+    caller re-centres on the torso centroid instead, which is more stable
+    than a fitted offset when a view drops landmarks.
+    """
+    mu_s = src.mean(0)
+    mu_d = dst.mean(0)
+    S = src - mu_s
+    D = dst - mu_d
+    C = D.T @ S / len(src)
+    U, d, Vt = np.linalg.svd(C)
+    # Kabsch sign correction: without it a degenerate fit can return a
+    # reflection, which mirrors the skeleton rather than rotating it.
+    flip = np.array([1.0, 1.0, np.sign(np.linalg.det(U @ Vt))])
+    R = U @ np.diag(flip) @ Vt
+    var = (S ** 2).sum() / len(src)
+    scale = float((d * flip).sum() / (var + 1e-12))
+    return R, scale
+
+
+def _mean_rotation(rotations: list[np.ndarray]) -> np.ndarray:
+    """Project the arithmetic mean of rotation matrices back onto SO(3)."""
+    U, _, Vt = np.linalg.svd(np.mean(rotations, axis=0))
+    R = U @ Vt
+    if np.linalg.det(R) < 0:
+        # The mean fell closer to a reflection than to a rotation. Flipping
+        # the least-significant singular direction is the nearest true
+        # rotation to it; without this the fused skeleton comes out mirrored.
+        U[:, -1] *= -1
+        R = U @ Vt
+    return R
+
+
+def fuse_pose_views(
+        views: Sequence | Mapping,
+        reference: int | str = 0,
+        torso: Sequence[int] = (11, 12, 23, 24),
+        smooth: tuple[int, int] | None = (7, 2),
+        max_gap: int | None = None) -> dict:
+    """
+    Fuse MediaPipe *world* landmarks from two or more uncalibrated camera views.
+
+    This is **not** calibrated triangulation: there is no camera calibration and
+    no motion-capture ground truth. Each view gives a monocular metric 3D pose
+    in its own gravity-aligned, hip-centred frame. The views are brought into a
+    common frame by a single Umeyama (rotation + scale) similarity estimated
+    from the rigid torso landmarks, then fused per landmark by a
+    visibility-weighted average. The result is a consensus skeleton more robust
+    than any single monocular view, plus a cross-view residual in millimetres as
+    a quality measure.
+
+    One transform is estimated per view for the whole take, not one per frame:
+    the per-frame fits are averaged (rotation through the nearest rotation to
+    their arithmetic mean, scale through the median), which is what makes the
+    alignment a property of the camera placement rather than of the pose. The
+    translation term of each fit is deliberately discarded -- views are
+    re-centred on the torso centroid instead, which stays stable when a view
+    drops landmarks.
+
+    The residual is a *consistency* measure, not an accuracy one. Views that
+    agree closely can still agree on a wrong pose, so a low residual says the
+    cameras saw the same thing, not that the thing was right.
+
+    Args:
+        views: Two or more views of the same take, either a sequence or a
+            mapping of name -> view. Each view is one of:
+
+            - a result dict from :func:`extract_pose_landmarks` called with
+              ``world_landmarks=True``, whose visibility is read from its
+              ``landmarks[..., 2]`` column;
+            - a plain ``(world, visibility)`` pair of arrays, shaped
+              ``(F, L, 3)`` and ``(F, L)``, from any other source.
+
+            Views may differ in length; the shortest one sets the number of
+            fused frames. They must agree on the number of landmarks.
+        reference (int or str, optional): Which view defines the common frame,
+            by key when ``views`` is a mapping and by position otherwise. The
+            fused skeleton comes out in this view's frame and at its scale.
+            Defaults to 0 (the first view).
+        torso (sequence of int, optional): Landmark indices used to estimate
+            the alignment. Defaults to (11, 12, 23, 24) -- MediaPipe's
+            shoulders and hips, the most rigid and best-detected group.
+        smooth (tuple, optional): ``(window, polyorder)`` for a Savitzky-Golay
+            filter applied along time after fusion, or None for no smoothing.
+            Skipped when the take is shorter than the window. Note that
+            smoothing spreads any NaN across its window. Defaults to (7, 2).
+        max_gap (int, optional): Longest run of missing frames that may be
+            filled by interpolation before alignment. Longer dropouts are left
+            as NaN, so a repair cannot pass for a measurement. Defaults to None,
+            which fills every gap of any length and holds the ends flat -- the
+            behaviour of the study scripts this is consolidated from, kept as
+            the default so their results reproduce.
+
+    Returns:
+        dict: A dictionary with keys:
+
+            - ``fused`` (np.ndarray, shape (F, L, 3)): The consensus skeleton in
+              the reference view's frame, in metres.
+            - ``residual_mm`` (float): Mean distance between each aligned view
+              and the fused skeleton, in millimetres.
+            - ``residual_per_landmark_mm`` (np.ndarray, shape (L,)): The same
+              measure per landmark, which is where a badly-placed camera shows.
+            - ``rotations`` (dict): Per view, the (3, 3) rotation onto the
+              reference frame. The reference view's own is the identity.
+            - ``scales`` (dict): Per view, the scalar scale onto the reference
+              frame.
+            - ``names`` (list): The view names, in the order given.
+            - ``n_frames`` (int): Number of fused frames, i.e. the length of
+              the shortest view.
+
+    Raises:
+        ValueError: If fewer than two views are given, if a view dict has no
+            ``world`` array, if a world array is not shaped (F, L, 3), or if
+            the views disagree on the number of landmarks.
+
+    Examples:
+        >>> side = mg.extract_pose_landmarks("side.mp4", world_landmarks=True)
+        >>> above = mg.extract_pose_landmarks("above.mp4", world_landmarks=True)
+        >>> fused = mg.fuse_pose_views({"side": side, "above": above},
+        ...                            reference="side")
+        >>> fused["residual_mm"]
+
+    Source:
+        Consolidated from the author's Westney-comparisons study scripts
+        concert_fuse3d.py and reh_fuse3d.py, which were byte-identical but for
+        a hardcoded list of pieces (Jensenius). Reproduces their published
+        fusion on all four concert excerpts to within float32 storage precision.
+    """
+    names, worlds, vis = _unpack_views(views)
+    n = min(w.shape[0] for w in worlds)
+    worlds = [_interp_nan(w[:n].copy(), max_gap) for w in worlds]
+    vis = [np.clip(v[:n], 0.0, 1.0) for v in vis]
+
+    ref_index = names.index(reference) if reference in names else int(reference)
+    ref = worlds[ref_index]
+    torso = list(torso)
+
+    aligned: list[np.ndarray] = []
+    rotations: dict = {}
+    scales: dict = {}
+    for i, world in enumerate(worlds):
+        if i == ref_index:
+            aligned.append(world)
+            rotations[names[i]] = np.eye(3)
+            scales[names[i]] = 1.0
+            continue
+        per_frame_R = []
+        per_frame_s = []
+        for f in range(n):
+            s_pts = world[f, torso]
+            d_pts = ref[f, torso]
+            if np.all(np.isfinite(s_pts)) and np.all(np.isfinite(d_pts)):
+                R_f, s_f = _umeyama(s_pts, d_pts)
+                per_frame_R.append(R_f)
+                per_frame_s.append(s_f)
+        if not per_frame_R:
+            aligned.append(world)
+            rotations[names[i]] = np.eye(3)
+            scales[names[i]] = 1.0
+            continue
+        R = _mean_rotation(per_frame_R)
+        scale = float(np.median(per_frame_s))
+        al = scale * np.einsum("ij,fkj->fki", R, world)
+        al = al - np.nanmean(al[:, torso], axis=1, keepdims=True) \
+            + np.nanmean(ref[:, torso], axis=1, keepdims=True)
+        aligned.append(al)
+        rotations[names[i]] = R
+        scales[names[i]] = scale
+
+    num = np.zeros((n, worlds[0].shape[1], 3))
+    den = np.zeros((n, worlds[0].shape[1], 1))
+    for a, v in zip(aligned, vis):
+        w = v[:, :, None]
+        good = np.isfinite(a).all(-1, keepdims=True)
+        num += np.where(good, a * w, 0.0)
+        den += np.where(good, w, 0.0)
+    fused = num / np.clip(den, 1e-6, None)
+    fused = np.where(den > 0, fused, np.nan)
+
+    if smooth is not None:
+        window, order = smooth
+        if n >= window:
+            fused = signal.savgol_filter(fused, window, order, axis=0)
+
+    per_landmark = np.nanmean(
+        [np.linalg.norm(a - fused, axis=-1) for a in aligned], axis=(0, 1)) * 1000.0
+
+    return {
+        "fused": fused,
+        "residual_mm": float(np.nanmean(per_landmark)),
+        "residual_per_landmark_mm": per_landmark,
+        "rotations": rotations,
+        "scales": scales,
+        "names": names,
+        "n_frames": n,
+    }
