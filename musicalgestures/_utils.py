@@ -578,13 +578,13 @@ def get_frame_planecount(frame: np.ndarray) -> int:
     return 3 if len(np.array(frame).shape) == 3 else 1
 
 
-def frame2ms(frame: int, fps: int) -> int:
+def frame2ms(frame: int, fps: float) -> int:
     """
     Converts frames to milliseconds.
 
     Args:
         frame (int): The index of the frame to be converted to milliseconds.
-        fps (int): Frames per second.
+        fps (float): Frames per second. Not an integer: 29.97 and 23.976 are ordinary.
 
     Returns:
         int: The rounded millisecond value of the input frame index.

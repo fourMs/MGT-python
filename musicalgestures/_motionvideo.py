@@ -474,7 +474,7 @@ def mg_motiondata(
         motion_analysis: str = 'all',
         data_format: str | list = "csv",
         target_name: str | None = None,
-        overwrite: bool = True) -> "list":
+        overwrite: bool = True) -> "str | list":
     """
     Shortcut for `mg_motion` to only render motion data.
 
@@ -494,7 +494,7 @@ def mg_motiondata(
         str/list: The path(s) to the rendered data file(s).
     """
 
-    out = None
+    out: "str | list | None" = None
 
     if type(data_format) == str:
         if target_name is None:
@@ -505,6 +505,7 @@ def mg_motiondata(
 
     if type(data_format) == list:
         out = []
+        paths: list = out
         if target_name is None:
             # this csv is just a temporary placeholder, the correct extension is always enforced based on the data_format(s)
             target_name = self.of + '_motion.csv'
@@ -514,7 +515,7 @@ def mg_motiondata(
                 tmp_name = generate_outfilename(target_name_of + '.' + item)
             else:
                 tmp_name = target_name_of + '.' + item
-            out.append(tmp_name)
+            paths.append(tmp_name)
 
     mg_motion(
         self,
@@ -538,6 +539,7 @@ def mg_motiondata(
     #     return outlist
     # else:
     #     return self.of + '_motion.' + data_format
+    assert out is not None, f"unsupported data_format: {data_format!r}"
     return out
 
 
