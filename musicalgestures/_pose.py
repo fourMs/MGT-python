@@ -245,8 +245,8 @@ def pose(
     Returns:
         MgVideo: An MgVideo pointing to the output video. The average-pose and trajectories images
             (when rendered) are attached as ``.average_pose`` and ``.trajectories`` (MgImage), and the
-            collected keypoints are available on the parent object as ``self.pose_average`` /
-            ``self.pose_trajectories``.
+            collected keypoints are available on the parent object as
+            ``self.pose_average_image`` / ``self.pose_trajectories_image``.
     """
 
     style = str(style).lower()
