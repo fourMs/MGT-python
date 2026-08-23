@@ -50,9 +50,9 @@ def history_ffmpeg(self, filename: str | None = None, history_length: int = 10, 
             weights_map += weights
             str_weights = ' '.join([str(weight) for weight in weights_map])
     elif type(weights) == str:
-        weights_as_list = weights.split()
+        weights_as_text = weights.split()
         try:
-            weights_as_list = [float(item) for item in weights_as_list]
+            weights_as_list = [float(item) for item in weights_as_text]
         except ValueError:
             raise MgInputError(
                 'Found wrong type(s) in the list of weights. Use ints and floats.')
@@ -150,10 +150,11 @@ def history_cv2(self, filename: str | None = None, history_length: int = 10, wei
     out = cv2.VideoWriter(target_name, fourcc, fps, (width, height))
 
     ii = 0
-    history = []
+    history: list = []
     weights_map = [1 for weight in range(history_length+1)]
 
     if type(weights) in [int, float]:
+        assert isinstance(weights, (int, float))
         offset = weights - 1
         weights_map[0] = weights
     elif type(weights) == list:
