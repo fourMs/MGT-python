@@ -15,6 +15,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the `drawing`/`xi`/`yi` that already were, and selecting nothing says what to do instead:
   "No crop area was selected. Drag a rectangle across the frame with the left mouse button held
   down, then press 'c' to crop."
+- `pixelarray()` raised `TypeError: 'MgImage' object is not callable` on its second call.
+  `pixelarray` is both the method that computes the frame average and the name it stored the
+  result under, so the first call replaced the bound method on the instance with the `MgImage` it
+  had just returned. The result now lives under `frameaverage_image`; the method keeps the
+  `pixelarray` name and nothing shadows it. Unlike the other renames in this release, there is no
+  deprecated alias for the old attribute name, deliberately: an alias here would be a property
+  named `pixelarray` on the class itself, which reintroduces the exact collision this fixes,
+  permanently. `pixelarray_cv2` had the same problem for the same reason and is fixed the same
+  way, as `frameaverage_cv2_image`. This is the same class of bug commit 744169f fixed for
+  `subtract` and `sonomotiongram`.
 
 ### Added
 - `crop_box_from_points()` turns the two dragged corners into an ffmpeg crop box. The arithmetic
@@ -23,6 +33,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   box; that is now nine tests rather than an assumption.
 
 ### Changed
+- Every result an analysis method stashes on `MgVideo` is now declared on the class and named
+  after what it holds: `motion_plot_image`, `ssm_combined_image`, `movement_beat_statistics_figure`,
+  `pose_average_image`, `pose_trajectories_image`, and the four grams below. Each old name keeps
+  working as a deprecated alias and is removed in 2.0. Closes #346.
+- The motiongrams and videograms are named for what they show rather than for the axis that was
+  collapsed to make them: `motiongram_x` was the *vertical* gram and `motiongram_y` the
+  *horizontal* one, which is why `show()` grew `mgh`/`mgv` aliases in the first place. They are
+  `motiongram_vertical_image`, `motiongram_horizontal_image`, `videogram_vertical_image` and
+  `videogram_horizontal_image` now. Every existing `show()` key, including the legacy `mgx`/`mgy`,
+  resolves as before.
+- Declaring the attributes made the producing functions typeable, and typing them turned the type
+  checker on over code it had never read. mypy does not check the body of a function carrying no
+  annotations at all, so annotating `self` in the producers opened ~31 pre-existing problems to
+  view for the first time: `mypy musicalgestures/` reports 90 errors where it reported 74, and the
+  difference is what it can now see rather than anything newly written. The errors this work set
+  out to close did close --- `no-any-return` went from 25 to 7 --- and the toolbox's results now
+  autocomplete in an editor. The remaining 90 are the real number to work against. The count is
+  mypy-version-dependent: on the same code and config, mypy 1.20.1 reports 169 errors and mypy
+  2.3.1 reports 90, and CI installs mypy unpinned, so anyone acting on these numbers should pin
+  the version first.
 - `ssm()` stores its result as `ssm_figure`, not `ssm_fig`. Every other stashed result on
   MgVideo already ends in `_video`, `_image` or `_figure`; this one did not, and `show(key='ssm')`
   resolves the result by attribute name, so the outlier was visible to users rather than internal.
