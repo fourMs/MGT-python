@@ -5,10 +5,11 @@ import os
 import cv2
 import matplotlib
 from musicalgestures._utils import MgImage, MgProgressbar, generate_outfilename, resolve_filename
+import musicalgestures
 
 
 def mg_heatmap(
-        self,
+        self: "musicalgestures.MgVideo",
         colormap: str = 'inferno',
         overlay: bool = True,
         alpha: float = 0.75,

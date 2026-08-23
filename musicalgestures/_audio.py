@@ -73,6 +73,8 @@ class MgAudio:
     # It has to be a property rather than a second instance attribute, because
     # the two names would otherwise drift apart the moment either side is
     # reassigned, and `show(key='ssm')` reads the instance dictionary.
+    ssm_figure: MgFigure
+
     @property
     def ssm_fig(self) -> MgFigure:
         """Deprecated alias for :attr:`ssm_figure`. Removed in 2.0."""

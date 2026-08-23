@@ -8,6 +8,7 @@ from musicalgestures._input_test import mg_input_test
 from musicalgestures._videoreader import mg_videoreader
 from musicalgestures._flow import Flow
 from musicalgestures._audio import MgAudio
+import musicalgestures
 from musicalgestures._utils import (
     convert,
     convert_to_mp4,
@@ -15,7 +16,8 @@ from musicalgestures._utils import (
     ffmpeg_cmd,
     merge_videos,
     extract_frame,
-    MgImage
+    MgImage,
+    MgFigure
 )
 
 
@@ -138,6 +140,39 @@ class MgVideo(MgAudio):
 
         self.get_video()
         self.flow = Flow(self, self.filename, self.color, self.has_audio)
+
+    # Results stashed by the analysis methods.
+    #
+    # These are declarations, not assignments: a bare annotation tells a type
+    # checker the attribute exists and what it holds, while leaving it absent
+    # from the instance until a method sets it. `show(key=...)` decides what a
+    # video has by looking in `self.__dict__`, so giving any of these a value
+    # here would make every video claim every result. See issue #346.
+    blend_image: MgImage
+    blur_faces_video: "musicalgestures.MgVideo"
+    body_audio_coupling_figure: MgFigure
+    dynamics_coupling_figure: MgFigure
+    eulerian_video: "musicalgestures.MgVideo"
+    heatmap_image: MgImage
+    history_video: "musicalgestures.MgVideo"
+    mhi_image: MgImage
+    motion_video: "musicalgestures.MgVideo"
+    motiondescriptors_figure: MgFigure
+    motionvectors_video: "musicalgestures.MgVideo"
+    phase_synchrony_figure: MgFigure
+    pose_centered_figure: MgFigure
+    pose_distance_figure: MgFigure
+    pose_segments_figure: MgFigure
+    pose_video: "musicalgestures.MgVideo"
+    pose_waterfall_figure: MgFigure
+    silhouette_waterfall_figure: MgFigure
+    sonomotiongram_audio: MgAudio
+    spacetime_volume_figure: MgFigure
+    stroboscope_image: MgImage
+    structure_comparison_figure: MgFigure
+    subtract_video: "musicalgestures.MgVideo"
+    tempo_similarity_figure: MgFigure
+    warp_video: "musicalgestures.MgVideo"
 
     # Methods are bound by importing the implementing function at class scope. mypy calls this
     # "Unsupported class scoped import" and it is the toolbox's central idiom, so the ignores
