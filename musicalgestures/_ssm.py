@@ -544,6 +544,7 @@ def mg_ssm(
 
     else:
         print(f'Unrecognized feature: "{features}". Try "motiongrams", "videograms, "spectrogram", "chromagram" or "tempogram".')
+        return None
 
 
 

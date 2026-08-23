@@ -148,6 +148,8 @@ class MgVideoReader:
         self._process = subprocess.Popen(
             cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, bufsize=-1
         )
+        # stdout=PIPE guarantees a stream; the annotation is Optional for the general case
+        assert self._process.stdout is not None, "ffmpeg was started without a readable output stream"
         self._frame_index = 0
         return self
 
