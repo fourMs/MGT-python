@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 import matplotlib
 import matplotlib.pyplot as plt
-from musicalgestures._utils import MgImage, generate_outfilename
+from musicalgestures._utils import MgFigure, MgImage, generate_outfilename
 
 
 def _layout_labels(anchors, box_w, box_h, width, height, iterations=400, gap=None):
@@ -90,7 +90,7 @@ def _per_marker_stats(coords, fps, fmin=0.2, fmax=8.0):
 
 
 def render_average_pose(data, names, connections, width, height, fps, avg_frame,
-                        target_name, overwrite=True, fmin=0.2, fmax=8.0, style='both'):
+                        target_name, overwrite=True, fmin=0.2, fmax=8.0, style='both') -> "MgImage | None":
     """
     Render the average pose of the whole video, with per-marker quantity of motion
     (colour + label) and dominant frequency (label) annotated.
@@ -191,7 +191,7 @@ def render_average_pose(data, names, connections, width, height, fps, avg_frame,
 
 
 def render_trajectories(data, names, width, height, fps, target_name, overwrite=True,
-                        background='black', labels=False):
+                        background='black', labels=False) -> "MgImage | None":
     """
     Render every marker's spatial trajectory across the whole video.
 
@@ -258,7 +258,7 @@ def render_trajectories(data, names, width, height, fps, target_name, overwrite=
 def render_pose_waterfall(data, names, width, height, fps, target_name, overwrite=True,
                           style='trajectories', connections=None, n_samples=40,
                           markers=None, color_by=None, cmap='hsv', dpi=200,
-                          elev=20, azim=-60, lw=1.0, axes=True, crop=False):
+                          elev=20, azim=-60, lw=1.0, axes=True, crop=False) -> "MgFigure | None":
     """
     Render a 3D spatio-temporal waterfall of the pose, cascading along the time (depth) axis —
     a pose-based counterpart to ``silhouette_waterfall()``.
@@ -450,7 +450,7 @@ def _segment_angles(coords, a, b):
 
 def render_segment_circular(data, names, connections, width, height, fps, target_name,
                             overwrite=True, segments=None, n_bins=36, cmap='viridis',
-                            dpi=200, ncols=6):
+                            dpi=200, ncols=6) -> "MgFigure | None":
     """
     Circular (polar) motion plots and statistics for every body segment.
 
@@ -591,7 +591,7 @@ def pose_center(data, names):
 
 
 def render_pose_center(data, names, width, height, target_name, overwrite=True,
-                       cmap='hsv', dpi=200):
+                       cmap='hsv', dpi=200) -> "MgFigure | None":
     """
     Centre the pose data (see :func:`pose_center`) and plot the centred marker trajectories.
 
@@ -667,7 +667,7 @@ def pose_distance(data, names, width, height):
 
 
 def render_pose_distance(data, names, width, height, fps, target_name, overwrite=True,
-                         cmap='hsv', dpi=200):
+                         cmap='hsv', dpi=200) -> "MgFigure | None":
     """
     Plot per-marker cumulative distance travelled over time plus a ranked total per marker.
 
