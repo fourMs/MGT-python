@@ -218,6 +218,9 @@ class Flow:
                             if ii == 0:
                                 out.stdin.write(rgb.astype(np.uint8))
                             else:
+                                # frame 0 always sets prev_rgb below, and this arm only
+                                # runs from frame 1 on, so it is set by the time we read it
+                                assert prev_rgb is not None
                                 out.stdin.write(prev_rgb.astype(np.uint8))
                     else:
                         out.stdin.write(rgb.astype(np.uint8))
@@ -287,6 +290,7 @@ class Flow:
         else:
             out.stdin.close()
             out.wait()
+            assert target_name is not None  # resolve_filename ran earlier in this branch
             destination_video = target_name
 
             if self.has_audio:
@@ -300,7 +304,7 @@ class Flow:
 
             return self._parent().flow_dense_video
 
-    def get_acceleration(self, velocity: list, fps: int):
+    def get_acceleration(self, velocity: list, fps: float):
 
         acceleration = np.zeros(len(velocity))
         velocity = np.abs(velocity)
@@ -450,6 +454,7 @@ class Flow:
 
                 # calculate optical flow
                 if _use_gpu:
+                    assert lk_gpu is not None  # created under the same flag above
                     gpu_frame_gray.upload(frame_gray)
                     gpu_p1, gpu_st, _gpu_err = lk_gpu.calc(gpu_old_gray, gpu_frame_gray, gpu_p0, None)
                     # GPU returns 1xN; flatten to (N,2)/(N,) for uniform selection

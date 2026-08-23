@@ -143,6 +143,7 @@ def mg_show(self, filename: str | None = None, key: str | None = None, mode: str
             horizontal_keys = ('horizontal', 'mgh', 'vgh', 'mgy', 'vgy')
             orientation = 'horizontal' if k in horizontal_keys else 'vertical'
             label = orientation.capitalize()
+            kinds: tuple[str, ...]
             if k in ('mgh', 'mgv', 'mgx', 'mgy'):
                 kinds = ('motiongram',)
             elif k in ('vgh', 'vgv', 'vgx', 'vgy'):

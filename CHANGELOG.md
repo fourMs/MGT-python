@@ -17,9 +17,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   behind it are gone. Closes #370.
 
 ### Changed
-- Internal typing, issue #350: `mypy musicalgestures/` is at 17 errors in 9 files, from 90 when
-  this work started. Retiring `motion_mp()` accounts for nine of the reduction, since typing code
-  that cannot run would have been effort spent hiding a breakage.
+- **The mypy step in CI blocks merges now.** `mypy musicalgestures/` reports no issues across all
+  69 source files, from 248 when issue #350 was opened, so the `|| true` that made it advisory is
+  gone. The checker version is pinned alongside it, because the count this reports moves with the
+  checker as well as with the code: on identical source, mypy 1.20.1 reported 169 errors where
+  2.3.1 reported 90. Closes #350.
+- The last of that backlog: two frame rates typed as integers, which they are not; two GPU objects
+  created under a flag and used under the same flag, which a checker will not correlate; three
+  output names resolved in one branch and used in another; and two functions carrying no return
+  annotation at all.
 
 ## [1.13.0] — 2026-08-23
 

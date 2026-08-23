@@ -734,6 +734,7 @@ def pose(
 
     if save_video:
         # save result as pose_video for parent MgVideo
+        assert target_name_video is not None  # resolved under `if save_video` above
         self.pose_video = musicalgestures.MgVideo(target_name_video, color=self.color, returned_by_process=True)
         self.pose_video.average_pose = average_image
         self.pose_video.trajectories = trajectories_image
@@ -788,7 +789,7 @@ def _rerender_pose_from_cache(self: "musicalgestures.MgVideo", style='both', ove
                               trajectory_labels=False,
                               marker_history=0, target_name_video=None,
                               target_name_data=None, target_name_average=None,
-                              target_name_trajectories=None, overwrite=True):
+                              target_name_trajectories=None, overwrite=True) -> "musicalgestures.MgVideo":
     """Re-render the pose outputs from cached keypoints (no network inference)."""
     c = self._pose_keypoints
     data, names, connections = c['data'], c['names'], c['connections']
@@ -1147,7 +1148,7 @@ def _pose_mediapipe(
         target_name_data=None,
         target_name_average=None,
         target_name_trajectories=None,
-        overwrite=True):
+        overwrite=True) -> "musicalgestures.MgVideo":
     """
     Internal helper: run MediaPipe Pose on a video and render/save the output.
     Called by :func:`pose` when ``model='mediapipe'`` (or when GPU is requested and the
