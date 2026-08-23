@@ -6,7 +6,7 @@ import musicalgestures
 from musicalgestures._utils import generate_outfilename, pass_if_container_is, get_length, ffmpeg_cmd
 
 def mg_subtract(
-        self,
+        self: "musicalgestures.MgVideo",
         color=True,
         filtertype=None,
         threshold=0.05,
