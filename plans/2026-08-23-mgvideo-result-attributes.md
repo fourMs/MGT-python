@@ -192,6 +192,8 @@ insert:
 
 Note the quoted `"musicalgestures.MgVideo"` — the class cannot name itself unquoted inside its own body. `MgAudio` is already imported at the top of the file.
 
+Those quoted annotations need the name `musicalgestures` bound in this module, which it is not. Add `import musicalgestures` beside the other imports at the top of `_video.py`; that is the idiom `_heatmap.py` and several other modules already use. Without it mypy reports 81 errors rather than 73.
+
 `ssm_figure` is deliberately absent from this block. `mg_ssm`'s audio paths set it on **MgAudio** instances, and its `ssm_fig` alias already lives there from `9ef2a4f`. Python's `__annotations__` does not inherit, so declaring it on `MgVideo` would leave `MgAudio` undeclared and break Task 8 the moment an audio producer's `self` is typed. Declare it in `musicalgestures/_audio.py` instead, in the `MgAudio` class body immediately above the existing `ssm_fig` alias:
 
 ```python
@@ -230,7 +232,7 @@ def mg_heatmap(
 - [ ] **Step 7: Verify the type check improved and nothing regressed**
 
 Run: `mypy musicalgestures/ 2>&1 | tail -1`
-Expected: **73 errors in 19 files** (down one from 74; `_heatmap.py:131` `no-any-return` is gone).
+Expected: **73 errors in 18 files** (down one from 74; `_heatmap.py` drops off the list entirely once its only error is fixed).
 
 Run: `mypy musicalgestures/ 2>&1 | grep _heatmap.py`
 Expected: no output.
