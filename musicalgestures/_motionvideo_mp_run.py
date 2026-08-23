@@ -14,7 +14,7 @@ import cv2
 
 
 def mg_motion_mp(
-        self,
+        self: "musicalgestures.MgVideo",
         filtertype='Regular',
         threshold=0.05,
         blur='None',
