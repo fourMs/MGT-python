@@ -12,7 +12,14 @@ from musicalgestures._info import mg_info as info
 from musicalgestures._colored import MgAudioProcessor, MgWaveformImage
 
 import warnings
-warnings.filterwarnings("ignore")
+
+# Narrowed from a bare filterwarnings("ignore"), which silenced every warning in
+# the process from the moment this module was imported --- including warnings
+# raised by this package, and by the user's own code. What it was actually
+# hiding is `audioread`, a librosa dependency, reporting that the stdlib modules
+# it imports are slated for removal: nothing a user of this toolbox can act on.
+# Scope it to that, and let everything else through.
+warnings.filterwarnings("ignore", category=DeprecationWarning, module=r"audioread(\.|$)")
 
 # preventing librosa-matplotlib deadlock
 plt.plot()
@@ -129,22 +136,32 @@ class MgAudio:
             except:
                 return 
 
-            time = np.round(np.linspace(0, original_duration, 10), 1)
+            # Ten ticks spread across the axis as it currently stands, labelled with
+            # the corresponding times in the ORIGINAL file. The two differ whenever
+            # frames were skipped, which is the case this method exists for: the axis
+            # is in decoded seconds, the labels are what the clock said.
+            x0, x1 = ax.get_xlim()
+            positions = np.linspace(x0, x1, 10)
+            label_times = np.linspace(0, original_duration, 10)
 
-            for i, v in enumerate(time):
+            labels = []
+            for v in label_times:
                 if original_duration > 3600:
                     minutes, sec = divmod(v, 60)
                     hour, minutes = divmod(minutes, 60)
-                    time[i] = '%d.%02d.%02d' % (hour, minutes, sec)
-                if original_duration > 60:
+                    labels.append('%d:%02d:%02d' % (hour, minutes, sec))
+                elif original_duration > 60:
                     minutes, sec = divmod(v, 60)
-                    time[i] = '%02d.%02d' % (minutes, sec)
+                    labels.append('%d:%02d' % (minutes, sec))
+                else:
+                    labels.append(str(round(float(v), 1)))
 
-            ax.xaxis.set_major_locator(ticker.LinearLocator(numticks=10))
-            if original_duration > 60:
-                ax.xaxis.set_major_formatter(ticker.FixedFormatter(list(map(lambda x: str(x).replace('.', ':'), list(time)))))
-            else:  
-                ax.xaxis.set_major_formatter(ticker.FixedFormatter(list(time)))
+            # FixedFormatter pairs labels to ticks by position, so it is only
+            # well defined against a FixedLocator. Paired with the LinearLocator
+            # this used to carry, matplotlib warned on every audio figure that the
+            # labels might not land on the ticks they describe.
+            ax.xaxis.set_major_locator(ticker.FixedLocator(positions))
+            ax.xaxis.set_major_formatter(ticker.FixedFormatter(labels))
 
     def waveform(self, dpi: int = 300, autoshow: bool = True, raw: bool = False, colored: bool = False, image_width: int = 2500, image_height: int = 500, fmin: int = 500, fmax: int | None = None, cmap: str = 'freesound', original_time: bool = True, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> MgFigure | None:
         """

@@ -8,6 +8,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- Audio figures mislabelled their time axis, and crashed outright on files longer than an hour.
+  `format_time` built its tick labels by assigning formatted strings into a numpy float array, so
+  `'10.00'` became `10.0` and rendered as `10:0`, losing a digit on every tick that landed on a
+  whole minute, while `'0.13.20'` on a file over an hour raised
+  `ValueError: could not convert string to float`. The labels are built as strings now. The method
+  is called from ten places, so this affected every audio figure.
+- Tick labels are no longer merely near the ticks they describe. `format_time` paired a
+  `FixedFormatter` with a `LinearLocator`, which matplotlib warns about because the pairing is by
+  position and only defined against a `FixedLocator`. Ten ticks are placed explicitly across the
+  axis and labelled with the corresponding times in the original file --- the two differ whenever
+  frames were skipped, which is the case the method exists for.
+- `musicalgestures` no longer silences warnings for the whole process. Importing it ran a bare
+  `warnings.filterwarnings("ignore")`, which switched off every warning from that moment on,
+  including warnings raised by this package and by the caller's own code. It is scoped to the
+  `DeprecationWarning`s from `audioread` that it was presumably added for, which report that stdlib
+  modules a librosa dependency imports are slated for removal, and which a user of this toolbox
+  can do nothing about. The three bugs above were hidden behind it, and so were the deprecation
+  warnings on the renamed attributes below, which now reach the people who need them.
 - The cropping window raised `NameError: name 'ref_point' is not defined` if you pressed "c"
   without having dragged a rectangle first --- which is what its own on-screen prompt invites you
   to do. `ref_point` and `crop` were declared `global` inside the mouse callback but never bound
@@ -36,9 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Every result an analysis method stashes on `MgVideo` is now declared on the class and named
   after what it holds: `motion_plot_image`, `ssm_combined_image`, `movement_beat_statistics_figure`,
   `pose_average_image`, `pose_trajectories_image`, and the four grams below. Each old name keeps
-  working as a deprecated alias and is removed in 2.0. Closes #346. Note that the package
-  silences warnings globally at import (`_audio.py`), so these deprecation warnings are not
-  currently visible in practice; that filter needs narrowing before 2.0 removes the aliases.
+  working as a deprecated alias and is removed in 2.0. Closes #346.
 - The motiongrams and videograms are named for what they show rather than for the axis that was
   collapsed to make them: `motiongram_x` was the *vertical* gram and `motiongram_y` the
   *horizontal* one, which is why `show()` grew `mgh`/`mgv` aliases in the first place. They are
