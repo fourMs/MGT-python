@@ -131,7 +131,7 @@ motion plot only if `motionplots()` has been called.
 
 | method | stores |
 |---|---|
-| `motion()`, `motiongrams()`, `motion_mp()` | `motion_video`, `motion_plot_image`, `motiongram_vertical_image`, `motiongram_horizontal_image`, `ssm_figure` |
+| `motion()`, `motiongrams()` | `motion_video`, `motion_plot_image`, `motiongram_vertical_image`, `motiongram_horizontal_image`, `ssm_figure` |
 | `motionvideo()` | `motion_video` |
 | `videograms()` | `videogram_vertical_image`, `videogram_horizontal_image` |
 | `history()` | `history_video` |

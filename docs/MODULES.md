@@ -41,8 +41,6 @@ Each page is rendered from the source docstrings by
 - [Motiontempo](musicalgestures/_motiontempo.md)
 - [Motionvectors](musicalgestures/_motionvectors.md)
 - [Motionvideo](musicalgestures/_motionvideo.md)
-- [Motionvideo Mp Render](musicalgestures/_motionvideo_mp_render.md)
-- [Motionvideo Mp Run](musicalgestures/_motionvideo_mp_run.md)
 - [Movementbeats](musicalgestures/_movementbeats.md)
 - [Peaks](musicalgestures/_peaks.md)
 - [Physio](musicalgestures/_physio.md)
