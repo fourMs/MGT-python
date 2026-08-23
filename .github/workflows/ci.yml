@@ -73,7 +73,11 @@ jobs:
         python-version: "3.12"
 
     - name: Install lint dependencies
-      run: pip install ruff mypy
+      # Pinned. The error count mypy reports is strongly version-dependent: on the same code and
+      # the same config, 1.20.1 reports 169 errors where 2.3.1 reports 90. An unpinned install
+      # therefore lets a mypy release change this job's result with no change to the code, which
+      # is intolerable once the step blocks merges.
+      run: pip install "ruff==0.15.10" "mypy==2.3.1"
 
     - name: Ruff lint
       run: ruff check musicalgestures/ --ignore E501 --exit-zero
