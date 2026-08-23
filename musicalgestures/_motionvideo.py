@@ -248,6 +248,7 @@ def mg_motion(
 
             if save_video:
                 if video_out is None:
+                    assert target_name_video is not None  # resolved under `if save_video` above
                     cmd =['ffmpeg', '-y', '-s', '{}x{}'.format(motion_frame.shape[1], motion_frame.shape[0]), 
                         '-r', str(self.fps), '-f', 'rawvideo', '-pix_fmt', 'bgr24', '-vcodec', 'rawvideo', 
                         '-i', '-', '-vcodec', 'libx264', '-pix_fmt', 'yuv420p', target_name_video]
@@ -265,6 +266,8 @@ def mg_motion(
 
         # Terminate the processes
         if save_video:
+            # the writer opens on the first frame, so this only holds for a video that had frames
+            assert video_out is not None, "no frames were written: the video decoded to nothing"
             video_out.stdin.close()
             video_out.wait()
         process.terminate()
