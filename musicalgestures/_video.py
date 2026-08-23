@@ -97,7 +97,13 @@ class MgVideo(MgAudio):
             self.filename = filename
 
         self.array = array
-        self.fps = fps
+        # The ARGUMENT is optional: it is the rate an array is encoded at, and a file
+        # carries its own. The ATTRIBUTE is not, because `get_video()` below reads the
+        # true rate from the file and overwrites this, so by the end of `__init__` it is
+        # always a number. 0.0 stands for "not given yet" over the few lines before that
+        # happens, and the from-array branch below tests it for truth rather than for
+        # None, which rejects an explicit `fps=0` --- not a frame rate anything can use.
+        self.fps: float = fps if fps is not None else 0.0
         self.path = path
         # Name of file without extension (only-filename)
         self.of = os.path.splitext(self.filename)[0]
@@ -126,7 +132,16 @@ class MgVideo(MgAudio):
         # Check input and if FFmpeg is properly installed
         self.test_input()
 
-        if self.array is not None and self.fps is not None:
+        if self.array is not None and not self.fps:
+            # Without a rate there is nothing to encode the array at, so the write below
+            # never happens and the read after it fails with "no such file" --- blaming
+            # the output for a missing argument. Both before and after this attribute
+            # stopped being Optional, so say what is actually wrong.
+            raise ValueError(
+                "fps= is required when MgVideo is given an array: an array carries no frame "
+                "rate of its own, so there is nothing to encode it at.")
+
+        if self.array is not None and self.fps:
             self.from_numpy(self.array, self.fps)
         elif fps is not None:
             # `fps` is the rate an ARRAY is encoded at. For a file input `get_video()` below reads
