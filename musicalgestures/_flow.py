@@ -30,6 +30,26 @@ class Flow:
         self.filename = filename
         self.color = color
         self.has_audio = has_audio
+
+    def _parent(self) -> "musicalgestures.MgVideo":
+        """The MgVideo this Flow belongs to.
+
+        `self.parent` is a weak reference, so it resolves to None once the video
+        is garbage collected --- which happens with
+        `flow = mg.MgVideo(...).flow`, where nothing keeps the video alive past
+        the expression. Dereferencing it then produced an AttributeError naming
+        whichever attribute was reached for, which says nothing about the cause.
+
+        Raises:
+            RuntimeError: If the parent video no longer exists.
+        """
+        parent = self.parent()
+        if parent is None:
+            raise RuntimeError(
+                "the MgVideo this Flow belongs to no longer exists. Keep a reference to the "
+                "video rather than to its flow: `mv = mg.MgVideo(...); mv.flow.dense()`, not "
+                "`flow = mg.MgVideo(...).flow`.")
+        return parent
     
     def dense(
             self,
@@ -88,13 +108,13 @@ class Flow:
         # Convert to avi if the input is not avi - necesarry for cv2 compatibility on all platforms
         if convert and fex != '.avi':
             # first check if there already is a converted version, if not create one and register it to the parent self
-            if "as_avi" not in self.parent().__dict__.keys():
+            if "as_avi" not in self._parent().__dict__.keys():
                 file_as_avi = convert_to_avi(of + fex, overwrite=overwrite)
                 # register it as the avi version for the file
-                self.parent().as_avi = musicalgestures.MgVideo(file_as_avi)
+                self._parent().as_avi = musicalgestures.MgVideo(file_as_avi)
             # point of and fex to the avi version
-            of, fex = self.parent().as_avi.of, self.parent().as_avi.fex
-            filename = self.parent().as_avi.filename
+            of, fex = self._parent().as_avi.of, self._parent().as_avi.fex
+            filename = self._parent().as_avi.filename
 
         vidcap = cv2.VideoCapture(filename)
 
@@ -274,10 +294,10 @@ class Flow:
                 os.remove(source_audio)
 
             # save result at flow_dense_video at parent MgVideo
-            self.parent().flow_dense_video = musicalgestures.MgVideo(
+            self._parent().flow_dense_video = musicalgestures.MgVideo(
                 destination_video, color=self.color, returned_by_process=True)
 
-            return self.parent().flow_dense_video
+            return self._parent().flow_dense_video
 
     def get_acceleration(self, velocity: list, fps: int):
 
@@ -347,13 +367,13 @@ class Flow:
         # Convert to avi if the input is not avi - necesarry for cv2 compatibility on all platforms
         if convert and fex != '.avi':
             # first check if there already is a converted version, if not create one and register it to the parent self
-            if "as_avi" not in self.parent().__dict__.keys():
+            if "as_avi" not in self._parent().__dict__.keys():
                 file_as_avi = convert_to_avi(of + fex, overwrite=overwrite)
                 # register it as the avi version for the file
-                self.parent().as_avi = musicalgestures.MgVideo(file_as_avi)
+                self._parent().as_avi = musicalgestures.MgVideo(file_as_avi)
             # point of and fex to the avi version
-            of, fex = self.parent().as_avi.of, self.parent().as_avi.fex
-            filename = self.parent().as_avi.filename
+            of, fex = self._parent().as_avi.of, self._parent().as_avi.fex
+            filename = self._parent().as_avi.filename
 
         vidcap = cv2.VideoCapture(filename)
         ret, frame = vidcap.read()
@@ -487,7 +507,7 @@ class Flow:
             os.remove(source_audio)
 
         # save result at flow_sparse_video at parent MgVideo
-        self.parent().flow_sparse_video = musicalgestures.MgVideo(
+        self._parent().flow_sparse_video = musicalgestures.MgVideo(
             destination_video, color=self.color, returned_by_process=True)
 
-        return self.parent().flow_sparse_video
+        return self._parent().flow_sparse_video

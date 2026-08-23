@@ -110,3 +110,32 @@ class TestGramOrientation:
             setattr(v, f"{kind}_y", "from-y")
         assert getattr(v, f"{kind}_vertical_image") == "from-x"
         assert getattr(v, f"{kind}_horizontal_image") == "from-y"
+
+
+class TestFpsIsAlwaysANumber:
+    """`self.fps` is a float, not `float | None`.
+
+    The ARGUMENT is optional, because a file carries its own rate and only an
+    array needs one supplied. The ATTRIBUTE is not: `get_video()` reads the true
+    rate from the file and overwrites whatever the constructor stored, so by the
+    end of `__init__` it is always a number. Saying so closed twelve mypy errors
+    across the modules that divide by it.
+    """
+
+    def test_a_constructed_video_has_a_real_rate(self, tmp_path):
+        import numpy as np
+
+        arr = np.zeros((6, 16, 16, 3), dtype=np.uint8)
+        v = mg.MgVideo(filename=str(tmp_path / "rate.avi"), array=arr, fps=24)
+        assert isinstance(v.fps, float)
+        assert v.fps > 0
+
+    def test_an_array_without_a_rate_says_so(self):
+        """It used to fail with "no such file", blaming the output for a
+        missing argument, because the encode never ran."""
+        import numpy as np
+
+        arr = np.zeros((4, 8, 8, 3), dtype=np.uint8)
+        for kwargs in ({}, {"fps": 0}):
+            with pytest.raises(ValueError, match="fps= is required"):
+                mg.MgVideo(filename="unused.avi", array=arr, **kwargs)
