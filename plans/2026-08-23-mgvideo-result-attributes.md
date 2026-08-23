@@ -56,6 +56,7 @@ Declares the 26 attributes that already have correct names, and types `self` in 
 
 **Files:**
 - Modify: `musicalgestures/_video.py` (class body of `MgVideo`, after `__init__`, before the class-scoped method imports at the `# Methods are bound by importing` comment)
+- Modify: `musicalgestures/_audio.py` (class body of `MgAudio`, one declaration — see Step 4)
 - Modify: `musicalgestures/_heatmap.py:10` (`def mg_heatmap`)
 - Test: `tests/test_result_attributes.py` (create)
 
@@ -92,15 +93,19 @@ CONFORMING = [
 
 class TestDeclarations:
     def test_every_conforming_attribute_is_declared(self):
-        declared = mg.MgVideo.__annotations__
+        # __annotations__ does not inherit, and `ssm_figure` is set on MgAudio
+        # instances by mg_ssm's audio paths, so both classes are checked.
+        declared = {**mg.MgAudio.__annotations__, **mg.MgVideo.__annotations__}
         missing = [n for n in CONFORMING if n not in declared]
         assert not missing, f"undeclared result attributes: {missing}"
 
     def test_declaring_does_not_create_a_class_attribute(self):
         """A bare annotation must not put the name in the class dictionary."""
         for name in CONFORMING:
-            assert name not in mg.MgVideo.__dict__, (
-                f"{name} was given a value; show() and hasattr would both change")
+            for cls in (mg.MgVideo, mg.MgAudio):
+                assert name not in cls.__dict__, (
+                    f"{name} was given a value on {cls.__name__}; "
+                    "show() and hasattr would both change")
 
     def test_every_declared_name_ends_in_its_type(self):
         for name in CONFORMING:
@@ -177,7 +182,6 @@ insert:
     silhouette_waterfall_figure: MgFigure
     sonomotiongram_audio: MgAudio
     spacetime_volume_figure: MgFigure
-    ssm_figure: MgFigure
     stroboscope_image: MgImage
     structure_comparison_figure: MgFigure
     subtract_video: "musicalgestures.MgVideo"
@@ -187,6 +191,14 @@ insert:
 ```
 
 Note the quoted `"musicalgestures.MgVideo"` — the class cannot name itself unquoted inside its own body. `MgAudio` is already imported at the top of the file.
+
+`ssm_figure` is deliberately absent from this block. `mg_ssm`'s audio paths set it on **MgAudio** instances, and its `ssm_fig` alias already lives there from `9ef2a4f`. Python's `__annotations__` does not inherit, so declaring it on `MgVideo` would leave `MgAudio` undeclared and break Task 8 the moment an audio producer's `self` is typed. Declare it in `musicalgestures/_audio.py` instead, in the `MgAudio` class body immediately above the existing `ssm_fig` alias:
+
+```python
+    ssm_figure: MgFigure
+```
+
+`MgFigure` is already imported in `_audio.py`; confirm with `grep -n "MgFigure" musicalgestures/_audio.py`.
 
 - [ ] **Step 5: Run the tests to verify they pass**
 
@@ -231,7 +243,7 @@ Expected: **625 passed, 4 skipped**.
 - [ ] **Step 9: Commit**
 
 ```bash
-git add musicalgestures/_video.py musicalgestures/_heatmap.py tests/test_result_attributes.py
+git add musicalgestures/_video.py musicalgestures/_audio.py musicalgestures/_heatmap.py tests/test_result_attributes.py
 git commit -m "Declare MgVideo's result attributes instead of conjuring them"
 ```
 
@@ -530,31 +542,36 @@ git commit -m "Rename motion_plot to motion_plot_image, keeping the old name"
 
 ---
 
-### Task 4: Rename the motiongram pair, fixing the axis inversion
+### Task 4: Rename the motiongram AND videogram pairs, fixing the axis inversion
 
 `motiongram_x` is the **vertical** gram and `motiongram_y` is the **horizontal** one, because the name records which axis was collapsed rather than what the reader sees. `_show.py` already carries `mgh`/`mgv` aliases to work around that. This moves the fix to the attribute.
+
+**Both pairs are renamed in one task, deliberately.** `show()` resolves all four by interpolating one attribute name, so renaming the motiongrams alone would leave every videogram key (`vgh`, `vgv`, `vgx`, `vgy`, and `horizontal`/`vertical` falling through to videogram) raising `FileNotFoundError` until the videograms followed. There is no point in the sequence where the tree is half-renamed.
 
 **Files:**
 - Modify: `musicalgestures/_motionvideo.py:307-308`
 - Modify: `musicalgestures/_motionvideo_mp_run.py:212-213`
-- Modify: `musicalgestures/_ssm.py` (two comments at lines 253 and 355)
+- Modify: `musicalgestures/_videograms.py` (five references: two assignment pairs, two `MgList` returns, one comment)
+- Modify: `musicalgestures/_ssm.py` (two comments mentioning `motiongram_x`/`motiongram_y`)
 - Modify: `musicalgestures/_show.py` (the orientation branch, which builds the attribute name by interpolation)
 - Modify: `musicalgestures/_video.py`
 - Test: `tests/test_result_attributes.py` (extend `RENAMED`)
 
 **Interfaces:**
-- Consumes: `deprecated_alias`, the declarations block.
-- Produces: `MgVideo.motiongram_vertical_image` and `MgVideo.motiongram_horizontal_image`, both `MgImage`, with `motiongram_x`/`motiongram_y` as deprecated aliases.
+- Consumes: `deprecated_alias` from Task 2; the declarations and retired-names blocks from Tasks 1 and 3.
+- Produces: `MgVideo.motiongram_vertical_image`, `MgVideo.motiongram_horizontal_image`, `MgVideo.videogram_vertical_image`, `MgVideo.videogram_horizontal_image`, all `MgImage`, with `motiongram_x`/`motiongram_y`/`videogram_x`/`videogram_y` as deprecated aliases.
 
 - [ ] **Step 1: Extend the test**
 
-In `tests/test_result_attributes.py`, extend `RENAMED`:
+In `tests/test_result_attributes.py`, extend `RENAMED` to:
 
 ```python
 RENAMED = [
     ("motion_plot", "motion_plot_image"),
     ("motiongram_x", "motiongram_vertical_image"),
     ("motiongram_y", "motiongram_horizontal_image"),
+    ("videogram_x", "videogram_vertical_image"),
+    ("videogram_y", "videogram_horizontal_image"),
 ]
 ```
 
@@ -565,14 +582,15 @@ class TestGramOrientation:
     """The x-collapse produces the vertical gram. Pinning it, because the
     inverted-looking mapping is correct and has been mistaken for a bug."""
 
-    def test_x_maps_to_vertical_and_y_to_horizontal(self):
+    @pytest.mark.parametrize("kind", ["motiongram", "videogram"])
+    def test_x_maps_to_vertical_and_y_to_horizontal(self, kind):
         v = mg.MgVideo.__new__(mg.MgVideo)
         with pytest.warns(DeprecationWarning):
-            v.motiongram_x = "from-x"
+            setattr(v, f"{kind}_x", "from-x")
         with pytest.warns(DeprecationWarning):
-            v.motiongram_y = "from-y"
-        assert v.motiongram_vertical_image == "from-x"
-        assert v.motiongram_horizontal_image == "from-y"
+            setattr(v, f"{kind}_y", "from-y")
+        assert getattr(v, f"{kind}_vertical_image") == "from-x"
+        assert getattr(v, f"{kind}_horizontal_image") == "from-y"
 ```
 
 - [ ] **Step 2: Run it to verify it fails**
@@ -580,7 +598,7 @@ class TestGramOrientation:
 Run: `python3 -m pytest tests/test_result_attributes.py -q`
 Expected: FAIL — `motiongram_vertical_image` not declared.
 
-- [ ] **Step 3: Rename the assignment sites**
+- [ ] **Step 3: Rename the motiongram assignment sites**
 
 `musicalgestures/_motionvideo.py` lines 307-308:
 
@@ -591,9 +609,15 @@ Expected: FAIL — `motiongram_vertical_image` not declared.
 
 `musicalgestures/_motionvideo_mp_run.py` lines 212-213: the same two replacements.
 
-- [ ] **Step 4: Update the two comments in `_ssm.py`**
+- [ ] **Step 4: Rename the videogram sites**
 
-Lines 253 and 355 both read:
+In `musicalgestures/_videograms.py` there are two code paths (an ffmpeg one and a fallback), each assigning both attributes and each returning an `MgList` of the pair. Replace every occurrence of `self.videogram_x` with `self.videogram_vertical_image` and `self.videogram_y` with `self.videogram_horizontal_image`, including inside both `return MgList(self.videogram_x, self.videogram_y)` statements and the comment at line 144.
+
+Verify none remain: `grep -n "videogram_[xy]" musicalgestures/_videograms.py` must print nothing.
+
+- [ ] **Step 5: Update the two comments in `_ssm.py`**
+
+Two lines (around 253 and 355 — find them by text, since the first edit shifts the second's line number) both read:
 
 ```python
         # mg_ssm also saves the motiongrams SSM as MgImages to self.motiongram_x and self.motiongram_y of the parent MgVideo
@@ -606,7 +630,7 @@ Replace both with:
         # self.motiongram_vertical_image and self.motiongram_horizontal_image of the parent MgVideo
 ```
 
-- [ ] **Step 5: Rework the `show()` orientation branch**
+- [ ] **Step 6: Rework the `show()` orientation branch**
 
 The branch currently maps a key to an axis letter and interpolates the attribute name. Replace the body from `k = key.lower()` down to the `for kind in kinds:` loop with an orientation word instead of an axis letter:
 
@@ -631,13 +655,15 @@ The branch currently maps a key to an axis letter and interpolates the attribute
 
 The legacy `mgx`/`mgy` keys keep working and keep their historical meaning: `mgy` is in `horizontal_keys`, so it still resolves to the horizontal gram.
 
-- [ ] **Step 6: Declare and alias**
+- [ ] **Step 7: Declare and alias**
 
 In `musicalgestures/_video.py` declarations block:
 
 ```python
     motiongram_horizontal_image: MgImage
     motiongram_vertical_image: MgImage
+    videogram_horizontal_image: MgImage
+    videogram_vertical_image: MgImage
 ```
 
 and in the retired-names block:
@@ -645,14 +671,16 @@ and in the retired-names block:
 ```python
     motiongram_x = deprecated_alias("motiongram_x", "motiongram_vertical_image")
     motiongram_y = deprecated_alias("motiongram_y", "motiongram_horizontal_image")
+    videogram_x = deprecated_alias("videogram_x", "videogram_vertical_image")
+    videogram_y = deprecated_alias("videogram_y", "videogram_horizontal_image")
 ```
 
-- [ ] **Step 7: Run the tests**
+- [ ] **Step 8: Run the tests**
 
-Run: `python3 -m pytest tests/test_result_attributes.py -q`
-Expected: PASS, 13 passed (3 declaration tests, 3 renamed pairs x 3 methods, 1 orientation test).
+Run: `python3 -m pytest tests/test_result_attributes.py tests/test_videograms.py -q`
+Expected: PASS. `test_result_attributes.py` contributes 20 tests (3 declaration tests, 5 renamed pairs x 3 methods, 2 orientation tests). `test_videograms.py` includes the slit-image tests added in `0b84762` and must be unaffected.
 
-- [ ] **Step 8: Verify every `show()` orientation key still resolves**
+- [ ] **Step 9: Verify every `show()` orientation key still resolves, for both kinds**
 
 ```bash
 python3 - <<'EOF'
@@ -661,105 +689,39 @@ import shutil, musicalgestures as mg
 shutil.copy(mg.examples.dance, 'plan_check2.avi')
 mv = mg.MgVideo('plan_check2.avi')
 mv.motiongrams()
-assert 'motiongram_vertical_image' in mv.__dict__
-assert 'motiongram_horizontal_image' in mv.__dict__
-for key in ('mgh', 'mgv', 'mgx', 'mgy'):
+mv.videograms()
+for a in ('motiongram_vertical_image', 'motiongram_horizontal_image',
+          'videogram_vertical_image', 'videogram_horizontal_image'):
+    assert a in mv.__dict__, a
+for key in ('mgh', 'mgv', 'mgx', 'mgy', 'vgh', 'vgv', 'vgx', 'vgy',
+            'horizontal', 'vertical'):
     mv.show(key=key, mode='notebook')   # must not raise FileNotFoundError
-print("OK: all four orientation keys resolve")
+print("OK: all ten orientation keys resolve, both kinds")
 EOF
 ```
 
-Expected: `OK: all four orientation keys resolve`.
+Expected: `OK: all ten orientation keys resolve, both kinds`.
 
-- [ ] **Step 9: Full suite, type check, commit**
+- [ ] **Step 10: Full suite, type check, commit**
 
-Run: `python3 -m pytest tests/ -q` — expected **644 passed, 4 skipped**.
+Run: `python3 -m pytest tests/ -q` — expected **651 passed, 4 skipped**.
 Run: `mypy musicalgestures/ 2>&1 | tail -1` — must not exceed 73.
 
 ```bash
 git add musicalgestures/_motionvideo.py musicalgestures/_motionvideo_mp_run.py \
-        musicalgestures/_ssm.py musicalgestures/_show.py musicalgestures/_video.py \
-        tests/test_result_attributes.py
-git commit -m "Name the motiongrams by what they show, not by the axis collapsed"
+        musicalgestures/_videograms.py musicalgestures/_ssm.py musicalgestures/_show.py \
+        musicalgestures/_video.py tests/test_result_attributes.py
+git commit -m "Name the grams by what they show, not by the axis collapsed"
 ```
 
 ---
 
-### Task 5: Rename the videogram pair
+### Task 5: folded into Task 4
 
-Same inversion, same treatment. Separate from Task 4 because a reviewer could reasonably accept one and reject the other, and because `_videograms.py` returns an `MgList` built from these two attributes.
-
-**Files:**
-- Modify: `musicalgestures/_videograms.py:122, 126, 144, 145, 149`
-- Modify: `musicalgestures/_video.py`
-- Test: `tests/test_result_attributes.py` (extend `RENAMED`)
-
-**Interfaces:**
-- Consumes: `deprecated_alias`, the declarations block, the `show()` interpolation from Task 4 (which already expects `{kind}_{orientation}_image` and therefore already works for videograms once these are renamed).
-- Produces: `MgVideo.videogram_vertical_image`, `MgVideo.videogram_horizontal_image`, both `MgImage`.
-
-- [ ] **Step 1: Extend `RENAMED` in the test**
-
-```python
-    ("videogram_x", "videogram_vertical_image"),
-    ("videogram_y", "videogram_horizontal_image"),
-```
-
-- [ ] **Step 2: Run it to verify it fails**
-
-Run: `python3 -m pytest tests/test_result_attributes.py -q`
-Expected: FAIL — `videogram_vertical_image` not declared.
-
-- [ ] **Step 3: Rename in `_videograms.py`**
-
-There are two code paths in this file (an ffmpeg one and a fallback), each assigning both attributes and each returning an `MgList` of the pair. Replace every occurrence of `self.videogram_x` with `self.videogram_vertical_image` and `self.videogram_y` with `self.videogram_horizontal_image`, including inside the two `return MgList(self.videogram_x, self.videogram_y)` statements and the comment at line 144.
-
-Verify none remain: `grep -n "videogram_[xy]" musicalgestures/_videograms.py` must print nothing.
-
-- [ ] **Step 4: Declare and alias in `_video.py`**
-
-```python
-    videogram_horizontal_image: MgImage
-    videogram_vertical_image: MgImage
-```
-
-```python
-    videogram_x = deprecated_alias("videogram_x", "videogram_vertical_image")
-    videogram_y = deprecated_alias("videogram_y", "videogram_horizontal_image")
-```
-
-- [ ] **Step 5: Run the tests**
-
-Run: `python3 -m pytest tests/test_result_attributes.py tests/test_videograms.py -q`
-Expected: PASS. `test_videograms.py` includes the slit-image tests added in `0b84762` and must be unaffected.
-
-- [ ] **Step 6: Verify the videogram keys resolve**
-
-```bash
-python3 - <<'EOF'
-import matplotlib; matplotlib.use('Agg')
-import shutil, musicalgestures as mg
-shutil.copy(mg.examples.dance, 'plan_check3.avi')
-mv = mg.MgVideo('plan_check3.avi')
-out = mv.videograms()
-assert 'videogram_vertical_image' in mv.__dict__
-for key in ('vgh', 'vgv', 'vgx', 'vgy'):
-    mv.show(key=key, mode='notebook')
-print("OK: videogram keys resolve and the MgList still builds")
-EOF
-```
-
-Expected: `OK: videogram keys resolve and the MgList still builds`.
-
-- [ ] **Step 7: Full suite, type check, commit**
-
-Run: `python3 -m pytest tests/ -q` — expected **650 passed, 4 skipped**.
-Run: `mypy musicalgestures/ 2>&1 | tail -1` — must not exceed 73.
-
-```bash
-git add musicalgestures/_videograms.py musicalgestures/_video.py tests/test_result_attributes.py
-git commit -m "Name the videograms by what they show, matching the motiongrams"
-```
+The videogram rename was merged into Task 4 during the pre-flight scan: `show()` resolves both
+kinds through one interpolated attribute name, so renaming the motiongrams alone would have left
+every videogram key broken between the two tasks. Nothing to do here; the numbering is kept so
+Tasks 6-9 are unchanged.
 
 ---
 
@@ -824,11 +786,11 @@ Replace any occurrence in prose or example code with `frameaverage_image`. Docum
 - [ ] **Step 6: Run the tests**
 
 Run: `python3 -m pytest tests/test_result_attributes.py -q`
-Expected: PASS, 25 passed.
+Expected: PASS, 26 passed.
 
 - [ ] **Step 7: Full suite, type check, commit**
 
-Run: `python3 -m pytest tests/ -q` — expected **656 passed, 4 skipped**.
+Run: `python3 -m pytest tests/ -q` — expected **657 passed, 4 skipped**.
 Run: `mypy musicalgestures/ 2>&1 | tail -1` — must not exceed 73.
 
 ```bash
@@ -920,11 +882,11 @@ Replace occurrences in prose and example code with the new names.
 - [ ] **Step 6: Run the tests**
 
 Run: `python3 -m pytest tests/test_result_attributes.py -q`
-Expected: PASS, 37 passed.
+Expected: PASS, 38 passed.
 
 - [ ] **Step 7: Full suite, type check, commit**
 
-Run: `python3 -m pytest tests/ -q` — expected **668 passed, 4 skipped**.
+Run: `python3 -m pytest tests/ -q` — expected **669 passed, 4 skipped**.
 Run: `mypy musicalgestures/ 2>&1 | tail -1` — must not exceed 73.
 
 ```bash
@@ -975,7 +937,7 @@ Expected: the total falls by that module's `no-any-return` count and by nothing 
 - [ ] **Step 3: Run the suite for that module**
 
 Run: `python3 -m pytest tests/ -q`
-Expected: **668 passed, 4 skipped**. Annotations are inert at runtime, so any failure here means a real edit slipped in.
+Expected: **669 passed, 4 skipped**. Annotations are inert at runtime, so any failure here means a real edit slipped in.
 
 - [ ] **Step 4: Commit that module**
 
