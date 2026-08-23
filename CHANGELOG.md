@@ -5,6 +5,22 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Removed
+- `motion_mp()` is retired. It rendered a motion video across several processes, coordinating them
+  with a socket server and an argparse child process, and it raised on its first call: two fields
+  were read as one between the parent and the workers, and behind that failure it called
+  `save_txt` and `save_analysis` with arguments in the wrong positions. It therefore produced
+  nothing for anyone who tried it, and had no test. `motion()` does the same work in one process
+  and is tested. The method remains as a stub that says all this and points there; the two modules
+  behind it are gone. Closes #370.
+
+### Changed
+- Internal typing, issue #350: `mypy musicalgestures/` is at 17 errors in 9 files, from 90 when
+  this work started. Retiring `motion_mp()` accounts for nine of the reduction, since typing code
+  that cannot run would have been effort spent hiding a breakage.
+
 ## [1.13.0] — 2026-08-23
 
 ### Fixed

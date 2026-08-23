@@ -49,8 +49,6 @@ module.
 - [Motiontempo](_motiontempo.md)
 - [Motionvectors](_motionvectors.md)
 - [Motionvideo](_motionvideo.md)
-- [Motionvideo Mp Render](_motionvideo_mp_render.md)
-- [Motionvideo Mp Run](_motionvideo_mp_run.md)
 - [Movementbeats](_movementbeats.md)
 - [Peaks](_peaks.md)
 - [Physio](_physio.md)

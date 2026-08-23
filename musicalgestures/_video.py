@@ -209,6 +209,26 @@ class MgVideo(MgAudio):
     videogram_vertical_image: MgImage
     warp_video: "musicalgestures.MgVideo"
 
+    def motion_mp(self, *args, **kwargs):
+        """Retired. Use :meth:`motion` instead.
+
+        This rendered a motion video across several processes, coordinating them
+        with a socket server and an argparse child process. It raised on its first
+        call --- two fields were read as one between the parent and the workers,
+        and behind that failure it called `save_txt` and `save_analysis` with
+        arguments in the wrong positions --- so it produced nothing for anyone who
+        tried it. See issue #370.
+
+        `motion()` does the same work in one process and is tested.
+
+        Raises:
+            NotImplementedError: Always.
+        """
+        raise NotImplementedError(
+            "motion_mp() has been retired: it raised on its first call and produced "
+            "nothing (see issue #370). Use motion(), which does the same work in one "
+            "process.")
+
     # Retired names, kept working for one release. See issue #346.
     motion_plot = deprecated_alias("motion_plot", "motion_plot_image")
     motiongram_x = deprecated_alias("motiongram_x", "motiongram_vertical_image")
@@ -230,7 +250,6 @@ class MgVideo(MgAudio):
     from musicalgestures._motionvideo import mg_motionplots as motionplots  # type: ignore[misc]
     from musicalgestures._motionvideo import mg_motionvideo as motionvideo  # type: ignore[misc]
     from musicalgestures._motionvideo import mg_motionscore as motionscore  # type: ignore[misc]
-    from musicalgestures._motionvideo_mp_run import mg_motion_mp as motion_mp  # type: ignore[misc]
     from musicalgestures._subtract import mg_subtract as subtract  # type: ignore[misc]
     from musicalgestures._ssm import mg_ssm as ssm  # type: ignore[misc]
     from musicalgestures._videograms import videograms_ffmpeg as videograms  # type: ignore[misc]

@@ -35,7 +35,7 @@ commonly confused pairs, one line each:
 
 Most analysis methods stream frames straight through FFmpeg and run on any container, including MP4, e.g. `motion()`, `motiongrams()`, `average()`/`blend()`, `videograms()`, `heatmap()`, `eulerian()`, `motiontempo()`, `sonomotiongram()`, `grid()`, `subtract()`, and `history()`.
 
-A few methods that decode frame-by-frame with OpenCV first convert the input to an all-intra **MJPEG `.avi`** (cached once as `self.as_avi`) for frame-accurate decoding: `flow.dense()`/`flow.sparse()`, `directograms()`, `impacts()`, `motion_mp()`, and `history_cv2()`. The motion **video output** keeps the source container: an mp4 in gives `_motion.mp4` out.
+A few methods that decode frame-by-frame with OpenCV first convert the input to an all-intra **MJPEG `.avi`** (cached once as `self.as_avi`) for frame-accurate decoding: `flow.dense()`/`flow.sparse()`, `directograms()`, `impacts()`, and `history_cv2()`. The motion **video output** keeps the source container: an mp4 in gives `_motion.mp4` out.
 
 If your MP4 decodes reliably and you want to skip that conversion (faster, no extra file), pass `convert=False`:
 
