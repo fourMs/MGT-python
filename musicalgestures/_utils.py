@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from typing import Union, Tuple, TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
@@ -359,6 +360,46 @@ class MgFigure():
                 f'<br><small><code>MgFigure(type={self.figure_type!r})</code></small></div>'
             )
         return f"<i>MgFigure(type={self.figure_type!r}) – no image available</i>"
+
+
+def deprecated_alias(old: str, new: str) -> property:
+    """A property that reads and writes `new` under the retired name `old`.
+
+    Renaming a result attribute is a breaking change, because `show(key=...)`
+    and user code both reach these by name. The old name keeps working through
+    one release and warns, and it is a property rather than a second attribute
+    so the two names cannot drift apart when either side is reassigned.
+
+    Args:
+        old (str): The retired attribute name, used only in the warning.
+        new (str): The canonical attribute this proxies to.
+
+    Returns:
+        property: Assign it in a class body as ``old_name = deprecated_alias(...)``.
+    """
+    message = f"{old} is deprecated and will be removed in 2.0; use {new}."
+
+    def getter(self):
+        warnings.warn(message, DeprecationWarning, stacklevel=2)
+        try:
+            return getattr(self, new)
+        except AttributeError:
+            # report the name that was asked for, so hasattr(obj, old) is False
+            # rather than raising about an attribute the caller never mentioned
+            raise AttributeError(
+                f"{type(self).__name__!r} object has no attribute {old!r}") from None
+
+    def setter(self, value):
+        warnings.warn(message, DeprecationWarning, stacklevel=2)
+        setattr(self, new, value)
+
+    def deleter(self):
+        warnings.warn(message, DeprecationWarning, stacklevel=2)
+        delattr(self, new)
+
+    getter.__doc__ = f"Deprecated alias for :attr:`{new}`. Removed in 2.0."
+    return property(getter, setter, deleter)
+
 
 def roundup(num: int, modulo_num: int) -> int:
     """
