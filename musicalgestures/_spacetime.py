@@ -19,7 +19,7 @@ from musicalgestures._utils import MgImage, MgFigure, MgProgressbar, generate_ou
 # Frame reading and silhouette extraction
 # ---------------------------------------------------------------------------
 
-def _iter_frames(self):
+def _iter_frames(self: "musicalgestures.MgVideo"):
     """Yield successive BGR frames of the video via the FFmpeg pipe."""
     cmd = ['ffmpeg', '-y', '-i', self.filename]
     process = ffmpeg_cmd(cmd, total_time=self.length / self.fps if self.fps else 0, pipe='read')
@@ -98,7 +98,7 @@ def _silhouette(frame: np.ndarray, seg_fn, bg_gray: np.ndarray, threshold: float
     return mask.astype(bool)
 
 
-def _average_frame(self):
+def _average_frame(self: "musicalgestures.MgVideo"):
     """Accumulate the average BGR frame (a clean background for static cameras).
 
     Cached on the MgVideo (keyed by filename) so chained space-time analyses
@@ -128,7 +128,7 @@ def _average_frame(self):
 # 1. Stroboscope (chronophotography)
 # ---------------------------------------------------------------------------
 
-def mg_stroboscope(self, n_samples: int = 12, method: str = 'auto', threshold: float = 0.1, kernel_size: int = 5,
+def mg_stroboscope(self: "musicalgestures.MgVideo", n_samples: int = 12, method: str = 'auto', threshold: float = 0.1, kernel_size: int = 5,
                    keep_largest: bool = False, colorize: bool = True, background: str = 'average',
                    target_name: str | None = None, overwrite: bool = True) -> "MgImage":
     """
@@ -204,7 +204,7 @@ def mg_stroboscope(self, n_samples: int = 12, method: str = 'auto', threshold: f
 # 2. Silhouette waterfall
 # ---------------------------------------------------------------------------
 
-def mg_silhouette_waterfall(self, n_samples: int = 40, method: str = 'auto', threshold: float = 0.1, kernel_size: int = 5,
+def mg_silhouette_waterfall(self: "musicalgestures.MgVideo", n_samples: int = 40, method: str = 'auto', threshold: float = 0.1, kernel_size: int = 5,
                             keep_largest: bool = False, axis: str = 'horizontal', cmap: str = 'viridis', dpi: int = 200,
                             elev: float = 35, azim: float = -60, axes: bool = True, crop: bool = False, target_name: str | None = None, overwrite: bool = True) -> "MgFigure":
     """
@@ -319,7 +319,7 @@ def mg_silhouette_waterfall(self, n_samples: int = 40, method: str = 'auto', thr
 # 3. Motion History Image (MHI)
 # ---------------------------------------------------------------------------
 
-def mg_motionhistory(self, threshold: float = 0.05, decay: float = 0.3, normalize: bool = False, blur: int = 0,
+def mg_motionhistory(self: "musicalgestures.MgVideo", threshold: float = 0.05, decay: float = 0.3, normalize: bool = False, blur: int = 0,
                      cmap: str = 'hot', dpi: int = 300, target_name: str | None = None, overwrite: bool = True) -> "MgImage":
     """
     Renders a Motion History Image (Bobick & Davis): a single image where intensity encodes
@@ -402,7 +402,7 @@ def mg_motionhistory(self, threshold: float = 0.05, decay: float = 0.3, normaliz
 # 4. 3D space-time silhouette volume
 # ---------------------------------------------------------------------------
 
-def mg_spacetime_volume(self, n_samples: int = 50, downsample: int = 8, method: str = 'auto', threshold: float = 0.1,
+def mg_spacetime_volume(self: "musicalgestures.MgVideo", n_samples: int = 50, downsample: int = 8, method: str = 'auto', threshold: float = 0.1,
                         kernel_size: int = 5, keep_largest: bool = False, cmap: str = 'viridis', dpi: int = 200,
                         elev: float = 20, azim: float = -60, target_name: str | None = None, overwrite: bool = True) -> "MgFigure":
     """

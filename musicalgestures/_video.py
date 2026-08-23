@@ -149,6 +149,7 @@ class MgVideo(MgAudio):
     # from the instance until a method sets it. `show(key=...)` decides what a
     # video has by looking in `self.__dict__`, so giving any of these a value
     # here would make every video claim every result. See issue #346.
+    _avg_frame_cache: tuple[str, np.ndarray]
     _pose_keypoints: dict
     as_avi: "musicalgestures.MgVideo"
     average_pose: MgImage
