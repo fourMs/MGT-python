@@ -29,6 +29,24 @@ list. Ten records had to be corrected by hand on 2026-08-16 for this.
 Nothing in CI depends on the prefix: `pypi-publish.yml` triggers on `release: published`, not on a
 tag pattern. Tags made before 2026-08-16 keep their `v` and are left alone.
 
+## Publish the release only AFTER CI is green on the release commit
+
+`pypi-publish.yml` opens with a job called *Refuse to publish from a commit CI has not passed*,
+which reads the CI run for the release commit and stops the build and publish jobs if it is not
+already green. `in_progress` counts as not green.
+
+So the order is: push the commit, WAIT for CI, then `gh release create`. Pushing the commit and
+creating the release in the same breath fails --- the release exists, the publish run goes red at
+its first job, nothing is built, and nothing reaches PyPI. That happened on 2026-08-24 with
+1.14.0. The guard did its job; the procedure just did not say so.
+
+The repair is to re-run the failed publish run once CI is green:
+
+    gh run list --limit 1 --workflow='Publish to PyPI' --json databaseId --jq '.[0].databaseId'
+    gh run rerun <id>
+
+and then check PyPI, because a green re-run is still not a published version.
+
 ## A tag on its own publishes NOTHING
 
 Because the trigger is `release: published`, `git push --tags` runs no workflow at all. No job is
