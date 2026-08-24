@@ -5,6 +5,32 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.1] — 2026-08-24
+
+### Fixed
+- **Motion extraction reallocated its output once per frame, so its cost was quadratic in
+  frame count.** Every accumulator --- `time`, `qom`, `com`, `aom` and both motiongrams ---
+  grew by `np.append` inside the frame loop, and each append copies the whole array. The
+  motiongrams are the worst of it: they grow to `height x frames x 3`, so the copying is
+  quadratic in bytes as well as in calls. The numbers were correct throughout, which is why
+  nothing caught it.
+
+  Measured on 1080p: 69 s, 148 s and 366 s for 30 s, 60 s and 120 s of video, an exponent
+  rising from 1.10 to 1.31 as the quadratic term took over. Extrapolated to a 2 h 38 min
+  recording that is about **215 hours**. After the fix the same clips take 64 s, 123 s and
+  242 s --- linear, and about **5.3 hours** for that recording, or **1.4 hours** with
+  `motion_analysis='qom', save_motiongrams=False`. The fault was invisible on clips and
+  fatal on a session.
+
+  Accumulators are lists now, converted once after the loop, and the motiongrams are
+  concatenated once. **Output is byte-identical**, verified on 30 s, 60 s and 120 s of
+  1080p video, so no existing result changes.
+
+  `tests/test_motion_scaling.py` guards it by counting `np.append` calls rather than
+  seconds. The timing test written first passed against the unfixed code --- at a small
+  frame size the quadratic term is still noise --- so it was replaced by one that asserts
+  the property directly.
+
 ## [1.14.0] — 2026-08-24
 
 ### Added
@@ -1029,7 +1055,8 @@ of 33 landmarks off a real clip, a person found in 44 % of them.
 
 ---
 
-[Unreleased]: https://github.com/fourMs/MGT-python/compare/1.14.0...HEAD
+[Unreleased]: https://github.com/fourMs/MGT-python/compare/1.14.1...HEAD
+[1.14.1]: https://github.com/fourMs/MGT-python/compare/1.14.0...1.14.1
 [1.14.0]: https://github.com/fourMs/MGT-python/compare/1.13.0...1.14.0
 [1.13.0]: https://github.com/fourMs/MGT-python/compare/v1.12.1...1.13.0
 [1.12.1]: https://github.com/fourMs/MGT-python/compare/v1.12.0...v1.12.1

@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.14.0**.
+The current stable release is **MGT-python 1.14.1**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,14 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.14.1
+
+Motion extraction is linear in frame count again. Every accumulator grew with `np.append`
+inside the per-frame loop, which copies the whole array each time --- O(n^2) in frames, and
+quadratic in bytes for the motiongrams. On 1080p that was 69 s, 148 s and 366 s for 30 s,
+60 s and 120 s of video, extrapolating to about 215 hours for a 2 h 38 min recording; it is
+now 64 s, 123 s and 242 s. **Output is byte-identical**, so no result changes.
 
 ### 1.14.0
 
