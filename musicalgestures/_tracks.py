@@ -107,10 +107,14 @@ def _chunk_worker(args) -> int:
     from musicalgestures._utils import ffmpeg_cmd as _ffcmd
 
     d = Path(d)
-    lead = 1.0 / fps
+    #: SEEK EARLY AND TRIM BY TIME, rather than seeking close and dropping a frame.
+    #: `-ss` before `-i` lands on a keyframe, so how many frames arrive before the
+    #: target is not fixed --- dropping exactly one left a repeated frame at a seam.
+    #: A whole second of lead-in guarantees the difference filter has a predecessor,
+    #: and `trim` then keeps precisely the wanted range by timestamp.
+    lead = 1.0 if t0 > 0 else 0.0
     seek = max(0.0, t0 - lead)
-    drop = 1 if t0 > 0 else 0
-    dur = (n_frames + drop) / fps
+    dur = lead + n_frames / fps
 
     #: -ss goes before the input it seeks; -t must come AFTER -filter_complex so it
     #: is an OUTPUT option. filter_frame_ffmpeg appends further inputs (infinite
@@ -127,11 +131,14 @@ def _chunk_worker(args) -> int:
     #: stdout, interleaved. That produced frames that were wrong and, because the
     #: interleaving depends on buffering, different between identical runs. The pixel
     #: format is therefore bgr24, which is what COLOR_BGR2GRAY below expects.
-    cmd += ["-filter_complex", chain[:-1]]
-    #: The LAST chunk runs to the end of file rather than to a computed duration.
-    #: A -t derived from an estimated frame count can stop a frame early or late
-    #: against the container's real end; the loop already stops at n_frames, so the
-    #: bound is redundant there and was costing one frame at the tail.
+    trim = ""
+    if lead:
+        #: Relative to the seek point, keep from `lead` onwards. setpts restarts the
+        #: clock so downstream sees a normal stream.
+        trim = f",trim=start={lead:.6f},setpts=PTS-STARTPTS"
+    cmd += ["-filter_complex", chain[:-1] + trim]
+    #: The last chunk runs to end of file; earlier ones are bounded so a worker does
+    #: not decode the rest of a two-hour recording it will discard.
     if not is_last:
         cmd += ["-t", f"{dur:.6f}"]
 
@@ -143,15 +150,12 @@ def _chunk_worker(args) -> int:
     #: even when no bar is wanted --- None makes it subtract from nothing.
     proc = _ffcmd(cmd, total_time=dur, pipe="read", stream=False)
     nbytes = W * H * 3
-    seen = written = 0
+    written = 0
     plates = []
     while written < n_frames:
         buf = _read_exact(proc.stdout, nbytes)
         if buf is None:
             break
-        seen += 1
-        if seen <= drop:
-            continue
         frame = _np.frombuffer(buf, dtype=_np.uint8).reshape(H, W, 3)
         grey = _cv2.cvtColor(frame, _cv2.COLOR_BGR2GRAY)
         j = i0 + written
