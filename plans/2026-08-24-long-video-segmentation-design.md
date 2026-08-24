@@ -299,3 +299,43 @@ separately --- which is the point.
 Testing follows the same rule as the rest: a synthetic video with a known static background
 and a moving rectangle, where the plate has a right answer pixel for pixel and occupancy has
 a known duty cycle.
+
+---
+
+# Settled with ARJ, 2026-08-24
+
+1. **Audio source: the camera's built-in stereo.** Everything hangs off that clock.
+2. **Language: Norwegian and English mixed**, often within a session. The STT model must be
+   multilingual and tolerate code-switching, which points at Whisper; `faster-whisper` for
+   the speed, since this is 2 h 38 min on a CPU.
+3. **Text only, no diarisation.** Consent covers open sharing, so the privacy gate
+   (`ambiscape.ml.speech_gate`) is not in this path and transcripts may be deposited.
+4. **The dancers talk between improvisations**, and hardly at all while dancing.
+5. **Disk is not a constraint.**
+6. **Round-trip with ELAN is wanted eventually**, not now. Export first, built so an
+   importer can be added without rework.
+
+## What (4) changes, and it is the best signal in the recording
+
+Talk and stillness coincide. So the *part* level should not be cut from motion alone: a
+**between-improvisation section is where speech is present and motion is low**, and an
+improvisation is the converse. Two weak signals that agree beat one strong one, and this
+pairing is far more robust than novelty peaks on a motion envelope, because it keys on what
+the session actually does rather than on how the envelope happens to bend.
+
+It also gives the segmentation a *falsifiable* claim: the parts it proposes should be
+separated by stretches that both the VAD and the motion floor agree on. Where they
+disagree, the boundary is a guess and should be drawn differently on the figure.
+
+## What (2) and the screening probe change
+
+The probe measured PANNs and silero-vad disagreeing on the same 60 s --- `Speech 0.86` from
+the tagger against 1.6 s of speech in 60 s from the VAD, plus `Snort`, `Gasp`, `Animal` and
+`Horse` on dancers breathing. So:
+
+- **silero-vad decides where speech is.** It returns segments, which is what both the part
+  detector and the transcriber need.
+- **PANNs decides whether there is music**, a distinctive clip-level tag, and its absence
+  here is a real negative.
+- **`anthrophony` cross-checks structurally**, and cannot hallucinate an animal.
+- Their disagreements are recorded rather than resolved silently.
