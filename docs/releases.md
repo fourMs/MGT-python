@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.14.1**.
+The current stable release is **MGT-python 1.14.2**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,15 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.14.2
+
+`get_framecount` allowed ffprobe a flat ten seconds and, on timeout, escalated to
+`-count_frames`, which fully decodes and is slower --- so that timed out too and the call
+raised. **MGT could not open a video longer than about twenty minutes**, a ceiling on length
+with nothing to do with any analysis. The allowance scales with the file now, and a timeout
+falls back to the container's `nb_frames` with a warning instead of escalating. No measured
+value changes.
 
 ### 1.14.1
 

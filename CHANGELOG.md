@@ -5,6 +5,44 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.2] — 2026-08-25
+
+### Added
+- `musicalgestures/_tracks.py`, a one-pass extractor for long recordings, merged from
+  `tracks-wip` in #380. **It is private and is not imported by `musicalgestures/__init__.py`,
+  so the public API is unchanged by this release** --- hence a patch rather than a minor
+  version. It converts each motion frame to greyscale once and takes the quantity of motion
+  and both videogram columns from that, writing into a preallocated memory-mapped file rather
+  than a growing array; on 120 s of 1080p the motiongrams are 71 per cent of `mg_motion`'s
+  cost and the area of motion another 12.
+
+  It is listed here because a 428-line module arriving unmentioned is the same gap this
+  release exists to close. Treat it as not yet part of the supported surface.
+
+### Fixed
+- **A flat 10-second ffprobe timeout put a ceiling on how long a video MGT could open at
+  all.** `get_framecount` allowed ffprobe ten seconds to count packets and, on timeout,
+  escalated to `-count_frames`, which fully *decodes* the file and is far slower --- so the
+  fallback timed out as well and the call raised. The effect had nothing to do with any
+  analysis: a recording longer than roughly twenty minutes could not be read.
+
+  Measured on a 2 h 38 min 1080p recording, where counting packets takes 22 s: `MgVideo()`
+  raised `Could not count frames. (Is this a video file?)` on an ordinary MP4. It now opens
+  in 21 s and reports 475,680 frames.
+
+  Two changes. The allowance scales with the file --- `framecount_timeout()`, kept a separate
+  function so a test can shorten it and exercise the real timeout path against a real ffprobe
+  rather than a mock of one. And a timeout no longer escalates to the slower method: it falls
+  back to the container's own `nb_frames` with a `RuntimeWarning` saying so, because that
+  figure is off by one on some AVIs and absent on some WebM. An approximate answer with a
+  warning beats refusing the file.
+
+  **No measured value changes.** This is the path that opens a file, not one that analyses
+  it; frame counts that were returned before are returned unchanged, and the fallback only
+  runs where the previous code raised.
+
+  `tests/test_framecount_long_video.py` covers it against a real ffprobe.
+
 ## [1.14.1] — 2026-08-24
 
 ### Fixed
@@ -1056,6 +1094,7 @@ of 33 landmarks off a real clip, a person found in 44 % of them.
 ---
 
 [Unreleased]: https://github.com/fourMs/MGT-python/compare/1.14.1...HEAD
+[1.14.2]: https://github.com/fourMs/MGT-python/compare/1.14.1...1.14.2
 [1.14.1]: https://github.com/fourMs/MGT-python/compare/1.14.0...1.14.1
 [1.14.0]: https://github.com/fourMs/MGT-python/compare/1.13.0...1.14.0
 [1.13.0]: https://github.com/fourMs/MGT-python/compare/v1.12.1...1.13.0
