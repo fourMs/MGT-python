@@ -1572,6 +1572,39 @@ def audio_source(filename: str) -> str:
     return target
 
 
+def framecount_timeout(filename: str, fast: bool = True) -> float:
+    """How long to let ffprobe count frames in this file, in seconds.
+
+    Scaled to the file, because a flat value is a ceiling on video length. Separate
+    from `get_framecount` so a test can shorten it and exercise the timeout path
+    against a real ffprobe rather than against a mock of one.
+    """
+    import os
+    try:
+        gb = os.path.getsize(filename) / 1e9
+    except OSError:
+        gb = 0.0
+    return max(60.0, 120.0 * gb) if fast else max(300.0, 600.0 * gb)
+
+
+def _container_framecount(filename: str) -> int | None:
+    """The container's own `nb_frames`, or None. Instant, and often right.
+
+    Unreliable in general --- off by one on many AVIs, absent on some WebM --- which
+    is why it is not the primary source. It is a good LAST resort, because the
+    alternative when packet counting cannot finish is no answer at all.
+    """
+    import subprocess
+    cmd = ("ffprobe -v error -select_streams v:0 -show_entries stream=nb_frames "
+           "-of default=nokey=1:noprint_wrappers=1").split(" ")
+    cmd.append(filename)
+    try:
+        out = subprocess.run(cmd, capture_output=True, text=True, timeout=20).stdout.strip()
+    except Exception:                                         # noqa: BLE001
+        return None
+    return int(out) if out.isdigit() and int(out) > 0 else None
+
+
 def get_framecount(filename: str, fast: bool = True) -> int:
     """
     Returns the number of frames in a video using FFprobe.
@@ -1601,11 +1634,31 @@ def get_framecount(filename: str, fast: bool = True) -> int:
 
     process = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+    #: THE TIMEOUT USED TO BE A FLAT 10 SECONDS, which put a hard ceiling on how long
+    #: a video MGT could open at all --- nothing to do with any analysis. Counting
+    #: packets on a 2 h 38 min 1080p file takes 22 s, so it timed out; the fallback
+    #: then escalated to `-count_frames`, which fully DECODES and is far slower, so
+    #: that timed out too and the file could not be read. Scaled to the file now: this
+    #: is one ffprobe pass per video, not per frame.
+    timeout = framecount_timeout(filename, fast)
+
     try:
-        out, err = process.communicate(timeout=10)
+        out, err = process.communicate(timeout=timeout)
     except subprocess.TimeoutExpired:
         process.kill()
-        out, err = process.communicate()
+        process.communicate()
+        #: Do NOT escalate to the slower method on a timeout. The container's own
+        #: count is instant, and an approximate answer beats refusing the file.
+        fallback = _container_framecount(filename)
+        if fallback:
+            import warnings as _w
+            _w.warn(
+                f"counting frames timed out after {timeout:.0f}s; using the "
+                f"container's nb_frames ({fallback}). That figure is off by one on "
+                f"some AVIs and absent on some WebM, so treat the last frame as "
+                f"uncertain.", RuntimeWarning, stacklevel=2)
+            return fallback
+        out, err = "", None
 
     if err:
         raise FFprobeError(err)
@@ -1616,6 +1669,8 @@ def get_framecount(filename: str, fast: bool = True) -> int:
         elif out.startswith("N/A"):
             if fast:
                 return get_framecount(filename, fast=False)
+            elif _container_framecount(filename):
+                return _container_framecount(filename)  # type: ignore[return-value]
             else:
                 raise FFprobeError(
                     "Could not count frames. (Is this a video file?) If you are working with audio file use MgAudio instead.")
@@ -1625,6 +1680,8 @@ def get_framecount(filename: str, fast: bool = True) -> int:
     else:
         if fast:
             return get_framecount(filename, fast=False)
+        elif _container_framecount(filename):
+            return _container_framecount(filename)  # type: ignore[return-value]
         else:
             raise FFprobeError(
                 "Could not count frames. (Is this a video file?). If you are working with audio file use MgAudio instead.")
