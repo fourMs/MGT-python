@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.13.0**.
+The current stable release is **MGT-python 1.14.0**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,14 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.14.0
+
+Multi-view pose fusion: `fuse_pose_views` brings MediaPipe world landmarks from two or more
+uncalibrated cameras into one consensus skeleton, with the cross-view residual in millimetres as a
+quality measure. An `Action` layer gives motion-to-meaning work a place to put measured features
+and claimed labels side by side. `motion_mp()` is retired --- it raised on its first call and had
+never worked --- and the mypy step now blocks merges, having gone from 248 errors to zero.
 
 ### 1.13.0
 

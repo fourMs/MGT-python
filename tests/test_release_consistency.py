@@ -63,7 +63,17 @@ class Test_ReleaseConsistency:
         if not tags:
             pytest.skip("no tags in this checkout")
         # the version being prepared has no tag until it is released
-        missing = [v for v in _changelog_versions()[1:] if f"v{v}" not in tags]
+        #
+        # BOTH TAG CONVENTIONS COUNT. This project tagged `v1.2.3` until
+        # 2026-08-16 and `1.2.3` after it, because the Zenodo integration takes
+        # a record's version from the tag name and a `v` made one toolbox read
+        # two ways in a reference list. RELEASING.md carries the reason. A
+        # check that knows only the old form passes for exactly as long as the
+        # newest release is the one it skips: 1.13.0 was tagged bare on
+        # 2026-08-23 and this test went red the moment 1.14.0 was prepared
+        # above it, blaming a release that was correctly tagged.
+        missing = [v for v in _changelog_versions()[1:]
+                   if f"v{v}" not in tags and v not in tags]
         assert not missing, (
             "released versions with no git tag, so their changelog compare links are dead: "
             + ", ".join(missing))
