@@ -68,6 +68,8 @@ If you want to cite the toolbox itself, use the Zenodo CONCEPT DOI, which always
 
 Where the exact behaviour matters, cite the version you ran.
 
+An older concept DOI, https://doi.org/10.5281/zenodo.21949007, is frozen at 1.11.1. It was created by a hand deposit made on 2026-08-15, before the Zenodo GitHub integration was archiving this repository; the integration began working the next day and every release since is under the DOI above. Zenodo cannot merge two concepts, so both records exist and only one of them advances. Cite the DOI above.
+
 `CITATION.cff` in this repository carries the same information in machine-readable form.
 
 ## Credits
