@@ -193,3 +193,109 @@ Open for ARJ:
    tolerable for the final analysis.
 3. **Which level the student annotates first.** The export can carry all three, but the tier
    they work in decides how many segments they meet.
+
+---
+
+# Addendum: the room, not only the dancers
+
+ARJ, 2026-08-24: the foreground is half the interest. The room they perform in needs
+describing too --- visual features averaged either over frames where the dancers are absent
+or over enough frames in different positions that the room is what survives, and audio
+features that MGT can analyse or hand to ambiscape and musiscape.
+
+This lands on a boundary the four toolboxes have not settled, so that is stated before the
+design rather than after it.
+
+## The visual room: a plate, and everything else follows from it
+
+**Take the temporal MEDIAN, not the mean.** A mean over frames with dancers in different
+places keeps a ghost of them: every dancer contributes brightness everywhere they were,
+faintly, forever. A median over enough such frames removes them outright, because at any
+pixel the dancers are a minority of the samples. `mg_pixelarray` averages, which is the
+right tool for the motion-history look it was built for and the wrong one here.
+
+    room_plate(video, n=2000, method="median") -> np.ndarray
+
+Frames sampled across the whole session rather than from one stretch, because a plate built
+from ten minutes describes the lighting of ten minutes.
+
+**Then the plate gives the occupancy signal for free.** Each frame's departure from the
+plate is how much of the room is currently covered by something that is not the room ---
+which is a presence measure that needs no pose estimation and cannot silently mis-identify
+a dancer, because it never identifies anyone. `mg_subtract` already does the subtraction.
+
+    occupancy(video, plate) -> track alongside qom
+
+That, in turn, answers ARJ's first strategy without needing it as a separate path: **the
+emptiest frames are the ones with the least departure**, so "average the frames where the
+dancers are absent" becomes a selection over a measure the plate already provides. Iterate
+once --- plate from a blind sample, then plate again from the emptiest 10 % --- and the
+second plate is the room with the dancers gone rather than merely diluted.
+
+*This is the book's figure/ground thesis as an algorithm:* the background is what does not
+change, and the foreground is the difference from it. Report 20 makes the same move on a
+dwelling's sound floor.
+
+**Cost: near zero, if it rides along.** The plate needs a few thousand sampled frames, not
+475,680, and the extraction pass is decoding every frame anyway. Occupancy does need a
+second pass, but **occupancy tolerates the downsampling that segmentation does not** ---
+it is a slow presence signal, not a boundary crossing, so 320 wide and 21 minutes is
+sufficient and the 3.6 s boundary shift measured above is irrelevant to it. That asymmetry
+should be stated wherever both are configured, or someone will reasonably assume one width
+serves both.
+
+## The audio room: hand it across, do not reimplement it
+
+MGT's `MgAudio` already gives spectrogram, MFCC, chromagram, HPSS, tempo and descriptors,
+and that is enough for anything staying inside MGT. For the room as a *soundscape* ---
+level, spectrum, ecology indices, tonality, the noise floor --- ambiscape owns the
+vocabulary and the fix is small, because the crossing point already exists.
+
+`_soundscape.py` declares itself the one crossing and states the principle. Today it takes
+an ambiscape *session folder*. It needs to take a video:
+
+    soundscape_features(video) -> MgFeatures     # extract WAV, open_recording, extract_session
+
+`ambiscape.io.open_recording` opens a single file as a one-take session, so no folder
+layout is needed --- this is a WAV export and one call. From there `ambiscape.music` reaches
+musiscape for anything musical, which is the existing route and needs nothing new.
+
+**The room tone specifically** is a low percentile per band over time, not a mean: the
+quietest tenth of each band across the session is the floor the room sits at, and the mean
+is dominated by whatever happened in it. That is ambiscape's `floor` concept and report
+20's method, and it belongs on the ambiscape side of the crossing.
+
+## The boundary this sits on, which is ARJ's to settle
+
+**`ambiscape.vision` already computes per-frame visual features** --- `luma`,
+`frame_features`, `frame_delta`, `frame_series`, `summarize_vision` --- while the stated
+rule is that MGT owns pixels and ambiscape owns samples. Sound Spaces' own notes flag
+`ambiscape.vision.frame_delta` as a seventh copy of the frame difference that a six-copy
+audit missed. This requirement lands on exactly that seam.
+
+For this design I propose the split that avoids duplicating work rather than the one that
+settles the principle:
+
+- **MGT makes the plate**, because MGT is already decoding the video and a second decode
+  through another toolbox costs another pass over 475,680 frames.
+- **ambiscape may describe it**, because the plate is a single image: `frame_features(plate)`
+  is one call on one array with no decoding at all, and it gives the room ambiscape's
+  descriptor vocabulary so the visual and audio descriptions of the room are in the same
+  language.
+
+That is a crossing of exactly the kind `_soundscape.py` was created to be, and it does not
+decide who owns per-frame visual features in general. **[ARJ]** that question is the
+open toolbox-alignment item and should be settled deliberately, not by whichever design
+touches it next.
+
+## What this adds to the plan
+
+One module, `_room.py`, holding `room_plate`, `occupancy` and the emptiest-frame selection;
+one extension to `_soundscape.py` to accept a video; and one new track in the feature table.
+The renderer gains the plate as a panel on the overview page and occupancy as a strip
+beneath qom, so foreground and background are read against each other rather than
+separately --- which is the point.
+
+Testing follows the same rule as the rest: a synthetic video with a known static background
+and a moving rectangle, where the plate has a right answer pixel for pixel and occupancy has
+a known duty cycle.
