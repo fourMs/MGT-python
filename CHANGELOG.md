@@ -1029,7 +1029,9 @@ of 33 landmarks off a real clip, a person found in 44 % of them.
 
 ---
 
-[Unreleased]: https://github.com/fourMs/MGT-python/compare/v1.12.1...HEAD
+[Unreleased]: https://github.com/fourMs/MGT-python/compare/1.14.0...HEAD
+[1.14.0]: https://github.com/fourMs/MGT-python/compare/1.13.0...1.14.0
+[1.13.0]: https://github.com/fourMs/MGT-python/compare/v1.12.1...1.13.0
 [1.12.1]: https://github.com/fourMs/MGT-python/compare/v1.12.0...v1.12.1
 [1.12.0]: https://github.com/fourMs/MGT-python/compare/v1.11.4...v1.12.0
 [1.11.4]: https://github.com/fourMs/MGT-python/compare/v1.11.3...v1.11.4
