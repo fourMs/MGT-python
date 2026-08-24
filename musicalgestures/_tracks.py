@@ -56,7 +56,7 @@ def _analysis_dir(video, out_dir=None) -> Path:
     """`analysis/<stem>/` beside the video unless told otherwise."""
     video = Path(video)
     root = Path(out_dir) if out_dir else video.parent / "analysis"
-    d = root / video.stem
+    d: Path = root / video.stem
     d.mkdir(parents=True, exist_ok=True)
     return d
 
@@ -99,7 +99,7 @@ def _chunk_worker(args) -> int:
     makes a chunked pass identical to a serial one instead of merely close.
     """
     (video, d, i0, n_frames, t0, fps, W, H, n_total,
-     filtertype, threshold, blur, use_median, kernel_size, plate_every) = args
+     filtertype, threshold, blur, use_median, kernel_size, plate_every, is_last) = args
     import cv2 as _cv2
     import numpy as _np
     import musicalgestures as _mg
@@ -121,8 +121,19 @@ def _chunk_worker(args) -> int:
     cmd = ["ffmpeg", "-y", "-ss", f"{seek:.6f}", "-i", str(video)]
     cmd, chain = _ffilter(str(video), cmd, True, blur, filtertype,
                           threshold, kernel_size, use_median)
-    cmd += ["-filter_complex", chain[:-1], "-t", f"{dur:.6f}",
-            "-f", "rawvideo", "-pix_fmt", "rgb24", "-"]
+    #: STOP AT -filter_complex. ffmpeg_cmd(pipe="read") appends its OWN output
+    #: arguments --- `-f image2pipe -pix_fmt bgr24 -vcodec rawvideo -` --- so adding
+    #: an output spec here gives ffmpeg two outputs and it writes BOTH into the same
+    #: stdout, interleaved. That produced frames that were wrong and, because the
+    #: interleaving depends on buffering, different between identical runs. The pixel
+    #: format is therefore bgr24, which is what COLOR_BGR2GRAY below expects.
+    cmd += ["-filter_complex", chain[:-1]]
+    #: The LAST chunk runs to the end of file rather than to a computed duration.
+    #: A -t derived from an estimated frame count can stop a frame early or late
+    #: against the container's real end; the loop already stops at n_frames, so the
+    #: bound is redundant there and was costing one frame at the tail.
+    if not is_last:
+        cmd += ["-t", f"{dur:.6f}"]
 
     qom = _np.memmap(d / "qom.f4", dtype=_np.float32, mode="r+", shape=(n_total,))
     vg = _np.memmap(d / "videogram_v.u1", dtype=_np.uint8, mode="r+", shape=(n_total, H))
@@ -196,7 +207,13 @@ def extract_tracks(video, out_dir=None, filtertype="Regular", threshold=0.05,
     cmd = ["ffmpeg", "-y", "-i", str(video)]
     cmd, chain = filter_frame_ffmpeg(str(video), cmd, True, blur, filtertype,
                                      threshold, kernel_size, use_median)
-    cmd += ["-filter_complex", chain[:-1], "-f", "rawvideo", "-pix_fmt", "rgb24", "-"]
+    #: STOP AT -filter_complex. ffmpeg_cmd(pipe="read") appends its OWN output
+    #: arguments --- `-f image2pipe -pix_fmt bgr24 -vcodec rawvideo -` --- so adding
+    #: an output spec here gives ffmpeg two outputs and it writes BOTH into the same
+    #: stdout, interleaved. That produced frames that were wrong and, because the
+    #: interleaving depends on buffering, different between identical runs. The pixel
+    #: format is therefore bgr24, which is what COLOR_BGR2GRAY below expects.
+    cmd += ["-filter_complex", chain[:-1]]
 
     plates: list = []
     pb = MgProgressbar(total=n_max, prefix="Tracks:") if progress else None
@@ -362,7 +379,8 @@ def extract_tracks_parallel(video, out_dir=None, workers=None, chunk_s=120.0,
         if resume and (d / f".done_{i0}").exists():
             continue
         jobs.append((str(video), str(d), i0, n_frames, i0 / fps, fps, W, H, n_total,
-                     filtertype, threshold, blur, use_median, kernel_size, plate_every))
+                     filtertype, threshold, blur, use_median, kernel_size, plate_every,
+                     i0 + n_frames >= n_total))
 
     workers = workers or max(1, min(os.cpu_count() or 2, 8))
     if jobs:
