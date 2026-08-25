@@ -44,6 +44,11 @@ def decimate_minmax(x, n_columns: int):
         tuple: (mins, maxs, factor), where `factor` is samples per column and is
         meant to be printed on the figure.
     """
+    if n_columns < 1:
+        #: A caller computing columns from a figure width can arrive here with zero,
+        #: and `n / n_columns` would raise ZeroDivisionError from inside a renderer
+        #: rather than at the point the width was decided.
+        raise ValueError(f"n_columns must be at least 1, not {n_columns}")
     v = np.asarray(x, float).ravel()
     n = v.size
     if n == 0:

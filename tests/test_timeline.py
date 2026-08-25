@@ -70,3 +70,13 @@ def test_padding_does_not_invent_a_trough_at_the_end():
 def test_an_empty_signal_is_not_an_error():
     mins, maxs, factor = decimate_minmax(np.zeros(0), 100)
     assert len(mins) == len(maxs) == 0 and factor == 1
+
+
+def test_zero_columns_is_refused_rather_than_dividing_by_zero():
+    """A caller computing columns from a figure width can arrive here with zero.
+
+    Without this the failure is a ZeroDivisionError raised from inside a renderer,
+    which points at the decimator rather than at the width that was actually wrong.
+    """
+    with pytest.raises(ValueError):
+        decimate_minmax(np.arange(100.0), 0)
