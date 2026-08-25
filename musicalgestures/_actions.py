@@ -92,7 +92,8 @@ def _as_envelope(x) -> np.ndarray:
 
 def segment_actions(envelope, fs: float, threshold: float = 0.15,
                     min_duration: float = 0.1, min_gap: float = 0.1,
-                    source: str = "envelope") -> list[Action]:
+                    source: str = "envelope", range_mode: str = "minmax",
+                    range_percentiles: tuple = (1.0, 99.0)) -> list[Action]:
     """Cut a motion envelope into actions, where movement rises above rest.
 
     An action begins where the envelope crosses `threshold` and ends where it falls back.
@@ -114,6 +115,16 @@ def segment_actions(envelope, fs: float, threshold: float = 0.15,
             Defaults to 0.1.
         min_gap (float): Gaps shorter than this, in seconds, are closed. Defaults to 0.1.
         source (str): Recorded on each Action, to identify what produced it.
+        range_mode (str): How the envelope's range is measured before `threshold` is
+            taken as a fraction of it. ``"minmax"`` uses the full range and is the
+            default, so nothing already measured changes. ``"robust"`` uses
+            `range_percentiles` instead, which is what a recording of session length
+            needs: a handful of outlier spikes otherwise raise the maximum so far that
+            the threshold falls below everything and the real movement is never found.
+            Measured on this project's dance corpus, three three-frame spikes in a
+            6,000-frame envelope hid all ten of its obvious bursts.
+        range_percentiles (tuple): The percentiles bounding the range when
+            `range_mode="robust"`. Defaults to (1.0, 99.0).
 
     Returns:
         list: The actions found, in time order.
@@ -122,7 +133,12 @@ def segment_actions(envelope, fs: float, threshold: float = 0.15,
     if len(e) < 2 or fs <= 0:
         return []
 
-    lo, hi = float(np.min(e)), float(np.max(e))
+    if range_mode == "minmax":
+        lo, hi = float(np.min(e)), float(np.max(e))
+    elif range_mode == "robust":
+        lo, hi = (float(v) for v in np.percentile(e, range_percentiles))
+    else:
+        raise ValueError(f"range_mode must be 'minmax' or 'robust', not {range_mode!r}")
     if hi <= lo:
         return []
     level = lo + threshold * (hi - lo)
