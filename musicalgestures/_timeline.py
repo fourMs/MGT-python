@@ -124,6 +124,7 @@ def render_timeline(analysis_dir, start_s: float = 0.0, end_s=None,
         axes = [axes]
 
     factor = 1
+    qom_style, qom_points = None, 0
     i0 = int(start_s * fps)
     i1 = max(min(int(end_s * fps), n_frames), i0 + 1)
 
@@ -145,9 +146,22 @@ def render_timeline(analysis_dir, start_s: float = 0.0, end_s=None,
             mins, maxs, f = decimate_minmax(np.asarray(q, dtype=float), n_columns)
             factor = max(factor, f)
             t = np.linspace(start_s, end_s, len(maxs))
-            #: Fill between the extremes rather than plotting a line through a mean:
-            #: the band IS the information at this magnification.
-            ax.fill_between(t, mins, maxs, linewidth=0, color="#333333")
+            if f == 1:
+                #: UNDECIMATED, SO DRAW A LINE. With one sample per column the min and
+                #: the max of that column are the same number, and `fill_between`
+                #: between two identical curves fills a region of zero height --- an
+                #: empty panel with correctly labelled axes, which looks like missing
+                #: data rather than like a bug. Found on the first action-level sheet
+                #: rendered from the real session; the overview never showed it,
+                #: because an overview always decimates.
+                ax.plot(t, maxs, linewidth=0.7, color="#333333")
+                qom_style = "line"
+            else:
+                #: Fill between the extremes rather than plotting a line through a
+                #: mean: the band IS the information at this magnification.
+                ax.fill_between(t, mins, maxs, linewidth=0, color="#333333")
+                qom_style = "band"
+            qom_points = int(len(maxs))
             ax.set_ylabel("quantity of motion")
 
         elif panel == "waveform":
@@ -207,6 +221,7 @@ def render_timeline(analysis_dir, start_s: float = 0.0, end_s=None,
          "decimation_factor": factor, "printed_on_figure": True,
          "seconds_per_column": factor / fps, "panels": list(drawn),
          "levels": list(levels), "boundaries": boundaries,
+         "qom_style": qom_style, "qom_points": qom_points,
          "note": ("min/max per column, never a mean: a brief movement is what an "
                   "overview exists to find and a mean is what removes it")},
         indent=1) + "\n")

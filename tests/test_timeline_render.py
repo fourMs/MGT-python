@@ -92,3 +92,27 @@ def test_the_sidecar_names_the_image_it_belongs_to(analysis, hierarchy):
     out = render_timeline(analysis, hierarchy=hierarchy)
     meta = json.loads(out.with_suffix(".json").read_text())
     assert meta["image"] == out.name
+
+
+def test_the_qom_panel_is_drawn_when_nothing_is_decimated(analysis, hierarchy):
+    """An undecimated span must still show its motion.
+
+    With one sample per column the min and max of each column are the same number, and
+    `fill_between` between two identical curves fills a region of zero height. The
+    panel comes out empty with correctly labelled axes, which reads as missing data
+    rather than as a bug --- and the overview never shows it, because an overview
+    always decimates. Found on the first action-level sheet drawn from the real
+    session.
+    """
+    out = render_timeline(analysis, start_s=0.0, end_s=2.0, hierarchy=hierarchy)
+    meta = json.loads(out.with_suffix(".json").read_text())
+    assert meta["decimation_factor"] == 1, "this span should not decimate"
+    assert meta["qom_points"] > 0
+    assert meta["qom_style"] == "line", "a zero-height band draws nothing"
+
+
+def test_the_qom_panel_is_a_band_when_decimated(analysis, hierarchy):
+    out = render_timeline(analysis, start_s=0.0, end_s=60.0, hierarchy=hierarchy)
+    meta = json.loads(out.with_suffix(".json").read_text())
+    assert meta["decimation_factor"] > 1
+    assert meta["qom_style"] == "band"
