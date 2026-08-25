@@ -131,3 +131,42 @@ def test_tsv_carries_the_agreement_so_it_is_not_lost_outside_elan(planted, tmp_p
     text = p.read_text()
     assert "agreement" in text.split("\n")[0]
     assert "both" in text
+
+
+def test_every_child_tier_declares_a_constraint(planted, tmp_path):
+    """ELAN refuses a nested tier whose linguistic type has no CONSTRAINTS.
+
+    A file can be well-formed XML, round-trip through `from_elan` perfectly, and still
+    not open in ELAN --- which is the only thing this export exists to do. So the rule
+    is asserted against the schema's requirement rather than against our own reader:
+    every tier with a PARENT_REF must reference a type carrying CONSTRAINTS, and every
+    stereotype named must be declared in a CONSTRAINT element.
+
+    Found by validating the real session.eaf rather than the fixtures.
+    """
+    p = to_elan(planted, video="/data/session.mp4", out=tmp_path / "s.eaf")
+    root = ET.parse(p).getroot()
+
+    types = {lt.get("LINGUISTIC_TYPE_ID"): lt for lt in root.iter("LINGUISTIC_TYPE")}
+    declared = {c.get("STEREOTYPE") for c in root.iter("CONSTRAINT")}
+
+    child_tiers = [t for t in root.iter("TIER") if t.get("PARENT_REF")]
+    assert child_tiers, "no nested tiers to check"
+    for t in child_tiers:
+        lt = types.get(t.get("LINGUISTIC_TYPE_REF"))
+        assert lt is not None, f"{t.get('TIER_ID')} references an undeclared type"
+        stereotype = lt.get("CONSTRAINTS")
+        assert stereotype, (
+            f"tier {t.get('TIER_ID')} is nested but its type "
+            f"{t.get('LINGUISTIC_TYPE_REF')} declares no CONSTRAINTS; ELAN will "
+            "refuse the file")
+        assert stereotype in declared, f"stereotype {stereotype} is never declared"
+
+
+def test_the_students_tier_is_time_alignable(planted, tmp_path):
+    """Gesture phases are spans, so the tier they go on must accept spans."""
+    p = to_elan(planted, video="/data/session.mp4", out=tmp_path / "s.eaf")
+    root = ET.parse(p).getroot()
+    types = {lt.get("LINGUISTIC_TYPE_ID"): lt for lt in root.iter("LINGUISTIC_TYPE")}
+    tier = [t for t in root.iter("TIER") if t.get("TIER_ID") == "annotation"][0]
+    assert types[tier.get("LINGUISTIC_TYPE_REF")].get("TIME_ALIGNABLE") == "true"

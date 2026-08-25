@@ -85,7 +85,13 @@ def to_elan(hierarchy: Hierarchy, video, out, levels=None) -> Path:
 
     aid = [0]
     for i, name in enumerate(names):
-        attrs = {"TIER_ID": name, "LINGUISTIC_TYPE_REF": "segmentation"}
+        #: A ROOT TIER AND A CHILD TIER NEED DIFFERENT LINGUISTIC TYPES. ELAN requires
+        #: that any tier with a PARENT_REF use a type carrying a CONSTRAINTS attribute,
+        #: and refuses the file otherwise --- so exporting every tier with one
+        #: unconstrained type produces a well-formed document that ELAN will not open,
+        #: which is the only thing the export exists to do.
+        attrs = {"TIER_ID": name,
+                 "LINGUISTIC_TYPE_REF": "segmentation" if not i else "subdivision"}
         if i:
             #: Nested, because the hierarchy is the point. A flat set of tiers would
             #: export the spans and lose what relates them.
@@ -107,16 +113,27 @@ def to_elan(hierarchy: Hierarchy, video, out, levels=None) -> Path:
 
     #: An empty tier the student writes into. It exists in the exported file rather
     #: than being created by hand, so the tier name is the same in every session.
+    #: An empty tier the student writes into, TIME-ALIGNABLE so they can draw their own
+    #: spans inside an action --- which is what annotating gesture phases requires. It
+    #: exists in the exported file rather than being created by hand, so the tier name
+    #: is the same in every session.
     ET.SubElement(root, "TIER", {"TIER_ID": "annotation",
-                                 "LINGUISTIC_TYPE_REF": "free",
+                                 "LINGUISTIC_TYPE_REF": "subdivision",
                                  "PARENT_REF": names[-1] if names else "part"})
 
     ET.SubElement(root, "LINGUISTIC_TYPE", {"LINGUISTIC_TYPE_ID": "segmentation",
                                             "TIME_ALIGNABLE": "true",
                                             "GRAPHIC_REFERENCES": "false"})
-    ET.SubElement(root, "LINGUISTIC_TYPE", {"LINGUISTIC_TYPE_ID": "free",
-                                            "TIME_ALIGNABLE": "false",
+    ET.SubElement(root, "LINGUISTIC_TYPE", {"LINGUISTIC_TYPE_ID": "subdivision",
+                                            "TIME_ALIGNABLE": "true",
+                                            "CONSTRAINTS": "Included_In",
                                             "GRAPHIC_REFERENCES": "false"})
+    #: The stereotype each constrained type names must itself be declared, and the
+    #: element order matters: ELAN's schema puts CONSTRAINT after LINGUISTIC_TYPE.
+    ET.SubElement(root, "CONSTRAINT", {
+        "STEREOTYPE": "Included_In",
+        "DESCRIPTION": "Time alignable annotations within the parent annotation's "
+                       "time interval, gaps are allowed"})
 
     xml = minidom.parseString(ET.tostring(root)).toprettyxml(indent=" ")
     out.write_text(xml)
