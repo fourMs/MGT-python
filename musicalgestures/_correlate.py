@@ -30,6 +30,11 @@ each series repeats itself, after Bartlett, and the reported p-values use it. On
 project's corpus that was not academic: one session's best lag moved from p < 0.001 to
 p = 1.0 once the effective size was used.
 
+**Related, and not the same.** `_alignment.xcorr_lag` also sweeps a lag and returns the
+best one; use it when the lag itself is the answer. Use this when the answer is a CLAIM
+about the lag, because a claim needs the two corrections below and `xcorr_lag` provides
+neither.
+
 Ported from `xcov()` in https://github.com/finn42/Laughter_Dance by Finn Upham,
 accompanying Upham et al., *Frontiers in Psychology* 2026,
 doi:10.3389/fpsyg.2026.1754425. The sign convention and the multiple-comparison

@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.14.2**.
+The current stable release is **MGT-python 1.15.0**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,30 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.15.0
+
+Tools for building annotation material a person will work in, and for putting several
+researchers' annotations on one clock.
+
+`align_by_audio` locates a short recording inside a long one by loudness envelope, which
+is how a hand-cut excerpt or a second camera is placed on the session's clock. It probes
+rather than correlating whole files, because a file named `Cut` may be spliced and only
+independent windows reveal that, and it summarises by the offset that recurs rather than
+the median, because when most probes match nothing the middle of the list is nonsense.
+
+`to_elan` can now write independent tiers instead of nesting every level inside the
+previous one --- speech is not inside motion --- and can embed controlled vocabularies so
+an annotator picks from a list instead of typing `ENJOYMENT`, `Enjoyment` and `enjoyment`
+into one session. `read_elan_csv` reads ELAN's exported text and keeps the provenance line
+saying which media the times belong to.
+
+`lagged_correlation` reports a correlation across a lag range with both a
+multiple-comparison correction and an effective sample size, because neighbouring samples
+of a smooth envelope are not independent observations and treating them as such turns
+autocorrelated noise into a finding. `cooccurrence_table` and `label_by_overlap` say which
+annotation layers coincide and by how much. `render_timeline` can shade a span's extent
+rather than only marking where it began.
 
 ### 1.14.2
 

@@ -4,7 +4,7 @@ import os
 # this attribute rather than carrying its own copy. Two static copies
 # drift the moment a bump touches one of them, which is how ambiscape
 # shipped three releases misreporting themselves and musiscape one.
-__version__ = "1.14.2"
+__version__ = "1.15.0"
 from musicalgestures._input_test import mg_input_test
 from musicalgestures._videoreader import mg_videoreader
 from musicalgestures._flow import Flow
@@ -114,6 +114,9 @@ from musicalgestures._alignment import (
     offset_stats,
     sliding_correlation,
     envelope_agreement,
+    locate_probe,
+    align_by_audio,
+    envelope_from_audio,
 )
 from musicalgestures._audiofeatures import (
     rms_envelope,

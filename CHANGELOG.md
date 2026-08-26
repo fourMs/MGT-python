@@ -5,6 +5,51 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.0] — 2026-08-26
+
+### Added
+- **`align_by_audio`, `locate_probe` and `envelope_from_audio` in `_alignment`**, for
+  locating one recording inside another by its loudness envelope. `xcorr_lag` already
+  answered how far apart two signals are that cover the same stretch of time; these answer
+  where a short recording sits inside a long one — a hand-cut excerpt, a second camera, a
+  re-encoded copy. They probe rather than correlating whole files, because a file named
+  `Cut` may be several pieces spliced together and only independent windows reveal it, and
+  they summarise by the offset that recurs rather than the median, because when most probes
+  match nothing the middle of the list is meaningless. A probe that matches nothing reports
+  no match: every cross-correlation has a maximum, and the maximum of noise is still a
+  maximum. Verified against five hand-measured offsets on a real corpus, reproducing all
+  five including one where only 6 of 16 probes matched.
+- **`_correlate.lagged_correlation`**, correlation swept across a lag range with two
+  corrections that a bare sweep lacks: Bonferroni over the lags examined, and Bartlett's
+  effective sample size. Consecutive samples of a smooth envelope are not independent
+  observations; without the second correction two unrelated AR(1) series report
+  p = 8.4e-10. Related to `xcorr_lag`, which is the right tool when the lag itself is the
+  answer rather than a claim about it.
+- **`_cooccurrence`**, saying which annotation layers coincide and by how much —
+  `overlap_seconds`, `label_by_overlap`, `cooccurrence_table`. Any two layers, not a fixed
+  pair. Overlapping reference spans are merged before anything is counted, and the four
+  cells of the table sum to the recording's duration.
+- **`_elan.read_elan_csv`**, reading ELAN's exported tab-delimited text — the format
+  collaborators actually send. Every span keeps the provenance line naming the media it was
+  annotated against, because taking the times and discarding that is how annotations land
+  on the wrong timeline.
+- **`to_elan(..., nest=False)` and `vocabularies=`**. Nesting each level inside the
+  previous is right for a hierarchy and wrong for layers that merely coincide: speech is not
+  inside motion, and another researcher's reference tier is not inside anything of ours.
+  Controlled vocabularies give an annotator a drop-down instead of free text.
+- **`render_timeline(..., shade=)`**, drawing a span's extent rather than only the line
+  where it began. On the corpus this was built for, a reader assuming a span ran to the next
+  boundary line would have been wrong by 21 minutes. The idiom is `annat_shade()` from Finn
+  Upham's `Laughter_Dance`.
+
+### Fixed
+- `to_elan` wrote `LANG_REF="und"` with no matching `LANGUAGE` element, which EAF 3.0
+  requires — well-formed XML that ELAN objects to, the same class of fault as the export
+  ELAN would not open.
+- `to_elan` added a free-text `annotation` tier the caller never asked for, which in a flat
+  export sits beside the caller's own empty tier and invites an annotator to split her notes
+  between two indistinguishable places. It is now added only when nesting.
+
 ## [1.14.2] — 2026-08-25
 
 ### Added

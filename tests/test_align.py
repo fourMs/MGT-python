@@ -1,5 +1,9 @@
 """Locating one recording inside another by sound.
 
+These live in `_alignment` beside `xcorr_lag`, which answers the neighbouring question:
+how far apart two signals are that already cover the same stretch of time. A separate
+`_align` module would have been a second alignment module with a near-identical name.
+
 Two recordings of one event share content even when they share nothing else --- different
 cameras, different rooms, a cut and re-encoded copy. Their loudness envelopes can be
 correlated, and the lag that matches them is the offset between their clocks.
@@ -17,7 +21,7 @@ Three faults this must not have, all met on real data:
 import numpy as np
 import pytest
 
-from musicalgestures._align import align_by_audio, locate_probe
+from musicalgestures._alignment import align_by_audio, locate_probe
 
 
 def _reference(n, seed=0):
