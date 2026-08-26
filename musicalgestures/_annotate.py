@@ -63,7 +63,7 @@ def to_elan(hierarchy: Hierarchy, video, out, levels=None, nest: bool = True,
         Path: The file written.
     """
     vocabularies = dict(vocabularies or {})
-    out = Path(out)
+    out_path: Path = Path(out)
     names = _ordered(hierarchy, levels)
 
     root = ET.Element("ANNOTATION_DOCUMENT", {
@@ -186,8 +186,8 @@ def to_elan(hierarchy: Hierarchy, video, out, levels=None, nest: bool = True,
                           {"LANG_REF": "und"}).text = str(value)
 
     xml = minidom.parseString(ET.tostring(root)).toprettyxml(indent=" ")
-    out.write_text(xml)
-    return out
+    out_path.write_text(xml)
+    return out_path
 
 
 def from_elan(path) -> Hierarchy:
@@ -197,8 +197,11 @@ def from_elan(path) -> Hierarchy:
     output being well-formed, and is the seam a fuller importer attaches to.
     """
     root = ET.parse(str(path)).getroot()
-    times = {ts.get("TIME_SLOT_ID"): int(ts.get("TIME_VALUE"))
-             for ts in root.iter("TIME_SLOT")}
+    #: A slot without a TIME_VALUE is a malformed file. Skipping it and failing later
+    #: on a missing key beats int(None) raising TypeError from inside a comprehension.
+    times = {ts.get("TIME_SLOT_ID"): int(v)
+             for ts in root.iter("TIME_SLOT")
+             if (v := ts.get("TIME_VALUE")) is not None}
     levels: dict = {}
     for tier in root.iter("TIER"):
         name = tier.get("TIER_ID")
@@ -222,7 +225,7 @@ def to_textgrid(hierarchy: Hierarchy, out, levels=None, xmax=None) -> Path:
     and the relationship between them is not carried. That is a property of the format
     and is stated rather than worked around.
     """
-    out = Path(out)
+    out_path: Path = Path(out)
     names = _ordered(hierarchy, levels)
     spans = {n: sorted(hierarchy.levels[n], key=lambda a: a.start) for n in names}
     if xmax is None:
@@ -249,8 +252,8 @@ def to_textgrid(hierarchy: Hierarchy, out, levels=None, xmax=None) -> Path:
         for j, (s, e, text) in enumerate(intervals, start=1):
             lines += [f"  intervals [{j}]:", f"   xmin = {s}", f"   xmax = {e}",
                       f'   text = "{text}"']
-    out.write_text("\n".join(lines) + "\n")
-    return out
+    out_path.write_text("\n".join(lines) + "\n")
+    return out_path
 
 
 def to_tsv(hierarchy: Hierarchy, out, levels=None) -> Path:
@@ -260,7 +263,7 @@ def to_tsv(hierarchy: Hierarchy, out, levels=None) -> Path:
     even though TextGrid has nowhere to put it, so a boundary's status is not lost by
     choosing a different tool.
     """
-    out = Path(out)
+    out_path: Path = Path(out)
     names = _ordered(hierarchy, levels)
     rows = ["\t".join(["level", "start", "end", "label", "source", "agreement",
                        "duration"])]
@@ -270,5 +273,5 @@ def to_tsv(hierarchy: Hierarchy, out, levels=None) -> Path:
                 name, f"{a.start:.3f}", f"{a.end:.3f}",
                 str(a.labels.get(name, "")), a.source,
                 str(a.features.get("agreement", "")), f"{a.duration:.3f}"]))
-    out.write_text("\n".join(rows) + "\n")
-    return out
+    out_path.write_text("\n".join(rows) + "\n")
+    return out_path

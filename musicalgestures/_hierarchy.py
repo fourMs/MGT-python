@@ -17,6 +17,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from typing import cast
+
 import numpy as np
 
 from musicalgestures._actions import Action
@@ -53,7 +55,7 @@ class Hierarchy:
         mid = 0.5 * (action.start + action.end)
         for p in self.levels.get(level, []):
             if p.start <= mid < p.end:
-                return p
+                return cast(Action, p)
         return None
 
     def to_dict(self) -> dict:
@@ -138,7 +140,7 @@ def part_level(qom, fs: float, speech, quiet_percentile: float = 25.0,
 
     #: Absorb runs too short to be a part of a session. A fragment at the very start
     #: has no predecessor to be absorbed into, so it is folded forwards afterwards.
-    merged = []
+    merged: list[tuple[int, int]] = []
     for a, b in spans:
         if merged and (b - a) < min_part_s * fs:
             merged[-1] = (merged[-1][0], b)

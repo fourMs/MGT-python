@@ -97,7 +97,8 @@ def stratified_sample(hierarchy: Hierarchy, level: str = "phrase", n: int = 20,
         order = rng.permutation(len(buckets[key]))
         buckets[key] = [buckets[key][i] for i in order]
 
-    chosen, keys = [], sorted(buckets, key=lambda k: (k is None, k))
+    chosen: list[Action] = []
+    keys = sorted(buckets, key=lambda k: (k is None, k))
     while len(chosen) < n and any(buckets[k] for k in keys):
         for k in keys:
             if buckets[k] and len(chosen) < n:
