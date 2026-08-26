@@ -30,6 +30,49 @@ _VIDEO_SUFFIXES = {".mp4", ".mov", ".avi", ".mkv", ".m4v", ".webm", ".mpg", ".mp
 _AUDIO_SUFFIXES = {".wav", ".flac", ".aif", ".aiff", ".mp3", ".m4a", ".ogg"}
 
 
+#: ambiscape's own names, and what they are called on this side. Only level is required;
+#: the rest depend on the recording's channel layout, and a mono file has no directional
+#: features at all.
+_SCALAR_FEATURES = {"centroid": "aud_centroid", "flatness": "aud_flatness",
+                    "peak": "aud_peak", "diffuse": "aud_diffuse"}
+
+
+def features_from_ambiscape(F) -> dict:
+    """ambiscape's feature dict as named 1 Hz series.
+
+    Level, the shape of the spectrum, how tonal or noisy it is, and where the energy sits
+    by octave band --- which is a soundscape vocabulary, where level alone is only loud or
+    quiet.
+
+    Args:
+        F: the mapping ambiscape's `load_features` returns.
+
+    Returns:
+        dict: name to series, all the same length, all on the 1 Hz grid.
+
+    Raises:
+        KeyError: if `rms_w` is absent. Level is the one thing every recording has, and a
+            feature set without it is not one this can read.
+    """
+    rms = np.asarray(F["rms_w"], float)
+    #: +1e-12 before the log. A silent block is a real state --- a room with nobody in it
+    #: --- and log10(0) is -inf, which poisons every mean and every plot downstream.
+    out = {"aud_level_db": 20 * np.log10(rms + 1e-12)}
+
+    for src_name, dst_name in _SCALAR_FEATURES.items():
+        if src_name in F:
+            v = np.asarray(F[src_name], float)
+            if v.shape[:1] == rms.shape[:1]:
+                out[dst_name] = v
+
+    if "oct_pow" in F:
+        oct_pow = np.asarray(F["oct_pow"], float)
+        if oct_pow.ndim == 2 and oct_pow.shape[0] == len(rms):
+            for i in range(oct_pow.shape[1]):
+                out[f"aud_oct{i:02d}_db"] = 10 * np.log10(oct_pow[:, i] + 1e-12)
+    return out
+
+
 def audio_source_for(source, audio=None):
     """What kind of input this is, and what to hand ambiscape.
 
@@ -65,7 +108,7 @@ def audio_source_for(source, audio=None):
         #: The container goes in the name. Two recordings called clip.mov and clip.mp4
         #: beside each other would otherwise both extract to clip.wav, and the second
         #: run would silently analyse the first one's audio.
-        return "extract", src.with_name(f"{src.stem}{suffix[1:]}_soundscape.wav")
+        return "extract", src.with_name(f"{src.stem}_{suffix[1:]}_soundscape.wav")
     raise ValueError(
         f"{src.name}: cannot take soundscape features from a {suffix or 'suffixless'} "
         f"file. Give a video, a sound file, or an ambiscape session folder.")
@@ -110,10 +153,9 @@ def soundscape_features(source, features_dir=None, audio=None,
     npz = afeat.extract_session(sess, out, verbose=False)
     F = afeat.load_features(sorted(Path(p) for p in npz))
 
-    level_db = 20 * np.log10(np.asarray(F["rms_w"], float) + 1e-12)
     day0_midnight = dt.datetime.combine(sess.day0, dt.time())
     return MgFeatures(
-        {"aud_level_db": level_db},
+        features_from_ambiscape(F),
         times=np.asarray(F["t"], float),
         sr=1.0,
         source=str(path),
