@@ -367,6 +367,19 @@ def envelope_agreement(signals, fs, smooth=1.0):
 #   - a probe that matches nothing must say so. Every cross-correlation has a
 #     maximum; the maximum of noise is still a maximum, and reporting it as an
 #     offset is how an annotation lands silently on the wrong timeline.
+#
+# RELATION TO micromotion.search_lag, which owns lag estimation for these
+# packages. `search_lag` solves the neighbouring problem and is the right tool
+# when it fits: it tolerates unequal lengths and sampling, and scores every
+# integer offset within `max_lag_s` by Pearson correlation over whatever the two
+# series share there. It is a bounded direct search, and that is the difference.
+# Locating a 56-minute excerpt anywhere inside a 2 h 38 min recording at 20 Hz
+# needs roughly 190,000 candidate offsets against a 68,000-sample probe, which
+# direct search cannot do in reasonable time; these are FFT-based, so the whole
+# recording is searchable. Use `search_lag` when you know the offset is small and
+# the sampling is awkward, and these when you do not know where the piece sits at
+# all. Neither should be reimplemented on top of the other without measuring
+# first, and if `search_lag` ever grows an FFT path this should delegate to it.
 # ---------------------------------------------------------------------------
 
 def envelope_from_audio(samples, sr: float, hop_s: float = 0.05):

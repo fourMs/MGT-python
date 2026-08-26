@@ -53,6 +53,8 @@ Four packages from the fourMs Lab at the University of Oslo, each released separ
 
 Where a measure appears in more than one package it has a single owner and a single implementation, so the answer does not depend on which package you called. This package owns everything that starts from pixels; micromotion owns filtering, lag estimation and circular statistics, and this package requires it, re-exporting its `group_qom`, `bandpass` and `xcorr_lag` rather than keeping its own. A test here checks the numbers against micromotion's and fails if they diverge.
 
+Locating one recording inside another is the reverse direction of the same rule. micromotion's `search_lag` owns bounded lag estimation between two series; `musicalgestures.align_by_audio` searches a whole recording for where a short one sits, which needs an FFT rather than a direct search and starts from a media file's audio. Use `search_lag` when the offset is known to be small, `align_by_audio` when you do not know where the piece sits at all.
+
 One name is deliberately NOT shared. `musicalgestures.dominant_frequency` takes an FFT peak over 0.5–8.0 Hz, for locomotion and dance; `micromotion.dominant_frequency` takes a Welch peak over 0.3–4.0 Hz, for a body trying to stay still. They answer different questions and can disagree completely, so state which one produced any number you report.
 
 
