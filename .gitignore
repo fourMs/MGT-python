@@ -1,5 +1,10 @@
 __pycache__/
 
+# Generated media and analysis output. These patterns are deliberately broad, because
+# running the toolbox scatters them through the tree --- but broad patterns swallow real
+# files silently, and a test fixture that git never tracked passes locally and fails in CI
+# with a missing file. So anything under tests/ is exempt below, and so is any directory
+# named fixtures/ or data/.
 *.mp4
 *.csv
 *.eps
@@ -12,9 +17,24 @@ __pycache__/
 *.log
 *.synctex.gz
 *.txt
-!docs/requirements.txt
 *.tff
 *.tsv
+
+# Files that must be tracked despite matching the patterns above. Add to this list rather
+# than narrowing a pattern: the patterns earn their keep on generated output.
+!docs/requirements.txt
+!tests/**
+!**/fixtures/**
+!**/testdata/**
+
+# ...but those exemptions are broad in their turn, and a negation later in the file beats
+# an earlier rule. Without these, `!tests/**` would un-ignore tests/__pycache__ and every
+# other piece of tooling debris under tests/.
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
 .ipynb_checkpoints
 */.ipynb_checkpoints/*
 fix_notebook.py
