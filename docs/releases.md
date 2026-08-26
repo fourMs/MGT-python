@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.16.0**.
+The current stable release is **MGT-python 1.17.0**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,25 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.17.0
+
+Figures that know about annotations, and one page that zooms.
+
+Everything else in this toolbox for looking at a long recording is about the signal ---
+motiongrams, videograms, self-similarity, tempograms, contact sheets. `Hierarchy` and the
+ELAN exporter sat on the other side of a gap almost nothing crossed, and for somebody
+annotating hours of video that crossing is the tool. `filmstrip` puts keyframes on the time
+axis above the tiers. `concordance` puts every instance of one category side by side, which
+is the linguist's concordance applied to video. `tier_map` draws every tier as a density
+band, empty ones included. `structure_map` draws a coding on a self-similarity matrix.
+
+`zoomable_page` writes one self-contained offline HTML file that zooms from a whole session
+down to a single action, and says on the picture when you have zoomed past the data it
+contains rather than drawing a smooth line that is not there.
+
+`structure_map` carries a warning worth reading before use: it did not work on the corpus
+it was written for until its features were changed, and the docstring gives the numbers.
 
 ### 1.16.0
 

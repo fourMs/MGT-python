@@ -49,7 +49,7 @@ def decimate_minmax_pairs(x, n_buckets: int):
     n = max(1, int(n_buckets))
     if len(a) <= n:
         return a.copy(), a.copy()
-    edges = np.linspace(0, len(a), n + 1).astype(int)
+    edges: np.ndarray = np.linspace(0, len(a), n + 1).astype(int)
     lo = np.empty(n)
     hi = np.empty(n)
     for i in range(n):

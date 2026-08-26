@@ -5,6 +5,29 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.17.0] — 2026-08-26
+
+### Added
+- **`filmstrip`, `concordance`, `tier_map`, `structure_map`** in `_views` — the first
+  figures in this toolbox that know an annotation exists. Everything else here draws the
+  signal; `Hierarchy` and the ELAN exporter sat on the other side of a gap almost nothing
+  crossed. `concordance` in particular has no equivalent: it puts every instance of one
+  category side by side, which is what keeps a category consistent when there are 183 of
+  them to code.
+- **`zoomable_page`** in `_zoomview` — one self-contained offline HTML file that zooms from
+  a whole session to a single action. Min and max per bucket, never a mean, and an explicit
+  warning drawn on the page when the viewer zooms past the embedded resolution.
+
+### Notes
+- **`structure_map` defaults to audio features, and the default is measured rather than
+  assumed.** On a corpus containing three performances of one devised piece, audio features
+  separate those from the rehearsal by +0.234 to +0.252 in mean cosine similarity;
+  videogram columns manage +0.029 and a hand-built activity profile −0.007. Smoothing and
+  time-delay embedding are per-feature for the same reason: they rescue the videogram
+  version and cost the audio one a third of its discrimination. The docstring carries the
+  numbers, because a self-similarity matrix always produces a plausible-looking picture and
+  that is exactly what makes one dangerous to ship untested.
+
 ## [1.16.0] — 2026-08-26
 
 ### Added

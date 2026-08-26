@@ -125,7 +125,8 @@ def tier_density(spans, duration_s: float, n_bins: int) -> np.ndarray:
     #: No clamp here. After merging, the spans are disjoint and no bin can exceed its
     #: own width, so a clamp would be unreachable --- and worse, it would hide a broken
     #: merge by quietly returning 1.0 instead of the 1.6 that would expose it.
-    return out / width
+    density: np.ndarray = out / width
+    return density
 
 
 def time_to_index(t: float, duration_s: float, n: int) -> int:
