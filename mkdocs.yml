@@ -49,6 +49,7 @@ nav:
       - 360 Video: musicalgestures/_360video.md
       - Anglegram (360): musicalgestures/_anglegram.md
       - Utils: musicalgestures/_utils.md
+      - Contact sheet: musicalgestures/_contactsheet.md
       - Segmentation and annotation:
           - Actions: musicalgestures/_actions.md
           - Hierarchy: musicalgestures/_hierarchy.md
@@ -64,6 +65,7 @@ nav:
           - ELAN import: musicalgestures/_elan.md
           - Annotation views: musicalgestures/_views.md
           - Zoomable page: musicalgestures/_zoomview.md
+          - Room and occupancy: musicalgestures/_plate.md
       - Complete Reference: MODULES.md
   - Development:
       - Contributing: contributing.md

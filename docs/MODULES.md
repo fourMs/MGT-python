@@ -4,7 +4,6 @@ Complete list of the API-reference pages for the `musicalgestures` package.
 Each page is rendered from the source docstrings by
 [mkdocstrings](https://mkdocstrings.github.io/) when the site is built.
 
-- [Package overview](musicalgestures/index.md)
 - [360video](musicalgestures/_360video.md)
 - [Actions](musicalgestures/_actions.md)
 - [Alignment](musicalgestures/_alignment.md)
@@ -22,6 +21,7 @@ Each page is rendered from the source docstrings by
 - [Co-accentuation](musicalgestures/_coaccentuation.md)
 - [Co-occurrence](musicalgestures/_cooccurrence.md)
 - [Colored](musicalgestures/_colored.md)
+- [Contact sheet](musicalgestures/_contactsheet.md)
 - [Correlate](musicalgestures/_correlate.md)
 - [Cropping Window](musicalgestures/_cropping_window.md)
 - [Cropvideo](musicalgestures/_cropvideo.md)
@@ -52,6 +52,7 @@ Each page is rendered from the source docstrings by
 - [Motionvectors](musicalgestures/_motionvectors.md)
 - [Motionvideo](musicalgestures/_motionvideo.md)
 - [Movementbeats](musicalgestures/_movementbeats.md)
+- [Package overview](musicalgestures/index.md)
 - [Peaks](musicalgestures/_peaks.md)
 - [Physio](musicalgestures/_physio.md)
 - [Pipeline](musicalgestures/_pipeline.md)
@@ -63,6 +64,7 @@ Each page is rendered from the source docstrings by
 - [Pulse](musicalgestures/_pulse.md)
 - [Qom](musicalgestures/_qom.md)
 - [Remap360](musicalgestures/_remap360.md)
+- [Room and occupancy](musicalgestures/_plate.md)
 - [Select](musicalgestures/_select.md)
 - [Show Window](musicalgestures/_show_window.md)
 - [Show](musicalgestures/_show.md)
