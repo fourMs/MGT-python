@@ -96,3 +96,18 @@ def test_a_time_beyond_the_recording_is_clamped_not_wrapped():
     boundary at the beginning of the session and look entirely plausible."""
     assert time_to_index(500.0, duration_s=100.0, n=10) == 9
     assert time_to_index(-5.0, duration_s=100.0, n=10) == 0
+
+
+def test_asking_for_audio_features_without_audio_says_so(tmp_path):
+    """The failure that matters: a missing audio file must stop the figure, not quietly
+    fall back to the video features that were measured not to work."""
+    from musicalgestures._views import structure_map
+    with pytest.raises(FileNotFoundError):
+        structure_map(tmp_path, 100.0, tmp_path / "s.png", features="audio",
+                      audio=tmp_path / "nope.wav")
+
+
+def test_an_unknown_feature_name_is_refused(tmp_path):
+    from musicalgestures._views import structure_map
+    with pytest.raises(ValueError):
+        structure_map(tmp_path, 100.0, tmp_path / "s.png", features="vibes")

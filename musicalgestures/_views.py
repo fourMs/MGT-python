@@ -19,6 +19,7 @@ They correspond to what the three fields that use this material actually do:
 - **`structure_map`** --- a self-similarity matrix with the annotation boundaries drawn on
   it. Music and movement structure analysis uses SSMs to find repeated material; drawing
   someone's coding on top asks whether their boundaries and the repetition agree.
+  **Read its warning before using it: it did not work on the corpus it was written for.**
 
 Split the way `_voice` is split. The parts with a right answer --- which frames to sample,
 how a grid is shaped, how full a tier is, where a time falls in a matrix --- are the
@@ -370,14 +371,50 @@ def tier_map(hierarchy, duration_s: float, out, n_bins: int = 600, title=None):
 
 
 def structure_map(analysis_dir, duration_s: float, out, hierarchy=None, levels=(),
-                  max_columns: int = 700, which: str = "videogram_v", title=None):
+                  max_columns: int = 700, which: str = "videogram_v", title=None,
+                  embed: int | None = None, smooth: int | None = None,
+                  features: str = "audio", audio=None, n_mfcc: int = 20):
     """A self-similarity matrix with somebody's annotation boundaries drawn on it.
 
     Music and movement structure analysis uses self-similarity to find repeated material.
-    Drawing a coding on top asks the question that matters for this corpus, where the
-    rehearsal categories are *searching for material*, *repeating from the top* and
-    *cleaning the material*: do the boundaries somebody marked and the repetition the
-    signal shows agree?
+    Drawing a coding on top asks whether the boundaries somebody marked and the repetition
+    the signal shows agree.
+
+    **Use audio features unless you have a reason not to.** That is the default, and the
+    reason is measured. On this toolbox's dance corpus, where one session contains three
+    performances of the same devised material, a usable feature should make those three
+    resemble each other more than they resemble the rehearsal. Mean cosine separation:
+
+    ===========================  ==========
+    feature                      separation
+    ===========================  ==========
+    chroma                          +0.252
+    spectral contrast               +0.242
+    MFCC                            +0.234
+    videogram columns               +0.029
+    hand-built activity profile     -0.007
+    ===========================  ==========
+
+    .. warning::
+
+       **The video features did not work on the corpus this was written for, and the
+       failure is in the features rather than in the drawing.** A known-answer test is available there:
+       one session contains three performances of the same devised material, so any usable
+       feature should make those three resemble each other more than they resemble the
+       rehearsal. Two were tried at 400 columns over 2 h 38 m. Videogram columns separated
+       them by +0.029 in mean cosine similarity, which is nothing; a hand-built activity
+       profile --- level, spread, burstiness and the envelope's own spectrum per block ---
+       separated them by **-0.007, the wrong way**.
+
+       The reason is visible once stated: a videogram column encodes *where in the frame*
+       the movement was, and over hours that mostly tracks where the dancers are standing.
+       It is a position signal, and smoothing and time-delay embedding do not turn a
+       position signal into a structure signal.
+
+       So `features="videogram"` is kept for material where the frame does carry
+       structure, and it is not the default. Whichever you use, check it against something
+       you already know before believing a figure: a self-similarity matrix always produces
+       a plausible-looking picture, which is exactly what makes it dangerous.
 
     Args:
         analysis_dir: Directory holding the cached pyramid.
@@ -388,6 +425,24 @@ def structure_map(analysis_dir, duration_s: float, out, hierarchy=None, levels=(
         max_columns (int): Resolution of the matrix. Defaults to 700.
         which (str): Which pyramid to read. Defaults to ``"videogram_v"``.
         title: Figure title.
+        embed (int): Time-delay embedding: how many consecutive columns are stacked into
+            each feature vector, so a vector describes a short passage rather than an
+            instant. **Defaults depend on the feature, because what rescues one handicaps
+            the other.** Videogram columns need it badly --- without it the matrix is one
+            broad diagonal with no blocks --- so the default there is 12. MFCCs already
+            describe a window's timbre, and stacking dilutes them: on the corpus this was
+            written for, embedding and smoothing cut the measured separation from +0.259
+            to +0.142. So the audio default is 1, meaning none.
+        smooth (int): Columns to average before embedding. 9 for videogram; 3 for audio,
+            which is the knee of a two-criterion sweep --- it keeps essentially all of the
+            discrimination (+0.257 of a possible +0.259) while raising local coherence from
+            0.48 to 0.76, which is the difference between a readable figure and a mess of
+            stripes.
+        features (str): ``"audio"`` for MFCCs, which is the default and the one that was
+            measured to work, or ``"videogram"`` for the cached pyramid.
+        audio: Path to a WAV for ``features="audio"``. Defaults to `audio16k.wav` beside
+            the analysis directory.
+        n_mfcc (int): How many MFCCs. Defaults to 20.
 
     Returns:
         Path: The image written.
@@ -397,25 +452,71 @@ def structure_map(analysis_dir, duration_s: float, out, hierarchy=None, levels=(
     import matplotlib.pyplot as plt
     from pathlib import Path
 
-    from musicalgestures._tracks import read_columns
+    if features not in ("audio", "videogram"):
+        raise ValueError(f'features must be "audio" or "videogram", not {features!r}')
+    #: Chosen on two criteria, not one. Separation against the known answer is the first,
+    #: but a matrix whose neighbouring cells are uncorrelated is a mess of stripes whatever
+    #: it separates, and this figure exists to be looked at. Measuring both across a small
+    #: grid put the knee at 3: separation +0.257 against a maximum of +0.259, and local
+    #: coherence up from 0.48 to 0.76. Smoothing further buys readability at real cost ---
+    #: 9 keeps only +0.153.
+    if smooth is None:
+        smooth = 3 if features == "audio" else 9
+    if embed is None:
+        embed = 1 if features == "audio" else 12
 
-    cols, _ = read_columns(analysis_dir, 0.0, duration_s, max_columns=max_columns,
-                           which=which)
-    X = np.asarray(cols, dtype=float)
-    if X.ndim == 1:
-        X = X[None, :]
-    if X.shape[0] < X.shape[1]:
-        X = X.T                                  # rows are time
+    if features == "audio":
+        import librosa
+        wav = Path(audio) if audio else Path(analysis_dir) / "audio16k.wav"
+        if not wav.exists():
+            raise FileNotFoundError(
+                f"{wav} not found. structure_map defaults to audio features because they "
+                f"are the ones measured to work; pass features='videogram' deliberately "
+                f"if you mean to use the video ones.")
+        y, sr = librosa.load(str(wav), sr=16000, mono=True)
+        F = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=n_mfcc)
+        e = np.linspace(0, F.shape[1], max_columns + 1).astype(int)
+        X = np.array([F[:, e[i]:max(e[i] + 1, e[i + 1])].mean(axis=1)
+                      for i in range(max_columns)])
+        #: Centre each dimension: MFCC 0 is loudness and would otherwise dominate every
+        #: similarity, making the figure a picture of how loud the room was.
+        X = X - X.mean(axis=0)
+    else:
+        from musicalgestures._tracks import read_columns
+
+        cols, _ = read_columns(analysis_dir, 0.0, duration_s, max_columns=max_columns,
+                               which=which)
+        X = np.asarray(cols, dtype=float)
+        if X.ndim == 1:
+            X = X[None, :]
+        if X.shape[0] < X.shape[1]:
+            X = X.T                              # rows are time
     #: Cosine similarity on unit-normalised rows. A zero row would divide by zero and is
     #: a real state --- a still moment --- so it is given a norm of one and comes out
     #: dissimilar to everything, which is the honest answer for "nothing happened here".
+    #: Smooth, then stack. Both matter and the order does: smoothing after embedding would
+    #: blur across passage boundaries that the embedding exists to expose.
+    if smooth > 1 and X.shape[0] > smooth:
+        k = np.ones(smooth) / smooth
+        X = np.apply_along_axis(lambda v: np.convolve(v, k, mode="same"), 0, X)
+    if embed > 1 and X.shape[0] > embed:
+        X = np.concatenate([X[i:X.shape[0] - embed + 1 + i] for i in range(embed)], axis=1)
+
     norms = np.linalg.norm(X, axis=1, keepdims=True)
     norms[norms == 0] = 1.0
     S = (X / norms) @ (X / norms).T
 
     n = S.shape[0]
+    #: COLOUR SCALE FROM THE DATA, not from the range of a cosine. Centring the features
+    #: puts half the matrix below zero --- "less alike than average" --- and a full -1..1
+    #: scale spends half the colormap on that, which is where the checkerboard glare comes
+    #: from. What a reader wants is where things are MORE alike than usual, so the scale
+    #: starts at the median and ends at the 98th percentile.
+    lo_v = float(np.percentile(S, 50))
+    hi_v = float(np.percentile(S, 98))
     fig, ax = plt.subplots(figsize=(8.5, 8.5))
-    ax.imshow(S, cmap="magma", origin="lower", extent=(0, duration_s, 0, duration_s))
+    ax.imshow(S, cmap="magma", origin="lower", vmin=lo_v, vmax=hi_v,
+              extent=(0, duration_s, 0, duration_s))
     names = list(levels) if levels else (list(hierarchy.levels) if hierarchy else [])
     for name in names:
         for a in hierarchy.levels.get(name, []):
@@ -425,16 +526,22 @@ def structure_map(analysis_dir, duration_s: float, out, hierarchy=None, levels=(
                     ax.axhline(t, color="#66ccff", linewidth=0.6, alpha=0.7)
     ax.set_xlabel("time (s)")
     ax.set_ylabel("time (s)")
-    fig.suptitle(title or f"self-similarity, {which}", fontsize=10)
+    fig.suptitle(title or f"self-similarity, "
+                          f"{'MFCC' if features == 'audio' else which}", fontsize=10)
     fig.text(0.995, 0.005, f"{n} columns, {duration_s / max(1, n):.1f} s each; "
+                           f"{features} features, smoothed over {smooth}, "
+                           f"embedded over {embed}; "
                            f"boundaries drawn from {', '.join(names) or 'nothing'}",
              ha="right", va="bottom", fontsize=7, color="#555555")
     out = Path(out)
     fig.savefig(out, bbox_inches="tight", dpi=130)
     plt.close(fig)
     _sidecar(out, {"image": out.name, "duration_s": duration_s, "n_columns": n,
-                   "seconds_per_column": duration_s / max(1, n), "which": which,
-                   "levels": names})
+                   "colour_vmin": round(lo_v, 4), "colour_vmax": round(hi_v, 4),
+                   "colour_note": "median to 98th percentile of this matrix, not -1 to 1",
+                   "seconds_per_column": duration_s / max(1, n), "features": features,
+                   "which": which if features == "videogram" else None,
+                   "smooth": smooth, "embed": embed, "levels": names})
     return out
 
 
