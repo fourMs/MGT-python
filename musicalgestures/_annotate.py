@@ -199,9 +199,9 @@ def from_elan(path) -> Hierarchy:
     root = ET.parse(str(path)).getroot()
     #: A slot without a TIME_VALUE is a malformed file. Skipping it and failing later
     #: on a missing key beats int(None) raising TypeError from inside a comprehension.
-    times = {ts.get("TIME_SLOT_ID"): int(v)
+    times = {ts.get("TIME_SLOT_ID"): int(tv)
              for ts in root.iter("TIME_SLOT")
-             if (v := ts.get("TIME_VALUE")) is not None}
+             if (tv := ts.get("TIME_VALUE")) is not None}
     levels: dict = {}
     for tier in root.iter("TIER"):
         name = tier.get("TIER_ID")
