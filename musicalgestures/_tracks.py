@@ -426,3 +426,70 @@ def extract_tracks_parallel(video, out_dir=None, workers=None, chunk_s=120.0,
             f.unlink()
     (d / "tracks.json").write_text(json.dumps(meta, indent=1) + "\n")
     return meta
+
+
+def check_tracks(analysis_dir) -> dict:
+    """What an extraction actually produced, read from the data rather than the file.
+
+    `extract_tracks_parallel` preallocates its memmaps to an estimated frame count, so
+    the files reach full size in the first second of a run and every cheap check ---
+    size, existence, `ls -la`, the last row of the array --- reports a finished
+    extraction over a file that may be mostly zeros.
+
+    Three numbers are returned **separately and unreconciled**, because on a run killed
+    at 08:28 on 2026-08-25 they disagreed by 42,000 and 211,000 frames and each was
+    right about something different:
+
+    - `preallocated` is the estimate the file was sized to, and was never a measurement;
+    - `last_nonzero` is where data stops, because workers write continuously and only
+      drop a marker when a whole chunk closes;
+    - `highest_marker` is the last chunk that closed, and is what `resume=True` trusts.
+
+    `complete` is true only when `tracks_run.json` exists, since that file is written
+    last and by the runner alone.
+
+    Args:
+        analysis_dir: The directory holding `qom.f4` and the chunk markers.
+
+    Returns:
+        dict: `preallocated`, `last_nonzero`, `highest_marker`, `n_markers`,
+        `marker_gaps` and `complete`.
+    """
+    d = Path(analysis_dir)
+    qom_path = d / "qom.f4"
+    if not qom_path.exists():
+        raise FileNotFoundError(f"no qom.f4 in {d}")
+
+    prealloc = qom_path.stat().st_size // 4
+    q = np.memmap(qom_path, dtype=np.float32, mode="r", shape=(prealloc,))
+    #: SCAN BACKWARDS IN BLOCKS, and copy each block before testing it.
+    #: `np.flatnonzero` over the whole memmap raises "number of non-zero array
+    #: elements changed during function execution" when workers are still writing ---
+    #: which is exactly when this function is most useful, since a run in progress is
+    #: the thing you most want to ask about. Copying a block detaches it from the
+    #: live mapping, and going backwards finds the answer in one block for the normal
+    #: case of data at the front and zeros at the tail.
+    last_nonzero = -1
+    block = 1 << 20
+    for hi in range(prealloc, 0, -block):
+        lo = max(0, hi - block)
+        chunk = np.array(q[lo:hi])
+        nz = np.flatnonzero(chunk)
+        if len(nz):
+            last_nonzero = int(lo + nz[-1])
+            break
+    del q
+
+    markers = sorted(int(p.name.split("_")[1]) for p in d.glob(".done_*"))
+    step = markers[1] - markers[0] if len(markers) > 1 else 0
+    gaps = []
+    if step:
+        expected = set(range(markers[0], markers[-1] + 1, step))
+        gaps = sorted(expected - set(markers))
+
+    return {"preallocated": prealloc,
+            "last_nonzero": last_nonzero,
+            "highest_marker": markers[-1] if markers else -1,
+            "n_markers": len(markers),
+            "marker_gaps": gaps,
+            "complete": (d / "tracks_run.json").exists()}
