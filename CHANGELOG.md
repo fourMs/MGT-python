@@ -5,6 +5,25 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.16.0] — 2026-08-26
+
+### Added
+- **`laughter_segments` and `laughter_score`** — where laughter is in a recording, and
+  nothing else about it. Six AudioSet classes, not one: taking only the class called
+  `Laughter` discards the giggling and chuckling a rehearsal is mostly made of. The
+  strongest class, not their sum, because the six are not independent and a belly laugh
+  raises two at once. Validated against 79 hand-coded laughs on a real corpus: ROC AUC
+  0.823 against a loudness baseline's 0.741, and 91 per cent precision in the top 5 per cent
+  of windows. Span assembly reuses `spans_from_probabilities` rather than copying an
+  ordering that is easy to get backwards.
+- **`co_accentuation` and `co_accentuation_curve`** — whether motion accents coincide with
+  audio onsets, after Serdar and Jensenius, MOCO '26. Each index is judged against a
+  circular-shift null that preserves the onsets' number and rhythm and destroys only their
+  relation to the motion, because a raw fraction of coincidence rises with density and an
+  index of 0.8 means nothing until you know what 0.8 was worth by accident. A window with no
+  motion peaks reports NaN, not zero. The measure is asymmetric on purpose: it asks what
+  fraction of motion peaks found a sound, and swapping the arguments asks the other question.
+
 ## [1.15.0] — 2026-08-26
 
 ### Added

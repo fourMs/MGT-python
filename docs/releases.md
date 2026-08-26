@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.15.0**.
+The current stable release is **MGT-python 1.16.0**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,25 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.16.0
+
+Two detectors for things a recording contains besides motion, each shipped only because it
+was measured first.
+
+`laughter_segments` finds where laughter probably is, using the six AudioSet laughter
+classes at a two-second window. `_voice` argues against a tagger for speech, and was right
+to: on the same corpus a clip-level tag called dancers' breathing `Snort`, `Gasp`, `Animal`
+and `Horse`. Both objections were about minute-long clips. Judged against 79 hand-coded
+laughs, this reaches ROC AUC 0.823 against a loudness baseline's 0.741, and it says where
+laughter is and nothing else --- not who laughed, or why.
+
+`co_accentuation` asks whether motion accents land on sound accents, after Serdar and
+Jensenius (MOCO '26): each motion peak tested for an audio onset within a tolerance. Two
+additions to the published measure, both because a raw fraction of coincidence rises with
+onset density: every index is judged against a circular-shift null, and a window with no
+motion peaks reports NaN rather than zero, because "nothing was coordinated" and "nothing
+was asked" are different answers.
 
 ### 1.15.0
 

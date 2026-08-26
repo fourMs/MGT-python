@@ -63,7 +63,8 @@ def laughter_score(clipwise_output) -> np.ndarray:
     if a.ndim != 2 or a.shape[1] != _N_CLASSES:
         raise ValueError(
             f"expected a PANNs clipwise output of shape (n, {_N_CLASSES}), got {a.shape}")
-    return a[:, list(LAUGHTER_CLASSES)].max(axis=1)
+    scores: np.ndarray = a[:, list(LAUGHTER_CLASSES)].max(axis=1)
+    return scores
 
 
 def laughter_segments(audio, sr: int = 32000, win_s: float = 2.0, hop_s: float = 1.0,
