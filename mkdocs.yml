@@ -49,6 +49,21 @@ nav:
       - 360 Video: musicalgestures/_360video.md
       - Anglegram (360): musicalgestures/_anglegram.md
       - Utils: musicalgestures/_utils.md
+      - Segmentation and annotation:
+      - Actions: musicalgestures/_actions.md
+      - Hierarchy: musicalgestures/_hierarchy.md
+      - Tracks: musicalgestures/_tracks.md
+      - Timeline: musicalgestures/_timeline.md
+      - Annotate: musicalgestures/_annotate.md
+      - Select: musicalgestures/_select.md
+      - Voice: musicalgestures/_voice.md
+      - Laughter: musicalgestures/_laughter.md
+      - Correlate: musicalgestures/_correlate.md
+      - Co-accentuation: musicalgestures/_coaccentuation.md
+      - Co-occurrence: musicalgestures/_cooccurrence.md
+      - ELAN import: musicalgestures/_elan.md
+      - Annotation views: musicalgestures/_views.md
+      - Zoomable page: musicalgestures/_zoomview.md
       - Complete Reference: MODULES.md
   - Development:
       - Contributing: contributing.md
