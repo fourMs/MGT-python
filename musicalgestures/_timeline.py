@@ -76,7 +76,8 @@ _BOUNDARY_STYLE = {"both": "solid", "motion_only": "dashed",
 def render_timeline(analysis_dir, start_s: float = 0.0, end_s=None,
                     panels=("videogram_v", "qom", "waveform", "speech"),
                     levels=("part",), hierarchy=None, speech=None, audio=None,
-                    out=None, dpi: int = 150, title=None):
+                    out=None, dpi: int = 150, title=None, shade=None,
+                    shade_label: str = "shade"):
     """One sheet: videogram, motion, sound and segmentation on a shared time axis.
 
     The same function makes all three tiers. An overview passes the whole file and
@@ -100,6 +101,15 @@ def render_timeline(analysis_dir, start_s: float = 0.0, end_s=None,
         out: Output path. Defaults to a name built from the time range.
         dpi (int): Figure resolution. Defaults to 150.
         title: Figure title. Defaults to the directory name and time range.
+        shade: Actions to draw as shaded regions rather than as boundary lines. A line
+            marks where something began and lets a reader assume it ran until the next
+            line; on this project's corpus that is wrong by 21 minutes, because the
+            warm-up ends and nothing happens for a third of an hour before the rehearsal
+            starts. Where a span has an extent, showing the extent is the honest figure.
+            Defaults to None. The idiom is `annat_shade()` from Finn Upham's
+            `Laughter_Dance`.
+        shade_label (str): Which label key to read from each shaded Action for its
+            caption. Defaults to ``"shade"``.
 
     Returns:
         Path: The image written.
@@ -192,6 +202,18 @@ def render_timeline(analysis_dir, start_s: float = 0.0, end_s=None,
         ax.set_xlim(start_s, end_s)
         ax.grid(axis="x", alpha=0.15)
 
+    shaded = []
+    for a in shade or []:
+        if a.end <= start_s or a.start >= end_s:
+            continue
+        for ax in axes:
+            ax.axvspan(a.start, a.end, facecolor="#d95f02", alpha=0.13, linewidth=0)
+        label = a.labels.get(shade_label, "")
+        axes[0].annotate(label, (0.5 * (a.start + a.end), 1.02),
+                         xycoords=("data", "axes fraction"), fontsize=7,
+                         ha="center", va="bottom", color="#d95f02")
+        shaded.append({"start": a.start, "end": a.end, "label": label})
+
     boundaries = []
     if hierarchy is not None:
         for level in levels:
@@ -225,7 +247,7 @@ def render_timeline(analysis_dir, start_s: float = 0.0, end_s=None,
         {"image": out.name, "start_s": start_s, "end_s": end_s,
          "decimation_factor": factor, "printed_on_figure": True,
          "seconds_per_column": factor / fps, "panels": list(drawn),
-         "levels": list(levels), "boundaries": boundaries,
+         "levels": list(levels), "boundaries": boundaries, "shaded": shaded,
          "qom_style": qom_style, "qom_points": qom_points,
          "note": ("min/max per column, never a mean: a brief movement is what an "
                   "overview exists to find and a mean is what removes it")},

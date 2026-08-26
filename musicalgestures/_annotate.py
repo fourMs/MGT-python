@@ -36,18 +36,33 @@ def _ordered(hierarchy: Hierarchy, levels=None) -> list[str]:
     return [n for n in chosen if levels is None or n in levels]
 
 
-def to_elan(hierarchy: Hierarchy, video, out, levels=None) -> Path:
-    """Write an ELAN `.eaf` with one nested tier per level.
+def to_elan(hierarchy: Hierarchy, video, out, levels=None, nest: bool = True,
+            vocabularies=None) -> Path:
+    """Write an ELAN `.eaf`, one tier per level.
 
     Args:
-        hierarchy: The levels to write.
+        hierarchy: The levels to write. A level with no spans still gets its tier, so
+            that a tier the annotator fills herself has the same name in every session
+            instead of being created by hand.
         video: Path to the FULL session video. Annotations are on the session clock.
         out: Path to write.
         levels: Which levels to write, or None for all of them.
+        nest (bool): Nest each level inside the previous one. True is right for a
+            hierarchy --- actions inside phrases inside parts --- and wrong for layers
+            that merely coincide. Speech is not inside motion, laughter is not inside
+            speech, and another researcher's reference tier is not inside anything of
+            ours; nesting those asserts a containment that does not exist and stops the
+            annotator drawing a span where she needs one. Defaults to True so nothing
+            already exported changes.
+        vocabularies (dict): Level name to the list of allowed values, written as ELAN
+            controlled vocabularies so the annotator picks from a dropdown. Free text
+            produces `ENJOYMENT`, `enjoyment` and `Enjoyment` in one session and nothing
+            groups afterwards. Defaults to None.
 
     Returns:
         Path: The file written.
     """
+    vocabularies = dict(vocabularies or {})
     out = Path(out)
     names = _ordered(hierarchy, levels)
 
@@ -90,9 +105,14 @@ def to_elan(hierarchy: Hierarchy, video, out, levels=None) -> Path:
         #: and refuses the file otherwise --- so exporting every tier with one
         #: unconstrained type produces a well-formed document that ELAN will not open,
         #: which is the only thing the export exists to do.
-        attrs = {"TIER_ID": name,
-                 "LINGUISTIC_TYPE_REF": "segmentation" if not i else "subdivision"}
-        if i:
+        if name in vocabularies:
+            ltype = f"cv_{name}"
+        elif nest and i:
+            ltype = "subdivision"
+        else:
+            ltype = "segmentation"
+        attrs = {"TIER_ID": name, "LINGUISTIC_TYPE_REF": ltype}
+        if nest and i and name not in vocabularies:
             #: Nested, because the hierarchy is the point. A flat set of tiers would
             #: export the spans and lose what relates them.
             attrs["PARENT_REF"] = names[i - 1]
@@ -117,9 +137,13 @@ def to_elan(hierarchy: Hierarchy, video, out, levels=None) -> Path:
     #: spans inside an action --- which is what annotating gesture phases requires. It
     #: exists in the exported file rather than being created by hand, so the tier name
     #: is the same in every session.
-    ET.SubElement(root, "TIER", {"TIER_ID": "annotation",
-                                 "LINGUISTIC_TYPE_REF": "subdivision",
-                                 "PARENT_REF": names[-1] if names else "part"})
+    #: Only when nesting. In flat mode the caller declares its own tiers, empty ones
+    #: included, and adding a second unexplained free-text tier beside theirs invites an
+    #: annotator to put half her notes in each.
+    if nest and "annotation" not in hierarchy.levels:
+        ET.SubElement(root, "TIER", {"TIER_ID": "annotation",
+                                     "LINGUISTIC_TYPE_REF": "subdivision",
+                                     "PARENT_REF": names[-1] if names else "part"})
 
     ET.SubElement(root, "LINGUISTIC_TYPE", {"LINGUISTIC_TYPE_ID": "segmentation",
                                             "TIME_ALIGNABLE": "true",
@@ -128,12 +152,38 @@ def to_elan(hierarchy: Hierarchy, video, out, levels=None) -> Path:
                                             "TIME_ALIGNABLE": "true",
                                             "CONSTRAINTS": "Included_In",
                                             "GRAPHIC_REFERENCES": "false"})
+    for name, values in vocabularies.items():
+        #: TIME_ALIGNABLE stays true: she must be able to draw the span as well as pick
+        #: its label, which is what annotating anything of her own requires.
+        ET.SubElement(root, "LINGUISTIC_TYPE", {
+            "LINGUISTIC_TYPE_ID": f"cv_{name}", "TIME_ALIGNABLE": "true",
+            "GRAPHIC_REFERENCES": "false",
+            "CONTROLLED_VOCABULARY_REF": f"cv_{name}_values"})
+
     #: The stereotype each constrained type names must itself be declared, and the
     #: element order matters: ELAN's schema puts CONSTRAINT after LINGUISTIC_TYPE.
     ET.SubElement(root, "CONSTRAINT", {
         "STEREOTYPE": "Included_In",
         "DESCRIPTION": "Time alignable annotations within the parent annotation's "
                        "time interval, gaps are allowed"})
+
+    if vocabularies:
+        #: EAF 3.0 resolves every LANG_REF against a LANGUAGE element in the document.
+        #: Without this the file is well-formed XML that ELAN objects to, which is the
+        #: same class of fault as an export ELAN will not open.
+        ET.SubElement(root, "LANGUAGE", {
+            "LANG_DEF": "http://cdb.iso.org/lg/CDB-00130975-001",
+            "LANG_ID": "und", "LANG_LABEL": "undetermined (und)"})
+
+    for name, values in vocabularies.items():
+        cv = ET.SubElement(root, "CONTROLLED_VOCABULARY",
+                           {"CV_ID": f"cv_{name}_values"})
+        ET.SubElement(cv, "DESCRIPTION", {"LANG_REF": "und"}).text = name
+        for j, value in enumerate(values):
+            entry = ET.SubElement(cv, "CV_ENTRY_ML",
+                                  {"CVE_ID": f"cve_{name}_{j}"})
+            ET.SubElement(entry, "CVE_VALUE",
+                          {"LANG_REF": "und"}).text = str(value)
 
     xml = minidom.parseString(ET.tostring(root)).toprettyxml(indent=" ")
     out.write_text(xml)
