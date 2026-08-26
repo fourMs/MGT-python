@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.17.0**.
+The current stable release is **MGT-python 1.18.0**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,26 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.18.0
+
+The room, and what in a recording is not the person you are studying.
+
+`room_plate` recovers the empty room as a per-pixel median over sampled frames --- median and
+not mean, because a mean keeps a faint ghost of everyone who crossed and subtracting a ghost
+leaves holes shaped like people. `occupancy_track` then says how much of the frame anybody
+fills, which answers what quantity of motion cannot: a dancer standing still has no motion
+and plenty of occupancy.
+
+`restless_map` marks the pixels that change whatever is in front of them --- a screen showing
+a video call, a window, somebody sitting at a table --- by median absolute deviation rather
+than range, because a screen changes in nearly every frame while a dancer occupies a pixel
+occasionally, and a range marks both alike. On the corpus this was written for, that
+non-dancer motion is 2.8 to 7.1 per cent of the total.
+
+`soundscape_features` now takes a **video** and not only an ambiscape session folder, and
+carries the spectrum rather than level alone: centroid, flatness, peak, diffuseness and ten
+octave bands, all on the same 1 Hz grid so they still join a motion series.
 
 ### 1.17.0
 

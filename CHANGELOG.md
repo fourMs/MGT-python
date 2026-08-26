@@ -5,6 +5,25 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.18.0] — 2026-08-26
+
+### Added
+- **`room_plate`, `occupancy_track`** — the empty room as a per-pixel median over sampled
+  frames, refined once over the emptiest tenth, and how much of the frame anybody fills.
+  Occupancy answers what motion cannot: a dancer standing still has no motion and plenty of
+  occupancy. Median and not mean, because a mean keeps a ghost of everyone who crossed.
+- **`restless_map`, `restless_regions`** — pixels that change whatever is in front of them.
+  Median absolute deviation rather than range: a screen changes in nearly every frame and a
+  dancer occupies a pixel occasionally, and a range-based measure marks them alike, which
+  would mask the subject along with the distraction.
+
+### Changed
+- **`soundscape_features` takes a video**, not only an ambiscape session folder. Its audio
+  is extracted once and reused; an unknown extension is refused rather than handed to ffmpeg
+  to fail on. It also carries the spectrum now --- centroid, flatness, peak, diffuseness and
+  ten octave bands --- where it previously surfaced level alone, so a room can be described
+  as more than loud or quiet.
+
 ## [1.17.0] — 2026-08-26
 
 ### Added

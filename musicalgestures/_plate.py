@@ -48,7 +48,8 @@ def sample_frame_indices(n_frames: int, n_samples: int) -> np.ndarray:
         return np.zeros(0, dtype=int)
     if n_samples >= n_frames:
         return np.arange(n_frames, dtype=int)
-    return np.unique(np.linspace(0, n_frames - 1, n_samples).astype(int))
+    idx: np.ndarray = np.unique(np.linspace(0, n_frames - 1, n_samples).astype(int))
+    return idx
 
 
 def plate_from_stack(stack) -> np.ndarray:
@@ -61,7 +62,8 @@ def plate_from_stack(stack) -> np.ndarray:
         np.ndarray: One frame, the median.
     """
     a = np.asarray(stack, dtype=float)
-    return np.median(a, axis=0)
+    plate: np.ndarray = np.median(a, axis=0)
+    return plate
 
 
 def occupancy_from_plate(frame, plate, threshold: float = 12.0) -> float:
@@ -101,7 +103,8 @@ def refine_indices(diffs, keep_fraction: float = 0.10) -> np.ndarray:
     if len(d) == 0:
         return np.zeros(0, dtype=int)
     k = max(2, min(len(d), int(round(len(d) * float(keep_fraction)))))
-    return np.sort(np.argsort(d)[:k])
+    keep: np.ndarray = np.sort(np.argsort(d)[:k])
+    return keep
 
 
 def _read_frames(video, indices, width):
@@ -119,7 +122,8 @@ def _read_frames(video, indices, width):
         h = max(1, int(g.shape[0] * width / g.shape[1]))
         out.append(cv2.resize(g, (width, h)).astype(float))
     cap.release()
-    return np.array(out) if out else np.zeros((0, 1, 1))
+    frames: np.ndarray = np.array(out) if out else np.zeros((0, 1, 1))
+    return frames
 
 
 def room_plate(video, n_samples: int = 400, width: int = 320,
@@ -198,7 +202,8 @@ def restless_map(stack) -> np.ndarray:
     if a.ndim == 4:
         a = a.mean(axis=3)
     med = np.median(a, axis=0)
-    return np.median(np.abs(a - med), axis=0)
+    mad: np.ndarray = np.median(np.abs(a - med), axis=0)
+    return mad
 
 
 def restless_regions(stack, quantile: float = 0.98, min_value: float = 2.0) -> np.ndarray:
@@ -221,6 +226,8 @@ def restless_regions(stack, quantile: float = 0.98, min_value: float = 2.0) -> n
     """
     m = restless_map(stack)
     if m.size == 0:
-        return np.zeros_like(m, dtype=bool)
+        empty: np.ndarray = np.zeros_like(m, dtype=bool)
+        return empty
     cut = max(float(np.quantile(m, float(quantile))), float(min_value))
-    return m > cut
+    mask: np.ndarray = m > cut
+    return mask
