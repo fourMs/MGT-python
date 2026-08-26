@@ -23,7 +23,8 @@ from __future__ import annotations
 import numpy as np
 
 __all__ = ["sample_frame_indices", "plate_from_stack", "occupancy_from_plate",
-           "refine_indices", "room_plate", "occupancy_track"]
+           "refine_indices", "room_plate", "occupancy_track",
+           "restless_map", "restless_regions"]
 
 
 def sample_frame_indices(n_frames: int, n_samples: int) -> np.ndarray:
@@ -176,3 +177,50 @@ def occupancy_track(video, plate, every_n: int = 25, width: int = 320,
     frames = _read_frames(video, idx, width)
     occ = np.array([occupancy_from_plate(f, plate, threshold) for f in frames])
     return idx[:len(occ)], occ
+
+
+def restless_map(stack) -> np.ndarray:
+    """How much each pixel changes across the sampled frames, robustly.
+
+    **Median absolute deviation, not range.** A screen showing a video call changes in
+    nearly every frame; a dancer occupies a given pixel occasionally. Both have a large
+    range, so a range-based measure marks them alike --- and masking the dancer along with
+    the screen is worse than masking nothing. The median deviation separates them: it is
+    large only where change is the pixel's normal state.
+
+    Args:
+        stack: Frames, shape (n, h, w).
+
+    Returns:
+        np.ndarray: One value per pixel, in the image's own units.
+    """
+    a = np.asarray(stack, dtype=float)
+    if a.ndim == 4:
+        a = a.mean(axis=3)
+    med = np.median(a, axis=0)
+    return np.median(np.abs(a - med), axis=0)
+
+
+def restless_regions(stack, quantile: float = 0.98, min_value: float = 2.0) -> np.ndarray:
+    """A mask of the pixels that change constantly, whatever is or is not in front of them.
+
+    Args:
+        stack: Frames, shape (n, h, w).
+        quantile (float): How far up the deviation distribution the cut sits. Defaults to
+            0.98, roughly the brightest two per cent of the frame.
+        min_value (float): An absolute floor, in the image's units. **Without it a
+            quantile of a flat map marks the top slice of nothing**, so a perfectly still
+            recording would come back with two per cent of itself masked.
+
+    Returns:
+        np.ndarray: A boolean mask the shape of one frame. It cannot cover the whole
+        frame: the cut is at least the map's own minimum, so the quietest pixel is always
+        outside it. That is a property of the arithmetic rather than a guard --- an
+        explicit check for it was written, found unreachable by mutation, and removed,
+        because defensive code no test can reach hides the fault it pretends to catch.
+    """
+    m = restless_map(stack)
+    if m.size == 0:
+        return np.zeros_like(m, dtype=bool)
+    cut = max(float(np.quantile(m, float(quantile))), float(min_value))
+    return m > cut
