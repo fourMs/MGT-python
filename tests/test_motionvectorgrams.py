@@ -72,6 +72,30 @@ class Test_shape:
         assert vertical.shape[0] == 15
 
 
+class Test_the_image_stays_openable:
+    """One column per P-frame is right for the array and wrong for the picture.
+
+    A 158-minute session has 77,592 P-frames, and stretching that to the video's height
+    gives a 149-megapixel PNG --- 309 MB on disk, for something meant to be glanced at.
+    The array keeps every column; the image is capped.
+    """
+
+    def test_a_long_recording_does_not_produce_an_enormous_image(self, moving_right,
+                                                                 tmp_path):
+        from PIL import Image
+        result = musicalgestures.MgVideo(moving_right).motionvectorgrams(
+            max_width=24, target_name=str(tmp_path / "g.png"))
+        for image in result:
+            assert Image.open(image.filename).size[0] <= 24
+
+    def test_a_short_recording_is_not_stretched_up_to_the_cap(self, moving_right,
+                                                             tmp_path):
+        from PIL import Image
+        result = musicalgestures.MgVideo(moving_right).motionvectorgrams(
+            max_width=100000, target_name=str(tmp_path / "g2.png"))
+        assert Image.open(result[0].filename).size[0] < 1000
+
+
 class Test_the_rendered_images:
     def test_writes_two_images(self, moving_right, tmp_path):
         import os

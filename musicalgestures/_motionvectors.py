@@ -489,7 +489,8 @@ def motion_vector_motiongrams(filename, p_frames_only=True, deterministic=False)
 
 
 def mg_motionvectorgrams(self: "musicalgestures.MgVideo", colormap: str = "inferno",
-                         gamma: float = 0.5, target_name: str | None = None,
+                         gamma: float = 0.5, max_width: int = 4000,
+                         target_name: str | None = None,
                          overwrite: bool = True) -> "MgList":
     """Motiongrams built from the codec's motion vectors.
 
@@ -502,6 +503,12 @@ def mg_motionvectorgrams(self: "musicalgestures.MgVideo", colormap: str = "infer
         colormap (str, optional): Matplotlib colormap. Defaults to `'inferno'`.
         gamma (float, optional): Applied before colouring so quiet passages stay visible.
             Defaults to 0.5.
+        max_width (int, optional): Widest the saved image may be, in pixels. One column
+            per P-frame is right for the array and wrong for the picture: a 158-minute
+            session has 77,592 of them, and stretching that to the video's height gave a
+            149-megapixel PNG of 309 MB for something meant to be glanced at. Columns are
+            pooled by taking the maximum, not the mean, so a brief accent still shows in
+            a column standing for several seconds. Defaults to 4000.
         target_name (str, optional): Output path; the two images take `_mvgram_h` and
             `_mvgram_v` from it. Defaults to the input name.
         overwrite (bool, optional): Defaults to True.
@@ -525,6 +532,14 @@ def mg_motionvectorgrams(self: "musicalgestures.MgVideo", colormap: str = "infer
     images = []
     for gram, suffix, span in ((horizontal, "_h", self.width),
                                (vertical, "_v", self.height)):
+        if gram.size and gram.shape[1] > max_width:
+            #: Pool by maximum rather than mean. A column here stands for several seconds
+            #: once a long recording is squeezed to a readable width, and averaging would
+            #: bury a one-second accent under the quiet around it --- which is exactly
+            #: what a motiongram is read for.
+            edges = np.linspace(0, gram.shape[1], max_width + 1).astype(int)
+            gram = np.stack([gram[:, a:max(b, a + 1)].max(axis=1)
+                             for a, b in zip(edges[:-1], edges[1:])], axis=1)
         scaled = gram / gram.max() if gram.size and gram.max() > 0 else gram
         if gamma and gamma != 1.0:
             scaled = np.power(scaled, gamma)
