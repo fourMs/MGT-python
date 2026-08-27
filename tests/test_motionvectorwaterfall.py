@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 
 import musicalgestures
-from tests._synth import moving_block_video
+from _synth import moving_block_video
 
 av = pytest.importorskip("av", reason="motion-vector data needs the optional 'av' extra")
 

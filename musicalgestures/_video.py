@@ -188,6 +188,9 @@ class MgVideo(MgAudio):
     motiongram_horizontal_image: MgImage
     motiongram_vertical_image: MgImage
     motionvectors_video: "musicalgestures.MgVideo"
+    motionvectorhistory_image: MgImage
+    motionvectorgrams_images: "musicalgestures.MgList"
+    motionvectorwaterfall_figure: MgFigure
     movement_beat_statistics_figure: MgFigure
     phase_synchrony_figure: MgFigure
     pose_average_image: MgImage
