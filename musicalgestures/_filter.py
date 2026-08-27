@@ -62,7 +62,10 @@ def filter_frame_ffmpeg(filename, cmd, color, blur, filtertype, threshold, kerne
 
     # set frame difference
     if filtertype.lower() == 'regular':
-        cmd_filter += 'tblend=all_mode=difference[diff],'
+        #: Split, because the difference has to be BOTH the value compared against the
+        #: threshold and the value kept when it passes, and a filtergraph label can only
+        #: be consumed once.
+        cmd_filter += 'tblend=all_mode=difference,split[d1][d2];'
     else:
         cmd_filter += 'tblend=all_mode=difference,'
 
@@ -73,9 +76,20 @@ def filter_frame_ffmpeg(filename, cmd, color, blur, filtertype, threshold, kerne
 
     # set threshold
     if filtertype.lower() == 'regular':
+        #: ffmpeg's threshold filter emits `min` where its FIRST input is below the
+        #: second, and `max` elsewhere. That first input must be the difference.
+        #:
+        #: It used to be `[0:v]`, the original video, which meant the parameter masked
+        #: motion in DARK PARTS OF THE PICTURE and passed every difference through
+        #: untouched wherever the picture was bright --- the opposite of what this
+        #: argument is documented to do, and different from what the numpy `filter_frame`
+        #: above does with the same number. Sensor noise was never removed. Fixed
+        #: 2026-08-27; the account is in plans/2026-08-27-threshold-does-not-threshold-
+        #: the-difference.md, and it changes every quantity-of-motion number this package
+        #: produced before that date.
         cmd += ['-f', 'lavfi', '-i', f'color={threshold_color},scale={width}:{height}',
                 '-f', 'lavfi', '-i', f'color=black,scale={width}:{height}']
-        cmd_filter += '[0:v][1][2][diff]threshold,'
+        cmd_filter += '[d1][1][2][d2]threshold,'
     elif filtertype.lower() == 'binary':
         cmd += ['-f', 'lavfi', '-i', f'color={threshold_color},scale={width}:{height}', '-f', 'lavfi', '-i',
                 f'color=black,scale={width}:{height}', '-f', 'lavfi', '-i', f'color=white,scale={width}:{height}']

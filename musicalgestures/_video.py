@@ -278,7 +278,13 @@ class MgVideo(MgAudio):
     )
     from musicalgestures._heatmap import mg_heatmap as heatmap  # type: ignore[misc]
     from musicalgestures._motiontempo import mg_motiontempo as motiontempo  # type: ignore[misc]
-    from musicalgestures._motionvectors import mg_motionvectors as motionvectors  # type: ignore[misc]
+    from musicalgestures._motionvectors import (  # type: ignore[misc]
+        mg_motionvectors as motionvectors,
+        mg_motionvectordata as motionvectordata,
+        mg_motionvectorhistory as motionvectorhistory,
+        mg_motionvectorgrams as motionvectorgrams,
+        mg_motionvectorwaterfall as motionvectorwaterfall,
+    )
     from musicalgestures._eulerian import mg_eulerian as eulerian  # type: ignore[misc]
     from musicalgestures._sonification import mg_sonomotiongram as sonomotiongram  # type: ignore[misc]
     from musicalgestures._spacetime import (  # type: ignore[misc]

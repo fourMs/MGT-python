@@ -46,12 +46,17 @@ dependencies = [
 
 [project.optional-dependencies]
 pose = ["mediapipe>=0.10"]
+# Reading motion vectors as numbers, MgVideo.motionvectordata(). ffprobe reports that the
+# side data is present but will not print the vectors, and ffmpeg has no numeric dump, so
+# PyAV is the only route to them. MgVideo.motionvectors(), which draws them, needs only
+# ffmpeg and stays available without this.
+motionvectors = ["av>=10"]
 c3d = ["c3d>=0.5"]
 ml = ["scikit-learn>=1.2", "torch>=2.0", "torchvision>=0.15"]
 cli = ["click>=8.0"]
 dev = ["pytest>=7", "pytest-cov>=4", "ruff>=0.4", "mypy>=1.5", "nox>=2023.4"]
 soundscape = ["ambiscape>=0.17"]
-full = ["musicalgestures[pose,ml,cli,c3d,soundscape]"]
+full = ["musicalgestures[pose,ml,cli,c3d,soundscape,motionvectors]"]
 
 [project.urls]
 Homepage = "https://github.com/fourMs/MGT-python"
