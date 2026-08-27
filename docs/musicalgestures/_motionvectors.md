@@ -50,6 +50,58 @@ per cent of vectors came back as 4 and the rest as 8 or 16. The medians are robu
 `magnitude`, being a sum, is not, and is best treated as a quantity to correlate against
 itself over time rather than as pixels per second.
 
+## Looking at a lot of material quickly
+
+`motionvectoroverview()` is the one to reach for first on unfamiliar video. It produces
+**one sheet per recording from a single decode**, carrying the three kinds of
+representation a first pass wants:
+
+* **spatial** --- the area motion covered, coloured by direction, and again as plain amount
+* **temporal** --- motion across the whole recording, the curve to scrub against
+* **spatio-temporal** --- horizontal and vertical motiongrams, where a body crossing the
+  room draws a diagonal
+
+About **five minutes for a 100-minute 1920x1080 recording**, against roughly twenty-four for
+the same views computed one at a time, because decoding is nearly the whole cost and each
+separate view opens the file again. Every array is on the returned figure's `.data`, so the
+same pass can feed further analysis without decoding twice.
+
+In the direction panel, hue is the bearing, value is how much motion there was, and
+**saturation is directional coherence** --- how consistently that part of the room moved one
+way. Grey means "moved, but not in any one direction", which is the honest description of
+most of a room during improvisation. Coherence is under-sampled above about 1.5 Hz on 50 fps
+footage, since P-frames arrive at roughly a quarter of the frame rate: right for a body
+crossing a room, wrong for a shaking hand.
+
+## Every timescale at once
+
+`motionscape()` builds a Sapp-style scape of the quantity of motion --- the construction
+behind a keyscape, where each row is a window length and the apex is a single window
+covering the whole recording.
+
+It answers a question the flat curve cannot: **at what scale does this recording stop
+looking like one thing?** Evenly continuous material is flat all the way up. A few busy
+patches separated by quiet stay separate at the base and merge into one mass higher up, and
+the height at which they merge is the length of the structure joining them.
+
+It is a real triangle: each row is only as wide as the number of places a window that long
+can sit, and the narrowing is the information rather than a cosmetic frame.
+
+Nothing in it assumes motion vectors. Pass `track=` any per-frame series --- `mg_motion`'s
+`QomRaw`, or a `qom.f4` read off disk --- to scape a frame-differenced quantity of motion
+instead. Built from a cumulative sum, so the cost does not grow with window length.
+
+## Reproducibility
+
+Frame-threaded decoding **drops motion vectors, and not the same ones twice**. Three
+identical runs over one clip returned 28,702, 29,649 and 29,975 vectors with threading on,
+and 29,975 every time with it off.
+
+On a real 1920x1080 recording the loss is 222 vectors in 25.7 million --- 0.0009 per cent,
+far below anything that changes a reading --- and threading is about 4.5 times faster, so it
+is the default. Pass `deterministic=True` to anything in this module when a result has to
+reproduce exactly.
+
 ## Which files this works on, measured
 
 One 120 s window of real dancing, re-encoded every way, comparing the vectors against the
