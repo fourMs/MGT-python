@@ -5,6 +5,69 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.19.0] — 2026-08-27
+
+### Fixed
+- **`threshold` now thresholds the frame difference, which is what it has always been
+  documented to do.** It did not. `filter_frame_ffmpeg` passed `[0:v]`, the original
+  video, as ffmpeg's `threshold` input, and that filter emits its `min` where its **first**
+  input is below the threshold. So the parameter masked motion wherever the *picture* was
+  dark and passed every difference through untouched wherever the picture was bright: a
+  darkness mask, not a noise gate. `_motionvideo.py` described it as "discards small pixel
+  differences, which removes sensor noise". It never removed any.
+
+  **This changes every quantity-of-motion number this package has produced.** On a corpus
+  of six 100-minute recordings the median quantity of motion falls by up to 87 per cent,
+  which is how much of it was sub-threshold noise, and dynamic range opens up
+  correspondingly — one recording's 99th-percentile-to-median ratio goes from 3.3 to 19.3.
+  Recordings that looked like they had little dynamic range mostly had a lot of noise.
+  Anything comparing motion magnitudes computed before this release should be recomputed.
+
+  It also means `threshold=0.05` finally means the same thing everywhere. The numpy
+  `filter_frame`, used by `_impacts` and `_directograms`, always thresholded the
+  difference, so the same argument had two behaviours depending on which function you
+  called. `filtertype='Binary'` was already correct and is unchanged.
+
+  Verified on a synthetic clip whose answer is known by construction — a 3-level change
+  over regions of brightness 200 and 5 — because on ordinary footage both behaviours
+  produce a plausible-looking motion image. No existing test failed when this was fixed,
+  which is why it survived: nothing in the suite depended on the difference.
+
+### Added
+- **`motionvectordata`** — the motion vectors an inter-frame codec has already computed,
+  read back as numbers rather than drawn as arrows. `motionvectors` renders them and needs
+  only ffmpeg; this returns one row per frame and needs PyAV, since ffprobe reports that the
+  side data is present but will not print it and ffmpeg has no numeric dump. Install with
+  `musicalgestures[motionvectors]`.
+
+  It is close to free: on a 103-minute recording, decoding took 2.2 s and decoding with the
+  vectors 2.7 s, against 27 minutes to difference the pixels over the same file.
+
+  **Filter by `picture_type`.** Against exact quantity of motion on a 100-minute corpus the
+  magnitude correlates at r = 0.87 on P-frames alone and r = 0.54 with B-frames pooled in,
+  because a B-frame's vectors point both ways over varying temporal distances and are not
+  the same quantity. That is why the picture type is on the result rather than discarded.
+
+- **`motionvectorhistory`, `motionvectorgrams`, `motionvectorwaterfall`** — the spatial
+  views, all from one decode of the same macroblock grid. The history image is the one
+  that does something the existing tools cannot: `motionhistory` and `heatmap` are built
+  on frame differences, which have no sign, so somebody entering a region and leaving it
+  look identical. A vector is a displacement, so the history image can colour each part of
+  the room by the direction motion took there.
+
+  Measured across codecs, resolutions, frame rates and compression levels: the vectors run
+  5 to 25 times faster than differencing the same file, resolution barely affects agreement
+  (0.73 to 0.82 from 320 to 1920 wide), higher frame rates help (0.89 at 50 fps), and
+  heavier compression does not hurt. **Codec decides whether it works at all** — ffmpeg
+  exports vectors for H.264 and MPEG-4 Part 2, and returns none for HEVC or VP9, which now
+  raises a warning rather than silently returning zeros that read as stillness.
+
+  Two limits are documented rather than hidden. The vectors are the encoder's decisions,
+  not a measurement of the scene, so the signal is good where there is movement (median
+  r = 0.86) and poor where there is not (0.57). And `source` gives the direction of the
+  reference but never its distance, so multi-frame predictions read as multiples of the
+  per-frame displacement --- the medians are robust to this, the summed `magnitude` is not.
+
 ## [1.18.0] — 2026-08-26
 
 ### Added
