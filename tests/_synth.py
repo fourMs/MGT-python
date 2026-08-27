@@ -151,3 +151,34 @@ def intra_only_video(path, frames=12, size=(160, 120), fps=25):
          "-c:v", "mjpeg", str(path)],
         input=raw, check=True)
     return str(path)
+
+
+def oscillating_block_video(path, amplitude=40, period=12, frames=96, size=(320, 240),
+                            block=48, fps=25):
+    """A block that goes back and forth, so its direction cancels but its motion does not.
+
+    The counterpart to `moving_block_video`: both leave the same amount of movement in
+    the same place, and only one of them has a consistent direction. Anything claiming to
+    measure directional coherence has to tell them apart.
+    """
+    import subprocess
+    import numpy as np
+
+    W, H = size
+    rng = np.random.default_rng(0)
+    texture = rng.integers(0, 255, size=(block, block), dtype=np.uint8)
+    background = rng.integers(48, 160, size=(H, W), dtype=np.uint8)
+    x0, y0 = (W - block) // 2, (H - block) // 2
+    raw = bytearray()
+    for i in range(frames):
+        frame = background.copy()
+        x = int(x0 + amplitude * np.sin(2 * np.pi * i / period))
+        x = max(0, min(W - block, x))
+        frame[y0:y0 + block, x:x + block] = texture
+        raw += frame.tobytes()
+    subprocess.run(
+        ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "gray",
+         "-s", f"{W}x{H}", "-r", str(fps), "-i", "pipe:0",
+         "-c:v", "libx264", "-pix_fmt", "yuv420p", "-g", "12", str(path)],
+        input=bytes(raw), check=True)
+    return str(path)

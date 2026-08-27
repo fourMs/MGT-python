@@ -191,6 +191,8 @@ class MgVideo(MgAudio):
     motionvectorhistory_image: MgImage
     motionvectorgrams_images: "musicalgestures.MgList"
     motionvectorwaterfall_figure: MgFigure
+    motionvectoroverview_figure: MgFigure
+    motionscape_figure: MgFigure
     movement_beat_statistics_figure: MgFigure
     phase_synchrony_figure: MgFigure
     pose_average_image: MgImage
@@ -287,6 +289,8 @@ class MgVideo(MgAudio):
         mg_motionvectorhistory as motionvectorhistory,
         mg_motionvectorgrams as motionvectorgrams,
         mg_motionvectorwaterfall as motionvectorwaterfall,
+        mg_motionvectoroverview as motionvectoroverview,
+        mg_motionscape as motionscape,
     )
     from musicalgestures._eulerian import mg_eulerian as eulerian  # type: ignore[misc]
     from musicalgestures._sonification import mg_sonomotiongram as sonomotiongram  # type: ignore[misc]

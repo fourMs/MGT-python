@@ -48,6 +48,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   because a B-frame's vectors point both ways over varying temporal distances and are not
   the same quantity. That is why the picture type is on the result rather than discarded.
 
+- **`motionvectoroverview`** — one sheet per recording from a single decode, carrying all
+  three kinds of representation a first pass over unfamiliar material wants: spatial
+  (where motion went, and which way), temporal (how much, over the whole recording) and
+  spatio-temporal (the two motiongrams). Built for triage of archive video rather than for
+  measurement. About five minutes for a 100-minute 1920x1080 recording, against roughly
+  twenty-four for the same views computed one at a time.
+
+- **`motionscape`** — a Sapp-style scape of quantity of motion: each row a window length,
+  the apex a single window covering the whole recording. It answers what a flat curve
+  cannot — *at what scale does this recording stop looking like one thing* — since evenly
+  continuous material is flat all the way up while separated bursts merge into one mass at
+  the height of the structure that joins them. Takes any per-frame track via `track=`, so a
+  frame-differenced quantity of motion scapes exactly as readily as a vector one. Built from a cumulative sum, so cost does
+  not grow with window length.
+
 - **`motionvectorhistory`, `motionvectorgrams`, `motionvectorwaterfall`** — the spatial
   views, all from one decode of the same macroblock grid. The history image is the one
   that does something the existing tools cannot: `motionhistory` and `heatmap` are built
@@ -61,6 +76,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   heavier compression does not hurt. **Codec decides whether it works at all** — ffmpeg
   exports vectors for H.264 and MPEG-4 Part 2, and returns none for HEVC or VP9, which now
   raises a warning rather than silently returning zeros that read as stillness.
+
+  In the history image, hue is direction, value is amount and **saturation is directional
+  coherence** --- how consistently a cell moved one way. Saturating every cell fully was
+  the first attempt and produced a uniform wash, because over a long recording every cell
+  accumulates something; grey now reads as "moved, but not any one way", which is the
+  honest description of most of a room. Coherence is under-sampled above about 1.5 Hz on
+  50 fps footage, since P-frames arrive at roughly a quarter of the frame rate: fine for a
+  body crossing a room, wrong for a shaking hand.
+
+  **Frame-threaded decoding drops motion vectors, and not the same ones twice.** Three
+  identical runs of one clip returned 28,702, 29,649 and 29,975 vectors threaded, and the
+  same number every time unthreaded. On a real 1920x1080 recording the loss is 222 vectors
+  in 25.7 million, so threading stays the default and `deterministic=True` is there for
+  anything that must reproduce exactly, at about 4.5 times the cost.
 
   Two limits are documented rather than hidden. The vectors are the encoder's decisions,
   not a measurement of the scene, so the signal is good where there is movement (median

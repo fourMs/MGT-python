@@ -14,7 +14,7 @@ import numpy as np
 import pytest
 
 import musicalgestures
-from _synth import moving_block_video
+from _synth import moving_block_video, oscillating_block_video
 
 av = pytest.importorskip("av", reason="motion-vector data needs the optional 'av' extra")
 
@@ -35,14 +35,14 @@ def moving_left(tmp_path_factory):
 
 class Test_where_the_motion_was:
     def test_accumulates_on_the_row_the_block_crossed_and_not_elsewhere(self, moving_right):
-        weight, _, _ = accumulate_motion_vectors(moving_right)
+        weight, _, _, _ = accumulate_motion_vectors(moving_right)
         rows = weight.sum(axis=1)
         travelled = int(np.argmax(rows))
         far = (np.arange(len(rows)) < travelled - 3) | (np.arange(len(rows)) > travelled + 3)
         assert rows[travelled] > 10 * rows[far].mean()
 
     def test_the_accumulator_covers_the_frame(self, moving_right):
-        weight, vx, vy = accumulate_motion_vectors(moving_right)
+        weight, vx, vy, _ = accumulate_motion_vectors(moving_right)
         assert weight.shape == vx.shape == vy.shape
         assert weight.ndim == 2
         assert weight.sum() > 0
@@ -52,15 +52,37 @@ class Test_which_way_it_went:
     """The reason to accumulate vectors rather than frame differences."""
 
     def test_rightward_travel_accumulates_a_rightward_direction(self, moving_right):
-        weight, vx, vy = accumulate_motion_vectors(moving_right)
+        weight, vx, vy, _ = accumulate_motion_vectors(moving_right)
         busy = weight > np.percentile(weight[weight > 0], 75)
         assert np.median(vx[busy]) > 1.0
         assert abs(np.median(vy[busy])) < 1.0
 
     def test_leftward_travel_reverses_the_sign(self, moving_left):
-        weight, vx, vy = accumulate_motion_vectors(moving_left)
+        weight, vx, vy, _ = accumulate_motion_vectors(moving_left)
         busy = weight > np.percentile(weight[weight > 0], 75)
         assert np.median(vx[busy]) < -1.0
+
+
+class Test_directional_coherence:
+    """One-way travel and back-and-forth leave the same motion in the same place, and
+    only coherence tells them apart. Without it the history image paints a cell that saw
+    a dancer pass all afternoon the same as one that saw only encoder noise."""
+
+    def test_consistent_travel_is_coherent(self, moving_right):
+        weight, _, _, coherence = accumulate_motion_vectors(moving_right)
+        busy = weight > np.percentile(weight[weight > 0], 90)
+        assert np.median(coherence[busy]) > 0.5
+
+    def test_going_back_and_forth_is_not(self, tmp_path):
+        """A slow oscillation. P-frames arrive at about a quarter of the frame rate, so
+        a reversal faster than a few samples per cycle is under-sampled and reads as
+        coherent: at 3 samples per cycle this measures 0.97, at 12 it measures 0.06.
+        That is a real limit of the method, recorded in the docstring, and the fixture
+        here sits well inside it."""
+        path = oscillating_block_video(tmp_path / "osc.mp4", period=50, frames=200)
+        weight, _, _, coherence = accumulate_motion_vectors(path)
+        busy = weight > np.percentile(weight[weight > 0], 90)
+        assert np.median(coherence[busy]) < 0.4
 
 
 class Test_the_rendered_image:
