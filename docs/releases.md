@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.18.0**.
+The current stable release is **MGT-python 1.19.0**.
 
 Install or upgrade from PyPI:
 
