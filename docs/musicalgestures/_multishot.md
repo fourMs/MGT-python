@@ -27,24 +27,32 @@ The method raises `ValueError` when no frame held a body of a plausible size, ra
 handing back a picture of an empty room — which would look like the recording was empty
 instead of like the size bounds matching nothing.
 
-## How this differs from `stroboscope()`
+## It absorbed `stroboscope()`
 
-MGT has had chronophotography since before this: `MgVideo.stroboscope()` composites
-silhouettes at **evenly sampled** times onto a **mean average** frame, and tints each by
-time so the order reads. Two differences, and each cuts a different way:
+MGT had chronophotography before this, as `stroboscope()`: silhouettes at **evenly sampled**
+times on a **mean average** frame, tinted by time. Having two functions make the same picture
+two ways meant a reader had to know which — so they are one, and `stroboscope()` is a
+deprecated wrapper that delegates here until 2.0.
 
-| | `stroboscope()` | `multishot()` |
-|---|---|---|
-| frame choice | even intervals | selected for spatial separation |
-| background | mean average frame | `room_plate`, a stratified median |
-| segmentation | MediaPipe or background subtraction | plate difference, shadows rejected by ratio |
-| time cue | colourises early → late | none |
+Both ways survive:
 
-Even sampling is what makes bodies land on top of each other, and a mean average keeps a
-faint ghost of everyone who crossed — which is what the median plate exists to fix. Against
-that, `stroboscope()`'s MediaPipe segmentation is the better mask, and its colour ramp says
-something this does not. **Reach for `stroboscope()` when the time order matters; for this
-when the bodies must not overlap.**
+| what `stroboscope()` did | how to ask for it now |
+|---|---|
+| even sampling | `select='even'` |
+| mean-average background | `background='average'` |
+| time tint | `colorize=True` |
+| flat or first-frame ground | `background='black' / 'white' / 'first'` |
+
+```python
+video.multishot(select='even', background='average', colorize=True)   # the old picture
+video.multishot()                                                    # the new default
+```
+
+**The defaults are an opinion, and worth stating.** Even sampling is what makes two moments
+land in the same place, and a mean average keeps a faint ghost of everyone who crossed —
+which is exactly what a median plate exists to remove. Even spacing still answers a real
+question, though, and it is the one a time tint belongs to: how a body looked at regular
+instants, the Muybridge reading. Spatial separation answers where it went.
 
 ## Frames are chosen for separation, not at intervals
 

@@ -9,6 +9,8 @@ to background subtraction against the average frame (good for static-camera reco
 from __future__ import annotations
 
 import os
+import warnings
+
 import numpy as np
 import cv2
 import musicalgestures
@@ -37,22 +39,71 @@ def _iter_frames(self: "musicalgestures.MgVideo"):
             pass
 
 
-def _make_segmenter(method: str):
+def _make_segmenter(method: str, num_poses: int = 1, confidence: float = 0.3):
     """
     Return a callable ``rgb_frame -> float mask in [0,1]`` for person segmentation,
     or None to use background subtraction.
 
     method: 'auto' (MediaPipe if available, else None), 'mediapipe', or 'bgsub'.
+
+    **This was silently dead from MediaPipe 0.10 onwards.** It asked for
+    ``mp.solutions.selfie_segmentation``, and the Solutions API was removed in favour of
+    Tasks --- so on any current install the attribute lookup raised, the bare ``except``
+    swallowed it, and every caller got background subtraction while the docstring said
+    MediaPipe. With ``method='auto'`` it said nothing at all. Found 2026-08-28 on
+    mediapipe 0.10.35, where ``mp`` has no ``solutions`` attribute whatsoever.
+
+    Now built on the Tasks pose landmarker, whose model this package already downloads for
+    pose estimation, with ``output_segmentation_masks``. The legacy path is still tried
+    first so older installs keep working.
+
+    **It only masks what the pose detector finds.** A small, dark figure against a dark
+    background --- the case where plate differencing does worst and this was wanted most
+    --- is often not detected at all, and then there is no mask and the caller falls back.
+    That is a real limit and not a bug: segmentation here is downstream of detection.
     """
     if method == 'bgsub':
         return None
+
+    #: Legacy Solutions API, for installs old enough to still have it.
     try:
         import mediapipe as mp
         seg = mp.solutions.selfie_segmentation.SelfieSegmentation(model_selection=1)
         return lambda rgb: seg.process(rgb).segmentation_mask
     except Exception:
-        if method == 'mediapipe':
-            print("MediaPipe selfie segmentation unavailable; falling back to background subtraction.")
+        pass
+
+    try:
+        import mediapipe as mp
+        from mediapipe.tasks.python import BaseOptions
+        from mediapipe.tasks.python import vision
+
+        from musicalgestures._pose_estimator import get_pose_model_path
+
+        landmarker = vision.PoseLandmarker.create_from_options(
+            vision.PoseLandmarkerOptions(
+                base_options=BaseOptions(model_asset_path=str(get_pose_model_path(1))),
+                output_segmentation_masks=True,
+                num_poses=num_poses,
+                min_pose_detection_confidence=confidence,
+                running_mode=vision.RunningMode.IMAGE))
+
+        def segment(rgb):
+            image = mp.Image(image_format=mp.ImageFormat.SRGB,
+                             data=np.ascontiguousarray(rgb))
+            result = landmarker.detect(image)
+            if not result.segmentation_masks:
+                return None
+            masks = [m.numpy_view() for m in result.segmentation_masks]
+            return np.maximum.reduce(masks) if len(masks) > 1 else masks[0]
+
+        return segment
+    except Exception as exc:
+        #: Loud on the way down. A capability that quietly is not there is worse than one
+        #: that is absent, because every result afterwards looks like it used the thing.
+        warnings.warn(
+            f"MediaPipe segmentation is unavailable ({type(exc).__name__}: {exc}); "
+            f"falling back to background subtraction.", RuntimeWarning, stacklevel=2)
         return None
 
 
@@ -132,84 +183,46 @@ def mg_stroboscope(self: "musicalgestures.MgVideo", n_samples: int = 12, method:
                    keep_largest: bool = False, colorize: bool = True, background: str = 'average',
                    target_name: str | None = None, overwrite: bool = True) -> "MgImage":
     """
-    Renders a stroboscope / chronophotography image: the person's silhouette at evenly
-    sampled times composited onto a single frame, showing the body moving through space
-    over time (Muybridge-style).
+    **Deprecated since 1.23.0: use** ``multishot()``, **which absorbed this.**
 
-    For a clean result with a single person on a static background, raise ``threshold`` and
-    set ``keep_largest=True`` so only the person's blob is composited (avoids the image
-    "blowing up" from background noise).
+    The two were the same picture made two ways, and having both meant a reader had to
+    know which. `multishot()` now carries both: ``select='even'`` is this method's regular
+    sampling, ``background='average'`` is its mean-average ground, and ``colorize=True``
+    is its time tint. The defaults differ because the defaults are an opinion --- moments
+    chosen for spatial separation, on a median plate --- and even sampling onto a mean
+    average is what makes two bodies land in the same place on a ground that keeps a ghost
+    of everyone who crossed.
 
-    **See also** ``multishot``, which composites the same kind of picture but chooses its
-    moments for SPATIAL SEPARATION rather than at even intervals, and lays them on the
-    median ``room_plate`` rather than a mean average frame. Even sampling is what puts two
-    bodies in the same place, and a mean average keeps a faint ghost of everyone who
-    crossed. This method keeps the advantages of MediaPipe segmentation and of tinting each
-    silhouette by time, which ``multishot`` does not do.
+    This wrapper delegates and will be removed at 2.0.
 
     Args:
-        n_samples (int, optional): Number of time samples (silhouettes) to composite. Defaults to 12.
-        method (str, optional): Silhouette extraction: 'auto', 'mediapipe', or 'bgsub'. Defaults to 'auto'.
-        threshold (float, optional): Foreground threshold (0–1). Higher rejects more background. Defaults to 0.1.
-        kernel_size (int, optional): Morphological cleanup kernel for the silhouette (0 disables). Defaults to 5.
-        keep_largest (bool, optional): Keep only the largest blob (the person). Defaults to False.
-        colorize (bool, optional): Tint each silhouette by time (early→late) for a temporal cue. Defaults to True.
-        background (str, optional): 'average' (clean plate), 'first' (first frame), 'black' or 'white'. Defaults to 'average'.
-        target_name (str, optional): Output name. Defaults to None ("_stroboscope.png").
-        overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to True.
+        n_samples (int, optional): Silhouettes to composite. Defaults to 12.
+        method (str, optional): 'auto', 'mediapipe' or 'bgsub'. Defaults to 'auto'.
+        threshold (float, optional): Foreground threshold (0-1). Defaults to 0.1.
+        kernel_size (int, optional): Unused by the replacement; accepted for compatibility.
+        keep_largest (bool, optional): Unused by the replacement; accepted for compatibility.
+        colorize (bool, optional): Tint each silhouette by time. Defaults to True.
+        background (str, optional): 'average', 'first', 'black' or 'white'. Defaults to 'average'.
+        target_name (str, optional): Output name. Defaults to "_stroboscope.png".
+        overwrite (bool, optional): Overwrite or auto-increment. Defaults to True.
 
     Returns:
-        MgImage: the stroboscope image.
+        MgImage: the composite.
     """
+    warnings.warn(
+        "stroboscope() is deprecated and will be removed at 2.0; use multishot("
+        "select='even', background='average', colorize=True), which absorbed it.",
+        DeprecationWarning, stacklevel=2)
+
+    from musicalgestures._multishot import mg_multishot
+    from musicalgestures._utils import resolve_filename
+
     target_name = resolve_filename(self.of, '_stroboscope.png', target_name, overwrite)
+    return mg_multishot(
+        self, n_bodies=n_samples, select="even", background=background,
+        colorize=colorize, segmenter="plate" if method == "bgsub" else "auto",
+        target_name=target_name, overwrite=overwrite)
 
-    avg = _average_frame(self)
-    bg_gray = cv2.cvtColor(avg, cv2.COLOR_BGR2GRAY).astype(np.float32)
-    seg_fn = _make_segmenter(method)
-
-    total = int(self.length)
-    sample_idx = set(np.linspace(0, total - 1, min(n_samples, total)).astype(int).tolist())
-
-    if background == 'average':
-        canvas = avg.copy()
-    elif background == 'white':
-        canvas = np.full((self.height, self.width, 3), 255, np.uint8)
-    elif background == 'black':
-        canvas = np.zeros((self.height, self.width, 3), np.uint8)
-    else:
-        canvas = None  # 'first' → set on first read
-
-    import matplotlib
-    cmap = matplotlib.colormaps['viridis']
-
-    pb = MgProgressbar(total=self.length, prefix='Rendering stroboscope:')
-    i = 0
-    order = 0
-    n_order = max(len(sample_idx) - 1, 1)
-    for frame in _iter_frames(self):
-        if canvas is None:
-            canvas = frame.copy()
-        if i in sample_idx:
-            mask = _silhouette(frame, seg_fn, bg_gray, threshold, kernel_size, keep_largest)
-            if colorize:
-                tint = (np.array(cmap(order / n_order)[:3]) * 255)[::-1]  # RGB→BGR
-                tinted = (frame.astype(np.float32) * 0.5 + tint * 0.5).astype(np.uint8)
-                canvas[mask] = tinted[mask]
-            else:
-                canvas[mask] = frame[mask]
-            order += 1
-        i += 1
-        pb.progress(i)
-    pb.progress(self.length)
-
-    cv2.imwrite(target_name, canvas)
-    self.stroboscope_image = MgImage(target_name)
-    return self.stroboscope_image
-
-
-# ---------------------------------------------------------------------------
-# 2. Silhouette waterfall
-# ---------------------------------------------------------------------------
 
 def mg_silhouette_waterfall(self: "musicalgestures.MgVideo", n_samples: int = 40, method: str = 'auto', threshold: float = 0.1, kernel_size: int = 5,
                             keep_largest: bool = False, axis: str = 'horizontal', cmap: str = 'viridis', dpi: int = 200,

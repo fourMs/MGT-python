@@ -5,12 +5,12 @@ cut out of frames spread through the recording, and all of them are laid back on
 One image then carries where somebody was, how they were shaped, and how far apart the
 moments were. It answers nothing a motiongram answers and shows something no gram shows.
 
-**Related to `stroboscope()`, and different in two ways that matter.** That method
-composites silhouettes at EVENLY SAMPLED times onto a MEAN average frame, and tints each
-by time. This one chooses moments for spatial separation and composites onto the median
-`room_plate`. Even sampling is what puts bodies on top of each other, and a mean average
-keeps a faint ghost of everyone who crossed. Use `stroboscope()` when the time order
-matters and MediaPipe segmentation is wanted; use this when the bodies must not overlap.
+**This absorbed `stroboscope()`**, which made the same picture a different way and is now
+a deprecated wrapper. Both ways are here: `select='even'` samples at regular intervals,
+`background='average'` composites onto the mean of every frame, `colorize=True` tints each
+body by time. The defaults are the opinionated half --- moments chosen for spatial
+separation, on a median plate --- because even sampling is what makes two bodies land in
+the same place, and a mean average keeps a faint ghost of everyone who crossed.
 
 **Frames are chosen for separation, not at regular intervals.** Evenly spaced frames put
 bodies on top of each other as often as not, and two overlapping silhouettes read as one
@@ -54,7 +54,8 @@ if TYPE_CHECKING:                              # pragma: no cover - typing only
     import musicalgestures
     from musicalgestures._utils import MgImage
 
-__all__ = ["multishot", "choose_spaced", "body_mask", "mg_multishot", "mg_plate"]
+__all__ = ["multishot", "choose_spaced", "choose_even", "body_mask",
+           "mg_multishot", "mg_plate"]
 
 TOLERANCE = 26.0        #: difference from the plate counting as somebody, 8-bit
 SHADOW_RATIO = 0.55     #: darker than this share of the plate's brightness is a shadow
@@ -161,11 +162,33 @@ def choose_spaced(candidates, n_bodies: int):
     return sorted((candidates[i] for i in taken), key=lambda c: c["index"])
 
 
+def choose_even(candidates, n_bodies: int):
+    """Evenly spaced in TIME, which is what `stroboscope()` did before the merge.
+
+    Kept because the two answer different questions. Even spacing says how a body looked
+    at regular instants, which is the Muybridge reading and the one a time tint belongs
+    to; spatial separation says where a body went, and refuses to stack two moments in
+    one place. Even spacing is what makes them stack.
+
+    Returns:
+        list: The chosen candidates, in time order.
+    """
+    if not candidates:
+        return []
+    ordered = sorted(candidates, key=lambda c: c["index"])
+    if n_bodies >= len(ordered):
+        return ordered
+    picks = np.linspace(0, len(ordered) - 1, n_bodies).round().astype(int)
+    return [ordered[i] for i in dict.fromkeys(picks.tolist())]
+
+
 def multishot(video, n_bodies: int = 8, n_candidates: int = 120, start=None, end=None,
               plate=None, width: int = 960, tolerance: float = TOLERANCE,
               feather: int = FEATHER, min_area: float = MIN_AREA,
               max_area: float = MAX_AREA, max_border: float = MAX_BORDER,
-              shadow_ratio: float = SHADOW_RATIO):
+              shadow_ratio: float = SHADOW_RATIO, region=None,
+              segmenter: str = "plate", select: str = "spaced",
+              background: str = "plate", colorize: bool = False):
     """A chronophotograph of one recording, or of one span of it.
 
     Args:
@@ -191,6 +214,30 @@ def multishot(video, n_bodies: int = 8, n_candidates: int = 120, start=None, end
         max_border (float): Reject a body with more than this share of it against a frame
             edge, since compositing one puts half a body in the picture.
         shadow_ratio (float): Brightness ratio below which a difference reads as shadow.
+        region (tuple, optional): `(x, y, w, h)` in working-width pixels. A body counts
+            only if its centre falls inside. **This is how a non-dancer is excluded**: a
+            researcher sitting at the side of the room differs from the plate like anybody
+            else, and being a person, no person detector will drop them --- only where
+            they are can.
+        segmenter (str): `"plate"` (default) masks by difference from the room.
+            `"mediapipe"` or `"auto"` use MediaPipe selfie segmentation instead, shared
+            with `stroboscope()`, which is the better mask **where figure and ground are
+            close in brightness** --- a dark costume against a black curtain, where plate
+            differencing leaves a thin mask and the composited body comes out
+            semi-transparent. `"auto"` falls back to the plate when MediaPipe is absent,
+            since it is an optional extra.
+        select (str): `"spaced"` (default) chooses moments furthest from those already
+            placed; `"even"` samples at regular intervals, which is what `stroboscope()`
+            did. They answer different questions: even spacing says how a body looked at
+            regular instants, spatial separation says where it went. **Even spacing is
+            what makes two moments land in the same place.**
+        background (str): `"plate"` (default) composites onto the median room;
+            `"average"` onto the mean of every frame, which keeps a faint ghost of
+            everyone who crossed and is why it is not the default; `"black"`, `"white"`
+            or `"first"` for a flat or first-frame ground.
+        colorize (bool): Tint each body by time, early to late, so the order reads. Off
+            by default because it changes the pixels: a tinted composite is a diagram
+            rather than a photograph of the room.
 
     Returns:
         tuple: `(picture, plate)`, both BGR. **`picture` is None** when no frame held a
@@ -201,11 +248,18 @@ def multishot(video, n_bodies: int = 8, n_candidates: int = 120, start=None, end
 
     from musicalgestures._plate import room_plate
 
+    #: Shared with `stroboscope()` rather than reimplemented. A third masking path in the
+    #: same package is how two functions come to disagree about the same picture.
+    segment = None
+    if segmenter in ("mediapipe", "auto"):
+        from musicalgestures._spacetime import _make_segmenter
+        segment = _make_segmenter("mediapipe" if segmenter == "mediapipe" else "auto")
+
     capture = cv2.VideoCapture(str(video))
     total = int(capture.get(cv2.CAP_PROP_FRAME_COUNT))
     fps = capture.get(cv2.CAP_PROP_FPS) or 25.0
 
-    if plate is None:
+    if plate is None and background == "plate":
         grey, used = room_plate(video, n_samples=min(300, max(8, total)), width=width)
         #: The plate is greyscale and compositing needs colour, so it is rebuilt in colour
         #: from THE VERY FRAMES the grey one used --- not from a fresh draw, which would
@@ -219,6 +273,30 @@ def multishot(video, n_bodies: int = 8, n_candidates: int = 120, start=None, end
                 stack.append(cv2.resize(f, (width, h)))
         plate = np.median(np.asarray(stack, dtype=np.float32), axis=0).astype(np.uint8)
 
+    if plate is None:
+        #: The grounds `stroboscope()` offered, carried over. The mean average is the one
+        #: worth a warning in the docs rather than in code: it is a legitimate choice and
+        #: it keeps a ghost of everyone who crossed.
+        frames = []
+        for index in np.linspace(0, max(0, total - 1), min(60, max(2, total))).astype(int):
+            capture.set(cv2.CAP_PROP_POS_FRAMES, int(index))
+            ok, frame = capture.read()
+            if ok:
+                h = max(1, int(frame.shape[0] * width / frame.shape[1]))
+                frames.append(cv2.resize(frame, (width, h)))
+        if not frames:
+            capture.release()
+            return None, None
+        shape = frames[0].shape
+        if background == "average":
+            plate = np.mean(np.asarray(frames, dtype=np.float32), axis=0).astype(np.uint8)
+        elif background == "first":
+            plate = frames[0]
+        elif background == "white":
+            plate = np.full(shape, 255, np.uint8)
+        else:
+            plate = np.zeros(shape, np.uint8)
+
     first = int((start or 0) * fps)
     last = int(end * fps) if end else total
 
@@ -231,10 +309,27 @@ def multishot(video, n_bodies: int = 8, n_candidates: int = 120, start=None, end
             continue
         h = max(1, int(frame.shape[0] * width / frame.shape[1]))
         frame = cv2.resize(frame, (width, h))
-        mask, area = body_mask(frame, plate, tolerance, shadow_ratio)
+        if segment is not None:
+            raw = segment(frame[..., ::-1])
+            if raw is None:
+                #: The detector found nobody. That is common exactly where this mask was
+                #: wanted --- a small dark figure on a dark ground --- so fall back rather
+                #: than drop the frame, and let the plate answer.
+                mask, area = body_mask(frame, plate, tolerance, shadow_ratio, min_area)
+            else:
+                #: `numpy_view()` carries a trailing axis, and `np.nonzero` on a 3-D mask
+                #: returns three arrays where the caller unpacks two.
+                mask = (np.squeeze(np.asarray(raw)) > 0.5).astype(np.uint8)
+                area = float(mask.mean())
+        else:
+            mask, area = body_mask(frame, plate, tolerance, shadow_ratio, min_area)
         if not (min_area <= area <= max_area) or _border_share(mask) > max_border:
             continue
         ys, xs = np.nonzero(mask)
+        if region is not None:
+            rx, ry, rw, rh = region
+            if not (rx <= xs.mean() <= rx + rw and ry <= ys.mean() <= ry + rh):
+                continue
         candidates.append({"index": int(index), "frame": frame, "mask": mask,
                            "area": area, "centroid": (float(xs.mean()),
                                                       float(ys.mean()))})
@@ -242,11 +337,21 @@ def multishot(video, n_bodies: int = 8, n_candidates: int = 120, start=None, end
     if not candidates:
         return None, plate
 
+    chosen = (choose_even(candidates, n_bodies) if select == "even"
+              else choose_spaced(candidates, n_bodies))
     canvas = plate.astype(np.float32).copy()
-    for c in choose_spaced(candidates, n_bodies):
+    tint = None
+    if colorize:
+        import matplotlib
+        tint = matplotlib.colormaps["viridis"]
+    for order, c in enumerate(chosen):
         alpha = cv2.GaussianBlur(c["mask"].astype(np.float32),
                                  (feather * 2 + 1, feather * 2 + 1), 0)[..., None]
-        canvas = c["frame"].astype(np.float32) * alpha + canvas * (1 - alpha)
+        body = c["frame"].astype(np.float32)
+        if tint is not None:
+            colour = np.array(tint(order / max(len(chosen) - 1, 1))[:3]) * 255
+            body = body * 0.5 + colour[::-1] * 0.5      # RGB -> BGR
+        canvas = body * alpha + canvas * (1 - alpha)
     return np.clip(canvas, 0, 255).astype(np.uint8), plate
 
 
@@ -255,6 +360,8 @@ def mg_multishot(self: "musicalgestures.MgVideo", n_bodies: int = 8,
                  tolerance: float = TOLERANCE, feather: int = FEATHER,
                  min_area: float = MIN_AREA, max_area: float = MAX_AREA,
                  max_border: float = MAX_BORDER, shadow_ratio: float = SHADOW_RATIO,
+                 region=None, segmenter: str = "plate", select: str = "spaced",
+                 background: str = "plate", colorize: bool = False,
                  target_name: str | None = None, overwrite: bool = True) -> "MgImage":
     """Many moments of this recording in one picture, as an `MgImage`.
 
@@ -282,7 +389,9 @@ def mg_multishot(self: "musicalgestures.MgVideo", n_bodies: int = 8,
     picture, _ = multishot(self.filename, n_bodies=n_bodies, n_candidates=n_candidates,
                            start=start, end=end, width=width, tolerance=tolerance,
                            feather=feather, min_area=min_area, max_area=max_area,
-                           max_border=max_border, shadow_ratio=shadow_ratio)
+                           max_border=max_border, shadow_ratio=shadow_ratio,
+                           region=region, segmenter=segmenter, select=select,
+                           background=background, colorize=colorize)
     if picture is None:
         raise ValueError(
             f"no frame of {self.filename} held a body covering between "

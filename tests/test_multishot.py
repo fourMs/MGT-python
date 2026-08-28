@@ -187,3 +187,75 @@ def test_the_method_passes_the_body_count_through(travelling):
         n, _, stats, _ = cv2.connectedComponentsWithStats(changed, 8)
         counts.append(sum(1 for i in range(1, n) if stats[i, cv2.CC_STAT_AREA] > 300))
     assert counts == [2, 3]
+
+
+def test_bodies_outside_the_given_region_are_not_composited(travelling):
+    """The researcher at the laptop, in miniature.
+
+    Somebody sitting at the side of the room differs from the plate like anybody else and
+    gets composited in. They are a person, so a person detector will not exclude them ---
+    only where they are can. `region` says where a body may be for it to count.
+    """
+    picture, plate = multishot(travelling, n_bodies=3, width=320,
+                               region=(0, 0, 160, 240))
+    assert picture is not None
+    changed = np.abs(picture.astype(np.int16)
+                     - plate.astype(np.int16)).max(axis=2) > 20
+    ys, xs = np.nonzero(changed)
+    assert xs.max() < 200, "something was composited outside the region"
+
+
+def test_the_segmenter_can_be_asked_for_and_falls_back_rather_than_failing(travelling):
+    """MediaPipe is an optional extra, so asking for it must not be a hard requirement.
+
+    It is the better mask where figure and ground are close in brightness --- a dark
+    costume against a black curtain --- which plate differencing handles worst.
+    """
+    picture, _ = multishot(travelling, n_bodies=2, width=320, segmenter="auto")
+    assert picture is not None
+
+
+def test_even_sampling_is_available_for_the_old_behaviour(travelling):
+    """`stroboscope()` sampled at even intervals. That is now an option here."""
+    picture, _ = multishot(travelling, n_bodies=3, width=320, select="even")
+    assert picture is not None
+
+
+def test_even_and_spaced_do_not_choose_the_same_moments():
+    """If they agreed there would be nothing to merge."""
+    candidates = [{"centroid": (float(10 + i), 10.0), "area": 0.05, "index": i}
+                  for i in range(10)] + [{"centroid": (300.0, 200.0), "area": 0.05,
+                                          "index": 10}]
+    from musicalgestures._multishot import choose_even, choose_spaced
+    spaced = [c["index"] for c in choose_spaced(candidates, 3)]
+    even = [c["index"] for c in choose_even(candidates, 3)]
+    assert spaced != even
+    assert 10 in spaced, "the far-off body is what spacing is for"
+
+
+def test_colourising_by_time_changes_the_picture(travelling):
+    """`stroboscope()`'s temporal cue, carried over rather than dropped."""
+    plain, _ = multishot(travelling, n_bodies=3, width=320)
+    tinted, _ = multishot(travelling, n_bodies=3, width=320, colorize=True)
+    assert plain is not None and tinted is not None
+    assert not np.array_equal(plain, tinted)
+
+
+def test_the_mean_average_background_is_still_reachable(travelling):
+    """It keeps a ghost of everyone who crossed, which is why it is not the default."""
+    on_plate, _ = multishot(travelling, n_bodies=3, width=320)
+    on_average, _ = multishot(travelling, n_bodies=3, width=320, background="average")
+    assert on_plate is not None and on_average is not None
+    assert not np.array_equal(on_plate, on_average)
+
+
+def test_stroboscope_still_works_and_says_it_is_deprecated(travelling):
+    """Eleven renames in this package go through one helper. This is a method, so it
+    needs a delegating wrapper rather than the attribute alias, but it must still warn."""
+    import pytest as _pytest
+
+    import musicalgestures
+
+    with _pytest.warns(DeprecationWarning, match="multishot"):
+        image = musicalgestures.MgVideo(travelling).stroboscope(n_samples=3)
+    assert isinstance(image, musicalgestures.MgImage)
