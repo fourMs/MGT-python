@@ -193,6 +193,8 @@ class MgVideo(MgAudio):
     motionvectorwaterfall_figure: MgFigure
     motionvectoroverview_figure: MgFigure
     motionscape_figure: MgFigure
+    posegram_figure: MgFigure
+    posegram_spatial_figure: MgFigure
     movement_beat_statistics_figure: MgFigure
     phase_synchrony_figure: MgFigure
     pose_average_image: MgImage
@@ -316,6 +318,10 @@ class MgVideo(MgAudio):
     from musicalgestures._pose import mg_pose_segments as pose_segments  # type: ignore[misc]
     from musicalgestures._pose import mg_pose_center as pose_center  # type: ignore[misc]
     from musicalgestures._pose import mg_pose_distance as pose_distance  # type: ignore[misc]
+    from musicalgestures._posegram import (  # type: ignore[misc]
+        mg_posegram as posegram,
+        mg_posegram_spatial as posegram_spatial,
+    )
 
     def __repr__(self) -> str:
         w, h = getattr(self, 'width', None), getattr(self, 'height', None)

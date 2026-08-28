@@ -47,6 +47,7 @@ nav:
       - Audio: musicalgestures/_audio.md
       - Flow: musicalgestures/_flow.md
       - Motion vectors: musicalgestures/_motionvectors.md
+      - Posegram: musicalgestures/_posegram.md
       - 360 Video: musicalgestures/_360video.md
       - Anglegram (360): musicalgestures/_anglegram.md
       - Utils: musicalgestures/_utils.md

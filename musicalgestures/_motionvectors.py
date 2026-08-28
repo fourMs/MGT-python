@@ -900,7 +900,7 @@ def motion_scape(track, n_scales=64):
     return scape
 
 
-def mg_motionscape(self: "musicalgestures.MgVideo", track=None,
+def mg_motionscape(self: "musicalgestures.MgVideo", track=None, track_times=None,
                    n_scales: int = 96, colormap: str = "magma",
                    gamma: float = 0.5, target_name: str | None = None,
                    overwrite: bool = True) -> "MgFigure":
@@ -920,6 +920,12 @@ def mg_motionscape(self: "musicalgestures.MgVideo", track=None,
             `qom.f4` read off disk --- to scape that instead. Nothing about the
             construction assumes where the numbers came from. Defaults to None, which
             reads the codec's motion vectors, cheap enough to run over an archive.
+        track_times (array-like, optional): Seconds for each value in `track`. Needed
+            whenever the track is not one value per video frame --- notably
+            `motionvectoroverview`'s own `magnitude`, which is P-frames only and so
+            arrives at about a quarter of the frame rate. Without it the time axis is
+            wrong by that factor while looking perfectly reasonable. Defaults to None,
+            meaning the track is at the video's frame rate.
         n_scales (int, optional): Rows in the triangle. Defaults to 96.
         colormap (str, optional): Defaults to `'magma'`.
         gamma (float, optional): Applied before colouring. Defaults to 0.5.
@@ -940,7 +946,14 @@ def mg_motionscape(self: "musicalgestures.MgVideo", track=None,
 
     if track is not None:
         track = np.asarray(track, dtype=np.float64).ravel()
-        times = np.arange(len(track)) / float(self.fps)
+        if track_times is not None:
+            times = np.asarray(track_times, dtype=np.float64).ravel()
+            if len(times) != len(track):
+                raise ValueError(
+                    f"track_times has {len(times)} values and track has {len(track)}; "
+                    "they must describe the same series")
+        else:
+            times = np.arange(len(track)) / float(self.fps)
         used = "supplied track"
     else:
         views = motion_vector_views(self.filename)

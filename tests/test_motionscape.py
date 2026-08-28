@@ -42,6 +42,32 @@ class Test_geometry:
         assert scape[-1][:200].mean() > scape[-1][-200:].mean() + 0.5
 
 
+class Test_a_track_that_is_not_at_the_frame_rate:
+    """The overview's own track is P-frames only, so it arrives at about a quarter of the
+    frame rate. Scaping it without saying so puts the time axis out by that factor while
+    the picture still looks entirely reasonable."""
+
+    def test_supplied_times_set_the_axis(self, tmp_path):
+        import musicalgestures
+        from _synth import moving_block_video
+        clip = moving_block_video(tmp_path / "c.mp4", dx=3, frames=80)
+        mg = musicalgestures.MgVideo(clip)
+        track = np.linspace(0, 1, 40)
+        times = np.arange(40) * 0.25
+        r = mg.motionscape(track=track, track_times=times,
+                           target_name=str(tmp_path / "s.png"))
+        assert r.data["time"][-1] == pytest.approx(9.75)
+
+    def test_mismatched_lengths_are_refused(self, tmp_path):
+        import musicalgestures
+        from _synth import moving_block_video
+        clip = moving_block_video(tmp_path / "c2.mp4", dx=3, frames=80)
+        with pytest.raises(ValueError, match="same series"):
+            musicalgestures.MgVideo(clip).motionscape(
+                track=np.zeros(10), track_times=np.zeros(4),
+                target_name=str(tmp_path / "s2.png"))
+
+
 class Test_it_shows_scale:
     def test_a_short_burst_stays_local_at_fine_scales_and_spreads_at_coarse(self):
         q = np.zeros(1000)
