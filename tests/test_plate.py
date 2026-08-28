@@ -80,3 +80,108 @@ def test_refinement_always_keeps_at_least_two_frames():
     """A median of one frame is that frame, which is not a plate."""
     keep = refine_indices(np.array([0.5, 0.2, 0.9]), keep_fraction=0.01)
     assert len(keep) >= 2
+
+
+def test_refinement_spreads_across_the_recording_instead_of_taking_one_stretch():
+    """The emptiest frames cluster in whatever stretch nobody was working.
+
+    On a real recording a stepladder stood still through a ten-minute break in a
+    two-hour session. Those frames were the emptiest by a wide margin, the refinement
+    took all of them, and the ladder became part of "the room" for every occupancy
+    figure afterwards. Spreading the choice is what stops one stretch deciding the plate.
+    """
+    from musicalgestures._plate import refine_indices
+
+    diffs = np.full(100, 0.5)
+    diffs[70:80] = 0.01                      # one very empty stretch
+    kept = refine_indices(diffs, keep_fraction=0.10, stratify=True)
+    assert not all(70 <= i < 80 for i in kept), "every frame came from the one stretch"
+    assert max(kept) - min(kept) > 50, "the chosen frames do not span the recording"
+
+
+def test_the_unstratified_choice_is_still_available_and_still_takes_the_emptiest():
+    from musicalgestures._plate import refine_indices
+
+    diffs = np.full(100, 0.5)
+    diffs[70:80] = 0.01
+    kept = refine_indices(diffs, keep_fraction=0.10, stratify=False)
+    assert all(70 <= i < 80 for i in kept)
+
+
+def test_plate_spread_tells_a_clustered_choice_from_a_spread_one():
+    from musicalgestures._plate import plate_spread
+
+    assert plate_spread(np.arange(70, 80), 100) < 0.2
+    assert plate_spread(np.arange(0, 100, 10), 100) > 0.8
+
+
+def test_a_prop_standing_through_a_quiet_stretch_stays_out_of_the_room(tmp_path):
+    """The stepladder, in miniature, and the test asserts BOTH directions.
+
+    An object present only while nothing else moves. The old unstratified choice draws
+    every frame from that one stretch and takes the prop into the room with it; the
+    stratified one spreads across the recording and leaves it out. Asserting only the
+    second would pass whether or not the fix did anything --- three earlier versions of
+    this fixture did exactly that, because the moving block crossed the prop's location,
+    or was wide enough to enter the first-pass plate itself.
+    """
+    import subprocess
+    import warnings
+
+    W, H, frames = 160, 120, 90
+    rng = np.random.default_rng(3)
+    background = rng.integers(48, 160, size=(H, W), dtype=np.uint8)
+    raw = bytearray()
+    for i in range(frames):
+        frame = background.copy()
+        if i >= 60:                          # the quiet stretch: a prop, and nothing else
+            frame[88:113, 120:145] = 250     # 625 px, still, clear of the block's rows
+        else:                                # the busy stretch: a larger, faster block
+            x = 4 + int(i * 1.8)             # 2000 px, gone from any column soon enough
+            frame[35:85, x:x + 40] = 250     # not to enter the first-pass plate
+        raw += frame.tobytes()
+    path = str(tmp_path / "prop.mp4")
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo",
+                    "-pix_fmt", "gray", "-s", f"{W}x{H}", "-r", "25", "-i", "pipe:0",
+                    "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "5", path],
+                   input=bytes(raw), check=True)
+
+    from musicalgestures._plate import room_plate
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", RuntimeWarning)
+        clustered, used = room_plate(path, n_samples=60, width=W, stratify=False)
+    assert clustered[92:110, 123:142].mean() > 200, "the fixture does not reproduce the bug"
+    assert max(used) - min(used) < 20, "the old choice was supposed to cluster"
+
+    spread_plate, used = room_plate(path, n_samples=60, width=W, stratify=True)
+    assert spread_plate[92:110, 123:142].mean() < 150, "the prop is still in the room"
+    assert max(used) - min(used) > 60
+
+
+def test_a_plate_built_from_one_stretch_says_so(tmp_path):
+    """Silence would let a plate describing one moment pass as a plate of the room."""
+    import subprocess
+
+    W, H, frames = 160, 120, 90
+    rng = np.random.default_rng(4)
+    background = rng.integers(48, 160, size=(H, W), dtype=np.uint8)
+    raw = bytearray()
+    for i in range(frames):
+        frame = background.copy()
+        if i >= 60:
+            frame[88:113, 120:145] = 250
+        else:
+            x = 4 + int(i * 1.8)
+            frame[35:85, x:x + 40] = 250
+        raw += frame.tobytes()
+    path = str(tmp_path / "prop.mp4")
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo",
+                    "-pix_fmt", "gray", "-s", f"{W}x{H}", "-r", "25", "-i", "pipe:0",
+                    "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "5", path],
+                   input=bytes(raw), check=True)
+
+    from musicalgestures._plate import room_plate
+
+    with pytest.warns(RuntimeWarning, match="per cent of the recording"):
+        room_plate(path, n_samples=60, width=W, stratify=False)

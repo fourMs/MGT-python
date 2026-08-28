@@ -88,12 +88,29 @@ def occupancy_from_plate(frame, plate, threshold: float = 12.0) -> float:
     return float((d > float(threshold)).mean())
 
 
-def refine_indices(diffs, keep_fraction: float = 0.10) -> np.ndarray:
-    """Which sampled frames to rebuild the plate from: the ones least like it already.
+def refine_indices(diffs, keep_fraction: float = 0.10,
+                   stratify: bool = True) -> np.ndarray:
+    """Which sampled frames to rebuild the plate from: the emptiest, spread over time.
+
+    The smallest differences are the emptiest frames, the ones with least in front of
+    the room, and taking the median over those is what removes anyone who lingered.
+
+    **But the emptiest frames cluster.** They fall in whatever stretch nobody was
+    working --- a break, a setup, a pack-down --- and anything standing in the room then
+    goes into the plate as though it were furniture. On one recording a stepladder stood
+    still for ten minutes of a two-hour session, those frames were the emptiest by a
+    wide margin, and the ladder became part of "the room" for every occupancy figure
+    afterwards, reading as a body 18.6 per cent of the time where it was not.
+
+    So the default takes **the emptiest frame from each of `k` equal stretches of the
+    recording** rather than the emptiest `k` overall. The choice is still made on
+    emptiness; it simply cannot all come from one place. `stratify=False` restores the
+    older behaviour.
 
     Args:
         diffs: One number per sampled frame, how much it differs from the first plate.
         keep_fraction (float): Fraction to keep. Defaults to 0.10.
+        stratify (bool): Spread the choice over the recording. Defaults to True.
 
     Returns:
         np.ndarray: Indices into `diffs`, ascending. **At least two**, because a median
@@ -103,8 +120,34 @@ def refine_indices(diffs, keep_fraction: float = 0.10) -> np.ndarray:
     if len(d) == 0:
         return np.zeros(0, dtype=int)
     k = max(2, min(len(d), int(round(len(d) * float(keep_fraction)))))
-    keep: np.ndarray = np.sort(np.argsort(d)[:k])
-    return keep
+    if not stratify:
+        keep: np.ndarray = np.sort(np.argsort(d)[:k])
+        return keep
+    #: One winner per stretch. `array_split` handles a frame count that does not divide
+    #: by k, which is the ordinary case.
+    chosen = [int(block[np.argmin(d[block])])
+              for block in np.array_split(np.arange(len(d)), k) if len(block)]
+    return np.array(sorted(set(chosen)), dtype=int)
+
+
+def plate_spread(indices, n_frames: int) -> float:
+    """How much of the recording the plate's frames were drawn from, 0 to 1.
+
+    A plate built from one stretch describes the room during that stretch. This is what
+    `room_plate` checks itself against before handing one back.
+
+    Args:
+        indices: The frame indices the plate was built from.
+        n_frames (int): Frames in the recording.
+
+    Returns:
+        float: The span the chosen frames cover, as a fraction of the recording. 0 when
+        fewer than two frames were used.
+    """
+    idx = np.asarray(indices, dtype=float).ravel()
+    if idx.size < 2 or n_frames <= 0:
+        return 0.0
+    return float((idx.max() - idx.min()) / float(n_frames))
 
 
 def _read_frames(video, indices, width):
@@ -127,7 +170,8 @@ def _read_frames(video, indices, width):
 
 
 def room_plate(video, n_samples: int = 400, width: int = 320,
-               keep_fraction: float = 0.10, refine: bool = True):
+               keep_fraction: float = 0.10, refine: bool = True,
+               stratify: bool = True, min_spread: float = 0.5):
     """The empty room, from a two-pass median over sampled frames.
 
     Args:
@@ -137,9 +181,16 @@ def room_plate(video, n_samples: int = 400, width: int = 320,
             downsampling that segmentation does not.
         keep_fraction (float): Fraction of samples the second pass keeps.
         refine (bool): Take the second pass. Defaults to True.
+        stratify (bool): Spread the second pass over the recording rather than taking
+            the globally emptiest frames, which cluster in breaks and setups and carry
+            whatever was standing in the room then into the plate. Defaults to True.
+        min_spread (float): Warn when the frames used span less than this fraction of
+            the recording, since such a plate describes one stretch rather than the
+            room. Defaults to 0.5.
 
     Returns:
-        tuple: (plate, indices_used).
+        tuple: (plate, indices_used). Check `plate_spread(indices_used, n_frames)` when
+        the plate matters: a low value means the room it describes is one moment's.
     """
     import cv2
 
@@ -154,8 +205,17 @@ def room_plate(video, n_samples: int = 400, width: int = 320,
     if not refine or len(stack) < 4:
         return plate, idx
     diffs = np.array([occupancy_from_plate(f, plate) for f in stack])
-    keep = refine_indices(diffs, keep_fraction)
-    return plate_from_stack(stack[keep]), idx[keep]
+    keep = refine_indices(diffs, keep_fraction, stratify=stratify)
+    used = idx[keep]
+    spread = plate_spread(used, n_frames)
+    if spread < min_spread:
+        import warnings
+        warnings.warn(
+            f"the plate was built from frames spanning {spread * 100:.0f} per cent of "
+            f"the recording, so it describes that stretch rather than the room; "
+            f"anything standing there will be treated as furniture",
+            RuntimeWarning, stacklevel=2)
+    return plate_from_stack(stack[keep]), used
 
 
 def occupancy_track(video, plate, every_n: int = 25, width: int = 320,
