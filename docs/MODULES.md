@@ -51,6 +51,7 @@ Each page is rendered from the source docstrings by
 - [Motiontempo](musicalgestures/_motiontempo.md)
 - [Motionvectors](musicalgestures/_motionvectors.md)
 - [Motionvideo](musicalgestures/_motionvideo.md)
+- [Multi-shot](musicalgestures/_multishot.md)
 - [Noise floor](musicalgestures/_noisefloor.md)
 - [Movementbeats](musicalgestures/_movementbeats.md)
 - [Package overview](musicalgestures/index.md)
