@@ -319,3 +319,197 @@ def mg_posegram_spatial(self: "musicalgestures.MgVideo", landmarks=None, times=N
         data={"gram": gram, "time": times, "axis": axis, "weight": weight},
         layers=None, image=target_name)
     return self.posegram_spatial_figure
+
+
+def pose_spatial_map(landmarks, width, height, bins=(180, 320), weight="speed",
+                     smooth=1.5):
+    """Where the body was in the frame, as an image — the pose answer to a heat map.
+
+    The pixel measures give a "where" panel by accumulating their per-pixel quantity over
+    the whole recording: an image of the room with a bright patch where things happened.
+    This is the same kind of object from landmarks, so the four can sit side by side.
+
+    Not to be confused with `pose_spatial_gram`, which has **time** on one axis. That is a
+    motiongram-like view and looks, correctly, like a squashed posegram; it answers "at
+    what height, when", where this answers "where in the room, over the whole recording".
+
+    Args:
+        landmarks (np.ndarray): `(frames, 33, 3)` in pixel coordinates.
+        width, height (int): The frame the landmarks were extracted in. Not inferred from
+            the data --- MediaPipe places landmarks it cannot see outside the picture, and
+            the maximum is one of those rather than the body.
+        bins (tuple, optional): `(rows, columns)` of the output image. Defaults to
+            (180, 320), a 16:9-ish grid fine enough to show a limb and coarse enough that
+            33 points a frame fill it.
+        weight (str, optional): `'speed'` brightens where landmarks moved fast,
+            `'presence'` where they simply were. Defaults to `'speed'`.
+        smooth (float, optional): Gaussian blur in output cells, so 33 points a frame read
+            as a body rather than as confetti. Defaults to 1.5; 0 disables.
+
+    Returns:
+        np.ndarray: `(rows, columns)`, an image in the frame's own coordinates.
+
+    Notes:
+        Landmarks outside the frame contribute nothing rather than being clamped to an
+        edge. Clamping would pile every lost limb onto the border and draw a bright rim
+        that no body ever made.
+    """
+    import numpy as np
+
+    a = np.asarray(landmarks, dtype=np.float64)
+    rows, cols = int(bins[0]), int(bins[1])
+    x, y = a[:, :, 0], a[:, :, 1]
+
+    if weight == "speed":
+        w = pose_activity(a).T
+    elif weight == "presence":
+        w = np.where(np.isfinite(x) & np.isfinite(y), 1.0, 0.0)
+    else:
+        raise ValueError(f"weight must be 'speed' or 'presence', not {weight!r}")
+
+    c = np.floor(x / max(float(width), 1e-9) * cols)
+    r = np.floor(y / max(float(height), 1e-9) * rows)
+    ok = (np.isfinite(c) & np.isfinite(r) & np.isfinite(w)
+          & (c >= 0) & (c < cols) & (r >= 0) & (r < rows) & (w > 0))
+    if not ok.any():
+        return np.zeros((rows, cols))
+    flat = (r[ok].astype(np.int64) * cols + c[ok].astype(np.int64))
+    m = np.bincount(flat, weights=w[ok], minlength=rows * cols).reshape(rows, cols)
+
+    if smooth and smooth > 0:
+        try:
+            from scipy.ndimage import gaussian_filter
+            m = gaussian_filter(m, smooth)
+        except ImportError:                          # pragma: no cover - scipy optional
+            pass
+    return m
+
+
+def posegram_arrays(landmarks, width, height, bins=200, weight="speed", spread=1.5):
+    """The horizontal and vertical posegrams, oriented as MGT's motiongrams are.
+
+    MGT's two views deliberately run in different directions, so that each shares a
+    spatial axis with the picture and the pair can be laid around the video frame:
+
+    * **horizontal** — a column per frame, tiled left to right. Time runs across, image
+      **y** runs down. Shape `(bins, frames)`.
+    * **vertical** — a row per frame, tiled top to bottom. Time runs down, image **x**
+      runs across. Shape `(frames, bins)`.
+
+    Drawing both with time on the x axis, as an earlier version did, breaks that: the
+    result cannot be placed beside a motiongram of the same recording because its spatial
+    axis no longer lines up with the frame.
+
+    Returns:
+        tuple: `(horizontal, vertical)`.
+    """
+    import numpy as np
+
+    horizontal = pose_spatial_gram(landmarks, height=height, width=width, bins=bins,
+                                   axis="vertical", weight=weight, spread=spread)
+    across = pose_spatial_gram(landmarks, height=height, width=width, bins=bins,
+                               axis="horizontal", weight=weight, spread=spread)
+    #: Transposed, so a frame is a ROW and time runs down the page.
+    return horizontal, np.asarray(across).T
+
+
+def mg_posegrams(self: "musicalgestures.MgVideo", landmarks=None, times=None,
+                 frame_size=None, bins: int = 200, weight: str = "speed",
+                 colormap: str = "magma", gamma: float = 0.5, max_width: int = 4000,
+                 dpi: int = 130, target_name: str | None = None,
+                 overwrite: bool = True) -> "musicalgestures.MgList":
+    """Posegrams of where the body actually was, in the frame's own coordinates.
+
+    The pose counterpart of `motiongrams()`, and oriented the same way: the horizontal
+    view has time running across with image y down the page, the vertical view has time
+    running down with image x across. Laid around a video frame they line up with it, and
+    laid beside a motiongram of the same recording they can be read against it — a body
+    crossing the room draws the same diagonal in both.
+
+    Because pose gives an actual position rather than a region of changed pixels, these
+    are the *true location* over time, not an estimate of where change happened.
+
+    Args:
+        landmarks (np.ndarray, optional): `(frames, 33, 3)` from a previous extraction.
+            Defaults to None, which runs pose here.
+        times (array-like, optional): Seconds per frame; usually needed, since pose is
+            normally extracted at a reduced rate.
+        frame_size (tuple, optional): `(width, height)` the landmarks were extracted in.
+            **Pass this whenever you pass `landmarks`** --- see this module's notes on
+            MediaPipe placing unseen landmarks outside the picture.
+        bins (int, optional): Cells along the spatial axis. Defaults to 200.
+        weight (str, optional): `'speed'` or `'presence'`. Defaults to `'speed'`.
+        colormap, gamma, max_width, dpi, target_name, overwrite: as elsewhere.
+
+    Returns:
+        MgList: the horizontal and vertical posegrams, in that order.
+    """
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    from musicalgestures._mglist import MgList
+    from musicalgestures._utils import MgImage
+
+    of, fex = os.path.splitext(self.filename)
+    base = resolve_filename(of, '_posegram.png', target_name, overwrite)
+    stem, _ = os.path.splitext(base)
+
+    if landmarks is None:
+        from musicalgestures._posetools import extract_pose_landmarks
+        r = extract_pose_landmarks(self.filename, quiet=True, verbose=False)
+        landmarks, times = r["landmarks"], r["time"]
+        width, height = r["width"], r["height"]
+    elif frame_size is not None:
+        width, height = float(frame_size[0]), float(frame_size[1])
+    else:
+        a = np.asarray(landmarks, dtype=np.float64)
+        width = float(np.nanpercentile(a[:, :, 0], 99.5)) * 1.05
+        height = float(np.nanpercentile(a[:, :, 1], 99.5)) * 1.05
+
+    horizontal, vertical = posegram_arrays(landmarks, width=width, height=height,
+                                           bins=bins, weight=weight)
+    times = (np.asarray(times, dtype=np.float64) if times is not None
+             else np.arange(horizontal.shape[1]) / float(self.fps))
+    minutes = (times[-1] / 60) if len(times) else 1
+
+    def _shade(a):
+        finite = a[np.isfinite(a) & (a > 0)]
+        ceiling = np.percentile(finite, 99) if finite.size else 1.0
+        return np.power(np.clip(a / max(ceiling, 1e-9), 0, 1), gamma)
+
+    images = []
+    for gram, suffix, horizontal_time in ((horizontal, "_h", True),
+                                          (vertical, "_v", False)):
+        drawn = gram
+        axis = 1 if horizontal_time else 0
+        if drawn.shape[axis] > max_width:
+            edges = np.linspace(0, drawn.shape[axis], max_width + 1).astype(int)
+            if horizontal_time:
+                drawn = np.stack([drawn[:, a:max(b, a + 1)].max(axis=1)
+                                  for a, b in zip(edges[:-1], edges[1:])], axis=1)
+            else:
+                drawn = np.stack([drawn[a:max(b, a + 1)].max(axis=0)
+                                  for a, b in zip(edges[:-1], edges[1:])])
+        if horizontal_time:
+            fig, ax = plt.subplots(figsize=(15, 5), dpi=dpi)
+            ax.imshow(_shade(drawn), cmap=colormap, aspect="auto",
+                      interpolation="nearest", extent=(0, minutes, bins, 0))
+            ax.set_xlabel("minutes")
+            ax.set_ylabel("top of frame  →  bottom")
+            ax.set_title("horizontal posegram — time across, image y down")
+        else:
+            fig, ax = plt.subplots(figsize=(6.5, 12), dpi=dpi)
+            ax.imshow(_shade(drawn), cmap=colormap, aspect="auto",
+                      interpolation="nearest", extent=(0, bins, minutes, 0))
+            ax.set_ylabel("minutes")
+            ax.set_xlabel("left of frame  →  right")
+            ax.set_title("vertical posegram — time down, image x across")
+        ax.set_xticks(ax.get_xticks()) if False else None
+        fig.tight_layout()
+        path = f"{stem}{suffix}.png"
+        fig.savefig(path)
+        plt.close(fig)
+        images.append(MgImage(path))
+
+    self.posegrams_images = MgList(images)
+    return self.posegrams_images

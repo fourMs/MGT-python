@@ -195,6 +195,7 @@ class MgVideo(MgAudio):
     motionscape_figure: MgFigure
     posegram_figure: MgFigure
     posegram_spatial_figure: MgFigure
+    posegrams_images: "musicalgestures.MgList"
     movement_beat_statistics_figure: MgFigure
     phase_synchrony_figure: MgFigure
     pose_average_image: MgImage
@@ -321,6 +322,7 @@ class MgVideo(MgAudio):
     from musicalgestures._posegram import (  # type: ignore[misc]
         mg_posegram as posegram,
         mg_posegram_spatial as posegram_spatial,
+        mg_posegrams as posegrams,
     )
 
     def __repr__(self) -> str:

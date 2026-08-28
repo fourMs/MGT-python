@@ -5,6 +5,52 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.0] — 2026-08-28
+
+### Added
+- **`posegram`** — one row per pose landmark, ordered head to foot, brightness for how fast
+  that landmark moved. The body-anchored counterpart of a motiongram: `pose_waterfall` says
+  where the body went, `pose_segments` how its limbs were angled, `pose_center` how its
+  centre moved, and none of them said *what was moving at 04:12*.
+
+  The row order is the design. MediaPipe emits its 33 landmarks in model order, which
+  scatters the body across the page; ordered anatomically a moving limb is a contiguous
+  band and the axis reads head / arms / hands / torso / legs.
+
+- **`posegrams`** — the pose counterpart of `motiongrams()`, and **oriented the same way**:
+  the horizontal view has time running across with image *y* down the page, the vertical
+  view has time running down with image *x* across. That is not decoration — MGT's two
+  views deliberately run in different directions so each shares a spatial axis with the
+  picture and the pair can be laid around the video frame. Because pose gives an actual
+  position rather than a region of changed pixels, these show the **true location** over
+  time.
+
+- **`posegram_spatial`** — the single-orientation form of the above, kept for when only one
+  view is wanted. `weight='presence'` shows where the body is regardless of movement,
+  which is a different question: a dancer standing still has presence and no speed.
+
+- **`pose_spatial_map`** — where the body was, as an image of the frame, so pose has a
+  "where" view of the same kind as the pixel measures' accumulated heat maps. Not to be
+  confused with `posegram_spatial`, which has time on an axis.
+
+### Fixed
+- **`motionvectorgrams` wrote a 309 MB PNG.** One pixel column per P-frame stretched to the
+  video's height is 77,592 × 1920 on a 158-minute session — 149 megapixels for something
+  meant to be glanced at. The array still keeps every column; the image is capped at 4000 px
+  wide, pooling columns by **maximum** so a one-second accent is not averaged away.
+
+- **`motionscape(track=…)` assumed the track ran at the video's frame rate**, which the
+  overview's own P-frame magnitude does not — it arrives at about a quarter of it, so the
+  time axis came out wrong by that factor while looking entirely reasonable. It takes
+  `track_times=` now and refuses a mismatched length.
+
+### Notes
+- Pose landmark arrays should be passed with the frame they were extracted in.
+  **MediaPipe estimates landmarks it cannot see and places them outside the picture** — on a
+  real 640×360 extraction the largest y was 1529 — so inferring the frame from the data
+  scales a plot by an extrapolation rather than by the body. The new functions take an
+  explicit frame size and fall back to a high percentile rather than the maximum.
+
 ## [1.19.0] — 2026-08-27
 
 ### Fixed
