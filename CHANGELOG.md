@@ -5,6 +5,67 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.23.0] — 2026-08-28
+
+### Added
+- **`pose_timeline`** — postures and trajectories over time, in three views behind one
+  function. `view='strip'` puts postures at regular instants side by side, centred and
+  scaled so two are comparable when the dancer stood at different distances;
+  `view='room'` draws skeletons where they actually stood with the route over them;
+  `view='bands'` carries each body region's joint angles, so **a held posture is a flat
+  band** — which `posegram` cannot show, since it carries landmark *speed* and a held limb
+  has none.
+
+  Two kinds of trace on the strip, which combine: `'temporal'` gives every landmark a
+  fading history behind its own posture, and the fade is the information — a constant
+  alpha says a limb was in several places without saying which it reached last.
+  `'spatial'` threads head, pelvis and feet through the postures. They are smoothed
+  differently on purpose, and the docs say where the spatial lines stop working: in fast
+  floor work the head and pelvis genuinely swing through large arcs, and no filter wide
+  enough to calm them there is narrow enough to keep the arcs elsewhere.
+
+  Gaps stay gaps. Frames the detector missed are not interpolated — that would invent
+  posture — and in `bands` they are the white columns showing how much of a row is
+  actually measured.
+
+- **`MgVideo.plate()` and `MgVideo.multishot()`** — the room and the chronophotograph as
+  methods. They were the only views reachable solely as module-level functions taking a
+  path, which is how `stroboscope()` came to be overlooked while a second
+  chronophotography function was written beside it.
+
+- **`multishot(region=...)`** — restrict where a body may be for it to count. A researcher
+  sitting at the side of the room differs from the plate like anybody else, and being a
+  person, no person detector will drop them; only where they are can.
+
+### Changed
+- **`multishot()` absorbed `stroboscope()`.** The two made the same picture two ways, so a
+  reader had to know which before choosing. `select='even'`, `background='average'` and
+  `colorize=True` are what `stroboscope()` did; the defaults — spatial separation on a
+  median plate — are the opinionated half, because even sampling is what makes two bodies
+  land in the same place and a mean average keeps a faint ghost of everyone who crossed.
+  **`stroboscope()` now warns** and delegates; it goes at 2.0.
+
+- **`posegram`'s rows read down the body**: head, torso, arms, hands, legs, with the
+  shoulders moved into the trunk they are part of. `pose_timeline`'s bands match, so the
+  two can be read row for row. **This changes existing posegrams** — rows sit in a
+  different order than in any figure made before this release.
+
+- **`multishot` rejects a body that reaches the frame edge** rather than one with a large
+  share against it. A silhouette can be 95 per cent inside the picture and still be
+  somebody with their hand cut off: the share against the edge is small precisely because
+  the rest of the body is large.
+
+### Fixed
+- **MediaPipe segmentation had been silently dead since MediaPipe 0.10.** `_make_segmenter`
+  asked for `mp.solutions.selfie_segmentation`; the Solutions API was removed in favour of
+  Tasks, so on a current install the attribute lookup raised, a bare `except` swallowed
+  it, and every caller got background subtraction **while the docstring promised
+  MediaPipe** — saying nothing at all under `method='auto'`. Rebuilt on the Tasks pose
+  landmarker, reusing the model this package already downloads. The legacy path is tried
+  first for older installs, and the fallback now **warns**.
+
+  It masks only what the pose detector finds, which the docstring now says.
+
 ## [1.22.0] — 2026-08-28
 
 ### Added

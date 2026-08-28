@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.22.0**.
+The current stable release is **MGT-python 1.23.0**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,28 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.23.0
+
+Postures over time, and a capability that turned out not to be there.
+
+`pose_timeline` draws postures and trajectories in three flat views: postures at regular
+instants side by side, skeletons where they actually stood, and per-region joint angles so
+**a held posture is a flat band** — which a posegram cannot show, because it carries speed
+and a held limb has none. Gaps stay gaps rather than being interpolated into invented
+posture.
+
+`multishot` absorbed `stroboscope()`, which made the same picture a different way; that name
+still works, warns, and goes at 2.0. `plate()` and `multishot()` are now methods like every
+other view.
+
+And **MediaPipe segmentation had been silently dead since MediaPipe 0.10** — the Solutions
+API it asked for was removed, the lookup raised, a bare `except` swallowed it, and every
+caller got background subtraction while being told otherwise. Rebuilt on the Tasks API, and
+the fallback now says so out loud.
+
+Note that **posegram's rows are reordered** — head, torso, arms, hands, legs — so a posegram
+made before this release is not comparable row for row with one made after.
 
 ### 1.22.0
 
