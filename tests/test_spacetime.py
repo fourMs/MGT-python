@@ -56,3 +56,28 @@ def test_average_frame_cache_invalidated_on_filename_change(short_clip):
     avg = _spacetime._average_frame(mg)
     assert mg._avg_frame_cache[0] == mg.filename
     assert avg.dtype == np.uint8
+
+
+def test_the_segmenter_is_built_on_an_api_that_still_exists():
+    """It asked for `mp.solutions`, which MediaPipe removed at 0.10.
+
+    The lookup raised, a bare `except` swallowed it, and every caller silently got
+    background subtraction while the docstring promised MediaPipe -- for years, on any
+    current install. This asserts it either produces a working callable or says why not,
+    rather than failing into silence.
+    """
+    import warnings
+
+    from musicalgestures._spacetime import _make_segmenter
+
+    assert _make_segmenter("bgsub") is None, "bgsub must stay opt-out"
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        segmenter = _make_segmenter("auto")
+    if segmenter is None:
+        assert caught, "falling back without saying so is the fault being fixed"
+    else:
+        import numpy as np
+        out = segmenter(np.full((120, 160, 3), 120, np.uint8))
+        assert out is None or out.ndim == 2
