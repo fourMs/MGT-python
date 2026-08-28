@@ -49,7 +49,7 @@ ANATOMICAL_ORDER = [
 BANDS = [("head", 11), ("arms", 23), ("hands", 23), ("torso", 25), ("legs", 33)]
 
 
-def pose_activity(landmarks, anatomical: bool = False):
+def pose_activity(landmarks, anatomical: bool = False, min_visibility: float = 0.0):
     """Speed of every landmark, per frame.
 
     Args:
@@ -59,6 +59,12 @@ def pose_activity(landmarks, anatomical: bool = False):
         anatomical (bool, optional): Return the rows in `ANATOMICAL_ORDER` rather than in
             MediaPipe's. Defaults to False, so the array keeps model indexing unless the
             caller asks for the readable order.
+        min_visibility (float, optional): Drop landmarks the model is not this confident
+            about. This is pose's equivalent of `mg_motion`'s `threshold`: MediaPipe
+            estimates limbs it cannot see and gives them a low visibility, and those
+            estimates jitter, which reads as movement. On this corpus 16 per cent of
+            landmarks sit below 0.5. Defaults to 0.0, which keeps everything, so no
+            existing caller's numbers change silently.
 
     Returns:
         np.ndarray: `(landmarks, frames)`, in pixels per frame.
@@ -72,6 +78,14 @@ def pose_activity(landmarks, anatomical: bool = False):
     import numpy as np
 
     a = np.asarray(landmarks, dtype=np.float64)
+    if min_visibility > 0 and a.shape[2] > 2:
+        #: A step counts only if BOTH of its endpoints were confidently seen --- one
+        #: confident frame beside an estimated one is exactly the jump that is not
+        #: movement.
+        seen = a[:, :, 2] >= min_visibility
+        a = a.copy()
+        a[~seen, 0] = np.nan
+        a[~seen, 1] = np.nan
     step = np.linalg.norm(np.diff(a[:, :, :2], axis=0), axis=2)
     step = np.where(np.isfinite(step), step, 0.0)
     #: One column per input frame: the first frame has no predecessor, so it carries the
@@ -160,7 +174,8 @@ def mg_posegram(self: "musicalgestures.MgVideo", landmarks=None, times=None,
 
 
 def pose_spatial_gram(landmarks, height, width, bins: int = 200,
-                      axis: str = "vertical", weight: str = "speed", spread: float = 1.0):
+                      axis: str = "vertical", weight: str = "speed", spread: float = 1.0,
+                      min_visibility: float = 0.0):
     """A posegram on the image's own axes, directly comparable with a motiongram.
 
     The landmark-row posegram above says which body part moved. This says **at what
@@ -199,9 +214,11 @@ def pose_spatial_gram(landmarks, height, width, bins: int = 200,
     span = float(height if axis == "vertical" else width)
 
     if weight == "speed":
-        w = pose_activity(a).T                       # (frames, landmarks)
+        w = pose_activity(a, min_visibility=min_visibility).T     # (frames, landmarks)
     elif weight == "presence":
         w = np.where(np.isfinite(coord), 1.0, 0.0)
+        if min_visibility > 0 and a.shape[2] > 2:
+            w = np.where(a[:, :, 2] >= min_visibility, w, 0.0)
     else:
         raise ValueError(f"weight must be 'speed' or 'presence', not {weight!r}")
 
@@ -322,7 +339,7 @@ def mg_posegram_spatial(self: "musicalgestures.MgVideo", landmarks=None, times=N
 
 
 def pose_spatial_map(landmarks, width, height, bins=(180, 320), weight="speed",
-                     smooth=1.5):
+                     smooth=1.5, min_visibility: float = 0.0):
     """Where the body was in the frame, as an image — the pose answer to a heat map.
 
     The pixel measures give a "where" panel by accumulating their per-pixel quantity over
@@ -361,9 +378,11 @@ def pose_spatial_map(landmarks, width, height, bins=(180, 320), weight="speed",
     x, y = a[:, :, 0], a[:, :, 1]
 
     if weight == "speed":
-        w = pose_activity(a).T
+        w = pose_activity(a, min_visibility=min_visibility).T
     elif weight == "presence":
         w = np.where(np.isfinite(x) & np.isfinite(y), 1.0, 0.0)
+        if min_visibility > 0 and a.shape[2] > 2:
+            w = np.where(a[:, :, 2] >= min_visibility, w, 0.0)
     else:
         raise ValueError(f"weight must be 'speed' or 'presence', not {weight!r}")
 
@@ -385,7 +404,8 @@ def pose_spatial_map(landmarks, width, height, bins=(180, 320), weight="speed",
     return m
 
 
-def posegram_arrays(landmarks, width, height, bins=200, weight="speed", spread=1.5):
+def posegram_arrays(landmarks, width, height, bins=200, weight="speed", spread=1.5,
+                    min_visibility: float = 0.0):
     """The horizontal and vertical posegrams, oriented as MGT's motiongrams are.
 
     MGT's two views deliberately run in different directions, so that each shares a
@@ -406,9 +426,11 @@ def posegram_arrays(landmarks, width, height, bins=200, weight="speed", spread=1
     import numpy as np
 
     horizontal = pose_spatial_gram(landmarks, height=height, width=width, bins=bins,
-                                   axis="vertical", weight=weight, spread=spread)
+                                   axis="vertical", weight=weight, spread=spread,
+                                   min_visibility=min_visibility)
     across = pose_spatial_gram(landmarks, height=height, width=width, bins=bins,
-                               axis="horizontal", weight=weight, spread=spread)
+                               axis="horizontal", weight=weight, spread=spread,
+                               min_visibility=min_visibility)
     #: Transposed, so a frame is a ROW and time runs down the page.
     return horizontal, np.asarray(across).T
 

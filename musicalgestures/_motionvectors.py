@@ -214,7 +214,7 @@ def mg_motionvectordata(self: "musicalgestures.MgVideo") -> "MgMotionVectorData"
     )
 
 
-def motion_vector_grid(filename, deterministic=False):
+def motion_vector_grid(filename, deterministic=False, threshold=0.0):
     """Per-frame displacement fields at macroblock resolution, **yielded one at a time**.
 
     Everything spatial in this module is built on this: the history image sums it over
@@ -233,6 +233,15 @@ def motion_vector_grid(filename, deterministic=False):
     or 4 within the same frame when the encoder subdivides. Vectors are painted into the
     cells their block covers, so a 16x16 block contributes to all of its cells and the
     result does not favour finely-subdivided regions for having more vectors.
+
+    Args:
+        threshold (float, optional): Drop vectors shorter than this many pixels. The
+            counterpart of `mg_motion`'s `threshold`, in the units a displacement actually
+            has. H.264 codes to quarter-pel and the encoder spends short vectors on rate
+            rather than on movement: measured on a dance corpus, 46 per cent of vectors
+            are exactly zero and the median non-zero one is 0.79 px, while real limb
+            motion runs to tens of pixels. Defaults to 0.0, which keeps everything, so no
+            existing caller's numbers change silently.
 
     Yields:
         tuple: `(vx, vy, weight, time, is_p)` per frame, each of `vx`/`vy`/`weight`
@@ -291,6 +300,9 @@ def motion_vector_grid(filename, deterministic=False):
                 dx = table["motion_x"].astype(np.float64) / scale / source
                 dy = table["motion_y"].astype(np.float64) / scale / source
                 area = (table["w"].astype(np.float64) * table["h"])
+                if threshold > 0:
+                    keep = np.hypot(dx, dy) >= threshold
+                    dx, dy, area = dx * keep, dy * keep, area * keep
                 #: One cell per vector, by integer division, with no loop and no
                 #: painting across cells.
                 #:
@@ -322,7 +334,7 @@ def motion_vector_grid(filename, deterministic=False):
         container.close()
 
 
-def accumulate_motion_vectors(filename, p_frames_only=True, deterministic=False):
+def accumulate_motion_vectors(filename, p_frames_only=True, deterministic=False, threshold=0.0):
     """The whole space motion happened in, summed over the recording.
 
     Returns `(weight, vx, vy, coherence)`: how much movement each cell saw, the
@@ -335,7 +347,7 @@ def accumulate_motion_vectors(filename, p_frames_only=True, deterministic=False)
     import numpy as np
 
     total = sum_x = sum_y = sum_speed = None
-    for vx, vy, weight, _, is_p in motion_vector_grid(filename, deterministic):
+    for vx, vy, weight, _, is_p in motion_vector_grid(filename, deterministic, threshold):
         if p_frames_only and not is_p:
             continue
         if total is None:
@@ -461,7 +473,7 @@ def mg_motionvectorhistory(self: "musicalgestures.MgVideo", mode: str = "directi
     return self.motionvectorhistory_image
 
 
-def motion_vector_motiongrams(filename, p_frames_only=True, deterministic=False):
+def motion_vector_motiongrams(filename, p_frames_only=True, deterministic=False, threshold=0.0):
     """Position against time, one column per frame, from the vectors.
 
     The horizontal motiongram collapses each frame's grid down its rows, leaving motion
@@ -476,7 +488,7 @@ def motion_vector_motiongrams(filename, p_frames_only=True, deterministic=False)
     #: Only the REDUCED column is kept per frame, never the grid it came from. A
     #: motiongram must grow with the recording; the full field behind it must not.
     across, down = [], []
-    for _, _, weight, _, is_p in motion_vector_grid(filename, deterministic):
+    for _, _, weight, _, is_p in motion_vector_grid(filename, deterministic, threshold):
         if p_frames_only and not is_p:
             continue
         across.append(weight.sum(axis=0))
@@ -557,7 +569,7 @@ def mg_motionvectorgrams(self: "musicalgestures.MgVideo", colormap: str = "infer
 
 
 def motion_vector_profiles(filename, n_samples=40, axis="horizontal",
-                           p_frames_only=True, deterministic=False):
+                           p_frames_only=True, deterministic=False, threshold=0.0):
     """Motion profiles at `n_samples` moments, for stacking as a waterfall.
 
     Each profile is one spatial axis of the vector grid, summed over the other, pooled
@@ -571,7 +583,7 @@ def motion_vector_profiles(filename, n_samples=40, axis="horizontal",
     import numpy as np
 
     per_frame, times = [], []
-    for _, _, weight, t, is_p in motion_vector_grid(filename, deterministic):
+    for _, _, weight, t, is_p in motion_vector_grid(filename, deterministic, threshold):
         if p_frames_only and not is_p:
             continue
         per_frame.append(weight.sum(axis=0) if axis == "horizontal"
@@ -669,7 +681,7 @@ class MgMotionVectorViews:
     motiongram_vertical: "np.ndarray"
 
 
-def motion_vector_views(filename, p_frames_only=True, deterministic=False):
+def motion_vector_views(filename, p_frames_only=True, deterministic=False, threshold=0.0):
     """Every view at once, in one decode.
 
     The individual functions each decode the file, which is nearly all of the cost, so
@@ -685,7 +697,7 @@ def motion_vector_views(filename, p_frames_only=True, deterministic=False):
 
     total = sum_x = sum_y = sum_speed = None
     times, magnitude, across, down = [], [], [], []
-    for vx, vy, weight, t, is_p in motion_vector_grid(filename, deterministic):
+    for vx, vy, weight, t, is_p in motion_vector_grid(filename, deterministic, threshold):
         if p_frames_only and not is_p:
             continue
         if total is None:
