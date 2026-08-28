@@ -5,6 +5,13 @@ cut out of frames spread through the recording, and all of them are laid back on
 One image then carries where somebody was, how they were shaped, and how far apart the
 moments were. It answers nothing a motiongram answers and shows something no gram shows.
 
+**Related to `stroboscope()`, and different in two ways that matter.** That method
+composites silhouettes at EVENLY SAMPLED times onto a MEAN average frame, and tints each
+by time. This one chooses moments for spatial separation and composites onto the median
+`room_plate`. Even sampling is what puts bodies on top of each other, and a mean average
+keeps a faint ghost of everyone who crossed. Use `stroboscope()` when the time order
+matters and MediaPipe segmentation is wanted; use this when the bodies must not overlap.
+
 **Frames are chosen for separation, not at regular intervals.** Evenly spaced frames put
 bodies on top of each other as often as not, and two overlapping silhouettes read as one
 smear rather than as two moments. Candidates are therefore scored by how far each sits

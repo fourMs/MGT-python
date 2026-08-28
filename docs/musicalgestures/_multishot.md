@@ -16,6 +16,25 @@ if picture is not None:
     cv2.imwrite("rehearsal_multishot.png", picture)
 ```
 
+## How this differs from `stroboscope()`
+
+MGT has had chronophotography since before this: `MgVideo.stroboscope()` composites
+silhouettes at **evenly sampled** times onto a **mean average** frame, and tints each by
+time so the order reads. Two differences, and each cuts a different way:
+
+| | `stroboscope()` | `multishot()` |
+|---|---|---|
+| frame choice | even intervals | selected for spatial separation |
+| background | mean average frame | `room_plate`, a stratified median |
+| segmentation | MediaPipe or background subtraction | plate difference, shadows rejected by ratio |
+| time cue | colourises early → late | none |
+
+Even sampling is what makes bodies land on top of each other, and a mean average keeps a
+faint ghost of everyone who crossed — which is what the median plate exists to fix. Against
+that, `stroboscope()`'s MediaPipe segmentation is the better mask, and its colour ramp says
+something this does not. **Reach for `stroboscope()` when the time order matters; for this
+when the bodies must not overlap.**
+
 ## Frames are chosen for separation, not at intervals
 
 Evenly spaced frames put bodies on top of each other as often as not, and two overlapping

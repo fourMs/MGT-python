@@ -140,6 +140,13 @@ def mg_stroboscope(self: "musicalgestures.MgVideo", n_samples: int = 12, method:
     set ``keep_largest=True`` so only the person's blob is composited (avoids the image
     "blowing up" from background noise).
 
+    **See also** ``multishot``, which composites the same kind of picture but chooses its
+    moments for SPATIAL SEPARATION rather than at even intervals, and lays them on the
+    median ``room_plate`` rather than a mean average frame. Even sampling is what puts two
+    bodies in the same place, and a mean average keeps a faint ghost of everyone who
+    crossed. This method keeps the advantages of MediaPipe segmentation and of tinting each
+    silhouette by time, which ``multishot`` does not do.
+
     Args:
         n_samples (int, optional): Number of time samples (silhouettes) to composite. Defaults to 12.
         method (str, optional): Silhouette extraction: 'auto', 'mediapipe', or 'bgsub'. Defaults to 'auto'.

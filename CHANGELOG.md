@@ -5,6 +5,39 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.22.0] — 2026-08-28
+
+### Added
+- **`multishot`** — many moments of a recording in one picture. The room is recovered as a
+  [plate](musicalgestures/_plate.md), bodies are cut out of frames spread through the
+  recording, and all of them are laid back onto it, so one image carries where somebody was,
+  how they were shaped, and how far apart the moments were.
+
+  **Frames are chosen for separation, not at intervals.** Evenly spaced frames put bodies on
+  top of each other as often as not, and two overlapping silhouettes read as one smear
+  rather than as two moments. `n_bodies` sets how many to place; past a dozen or so they
+  overlap whatever the selection does, because a room is finite.
+
+  **How it relates to `stroboscope()`, which has done chronophotography since 1.6.** That
+  method samples at even intervals onto a mean average frame and tints each silhouette by
+  time; this one selects for spatial separation and composites onto the median `room_plate`.
+  Even sampling is what makes bodies collide, and a mean average keeps a faint ghost of
+  everyone who crossed. Against that, `stroboscope()`'s MediaPipe segmentation is the better
+  mask and its colour ramp says something this does not. Both are documented with a table
+  saying which to reach for.
+
+  **It assumes a subject who moves through space**, and says so. Tested on piano recordings
+  outside the corpus it was written for — 640×480, a seated player — the defaults held
+  without tuning and `room_plate` recovered a clean studio although the pianist is in nearly
+  every frame, but the composite came out as heads and hands stacked in one place, because
+  separation is spatial and he does not travel. That is the picture reflecting the recording
+  rather than a fault to tune away.
+
+  Body-size bounds are **arguments, not constants** — `min_area` and `max_area` default to
+  0.4 and 6 per cent of frame, describing a whole person at studio distance, and want moving
+  when the framing differs. A bound matching nothing returns `None` rather than an empty
+  room, since an empty room looks like a result.
+
 ## [1.21.0] — 2026-08-28
 
 ### Added

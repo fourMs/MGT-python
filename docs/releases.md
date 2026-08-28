@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.21.0**.
+The current stable release is **MGT-python 1.22.0**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,24 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.22.0
+
+Many moments of a recording in one picture.
+
+`multishot` recovers the room as a plate, cuts bodies out of frames spread through the
+recording, and lays them all back onto it. **Frames are chosen for separation rather than at
+intervals** — evenly spaced frames put bodies on top of each other as often as not, and two
+overlapping silhouettes read as one smear rather than as two moments.
+
+MGT has had chronophotography since 1.6 in `stroboscope()`, which samples evenly onto a mean
+average frame and tints each silhouette by time. The two are documented side by side: reach
+for `stroboscope()` when the time order matters and MediaPipe segmentation is wanted, and
+for `multishot` when the bodies must not overlap and the background must be a genuinely
+empty room rather than a mean that keeps a ghost of everyone who crossed.
+
+It assumes a subject who moves through space, and says so: on a seated pianist it returns
+moving limbs stacked in one place, which is the picture reflecting the recording.
 
 ### 1.21.0
 
