@@ -61,6 +61,12 @@ representation a first pass wants:
 * **spatio-temporal** --- horizontal and vertical motiongrams, where a body crossing the
   room draws a diagonal
 
+![Motion-vector overview sheet of the bundled dancer example](../images/examples/dancer_motionvectoroverview.png)
+
+*The bundled `dancer.avi` on one sheet. The amount map draws the arc the arms swept
+around a body that never moved its feet, and the motiongrams carry the same dance as
+oscillations against time.*
+
 About **five minutes for a 100-minute 1920x1080 recording**, against roughly twenty-four for
 the same views computed one at a time, because decoding is nearly the whole cost and each
 separate view opens the file again. Every array is on the returned figure's `.data`, so the
@@ -78,6 +84,12 @@ crossing a room, wrong for a shaking hand.
 `motionscape()` builds a Sapp-style scape of the quantity of motion --- the construction
 behind a keyscape, where each row is a window length and the apex is a single window
 covering the whole recording.
+
+![Motionscape of the bundled dancer example](../images/examples/dancer_motionscape.png)
+
+*The bundled `dancer.avi`: bright columns at the base are single bursts, the dark mass
+around 0.7--0.8 minutes is a stretch of stillness long enough to survive widening
+windows, and the arches show where neighbouring episodes merge.*
 
 It answers a question the flat curve cannot: **at what scale does this recording stop
 looking like one thing?** Evenly continuous material is flat all the way up. A few busy

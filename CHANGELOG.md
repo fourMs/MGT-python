@@ -5,6 +5,21 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+- **`extract_tracks_parallel` leaked one live ffmpeg per finished chunk.** Every bounded
+  chunk's decoder holds more frames than the worker reads, so it is blocked mid-write to
+  the full pipe when `terminate()` fires; the blocked write restarts around SIGTERM, and
+  the unreaped `Popen` keeps the pipe open for the life of the long-lived pool worker.
+  Roughly 500 MB per chunk, accumulating for the whole run — 51 of them held 23 GB and
+  took a 32 GB machine down mid-extraction. The new `stop_ffmpeg_process` in `_utils`
+  closes the pipes first (EPIPE works where the signal cannot), then terminates, waits,
+  and kills on timeout; both `_tracks` paths use it. The regression test calls
+  `_chunk_worker` in-process, because an end-to-end test passes against the broken code:
+  closing the pool kills the workers and their orphans, so the leak only exists while a
+  run is still going.
+
 ## [1.23.0] — 2026-08-28
 
 ### Added

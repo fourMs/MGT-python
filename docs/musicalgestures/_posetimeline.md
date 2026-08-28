@@ -17,9 +17,15 @@ video.pose_timeline(view='bands')                          # an hour compressed 
 **`strip`** — postures at regular instants, each centred and scaled so two can be compared
 even if the dancer was at different distances, with the body's path underneath.
 
+![pose_timeline strip view of the bundled dancer example](../images/examples/dancer_pose_timeline_strip.png)
+
+*The bundled `dancer.avi` as a strip: twelve postures, one glance.*
+
 **`room`** — skeletons at their true positions in the frame, with the route drawn over them
 and a dot where each drawn posture stands. Moments are chosen for spatial separation, using
-the same reasoning as `multishot`: evenly spaced ones land on top of each other.
+the same reasoning as `multishot`: evenly spaced ones land on top of each other. This view
+earns its keep only when the subject travels — on a recording made on one spot the
+skeletons pile up where the dancer stands, and `strip` is the view to reach for.
 
 **`bands`** — one row per region of the body, carrying its joint angles over time. Dark is
 folded, bright is extended, and **a held posture is a flat band** — which is what `posegram`
@@ -27,6 +33,11 @@ cannot show, since it carries landmark *speed* and a held limb has none.
 
 Rows read down the body: head, torso, arms, hands, legs. `posegram` was reordered to match,
 so the two can be read row for row.
+
+![pose_timeline bands view of the bundled dancer example](../images/examples/dancer_pose_timeline_bands.png)
+
+*The same recording as bands: the arm and hand rows carry the dance, the legs hold
+still, and the white columns are frames the detector missed — gaps stay gaps.*
 
 ## Trajectories on the strip
 

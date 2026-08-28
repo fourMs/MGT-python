@@ -7,6 +7,13 @@ bodies are cut out of frames spread through the recording, and all of them are l
 onto it. One image then carries where somebody was, how they were shaped, and how far apart
 the moments were. It answers nothing a motiongram answers and shows something no gram does.
 
+![Multishot of the bundled dancer example](../images/examples/dancer_multishot.png)
+
+*The bundled `dancer.avi`, six bodies. This dancer stays on one spot, so the selection
+spreads over the **gesture** instead of the floor and the picture becomes a Marey-style
+chronophotograph of the arms. A subject who travels reads as separate figures across
+the room.*
+
 As a method, which is how the rest of the object API reads:
 
 ```python
