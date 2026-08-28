@@ -58,6 +58,7 @@ Each page is rendered from the source docstrings by
 - [Peaks](musicalgestures/_peaks.md)
 - [Physio](musicalgestures/_physio.md)
 - [Pipeline](musicalgestures/_pipeline.md)
+- [Pose timeline](musicalgestures/_posetimeline.md)
 - [Pose Visualize](musicalgestures/_pose_visualize.md)
 - [Pose](musicalgestures/_pose.md)
 - [PoseEstimator](musicalgestures/_pose_estimator.md)

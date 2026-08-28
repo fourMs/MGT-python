@@ -211,6 +211,7 @@ class MgVideo(MgAudio):
     ssm_combined_image: MgImage
     stroboscope_image: MgImage
     multishot_image: MgImage
+    pose_timeline_figure: MgFigure
     plate_image: MgImage
     structure_comparison_figure: MgFigure
     subtract_video: "musicalgestures.MgVideo"
@@ -296,6 +297,9 @@ class MgVideo(MgAudio):
         mg_motionvectorwaterfall as motionvectorwaterfall,
         mg_motionvectoroverview as motionvectoroverview,
         mg_motionscape as motionscape,
+    )
+    from musicalgestures._posetimeline import (  # type: ignore[misc]
+        mg_pose_timeline as pose_timeline,
     )
     from musicalgestures._multishot import (  # type: ignore[misc]
         mg_multishot as multishot,

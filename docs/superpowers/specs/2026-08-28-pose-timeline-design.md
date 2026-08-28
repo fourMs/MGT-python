@@ -78,11 +78,19 @@ edge.
 
 ## What it cannot do
 
-**It is downstream of MediaPipe detection.** On 01 December the detector returns zero results
-for a small dark figure against a black curtain — no landmarks, so no skeleton, so no view.
-This will work on the RITMO-side recordings and on the Westney piano material and fail on the
-hardest Portal footage, and the docstring must say so rather than produce an empty figure
-that reads as "nothing happened".
+**It is downstream of MediaPipe detection** — but measured, the detector is far better on
+this corpus than the design first claimed.
+
+The original text here said 01 December returns zero results for a small dark figure against
+a black curtain, and that these views would fail on the hardest Portal footage. **That was
+wrong, and it was generalised from a single frame.** Whole-section extraction gives a
+detection rate of **0.99 on 01 December's Performance** (8 gaps in 9000 frames) and **1.00 on
+27 November** (30 gaps). What actually returned nothing was the *segmentation* path on one
+frame tried at 6500 s, which is a different question from whether landmarks are found.
+
+The real limit is narrower: individual landmarks drop below visibility often — the wrists
+most of all — and those frames are gaps in the rows that need them. That is visible in the
+bands view as white columns in the hands row.
 
 **A frame with no detection is a gap, not a zero.** Interpolating across it would invent
 posture. Gaps are left as gaps and their extent is reported.

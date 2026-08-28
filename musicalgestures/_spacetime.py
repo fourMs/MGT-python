@@ -57,10 +57,12 @@ def _make_segmenter(method: str, num_poses: int = 1, confidence: float = 0.3):
     pose estimation, with ``output_segmentation_masks``. The legacy path is still tried
     first so older installs keep working.
 
-    **It only masks what the pose detector finds.** A small, dark figure against a dark
-    background --- the case where plate differencing does worst and this was wanted most
-    --- is often not detected at all, and then there is no mask and the caller falls back.
-    That is a real limit and not a bug: segmentation here is downstream of detection.
+    **It only masks what the pose detector finds**, and that is a narrower limit than it
+    first appeared. Whole-recording landmark extraction on this corpus detects a body in 99
+    to 100 per cent of frames, including on a dark costume against a black curtain. What
+    was observed was a single frame returning no segmentation mask, which is not the same
+    as the detector failing on that recording. Where no mask comes back the caller falls
+    back to whatever background it has: segmentation here is downstream of detection.
     """
     if method == 'bgsub':
         return None

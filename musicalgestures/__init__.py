@@ -111,6 +111,11 @@ from musicalgestures._multishot import (
     choose_spaced,
     body_mask,
 )
+from musicalgestures._posetimeline import (
+    pose_timeline,
+    normalise_poses,
+    region_angles,
+)
 from musicalgestures._noisefloor import (
     noise_floor,
     frame_difference_floor,
