@@ -114,6 +114,23 @@ def body_mask(frame, plate, tolerance: float = TOLERANCE,
     return keep, float(keep.mean())
 
 
+def touches_edge(mask, margin: int = 2) -> bool:
+    """Does this body actually reach the frame edge?
+
+    **A share of the mask is the wrong test and it let real faults through.** A silhouette
+    can be 95 per cent inside the picture and still be somebody with their hand cut off:
+    the share lying against the edge is small precisely because the rest of the body is
+    large. What matters is whether the mask reaches the boundary at all.
+
+    `margin` is small on purpose --- a body near the wall is ordinary in a studio and must
+    not be rejected for it.
+    """
+    if not mask.any():
+        return True
+    return bool(mask[:margin, :].any() or mask[-margin:, :].any()
+                or mask[:, :margin].any() or mask[:, -margin:].any())
+
+
 def _border_share(mask) -> float:
     """How much of a body lies against the frame edge.
 
@@ -211,8 +228,9 @@ def multishot(video, n_bodies: int = 8, n_candidates: int = 120, start=None, end
             raised, a wide room or a distant subject needs `min_area` lowered. Too
             narrow a range yields no candidates and returns None, which looks like an
             empty room rather than a setting that matched nothing.
-        max_border (float): Reject a body with more than this share of it against a frame
-            edge, since compositing one puts half a body in the picture.
+        max_border (float): Retained for callers that set it; the rejection now asks
+            whether the mask REACHES the edge at all, since a body can be almost entirely
+            inside the picture and still have a hand cut off.
         shadow_ratio (float): Brightness ratio below which a difference reads as shadow.
         region (tuple, optional): `(x, y, w, h)` in working-width pixels. A body counts
             only if its centre falls inside. **This is how a non-dancer is excluded**: a
@@ -323,7 +341,7 @@ def multishot(video, n_bodies: int = 8, n_candidates: int = 120, start=None, end
                 area = float(mask.mean())
         else:
             mask, area = body_mask(frame, plate, tolerance, shadow_ratio, min_area)
-        if not (min_area <= area <= max_area) or _border_share(mask) > max_border:
+        if not (min_area <= area <= max_area) or touches_edge(mask):
             continue
         ys, xs = np.nonzero(mask)
         if region is not None:

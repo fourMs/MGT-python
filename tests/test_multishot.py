@@ -259,3 +259,34 @@ def test_stroboscope_still_works_and_says_it_is_deprecated(travelling):
     with _pytest.warns(DeprecationWarning, match="multishot"):
         image = musicalgestures.MgVideo(travelling).stroboscope(n_samples=3)
     assert isinstance(image, musicalgestures.MgImage)
+
+
+def test_a_body_with_one_limb_cut_off_is_rejected(travelling):
+    """The share rule lets a mostly-inside body through with an arm out of frame.
+
+    A silhouette can be 95 per cent inside the picture and still be somebody with their
+    hand cut off, which is what a composite must not include: the share of the mask lying
+    against the edge is small precisely because the rest of the body is large.
+    """
+    import numpy as np
+
+    from musicalgestures._multishot import touches_edge
+
+    mask = np.zeros((240, 320), np.uint8)
+    mask[80:200, 120:200] = 1                      # a body, clear of every edge
+    assert not touches_edge(mask)
+
+    reaching = mask.copy()
+    reaching[130:140, :125] = 1                    # an arm running off the left edge
+    assert touches_edge(reaching), "a limb leaving the frame was allowed"
+
+
+def test_a_body_merely_near_the_edge_is_not_rejected():
+    """Otherwise nothing near the walls is ever composited, which is most of a studio."""
+    import numpy as np
+
+    from musicalgestures._multishot import touches_edge
+
+    mask = np.zeros((240, 320), np.uint8)
+    mask[80:200, 8:90] = 1                         # close to the left edge, not on it
+    assert not touches_edge(mask)
