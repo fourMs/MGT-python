@@ -106,6 +106,11 @@ from musicalgestures._plate import (
     restless_regions,
     plate_spread,
 )
+from musicalgestures._multishot import (
+    multishot,
+    choose_spaced,
+    body_mask,
+)
 from musicalgestures._noisefloor import (
     noise_floor,
     frame_difference_floor,
