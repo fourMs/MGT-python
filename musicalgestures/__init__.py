@@ -104,6 +104,12 @@ from musicalgestures._plate import (
     occupancy_track,
     restless_map,
     restless_regions,
+    plate_spread,
+)
+from musicalgestures._noisefloor import (
+    noise_floor,
+    frame_difference_floor,
+    motion_vector_floor,
 )
 from musicalgestures._pulse import (
     Cycle,
