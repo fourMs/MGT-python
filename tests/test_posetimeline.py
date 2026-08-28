@@ -136,9 +136,10 @@ def test_a_held_limb_traces_a_flat_line_and_a_sweeping_one_does_not():
     held = normalise_poses(_figure(n_frames=30, arm_angle_deg=45.0), min_visibility=0.5)
     swept = normalise_poses(_figure(n_frames=30, arm_angle_deg=np.linspace(0, 90, 30)),
                             min_visibility=0.5)
-    flat = connecting_trajectory(held, [0, 15, 29], marker=15, space="body")["marker"][0][1]
-    moving = connecting_trajectory(swept, [0, 15, 29], marker=15,
-                                   space="body")["marker"][0][1]
+    flat = connecting_trajectory(held, [0, 15, 29], marker=15, space="body",
+                                 smooth=0)["marker"][0][1]
+    moving = connecting_trajectory(swept, [0, 15, 29], marker=15, space="body",
+                                   smooth=0)["marker"][0][1]
     assert np.std(flat) < 1e-9 < np.std(moving)
 
 
@@ -159,7 +160,7 @@ def test_the_strip_accepts_both_kinds_of_trajectory_and_neither():
     from musicalgestures._posetimeline import pose_timeline
 
     lm = _figure(n_frames=40, arm_angle_deg=np.linspace(0, 90, 40))
-    for trajectories in (None, "connect", "path"):
+    for trajectories in (None, "temporal", "spatial", "path"):
         fig = pose_timeline(lm, view="strip", n_samples=4, min_visibility=0.5,
                             trajectories=trajectories)
         assert fig is not None
@@ -270,8 +271,11 @@ def test_in_room_space_the_trunk_carries_where_the_body_actually_went():
     lm = _figure(n_frames=30)
     lm[:, :, 1] += np.linspace(0, 0.4, 30)[:, None]      # the whole body rises
     normalised = normalise_poses(lm, min_visibility=0.5)
+    #: `smooth=0`: this is testing the geometry, and the default window is wider than
+    #: the whole segment here, which would flatten it to a constant.
     x, y = connecting_trajectory(normalised, [0, 15, 29], marker=(11, 12, 23, 24),
-                                 space="room", raw=lm, height=1)["marker"][0]
+                                 space="room", raw=lm, height=1,
+                                 smooth=0)["marker"][0]
     assert np.nanstd(y) > 0.01, "a body that moved read as still"
 
 
@@ -354,3 +358,87 @@ def test_the_axis_says_which_unit_it_is_counting():
     seconds = pose_timeline(lm, view="bands", min_visibility=0.5,
                             times=np.arange(40) / 30.0)
     assert [a.get_xlabel() for a in seconds.axes if a.get_xlabel()] == ["time (s)"]
+
+
+def test_the_two_kinds_of_trace_can_be_asked_for_together():
+    """They answer different questions and are not alternatives.
+
+    Temporal is what this figure did around its own instant; spatial is how one figure
+    connects to the next. Wanting both is the ordinary case, not an exotic one.
+    """
+    import matplotlib
+    matplotlib.use("Agg")
+    from musicalgestures._posetimeline import pose_timeline
+
+    lm = _figure(n_frames=60, arm_angle_deg=np.linspace(0, 90, 60))
+    lm[:, :, 0] += np.linspace(0, 0.5, 60)[:, None]
+    for asked in ("temporal", "spatial", ("temporal", "spatial"), ["spatial", "path"]):
+        fig = pose_timeline(lm, view="strip", n_samples=4, min_visibility=0.5,
+                            trajectories=asked)
+        assert fig is not None
+    with pytest.raises(ValueError, match="trajectories"):
+        pose_timeline(lm, view="strip", n_samples=4, min_visibility=0.5,
+                      trajectories=("temporal", "sideways"))
+
+
+def test_the_strip_is_one_panel_with_the_times_under_the_postures():
+    """No second plot: the numbers under the figures are the timeline.
+
+    A separate path plot underneath said where the body was, which is the room view's
+    job, and it doubled the figure's height to say it.
+    """
+    import matplotlib
+    matplotlib.use("Agg")
+    from musicalgestures._posetimeline import pose_timeline
+
+    lm = _figure(n_frames=60)
+    fig = pose_timeline(lm, view="strip", n_samples=5, min_visibility=0.5,
+                        times=np.arange(60) / 30.0)
+    assert len(fig.axes) == 1, "the strip should be a single panel"
+    ax = fig.axes[0]
+    assert len(ax.get_xticks()) == 5, "one tick per posture"
+    assert ax.get_xlabel() == "time (s)"
+
+
+def test_a_landmark_group_that_is_wholly_missing_is_nan_and_not_a_warning():
+    """The same fault as in region_angles, which was fixed there and missed here."""
+    import warnings
+
+    from musicalgestures._posetimeline import connecting_trajectory
+
+    lm = _figure(n_frames=30)
+    lm[10:20, [27, 28, 31, 32], 2] = 0.0        # the feet, for a third of the clip
+    normalised = normalise_poses(lm, min_visibility=0.5)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", RuntimeWarning)
+        lines = connecting_trajectory(normalised, [0, 15, 29], raw=lm, height=1)
+    assert "feet" in lines and "pelvis" in lines
+
+
+def test_the_spatial_lines_are_smoothed_harder_than_the_traces_by_default():
+    """They are showing carriage, not gesture, and the two want different windows.
+
+    A third of a second suits a limb's trace and leaves the head/pelvis/feet lines
+    thrashing across a fast passage, where they cross other figures and damage the whole
+    strip rather than one cell.
+    """
+    from musicalgestures._posetimeline import SMOOTH, SMOOTH_SPATIAL
+
+    assert SMOOTH_SPATIAL > SMOOTH
+
+
+def test_the_spatial_window_can_be_set_and_switched_off():
+    from musicalgestures._posetimeline import connecting_trajectory
+
+    rng = np.random.default_rng(3)
+    lm = _figure(n_frames=120)
+    lm[:, :, 1] += np.sin(np.linspace(0, 12, 120))[:, None] * 0.1
+    lm[:, :, 1] += rng.normal(0, 0.01, (120, 1))
+    normalised = normalise_poses(lm, min_visibility=0.5)
+
+    def roughness(window):
+        y = connecting_trajectory(normalised, [0, 60, 119], raw=lm, height=1,
+                                  smooth=window)["pelvis"][0][1]
+        return np.std(np.diff(y))
+
+    assert roughness(0) > roughness(9) > roughness(45), "a wider window must be calmer"

@@ -48,6 +48,18 @@ which is steadier than any one. Note that in the strip's *body* space the pelvis
 origin by construction — `normalise_poses` centres on it — so following it there draws a
 dead straight line whatever the dancer did. Stability of that kind lives in room coordinates.
 
+**The spatial lines have a limit that no setting fixes.** They are smoothed harder than the
+traces — `smooth_spatial` defaults to 45 frames against the traces' 9 — because they carry
+carriage rather than gesture. That works where the body *has* a stable carriage: standing,
+walking, slow phrases. In floor work the head and pelvis genuinely swing through large arcs
+many times, and a filter wide enough to calm the lines there is wide enough to eat the arcs
+everywhere. Use `'temporal'` for fast passages; its density stays local to each figure
+instead of crossing the whole strip.
+
+Note also that **a smoothing window wider than the gap between two postures flattens that
+segment to a constant**, so a short recording sampled many times wants `smooth_spatial`
+lowered along with `n_samples`.
+
 **`path` is a schematic and is drawn as one.** Normalising the postures is what removed
 their translation, so a room route cannot be to scale in that space.
 

@@ -210,6 +210,21 @@ LANE_WITH_TRACES = 3.8  #: and with a history drawn behind each one
 #: have no other way to carry it.
 SKELETON = "0.1"
 
+#: **The two kinds of line want different windows, because they say different things.**
+#: A temporal trace is one limb's gesture and a third of a second keeps its shape. The
+#: spatial lines are the body's CARRIAGE --- where head, pelvis and feet ride --- and at
+#: the same window they thrash through a fast passage, crossing other figures and
+#: damaging the whole strip rather than one cell. Roughly a second and a half at 30 fps.
+#:
+#: **And that is as far as smoothing takes it.** In floor work the head and pelvis really
+#: do swing through large arcs many times, so a filter wide enough to calm the lines there
+#: is wide enough to eat the arcs everywhere. The spatial lines are for material with a
+#: stable carriage --- standing, walking, slow phrases --- and they become noise where the
+#: body has none. `'temporal'` carries the fast passages, and carries them well: its
+#: density stays local to each figure instead of crossing the whole strip.
+SMOOTH = 9
+SMOOTH_SPATIAL = 45
+
 
 def smooth_trail(y, window: int = 9):
     """A moving median along a trail, leaving gaps as gaps.
@@ -246,7 +261,8 @@ def smooth_trail(y, window: int = 9):
 
 
 def connecting_trajectory(normalised, picks, marker=TRAJECTORY_GROUPS, lane: float = LANE,
-                          max_reach: float = 4.0, smooth: int = 9, space: str = "room",
+                          max_reach: float = 4.0, smooth: int = SMOOTH_SPATIAL,
+                          space: str = "room",
                           raw=None, height: int = 1080):
     """The course one or more landmark groups take THROUGH the postures, lane to lane.
 
@@ -292,9 +308,16 @@ def connecting_trajectory(normalised, picks, marker=TRAJECTORY_GROUPS, lane: flo
     for name, indices in groups.items():
         idx = list(indices) if isinstance(indices, (tuple, list)) else [indices]
         #: The average of a few landmarks is steadier than any one of them, and a group
-        #: with one missing member is still measurable from the rest.
-        with np.errstate(invalid="ignore"):
-            centre = np.nanmean(source[:, idx, :], axis=1)
+        #: with one missing member is still measurable from the rest --- but a frame where
+        #: ALL of them are missing is NaN, not a warning. This is the same fault as in
+        #: `region_angles`, fixed there and missed here: `np.nanmean` of an all-NaN row is
+        #: correct and noisy, and a RuntimeWarning on ordinary input is how a real one
+        #: gets ignored later.
+        group = source[:, idx, :]
+        measured = ~np.isnan(group[..., 0]).all(axis=1)
+        centre = np.full((group.shape[0], 2), np.nan)
+        if measured.any():
+            centre[measured] = np.nanmean(group[measured], axis=1)
         segments = []
         for i in range(len(picks) - 1):
             a, b = picks[i], picks[i + 1]
@@ -383,8 +406,9 @@ def _draw_skeleton(ax, xy, colour, linewidth=1.0, alpha=1.0):
 def render_pose_timeline(data, view: str = "strip", n_samples: int = 12,
                          raw=None, width: int = 1920, height: int = 1080,
                          times=None, cmap: str = "viridis", dpi: int = 200,
-                         trajectories=None, markers=TRAJECTORY_GROUPS, smooth: int = 9,
-                         space: str = "room", n_ghosts: int = 6):
+                         trajectories=None, markers=TRAJECTORY_GROUPS, smooth: int = SMOOTH,
+                         space: str = "room", n_ghosts: int = 6,
+                         smooth_spatial: int = SMOOTH_SPATIAL):
     """Draw one of the three views. Returns a matplotlib figure."""
     import matplotlib.pyplot as plt
 
@@ -393,45 +417,52 @@ def render_pose_timeline(data, view: str = "strip", n_samples: int = 12,
     colours = plt.get_cmap(cmap)
 
     if view == "strip":
+        #: **Two kinds of trace, and they are not alternatives.** `'temporal'` is what a
+        #: figure did around its own instant --- every landmark, fading, so the direction
+        #: of time reads. `'spatial'` is how one figure connects to the next. Asking for
+        #: both is the ordinary case. `'path'` adds the room route as a schematic.
+        asked = ([] if trajectories is None
+                 else [trajectories] if isinstance(trajectories, str)
+                 else list(trajectories))
+        allowed = {"temporal", "spatial", "path"}
+        unknown = [a for a in asked if a not in allowed]
+        if unknown:
+            raise ValueError(
+                f"trajectories must be drawn from {sorted(allowed)} --- singly or "
+                f"together --- not {unknown[0]!r}")
+
         picks = usable[np.linspace(0, len(usable) - 1, min(n_samples, len(usable)))
                        .round().astype(int)]
-        fig, (top, bottom) = plt.subplots(
-            2, 1, figsize=(max(6, len(picks) * 1.1), 4.4), dpi=dpi,
-            gridspec_kw={"height_ratios": [3, 1]})
-        if trajectories not in (None, "connect", "path", "traces"):
-            raise ValueError("trajectories must be None, 'connect', 'path' or "
-                             f"'traces', not {trajectories!r}")
+        lane = lane_spacing("temporal" if "temporal" in asked else None)
+        #: ONE PANEL. A path plot underneath said where the body was, which is the room
+        #: view's job, and doubled the figure's height to say it. The timeline is the
+        #: numbers under the postures.
+        fig, top = plt.subplots(figsize=(max(6, len(picks) * 1.3), 3.6), dpi=dpi)
+
         ghosts = (posture_traces(normalised, picks, n_ghosts)
-                  if trajectories == "traces" else None)
-        lane = lane_spacing(trajectories)
+                  if "temporal" in asked else None)
         for cell, frame in enumerate(picks):
             if ghosts is not None:
-                #: Behind the posture, oldest and faintest first, so the figure it
-                #: belongs to stays the solid thing in the lane.
                 for ghost, alpha in zip(*ghosts[cell]):
                     faded = normalised[ghost].copy()
                     faded[:, 0] += cell * lane
                     _draw_skeleton(top, faded, SKELETON, 1.0, alpha=alpha)
             xy = normalised[frame].copy()
-            xy[:, 0] += cell * lane                      # one lane per posture
+            xy[:, 0] += cell * lane
             _draw_skeleton(top, xy, SKELETON, 1.6)
-        if trajectories == "connect":
-            #: Over the skeletons, not beside them: the point is seeing how one posture
-            #: connects to the next.
+
+        if "spatial" in asked:
             styles = {"head": (0.25, "-"), "pelvis": (0.35, "-"), "feet": (0.5, "--")}
             lines = connecting_trajectory(normalised, picks, marker=markers, lane=lane,
-                                          smooth=smooth, space=space, raw=raw,
+                                          smooth=smooth_spatial, space=space, raw=raw,
                                           height=height)
             for name, segments in lines.items():
                 shade, dash = styles.get(name, (0.3, "-"))
                 for x, y in segments:
                     top.plot(x, y, color=str(shade), linewidth=1.0, alpha=0.9,
                              linestyle=dash, zorder=5)
-        if trajectories == "path":
-            #: The body's route through the ROOM, rescaled into the lanes. A schematic
-            #: rather than a measurement in this space, because normalising the postures
-            #: is exactly what removed their translation --- so it is drawn faintly and
-            #: labelled as what it is.
+
+        if "path" in asked:
             finite = ~np.isnan(path[:, 0])
             if finite.any():
                 px = path[finite, 0]
@@ -439,23 +470,18 @@ def render_pose_timeline(data, view: str = "strip", n_samples: int = 12,
                 py = path[finite, 1]
                 py = (py - py.min()) / max(np.ptp(py), 1e-9) * 0.8 - 2.2
                 top.plot(lanes, py, color="0.55", linewidth=0.8, alpha=0.8)
+
         top.set_aspect("equal")
         top.invert_yaxis()                              # image y grows downward
-        top.axis("off")
+        #: The timeline: one tick under each posture, at its own instant.
         t = np.arange(len(path)) if times is None else np.asarray(times)
-        bottom.plot(t, path[:, 0], linewidth=0.8, color="0.3")
-        for frame in picks:
-            bottom.axvline(t[frame], color="0.7", linewidth=0.6)
-        for start, end in data["gaps"]:
-            bottom.axvspan(t[start], t[min(end, len(t) - 1)], color="0.9", zorder=0)
-        #: The only text on the figure is the time axis AND ITS UNIT. Numbers without a
-        #: unit are as unreadable as no numbers: nothing else on the figure says whether
-        #: 175 means seconds, frames or minutes.
-        bottom.set_xlabel("time (s)" if times is not None else "time (frames)",
-                          fontsize=8)
-        bottom.set_yticks([])
+        top.set_xticks([cell * lane for cell in range(len(picks))])
+        top.set_xticklabels([f"{t[f]:.0f}" for f in picks], fontsize=8)
+        top.set_yticks([])
         for side in ("top", "right", "left"):
-            bottom.spines[side].set_visible(False)
+            top.spines[side].set_visible(False)
+        top.tick_params(axis="x", length=3)
+        top.set_xlabel("time (s)" if times is not None else "time (frames)", fontsize=8)
 
     elif view == "room":
         from musicalgestures._multishot import choose_spaced
@@ -515,8 +541,9 @@ def render_pose_timeline(data, view: str = "strip", n_samples: int = 12,
 def pose_timeline(landmarks, view: str = "strip", n_samples: int = 12,
                   min_visibility: float = 0.5, times=None, width: int = 1920,
                   height: int = 1080, cmap: str = "viridis", dpi: int = 200,
-                  trajectories=None, markers=TRAJECTORY_GROUPS, smooth: int = 9,
-                  space: str = "room", n_ghosts: int = 6):
+                  trajectories=None, markers=TRAJECTORY_GROUPS, smooth: int = SMOOTH,
+                  space: str = "room", n_ghosts: int = 6,
+                  smooth_spatial: int = SMOOTH_SPATIAL):
     """Postures and trajectories over time, as a matplotlib figure.
 
     Args:
@@ -526,10 +553,13 @@ def pose_timeline(landmarks, view: str = "strip", n_samples: int = 12,
         min_visibility (float): Landmarks below this are not trusted.
         times (optional): Seconds per frame, for a real time axis.
         width, height (int): The frame's size, for the `room` view's aspect.
-        trajectories (str, optional): For `strip`. `'connect'` draws one landmark's
-            course **through** the postures, anchored on each figure so it is visible how
-            one connects to the next: vertical is the landmark's real height, horizontal
-            is time across the gap. `'path'` draws the
+        trajectories (str or sequence, optional): For `strip`, singly or together.
+            `'temporal'` gives every landmark a fading history behind its own posture ---
+            what that figure did around its instant. `'spatial'` draws head, pelvis and
+            feet **through** the postures, anchored on each figure, so it is visible how
+            one connects to the next: vertical is real height, horizontal is time across
+            the gap. They answer different questions and asking for both is ordinary.
+            `'path'` draws the
             body's route through the room across the lanes, which is a **schematic**:
             normalising the postures is what removed their translation, so the route
             cannot be to scale in that space, and it is drawn faintly and labelled.
@@ -537,8 +567,14 @@ def pose_timeline(landmarks, view: str = "strip", n_samples: int = 12,
         markers (tuple or int): Landmark to follow for `'connect'`. Defaults to the
             wrists, of which the first is used --- the hand is where a gesture's shape is
             most legible.
-        smooth (int): Moving-median window on the trajectory, in frames. Defaults to 9;
-            0 draws every frame.
+        smooth (int): Moving-median window for the temporal traces, in frames. Defaults
+            to 9, about a third of a second at 30 fps; 0 draws every frame.
+        smooth_spatial (int): The window for the spatial lines, which want a wider one:
+            they carry carriage rather than gesture, and at the traces' window they thrash
+            through a fast passage and cross other figures. Defaults to 45, about a second
+            and a half at 30 fps. **A window wider than the gap between two postures
+            flattens that segment to a constant**, so a short recording sampled many times
+            wants it lowered along with `n_samples`.
         cmap (str), dpi (int): Appearance.
 
     Returns:
@@ -551,13 +587,15 @@ def pose_timeline(landmarks, view: str = "strip", n_samples: int = 12,
     return render_pose_timeline(data, view=view, n_samples=n_samples, raw=landmarks,
                                 width=width, height=height, times=times, cmap=cmap,
                                 dpi=dpi, trajectories=trajectories, markers=markers,
-                                smooth=smooth, space=space, n_ghosts=n_ghosts)
+                                smooth=smooth, space=space, n_ghosts=n_ghosts,
+                                smooth_spatial=smooth_spatial)
 
 
 def mg_pose_timeline(self: "musicalgestures.MgVideo", view: str = "strip",
                      n_samples: int = 12, min_visibility: float = 0.5,
                      landmarks=None, times=None, cmap: str = "viridis", dpi: int = 200,
-                     trajectories=None, markers=TRAJECTORY_GROUPS, smooth: int = 9,
+                     trajectories=None, markers=TRAJECTORY_GROUPS, smooth: int = SMOOTH,
+                     smooth_spatial: int = SMOOTH_SPATIAL,
                      target_name: str | None = None, overwrite: bool = True,
                      **pose_kwargs) -> "MgFigure":
     """Postures and trajectories over time. See `pose_timeline`.
@@ -585,7 +623,8 @@ def mg_pose_timeline(self: "musicalgestures.MgVideo", view: str = "strip",
     figure = pose_timeline(landmarks, view=view, n_samples=n_samples,
                            min_visibility=min_visibility, times=times,
                            width=self.width, height=self.height, cmap=cmap, dpi=dpi,
-                           trajectories=trajectories, markers=markers, smooth=smooth)
+                           trajectories=trajectories, markers=markers, smooth=smooth,
+                           smooth_spatial=smooth_spatial)
     figure.savefig(target_name, dpi=dpi)
     plt.close(figure)
     self.pose_timeline_figure = MgFigure(
