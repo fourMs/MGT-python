@@ -66,3 +66,27 @@ class Test_the_rows_are_a_body:
         a[:, 27, 0] += np.sin(np.linspace(0, 40, len(a))) * 30      # left ankle
         activity = pose_activity(a, anatomical=True)
         assert int(np.argmax(activity.mean(axis=1))) == ANATOMICAL_ORDER.index(27)
+
+
+def test_the_rows_read_down_the_body_and_the_labels_follow_them():
+    """Head, torso, then the limbs that hang from it, then legs.
+
+    The band boundaries, the tick positions and the labels are three lists that have to
+    agree. They were hard-coded separately, so a reordering could move one and leave the
+    others naming the wrong rows -- a figure that is wrong rather than merely ugly.
+    """
+    from musicalgestures._posegram import ANATOMICAL_ORDER, BAND_TICKS, BANDS
+
+    assert [label for label, _ in BANDS] == ["head", "torso", "arms", "hands", "legs"]
+    assert len(ANATOMICAL_ORDER) == 33 and sorted(ANATOMICAL_ORDER) == list(range(33))
+
+    #: Every tick must fall inside the band it names.
+    lower = 0
+    for (label, upper), tick in zip(BANDS, BAND_TICKS):
+        assert lower <= tick < upper, f"the {label} tick sits outside the {label} band"
+        lower = upper
+    assert BANDS[-1][1] == len(ANATOMICAL_ORDER)
+
+    #: The shoulders belong to the trunk, and the hips with them.
+    torso_rows = ANATOMICAL_ORDER[BANDS[0][1]:BANDS[1][1]]
+    assert sorted(torso_rows) == [11, 12, 23, 24]

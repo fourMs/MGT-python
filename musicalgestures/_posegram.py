@@ -32,13 +32,13 @@ ANATOMICAL_ORDER = [
     1, 2, 3, 4, 5, 6,                    # eyes: inner, centre, outer, both sides
     7, 8,                                # ears
     9, 10,                               # mouth
-    11, 12,                              # shoulders
+    11, 12,                              # shoulders --- trunk, not arm
+    23, 24,                              # hips
     13, 14,                              # elbows
     15, 16,                              # wrists
     17, 18,                              # pinkies
     19, 20,                              # index fingers
     21, 22,                              # thumbs
-    23, 24,                              # hips
     25, 26,                              # knees
     27, 28,                              # ankles
     29, 30,                              # heels
@@ -46,7 +46,21 @@ ANATOMICAL_ORDER = [
 ]
 
 #: Where to draw a dividing line and what to call the band above it, for a readable axis.
-BANDS = [("head", 11), ("arms", 23), ("hands", 23), ("torso", 25), ("legs", 33)]
+#:
+#: **Head, torso, then what hangs off the torso, then legs.** The trunk belongs directly
+#: under the head because that is how a body is built: arms and hands are suspended from
+#: the torso, so reading them above it puts the frame beneath its own limbs. Changed
+#: 2026-08-28 at ARJ's request, along with `_posetimeline`'s regions so the two can be
+#: read side by side. The shoulders moved with it, from the arms to the trunk they are
+#: part of.
+#:
+#: **This changes what a posegram looks like.** Rows are in a different order than in any
+#: figure made before that date, so an old posegram and a new one are not comparable row
+#: for row.
+BANDS = [("head", 11), ("torso", 15), ("arms", 19), ("hands", 25), ("legs", 33)]
+
+#: The centre of each band, for the tick that names it.
+BAND_TICKS = [5, 13, 17, 22, 29]
 
 
 def pose_activity(landmarks, anatomical: bool = False, min_visibility: float = 0.0):
@@ -157,8 +171,8 @@ def mg_posegram(self: "musicalgestures.MgVideo", landmarks=None, times=None,
             continue
         seen.add(label)
         ax.axhline(upto, color="white", linewidth=0.6, alpha=0.35)
-    ax.set_yticks([5, 14, 20, 24, 29])
-    ax.set_yticklabels(["head", "arms", "hands", "torso", "legs"], fontsize=9)
+    ax.set_yticks(BAND_TICKS)
+    ax.set_yticklabels([label for label, _ in BANDS], fontsize=9)
     ax.set_xlabel("minutes")
     ax.set_title(f"{os.path.basename(self.filename)} --- posegram "
                  f"(landmark speed, head to foot)", fontsize=10)
