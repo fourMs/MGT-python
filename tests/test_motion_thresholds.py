@@ -20,11 +20,20 @@ import pytest
 from musicalgestures._posegram import pose_activity
 
 
+#: PyAV is an optional extra and CI installs only `.[dev]`, so these skip where it is
+#: absent. Without this the whole matrix went red on nine jobs while the suite passed
+#: locally, because a local venv that has `av` is not the environment CI runs in.
+#: The pose class below needs nothing optional and is deliberately left unguarded.
 class Test_motion_vector_displacement_gate:
     """H.264 codes motion to quarter-pel, so a large share of vectors are fractions of a
     pixel chosen for rate reasons rather than because anything moved."""
 
+    @staticmethod
+    def _needs_av():
+        pytest.importorskip("av", reason="motion-vector data needs the optional 'av' extra")
+
     def test_a_threshold_removes_small_vectors_and_keeps_large_ones(self, tmp_path):
+        self._needs_av()
         from _synth import moving_block_video
         from musicalgestures._motionvectors import motion_vector_views
         clip = moving_block_video(tmp_path / "c.mp4", dx=6, frames=80)
@@ -36,6 +45,7 @@ class Test_motion_vector_displacement_gate:
         assert tight.magnitude.sum() < loose.magnitude.sum()
 
     def test_a_gate_above_the_real_motion_removes_everything(self, tmp_path):
+        self._needs_av()
         from _synth import moving_block_video
         from musicalgestures._motionvectors import motion_vector_views
         clip = moving_block_video(tmp_path / "c2.mp4", dx=3, frames=60)
@@ -43,6 +53,7 @@ class Test_motion_vector_displacement_gate:
         assert out.magnitude.sum() == pytest.approx(0.0, abs=1e-9)
 
     def test_it_is_off_by_default(self, tmp_path):
+        self._needs_av()
         from _synth import moving_block_video
         from musicalgestures._motionvectors import motion_vector_views
         clip = moving_block_video(tmp_path / "c3.mp4", dx=3, frames=60)

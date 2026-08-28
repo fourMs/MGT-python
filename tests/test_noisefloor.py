@@ -70,6 +70,7 @@ def test_the_measured_floor_sits_between_the_noise_and_the_real_motion(tmp_path)
     A gate is only useful if it lands above what the sensor invents and below what the
     subject does. Both are set here, so both can be checked rather than eyeballed.
     """
+    pytest.importorskip("av", reason="reading video needs the optional 'av' extra")
     from tests._synth import moving_block_video
     from musicalgestures._noisefloor import frame_difference_floor
 
@@ -82,6 +83,7 @@ def test_the_measured_floor_sits_between_the_noise_and_the_real_motion(tmp_path)
 
 def test_a_recording_where_nothing_moves_is_refused_rather_than_answered(tmp_path):
     """The Otsu lesson: a detector with no way to decline will invent a threshold."""
+    pytest.importorskip("av", reason="reading video needs the optional 'av' extra")
     from tests._synth import moving_block_video
     from musicalgestures._noisefloor import frame_difference_floor
 
@@ -98,6 +100,7 @@ def test_the_vector_floor_lands_below_the_displacement_it_must_not_remove(tmp_pa
     a 320x240 clip has 300 cells and a 48 px block occupies nine of them. Sixty frames of
     that is fewer samples than the estimator will work from, and rightly so.
     """
+    pytest.importorskip("av", reason="reading video needs the optional 'av' extra")
     from tests._synth import moving_block_video
     from musicalgestures._noisefloor import motion_vector_floor
 
@@ -110,6 +113,7 @@ def test_the_vector_floor_lands_below_the_displacement_it_must_not_remove(tmp_pa
 
 def test_a_file_with_no_motion_vectors_at_all_is_refused(tmp_path):
     """An all-intra file carries none, and has nothing to estimate a floor from."""
+    pytest.importorskip("av", reason="reading video needs the optional 'av' extra")
     from tests._synth import intra_only_video
     from musicalgestures._noisefloor import motion_vector_floor
 
