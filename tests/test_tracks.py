@@ -12,7 +12,12 @@ were wrong and, because interleaving depends on buffering, **different between
 identical runs**. Nothing in the suite would have caught it, so these exist.
 """
 import csv
+import os
 import subprocess
+import sys
+import time
+
+import pytest
 
 import numpy as np
 import musicalgestures as mg
@@ -114,3 +119,71 @@ def test_parallel_matches_serial_across_unaligned_keyframes(tmp_path):
     assert n > 200
     bad = np.flatnonzero(qs[:n] != qp[:n])
     assert len(bad) == 0, f"{len(bad)} frames differ at/after chunk seams: {bad[:8]}"
+
+
+def _ffmpeg_pids_reading(video):
+    """PIDs of every live ffmpeg whose command line names this video.
+
+    By parentage would be simpler, but the leak this serves is kept alive by a parked
+    `Popen` rather than by any live parent, so the only thing reliably connecting the
+    process to the run is the path on its command line.
+    """
+    pids = []
+    needle = str(video).encode()
+    for pid in os.listdir("/proc"):
+        if not pid.isdigit():
+            continue
+        try:
+            with open(f"/proc/{pid}/cmdline", "rb") as fh:
+                argv = fh.read().split(b"\0")
+        except OSError:
+            continue
+        if argv and argv[0].endswith(b"ffmpeg") and any(needle in a for a in argv):
+            pids.append(int(pid))
+    return pids
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="finds the processes via /proc")
+def test_chunk_worker_reaps_its_decoder(tmp_path):
+    """The worker's ffmpeg must be dead and reaped when the worker returns.
+
+    The fault this exists for: `_chunk_worker` read its `n_frames`, called
+    `proc.terminate()`, and did nothing else. A bounded chunk's `-t` covers one
+    second of lead-in the `trim` filter has already removed, so ffmpeg always holds
+    more frames than the worker reads and is blocked mid-write to the full pipe when
+    SIGTERM arrives; the blocked write restarts around the signal, and the unreaped
+    Popen parks in `subprocess._active`, holding the pipe's read end open for the
+    life of the (long-lived) pool worker. One live decoder per finished chunk,
+    ~500 MB each: on 2026-08-28 a 100-minute recording left 51 of them holding
+    23 GB, and the machine went down at chunk 51 of the first of six recordings.
+
+    An end-to-end version of this test passes against the broken code, because
+    closing the pool kills the workers and their orphans with them --- the leak only
+    exists while the run is still going. So the worker is called in this process,
+    where a parked Popen keeps its ffmpeg alive long enough to be seen. The exited
+    decoder needs a moment to disappear, so absence is polled for; the leaked kind
+    never exits, so the deadline only delays failure, not success.
+    """
+    from musicalgestures._tracks import _chunk_worker
+
+    v = _synth(tmp_path / "leak.mp4", seconds=8)
+    fps, W, H, n_total = 25.0, 320, 240, 208
+    for name, dt, shape in (("qom.f4", np.float32, (n_total,)),
+                            ("videogram_v.u1", np.uint8, (n_total, H)),
+                            ("videogram_h.u1", np.uint8, (n_total, W))):
+        m = np.memmap(tmp_path / name, dtype=dt, mode="w+", shape=shape)
+        m.flush()
+        del m
+    #: A bounded mid-recording chunk, the shape every chunk but the last has.
+    _chunk_worker((v, str(tmp_path), 50, 50, 2.0, fps, W, H, n_total,
+                   "Regular", 0.05, "None", False, 5, None, False))
+    deadline = time.time() + 5
+    while time.time() < deadline and _ffmpeg_pids_reading(v):
+        time.sleep(0.2)
+    leaked = _ffmpeg_pids_reading(v)
+    for pid in leaked:
+        try:
+            os.kill(pid, 9)
+        except OSError:
+            pass
+    assert leaked == [], f"{len(leaked)} ffmpeg decoder(s) survived the worker"

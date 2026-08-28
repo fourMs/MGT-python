@@ -46,7 +46,7 @@ import numpy as np
 
 import musicalgestures
 from musicalgestures._filter import filter_frame_ffmpeg
-from musicalgestures._utils import MgProgressbar, ffmpeg_cmd
+from musicalgestures._utils import MgProgressbar, ffmpeg_cmd, stop_ffmpeg_process
 
 #: Coarser levels stop here: below this a level is too narrow to be worth a file.
 MIN_LEVEL_COLUMNS = 64
@@ -105,6 +105,7 @@ def _chunk_worker(args) -> int:
     import musicalgestures as _mg
     from musicalgestures._filter import filter_frame_ffmpeg as _ffilter
     from musicalgestures._utils import ffmpeg_cmd as _ffcmd
+    from musicalgestures._utils import stop_ffmpeg_process as _ffstop
 
     d = Path(d)
     #: SEEK EARLY AND TRIM BY TIME, rather than seeking close and dropping a frame.
@@ -165,7 +166,13 @@ def _chunk_worker(args) -> int:
         if plate_every and j % plate_every == 0:
             plates.append(frame.copy())
         written += 1
-    proc.terminate()
+    #: NOT terminate() alone. A bounded chunk's -t covers a second of lead-in that
+    #: trim has already removed, so ffmpeg always holds more frames than the worker
+    #: reads and is blocked mid-write when the signal lands; the write restarts
+    #: around SIGTERM and the unreaped Popen keeps the pipe open for the life of
+    #: this long-lived pool worker. One live decoder per finished chunk took the
+    #: machine down at chunk 51 of the first of six recordings.
+    _ffstop(proc)
     qom.flush(); vg.flush(); hg.flush()
     if plates:
         _np.save(d / f".plate_{i0}.npy", _np.stack(plates))
@@ -241,7 +248,10 @@ def extract_tracks(video, out_dir=None, filtertype="Regular", threshold=0.05,
         if pb:
             pb.progress(i)
         i += 1
-    process.terminate()
+    #: The serial loop usually reads to end of stream, where ffmpeg has already
+    #: exited --- but when the frame-count estimate caps the loop first, the same
+    #: blocked-write leak as in _chunk_worker applies. Same cure, cheap either way.
+    stop_ffmpeg_process(process)
     if pb:
         pb.progress(n_max)
 

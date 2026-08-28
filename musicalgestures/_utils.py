@@ -2003,6 +2003,47 @@ def ffmpeg_cmd(command: list, total_time: float, pb_prefix: str = 'Progress', pr
             raise KeyboardInterrupt
 
 
+def stop_ffmpeg_process(process, timeout: float = 5.0) -> None:
+    """Stop a piped ffmpeg from `ffmpeg_cmd` and reap it, unconditionally.
+
+    `terminate()` alone is not enough for a process on the other end of a pipe.
+    A reader that stops before end of stream leaves ffmpeg blocked in a write to
+    the full pipe; the blocked write restarts around SIGTERM, so the graceful
+    handler never runs, and an unreaped Popen parks itself in `subprocess._active`,
+    which keeps the pipe's read end open for the life of the calling process. The
+    result is a live ffmpeg per stopped stream, invisible until they are counted
+    in gigabytes.
+
+    Closing the pipes first is what actually stops it: the next write dies of
+    EPIPE whatever the signal handling does. The kill-after-timeout is a backstop
+    for a process wedged somewhere other than a pipe write.
+
+    Args:
+        process: The `subprocess.Popen` returned by `ffmpeg_cmd(pipe='read')` or
+            `pipe='write'`. For a write pipe, flush and close `stdin` first if the
+            buffered tail matters; this discards it.
+        timeout (float, optional): Seconds to wait after SIGTERM before SIGKILL.
+            Defaults to 5.0.
+    """
+    import subprocess
+
+    for stream in (process.stdin, process.stdout, process.stderr):
+        if stream is not None:
+            try:
+                stream.close()
+            except OSError:
+                pass
+    try:
+        process.terminate()
+    except OSError:
+        pass
+    try:
+        process.wait(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait()
+
+
 def str2sec(time_string: str) -> float:
     """
     Converts a time code string into seconds.
