@@ -163,11 +163,17 @@ def test_a_prop_standing_through_a_quiet_stretch_stays_out_of_the_room(tmp_path)
         warnings.simplefilter("ignore", RuntimeWarning)
         clustered, used = room_plate(path, n_samples=60, width=W, stratify=False)
     assert clustered[203:222, 263:282].mean() > 200, "the fixture does not reproduce the bug"
-    assert max(used) - min(used) < 20, "the old choice was supposed to cluster"
+    #: The claim is that every chosen frame comes from the quiet stretch, which begins at
+    #: frame 60 -- not that they span fewer than N frames. A span bound is a PROXY for
+    #: clustering and a bad one: the quiet stretch is 30 frames long, so a perfectly
+    #: clustered choice can span 29. macOS picked 60 to 89, which is entirely inside the
+    #: stretch and failed a `< 20` bound that Linux passed with 72 to 79.
+    assert min(used) >= 60, f"the old choice was supposed to come from the quiet stretch, got {list(used)}"
 
     spread_plate, used = room_plate(path, n_samples=60, width=W, stratify=True)
     assert spread_plate[203:222, 263:282].mean() < 150, "the prop is still in the room"
-    assert max(used) - min(used) > 60
+    assert min(used) < 60, "the stratified choice never left the quiet stretch"
+    assert max(used) - min(used) > 60, "the stratified choice did not span the recording"
 
 
 def test_a_plate_built_from_one_stretch_says_so(tmp_path):
