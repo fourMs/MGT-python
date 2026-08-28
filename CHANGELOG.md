@@ -5,6 +5,63 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.21.0] — 2026-08-28
+
+### Added
+- **`noise_floor`, `frame_difference_floor`, `motion_vector_floor`** — a motion gate
+  measured from the recording instead of guessed at. Every measure has a floor: sensor
+  noise for frame differencing, the encoder's rate decisions for motion vectors,
+  sub-pixel drift for flow. A threshold in absolute units cannot serve two recordings
+  whose floors differ — measured on a dance corpus, one fixed setting lit **0.52** times
+  the area the dancers covered in one recording and **1.90** times it in another.
+
+  The room plate says which pixels have nobody in front of them, and whatever their
+  frame-to-frame difference shows, nothing there moved. The gate is a quantile of that
+  distribution, so the parameter is a **false-positive rate** rather than a magnitude.
+
+  **It can refuse.** Otsu will split pure noise and report a threshold with no sign of
+  distress; an estimator that always answers has the same fault. This declines when there
+  are too few samples and when the gate would keep almost none of the moving part — a
+  camera move, a lighting change, an empty recording — and a refusal carries
+  `threshold: None` so there is nothing to reach for by accident.
+
+  **What it does not buy:** equalising the false-positive rate makes spatial *maps*
+  comparable across recordings and makes *magnitudes* less comparable, since each
+  recording lands at its own operating point. Both approaches are kept — fixed thresholds
+  when magnitudes are compared, measured floors when pictures are.
+
+- **`plate_spread`** — how much of the recording a plate's frames were drawn from, 0 to 1.
+
+- **`threshold` for motion vectors and `min_visibility` for pose**, each in the units that
+  measure actually has: pixels of displacement, and confidence. **Both default to off**,
+  because a gate switched on by default would silently change results already computed.
+  Note that H.264 codes to quarter-pel, so a vector gate at or below **0.25 px** removes
+  nothing at all.
+
+### Changed
+- **`room_plate` spreads its second pass over the recording.** It re-took the median over
+  the emptiest tenth of sampled frames, which is right in principle — except that the
+  emptiest frames are not spread through a recording. They cluster in whatever stretch
+  nobody was working. A stepladder stood in one room for ten minutes of a two-hour
+  session, those frames were the emptiest, the refinement took all of them, and the ladder
+  entered the plate as furniture. That region then read as **occupied 18.6 per cent of the
+  time** — a body reported where there was none.
+
+  The second pass now takes the emptiest frame from each of `k` equal stretches. The
+  choice is still made on emptiness; it simply cannot all come from one place.
+  `stratify=False` restores the previous behaviour, and `room_plate` now warns when the
+  frames it used span less than half the recording.
+
+  **This changes occupancy figures.** On six test recordings the plates moved by 0.2 to
+  1.3 per cent of pixels — small in aggregate and decisive where it landed, since the one
+  that moved most did so almost entirely inside the ladder.
+
+### Fixed
+- **`refine_indices` documented itself backwards**, summarising as "the ones least like it
+  already" where the code keeps the ones *most* like it — the emptiest. The prose in
+  `room_plate` and in the tests was right; only the one-line summary a reader trusts first
+  was inverted.
+
 ## [1.20.0] — 2026-08-28
 
 ### Added

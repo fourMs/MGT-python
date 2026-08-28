@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.20.0**.
+The current stable release is **MGT-python 1.21.0**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,34 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.21.0
+
+A gate measured from the recording, and a room that is not one moment of it.
+
+`noise_floor` takes a motion threshold from the material instead of a guess. The room plate
+says which pixels have nobody in front of them, and whatever their frame-to-frame difference
+shows, nothing there moved --- so the gate is a quantile of that, and the parameter is a
+**false-positive rate** rather than a magnitude. `frame_difference_floor` returns it in grey
+levels, `motion_vector_floor` in pixels of displacement. **It can refuse**: Otsu will split
+pure noise and report a threshold with no sign of distress, so this declines when there are
+too few samples or when the gate would keep almost none of the moving part, and a refusal
+carries no number to reach for by accident.
+
+Equalising the false-positive rate makes spatial **maps** comparable across recordings, and
+makes **magnitudes** less comparable, since each recording lands at its own operating point.
+Both approaches are kept: fixed thresholds when magnitudes are compared, measured floors when
+pictures are.
+
+`room_plate` now spreads its second pass over the recording. The emptiest frames are the right
+ones to build a room from, but they cluster in whatever stretch nobody was working --- and a
+stepladder that stood in one room for ten minutes of a two-hour session became part of "the
+room", so that region read as occupied 18.6 per cent of the time. **This changes occupancy
+figures**, by 0.2 to 1.3 per cent of pixels on six test recordings.
+
+Motion vectors and pose also gained gates in their own units --- pixels of displacement, and
+landmark confidence --- both **off by default**, since a gate switched on by default would
+silently change results already computed.
 
 ### 1.18.0
 
