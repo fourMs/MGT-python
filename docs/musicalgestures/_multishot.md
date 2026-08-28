@@ -7,14 +7,25 @@ bodies are cut out of frames spread through the recording, and all of them are l
 onto it. One image then carries where somebody was, how they were shaped, and how far apart
 the moments were. It answers nothing a motiongram answers and shows something no gram does.
 
+As a method, which is how the rest of the object API reads:
+
 ```python
 import musicalgestures as mg
-import cv2
 
-picture, plate = mg.multishot("session.mp4", n_bodies=8, start=1932, end=4478)
-if picture is not None:
-    cv2.imwrite("rehearsal_multishot.png", picture)
+video = mg.MgVideo("session.mp4")
+video.multishot(n_bodies=8, start=1932, end=4478)   # -> MgImage
+video.plate(width=1920)                             # the room on its own -> MgImage
 ```
+
+Or as a function, when the arrays are wanted rather than a file:
+
+```python
+picture, plate = mg.multishot("session.mp4", n_bodies=8, start=1932, end=4478)
+```
+
+The method raises `ValueError` when no frame held a body of a plausible size, rather than
+handing back a picture of an empty room — which would look like the recording was empty
+instead of like the size bounds matching nothing.
 
 ## How this differs from `stroboscope()`
 

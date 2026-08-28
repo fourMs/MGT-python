@@ -143,3 +143,47 @@ def test_the_body_size_bounds_can_be_moved_for_a_different_framing(travelling):
     generous, _ = multishot(travelling, n_bodies=2, width=320,
                             min_area=0.0005, max_area=0.9)
     assert generous is not None
+
+
+def test_it_is_reachable_as_a_method_like_every_other_view(travelling):
+    """`room_plate` and `multishot` were the only views that were not methods.
+
+    Everything a student reaches for is `mgv.motiongrams()`, `mgv.stroboscope()`. A view
+    that is a module-level function taking a path does not compose with the rest and is
+    invisible to anyone browsing the object API --- which is how `stroboscope` came to be
+    overlooked while a second chronophotography function was written.
+    """
+    import os
+
+    import musicalgestures
+
+    image = musicalgestures.MgVideo(travelling).multishot(n_bodies=3, width=320)
+    assert isinstance(image, musicalgestures.MgImage)
+    assert os.path.exists(image.filename)
+
+
+def test_the_room_is_reachable_as_a_method_too(travelling):
+    import os
+
+    import musicalgestures
+
+    image = musicalgestures.MgVideo(travelling).plate(width=320)
+    assert isinstance(image, musicalgestures.MgImage)
+    assert os.path.exists(image.filename)
+
+
+def test_the_method_passes_the_body_count_through(travelling):
+    import cv2
+
+    import musicalgestures
+
+    plate = cv2.imread(musicalgestures.MgVideo(travelling).plate(width=320).filename)
+    counts = []
+    for wanted in (2, 3):
+        picture = cv2.imread(musicalgestures.MgVideo(travelling)
+                             .multishot(n_bodies=wanted, width=320).filename)
+        changed = (np.abs(picture.astype(np.int16) - plate.astype(np.int16)).max(axis=2)
+                   > 20).astype(np.uint8)
+        n, _, stats, _ = cv2.connectedComponentsWithStats(changed, 8)
+        counts.append(sum(1 for i in range(1, n) if stats[i, cv2.CC_STAT_AREA] > 300))
+    assert counts == [2, 3]

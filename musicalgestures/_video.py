@@ -210,6 +210,8 @@ class MgVideo(MgAudio):
     spacetime_volume_figure: MgFigure
     ssm_combined_image: MgImage
     stroboscope_image: MgImage
+    multishot_image: MgImage
+    plate_image: MgImage
     structure_comparison_figure: MgFigure
     subtract_video: "musicalgestures.MgVideo"
     tempo_similarity_figure: MgFigure
@@ -294,6 +296,10 @@ class MgVideo(MgAudio):
         mg_motionvectorwaterfall as motionvectorwaterfall,
         mg_motionvectoroverview as motionvectoroverview,
         mg_motionscape as motionscape,
+    )
+    from musicalgestures._multishot import (  # type: ignore[misc]
+        mg_multishot as multishot,
+        mg_plate as plate,
     )
     from musicalgestures._eulerian import mg_eulerian as eulerian  # type: ignore[misc]
     from musicalgestures._sonification import mg_sonomotiongram as sonomotiongram  # type: ignore[misc]
