@@ -31,6 +31,14 @@ the selection does. Eight suits a studio; a long section with a lot of travel ta
 A whole session is usually mostly setup, and the picture then fills with people standing
 about rather than with the work. `start` and `end` take seconds.
 
+## It assumes a subject that moves through space
+
+Separation is spatial, so a subject who stays put gives it nothing to separate. On a seated
+pianist it returns heads and hands stacked in one place: the static torso is part of the
+room by then, and only the moving parts survive the mask. The picture is reflecting what the
+recording contains, which is the intended behaviour — but it is an overlay of moving limbs
+rather than a chronophotograph, and worth knowing which of the two you are looking at.
+
 ## What it cannot do
 
 - **It composites whoever is in shot.** Somebody sitting at a laptop differs from the room

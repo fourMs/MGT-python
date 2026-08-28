@@ -15,6 +15,14 @@ decision rather than a measurement, and it is made explicitly here rather than b
 the emptiest remaining spot and the spots run out. Past a dozen or so they overlap whatever
 the selection does. Eight suits a studio; a long section with a lot of travel takes more.
 
+**It assumes a subject that MOVES THROUGH SPACE, and it should.** Separation is spatial, so
+a subject who stays put gives it nothing to separate: run on a seated pianist it returns
+heads and hands stacked in one place, because a static torso is in the plate and only the
+moving parts survive the mask. That is not a fault to tune away --- the picture is
+reflecting what the recording contains. For travelling subjects it is a chronophotograph;
+for a seated one it becomes an overlay of moving limbs, which is a different object and
+worth knowing you are looking at.
+
 **The mask is the weak point and is treated as such.** A body is whatever differs from the
 plate by more than the tolerance --- which is also true of their shadow, of a screen
 showing a video call, and of anything the plate got wrong. Shadows are rejected on the
@@ -37,6 +45,12 @@ __all__ = ["multishot", "choose_spaced", "body_mask"]
 
 TOLERANCE = 26.0        #: difference from the plate counting as somebody, 8-bit
 SHADOW_RATIO = 0.55     #: darker than this share of the plate's brightness is a shadow
+#: What a PERSON looks like in a frame, which is what this is optimised for. These are
+#: defaults and not laws: they assume a whole body at studio distance, and a closer
+#: camera, a wider room or a seated subject wants them moved. They are parameters of
+#: `multishot` for that reason rather than constants, because a bound that silently
+#: matches nothing returns an empty result rather than an error, which reads as "nothing
+#: happened here".
 MIN_AREA = 0.004        #: a body covers at least this much of the frame
 MAX_AREA = 0.06         #: and at most this much, above which it is somebody at the lens
 MAX_BORDER = 0.12       #: reject a body with more than this share of it against an edge
@@ -44,7 +58,7 @@ FEATHER = 9             #: edge softening, in pixels
 
 
 def body_mask(frame, plate, tolerance: float = TOLERANCE,
-              shadow_ratio: float = SHADOW_RATIO):
+              shadow_ratio: float = SHADOW_RATIO, min_area: float = MIN_AREA):
     """Where somebody is, with shadow and speckle taken out.
 
     Args:
@@ -52,6 +66,8 @@ def body_mask(frame, plate, tolerance: float = TOLERANCE,
         plate: The room, same shape, from `room_plate`.
         tolerance (float): Difference counting as somebody, on an 8-bit scale.
         shadow_ratio (float): Brightness ratio below which a difference is read as shadow.
+        min_area (float): Sets the size below which a connected piece is not a person and
+            is dropped. Scaled from the same human-body assumption as `multishot`'s.
 
     Returns:
         tuple: `(mask, area)` --- the mask as uint8, and the fraction of the frame it
@@ -77,7 +93,7 @@ def body_mask(frame, plate, tolerance: float = TOLERANCE,
     #: survive everything above, and both are small.
     n, labels, stats, _ = cv2.connectedComponentsWithStats(mask, 8)
     keep = np.zeros_like(mask)
-    smallest = MIN_AREA * mask.size * 0.25
+    smallest = min_area * mask.size * 0.25
     for i in range(1, n):
         if stats[i, cv2.CC_STAT_AREA] >= smallest:
             keep[labels == i] = 1
@@ -134,7 +150,9 @@ def choose_spaced(candidates, n_bodies: int):
 
 def multishot(video, n_bodies: int = 8, n_candidates: int = 120, start=None, end=None,
               plate=None, width: int = 960, tolerance: float = TOLERANCE,
-              feather: int = FEATHER):
+              feather: int = FEATHER, min_area: float = MIN_AREA,
+              max_area: float = MAX_AREA, max_border: float = MAX_BORDER,
+              shadow_ratio: float = SHADOW_RATIO):
     """A chronophotograph of one recording, or of one span of it.
 
     Args:
@@ -150,6 +168,16 @@ def multishot(video, n_bodies: int = 8, n_candidates: int = 120, start=None, end
         width (int): Working width. Defaults to 960.
         tolerance (float): Difference from the plate counting as somebody.
         feather (int): Edge softening in pixels, so a cut-out does not read as a sticker.
+        min_area, max_area (float): How much of the frame a body may cover, as a
+            fraction. The defaults --- 0.4 to 6 per cent --- describe a whole person at
+            studio distance, which is what this is tuned for. **Move them when the
+            framing differs**: a closer camera or a larger subject needs `max_area`
+            raised, a wide room or a distant subject needs `min_area` lowered. Too
+            narrow a range yields no candidates and returns None, which looks like an
+            empty room rather than a setting that matched nothing.
+        max_border (float): Reject a body with more than this share of it against a frame
+            edge, since compositing one puts half a body in the picture.
+        shadow_ratio (float): Brightness ratio below which a difference reads as shadow.
 
     Returns:
         tuple: `(picture, plate)`, both BGR. **`picture` is None** when no frame held a
@@ -190,8 +218,8 @@ def multishot(video, n_bodies: int = 8, n_candidates: int = 120, start=None, end
             continue
         h = max(1, int(frame.shape[0] * width / frame.shape[1]))
         frame = cv2.resize(frame, (width, h))
-        mask, area = body_mask(frame, plate, tolerance)
-        if not (MIN_AREA <= area <= MAX_AREA) or _border_share(mask) > MAX_BORDER:
+        mask, area = body_mask(frame, plate, tolerance, shadow_ratio)
+        if not (min_area <= area <= max_area) or _border_share(mask) > max_border:
             continue
         ys, xs = np.nonzero(mask)
         candidates.append({"index": int(index), "frame": frame, "mask": mask,

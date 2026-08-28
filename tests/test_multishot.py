@@ -126,3 +126,20 @@ def test_a_recording_with_nobody_in_it_returns_nothing_to_composite(tmp_path):
                    input=raw, check=True)
     picture, _ = multishot(path, n_bodies=4, width=W)
     assert picture is None
+
+
+def test_the_body_size_bounds_can_be_moved_for_a_different_framing(travelling):
+    """Generalisable across videos, tuned for humans at studio distance.
+
+    The defaults describe a whole person filling 0.4 to 6 per cent of the frame. A closer
+    camera, a wider room or a seated subject breaks that, and the failure is silent --- no
+    candidate matches, and an empty result looks like an empty room rather than like a
+    bound that matched nothing. So the bounds are arguments.
+    """
+    impossible, _ = multishot(travelling, n_bodies=2, width=320,
+                              min_area=0.30, max_area=0.40)
+    assert impossible is None, "a bound matching nothing should return nothing"
+
+    generous, _ = multishot(travelling, n_bodies=2, width=320,
+                            min_area=0.0005, max_area=0.9)
+    assert generous is not None
