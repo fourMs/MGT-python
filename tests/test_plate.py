@@ -124,21 +124,32 @@ def test_a_prop_standing_through_a_quiet_stretch_stays_out_of_the_room(tmp_path)
     second would pass whether or not the fix did anything --- three earlier versions of
     this fixture did exactly that, because the moving block crossed the prop's location,
     or was wide enough to enter the first-pass plate itself.
+
+    **The gap between the two stretches has to be enormous, not merely present.** A
+    fourth version used a block of 2000 px against a 625 px prop and passed on Linux and
+    Windows and failed on macOS, where a different x264 build's ringing was enough to
+    change which frames came out emptiest. At 19 per cent against 0.8 the ordering is a
+    property of the scene rather than of the encoder.
+
+    **And the block has to CLEAR each column.** A fifth version made it big by making it
+    wide, in a frame narrow enough that it covered the middle columns in nearly every
+    busy frame -- so the block entered the first-pass plate itself, and the busy frames
+    then read as the empty ones. Big and transient, which needs a wider frame.
     """
     import subprocess
     import warnings
 
-    W, H, frames = 160, 120, 90
+    W, H, frames = 320, 240, 90
     rng = np.random.default_rng(3)
     background = rng.integers(48, 160, size=(H, W), dtype=np.uint8)
     raw = bytearray()
     for i in range(frames):
         frame = background.copy()
         if i >= 60:                          # the quiet stretch: a prop, and nothing else
-            frame[88:113, 120:145] = 250     # 625 px, still, clear of the block's rows
-        else:                                # the busy stretch: a larger, faster block
-            x = 4 + int(i * 1.8)             # 2000 px, gone from any column soon enough
-            frame[35:85, x:x + 40] = 250     # not to enter the first-pass plate
+            frame[200:225, 260:285] = 250    # 625 px, 0.8 per cent, clear of the block
+        else:                                # the busy stretch: a big, TRANSIENT block
+            x = int(i * 4)                   # 14400 px, 19 per cent, and it clears any
+            frame[0:180, x:x + 80] = 250     # column in 20 frames of 60
         raw += frame.tobytes()
     path = str(tmp_path / "prop.mp4")
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo",
@@ -151,11 +162,11 @@ def test_a_prop_standing_through_a_quiet_stretch_stays_out_of_the_room(tmp_path)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", RuntimeWarning)
         clustered, used = room_plate(path, n_samples=60, width=W, stratify=False)
-    assert clustered[92:110, 123:142].mean() > 200, "the fixture does not reproduce the bug"
+    assert clustered[203:222, 263:282].mean() > 200, "the fixture does not reproduce the bug"
     assert max(used) - min(used) < 20, "the old choice was supposed to cluster"
 
     spread_plate, used = room_plate(path, n_samples=60, width=W, stratify=True)
-    assert spread_plate[92:110, 123:142].mean() < 150, "the prop is still in the room"
+    assert spread_plate[203:222, 263:282].mean() < 150, "the prop is still in the room"
     assert max(used) - min(used) > 60
 
 
@@ -163,17 +174,17 @@ def test_a_plate_built_from_one_stretch_says_so(tmp_path):
     """Silence would let a plate describing one moment pass as a plate of the room."""
     import subprocess
 
-    W, H, frames = 160, 120, 90
+    W, H, frames = 320, 240, 90
     rng = np.random.default_rng(4)
     background = rng.integers(48, 160, size=(H, W), dtype=np.uint8)
     raw = bytearray()
     for i in range(frames):
         frame = background.copy()
         if i >= 60:
-            frame[88:113, 120:145] = 250
+            frame[200:225, 260:285] = 250
         else:
-            x = 4 + int(i * 1.8)
-            frame[35:85, x:x + 40] = 250
+            x = int(i * 4)
+            frame[0:180, x:x + 80] = 250
         raw += frame.tobytes()
     path = str(tmp_path / "prop.mp4")
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo",
