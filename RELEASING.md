@@ -75,3 +75,11 @@ NEW concept DOI and freeze the old lineage: the integration cannot see a deposit
 create. Repoint `CITATION.cff`, the README badge and the docs landing page at the new concept, and
 signpost the old record. `deposit/_curation/toolbox_doi_check.py` in the Still Standing project
 checks all of this and names what is wrong.
+
+## Two environmental snags, each worth a failed attempt once
+
+`gh` is installed as a snap and cannot read files under `/tmp`, so release notes passed
+with `--notes-file` must live somewhere real — the home directory works. And
+`gh release create --target` rejects a short SHA; give it the full 40 characters from
+`git rev-parse`. When the tag already exists at the right commit, `--target` is not
+needed at all.
