@@ -205,7 +205,8 @@ def multishot(video, n_bodies: int = 8, n_candidates: int = 120, start=None, end
               max_area: float = MAX_AREA, max_border: float = MAX_BORDER,
               shadow_ratio: float = SHADOW_RATIO, region=None,
               segmenter: str = "plate", select: str = "spaced",
-              background: str = "plate", colorize: bool = False):
+              background: str = "plate", colorize: bool = False,
+              animate: bool = False):
     """A chronophotograph of one recording, or of one span of it.
 
     Args:
@@ -256,11 +257,16 @@ def multishot(video, n_bodies: int = 8, n_candidates: int = 120, start=None, end
         colorize (bool): Tint each body by time, early to late, so the order reads. Off
             by default because it changes the pixels: a tinted composite is a diagram
             rather than a photograph of the room.
+        animate (bool): Return the build-up rather than only its end: the bare room,
+            then one more body per frame, in time order. The same moments, chosen the
+            same way --- the animation is the composite gaining its bodies, not a
+            different selection.
 
     Returns:
-        tuple: `(picture, plate)`, both BGR. **`picture` is None** when no frame held a
-        body of a plausible size --- an empty room is not a result and is not returned as
-        one.
+        tuple: `(picture, plate)`, both BGR. With `animate=True`, `picture` is instead
+        a list of BGR frames, the bare plate first and the full composite last.
+        **`picture` is None** when no frame held a body of a plausible size --- an
+        empty room is not a result and is not returned as one.
     """
     import cv2
 
@@ -362,6 +368,7 @@ def multishot(video, n_bodies: int = 8, n_candidates: int = 120, start=None, end
     if colorize:
         import matplotlib
         tint = matplotlib.colormaps["viridis"]
+    stages = [plate.copy()] if animate else None
     for order, c in enumerate(chosen):
         alpha = cv2.GaussianBlur(c["mask"].astype(np.float32),
                                  (feather * 2 + 1, feather * 2 + 1), 0)[..., None]
@@ -370,6 +377,10 @@ def multishot(video, n_bodies: int = 8, n_candidates: int = 120, start=None, end
             colour = np.array(tint(order / max(len(chosen) - 1, 1))[:3]) * 255
             body = body * 0.5 + colour[::-1] * 0.5      # RGB -> BGR
         canvas = body * alpha + canvas * (1 - alpha)
+        if stages is not None:
+            stages.append(np.clip(canvas, 0, 255).astype(np.uint8))
+    if stages is not None:
+        return stages, plate
     return np.clip(canvas, 0, 255).astype(np.uint8), plate
 
 
@@ -380,6 +391,7 @@ def mg_multishot(self: "musicalgestures.MgVideo", n_bodies: int = 8,
                  max_border: float = MAX_BORDER, shadow_ratio: float = SHADOW_RATIO,
                  region=None, segmenter: str = "plate", select: str = "spaced",
                  background: str = "plate", colorize: bool = False,
+                 animate: bool = False, frame_ms: int = 700,
                  target_name: str | None = None, overwrite: bool = True) -> "MgImage":
     """Many moments of this recording in one picture, as an `MgImage`.
 
@@ -388,11 +400,16 @@ def mg_multishot(self: "musicalgestures.MgVideo", n_bodies: int = 8,
     `stroboscope()`.
 
     Args:
-        target_name (str, optional): Output name. Defaults to "_multishot.png".
+        animate (bool): Write a looping GIF of the build-up instead of the still: the
+            bare room first, one more body per frame in time order, and the finished
+            composite held for three frames' worth at the end.
+        frame_ms (int): Milliseconds per animation frame. Defaults to 700.
+        target_name (str, optional): Output name. Defaults to "_multishot.png", or
+            "_multishot.gif" when `animate=True`.
         overwrite (bool, optional): Overwrite or auto-increment. Defaults to True.
 
     Returns:
-        MgImage: the composite.
+        MgImage: the composite, or the GIF of it building up.
 
     Raises:
         ValueError: when no frame held a body of a plausible size. An empty room is not
@@ -403,20 +420,31 @@ def mg_multishot(self: "musicalgestures.MgVideo", n_bodies: int = 8,
 
     from musicalgestures._utils import MgImage, resolve_filename
 
-    target_name = resolve_filename(self.of, "_multishot.png", target_name, overwrite)
+    suffix = "_multishot.gif" if animate else "_multishot.png"
+    target_name = resolve_filename(self.of, suffix, target_name, overwrite)
     picture, _ = multishot(self.filename, n_bodies=n_bodies, n_candidates=n_candidates,
                            start=start, end=end, width=width, tolerance=tolerance,
                            feather=feather, min_area=min_area, max_area=max_area,
                            max_border=max_border, shadow_ratio=shadow_ratio,
                            region=region, segmenter=segmenter, select=select,
-                           background=background, colorize=colorize)
+                           background=background, colorize=colorize, animate=animate)
     if picture is None:
         raise ValueError(
             f"no frame of {self.filename} held a body covering between "
             f"{min_area * 100:.1f} and {max_area * 100:.1f} per cent of the frame. "
             f"Move `min_area`/`max_area` if the framing differs from a whole person at "
             f"studio distance.")
-    cv2.imwrite(target_name, picture)
+    if animate:
+        from PIL import Image
+
+        #: BGR arrays -> RGB stills; the last frame holds so the finished composite
+        #: can be read before the loop restarts.
+        stills = [Image.fromarray(f[..., ::-1]) for f in picture]
+        stills[0].save(target_name, save_all=True, append_images=stills[1:],
+                       duration=[frame_ms] * (len(stills) - 1) + [frame_ms * 3],
+                       loop=0)
+    else:
+        cv2.imwrite(target_name, picture)
     self.multishot_image = MgImage(target_name)
     return self.multishot_image
 

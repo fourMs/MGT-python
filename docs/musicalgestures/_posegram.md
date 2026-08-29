@@ -3,6 +3,11 @@
 Which part of the body moved, and when—and the same question asked on the image's own
 axes so it can be laid beside a motiongram.
 
+![Posegram of the bundled dancer example](../images/examples/dancer_posegram.png)
+
+*The bundled `dancer.avi`: one row per landmark, head to foot, coloured by that
+landmark's speed. The dance lives in the arm and hand rows; the legs stay dark.*
+
 `pose_waterfall` and the trajectory renders say *where* the body went, `pose_segments` how
 its limbs were angled, `pose_center` how its centre moved. None of them answers what a
 motiongram answers for pixels: what was moving at 04:12. That is usually the question

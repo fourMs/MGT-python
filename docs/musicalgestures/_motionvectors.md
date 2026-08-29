@@ -65,7 +65,9 @@ representation a first pass wants:
 
 *The bundled `dancer.avi` on one sheet. The amount map draws the arc the arms swept
 around a body that never moved its feet, and the motiongrams carry the same dance as
-oscillations against time.*
+oscillations against time. Both motiongram panels run time left to right so the sheet
+reads on one clock; the vertical motiongram is therefore shown transposed relative to
+the classic tall rendering, where its time runs downward.*
 
 About five minutes for a 100-minute 1920x1080 recording, against roughly twenty-four for
 the same views computed one at a time, because decoding is nearly the whole cost and each
@@ -81,9 +83,10 @@ crossing a room, wrong for a shaking hand.
 
 ## Every timescale at once
 
-`motionscape()` builds a Sapp-style scape of the quantity of motion—the construction
-behind a keyscape, where each row is a window length and the apex is a single window
-covering the whole recording.
+`motionscape()` draws the quantity of motion at every timescale at once: a triangle
+whose base row is the motion in short windows, each row above a longer window, and the
+apex one window covering the whole recording. The construction comes from Craig Sapp's
+keyscapes, which do the same for tonality.
 
 ![Motionscape of the bundled dancer example](../images/examples/dancer_motionscape.png)
 

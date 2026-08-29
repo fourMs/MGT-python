@@ -290,3 +290,40 @@ def test_a_body_merely_near_the_edge_is_not_rejected():
     mask = np.zeros((240, 320), np.uint8)
     mask[80:200, 8:90] = 1                         # close to the left edge, not on it
     assert not touches_edge(mask)
+
+
+def test_animate_returns_the_build_up_one_body_at_a_time(travelling):
+    """`animate=True` gives the frames of the build-up: the room, then +1 body each.
+
+    The count is checked in the pictures rather than trusted: frame k must hold exactly
+    k bodies, counted as connected components, and frame 0 must be the bare plate.
+    """
+    import cv2
+
+    frames, plate = multishot(travelling, n_bodies=3, width=320, animate=True)
+    assert isinstance(frames, list)
+    assert len(frames) == 4, "expected the plate plus one frame per body"
+    for k, picture in enumerate(frames):
+        changed = (np.abs(picture.astype(np.int16)
+                          - plate.astype(np.int16)).max(axis=2) > 20).astype(np.uint8)
+        n, _, stats, _ = cv2.connectedComponentsWithStats(changed, 8)
+        big = sum(1 for i in range(1, n) if stats[i, cv2.CC_STAT_AREA] > 300)
+        assert big == k, f"frame {k} holds {big} bodies"
+
+
+def test_the_method_writes_a_gif_when_asked(travelling):
+    """The method form of `animate=True` is a looping GIF beside the usual PNG."""
+    import os
+
+    from PIL import Image
+
+    import musicalgestures
+
+    image = musicalgestures.MgVideo(travelling).multishot(n_bodies=3, width=320,
+                                                          animate=True)
+    assert isinstance(image, musicalgestures.MgImage)
+    assert image.filename.endswith(".gif")
+    assert os.path.exists(image.filename)
+    with Image.open(image.filename) as gif:
+        assert gif.is_animated
+        assert gif.n_frames == 4

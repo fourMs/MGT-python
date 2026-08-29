@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **`multishot(animate=True)`** — the chronophotograph as a looping GIF of its own
+  build-up: the bare room first, then one more body per frame in time order, with the
+  finished composite held at the end. The same moments, chosen the same way; the
+  animation is the composite gaining its bodies, not a different selection. The method
+  form writes `_multishot.gif` and takes `frame_ms`; the function form returns the list
+  of frames.
+
 ### Fixed
 - **`extract_tracks_parallel` leaked one live ffmpeg per finished chunk.** Every bounded
   chunk's decoder holds more frames than the worker reads, so it is blocked mid-write to

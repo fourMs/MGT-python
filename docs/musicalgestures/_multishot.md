@@ -14,6 +14,13 @@ spreads over the gesture instead of the floor and the picture becomes a Marey-st
 chronophotograph of the arms. A subject who travels reads as separate figures across
 the room.*
 
+The build-up is available as a looping GIF with `animate=True`: the bare room first,
+then one more body per frame in time order, with the finished composite held at the end.
+The same moments, chosen the same way—the animation is the composite gaining its bodies,
+not a different selection.
+
+![Animated multishot build-up of the bundled dancer example](../images/examples/dancer_multishot_build.gif)
+
 As a method, which is how the rest of the object API reads:
 
 ```python
@@ -21,6 +28,7 @@ import musicalgestures as mg
 
 video = mg.MgVideo("session.mp4")
 video.multishot(n_bodies=8, start=1932, end=4478)   # -> MgImage
+video.multishot(n_bodies=8, animate=True)           # -> looping GIF of the build-up
 video.plate(width=1920)                             # the room on its own -> MgImage
 ```
 

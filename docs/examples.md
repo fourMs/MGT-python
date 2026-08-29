@@ -22,6 +22,10 @@ df = pd.read_csv(csv_path)
 print(df.head())
 ```
 
+![The motion video the example produces](images/examples/motion.gif)
+
+*The motion video the example produces.*
+
 ### Example 2: Audio-Visual Analysis
 
 ```python
@@ -42,6 +46,12 @@ waveform = mv.audio.waveform()
 spectrogram = mv.audio.spectrogram()
 descriptors = mv.audio.descriptors()
 ```
+
+![The pianist's vertical motiongram](images/examples/pianist_motiongram_v.png)
+
+![The pianist's spectrogram](images/examples/pianist_spectrogram.png)
+
+*The pianist's vertical motiongram, and the spectrogram from the same file.*
 
 ## Advanced Examples
 
@@ -69,6 +79,10 @@ motiongrams = mv.motiongrams()
 print(f"Duration: {mv.duration:.2f}s at {mv.fps} fps")
 ```
 
+![The same frame as recorded and after the preprocessing chain](images/examples/preprocessing_before_after.png)
+
+*The same frame as recorded and after the preprocessing chain.*
+
 ### Example 4: Batch Processing Multiple Videos
 
 ```python
@@ -95,6 +109,10 @@ def analyze_video_batch(video_pattern):
 # results = analyze_video_batch('videos/*.mp4')
 ```
 
+![The same call over three clips: one motiongram each](images/examples/batch_motiongrams.png)
+
+*The same call over three clips: one motiongram each.*
+
 ### Example 5: Detailed Audio Analysis
 
 ```python
@@ -114,6 +132,12 @@ descriptors = audio.descriptors()
 spectrogram.show()
 spectrogram.figure   # matplotlib Figure
 ```
+
+![The pianist's audio descriptors](images/examples/pianist_descriptors.png)
+
+![The pianist's tempogram](images/examples/pianist_tempogram.png)
+
+*The pianist's audio descriptors, and the tempogram from the same file.*
 
 ### Example 6: Pose Estimation
 
@@ -136,6 +160,10 @@ except Exception as e:
     print(f"Pose estimation failed: {e}")
 ```
 
+![Postures from the pose pipeline, as a timeline strip](images/examples/dancer_pose_timeline_strip.png)
+
+*Postures from the pose pipeline, as a timeline strip.*
+
 ### Example 7: Optical Flow
 
 ```python
@@ -156,6 +184,10 @@ velocity = mv.flow.dense(velocity=True, distance=3.5, angle_of_view=80)
 xvel = velocity.data['xvel']
 yvel = velocity.data['yvel']
 ```
+
+![Dense optical flow of the dancer](images/examples/flow_dense.gif)
+
+*Dense optical flow of the dancer.*
 
 ### Example 8: Custom Visualisation Parameters
 
@@ -183,6 +215,10 @@ history.show()
 average_img.show()
 ```
 
+![The pianist's horizontal motiongram under the custom settings](images/examples/motiongram_custom.png)
+
+*The pianist's horizontal motiongram under the custom settings.*
+
 ### Example 8b: Resampling (frame rate and speed)
 
 ```python
@@ -197,6 +233,10 @@ dec  = mv.resample(skip=2)        # discard 2 frames for every one kept
 
 mv25.show()
 ```
+
+![The same recording's motiongram before and after resample(skip=2)](images/examples/resample_comparison.png)
+
+*The same recording's motiongram before and after resample(skip=2).*
 
 ### Example: Motion descriptors
 
@@ -273,6 +313,10 @@ print(table)
 print(f"tempo doubles every {t_double:.2f}s (R²={r2:.2f})")
 ```
 
+![The example's strokes, cycle intervals and fitted accelerando](images/examples/pulse_accelerando.png)
+
+*The example's strokes, cycle intervals and fitted accelerando.*
+
 See the toolkit's [user guide](user-guide/sound-movement-toolkit.md) for the quantity-of-motion,
 alignment, posturography, physiology, mocap-I/O and pose-trajectory function families.
 
@@ -307,6 +351,10 @@ features = extract_motion_features(mg.examples.dance)
 for key, value in features.items():
     print(f"{key}: {value:.4f}")
 ```
+
+![Motion descriptors of the dancer](images/examples/motiondescriptors.png)
+
+*Motion descriptors of the dancer.*
 
 ### Example 10: Comparative Motion Analysis
 
@@ -345,6 +393,10 @@ plt.savefig('comparison.png', dpi=150)
 plt.show()
 ```
 
+![The comparison figure the example saves](images/examples/comparison_dance_pianist.png)
+
+*The comparison figure the example saves.*
+
 ### Example 11: Stacking Figures with MgList
 
 ```python
@@ -366,6 +418,10 @@ fig = combined.as_figure(title='Motion and Audio Analysis')
 fig.show()
 ```
 
+![The stacked, time-aligned figure MgList builds](images/examples/mglist_stack.png)
+
+*The stacked, time-aligned figure MgList builds.*
+
 ### Example 12: Method Chaining
 
 ```python
@@ -380,6 +436,10 @@ mg.MgVideo(mg.examples.dance, skip=3).motionvideo().history(normalize=True).show
 # Chain motion → average image → show
 mg.MgVideo(mg.examples.dance, skip=15).motionvideo().average().show()
 ```
+
+![The chained call ends in the same motion video](images/examples/motion.gif)
+
+*The chained call ends in the same motion video.*
 
 ## Gallery
 
