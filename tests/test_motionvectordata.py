@@ -39,25 +39,14 @@ class Test_displacement:
         assert np.median(moved) == pytest.approx(4, abs=1.0)
 
     def test_recovers_the_vertical_displacement_it_was_given(self, moving_down):
-        """3 px a frame, within the spread that the reference distance introduces.
+        """3 px a frame, within the spread the multi-reference residual introduces.
 
-        **The tolerance is wide for a reason, and the reason is a real limitation.**
-        `motion_x`/`motion_y` are divided by `source`, and FFmpeg's `source` carries only
-        the SIGN of the reference -- past or future -- not its DISTANCE. A vector
-        referencing a frame two back therefore reports twice the per-frame displacement,
-        and an encode mixing distance-1 and distance-2 references gives a median between
-        the two.
-
-        That is not hypothetical: ffmpeg 6.1.1 emits only distance-1 references here and
-        this reads exactly 3.00, while CI's newer build mixes them and reads 4.5 -- on
-        all nine matrix jobs, so it is the encoder and not flakiness. The test was
-        written against one encoder and had never run on another, because CI did not
-        install PyAV until 1.21.0.
-
-        The narrow assertions worth keeping are elsewhere in this class: sign, and the
-        absence of a component on the unmoved axis. Whether the reader should divide by
-        the reference distance is a question about the measure rather than about this
-        test.
+        The cadence part of the reference distance is corrected now --- see
+        Test_reference_distance --- but a block reaching an OLDER reference through
+        multi-reference prediction still over-reports, and which blocks do that is the
+        encoder's choice: ffmpeg 6.1.1 emits only distance-1 references here and reads
+        exactly 3.00, while CI's newer build mixes references. The tolerance covers
+        that residual, not the cadence, which is asserted tightly below.
         """
         mv = musicalgestures.MgVideo(moving_down).motionvectordata()
         moved = mv.median_dy[mv.n_vectors > 0]
@@ -146,3 +135,31 @@ class Test_it_is_cheap:
     def test_reports_how_many_frames_carried_vectors(self, moving_right):
         mv = musicalgestures.MgVideo(moving_right).motionvectordata()
         assert 0 < int((mv.n_vectors > 0).sum()) <= len(mv.time)
+
+
+class Test_reference_distance:
+    """The cadence part of the reference distance is corrected, and says so in numbers.
+
+    FFmpeg's `source` carries only the sign of the reference, so a P-frame that follows
+    a run of B-frames reports its whole multi-frame displacement as if it were one
+    frame's. The distance to the previous REFERENCE frame is recoverable from the
+    picture-type cadence while decoding, and that is the correction under test: with a
+    forced I B B P cadence and single reference, every P-frame's vectors span exactly
+    3 display frames, and a block moving 2 px a frame must read 2, not 6.
+
+    What this cannot correct, and is not tested: blocks reaching an older reference
+    through multi-reference prediction (suppressed here with ref=1), and B-frame
+    vectors that point at a future reference, which the toolbox excludes by default.
+    """
+
+    @pytest.fixture(scope="class")
+    def cadenced(self, tmp_path_factory):
+        return moving_block_video(tmp_path_factory.mktemp("mv") / "cadence.mp4",
+                                  dx=2, dy=0, frames=60,
+                                  x264opts="bframes=2:b-adapt=0:ref=1")
+
+    def test_a_p_frame_after_b_frames_reports_per_frame_displacement(self, cadenced):
+        mv = musicalgestures.MgVideo(cadenced).motionvectordata()
+        p = (mv.picture_type == "P") & (mv.n_vectors > 0) & (mv.median_dx != 0)
+        assert p.sum() > 5
+        assert np.median(mv.median_dx[p]) == pytest.approx(2, abs=0.75)

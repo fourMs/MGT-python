@@ -104,16 +104,20 @@ def mg_motionvectordata(self: "musicalgestures.MgVideo") -> "MgMotionVectorData"
     predicted. Without it a B-frame's vectors point backwards half the time and averaging
     them gives roughly nothing.
 
-    **What that normalisation cannot fix is the reference distance.** `source` records
-    only the direction, plus or minus one, never how many frames away the reference was.
-    An encoder with multiple reference frames will predict some blocks from two or four
-    frames back, and those read as two or four times the per-frame displacement. Measured
-    on a block moving 4 pixels per frame, 53 per cent of vectors came back as 4 and the
-    rest as 8 or 16, with `source` at plus or minus one throughout. So `median_dx` and
-    `median_dy` are medians for a reason and are robust to it; `magnitude` is a sum and is
-    not, and inherits the over-count. Treat `magnitude` as a quantity to correlate against
-    itself over time, which is what it was validated for, rather than as pixels per
-    second.
+    **The reference distance is corrected from the cadence, with two residuals.**
+    `source` records only the direction, plus or minus one, never how many frames away
+    the reference was, so the distance is recovered instead from the picture-type
+    cadence: past-referencing vectors are divided by the display-order gap to the
+    previous reference frame, which makes a P-frame after a run of B-frames read
+    per-frame displacement rather than the whole span's. What the cadence cannot see:
+    blocks reaching an OLDER reference through multi-reference prediction --- measured
+    on a block moving 4 pixels per frame, such blocks read as 8 or 16 with `source` at
+    plus or minus one throughout --- and B-frame vectors pointing at a future
+    reference, which default filtering excludes. So `median_dx` and `median_dy` are
+    medians for a reason and are robust to the residuals; `magnitude` is a sum and
+    inherits what remains of the over-count. Treat `magnitude` as a quantity to
+    correlate against itself over time, which is what it was validated for, rather
+    than as pixels per second.
 
     Returns:
         MgMotionVectorData: `time` in seconds, `picture_type` as 'I'/'P'/'B',
@@ -152,10 +156,27 @@ def mg_motionvectordata(self: "musicalgestures.MgVideo") -> "MgMotionVectorData"
     magnitude: list[float] = []
     med_dx: list[float] = []
     med_dy: list[float] = []
+    #: The reference distance, recovered from the cadence. `source` carries only the
+    #: SIGN of the reference --- measured on a real encode it is plus or minus one
+    #: throughout, whatever the distance --- so a P-frame that follows a run of
+    #: B-frames reports its whole multi-frame displacement as one frame's. What IS
+    #: recoverable while decoding in display order is the gap back to the previous
+    #: reference frame (I or P), and dividing the past-referencing vectors by that gap
+    #: corrects the cadence part exactly. Two residuals remain and are documented
+    #: rather than hidden: blocks reaching an OLDER reference through multi-reference
+    #: prediction, and B-frame vectors pointing at a future reference --- the toolbox
+    #: excludes B-frames by default, and their vectors were already the worse signal.
+    display_idx = -1
+    last_ref_idx = None
     for frame in container.decode(stream):
+        display_idx += 1
+        kind = _PICTURE_TYPES.get(int(frame.pict_type), "?")
+        past_gap = 1.0 if last_ref_idx is None else max(1.0, display_idx - last_ref_idx)
+        if kind in ("I", "P"):
+            last_ref_idx = display_idx
         time.append(float(frame.pts * stream.time_base) if frame.pts is not None
                     else (time[-1] if time else 0.0))
-        kinds.append(_PICTURE_TYPES.get(int(frame.pict_type), "?"))
+        kinds.append(kind)
         vectors = frame.side_data.get("MOTION_VECTORS")
         table = vectors.to_ndarray() if vectors is not None else None
         if table is None or len(table) == 0:
@@ -165,20 +186,20 @@ def mg_motionvectordata(self: "musicalgestures.MgVideo") -> "MgMotionVectorData"
             med_dy.append(0.0)
             continue
         scale = np.maximum(table["motion_scale"].astype(np.float64), 1)
-        #: Two corrections in one division, and both are needed to get a number that
-        #: means "which way did this move, per frame".
-        #:
-        #: ffmpeg defines the vector as `src = dst + motion / motion_scale`, so it
-        #: points from where the block is now back to where it came from: content
-        #: travelling right carries a NEGATIVE motion_x. And `source` is negative when
-        #: the reference is an earlier frame, positive when it is a later one, with its
-        #: magnitude the distance in frames. Dividing by `source` undoes both --- the
-        #: backwards sense of the vector and the backwards sense of a future reference
-        #: cancel --- and scales a multi-frame prediction down to one frame.
+        #: Two corrections in one division: ffmpeg defines the vector as
+        #: `src = dst + motion / motion_scale`, so it points from where the block is
+        #: now back to where it came from --- content travelling right carries a
+        #: NEGATIVE motion_x --- and `source` is negative for a past reference,
+        #: positive for a future one. Dividing by `source` undoes both senses; the
+        #: cadence gap above then scales the past-referencing multi-frame predictions
+        #: down to one frame.
         source = table["source"].astype(np.float64)
         source[source == 0] = -1
         dx = table["motion_x"].astype(np.float64) / scale / source
         dy = table["motion_y"].astype(np.float64) / scale / source
+        past = source < 0
+        dx[past] /= past_gap
+        dy[past] /= past_gap
         area = table["w"].astype(np.float64) * table["h"]
         counts.append(len(table))
         magnitude.append(float((np.hypot(dx, dy) * area).sum()))
@@ -282,15 +303,25 @@ def motion_vector_grid(filename, deterministic=False, threshold=0.0):
     rows = max(1, -(-height // _GRID))
 
     previous_time = 0.0
+    display_idx = -1
+    last_ref_idx = None
     try:
         for frame in container.decode(stream):
+            display_idx += 1
+            kind = _PICTURE_TYPES.get(int(frame.pict_type), "?")
+            #: The cadence gap to the previous reference frame; see motionvectordata
+            #: for why `source` cannot provide the distance itself.
+            past_gap = (1.0 if last_ref_idx is None
+                        else max(1.0, display_idx - last_ref_idx))
+            if kind in ("I", "P"):
+                last_ref_idx = display_idx
             vx = np.zeros((rows, cols), np.float64)
             vy = np.zeros((rows, cols), np.float64)
             w = np.zeros((rows, cols), np.float64)
             t = (float(frame.pts * stream.time_base)
                  if frame.pts is not None else previous_time)
             previous_time = t
-            is_p = _PICTURE_TYPES.get(int(frame.pict_type), "?") == "P"
+            is_p = kind == "P"
             mvs = frame.side_data.get("MOTION_VECTORS")
             table = mvs.to_ndarray() if mvs is not None else None
             if table is not None and len(table):
@@ -299,6 +330,9 @@ def motion_vector_grid(filename, deterministic=False, threshold=0.0):
                 source[source == 0] = -1
                 dx = table["motion_x"].astype(np.float64) / scale / source
                 dy = table["motion_y"].astype(np.float64) / scale / source
+                past = source < 0
+                dx[past] /= past_gap
+                dy[past] /= past_gap
                 area = (table["w"].astype(np.float64) * table["h"])
                 if threshold > 0:
                     keep = np.hypot(dx, dy) >= threshold

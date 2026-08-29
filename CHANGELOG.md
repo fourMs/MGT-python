@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- **Motion-vector displacements are corrected for the reference cadence.** FFmpeg's
+  `source` carries only the sign of a vector's reference, so a P-frame following a run
+  of B-frames reported its whole multi-frame displacement as one frame's — 3× to 4× on
+  typical B-heavy encodes. Past-referencing vectors are now divided by the
+  display-order gap to the previous reference frame, recovered from the picture-type
+  cadence while decoding. This changes every motion-vector number on B-frame encodes:
+  displacements, `magnitude`, the grams and everything built on them. Two residuals
+  remain and are documented: multi-reference blocks reaching older frames, and
+  future-referencing B-frame vectors, which default filtering excludes.
 - **The motion-vector motiongrams now use the classic orientations, named for the
   picture.** The vertical motiongram is the tall image — the frame's width across,
   time running downward — and carries sideways travel; the horizontal motiongram is

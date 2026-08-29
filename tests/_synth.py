@@ -84,7 +84,7 @@ def decaying_tone(t60, sr=SR, f=440.0, dur=None, onset=0.05):
 
 
 def moving_block_video(path, dx=4, dy=0, frames=40, size=(320, 240), block=48,
-                       fps=25, noise=0):
+                       fps=25, noise=0, x264opts=None):
     """An H.264 clip of one textured block translating by an exact (dx, dy) per frame.
 
     Motion vectors are a claim about displacement, so testing them needs footage whose
@@ -128,10 +128,14 @@ def moving_block_video(path, dx=4, dy=0, frames=40, size=(320, 240), block=48,
             frame[y:y + block, x:x + block] = texture
         raw += frame.tobytes()
 
+    #: `x264opts` pins the encoder's structure where a test needs it deterministic ---
+    #: for example "bframes=2:b-adapt=0:ref=1" for a fixed I B B P cadence with single
+    #: reference, so every P-frame's reference is exactly 3 display frames back.
+    extra = ["-x264opts", x264opts] if x264opts else []
     subprocess.run(
         ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "gray",
          "-s", f"{W}x{H}", "-r", str(fps), "-i", "pipe:0",
-         "-c:v", "libx264", "-pix_fmt", "yuv420p", "-g", "12", str(path)],
+         "-c:v", "libx264", "-pix_fmt", "yuv420p", "-g", "12", *extra, str(path)],
         input=bytes(raw), check=True)
     return str(path)
 
@@ -154,7 +158,7 @@ def intra_only_video(path, frames=12, size=(160, 120), fps=25):
 
 
 def oscillating_block_video(path, amplitude=40, period=12, frames=96, size=(320, 240),
-                            block=48, fps=25):
+                            block=48, fps=25, x264opts=None):
     """A block that goes back and forth, so its direction cancels but its motion does not.
 
     The counterpart to `moving_block_video`: both leave the same amount of movement in
@@ -176,9 +180,13 @@ def oscillating_block_video(path, amplitude=40, period=12, frames=96, size=(320,
         x = max(0, min(W - block, x))
         frame[y0:y0 + block, x:x + block] = texture
         raw += frame.tobytes()
+    #: `x264opts` pins the encoder's structure where a test needs it deterministic ---
+    #: for example "bframes=2:b-adapt=0:ref=1" for a fixed I B B P cadence with single
+    #: reference, so every P-frame's reference is exactly 3 display frames back.
+    extra = ["-x264opts", x264opts] if x264opts else []
     subprocess.run(
         ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "gray",
          "-s", f"{W}x{H}", "-r", str(fps), "-i", "pipe:0",
-         "-c:v", "libx264", "-pix_fmt", "yuv420p", "-g", "12", str(path)],
+         "-c:v", "libx264", "-pix_fmt", "yuv420p", "-g", "12", *extra, str(path)],
         input=bytes(raw), check=True)
     return str(path)
