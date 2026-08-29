@@ -130,7 +130,7 @@ def _audio_strips(audio, n_points, width):
 def zoomable_page(analysis_dir, duration_s: float, out, hierarchy=None,
                   max_points: int = 8000, videogram_width: int = 3000,
                   title: str = "session", which: str = "videogram_v",
-                  video=None, audio=None):
+                  video=None, audio=None, player=None):
     """Write a self-contained HTML page that zooms from the whole session to one action.
 
     Args:
@@ -149,6 +149,12 @@ def zoomable_page(analysis_dir, duration_s: float, out, hierarchy=None,
         audio (optional): Path to an audio (or video) file. When given, the page gains
             an audio band that switches between a waveform and a log-mel spectrogram,
             on the same clock as everything else.
+        player (str, optional): RELATIVE name of a video file to play above the
+            strips --- for example the proxy that ships in the same folder as the
+            page. Clicking the timeline seeks the video, and a playhead runs across
+            every band during playback. A relative name on purpose: the page stays
+            serverless and needs only the folder it ships in, and it degrades to the
+            strips alone when the file is not beside it.
 
     Returns:
         Path: The file written.
@@ -187,9 +193,13 @@ def zoomable_page(analysis_dir, duration_s: float, out, hierarchy=None,
         "video": strips,
         "audio": (_audio_strips(audio, budget["n_points"], videogram_width)
                   if audio is not None else None),
+        "player": str(player) if player is not None else None,
     }
+    player_markup = ('<div id="pwrap"><video id="v" controls '
+                     'preload="metadata"></video></div>' if player else "")
     html = (_TEMPLATE.replace("__DATA__", json.dumps(payload))
-                     .replace("__TITLE__", str(title)))
+                     .replace("__TITLE__", str(title))
+                     .replace("__PLAYER__", player_markup))
     out = Path(out)
     out.write_text(html, encoding="utf8")
     return out
@@ -225,6 +235,8 @@ _TEMPLATE = """<!doctype html>
  #ctl button.on{color:var(--fg);border-color:var(--hl)}
  #wrap{padding:8px 14px 20px}
  canvas{width:100%;display:block;cursor:crosshair;border-radius:4px}
+ #pwrap{margin-bottom:8px}
+ video{width:100%;max-height:340px;background:#000;border-radius:4px;display:block}
  #hint{margin-top:8px}
  kbd{background:#23232e;border-radius:3px;padding:1px 5px;font-size:11px}
 </style>
@@ -233,7 +245,7 @@ _TEMPLATE = """<!doctype html>
  <div class="dim" id="sub"></div>
 </header>
 <div id="ctl"></div>
-<div id="wrap"><canvas id="c" tabindex="0"></canvas>
+<div id="wrap">__PLAYER__<canvas id="c" tabindex="0"></canvas>
  <div class="dim" id="hint">Scroll to zoom, drag to pan, <kbd>0</kbd> to reset.
   Below the finest resolution the page shows interpolation, not data.</div>
 </div>
@@ -251,6 +263,16 @@ if (D.audio){
 }
 let vsel = 0, amode = 'waveform';
 let t0 = 0, t1 = D.duration, drag = null;
+const v = document.getElementById('v');
+if (v && D.player){
+  v.src = D.player;
+  v.addEventListener('timeupdate', () => draw());
+  v.addEventListener('error', () => { v.parentElement.hidden = true; draw(); });
+  let raf = null;
+  const tick = () => { draw(); if (!v.paused) raf = requestAnimationFrame(tick); };
+  v.addEventListener('play', () => { raf = requestAnimationFrame(tick); });
+  v.addEventListener('pause', () => cancelAnimationFrame(raf));
+}
 document.getElementById('ttl').textContent = D.title;
 document.getElementById('sub').textContent =
   D.duration.toFixed(0) + ' s, ' + D.tiers.length + ' tiers, finest resolution '
@@ -357,6 +379,16 @@ function draw(){
     const m = Math.floor(t / 60), s = Math.floor(t % 60);
     ctx.fillText(nice < 1 ? t.toFixed(1) + 's' : m + ':' + String(s).padStart(2, '0'), x + 2, yb + 8);
   }
+  // the playhead, across every band, while the video is in view
+  if (v && D.player && !v.parentElement.hidden){
+    const pt = v.currentTime;
+    if (pt >= t0 && pt <= t1){
+      const x = t2x(pt, w);
+      ctx.strokeStyle = '#ffffff'; ctx.globalAlpha = 0.8;
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, yb - 10); ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+  }
   // a warning, not a silent lie, when zoomed past the data
   if (span / w < D.secondsPerPoint){
     ctx.fillStyle = '#d95f02';
@@ -370,10 +402,19 @@ c.addEventListener('wheel', e => {
   if (b - a < 0.5) { const m = (a + b) / 2; a = m - 0.25; b = m + 0.25; }
   t0 = Math.max(0, a); t1 = Math.min(D.duration, b); draw();
 }, {passive: false});
-c.addEventListener('mousedown', e => drag = {x: e.offsetX, t0, t1});
-addEventListener('mouseup', () => drag = null);
+c.addEventListener('mousedown', e => drag = {x: e.offsetX, t0, t1, moved: false});
+addEventListener('mouseup', e => {
+  // a press that never panned is a seek
+  if (drag && !drag.moved && v && D.player && !v.parentElement.hidden){
+    v.currentTime = x2t(drag.x, c.clientWidth);
+    draw();
+  }
+  drag = null;
+});
 addEventListener('mousemove', e => {
   if (!drag) return;
+  if (Math.abs(e.offsetX - drag.x) > 4) drag.moved = true;
+  if (!drag.moved) return;
   const w = c.clientWidth, dt = ((e.offsetX - drag.x) / w) * (drag.t1 - drag.t0);
   let a = drag.t0 - dt, b = drag.t1 - dt;
   if (a < 0){ b -= a; a = 0; } if (b > D.duration){ a -= b - D.duration; b = D.duration; }
@@ -384,3 +425,53 @@ addEventListener('resize', draw);
 draw();
 </script>
 """
+
+
+def mg_zoompage(self, target_name=None, overwrite: bool = True,
+                max_points: int = 8000, which: str = "videogram_v"):
+    """The zoomable page for this recording, in one call, as a method.
+
+    Everything derives from the video itself. The motion track and gram come from
+    `extract_tracks`, computed on first call and cached beside the video like every
+    other analysis; the audio band comes from the video's own soundtrack when it has
+    one; and the player is the video, referenced by its bare name, so the page works
+    from the folder the two share and needs no server.
+
+    Args:
+        target_name (str, optional): Output path. Defaults to "_zoom.html" beside
+            the video.
+        overwrite (bool, optional): Overwrite or auto-increment. Defaults to True.
+        max_points (int): Ceiling on embedded envelope points.
+        which (str): Which cached gram to embed as the strip.
+
+    Returns:
+        Path: The file written.
+    """
+    import os
+    import subprocess
+
+    from musicalgestures._tracks import extract_tracks
+    from musicalgestures._utils import resolve_filename
+
+    of, _ = os.path.splitext(self.filename)
+    target = resolve_filename(of, "_zoom.html", target_name, overwrite)
+
+    analysis = Path(self.filename).parent / "analysis" / Path(of).name
+    if not (analysis / "tracks.json").exists():
+        extract_tracks(self.filename, progress=False)
+    meta = json.loads((analysis / "tracks.json").read_text())
+    duration = int(meta["frames"]) / float(meta["fps"])
+
+    #: The audio band only when the file carries sound; a silent clip gets a page
+    #: without one rather than an error.
+    probe = subprocess.run(
+        ["ffprobe", "-v", "error", "-select_streams", "a", "-show_entries",
+         "stream=codec_type", "-of", "csv=p=0", self.filename],
+        capture_output=True, text=True)
+    has_audio = "audio" in probe.stdout
+
+    return zoomable_page(
+        analysis, duration, target, max_points=max_points, which=which,
+        audio=self.filename if has_audio else None,
+        player=os.path.basename(self.filename),
+        title=Path(of).name)

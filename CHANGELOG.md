@@ -5,6 +5,19 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **The zoomable page plays its recording.** `zoomable_page(player=...)` puts a video
+  element above the strips, referenced by RELATIVE name so the page stays serverless
+  and needs only the folder it ships in: clicking the timeline seeks the video, and a
+  playhead runs across every band during playback. The page degrades to the strips
+  alone when the file is not beside it.
+- **`MgVideo.zoompage()`** — the page for any video, in one call: the motion track and
+  gram from `extract_tracks` (computed on first call, cached beside the video), the
+  audio band from the video's own soundtrack when it has one, and the video itself as
+  the player.
+
 ## [1.24.0] — 2026-08-29
 
 ### Changed

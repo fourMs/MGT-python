@@ -315,6 +315,7 @@ class MgVideo(MgAudio):
         mg_multishot as multishot,
         mg_plate as plate,
     )
+    from musicalgestures._zoomview import mg_zoompage as zoompage  # type: ignore[misc]
     from musicalgestures._eulerian import mg_eulerian as eulerian  # type: ignore[misc]
     from musicalgestures._sonification import mg_sonomotiongram as sonomotiongram  # type: ignore[misc]
     from musicalgestures._spacetime import (  # type: ignore[misc]

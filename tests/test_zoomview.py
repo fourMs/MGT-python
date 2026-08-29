@@ -125,3 +125,42 @@ def test_without_the_new_arguments_the_page_still_has_one_videogram_strip(tmp_pa
     payload = _payload(out)
     assert [v["name"] for v in payload["video"]] == ["videogram"]
     assert payload["audio"] is None
+
+
+def test_a_player_is_embedded_when_a_video_file_is_named(tmp_path):
+    """`player=` puts a video element above the strips, referencing the file by its
+    RELATIVE name: the page stays serverless, needing only the folder it ships in."""
+    from musicalgestures._zoomview import zoomable_page
+
+    out = zoomable_page(_analysis(tmp_path), 10.0, tmp_path / "z.html",
+                        video={"videogram": np.random.rand(36, 200)},
+                        player="session_proxy.mp4")
+    html = (tmp_path / "z.html").read_text()
+    assert "<video" in html
+    assert _payload(out)["player"] == "session_proxy.mp4"
+
+
+def test_without_a_player_no_video_element_ships(tmp_path):
+    from musicalgestures._zoomview import zoomable_page
+
+    out = zoomable_page(_analysis(tmp_path), 10.0, tmp_path / "z.html",
+                        video={"videogram": np.random.rand(36, 200)})
+    assert "<video" not in (tmp_path / "z.html").read_text()
+    assert _payload(out)["player"] is None
+
+
+def test_the_page_is_reachable_as_a_method_on_any_video(tmp_path):
+    """`MgVideo.zoompage()` generalises the page: extraction, strip, player and
+    output all derive from the video itself, cached beside it like every analysis."""
+    import musicalgestures
+    from _synth import moving_block_video
+
+    clip = moving_block_video(tmp_path / "walk.mp4", dx=4, frames=50)
+    out = musicalgestures.MgVideo(clip).zoompage()
+    out = str(out)
+    assert out.endswith("_zoom.html")
+    payload = _payload(out)
+    assert len(payload["video"]) >= 1
+    assert payload["player"] == "walk.mp4"
+    #: The synthetic clip has no audio stream, and a missing band is not an error.
+    assert payload["audio"] is None
