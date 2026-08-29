@@ -164,3 +164,31 @@ def test_the_page_is_reachable_as_a_method_on_any_video(tmp_path):
     assert payload["player"] == "walk.mp4"
     #: The synthetic clip has no audio stream, and a missing band is not an error.
     assert payload["audio"] is None
+
+
+def test_a_start_offset_pages_a_slice_of_the_session(tmp_path):
+    """`start_s` pages a time range: the track is sliced and tier spans land in page time."""
+    import json as _json
+
+    from musicalgestures._actions import Action
+    from musicalgestures._hierarchy import Hierarchy
+    from musicalgestures._zoomview import zoomable_page
+
+    d = tmp_path / "analysis"
+    d.mkdir()
+    qom = np.zeros(500, np.float32)
+    qom[250:] = 1.0                        # silent first 5 s, loud last 5 s, at 50 fps
+    qom.tofile(d / "qom.f4")
+    (d / "tracks.json").write_text(_json.dumps(
+        {"frames": 500, "fps": 50.0, "qom": "qom.f4"}))
+    h = Hierarchy(levels={"structure": [Action(start=2.0, end=7.0, source="test"),
+                                        Action(start=0.5, end=1.0, source="test")]})
+    out = zoomable_page(d, 5.0, tmp_path / "z.html", hierarchy=h,
+                        video={"g": np.random.rand(8, 100)}, start_s=5.0)
+    p = _payload(out)
+    assert p["duration"] == 5.0
+    #: The silent half lies before the page's range, so nothing on the page is quiet.
+    assert min(p["lo"]) == 1.0
+    #: 2--7 s on the session clock crosses the page's start: clipped and shifted to
+    #: page time. The 0.5--1 s span lies wholly outside and is dropped.
+    assert p["tiers"][0]["spans"] == [[0.0, 2.0]]

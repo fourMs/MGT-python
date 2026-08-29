@@ -95,11 +95,12 @@ def _array_png(X, cmap="magma", origin="lower"):
     return base64.b64encode(buf.getvalue()).decode("ascii")
 
 
-def _videogram_png(analysis_dir, duration_s, width, which="videogram_v"):
+def _videogram_png(analysis_dir, duration_s, width, which="videogram_v", start_s=0.0):
     """The cached videogram as a base64 PNG, for the page to scale."""
     from musicalgestures._tracks import read_columns
 
-    cols, _ = read_columns(analysis_dir, 0.0, duration_s, max_columns=width, which=which)
+    cols, _ = read_columns(analysis_dir, start_s, start_s + duration_s,
+                           max_columns=width, which=which)
     return _array_png(cols)
 
 
@@ -130,7 +131,7 @@ def _audio_strips(audio, n_points, width):
 def zoomable_page(analysis_dir, duration_s: float, out, hierarchy=None,
                   max_points: int = 8000, videogram_width: int = 3000,
                   title: str = "session", which: str = "videogram_v",
-                  video=None, audio=None, player=None):
+                  video=None, audio=None, player=None, start_s: float = 0.0):
     """Write a self-contained HTML page that zooms from the whole session to one action.
 
     Args:
@@ -149,6 +150,13 @@ def zoomable_page(analysis_dir, duration_s: float, out, hierarchy=None,
         audio (optional): Path to an audio (or video) file. When given, the page gains
             an audio band that switches between a waveform and a log-mel spectrogram,
             on the same clock as everything else.
+        start_s (float): Where in the session the page begins, in seconds. The page
+            then covers `start_s` to `start_s + duration_s`: the cached track is
+            sliced, and `hierarchy` spans --- given on the session clock --- are
+            clipped to the range and shifted onto the page's own clock, so one
+            section of a long recording can be paged and analysed on its own.
+            Strips passed via `video` and the `audio` file are the caller's to
+            slice, since only the caller knows their time base. Defaults to 0.
         player (str, optional): RELATIVE name of a video file to play above the
             strips --- for example the proxy that ships in the same folder as the
             page. Clicking the timeline seeks the video, and a playhead runs across
@@ -166,14 +174,22 @@ def zoomable_page(analysis_dir, duration_s: float, out, hierarchy=None,
     fps, n_frames = float(meta["fps"]), int(meta["frames"])
     qom = np.asarray(np.memmap(Path(analysis_dir) / meta["qom"], dtype=np.float32,
                                mode="r", shape=(n_frames,)), dtype=float)
+    a = min(n_frames, int(round(start_s * fps)))
+    b = min(n_frames, int(round((start_s + duration_s) * fps)))
+    qom = qom[a:b]
     lo, hi = decimate_minmax_pairs(qom, budget["n_points"])
     scale = float(hi.max()) or 1.0
 
     tiers = []
     if hierarchy is not None:
         for name, spans in hierarchy.levels.items():
-            tiers.append({"name": name,
-                          "spans": [[round(a.start, 2), round(a.end, 2)] for a in spans]})
+            kept = []
+            for span in spans:
+                s = max(float(span.start), start_s)
+                e = min(float(span.end), start_s + duration_s)
+                if e > s:
+                    kept.append([round(s - start_s, 2), round(e - start_s, 2)])
+            tiers.append({"name": name, "spans": kept})
 
     if video:
         strips = [{"name": str(name), "png": _array_png(arr)}
@@ -181,7 +197,7 @@ def zoomable_page(analysis_dir, duration_s: float, out, hierarchy=None,
     else:
         strips = [{"name": "videogram",
                    "png": _videogram_png(analysis_dir, duration_s,
-                                         videogram_width, which)}]
+                                         videogram_width, which, start_s)}]
 
     payload = {
         "title": title,
