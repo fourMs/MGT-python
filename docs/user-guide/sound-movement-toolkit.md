@@ -2,8 +2,8 @@
 
 Alongside the `MgVideo`/`MgAudio` methods, MGT-python ships a lower-level toolkit of
 plain-numpy sound–movement analysis functions, ported from the author's own research
-pipelines: the **ro** ritual-drumming study, the **stillstanding**/standstill-championship
-posturography study, the **Westney** with/without-audience piano comparisons, and the
+pipelines: the ro ritual-drumming study, the stillstanding/standstill-championship
+posturography study, the Westney with/without-audience piano comparisons, and the
 **cymbal**-comparison striking study. Unlike the `MgVideo`/`MgAudio` methods, these functions
 operate directly on numpy arrays (onset times, position/landmark trajectories, waveforms)—no
  video decoding or rendering—so they drop straight into notebooks, batch scripts, or your
@@ -60,14 +60,14 @@ plus `t_start`/`n_strokes`/`stroke_gap` properties).
 Lead/lag and coupling between two (or more) time-aligned signals, the audio-vs-movement
 counterpart of the `_pulse` module.
 
-- `xcorr_lag(x, y, fs, max_lag=1.5)` / `envelope_lag(...)` — cross-correlation lead/lag between
+- `xcorr_lag(x, y, fs, max_lag=1.5)` / `envelope_lag(...)`—cross-correlation lead/lag between
   two envelopes.
-- `per_cycle_motion_delta(...)` — per-cycle timing offset between a stroke cycle and a motion
+- `per_cycle_motion_delta(...)`—per-cycle timing offset between a stroke cycle and a motion
   onset.
-- `anchor_and_match(...)` / `offset_stats(...)` — one-to-one event matching against an anchor
+- `anchor_and_match(...)` / `offset_stats(...)`—one-to-one event matching against an anchor
   stream, with offset summary statistics.
-- `sliding_correlation(...)` — windowed correlation over time (does coupling drift?).
-- `envelope_agreement(...)` — N-source envelope agreement score.
+- `sliding_correlation(...)`—windowed correlation over time (does coupling drift?).
+- `envelope_agreement(...)`—N-source envelope agreement score.
 
 ```python
 from musicalgestures import xcorr_lag
@@ -117,7 +117,7 @@ see the dedicated [Pose Tracking](pose-tracking.md#derived-signals) page.
     scored *below* 1 g, the lowest by 9.3 per cent, which a correctly
     calibrated sensor held still cannot do; the whole field spanned 0.907 to
     1.139 g. Against band-limited quantity of motion from the same recordings
-    the score correlated at rho = 0.16, p = 0.25 — that is, not at all — while
+    the score correlated at rho = 0.16, p = 0.25—that is, not at all—while
     real movement across the field spanned a factor of 7.8, from 6.07 to
     47.46 mm/s. Grouping by which of the eight sensor units a competitor wore,
     the score separated the groups at H = 48.1, p = 3.4e-08, and the
@@ -155,11 +155,11 @@ Posturography from the stillstanding study, implemented in micromotion and re-ex
 operating on plain centre-of-pressure (CoP) or marker-position arrays, with no study-specific
 loaders or axis conventions:
 
-- **Sway amount / geometry** — `cop_sway_metrics`, `confidence_ellipse_area`, `convex_hull_area`.
-- **Control dynamics / complexity** — `stabilogram_diffusion` (Collins–De Luca SDA), `dfa`
+- **Sway amount / geometry**—`cop_sway_metrics`, `confidence_ellipse_area`, `convex_hull_area`.
+- **Control dynamics / complexity**—`stabilogram_diffusion` (Collins–De Luca SDA), `dfa`
   (detrended fluctuation analysis), `sample_entropy`, `spectral_edges`, `sway_texture`,
   `principal_axis_projection`.
-- **Direction / extent** — `sway_orientation`, `axial_rayleigh`, `spatial_extent`.
+- **Direction / extent**—`sway_orientation`, `axial_rayleigh`, `spatial_extent`.
 
 ```python
 from musicalgestures import cop_sway_metrics
@@ -179,9 +179,9 @@ micromotion's test suite against known-answer synthetic signals.
 
 ## Physiology features (`_physio`)
 
-`respiration_rate(waveform, fs, band=(0.1, 0.6), window_s=30, step_s=30)` — windowed breathing
+`respiration_rate(waveform, fs, band=(0.1, 0.6), window_s=30, step_s=30)`—windowed breathing
 rate (breaths/min) via band-pass filtering and a per-window Welch spectral peak, and
-`spectral_band_fractions(...)` — the fraction of a signal's Welch power in each of a set of
+`spectral_band_fractions(...)`—the fraction of a signal's Welch power in each of a set of
 caller-supplied named frequency bands (a generic spectral-composition diagnostic, e.g. for
 cardiorespiratory QoM), both from the stillstanding study's Deichman/Equivital physiology
 analyses and implemented in micromotion.
@@ -198,7 +198,7 @@ a common per-second grid and correlates them.
 
 !!! note "`dominant_frequency` is not re-exported from `_mocap`"
     `_mocap` also defines its own `dominant_frequency` (a Welch-peak variant from the Westney
-    study). It is intentionally **not** re-exported at the `musicalgestures` top level, since it
+    study). It is intentionally not re-exported at the `musicalgestures` top level, since it
     would shadow the pre-existing `musicalgestures.dominant_frequency` (from `_analysis`). Reach
     it explicitly as `musicalgestures._mocap.dominant_frequency`.
 
@@ -209,7 +209,7 @@ a common per-second grid and correlates them.
 The *array-level* pose workflow: video file → tidy per-landmark trajectory arrays (and
 optionally CSV) → derived motion signals (limb speed, impact events), complementing—not
 replacing—the rendering-oriented `MgVideo.pose()` pipeline. This is covered in full on its own
-page: **[Pose Tracking](pose-tracking.md)**, which covers installing the `[pose]` extra,
+page: [Pose Tracking](pose-tracking.md), which covers installing the `[pose]` extra,
 `extract_pose_landmarks()` (NaN/dropout semantics, detection-rate reporting), the derived-signal
 helpers `midpoint()`, `limb_speed_from_landmarks()`, `impact_events()`, `pose_qom()`/
 `body_scale()`, and validating a video-derived pose signal against motion capture with

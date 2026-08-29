@@ -14,7 +14,7 @@ v.motiongrams().show()
 
 That draws motiongrams: images tracing where movement happens in the frame over time,
 like a spectrogram for the body. The video is bundled, so this runs before you have any
-footage of your own — `mg.examples.dance` and `mg.examples.pianist` are both there.
+footage of your own—`mg.examples.dance` and `mg.examples.pianist` are both there.
 
 You can also run it in the browser with nothing installed:
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fourMs/MGT-python/blob/master/musicalgestures/MusicalGesturesToolbox.ipynb)
@@ -219,7 +219,7 @@ print(mg.get_cuda_device_count())
 
 ### Resampling (frame rate / speed)
 
-`resample()` returns a **new** `MgVideo` (the original is untouched) re-timed by frame rate, playback speed, or frame decimation:
+`resample()` returns a new `MgVideo` (the original is untouched) re-timed by frame rate, playback speed, or frame decimation:
 
 ```python
 mv = mg.MgVideo(examples.dance)

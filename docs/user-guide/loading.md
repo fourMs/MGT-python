@@ -122,7 +122,7 @@ mv.color        # True for colour, False for grayscale
 
 Almost every number MGT produces from a video is a rate or a frequency, and every one of them is
 the frame rate multiplied or divided by something. A wrong frame rate does not produce an error or
-an implausible figure — it rescales the answer linearly and leaves it looking entirely normal.
+an implausible figure—it rescales the answer linearly and leaves it looking entirely normal.
 
 ### Where the number comes from
 
@@ -130,8 +130,8 @@ There are three sources and they do not consult each other.
 
 | Source | Used by | What it is |
 |---|---|---|
-| `get_fps(filename)` | `mv.fps`, and everything reading it | the rate ffprobe prints in its banner, which is the container's declared average, rounded as printed — `29.97`, not `30000/1001` |
-| `cv2.CAP_PROP_FPS` | the analyses that open their own `VideoCapture` | OpenCV's reading of the same container, at full precision — `29.970029970…` |
+| `get_fps(filename)` | `mv.fps`, and everything reading it | the rate ffprobe prints in its banner, which is the container's declared average, rounded as printed—`29.97`, not `30000/1001` |
+| `cv2.CAP_PROP_FPS` | the analyses that open their own `VideoCapture` | OpenCV's reading of the same container, at full precision—`29.970029970…` |
 | the `fps` argument | every function in the table below | whatever the caller passed |
 
 The first two normally agree to within the rounding. The third is not checked against anything.
@@ -168,16 +168,12 @@ mv = mg.MgVideo('/path/to/video.mp4')
 freq = mg.dominant_frequency(signal, mv.fps, fmin=0.2, fmax=8.0)   # not fps=25
 ```
 
-!!! note "Seven analyses used to truncate the rate to an integer — fixed 2026-08-22"
-    `_directograms`, `_flow` (both call sites), `_history`, `_impacts`, `_warp` and
-    `_videoadjust` read the rate as `int(cv2.CAP_PROP_FPS)`. On any NTSC-rate source that was
-    `int(29.97) == 29`, so every time and frequency they derived was 3.2 % low, and in `_flow`
-    and `_history` the truncated value was written into the output file's declared rate, so a
-    29.97 fps input came back out as a 29 fps file. All seven now keep the true rate.
-
-    Figures produced by those modules BEFORE this fix are rate-approximate on non-integer-rate
-    footage and are not comparable with figures produced after it. A guard test in
-    `tests/test_average.py` fails if any module reads the rate through `int()` again.
+!!! note "Fractional frame rates are kept exact"
+    Every analysis reads the frame rate as a float, so NTSC-rate footage at 29.97 fps
+    keeps its true rate in every derived time, frequency and output file. A guard test
+    in `tests/test_average.py` fails if any module ever reads the rate through `int()`.
+    Figures made with a truncated rate—by other tools, or by installations older than
+    2026—are about 3.2% off on such footage and should not be mixed with exact ones.
 
 ### Checking a file's rate against its own contents
 
@@ -199,7 +195,7 @@ variable-frame-rate phone captures and with files that have been remuxed.
     The frame count and the duration are often derived from the declared rate, so a file whose
     rate is wrong in a self-consistent way passes this check. A clip encoded at 25 fps from a
     source that only changed five times a second reports 500 frames over 20 seconds and a rate of
-    exactly 25.000 — and four fifths of its frames are repeats. The header is not evidence about
+    exactly 25.000—and four fifths of its frames are repeats. The header is not evidence about
     the contents. Distinguishing the two means decoding and comparing consecutive frames, which
     is cheap: 500 frames of 320×240 took 0.08 s.
 

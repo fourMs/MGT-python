@@ -1,7 +1,7 @@
 # Audio-Video Processing & Analysis
 
 MGT-python treats sound and movement as two views of the same performance. This page collects the
-tools that **cross** the two domains, converting between them, aligning them, and measuring how
+tools that cross the two domains, converting between them, aligning them, and measuring how
 similar a performer's movement is to the sound they make. They are especially useful for studying a
 single dancer who is also the sound source.
 
@@ -12,7 +12,7 @@ import musicalgestures as mg
 mv = mg.MgVideo('/path/to/video.avi')
 ```
 
-The **analysis** methods require the video to have an audio track and return an `MgFigure` (numeric
+The analysis methods require the video to have an audio track and return an `MgFigure` (numeric
 results in `.data`); most also save a CSV next to the image.
 
 ---
@@ -50,11 +50,11 @@ warp.show()
 ## Audio–movement analysis
 
 These reports estimate an audio envelope and a movement envelope from the same clip and compare
-them, quantifying **how similar the sound and the movement are**.
+them, quantifying how similar the sound and the movement are.
 
 ### Tempo similarity
 
-`tempo_similarity()` compares the **audio** tempo (from the onset-strength envelope) with the
+`tempo_similarity()` compares the audio tempo (from the onset-strength envelope) with the
 **movement** tempo (from the quantity-of-motion envelope). The two-panel figure overlays the
 normalised envelopes and shows their cross-correlation; the report lists audio BPM, movement BPM,
 their ratio and nearest harmonic relationship, the peak cross-correlation and its lag, and the
@@ -90,7 +90,7 @@ print(ps.data)                                 # PLV, mean phase difference, …
 
 `structure_comparison()` builds a self-similarity matrix (SSM) of the audio (from MFCC frames) and
 of the movement (from low-resolution frame appearance), resampled to the same number of time points,
-and shows them side by side with their absolute **difference map**. Bright regions in the difference
+and shows them side by side with their absolute difference map. Bright regions in the difference
 are where the musical structure and the movement structure diverge; it reports an overall
 structural-agreement score.
 
@@ -104,7 +104,7 @@ sc.show()
 
 ### Body–audio coupling
 
-`body_audio_coupling()` correlates **each pose marker's speed** with the audio onset envelope,
+`body_audio_coupling()` correlates each pose marker's speed with the audio onset envelope,
 revealing which body parts are most rhythmically tied to the music. The figure shows a body map (the
 average pose with markers coloured by correlation) plus a ranked bar chart, and a CSV of per-marker
 correlations. It reuses cached pose keypoints or runs `pose()` first (pose kwargs forwarded).
@@ -119,7 +119,7 @@ bc.show()
 
 ### Dynamics coupling
 
-`dynamics_coupling()` compares audio **loudness** (RMS) with movement **quantity** (QoM). Does the
+`dynamics_coupling()` compares audio loudness (RMS) with movement quantity (QoM). Does the
 performer move more when the music is louder? It aligns the two envelopes and reports their
 correlation at zero lag and at the best lag within `max_lag` seconds; the figure overlays the
 normalised envelopes and shows a loudness-vs-motion scatter.
@@ -138,8 +138,8 @@ dc.show()
 
 These analyse rhythm within one domain but are natural companions to the comparisons above:
 
-- `beat_statistics(source='motion')` — circular timing statistics of the **movement** beats (use
+- `beat_statistics(source='motion')`—circular timing statistics of the movement beats (use
   `source='audio'` for the audio track). See [Audio Analysis](audio-analysis.md).
-- `motiontempo()` — dominant movement tempo (Hz/BPM) from the quantity-of-motion spectrum. See
+- `motiontempo()`—dominant movement tempo (Hz/BPM) from the quantity-of-motion spectrum. See
   [Video Analysis](video-analysis.md).
-- `tempogram()` / `tempo()` — audio tempo and beat tracking. See [Audio Analysis](audio-analysis.md).
+- `tempogram()` / `tempo()`—audio tempo and beat tracking. See [Audio Analysis](audio-analysis.md).

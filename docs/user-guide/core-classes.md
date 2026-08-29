@@ -70,7 +70,7 @@ mv.flow         # Flow object exposing flow.dense() and flow.sparse()
     `mg.MgVideo('clip.mp4', fps=99)` on a 29.97 fps file leaves `mv.fps == 29.97`. That is the
     right answer, but the argument silently did nothing, and code written on the belief that it
     had would be wrong in a way no output shows. Use `resample(fps=...)` to actually change a
-    file's rate — it returns a new `MgVideo` that has re-read the rate from the new file.
+    file's rate—it returns a new `MgVideo` that has re-read the rate from the new file.
 
     The same care is needed with `from_numpy` called as a method rather than through the
     constructor: it writes a file at the rate you give it and does not update `self.fps`, so
@@ -86,11 +86,11 @@ print(mv)   # MgVideo('dance.avi', 1572 frames, 25fps, 518x496, audio=True)
 ```
 
 !!! warning "`length` means different things on `MgVideo` and `MgAudio`"
-    `MgVideo.length` is the frame **count**, whereas `MgAudio.length` is the duration in
+    `MgVideo.length` is the frame count, whereas `MgAudio.length` is the duration in
     **seconds**. To avoid the confusion, prefer the unambiguous members:
 
-    - `.duration` — duration in **seconds** on **both** classes.
-    - `.n_frames` — frame **count** (on `MgVideo`).
+    - `.duration`—duration in seconds on both classes.
+    - `.n_frames`—frame count (on `MgVideo`).
 
     ```python
     mv.duration        # seconds        e.g. 62.88

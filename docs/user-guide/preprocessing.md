@@ -79,7 +79,7 @@ mv = mg.MgVideo('/path/to/video.avi', color=False)
 
 ## Resampling (frame rate, speed, frame decimation)
 
-Unlike the options above, `resample()` is a **method** called on an already-loaded `MgVideo`. It returns a **new** `MgVideo` and leaves the original object untouched, so you can branch off a re-timed copy:
+Unlike the options above, `resample()` is a method called on an already-loaded `MgVideo`. It returns a new `MgVideo` and leaves the original object untouched, so you can branch off a re-timed copy:
 
 ```python
 mv = mg.MgVideo('/path/to/video.avi')
@@ -93,7 +93,7 @@ mv25.show()
 
 Three independent, combinable operations:
 
-- `fps`: retime to a target frame rate via FFmpeg's `fps` filter, **duration-preserving** (frames are dropped/duplicated to hit the rate), e.g. 30 → 25 fps.
+- `fps`: retime to a target frame rate via FFmpeg's `fps` filter, duration-preserving (frames are dropped/duplicated to hit the rate), e.g. 30 → 25 fps.
 - `speed`: change playback speed by a factor (`>1` faster/shorter, `<1` slower/longer); the video (`setpts`) and the audio (`atempo`) are retimed together so they stay in sync.
 - `skip`: integer frame decimation, discarding `skip` frames for every one kept (this also shortens/speeds up the clip), matching the loader's `skip` parameter.
 

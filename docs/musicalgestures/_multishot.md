@@ -2,7 +2,7 @@
 
 Many moments of one recording in a single picture: a chronophotograph.
 
-The room is recovered as a [plate](_plate.md) — what was there before anybody came in —
+The room is recovered as a [plate](_plate.md)—what was there before anybody came in —
 bodies are cut out of frames spread through the recording, and all of them are laid back
 onto it. One image then carries where somebody was, how they were shaped, and how far apart
 the moments were. It answers nothing a motiongram answers and shows something no gram does.
@@ -10,7 +10,7 @@ the moments were. It answers nothing a motiongram answers and shows something no
 ![Multishot of the bundled dancer example](../images/examples/dancer_multishot.png)
 
 *The bundled `dancer.avi`, six bodies. This dancer stays on one spot, so the selection
-spreads over the **gesture** instead of the floor and the picture becomes a Marey-style
+spreads over the gesture instead of the floor and the picture becomes a Marey-style
 chronophotograph of the arms. A subject who travels reads as separate figures across
 the room.*
 
@@ -31,14 +31,14 @@ picture, plate = mg.multishot("session.mp4", n_bodies=8, start=1932, end=4478)
 ```
 
 The method raises `ValueError` when no frame held a body of a plausible size, rather than
-handing back a picture of an empty room — which would look like the recording was empty
+handing back a picture of an empty room—which would look like the recording was empty
 instead of like the size bounds matching nothing.
 
 ## It absorbed `stroboscope()`
 
-MGT had chronophotography before this, as `stroboscope()`: silhouettes at **evenly sampled**
-times on a **mean average** frame, tinted by time. Having two functions make the same picture
-two ways meant a reader had to know which — so they are one, and `stroboscope()` is a
+MGT had chronophotography before this, as `stroboscope()`: silhouettes at evenly sampled
+times on a mean average frame, tinted by time. Having two functions make the same picture
+two ways meant a reader had to know which—so they are one, and `stroboscope()` is a
 deprecated wrapper that delegates here until 2.0.
 
 Both ways survive:
@@ -81,7 +81,7 @@ about rather than with the work. `start` and `end` take seconds.
 Separation is spatial, so a subject who stays put gives it nothing to separate. On a seated
 pianist it returns heads and hands stacked in one place: the static torso is part of the
 room by then, and only the moving parts survive the mask. The picture is reflecting what the
-recording contains, which is the intended behaviour — but it is an overlay of moving limbs
+recording contains, which is the intended behaviour—but it is an overlay of moving limbs
 rather than a chronophotograph, and worth knowing which of the two you are looking at.
 
 ## What it cannot do

@@ -537,10 +537,10 @@ pytest -s -vv tests/test_video.py::test_specific_function
 
 ### Coverage Goals
 
-- Aim for **>90% code coverage**
-- Focus on **critical paths** first
-- Test **error conditions** thoroughly
-- Include **integration tests** for workflows
+- Aim for >90% code coverage
+- Focus on critical paths first
+- Test error conditions thoroughly
+- Include integration tests for workflows
 
 ## Troubleshooting Tests
 

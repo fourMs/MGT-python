@@ -12,7 +12,7 @@ pip install musicalgestures
 
 ### Python Version
 
-MGT-python requires **Python 3.10 or higher**. The latest stable version of Python is recommended.
+MGT-python requires Python 3.10 or higher. The latest stable version of Python is recommended.
 
 ```bash
 python --version  # Should be 3.10+
@@ -52,7 +52,7 @@ These dependencies are declared in the package metadata and are installed automa
 
 ### FFmpeg (Required)
 
-MGT-python relies on **FFmpeg** for video processing. Install it based on your operating system:
+MGT-python relies on FFmpeg for video processing. Install it based on your operating system:
 
 #### Ubuntu/Debian
 ```bash
@@ -95,7 +95,7 @@ specially-built OpenCV. Install only what you need:
 | Feature | Install / requirement |
 |---|---|
 | Everything in the table below | `pip install musicalgestures[full]` |
-| **Pose estimation — default backend (MediaPipe)** | `pip install musicalgestures[pose]` |
+| **Pose estimation—default backend (MediaPipe)** | `pip install musicalgestures[pose]` |
 | **C3D motion-capture export** (`pose(data_format='c3d')`) | `pip install musicalgestures[c3d]` |
 | **GPU acceleration** (`flow.dense(use_gpu=True)`, `flow.sparse(use_gpu=True)`, `blur_faces(use_gpu=True)`, OpenPose `device='gpu'`) | OpenCV built with CUDA (see [GPU / CUDA acceleration](#gpu--cuda-acceleration) below) |
 
@@ -103,7 +103,7 @@ specially-built OpenCV. Install only what you need:
 
 Which backends you can use depends on your OpenCV:
 
-- With `musicalgestures[pose]`, the default **MediaPipe** backend is used, which is recommended:
+- With `musicalgestures[pose]`, the default MediaPipe backend is used, which is recommended:
   faster on CPU, 33 landmarks, and no CUDA-enabled OpenCV build needed. It carries its own
   weights and never touches `cv2.dnn`, so it works on any OpenCV.
 - **On OpenCV 4**, if MediaPipe is not installed, `pose()` falls back to the OpenPose
@@ -128,9 +128,9 @@ Pose model weights are downloaded automatically on first use via Python's `urlli
 ### GPU / CUDA acceleration
 
 `flow.dense(use_gpu=True)`, `flow.sparse(use_gpu=True)`, `blur_faces(use_gpu=True)`, and the
-OpenPose backends with `device='gpu'` all require an OpenCV **built with CUDA support** (the
-standard pip `opencv-python` wheels are CPU-only). Every one of these calls **falls back to the
-CPU automatically** when CUDA is unavailable, so code stays portable. Check what your build
+OpenPose backends with `device='gpu'` all require an OpenCV built with CUDA support (the
+standard pip `opencv-python` wheels are CPU-only). Every one of these calls falls back to the
+CPU automatically when CUDA is unavailable, so code stays portable. Check what your build
 offers:
 
 ```python
@@ -302,7 +302,7 @@ pip install mkl
 > **GPU acceleration** is *not* provided by the PyPI `opencv-python`/`opencv-contrib-python`
 > wheels. They are CPU-only. The CUDA-accelerated paths (`flow.dense(use_gpu=True)`,
 > `flow.sparse(use_gpu=True)`, `blur_faces(use_gpu=True)`, OpenPose `device='gpu'`) require an
-> OpenCV **built from source with CUDA**. See [GPU / CUDA acceleration](#gpu--cuda-acceleration).
+> OpenCV built from source with CUDA. See [GPU / CUDA acceleration](#gpu--cuda-acceleration).
 
 ### Memory Management
 For processing large videos, ensure adequate RAM and consider:

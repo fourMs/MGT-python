@@ -5,7 +5,7 @@
 [![CI](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml/badge.svg)](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml)
 [![Documentation](https://github.com/fourMs/MGT-python/actions/workflows/docs.yml/badge.svg)](https://fourms.github.io/MGT-python/)
 
-The **Musical Gestures Toolbox for Python** (`musicalgestures`) is a collection of tools for visualising and analysing motion in video recordings, together with the sound that accompanies them. It was developed for research on music-related body motion, but it works on any video or audio file.
+The Musical Gestures Toolbox for Python (`musicalgestures`) is a collection of tools for visualising and analysing motion in video recordings, together with the sound that accompanies them. It was developed for research on music-related body motion, but it works on any video or audio file.
 
 ![MGT python demo](https://raw.githubusercontent.com/fourMs/MGT-python/master/musicalgestures/documentation/figures/promo/ipython_example.gif)
 
@@ -55,10 +55,10 @@ Analysis methods return result objects (`MgVideo`, `MgImage`, or `MgFigure`) and
 
 ## Getting started
 
-- **[Installation Guide](installation.md)** — detailed setup instructions
-- **[Quick Start Tutorial](quickstart.md)** — up and running in minutes
-- **[Examples](examples.md)** — sample code and use cases
-- **[User Guide](user-guide/core-classes.md)** — comprehensive documentation
+- **[Installation Guide](installation.md)**—detailed setup instructions
+- **[Quick Start Tutorial](quickstart.md)**—up and running in minutes
+- **[Examples](examples.md)**—sample code and use cases
+- **[User Guide](user-guide/core-classes.md)**—comprehensive documentation
 
 ## Runtime behaviour
 

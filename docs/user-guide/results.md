@@ -3,7 +3,7 @@
 MGT-python analysis methods return one of three result types: `MgFigure`, `MgImage`, or `MgList`. All three implement `show()` and can be combined into stacked, time-aligned figures.
 
 !!! note "Display happens via `show()`"
-    Result objects do **not** auto-render as the last expression of a notebook cell. Call `show()` to display them. This keeps a single, predictable display and avoids duplicate output. (An HTML snippet is still available programmatically via `to_html()` on `MgImage`/`MgFigure`.)
+    Result objects do not auto-render as the last expression of a notebook cell. Call `show()` to display them. This keeps a single, predictable display and avoids duplicate output. (An HTML snippet is still available programmatically via `to_html()` on `MgImage`/`MgFigure`.)
 
 ---
 
@@ -159,8 +159,8 @@ motion plot only if `motionplots()` has been called.
 
 ### Why the grams are named for what they show
 
-`motiongram_vertical_image` is the gram you get by collapsing the **x** axis, and
-`motiongram_horizontal_image` collapses the **y** axis. The older names for these
+`motiongram_vertical_image` is the gram you get by collapsing the x axis, and
+`motiongram_horizontal_image` collapses the y axis. The older names for these
 were `motiongram_x` and `motiongram_y`, which recorded the axis that was
 collapsed rather than the picture that came out, and reliably read backwards.
 `show()` has long carried `mgh` and `mgv` keys to work around exactly that; the
@@ -184,16 +184,12 @@ it reads is the same object the new name holds.
 | `pose_average` | `pose_average_image` |
 | `pose_trajectories` | `pose_trajectories_image` |
 
-!!! warning "`pixelarray` is the one exception, and it was a bug"
+!!! note "`pixelarray` is the one name without an alias"
 
-    `pixelarray()` is the method that computes the frame average, and its result
-    used to be stored as `pixelarray` as well. The result then hid the method, so
-    calling `mv.pixelarray()` a second time raised
-    `TypeError: 'MgImage' object is not callable`. The result is called
-    `frameaverage_image` now, the method keeps its name, and there is
-    deliberately no old-name alias for this one, since an alias would bring the
-    collision back. Read `mv.frameaverage_image`; the cv2 variant stores
-    `frameaverage_cv2_image`.
+    `pixelarray()` is the method that computes the frame average, and its result is
+    stored as `frameaverage_image`; the cv2 variant stores `frameaverage_cv2_image`.
+    There is deliberately no `pixelarray` result alias, since a result under the
+    method's own name would shadow the method and make a second call fail.
 
 ---
 

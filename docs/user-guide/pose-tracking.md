@@ -33,9 +33,9 @@ if it is missing.
 !!! note "MediaPipe has two API families—both are supported"
     MediaPipe's Python API changed generations mid-stream:
 
-    - The legacy **Solutions API** (`mp.solutions.pose.Pose`) — present in wheels up to roughly
+    - The legacy Solutions API (`mp.solutions.pose.Pose`)—present in wheels up to roughly
       `mediapipe==0.10.14`.
-    - The newer **Tasks API** (`PoseLandmarker`, `mp.tasks.vision`), the only option in newer
+    - The newer Tasks API (`PoseLandmarker`, `mp.tasks.vision`), the only option in newer
       `0.10.x` wheels (e.g. `0.10.35`), which dropped `mp.solutions` entirely.
 
     `extract_pose_landmarks()` detects which family is available at runtime
@@ -75,13 +75,13 @@ mv.pose(data_format=['csv', 'c3d'])               # also write a .c3d mocap file
 
 Key parameters (see the [full signature](video-analysis.md#pose-estimation) for everything):
 
-- `model` — `'mediapipe'` (default, 33 landmarks with depth + visibility) or an OpenPose variant
+- `model`—`'mediapipe'` (default, 33 landmarks with depth + visibility) or an OpenPose variant
   (`'body_25'`, `'coco'`, `'mpi'`).
-- `device` — `'cpu'` or `'gpu'`. For MediaPipe this selects the inference delegate (GPU falls back
+- `device`—`'cpu'` or `'gpu'`. For MediaPipe this selects the inference delegate (GPU falls back
   to CPU automatically if unavailable). For OpenPose, GPU needs a CUDA-enabled OpenCV build.
-- `threshold` — normalised confidence below which a keypoint is discarded (substituted with
+- `threshold`—normalised confidence below which a keypoint is discarded (substituted with
   `(0, 0)`). Defaults to `0.1`.
-- `use_cache` — when `True` (default), a second `pose()` call with the same `model`/`threshold`
+- `use_cache`—when `True` (default), a second `pose()` call with the same `model`/`threshold`
   reuses the already-computed keypoints to re-render a different `style`/`overlay`/`background`
   without re-running inference:
 
@@ -90,7 +90,7 @@ mv.pose(style='markers')      # runs inference, caches keypoints
 mv.pose(style='skeleton')     # reuses cache — near-instant, no re-inference
 ```
 
-- `save_average_pose` / `save_trajectories` — also render an average-pose image (markers coloured
+- `save_average_pose` / `save_trajectories`—also render an average-pose image (markers coloured
   by normalised quantity of motion, labelled with dominant frequency) and a marker-trajectories
   image, each with a companion stats CSV. Both default to `True`.
 
@@ -157,7 +157,7 @@ Once you have landmark trajectories—from `extract_pose_landmarks()`, `MgVideo.
 CSV, or any other source (OpenPose, YOLO-pose, motion capture)—a small set of numpy-only
 functions turn them into motion signals and events.
 
-### `midpoint` — a proxy point between two landmarks
+### `midpoint`—a proxy point between two landmarks
 
 ```python
 from musicalgestures import midpoint
@@ -168,7 +168,7 @@ shoulders = midpoint(traj['landmarks'][:, 11, :2], traj['landmarks'][:, 12, :2])
 Element-wise midpoint of two trajectories (typically the shoulder midpoint, landmarks 11/12, as
 an upper-torso proxy). NaNs propagate: the midpoint is NaN wherever either input is NaN.
 
-### `limb_speed_from_landmarks` — confidence-gated speed, with a timing caveat
+### `limb_speed_from_landmarks`—confidence-gated speed, with a timing caveat
 
 ```python
 from musicalgestures import limb_speed_from_landmarks
@@ -187,9 +187,9 @@ motion of *either* limb registers; the result is then lightly smoothed with a sh
 moving average (`smooth_taps=3` by default).
 
 !!! warning "Speed precedes contact"
-    A limb-speed peak marks the moment of **maximum downstroke speed**, not the moment of
+    A limb-speed peak marks the moment of maximum downstroke speed, not the moment of
     contact/arrest. Physically, a striking limb decelerates sharply *at* impact, so the speed
-    peak—and any peak-picker run on this signal—systematically occurs slightly **before** the
+    peak—and any peak-picker run on this signal—systematically occurs slightly before the
     actual contact event that an audio onset or an acceleration peak would register. Account for
     this bias when comparing event times derived from `limb_speed_from_landmarks()` against other
     modalities (audio onsets, `impact_events()` on acceleration, motion capture). This is also a
@@ -201,7 +201,7 @@ peak-picker `pick_peaks` (`_peaks` module, see the
 [Sound–Movement Analysis Toolkit](sound-movement-toolkit.md#peak-picking-core) page) is a good
 default.
 
-### `impact_events` — candidate impacts from acceleration peaks
+### `impact_events`—candidate impacts from acceleration peaks
 
 ```python
 from musicalgestures import impact_events
@@ -221,7 +221,7 @@ modality (e.g. audio onsets, or the mocap comparison workflow below) where possi
 whole-image visual impact detection from video with no landmarks at all, use `MgVideo.impacts()`
 instead.
 
-### `pose_qom` / `body_scale` — quantity of motion, normalised for framing
+### `pose_qom` / `body_scale`—quantity of motion, normalised for framing
 
 ```python
 from musicalgestures import pose_qom, body_scale, normalized_qom

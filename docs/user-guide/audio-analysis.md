@@ -187,7 +187,7 @@ The polar plot shows the mean resultant vector length `R` (concentration of timi
 
 ### From movement instead of audio
 
-On an `MgVideo`, `beat_statistics()` defaults to `source='motion'`: it runs the timing analysis on the **movement** rhythm by detecting onsets in the quantity of motion. This is the key difference from `video.audio.beat_statistics()`, which always analyses the audio track. Pass `source='audio'` to analyse the audio track from the video instead:
+On an `MgVideo`, `beat_statistics()` defaults to `source='motion'`: it runs the timing analysis on the movement rhythm by detecting onsets in the quantity of motion. This is the key difference from `video.audio.beat_statistics()`, which always analyses the audio track. Pass `source='audio'` to analyse the audio track from the video instead:
 
 ```python
 mv = mg.MgVideo('dance.mp4')
@@ -251,13 +251,13 @@ mv.motionplots(audio_descriptors=True)
 
 ## Audio–movement comparison reports
 
-When the audio and the movement come from the same performer (e.g. a dancer who is also the sound source), several `MgVideo` methods compare the **sound** with the **motion** directly. They live on `MgVideo` (not `MgAudio`) because they need both tracks, but they are audio-related:
+When the audio and the movement come from the same performer (e.g. a dancer who is also the sound source), several `MgVideo` methods compare the sound with the motion directly. They live on `MgVideo` (not `MgAudio`) because they need both tracks, but they are audio-related:
 
-- `tempo_similarity()` — audio tempo vs. movement tempo (BPM, ratio, cross-correlation)
-- `phase_synchrony()` — phase-locking value between the audio and movement rhythm
-- `structure_comparison()` — audio SSM (MFCC) vs. movement SSM (frame appearance)
-- `body_audio_coupling()` — each pose marker's speed correlated with the audio onset envelope
-- `dynamics_coupling()` — audio loudness (RMS) vs. quantity of motion
+- `tempo_similarity()`—audio tempo vs. movement tempo (BPM, ratio, cross-correlation)
+- `phase_synchrony()`—phase-locking value between the audio and movement rhythm
+- `structure_comparison()`—audio SSM (MFCC) vs. movement SSM (frame appearance)
+- `body_audio_coupling()`—each pose marker's speed correlated with the audio onset envelope
+- `dynamics_coupling()`—audio loudness (RMS) vs. quantity of motion
 
 ```python
 mv = mg.MgVideo('dance.avi')
@@ -266,7 +266,7 @@ mv.phase_synchrony().show()
 mv.dynamics_coupling().show()
 ```
 
-See the dedicated **[Audio-Video Processing & Analysis](audio-video.md)** page for full descriptions, the sonification/beat-warping tools, and example figures.
+See the dedicated [Audio-Video Processing & Analysis](audio-video.md) page for full descriptions, the sonification/beat-warping tools, and example figures.
 
 ---
 

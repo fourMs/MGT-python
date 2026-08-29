@@ -219,8 +219,8 @@ git commit -m "Fix video loading issue (#123)"
 ```
 
 #### Commit Best Practices
-- Make **atomic commits** (one logical change per commit)
-- Write **descriptive commit messages**
+- Make atomic commits (one logical change per commit)
+- Write descriptive commit messages
 - **Reference issues** in commit messages when applicable
 
 ## Types of Contributions

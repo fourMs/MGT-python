@@ -6,11 +6,11 @@ Every motion measure has a floor. Frame differencing sees sensor noise wherever 
 is bright enough; motion vectors carry the encoder's rate decisions, 46 per cent of them
 exactly zero and the median non-zero one 0.79 px of quarter-pel noise; optical flow sits at
 0.009 px per pixel per frame across most of the picture. A `threshold` is what keeps that
-out of a result --- and a threshold in absolute units cannot serve two recordings whose
+out of a result—and a threshold in absolute units cannot serve two recordings whose
 floors differ.
 
-Measured on a corpus of six dance recordings, one fixed setting lit **0.52** times the area
-the dancers covered in one recording and **1.90** times it in another. Too tight and too
+Measured on a corpus of six dance recordings, one fixed setting lit 0.52 times the area
+the dancers covered in one recording and 1.90 times it in another. Too tight and too
 loose at the same number.
 
 So the floor is taken from the material. The [room plate](_plate.md) says which pixels have
@@ -37,14 +37,14 @@ and the answer looked no different from a real one. An estimator that always ans
 same fault.
 
 This one declines when there are too few samples to estimate from, and when the gate it
-would propose keeps almost none of the moving part --- which is what a camera move, a
+would propose keeps almost none of the moving part—which is what a camera move, a
 lighting change or an empty recording looks like from the inside. A refusal carries
 `threshold: None`, so there is nothing to reach for by accident.
 
 ## What it buys, and what it does not
 
-Equalising the false-positive rate makes **spatial maps** comparable across recordings. It
-does **not** make magnitudes comparable: each recording ends at its own operating point, so
+Equalising the false-positive rate makes spatial maps comparable across recordings. It
+does not make magnitudes comparable: each recording ends at its own operating point, so
 a quantity of motion gated this way is harder to defend across sessions than one gated at a
 fixed number, not easier.
 
@@ -55,7 +55,7 @@ Both are therefore kept, and the choice belongs to the analysis:
 | magnitudes across recordings | a fixed `threshold`, the same in every one |
 | pictures, maps, or where movement happened | a measured floor, per recording |
 
-Note that H.264 codes to quarter-pel, so a motion-vector gate at or below **0.25 px** cannot
+Note that H.264 codes to quarter-pel, so a motion-vector gate at or below 0.25 px cannot
 remove anything: 0.25 is the smallest non-zero displacement the format can express.
 
 ::: musicalgestures._noisefloor

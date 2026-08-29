@@ -15,11 +15,11 @@ commonly confused pairs, one line each:
 
 | Method | Use it when you want… |
 |---|---|
-| `average()` | a long-exposure mean of all frames — it is a convenience alias for `blend(component_mode='average')`. |
+| `average()` | a long-exposure mean of all frames—it is a convenience alias for `blend(component_mode='average')`. |
 | `blend()` | to composite all frames with a chosen mode (`'average'`, `'lighten'`, `'darken'`, …). |
 | `history()` | a **video** where each frame carries a trail of overlaid past frames. |
-| `motionhistory()` | a single **Motion History Image** — one image where brightness encodes *when* motion last happened (recency). |
-| `motion().average()` / `heatmap()` | a single motion-**density** image — *where and how much* motion happened (order-independent). |
+| `motionhistory()` | a single **Motion History Image**—one image where brightness encodes *when* motion last happened (recency). |
+| `motion().average()` / `heatmap()` | a single motion-**density** image—*where and how much* motion happened (order-independent). |
 | `motiongrams()` | how **motion** (frame differences) is distributed in space over time. |
 | `videograms()` | how the **raw pixel intensity** (the whole scene, not motion) is distributed in space over time. |
 | `ssm()` on `MgVideo` | self-similarity from **visual** features (`features='motiongrams'`/`'videograms'`). |
@@ -35,7 +35,7 @@ commonly confused pairs, one line each:
 
 Most analysis methods stream frames straight through FFmpeg and run on any container, including MP4, e.g. `motion()`, `motiongrams()`, `average()`/`blend()`, `videograms()`, `heatmap()`, `eulerian()`, `motiontempo()`, `sonomotiongram()`, `grid()`, `subtract()`, and `history()`.
 
-A few methods that decode frame-by-frame with OpenCV first convert the input to an all-intra **MJPEG `.avi`** (cached once as `self.as_avi`) for frame-accurate decoding: `flow.dense()`/`flow.sparse()`, `directograms()`, `impacts()`, and `history_cv2()`. The motion **video output** keeps the source container: an mp4 in gives `_motion.mp4` out.
+A few methods that decode frame-by-frame with OpenCV first convert the input to an all-intra MJPEG `.avi` (cached once as `self.as_avi`) for frame-accurate decoding: `flow.dense()`/`flow.sparse()`, `directograms()`, `impacts()`, and `history_cv2()`. The motion video output keeps the source container: an mp4 in gives `_motion.mp4` out.
 
 If your MP4 decodes reliably and you want to skip that conversion (faster, no extra file), pass `convert=False`:
 
@@ -47,7 +47,7 @@ mv.directograms(convert=False)
 
 For these methods the default `convert=True` keeps the safe, frame-accurate behaviour.
 
-`pose()` is different: its `convert` defaults to `None` ("auto"). The MediaPipe backend (the default) reads the source file directly, with **no** intermediate AVI; the OpenPose backends still convert for frame-accurate decoding. The pose result video is written in the **original container**. An mp4 in gives an mp4 out, with no avi→mp4 round-trip. Pass `convert=True`/`False` to force conversion on or off regardless of backend.
+`pose()` is different: its `convert` defaults to `None` ("auto"). The MediaPipe backend (the default) reads the source file directly, with no intermediate AVI; the OpenPose backends still convert for frame-accurate decoding. The pose result video is written in the original container. An mp4 in gives an mp4 out, with no avi→mp4 round-trip. Pass `convert=True`/`False` to force conversion on or off regardless of backend.
 
 ---
 
@@ -183,7 +183,7 @@ mv.stroboscope(n_samples=10, threshold=0.15, keep_largest=True).show()
 does not accumulate and blow out: `decay` (fraction of the clip a mark persists; smaller = shorter
 trails), `threshold` (motion sensitivity), `blur` (speckle suppression), and `normalize`.
 `normalize` defaults to `False`: the MHI is already built in `[0, 1]`, and normalising rarely
-helps — when the final frames are static it amplifies faint residual trails and over-brightens the
+helps—when the final frames are static it amplifies faint residual trails and over-brightens the
 image. (It is also guarded to skip when peak intensity is very low.) Set `normalize=True` to opt in:
 
 ```python
@@ -201,17 +201,17 @@ These single-image summaries look similar but encode different things. The disti
 
 | Visualisation | Each pixel encodes | Time order |
 |---|---|---|
-| `heatmap()` and `motion().average()` | **how much / how often** motion happened there (motion *density*) | **Order-independent** — reversing or shuffling the frames gives the same image |
-| `motionhistory()` (MHI) | **when** motion last happened there (motion *recency*: recent = bright, old = fades) | **Order-dependent** — reversing the video inverts the image |
+| `heatmap()` and `motion().average()` | **how much / how often** motion happened there (motion *density*) | **Order-independent**—reversing or shuffling the frames gives the same image |
+| `motionhistory()` (MHI) | **when** motion last happened there (motion *recency*: recent = bright, old = fades) | **Order-dependent**—reversing the video inverts the image |
 
 Concrete example, a dancer crossing the frame left → right:
 
 - `heatmap()` / `motion().average()` → a uniformly bright band along the whole path (you cannot tell which way they went).
-- `motionhistory()` → a **gradient** along the path: dark where they were early, bright where they were recently, so you can read the **direction and progression** of the movement.
+- `motionhistory()` → a gradient along the path: dark where they were early, bright where they were recently, so you can read the direction and progression of the movement.
 
-In short: use **`heatmap()` / `motion().average()`** for *where and how much* motion (a long-exposure of motion intensity); use **`motionhistory()`** for *where and when* (a recency map that captures the arrow of time).
+In short: use `heatmap()` / `motion().average()` for *where and how much* motion (a long-exposure of motion intensity); use `motionhistory()` for *where and when* (a recency map that captures the arrow of time).
 
-Related but different: `motion().history()` (or `mv.show(key='motionhistory')`) is a **video** where each frame
+Related but different: `motion().history()` (or `mv.show(key='motionhistory')`) is a video where each frame
 carries a short motion *trail* of the last N frames (a weighted moving average), rather than a single
 whole-clip summary image.
 
@@ -245,10 +245,10 @@ descriptors computed from the quantity-of-motion (QoM) signal, complementing the
 from `motion()`:
 
 | descriptor | meaning |
-| --- | --- |
-| `motion_energy` | mean squared QoM — the overall amount of movement. |
+|—|—|
+| `motion_energy` | mean squared QoM—the overall amount of movement. |
 | `motion_smoothness` | **SPARC** (spectral arc length), a dimensionless, validated smoothness metric. It is non-positive; *less* negative = smoother, *more* negative = jerkier. |
-| `motion_entropy` | normalised (0–1) Shannon entropy of the QoM magnitude distribution — the complexity/variedness of the motion. |
+| `motion_entropy` | normalised (0–1) Shannon entropy of the QoM magnitude distribution—the complexity/variedness of the motion. |
 | `dominant_freq` | the main movement-rhythm rate (Hz) from the QoM power spectrum. |
 | `spectral_centroid` | the "centre of mass" (Hz) of the movement spectrum. |
 
@@ -259,7 +259,7 @@ print(md.data['motion_entropy'])            # 0–1
 md.show()                                    # QoM time series + power spectrum
 ```
 
-The spectral descriptors use a **Hann window** by default to reduce leakage from the finite QoM
+The spectral descriptors use a Hann window by default to reduce leakage from the finite QoM
 segment; pass `window='none'` for a rectangular window. The dominant frequency and spectral
 centroid are searched within a movement band (`fmin`/`fmax`, default 0.2–10 Hz) so slow amplitude
 drift near 0 Hz does not masquerade as the movement rhythm. The scalars are also written to a
@@ -450,7 +450,7 @@ motion_average.show()
 
 `pose()` runs skeleton estimation on each frame, with two backends:
 
-- **MediaPipe** (`model='mediapipe'`, the **default**): Google MediaPipe Pose, 33 landmarks with depth and visibility. Fast on plain CPU, needs no CUDA-enabled OpenCV build, and works on the standard pip OpenCV (with optional GPU via MediaPipe's own delegate). Best for single-person analysis. Model weights auto-download (~8–28 MB) on first use.
+- **MediaPipe** (`model='mediapipe'`, the default): Google MediaPipe Pose, 33 landmarks with depth and visibility. Fast on plain CPU, needs no CUDA-enabled OpenCV build, and works on the standard pip OpenCV (with optional GPU via MediaPipe's own delegate). Best for single-person analysis. Model weights auto-download (~8–28 MB) on first use.
 - **OpenPose** (`model='body_25'`/`'coco'`/`'mpi'`): Caffe models (~200 MB on first use). Support multi-person analysis, but are slow without an OpenCV compiled with CUDA.
 
 ```python
@@ -474,13 +474,13 @@ pose = mv.pose(marker_history=10)
 - `model`: `'mediapipe'` (default), `'body_25'`, `'coco'`, or `'mpi'`
 - `style`: `'both'` (default), `'markers'` (keypoints only), or `'skeleton'` (joint lines only)
 - `overlay`: `True` (draw on the video) or `False` (draw on a plain background)
-- `background`: `'black'` (default) or `'white'` — the background colour when `overlay=False`. `'black'` draws bright colours; `'white'` draws a black skeleton and markers for a print-friendly inverted look.
+- `background`: `'black'` (default) or `'white'`—the background colour when `overlay=False`. `'black'` draws bright colours; `'white'` draws a black skeleton and markers for a print-friendly inverted look.
 - `marker_history`: `0` (default) draws nothing extra; when `> 0`, draws a motion trail for each marker by joining its positions over the last N frames. Works in all render paths.
 - `device`: `'cpu'` or `'gpu'`. For OpenPose models, if `device='gpu'` is requested but OpenCV lacks CUDA, `pose()` switches to the MediaPipe backend on CPU (when MediaPipe is installed); otherwise it falls back to CPU with the requested model.
 - `downsampling_factor`: reduces input resolution before inference (OpenPose only); higher is faster but less accurate
 - `threshold`: minimum network confidence to accept a keypoint (normalised 0–1)
 - `data_format`: `'csv'` (default), `'tsv'`, `'txt'`, or `'c3d'` (motion-capture format; needs the optional `c3d` package). Combine, e.g. `data_format=['csv', 'c3d']`.
-- `use_cache`: reuse keypoints from a previous `pose()` run (same model/threshold) to re-render a different `style`/`overlay`/`background` **without re-running inference**, e.g. run `style='markers'` then `style='skeleton'` and the second call is near-instant. Defaults to `True`.
+- `use_cache`: reuse keypoints from a previous `pose()` run (same model/threshold) to re-render a different `style`/`overlay`/`background` without re-running inference, e.g. run `style='markers'` then `style='skeleton'` and the second call is near-instant. Defaults to `True`.
 
 ```python
 mv.pose(style='markers')      # runs inference, caches keypoints
@@ -503,7 +503,7 @@ pv.trajectories.show()     # every marker's spatial path over the whole video
 ![Pose marker trajectories of dance.avi](../images/examples/pose_trajectories.png)
 *Marker trajectories: every marker's spatial path over the whole video. The background follows `trajectory_background` (default `'black'`).*
 
-Both summary images are decluttered: neither carries an in-figure title or colourbar. Markers are coloured by quantity of motion, and each one is annotated with a `QoM | frequency` number label (normalised QoM 0–1 and dominant frequency in Hz). These labels are automatically laid out so they do not overlap (with thin leader lines back to each marker). The marker-trajectories image shows **no** per-marker name labels by default (`trajectory_labels=False`); re-enable them with `trajectory_labels=True`.
+Both summary images are decluttered: neither carries an in-figure title or colourbar. Markers are coloured by quantity of motion, and each one is annotated with a `QoM | frequency` number label (normalised QoM 0–1 and dominant frequency in Hz). These labels are automatically laid out so they do not overlap (with thin leader lines back to each marker). The marker-trajectories image shows no per-marker name labels by default (`trajectory_labels=False`); re-enable them with `trajectory_labels=True`.
 
 Control the trajectories image background with `trajectory_background`: `'black'` (default), `'white'`, or `'transparent'` (so you can overlay the paths on the video afterwards). The `transparent_trajectories` flag is also accepted as an alias for `trajectory_background='transparent'`.
 
@@ -555,7 +555,7 @@ wf.show()
 
 ### Pose segments (circular statistics)
 
-`pose_segments()` analyses each **body segment**—the bone between two connected joints (e.g. shoulder→elbow)—and draws a grid of circular (polar rose) plots, one per segment. For each segment it computes the per-frame orientation angle and shows a rose histogram of the angle distribution with the mean-direction resultant vector. It returns an `MgFigure` and saves a per-segment statistics CSV. Like `pose_waterfall()`, it reuses cached pose keypoints from a prior `pose()` call, otherwise runs `pose()` first (pose kwargs are forwarded).
+`pose_segments()` analyses each body segment—the bone between two connected joints (e.g. shoulder→elbow)—and draws a grid of circular (polar rose) plots, one per segment. For each segment it computes the per-frame orientation angle and shows a rose histogram of the angle distribution with the mean-direction resultant vector. It returns an `MgFigure` and saves a per-segment statistics CSV. Like `pose_waterfall()`, it reuses cached pose keypoints from a prior `pose()` call, otherwise runs `pose()` first (pose kwargs are forwarded).
 
 ```python
 seg = mv.pose_segments()                       # returns MgFigure ('viridis' roses)
@@ -569,7 +569,7 @@ stats = seg.data['stats']                      # per-segment circular statistics
 ![Pose segments circular statistics of dance.avi](../images/examples/pose_segments.png)
 *Per-segment polar rose plots: the angular distribution of each bone's orientation, with the mean-direction resultant vector.*
 
-The saved CSV (and `seg.data['stats']`) reports, per segment: mean angle, resultant length **R** (0–1, concentration of direction), circular standard deviation, range of motion, and mean angular speed.
+The saved CSV (and `seg.data['stats']`) reports, per segment: mean angle, resultant length R (0–1, concentration of direction), circular standard deviation, range of motion, and mean angular speed.
 
 - `segments`: list of `(a, b)` joint-index tuples to restrict the analysis (default `None` = all skeleton connections)
 - `n_bins`: angular bins per rose (default `36` = 10° bins)
@@ -578,7 +578,7 @@ The saved CSV (and `seg.data['stats']`) reports, per segment: mean angle, result
 
 ### Pose centring
 
-`pose_center()` centres the pose data on its **global centroid**, a 2D port of the MoCap Toolbox `mccenter`. A single offset per coordinate (the mean of the per-marker temporal means, missing detections ignored) is subtracted from every marker so the overall spatiotemporal centroid sits at the origin. This removes the performer's absolute position in the frame, leaving relative posture/movement, useful before comparing or further analysing trajectories. It plots the centred marker trajectories, saves a CSV of the centred coordinates, and returns an `MgFigure` (the centred `(T, n, 2)` array is in `.data['coords']`, the removed offset in `.data['offset']`).
+`pose_center()` centres the pose data on its global centroid, a 2D port of the MoCap Toolbox `mccenter`. A single offset per coordinate (the mean of the per-marker temporal means, missing detections ignored) is subtracted from every marker so the overall spatiotemporal centroid sits at the origin. This removes the performer's absolute position in the frame, leaving relative posture/movement, useful before comparing or further analysing trajectories. It plots the centred marker trajectories, saves a CSV of the centred coordinates, and returns an `MgFigure` (the centred `(T, n, 2)` array is in `.data['coords']`, the removed offset in `.data['offset']`).
 
 ```python
 pc = mv.pose_center()          # returns MgFigure (+ CSV); reuses cached keypoints or runs pose()
@@ -591,7 +591,7 @@ centred = pc.data['coords']    # (frames, markers, 2), centroid at the origin
 
 ### Distance travelled
 
-`pose_distance()` computes each marker's **cumulative distance travelled** (the sum of frame-to-frame Euclidean displacement, in pixels) plus the across-marker average. This is a 2D port of `mccumdist`. The figure shows the per-marker cumulative-distance curves and a ranked total-per-marker bar chart with the average marked; a CSV of the totals (and the average) is saved. `.data` holds `total` (per marker), `average`, and `cumulative` (the per-marker curves).
+`pose_distance()` computes each marker's cumulative distance travelled (the sum of frame-to-frame Euclidean displacement, in pixels) plus the across-marker average. This is a 2D port of `mccumdist`. The figure shows the per-marker cumulative-distance curves and a ranked total-per-marker bar chart with the average marked; a CSV of the totals (and the average) is saved. `.data` holds `total` (per marker), `average`, and `cumulative` (the per-marker curves).
 
 ```python
 pd_fig = mv.pose_distance()    # returns MgFigure (+ CSV)
@@ -606,12 +606,12 @@ print(pd_fig.data['average'])  # mean distance travelled across markers (px)
 
 ## Audio–movement analysis
 
-MGT-python provides a suite of reports that compare a single performer's **sound** with their
+MGT-python provides a suite of reports that compare a single performer's sound with their
 **movement**—tempo similarity, phase synchrony, structural similarity, per-body-part coupling, and
 loudness-vs-motion dynamics coupling—alongside the sonification and beat-warping tools. These
 have their own page:
 
-➡️ **[Audio-Video Processing & Analysis](audio-video.md)**
+➡️ [Audio-Video Processing & Analysis](audio-video.md)
 
 ```python
 mv.tempo_similarity().show()      # audio tempo vs movement tempo
