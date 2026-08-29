@@ -507,6 +507,10 @@ A visual tour of the outputs produced by the methods above. Each image was rende
 
 ![Stroboscope](images/examples/stroboscope.png)
 
+**Multishot build-up** — `multishot(animate=True)`
+
+![Animated multishot build-up](images/examples/dancer_multishot_build.gif)
+
 *`mv.stroboscope()`—successive poses superimposed in one frame.*
 
 **Silhouette waterfall**
