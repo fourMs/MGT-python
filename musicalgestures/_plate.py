@@ -291,3 +291,43 @@ def restless_regions(stack, quantile: float = 0.98, min_value: float = 2.0) -> n
     cut = max(float(np.quantile(m, float(quantile))), float(min_value))
     mask: np.ndarray = m > cut
     return mask
+
+
+def texture_mask(image, grid: int = 16, percentile: float = 40.0):
+    """Which cells of a picture carry enough texture to trust motion vectors on.
+
+    An encoder's motion search is unconstrained where nothing textures the block:
+    every candidate vector predicts a flat region equally well, so the vectors there
+    are rate decisions that propagate from wherever real motion is, not measurements.
+    Measured on a corpus whose one room hangs a dark curtain near the lens, the
+    plate's local texture predicted the accumulated vector motion at Spearman -0.6,
+    and masking the low-texture cells removed a negative motion-to-dwell correlation
+    that had made the maps unreadable, while leaving well-textured rooms untouched.
+
+    The threshold is a percentile of this picture's own cell textures, never an
+    absolute number, so the mask adapts to any room and any exposure.
+
+    Args:
+        image: A greyscale picture, typically the room plate the maps are built
+            against, as (rows, cols).
+        grid (int): Cell size in pixels; 16 matches the macroblock lattice the
+            vector maps accumulate on. Defaults to 16.
+        percentile (float): Cells whose standard deviation falls below this
+            percentile of all cells' are masked. Defaults to 40.
+
+    Returns:
+        np.ndarray: Boolean (rows, cols) cell grid, True where vectors are evidence.
+    """
+    import numpy as np
+
+    a = np.asarray(image, dtype=np.float64)
+    rows, cols = a.shape[0] // grid, a.shape[1] // grid
+    stds = np.array([[a[i * grid:(i + 1) * grid, j * grid:(j + 1) * grid].std()
+                      for j in range(cols)] for i in range(rows)])
+    threshold = np.percentile(stds, percentile)
+    #: Strictly above, so that a picture whose low percentile is exactly zero --- half
+    #: the frame perfectly flat --- still masks the flat cells. A picture where nothing
+    #: exceeds the threshold keeps everything, since uniformly textured is not the
+    #: fault this mask exists for.
+    mask = stds > threshold
+    return mask if mask.any() else stds >= threshold

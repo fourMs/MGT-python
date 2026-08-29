@@ -202,3 +202,33 @@ def test_a_plate_built_from_one_stretch_says_so(tmp_path):
 
     with pytest.warns(RuntimeWarning, match="per cent of the recording"):
         room_plate(path, n_samples=60, width=W, stratify=False)
+
+
+class Test_texture_mask:
+    """Motion vectors are only evidence where the picture has texture: an encoder's
+    search is unconstrained on a flat block, so its vectors there are rate decisions,
+    not measurements. The mask says which cells can be trusted."""
+
+    def test_flat_cells_are_masked_and_textured_ones_kept(self):
+        import numpy as np
+
+        from musicalgestures._plate import texture_mask
+
+        rng = np.random.default_rng(0)
+        image = np.zeros((64, 128), np.uint8)
+        image[:, 64:] = rng.integers(0, 255, (64, 64))   # right half textured
+        mask = texture_mask(image, grid=16, percentile=40)
+        assert mask.shape == (4, 8)
+        assert not mask[:, :4].any(), "flat cells must not be trusted"
+        assert mask[:, 4:].all(), "textured cells must be kept"
+
+    def test_the_percentile_sets_how_much_survives(self):
+        import numpy as np
+
+        from musicalgestures._plate import texture_mask
+
+        rng = np.random.default_rng(1)
+        image = (rng.random((64, 64)) * np.linspace(0, 255, 64)).astype(np.uint8)
+        strict = texture_mask(image, grid=16, percentile=75)
+        lax = texture_mask(image, grid=16, percentile=25)
+        assert strict.sum() < lax.sum()

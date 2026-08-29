@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`texture_mask`** — which cells of a picture carry enough texture to trust motion
+  vectors on. An encoder's motion search is unconstrained where nothing textures the
+  block, so its vectors there are rate decisions that propagate from real motion
+  elsewhere; masking cells below a percentile of the picture's own cell textures
+  removed a negative motion-to-dwell correlation that had made one room's maps
+  unreadable, while leaving well-textured rooms untouched. In `_plate`, sized to the
+  16 px macroblock lattice by default.
 - **The zoomable page plays its recording.** `zoomable_page(player=...)` puts a video
   element above the strips, referenced by RELATIVE name so the page stays serverless
   and needs only the folder it ships in: clicking the timeline seeks the video, and a
