@@ -74,16 +74,13 @@ def embed_budget(duration_s: float, max_points: int = 8000) -> dict:
     return {"n_points": n, "seconds_per_point": float(duration_s) / n}
 
 
-def _videogram_png(analysis_dir, duration_s, width, which="videogram_v"):
-    """The videogram as a base64 PNG, for the page to scale."""
+def _array_png(X, cmap="magma", origin="lower"):
+    """A (rows, time) array as a base64 PNG, for the page to scale."""
     import matplotlib
     matplotlib.use("Agg", force=False)
     import matplotlib.pyplot as plt
 
-    from musicalgestures._tracks import read_columns
-
-    cols, _ = read_columns(analysis_dir, 0.0, duration_s, max_columns=width, which=which)
-    X = np.asarray(cols, dtype=float)
+    X = np.asarray(X, dtype=float)
     if X.ndim == 1:
         X = X[None, :]
     if X.shape[0] > X.shape[1]:
@@ -91,16 +88,49 @@ def _videogram_png(analysis_dir, duration_s, width, which="videogram_v"):
     fig = plt.figure(figsize=(X.shape[1] / 100, max(1.0, X.shape[0] / 100)), dpi=100)
     ax = fig.add_axes((0, 0, 1, 1))
     ax.axis("off")
-    ax.imshow(X, aspect="auto", cmap="magma", origin="lower")
+    ax.imshow(X, aspect="auto", cmap=cmap, origin=origin)
     buf = io.BytesIO()
     fig.savefig(buf, format="png", dpi=100)
     plt.close(fig)
     return base64.b64encode(buf.getvalue()).decode("ascii")
 
 
+def _videogram_png(analysis_dir, duration_s, width, which="videogram_v"):
+    """The cached videogram as a base64 PNG, for the page to scale."""
+    from musicalgestures._tracks import read_columns
+
+    cols, _ = read_columns(analysis_dir, 0.0, duration_s, max_columns=width, which=which)
+    return _array_png(cols)
+
+
+def _audio_strips(audio, n_points, width):
+    """The audio as the page's two representations: waveform pairs and a spectrogram.
+
+    The waveform keeps the min and max of the signed signal per bucket, normalised to
+    [-1, 1], for the same reason the motion envelope does: a single transient is what a
+    zoomed-out view must not lose. The spectrogram is a log-mel image, low frequencies
+    at the bottom, on the same clock as everything else.
+    """
+    import librosa
+
+    wave, sr = librosa.load(str(audio), sr=8000, mono=True)
+    lo, hi = decimate_minmax_pairs(wave, n_points)
+    scale = max(float(np.abs(lo).max(initial=0.0)),
+                float(np.abs(hi).max(initial=0.0)), 1e-9)
+    hop = max(1, len(wave) // max(width, 1))
+    mel = librosa.feature.melspectrogram(y=wave, sr=sr, n_mels=96, hop_length=hop)
+    db = librosa.power_to_db(mel, ref=np.max)
+    low, high = float(db.min()), float(db.max())
+    shaded = (db - low) / max(high - low, 1e-9)
+    return {"waveLo": [round(v / scale, 4) for v in lo.tolist()],
+            "waveHi": [round(v / scale, 4) for v in hi.tolist()],
+            "spectrogram": _array_png(shaded, cmap="magma")}
+
+
 def zoomable_page(analysis_dir, duration_s: float, out, hierarchy=None,
                   max_points: int = 8000, videogram_width: int = 3000,
-                  title: str = "session", which: str = "videogram_v"):
+                  title: str = "session", which: str = "videogram_v",
+                  video=None, audio=None):
     """Write a self-contained HTML page that zooms from the whole session to one action.
 
     Args:
@@ -109,9 +139,16 @@ def zoomable_page(analysis_dir, duration_s: float, out, hierarchy=None,
         out: Path to write. Everything is embedded; nothing else is needed beside it.
         hierarchy: A `Hierarchy` whose levels become tier bands, or None.
         max_points (int): Ceiling on embedded envelope points.
-        videogram_width (int): Width in pixels of the embedded videogram.
+        videogram_width (int): Width in pixels of the embedded strips.
         title (str): Shown on the page.
-        which (str): Which pyramid to embed.
+        which (str): Which pyramid to embed when `video` is not given.
+        video (dict, optional): Named video strips, label to a (rows, time) array ---
+            for example a videogram and a motiongram --- embedded in order, with the
+            page offering a switch when there is more than one. None keeps the cached
+            pyramid as the single strip.
+        audio (optional): Path to an audio (or video) file. When given, the page gains
+            an audio band that switches between a waveform and a log-mel spectrogram,
+            on the same clock as everything else.
 
     Returns:
         Path: The file written.
@@ -132,6 +169,14 @@ def zoomable_page(analysis_dir, duration_s: float, out, hierarchy=None,
             tiers.append({"name": name,
                           "spans": [[round(a.start, 2), round(a.end, 2)] for a in spans]})
 
+    if video:
+        strips = [{"name": str(name), "png": _array_png(arr)}
+                  for name, arr in video.items()]
+    else:
+        strips = [{"name": "videogram",
+                   "png": _videogram_png(analysis_dir, duration_s,
+                                         videogram_width, which)}]
+
     payload = {
         "title": title,
         "duration": duration_s,
@@ -139,7 +184,9 @@ def zoomable_page(analysis_dir, duration_s: float, out, hierarchy=None,
         "lo": [round(v / scale, 4) for v in lo.tolist()],
         "hi": [round(v / scale, 4) for v in hi.tolist()],
         "tiers": tiers,
-        "videogram": _videogram_png(analysis_dir, duration_s, videogram_width, which),
+        "video": strips,
+        "audio": (_audio_strips(audio, budget["n_points"], videogram_width)
+                  if audio is not None else None),
     }
     html = (_TEMPLATE.replace("__DATA__", json.dumps(payload))
                      .replace("__TITLE__", str(title)))
@@ -170,6 +217,12 @@ _TEMPLATE = """<!doctype html>
  header{padding:10px 14px;border-bottom:1px solid #2a2a36}
  h1{font-size:15px;margin:0 0 2px}
  .dim{color:var(--dim);font-size:12px}
+ #ctl{padding:6px 14px 0;display:flex;gap:18px;flex-wrap:wrap}
+ #ctl .grp{display:flex;gap:4px;align-items:center}
+ #ctl .lbl{color:var(--dim);font-size:11px;margin-right:2px}
+ #ctl button{background:#23232e;color:var(--dim);border:1px solid #2a2a36;
+             border-radius:3px;padding:2px 9px;font-size:11px;cursor:pointer}
+ #ctl button.on{color:var(--fg);border-color:var(--hl)}
  #wrap{padding:8px 14px 20px}
  canvas{width:100%;display:block;cursor:crosshair;border-radius:4px}
  #hint{margin-top:8px}
@@ -179,6 +232,7 @@ _TEMPLATE = """<!doctype html>
  <h1 id="ttl"></h1>
  <div class="dim" id="sub"></div>
 </header>
+<div id="ctl"></div>
 <div id="wrap"><canvas id="c" tabindex="0"></canvas>
  <div class="dim" id="hint">Scroll to zoom, drag to pan, <kbd>0</kbd> to reset.
   Below the finest resolution the page shows interpolation, not data.</div>
@@ -186,17 +240,48 @@ _TEMPLATE = """<!doctype html>
 <script>
 const D = __DATA__;
 const c = document.getElementById('c'), ctx = c.getContext('2d');
-const img = new Image(); img.src = 'data:image/png;base64,' + D.videogram;
+const vimgs = D.video.map(v => {
+  const i = new Image(); i.src = 'data:image/png;base64,' + v.png;
+  i.onload = () => draw(); return i;
+});
+let simg = null;
+if (D.audio){
+  simg = new Image(); simg.src = 'data:image/png;base64,' + D.audio.spectrogram;
+  simg.onload = () => draw();
+}
+let vsel = 0, amode = 'waveform';
 let t0 = 0, t1 = D.duration, drag = null;
 document.getElementById('ttl').textContent = D.title;
 document.getElementById('sub').textContent =
   D.duration.toFixed(0) + ' s, ' + D.tiers.length + ' tiers, finest resolution '
   + D.secondsPerPoint.toFixed(2) + ' s per point';
 
-const VG = 150, ENV = 110, TIER = 17;
+// switches, only where there is a choice to make
+const ctl = document.getElementById('ctl');
+function group(label, names, get, set){
+  const g = document.createElement('div'); g.className = 'grp';
+  const l = document.createElement('span'); l.className = 'lbl';
+  l.textContent = label; g.appendChild(l);
+  const buttons = names.map((n, i) => {
+    const b = document.createElement('button'); b.textContent = n;
+    b.onclick = () => { set(i); buttons.forEach((x, j) =>
+      x.classList.toggle('on', j === get())); draw(); };
+    g.appendChild(b); return b;
+  });
+  buttons[get()].classList.add('on');
+  ctl.appendChild(g);
+}
+if (D.video.length > 1)
+  group('video', D.video.map(v => v.name), () => vsel, i => vsel = i);
+if (D.audio)
+  group('audio', ['waveform', 'spectrogram'],
+        () => amode === 'waveform' ? 0 : 1,
+        i => amode = i === 0 ? 'waveform' : 'spectrogram');
+
+const VG = 150, AUD = D.audio ? 110 : 0, ENV = 110, TIER = 17;
 function layout(){
   const dpr = window.devicePixelRatio || 1;
-  const w = c.clientWidth, h = VG + ENV + D.tiers.length * TIER + 34;
+  const w = c.clientWidth, h = VG + AUD + ENV + D.tiers.length * TIER + 34;
   c.width = w * dpr; c.height = h * dpr; c.style.height = h + 'px';
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   return {w, h};
@@ -204,31 +289,54 @@ function layout(){
 const x2t = (x, w) => t0 + (x / w) * (t1 - t0);
 const t2x = (t, w) => ((t - t0) / (t1 - t0)) * w;
 
+function cropped(image, y, height, w){
+  if (!image || !image.complete || !image.naturalWidth) return;
+  const sx = (t0 / D.duration) * image.naturalWidth;
+  const sw = ((t1 - t0) / D.duration) * image.naturalWidth;
+  ctx.drawImage(image, sx, 0, Math.max(1, sw), image.naturalHeight, 0, y, w, height);
+}
+
+function bucketed(lo, hi, x, w){
+  const n = hi.length, spp = D.duration / n;
+  const ta = x2t(x, w), tb = x2t(x + 1, w);
+  let a = Math.floor(ta / spp), b = Math.ceil(tb / spp);
+  a = Math.max(0, Math.min(n - 1, a)); b = Math.max(a + 1, Math.min(n, b));
+  let mn = 1e9, mx = -1e9;
+  for (let i = a; i < b; i++){ if (lo[i] < mn) mn = lo[i]; if (hi[i] > mx) mx = hi[i]; }
+  return mx < mn ? null : [mn, mx];
+}
+
 function draw(){
   const {w} = layout();
   ctx.clearRect(0, 0, w, 1e4);
-  // videogram, cropped to the visible range
-  if (img.complete && img.naturalWidth){
-    const sx = (t0 / D.duration) * img.naturalWidth;
-    const sw = ((t1 - t0) / D.duration) * img.naturalWidth;
-    ctx.drawImage(img, sx, 0, Math.max(1, sw), img.naturalHeight, 0, 0, w, VG);
+  // the chosen video strip, cropped to the visible range
+  cropped(vimgs[vsel], 0, VG, w);
+  // the audio band: signed waveform, or the spectrogram on the same clock
+  if (D.audio){
+    if (amode === 'spectrogram'){
+      cropped(simg, VG, AUD, w);
+    } else {
+      const mid = VG + AUD / 2, half = AUD / 2 - 2;
+      ctx.fillStyle = '#9ee8c1';
+      for (let x = 0; x < w; x++){
+        const p = bucketed(D.audio.waveLo, D.audio.waveHi, x, w);
+        if (!p) continue;
+        const y0 = mid - p[1] * half, y1 = mid - p[0] * half;
+        ctx.fillRect(x, y0, 1, Math.max(1, y1 - y0));
+      }
+    }
   }
   // motion envelope, min and max per column
-  const n = D.hi.length, spp = D.duration / n;
   ctx.fillStyle = '#9ecbff';
   for (let x = 0; x < w; x++){
-    const ta = x2t(x, w), tb = x2t(x + 1, w);
-    let a = Math.floor(ta / spp), b = Math.ceil(tb / spp);
-    a = Math.max(0, Math.min(n - 1, a)); b = Math.max(a + 1, Math.min(n, b));
-    let mn = 1e9, mx = -1e9;
-    for (let i = a; i < b; i++){ if (D.lo[i] < mn) mn = D.lo[i]; if (D.hi[i] > mx) mx = D.hi[i]; }
-    if (mx < mn) continue;
-    const y0 = VG + ENV - mx * ENV, y1 = VG + ENV - mn * ENV;
+    const p = bucketed(D.lo, D.hi, x, w);
+    if (!p) continue;
+    const y0 = VG + AUD + ENV - p[1] * ENV, y1 = VG + AUD + ENV - p[0] * ENV;
     ctx.fillRect(x, y0, 1, Math.max(1, y1 - y0));
   }
   // tiers
   D.tiers.forEach((tr, i) => {
-    const y = VG + ENV + i * TIER + 3;
+    const y = VG + AUD + ENV + i * TIER + 3;
     ctx.fillStyle = '#8a8a99'; ctx.font = '10px sans-serif';
     ctx.fillText(tr.name, 4, y + 9);
     ctx.fillStyle = 'rgba(217,95,2,.85)';
@@ -239,7 +347,7 @@ function draw(){
     }
   });
   // axis
-  const yb = VG + ENV + D.tiers.length * TIER + 16;
+  const yb = VG + AUD + ENV + D.tiers.length * TIER + 16;
   ctx.strokeStyle = '#2a2a36'; ctx.fillStyle = '#8a8a99'; ctx.font = '11px sans-serif';
   const span = t1 - t0, step = Math.pow(10, Math.floor(Math.log10(span / 6)));
   const nice = [1, 2, 5, 10].map(m => m * step).find(v => span / v <= 8) || step;
@@ -273,6 +381,6 @@ addEventListener('mousemove', e => {
 });
 addEventListener('keydown', e => { if (e.key === '0'){ t0 = 0; t1 = D.duration; draw(); } });
 addEventListener('resize', draw);
-img.onload = draw; draw();
+draw();
 </script>
 """

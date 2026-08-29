@@ -20,6 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   or transposed.
 
 ### Added
+- **`zoomable_page` carries sound, and a choice of strips.** `audio=` embeds an audio
+  band that switches between a signed min/max waveform and a log-mel spectrogram, on
+  the same clock as everything else; `video=` takes named (rows, time) arrays — a
+  videogram and a motiongram, say — and the page offers a switch when there is more
+  than one. Everything stays embedded in the single file, and the stated resolution
+  budget covers the new strips too.
 - **`multishot(animate=True)`** — the chronophotograph as a looping GIF of its own
   build-up: the bare room first, then one more body per frame in time order, with the
   finished composite held at the end. The same moments, chosen the same way; the

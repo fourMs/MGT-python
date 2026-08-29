@@ -58,3 +58,70 @@ def test_the_budget_reports_the_finest_resolution_the_page_can_show():
     b = embed_budget(duration_s=9513.6, max_points=8000)
     assert b["seconds_per_point"] == pytest.approx(9513.6 / 8000, rel=1e-6)
     assert "seconds_per_point" in b and b["seconds_per_point"] > 0
+
+
+def _analysis(tmp_path, frames=500, fps=50.0):
+    """The least an analysis directory needs for a page: a track and its metadata."""
+    import json
+
+    d = tmp_path / "analysis"
+    d.mkdir()
+    np.asarray(np.random.rand(frames), np.float32).tofile(d / "qom.f4")
+    (d / "tracks.json").write_text(json.dumps(
+        {"frames": frames, "fps": fps, "qom": "qom.f4",
+         "videogram_v": "videogram_v.u1", "videogram_h": "videogram_h.u1",
+         "width": 64, "height": 36}))
+    return d
+
+
+def _payload(path):
+    import json
+    from pathlib import Path
+
+    html = Path(path).read_text()
+    return json.loads(html.split("const D = ", 1)[1].split(";\nconst", 1)[0])
+
+
+def test_the_page_carries_every_video_representation_it_is_given(tmp_path):
+    """`video=` names the strips: each is embedded, and the page can switch."""
+    from musicalgestures._zoomview import zoomable_page
+
+    reps = {"videogram": np.random.rand(36, 500),
+            "motiongram": np.random.rand(36, 500)}
+    out = zoomable_page(_analysis(tmp_path), 10.0, tmp_path / "z.html", video=reps)
+    payload = _payload(out)
+    assert [v["name"] for v in payload["video"]] == ["videogram", "motiongram"]
+    assert all(len(v["png"]) > 100 for v in payload["video"])
+
+
+def test_audio_strips_are_embedded_when_an_audio_file_is_given(tmp_path):
+    """`audio=` adds a band with a waveform and a spectrogram to switch between."""
+    import soundfile as sf
+
+    from musicalgestures._zoomview import zoomable_page
+
+    sr = 8000
+    t = np.arange(sr * 4) / sr
+    sf.write(tmp_path / "a.wav",
+             (0.5 * np.sin(2 * np.pi * 220 * t)).astype(np.float32), sr)
+    out = zoomable_page(_analysis(tmp_path), 4.0, tmp_path / "z.html",
+                        video={"videogram": np.random.rand(36, 200)},
+                        audio=tmp_path / "a.wav")
+    payload = _payload(out)
+    assert payload["audio"] is not None
+    assert len(payload["audio"]["waveLo"]) == len(payload["audio"]["waveHi"])
+    assert len(payload["audio"]["waveLo"]) > 100
+    assert len(payload["audio"]["spectrogram"]) > 100
+
+
+def test_without_the_new_arguments_the_page_still_has_one_videogram_strip(tmp_path):
+    """The default page is unchanged in kind: one video strip from the pyramid."""
+    from musicalgestures._zoomview import zoomable_page
+
+    d = _analysis(tmp_path)
+    #: A base-level pyramid file is enough for read_columns.
+    np.random.randint(0, 255, (500, 36), dtype=np.uint8).tofile(d / "videogram_v.u1")
+    out = zoomable_page(d, 10.0, tmp_path / "z.html")
+    payload = _payload(out)
+    assert [v["name"] for v in payload["video"]] == ["videogram"]
+    assert payload["audio"] is None
