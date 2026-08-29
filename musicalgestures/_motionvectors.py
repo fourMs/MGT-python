@@ -560,14 +560,14 @@ def mg_motionvectorgrams(self: "musicalgestures.MgVideo", colormap: str = "infer
             149-megapixel PNG of 309 MB for something meant to be glanced at. Points are
             pooled by taking the maximum, not the mean, so a brief accent still shows in
             a column standing for several seconds. Defaults to 4000.
-        target_name (str, optional): Output path; the two images take `_mvgram_h` and
-            `_mvgram_v` from it. Defaults to the input name.
+        target_name (str, optional): Output path; the two images take `_mvgram_y` and
+            `_mvgram_x` from it, named by the position axis each keeps. Defaults to
+            the input name.
         overwrite (bool, optional): Defaults to True.
 
     Returns:
-        MgList: the horizontal and vertical motiongrams, in that order, in the classic
-        orientations --- the horizontal wide with time rightward, the vertical tall
-        with time downward.
+        MgList: the y-motiongram and the x-motiongram, in that order, in the classic
+        orientations --- y wide with time rightward, x tall with time downward.
     """
     import cv2
     import matplotlib
@@ -587,8 +587,8 @@ def mg_motionvectorgrams(self: "musicalgestures.MgVideo", colormap: str = "infer
     #: time rightward, the vertical gram is TALL with time downward. The time axis is
     #: axis 1 of the first and axis 0 of the second, so everything below works on
     #: (space, time) and transposes the vertical picture back at the end.
-    for gram, suffix, span, tall in ((horizontal, "_h", self.height, False),
-                                     (vertical.T, "_v", self.width, True)):
+    for gram, suffix, span, tall in ((horizontal, "_y", self.height, False),
+                                     (vertical.T, "_x", self.width, True)):
         if gram.size and gram.shape[1] > max_width:
             #: Pool by maximum rather than mean. A column here stands for several seconds
             #: once a long recording is squeezed to a readable length, and averaging
@@ -726,8 +726,25 @@ class MgMotionVectorViews:
     history_coherence: "np.ndarray"
     time: "np.ndarray"
     magnitude: "np.ndarray"
-    motiongram_horizontal: "np.ndarray"
-    motiongram_vertical: "np.ndarray"
+    motiongram_y: "np.ndarray"
+    motiongram_x: "np.ndarray"
+
+    #: The picture-named fields, kept working for one release. Named by the position
+    #: axis each keeps: y is the wide gram (the old horizontal), x the tall one (the
+    #: old vertical).
+    @property
+    def motiongram_horizontal(self):
+        import warnings
+        warnings.warn("motiongram_horizontal is deprecated and will be removed in "
+                      "2.0; use motiongram_y.", DeprecationWarning, stacklevel=2)
+        return self.motiongram_y
+
+    @property
+    def motiongram_vertical(self):
+        import warnings
+        warnings.warn("motiongram_vertical is deprecated and will be removed in "
+                      "2.0; use motiongram_x.", DeprecationWarning, stacklevel=2)
+        return self.motiongram_x
 
 
 def motion_vector_views(filename, p_frames_only=True, deterministic=False, threshold=0.0):
@@ -782,8 +799,8 @@ def motion_vector_views(filename, p_frames_only=True, deterministic=False, thres
         history_weight=total, history_vx=mean_x, history_vy=mean_y,
         history_coherence=np.clip(coherence, 0, 1),
         time=np.array(times), magnitude=np.array(magnitude),
-        motiongram_horizontal=np.array(down).T,
-        motiongram_vertical=np.array(across))
+        motiongram_y=np.array(down).T,
+        motiongram_x=np.array(across))
 
 
 def mg_motionvectoroverview(self: "musicalgestures.MgVideo", colormap: str = "inferno",
@@ -801,7 +818,7 @@ def mg_motionvectoroverview(self: "musicalgestures.MgVideo", colormap: str = "in
     * **spatial** --- the area motion covered, coloured by direction, and the same
       accumulation as plain amount;
     * **temporal** --- motion over the whole recording, the curve to scrub against;
-    * **spatio-temporal** --- horizontal and vertical motiongrams, position against time,
+    * **spatio-temporal** --- the y- and x-motiongrams, position against time,
       where a body crossing the room draws a diagonal.
 
     Everything comes from the codec's own motion vectors, so the cost is close to the
@@ -872,20 +889,20 @@ def mg_motionvectoroverview(self: "musicalgestures.MgVideo", colormap: str = "in
     #: Classic orientations, named for the picture: the horizontal gram wide with time
     #: rightward, the vertical gram with time running DOWNWARD in its panel.
     ax = fig.add_subplot(grid[2, 0])
-    if v.motiongram_horizontal.size:
-        ax.imshow(shade(v.motiongram_horizontal), cmap=colormap, aspect="auto",
+    if v.motiongram_y.size:
+        ax.imshow(shade(v.motiongram_y), cmap=colormap, aspect="auto",
                   interpolation="nearest",
-                  extent=(0, minutes, v.motiongram_horizontal.shape[0], 0))
-    ax.set_title("horizontal motiongram (y down, time \u2192)")
+                  extent=(0, minutes, v.motiongram_y.shape[0], 0))
+    ax.set_title("y-motiongram (y down, time \u2192)")
     ax.set_xlabel("minutes")
     ax.set_yticks([])
 
     ax = fig.add_subplot(grid[2, 1])
-    if v.motiongram_vertical.size:
-        ax.imshow(shade(v.motiongram_vertical), cmap=colormap, aspect="auto",
+    if v.motiongram_x.size:
+        ax.imshow(shade(v.motiongram_x), cmap=colormap, aspect="auto",
                   interpolation="nearest",
-                  extent=(0, v.motiongram_vertical.shape[1], minutes, 0))
-    ax.set_title("vertical motiongram (x across, time \u2193)")
+                  extent=(0, v.motiongram_x.shape[1], minutes, 0))
+    ax.set_title("x-motiongram (x across, time \u2193)")
     ax.set_ylabel("minutes")
     ax.set_xticks([])
 
@@ -898,8 +915,8 @@ def mg_motionvectoroverview(self: "musicalgestures.MgVideo", colormap: str = "in
         data={"time": v.time, "magnitude": v.magnitude,
               "history_weight": v.history_weight, "history_vx": v.history_vx,
               "history_vy": v.history_vy, "history_coherence": v.history_coherence,
-              "motiongram_horizontal": v.motiongram_horizontal,
-              "motiongram_vertical": v.motiongram_vertical},
+              "motiongram_y": v.motiongram_y,
+              "motiongram_x": v.motiongram_x},
         layers=None, image=target_name)
     return self.motionvectoroverview_figure
 

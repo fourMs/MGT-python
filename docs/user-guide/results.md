@@ -73,8 +73,8 @@ combined = my_list + mg.MgList(spectrogram)   # concatenate two MgLists
 
 ```python
 motiongrams = mv.motiongrams()
-motiongrams[0].show()   # vertical motiongram
-motiongrams[1].show()   # horizontal motiongram
+motiongrams[0].show()   # x-motiongram
+motiongrams[1].show()   # y-motiongram
 ```
 
 ---
@@ -130,10 +130,18 @@ them runs, which is what `show(key=...)` checks: `mv.show(key='plot')` finds the
 motion plot only if `motionplots()` has been called.
 
 | method | stores |
+The gram names follow the position axis each keeps, which also names the motion it
+shows and fixes the classic layout: the x-motiongram keeps horizontal position, shows
+sideways travel, and is the tall picture with time downward; the y-motiongram keeps
+vertical position, shows rising and falling, and is the wide picture with time
+rightward. The picture-named attributes (`motiongram_vertical_image`,
+`motiongram_horizontal_image`, and the videogram pair) still resolve with a
+deprecation warning until 2.0.
+
 |---|---|
-| `motion()`, `motiongrams()` | `motion_video`, `motion_plot_image`, `motiongram_vertical_image`, `motiongram_horizontal_image`, `ssm_figure` |
+| `motion()`, `motiongrams()` | `motion_video`, `motion_plot_image`, `motiongram_x_image`, `motiongram_y_image`, `ssm_figure` |
 | `motionvideo()` | `motion_video` |
-| `videograms()` | `videogram_vertical_image`, `videogram_horizontal_image` |
+| `videograms()` | `videogram_x_image`, `videogram_y_image` |
 | `history()` | `history_video` |
 | `blend()`, and its alias `average()` | `blend_image` |
 | `motionhistory()` | `mhi_image` |
@@ -159,8 +167,8 @@ motion plot only if `motionplots()` has been called.
 
 ### Why the grams are named for what they show
 
-`motiongram_vertical_image` is the gram you get by collapsing the x axis, and
-`motiongram_horizontal_image` collapses the y axis. The older names for these
+`motiongram_x_image` is the gram you get by collapsing the x axis, and
+`motiongram_y_image` collapses the y axis. The older names for these
 were `motiongram_x` and `motiongram_y`, which recorded the axis that was
 collapsed rather than the picture that came out, and reliably read backwards.
 `show()` has long carried `mgh` and `mgv` keys to work around exactly that; the
@@ -174,10 +182,10 @@ it reads is the same object the new name holds.
 | old | new |
 |---|---|
 | `motion_plot` | `motion_plot_image` |
-| `motiongram_x` | `motiongram_vertical_image` |
-| `motiongram_y` | `motiongram_horizontal_image` |
-| `videogram_x` | `videogram_vertical_image` |
-| `videogram_y` | `videogram_horizontal_image` |
+| `motiongram_x` | `motiongram_x_image` |
+| `motiongram_y` | `motiongram_y_image` |
+| `videogram_x` | `videogram_x_image` |
+| `videogram_y` | `videogram_y_image` |
 | `ssm_fig` | `ssm_figure` |
 | `ssm_combined` | `ssm_combined_image` |
 | `movement_beat_statistics` | `movement_beat_statistics_figure` |

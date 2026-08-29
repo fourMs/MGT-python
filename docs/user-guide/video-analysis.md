@@ -64,7 +64,7 @@ See the [filter reference](../musicalgestures/_filter.md) for details.
 
 ## Motion analysis
 
-`motion()` is the primary analysis method. It renders a motion video, horizontal and vertical motiongrams, a motion plot, and a CSV of per-frame motion data, all in one call. It returns an `MgVideo` pointing to the motion video.
+`motion()` is the primary analysis method. It renders a motion video, horizontal and x-motiongrams, a motion plot, and a CSV of per-frame motion data, all in one call. It returns an `MgVideo` pointing to the motion video.
 
 ```python
 motion_video = mv.motion()      # returns MgVideo
@@ -89,8 +89,8 @@ motionplots.show()
 mv.show(key='plot')
 
 motiongrams = mv.motiongrams()        # returns MgList[MgImage, MgImage]
-motiongrams[0].show()                 # vertical motiongram (…_mgv.png)
-motiongrams[1].show()                 # horizontal motiongram (…_mgh.png)
+motiongrams[0].show()                 # x-motiongram (…_mgv.png)
+motiongrams[1].show()                 # y-motiongram (…_mgh.png)
 motiongrams.show(key='horizontal')    # select a panel by orientation
 motiongrams.show(key='vertical')
 mv.show(key='horizontal')             # shorthand from the source MgVideo
@@ -99,11 +99,11 @@ mv.show(key='vertical')
 score = mv.motionscore()        # average VMAF motion score — returns float
 ```
 
-![Horizontal motiongram of dance.avi](../images/examples/motiongram_h.png)
-*Horizontal motiongram: vertical motion collapsed onto the y-axis, flowing left→right over time.*
+![y-motiongram of dance.avi](../images/examples/motiongram_h.png)
+*y-motiongram: vertical motion collapsed onto the y-axis, flowing left→right over time.*
 
-![Vertical motiongram of dance.avi](../images/examples/motiongram_v.png)
-*Vertical motiongram: horizontal motion collapsed onto the x-axis, stacked top→bottom over time.*
+![x-motiongram of dance.avi](../images/examples/motiongram_v.png)
+*x-motiongram: horizontal motion collapsed onto the x-axis, stacked top→bottom over time.*
 
 ### Motion data columns
 

@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- **The grams are named by the position axis each keeps: x and y.** "Horizontal" and
+  "vertical" could describe the display or the motion, and the two point opposite
+  ways — the wide picture shows vertical motion. One letter now answers everything
+  derivably: the x-motiongram keeps horizontal position, shows sideways travel, and
+  is the tall picture with time downward; the y-motiongram keeps vertical position
+  and is the wide one. Canonical attributes are `motiongram_x_image` /
+  `motiongram_y_image` and `videogram_x_image` / `videogram_y_image`; the
+  motion-vector views carry `motiongram_x` / `motiongram_y`; `motiongram_data`
+  accepts `orientation="x"` / `"y"`; the rendered vector grams take `_y` / `_x`
+  suffixes. Every picture-named attribute and field keeps working with a deprecation
+  warning until 2.0.
 - **Motion-vector displacements are corrected for the reference cadence.** FFmpeg's
   `source` carries only the sign of a vector's reference, so a P-frame following a run
   of B-frames reported its whole multi-frame displacement as one frame's — 3× to 4× on

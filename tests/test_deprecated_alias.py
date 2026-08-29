@@ -54,3 +54,22 @@ def test_the_warning_names_the_removal_version():
     h.new_name = "x"
     with pytest.warns(DeprecationWarning, match="2.0"):
         h.old_name
+
+
+def test_the_classic_motiongram_attributes_carry_the_axis_names():
+    """motiongram_x_image is the tall gram, motiongram_y_image the wide one; the
+    picture-named attributes proxy to them with a warning, and the ancient bare
+    motiongram_x/motiongram_y aliases land on the same canonical names."""
+    import musicalgestures
+
+    v = object.__new__(musicalgestures.MgVideo)
+    v.motiongram_x_image = "tall"
+    v.motiongram_y_image = "wide"
+    with pytest.warns(DeprecationWarning, match="motiongram_x_image"):
+        assert v.motiongram_vertical_image == "tall"
+    with pytest.warns(DeprecationWarning, match="motiongram_y_image"):
+        assert v.motiongram_horizontal_image == "wide"
+    with pytest.warns(DeprecationWarning, match="motiongram_x_image"):
+        assert v.motiongram_x == "tall"
+    with pytest.warns(DeprecationWarning, match="motiongram_y_image"):
+        assert v.motiongram_y == "wide"

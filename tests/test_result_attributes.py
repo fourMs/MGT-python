@@ -44,10 +44,14 @@ class TestDeclarations:
 
 RENAMED = [
     ("motion_plot", "motion_plot_image"),
-    ("motiongram_x", "motiongram_vertical_image"),
-    ("motiongram_y", "motiongram_horizontal_image"),
-    ("videogram_x", "videogram_vertical_image"),
-    ("videogram_y", "videogram_horizontal_image"),
+    ("motiongram_x", "motiongram_x_image"),
+    ("motiongram_y", "motiongram_y_image"),
+    ("motiongram_vertical_image", "motiongram_x_image"),
+    ("motiongram_horizontal_image", "motiongram_y_image"),
+    ("videogram_x", "videogram_x_image"),
+    ("videogram_y", "videogram_y_image"),
+    ("videogram_vertical_image", "videogram_x_image"),
+    ("videogram_horizontal_image", "videogram_y_image"),
     ("ssm_combined", "ssm_combined_image"),
     ("movement_beat_statistics", "movement_beat_statistics_figure"),
     ("pose_average", "pose_average_image"),

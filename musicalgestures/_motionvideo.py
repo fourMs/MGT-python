@@ -102,7 +102,7 @@ def mg_motion(
     """
     Finds the difference in pixel value from one frame to the next in an input video, and saves the frames into a new video. 
     Describes the motion in the recording. Outputs: a motion video, a plot describing the centroid of motion and the 
-    quantity of motion, horizontal and vertical motiongrams, and a text file containing the quantity of motion and the 
+    quantity of motion, the y- and x-motiongrams, and a text file containing the quantity of motion and the 
     centroid of motion for each frame with timecodes in milliseconds.
 
     Args:
@@ -134,8 +134,8 @@ def mg_motion(
         target_name_video (str, optional): Target output name for the video. Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).
         target_name_plot (str, optional): Target output name for the plot. Defaults to None (which assumes that the input filename with the suffix "_motion_com_aom_qom" should be used).
         target_name_data (str, optional): Target output name for the data. Defaults to None (which assumes that the input filename with the suffix "_motion" should be used).
-        target_name_mgx (str, optional): Target output name for the vertical motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgv" should be used).
-        target_name_mgy (str, optional): Target output name for the horizontal motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgh" should be used).
+        target_name_mgx (str, optional): Target output name for the x-motiongram (the tall picture). Defaults to None (which assumes that the input filename with the suffix "_mgv" should be used).
+        target_name_mgy (str, optional): Target output name for the y-motiongram (the wide picture). Defaults to None (which assumes that the input filename with the suffix "_mgh" should be used).
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:
@@ -310,8 +310,8 @@ def mg_motion(
             self.ssm_figure = MgFigure(figure=None, figure_type='video.ssm', data=data, layers=None, image=(target_name_mgx, target_name_mgy))
 
             # save rendered motiongrams as MgImages into parent MgVideo
-            self.motiongram_vertical_image = MgImage(target_name_mgx)
-            self.motiongram_horizontal_image = MgImage(target_name_mgy)
+            self.motiongram_x_image = MgImage(target_name_mgx)
+            self.motiongram_y_image = MgImage(target_name_mgy)
 
         # `audio_descriptors` arrives as a flag and travels on as the video to read
         # audio from, which save_analysis expects. Two meanings, two names.
@@ -386,8 +386,8 @@ def mg_motiongrams(
         kernel_size (int, optional): Size of the median filter (if `use_median=True`) or the erosion filter (if `filtertype='blob'`). Defaults to 5.
         inverted_motiongram (bool, optional): If True, inverts colors of the motiongrams. Defaults to False.
         equalize_motiongram (bool, optional): If True, converts the motiongrams to hsv-color space and flattens the value channel (v). Defaults to True.
-        target_name_mgx (str, optional): Target output name for the vertical motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgv" should be used).
-        target_name_mgy (str, optional): Target output name for the horizontal motiongram. Defaults to None (which assumes that the input filename with the suffix "_mgh" should be used).
+        target_name_mgx (str, optional): Target output name for the x-motiongram (the tall picture). Defaults to None (which assumes that the input filename with the suffix "_mgv" should be used).
+        target_name_mgy (str, optional): Target output name for the y-motiongram (the wide picture). Defaults to None (which assumes that the input filename with the suffix "_mgh" should be used).
         overwrite (bool, optional): Whether to allow overwriting existing files or to automatically increment target filenames to avoid overwriting. Defaults to True.
 
     Returns:

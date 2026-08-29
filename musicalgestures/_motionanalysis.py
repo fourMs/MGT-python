@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 
-def motiongram_data(frames, orientation="vertical", frame_diff=True, normalize=True):
+def motiongram_data(frames, orientation="y", frame_diff=True, normalize=True):
     """
     Compute a motiongram as a plain numpy array from a stack of grayscale
     frames, with a selectable orientation.
@@ -22,7 +22,7 @@ def motiongram_data(frames, orientation="vertical", frame_diff=True, normalize=T
     post-processing): use this function when you want the motiongram as
     data for further analysis rather than as a rendered image.
 
-    Source: cymbal-comparison study (Jensenius) -- vertical motiongram of
+    Source: cymbal-comparison study (Jensenius) -- the y-motiongram of
     the mallet trajectory; building on the classic fourMs motiongram.
 
     Args:
@@ -41,13 +41,15 @@ def motiongram_data(frames, orientation="vertical", frame_diff=True, normalize=T
             (W, T-1) for "horizontal" (T instead of T-1 when `frame_diff` is
             False). Time runs along the second axis.
     """
+    orientation = {"vertical": "y", "horizontal": "x"}.get(orientation, orientation)
+
     frames = np.asarray(frames, dtype=np.float32)
     if frames.ndim != 3:
         raise ValueError("motiongram_data expects frames of shape (T, H, W)")
     data = np.abs(np.diff(frames, axis=0)) if frame_diff else frames
-    if orientation == "vertical":
+    if orientation == "y":
         gram = data.mean(axis=2).T      # (H, T-1): image row vs time
-    elif orientation == "horizontal":
+    elif orientation == "x":
         gram = data.mean(axis=1).T      # (W, T-1): image column vs time
     else:
         raise ValueError("orientation must be 'vertical' or 'horizontal'")

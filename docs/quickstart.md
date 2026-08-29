@@ -107,8 +107,8 @@ mv = mg.MgVideo(examples.pianist)
 
 # Motiongrams — returns MgList with [vertical_mgram, horizontal_mgram]
 motiongrams = mv.motiongrams()
-motiongrams[0].show()  # vertical motiongram
-motiongrams[1].show()  # horizontal motiongram
+motiongrams[0].show()  # x-motiongram
+motiongrams[1].show()  # y-motiongram
 mv.show(key='horizontal')  # shorthand from source MgVideo
 
 # Average image (blend of all frames)
@@ -271,8 +271,8 @@ MGT-python creates several types of output files:
 
 ### Image Files
 - `*_average.png` - Average of all frames
-- `*_mgh.png` - Horizontal motiongram
-- `*_mgv.png` - Vertical motiongram
+- `*_mgh.png` - y-motiongram
+- `*_mgv.png` - x-motiongram
 
 ### Data Files
 - `*_motion.csv` - Numerical motion data

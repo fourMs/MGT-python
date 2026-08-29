@@ -119,11 +119,11 @@ def videograms_ffmpeg(
         ffmpeg_cmd(cmd, length, stream=False, pb_prefix="Rendering vertical videogram:")
 
         # save results as MgImages at self.video_gram_x and self.video_gram_y for parent MgObject
-        self.videogram_vertical_image = MgImage(target_name_x)
-        self.videogram_horizontal_image = MgImage(target_name_y)
+        self.videogram_x_image = MgImage(target_name_x)
+        self.videogram_y_image = MgImage(target_name_y)
 
         # return MgList([MgImage(target_name_x), MgImage(target_name_y)])
-        return MgList(self.videogram_vertical_image, self.videogram_horizontal_image)
+        return MgList(self.videogram_x_image, self.videogram_y_image)
 
 
     else:
@@ -141,9 +141,9 @@ def videograms_ffmpeg(
                vf_x, '-aspect', f'{width}:{framecount}', target_name_x]
         ffmpeg_cmd(cmd, length, stream=False, pb_prefix="Rendering vertical videogram:")
 
-        # save results as MgImages at self.videogram_vertical_image and self.videogram_horizontal_image for parent MgObject
-        self.videogram_vertical_image = MgImage(target_name_x)
-        self.videogram_horizontal_image = MgImage(target_name_y)
+        # save results as MgImages at self.videogram_x_image and self.videogram_y_image for parent MgObject
+        self.videogram_x_image = MgImage(target_name_x)
+        self.videogram_y_image = MgImage(target_name_y)
 
         # return MgList([MgImage(target_name_x), MgImage(target_name_y)])
-        return MgList(self.videogram_vertical_image, self.videogram_horizontal_image)
+        return MgList(self.videogram_x_image, self.videogram_y_image)

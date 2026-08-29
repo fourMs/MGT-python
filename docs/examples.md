@@ -37,8 +37,8 @@ mv = mg.MgVideo(mg.examples.pianist)
 motiongrams = mv.motiongrams()   # MgList: [vertical MgImage, horizontal MgImage]
 average_img = mv.average()       # MgImage: pixel average of all frames
 
-motiongrams[0].show()   # vertical motiongram
-motiongrams[1].show()   # horizontal motiongram
+motiongrams[0].show()   # x-motiongram
+motiongrams[1].show()   # y-motiongram
 average_img.show()
 
 # Audio analysis
@@ -47,11 +47,11 @@ spectrogram = mv.audio.spectrogram()
 descriptors = mv.audio.descriptors()
 ```
 
-![The pianist's vertical motiongram](images/examples/pianist_motiongram_v.png)
+![The pianist's x-motiongram](images/examples/pianist_motiongram_v.png)
 
 ![The pianist's spectrogram](images/examples/pianist_spectrogram.png)
 
-*The pianist's vertical motiongram, and the spectrogram from the same file.*
+*The pianist's x-motiongram, and the spectrogram from the same file.*
 
 ## Advanced Examples
 
@@ -215,9 +215,9 @@ history.show()
 average_img.show()
 ```
 
-![The pianist's horizontal motiongram under the custom settings](images/examples/motiongram_custom.png)
+![The pianist's y-motiongram under the custom settings](images/examples/motiongram_custom.png)
 
-*The pianist's horizontal motiongram under the custom settings.*
+*The pianist's y-motiongram under the custom settings.*
 
 ### Example 8b: Resampling (frame rate and speed)
 
@@ -453,15 +453,15 @@ A visual tour of the outputs produced by the methods above. Each image was rende
 
 *`mv.motion()`—frame-difference motion video.*
 
-**Horizontal motiongram**
+**y-motiongram**
 
-![Horizontal motiongram](images/examples/motiongram_h.png)
+![y-motiongram](images/examples/motiongram_h.png)
 
 *`mv.motiongrams()[1]`—motion collapsed over rows, time on the x-axis.*
 
-**Vertical motiongram**
+**x-motiongram**
 
-![Vertical motiongram](images/examples/motiongram_v.png)
+![x-motiongram](images/examples/motiongram_v.png)
 
 *`mv.motiongrams()[0]`—motion collapsed over columns, time on the y-axis.*
 

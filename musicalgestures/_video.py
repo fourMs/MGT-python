@@ -185,8 +185,8 @@ class MgVideo(MgAudio):
     motiondescriptors_figure: MgFigure
     actions: list
     motion_plot_image: MgImage
-    motiongram_horizontal_image: MgImage
-    motiongram_vertical_image: MgImage
+    motiongram_y_image: MgImage
+    motiongram_x_image: MgImage
     motionvectors_video: "musicalgestures.MgVideo"
     motionvectorhistory_image: MgImage
     motionvectorgrams_images: "musicalgestures.MgList"
@@ -217,8 +217,8 @@ class MgVideo(MgAudio):
     subtract_video: "musicalgestures.MgVideo"
     tempo_similarity_figure: MgFigure
     trajectories: MgImage
-    videogram_horizontal_image: MgImage
-    videogram_vertical_image: MgImage
+    videogram_y_image: MgImage
+    videogram_x_image: MgImage
     warp_video: "musicalgestures.MgVideo"
 
     def motion_mp(self, *args, **kwargs):
@@ -243,15 +243,25 @@ class MgVideo(MgAudio):
 
     # Retired names, kept working for one release. See issue #346.
     motion_plot = deprecated_alias("motion_plot", "motion_plot_image")
-    motiongram_x = deprecated_alias("motiongram_x", "motiongram_vertical_image")
-    motiongram_y = deprecated_alias("motiongram_y", "motiongram_horizontal_image")
+    motiongram_x = deprecated_alias("motiongram_x", "motiongram_x_image")
+    motiongram_y = deprecated_alias("motiongram_y", "motiongram_y_image")
+    #: The picture-named attributes, retired in favour of the axis each gram keeps:
+    #: x is the tall picture, y the wide one.
+    motiongram_vertical_image = deprecated_alias(
+        "motiongram_vertical_image", "motiongram_x_image")
+    motiongram_horizontal_image = deprecated_alias(
+        "motiongram_horizontal_image", "motiongram_y_image")
     movement_beat_statistics = deprecated_alias(
         "movement_beat_statistics", "movement_beat_statistics_figure")
     pose_average = deprecated_alias("pose_average", "pose_average_image")
     pose_trajectories = deprecated_alias("pose_trajectories", "pose_trajectories_image")
     ssm_combined = deprecated_alias("ssm_combined", "ssm_combined_image")
-    videogram_x = deprecated_alias("videogram_x", "videogram_vertical_image")
-    videogram_y = deprecated_alias("videogram_y", "videogram_horizontal_image")
+    videogram_x = deprecated_alias("videogram_x", "videogram_x_image")
+    videogram_y = deprecated_alias("videogram_y", "videogram_y_image")
+    videogram_vertical_image = deprecated_alias(
+        "videogram_vertical_image", "videogram_x_image")
+    videogram_horizontal_image = deprecated_alias(
+        "videogram_horizontal_image", "videogram_y_image")
 
     # Methods are bound by importing the implementing function at class scope. mypy calls this
     # "Unsupported class scoped import" and it is the toolbox's central idiom, so the ignores

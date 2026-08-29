@@ -58,15 +58,15 @@ representation a first pass wants:
 
 * **spatial**—the area motion covered, coloured by direction, and again as plain amount
 * **temporal**—motion across the whole recording, the curve to scrub against
-* **spatio-temporal**—horizontal and vertical motiongrams, where a body crossing the
+* **spatio-temporal**—horizontal and x-motiongrams, where a body crossing the
   room draws a diagonal
 
 ![Motion-vector overview sheet of the bundled dancer example](../images/examples/dancer_motionvectoroverview.png)
 
 *The bundled `dancer.avi` on one sheet. The amount map draws the arc the arms swept
 around a body that never moved its feet, and the motiongrams carry the same dance in
-the classic orientations: the horizontal motiongram runs time rightward and holds the
-arm oscillations, since this dance is vertical movement, and the vertical motiongram
+the classic orientations: the y-motiongram runs time rightward and holds the
+arm oscillations, since this dance is vertical movement, and the x-motiongram
 runs time downward with the room's width across.*
 
 About five minutes for a 100-minute 1920x1080 recording, against roughly twenty-four for

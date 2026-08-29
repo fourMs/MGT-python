@@ -23,7 +23,7 @@ four rows in three places and the picture says nothing. Ordered anatomically a m
 is a contiguous band, and the axis reads *head / arms / hands / torso / legs*.
 
 `posegram_spatial()` puts image position on the vertical axis instead, which is what a
-vertical motiongram does. A body crossing the frame draws the same diagonal in both, so the
+x-motiongram does. A body crossing the frame draws the same diagonal in both, so the
 two can be read against each other—and where they disagree, either the pixels saw
 something the pose model missed or the model invented something the pixels do not support.
 

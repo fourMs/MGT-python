@@ -48,3 +48,17 @@ class TestMotiongramData:
             motiongram_data(np.zeros((5, 5)))
         with pytest.raises(ValueError):
             motiongram_data(falling_bar_frames(), orientation="diagonal")
+
+
+class TestAxisNames:
+    """"x" and "y" name the kept position axis, and mean what the old words meant."""
+
+    def test_y_is_the_old_vertical(self):
+        frames = falling_bar_frames()
+        assert np.array_equal(motiongram_data(frames, orientation="y"),
+                              motiongram_data(frames, orientation="vertical"))
+
+    def test_x_is_the_old_horizontal(self):
+        frames = falling_bar_frames()
+        assert np.array_equal(motiongram_data(frames, orientation="x"),
+                              motiongram_data(frames, orientation="horizontal"))

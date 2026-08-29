@@ -42,13 +42,13 @@ class Test_one_pass_gives_the_same_answer:
     def test_motiongrams_match_the_separate_ones(self, clip):
         views = motion_vector_views(clip, deterministic=True)
         horizontal, vertical = motion_vector_motiongrams(clip, deterministic=True)
-        assert np.allclose(views.motiongram_horizontal, horizontal)
-        assert np.allclose(views.motiongram_vertical, vertical)
+        assert np.allclose(views.motiongram_y, horizontal)
+        assert np.allclose(views.motiongram_x, vertical)
 
     def test_the_temporal_track_covers_every_p_frame(self, clip):
         views = motion_vector_views(clip)
         assert len(views.time) == len(views.magnitude)
-        assert views.motiongram_horizontal.shape[1] == len(views.time)
+        assert views.motiongram_y.shape[1] == len(views.time)
         assert np.all(np.diff(views.time) > 0)
 
 
@@ -60,3 +60,19 @@ class Test_the_overview_image:
         assert isinstance(result, musicalgestures.MgFigure)
         assert os.path.isfile(result.image)
         assert set(result.data) >= {"time", "magnitude", "history_weight"}
+
+
+class Test_the_gram_names:
+    """Named by the position axis each keeps: y is the wide gram, x the tall one.
+
+    The old picture-named fields keep working for one release and warn, so nothing
+    reading them breaks while it migrates."""
+
+    def test_the_old_field_names_warn_and_proxy(self, clip):
+        import pytest as _pytest
+
+        views = motion_vector_views(clip, deterministic=True)
+        with _pytest.warns(DeprecationWarning, match="motiongram_y"):
+            assert np.array_equal(views.motiongram_horizontal, views.motiongram_y)
+        with _pytest.warns(DeprecationWarning, match="motiongram_x"):
+            assert np.array_equal(views.motiongram_vertical, views.motiongram_x)

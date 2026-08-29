@@ -273,9 +273,9 @@ class MgList():
 
                     # add title based on content
                     last_tag = os.path.splitext(obj.filename)[0].split('_')[-1]
-                    tag_titles = {'mgh': 'Horizontal Motiongram', 'mgv': 'Vertical Motiongram',
+                    tag_titles = {'mgh': 'y-motiongram', 'mgv': 'x-motiongram',
                                   'vgh': 'Horizontal Videogram', 'vgv': 'Vertical Videogram',
-                                  'mgx': 'Vertical Motiongram', 'mgy': 'Horizontal Motiongram',
+                                  'mgx': 'x-motiongram', 'mgy': 'y-motiongram',
                                   'vgx': 'Vertical Videogram', 'vgy': 'Horizontal Videogram'}
                     if last_tag in tag_titles:
                         ax[plot_counter].set(title=tag_titles[last_tag])
@@ -506,9 +506,9 @@ class MgList():
 
             # add title based on content
             last_tag = os.path.splitext(img_to_redo)[0].split('_')[-1]
-            tag_titles = {'mgh': 'Horizontal Motiongram', 'mgv': 'Vertical Motiongram',
+            tag_titles = {'mgh': 'y-motiongram', 'mgv': 'x-motiongram',
                           'vgh': 'Horizontal Videogram', 'vgv': 'Vertical Videogram',
-                          'mgx': 'Vertical Motiongram', 'mgy': 'Horizontal Motiongram',
+                          'mgx': 'x-motiongram', 'mgy': 'y-motiongram',
                           'vgx': 'Vertical Videogram', 'vgy': 'Horizontal Videogram'}
             if last_tag in tag_titles:
                 ax[0].set(title=tag_titles[last_tag])

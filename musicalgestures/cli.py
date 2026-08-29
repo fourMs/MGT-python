@@ -202,7 +202,7 @@ def main() -> None:
     @click.option("--threshold", default=0.05, type=float, show_default=True)
     @click.option("--overwrite", is_flag=True)
     def cmd_motiongrams(filename, filtertype, threshold, overwrite):
-        """Render horizontal and vertical motiongrams for FILENAME."""
+        """Render the y- and x-motiongrams for FILENAME."""
         try:
             import musicalgestures as mg
             v = mg.MgVideo(filename)

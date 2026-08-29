@@ -122,12 +122,14 @@ class Test_the_image_stays_openable:
 
 
 class Test_the_rendered_images:
-    def test_writes_two_images(self, moving_right, tmp_path):
+    def test_writes_two_images_named_by_the_axis_each_keeps(self, moving_right, tmp_path):
         import os
         result = musicalgestures.MgVideo(moving_right).motionvectorgrams(
             target_name=str(tmp_path / "g.png"))
         assert isinstance(result, musicalgestures.MgList)
         assert len(result) == 2
+        assert result[0].filename.endswith("_y.png")
+        assert result[1].filename.endswith("_x.png")
         for image in result:
             assert isinstance(image, musicalgestures.MgImage)
             assert os.path.isfile(image.filename)
