@@ -47,11 +47,13 @@ nav:
       - Audio: musicalgestures/_audio.md
       - Flow: musicalgestures/_flow.md
       - Motion vectors: musicalgestures/_motionvectors.md
+      - Noise floor: musicalgestures/_noisefloor.md
       - Posegram: musicalgestures/_posegram.md
       - 360 Video: musicalgestures/_360video.md
       - Anglegram (360): musicalgestures/_anglegram.md
       - Utils: musicalgestures/_utils.md
       - Contact sheet: musicalgestures/_contactsheet.md
+      - Multi-shot: musicalgestures/_multishot.md
       - Segmentation and annotation:
           - Actions: musicalgestures/_actions.md
           - Hierarchy: musicalgestures/_hierarchy.md
