@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **The motion-vector motiongrams now use the classic orientations, named for the
+  picture.** The vertical motiongram is the tall image — the frame's width across,
+  time running downward — and carries sideways travel; the horizontal motiongram is
+  the wide image — time rightward, the frame's height down — and carries vertical
+  travel. Previously the vector path drew both wide and had the two names swapped
+  relative to `motiongrams()`. This changes `motion_vector_motiongrams`'s return
+  arrays (now `(rows, frames)` and `(frames, cols)`), the `_mvgram_h`/`_mvgram_v`
+  images, the `motionvectoroverview` sheet and `motionvectordata`'s gram fields;
+  arrays saved by earlier versions carry the old convention and should be re-derived
+  or transposed.
+
 ### Added
 - **`multishot(animate=True)`** — the chronophotograph as a looping GIF of its own
   build-up: the bare room first, then one more body per frame in time order, with the

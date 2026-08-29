@@ -474,14 +474,18 @@ def mg_motionvectorhistory(self: "musicalgestures.MgVideo", mode: str = "directi
 
 
 def motion_vector_motiongrams(filename, p_frames_only=True, deterministic=False, threshold=0.0):
-    """Position against time, one column per frame, from the vectors.
+    """The two classic motiongrams from the vectors, named for the picture.
 
-    The horizontal motiongram collapses each frame's grid down its rows, leaving motion
-    by horizontal position; the vertical one collapses across columns. Stacked over time
-    they are the classic motiongram, and a body crossing the room draws a diagonal.
+    The HORIZONTAL motiongram is the wide picture: each frame's grid collapsed across
+    its columns to a y-profile, stacked so time runs rightward and vertical position
+    down. The VERTICAL motiongram is the tall picture: each frame collapsed down its
+    rows to an x-profile, stacked so time runs downward and horizontal position across.
+    A body crossing the room draws a diagonal in the vertical gram; a body rising or
+    falling draws one in the horizontal. The orientations and names are the ones
+    `motiongrams()` has always used.
 
     Returns:
-        tuple: `(horizontal, vertical)`, shaped (cols, frames) and (rows, frames).
+        tuple: `(horizontal, vertical)`, shaped (rows, frames) and (frames, cols).
     """
     import numpy as np
 
@@ -495,9 +499,9 @@ def motion_vector_motiongrams(filename, p_frames_only=True, deterministic=False,
         down.append(weight.sum(axis=1))
     if not across:
         return np.zeros((0, 0)), np.zeros((0, 0))
-    #: Transposed so that time runs along the image's x axis, which is what makes a
-    #: motiongram readable as a score rather than as a picture of the room.
-    return np.array(across).T, np.array(down).T
+    #: The horizontal gram transposed so time runs along the image's x axis; the
+    #: vertical one left with time down its rows. Each is then already the picture.
+    return np.array(down).T, np.array(across)
 
 
 def mg_motionvectorgrams(self: "musicalgestures.MgVideo", colormap: str = "inferno",
@@ -515,10 +519,11 @@ def mg_motionvectorgrams(self: "musicalgestures.MgVideo", colormap: str = "infer
         colormap (str, optional): Matplotlib colormap. Defaults to `'inferno'`.
         gamma (float, optional): Applied before colouring so quiet passages stay visible.
             Defaults to 0.5.
-        max_width (int, optional): Widest the saved image may be, in pixels. One column
-            per P-frame is right for the array and wrong for the picture: a 158-minute
+        max_width (int, optional): Longest the saved image's TIME axis may be, in
+            pixels --- across the horizontal image, down the vertical one. One point per
+            P-frame is right for the array and wrong for the picture: a 158-minute
             session has 77,592 of them, and stretching that to the video's height gave a
-            149-megapixel PNG of 309 MB for something meant to be glanced at. Columns are
+            149-megapixel PNG of 309 MB for something meant to be glanced at. Points are
             pooled by taking the maximum, not the mean, so a brief accent still shows in
             a column standing for several seconds. Defaults to 4000.
         target_name (str, optional): Output path; the two images take `_mvgram_h` and
@@ -526,7 +531,9 @@ def mg_motionvectorgrams(self: "musicalgestures.MgVideo", colormap: str = "infer
         overwrite (bool, optional): Defaults to True.
 
     Returns:
-        MgList: the horizontal and vertical motiongrams, in that order.
+        MgList: the horizontal and vertical motiongrams, in that order, in the classic
+        orientations --- the horizontal wide with time rightward, the vertical tall
+        with time downward.
     """
     import cv2
     import matplotlib
@@ -542,13 +549,17 @@ def mg_motionvectorgrams(self: "musicalgestures.MgVideo", colormap: str = "infer
     horizontal, vertical = motion_vector_motiongrams(self.filename)
     cmap = matplotlib.colormaps[colormap]
     images = []
-    for gram, suffix, span in ((horizontal, "_h", self.width),
-                               (vertical, "_v", self.height)):
+    #: Classic orientations, named for the picture: the horizontal gram is wide with
+    #: time rightward, the vertical gram is TALL with time downward. The time axis is
+    #: axis 1 of the first and axis 0 of the second, so everything below works on
+    #: (space, time) and transposes the vertical picture back at the end.
+    for gram, suffix, span, tall in ((horizontal, "_h", self.height, False),
+                                     (vertical.T, "_v", self.width, True)):
         if gram.size and gram.shape[1] > max_width:
             #: Pool by maximum rather than mean. A column here stands for several seconds
-            #: once a long recording is squeezed to a readable width, and averaging would
-            #: bury a one-second accent under the quiet around it --- which is exactly
-            #: what a motiongram is read for.
+            #: once a long recording is squeezed to a readable length, and averaging
+            #: would bury a one-second accent under the quiet around it --- which is
+            #: exactly what a motiongram is read for.
             edges = np.linspace(0, gram.shape[1], max_width + 1).astype(int)
             gram = np.stack([gram[:, a:max(b, a + 1)].max(axis=1)
                              for a, b in zip(edges[:-1], edges[1:])], axis=1)
@@ -560,6 +571,8 @@ def mg_motionvectorgrams(self: "musicalgestures.MgVideo", colormap: str = "infer
         #: grams line up with the video and with each other; nearest, because smoothing a
         #: macroblock lattice invents detail the vectors never had.
         out = cv2.resize(rgb, (rgb.shape[1], span), interpolation=cv2.INTER_NEAREST)
+        if tall:
+            out = out.transpose(1, 0, 2)
         path = f"{stem}{suffix}.png"
         cv2.imwrite(path, out[..., ::-1])
         images.append(MgImage(path))
@@ -669,7 +682,9 @@ class MgMotionVectorViews:
 
     Three kinds of representation, which is what a first pass over unfamiliar material
     wants: **spatial** (where motion happened, and which way), **temporal** (how much,
-    over time), and **spatio-temporal** (the motiongrams, position against time).
+    over time), and **spatio-temporal** (the motiongrams, position against time, in
+    the classic orientations: `motiongram_horizontal` as (rows, frames) with time
+    rightward, `motiongram_vertical` as (frames, cols) with time downward).
     """
     history_weight: "np.ndarray"
     history_vx: "np.ndarray"
@@ -733,8 +748,8 @@ def motion_vector_views(filename, p_frames_only=True, deterministic=False, thres
         history_weight=total, history_vx=mean_x, history_vy=mean_y,
         history_coherence=np.clip(coherence, 0, 1),
         time=np.array(times), magnitude=np.array(magnitude),
-        motiongram_horizontal=np.array(across).T,
-        motiongram_vertical=np.array(down).T)
+        motiongram_horizontal=np.array(down).T,
+        motiongram_vertical=np.array(across))
 
 
 def mg_motionvectoroverview(self: "musicalgestures.MgVideo", colormap: str = "inferno",
@@ -820,16 +835,25 @@ def mg_motionvectoroverview(self: "musicalgestures.MgVideo", colormap: str = "in
     ax.set_yticks([])
 
     minutes = (v.time[-1] / 60) if len(v.time) else 1
-    for column, (gram, label) in enumerate((
-            (v.motiongram_horizontal, "horizontal motiongram (x against time)"),
-            (v.motiongram_vertical, "vertical motiongram (y against time)"))):
-        ax = fig.add_subplot(grid[2, column])
-        if gram.size:
-            ax.imshow(shade(gram), cmap=colormap, aspect="auto",
-                      interpolation="nearest", extent=(0, minutes, gram.shape[0], 0))
-        ax.set_title(label)
-        ax.set_xlabel("minutes")
-        ax.set_yticks([])
+    #: Classic orientations, named for the picture: the horizontal gram wide with time
+    #: rightward, the vertical gram with time running DOWNWARD in its panel.
+    ax = fig.add_subplot(grid[2, 0])
+    if v.motiongram_horizontal.size:
+        ax.imshow(shade(v.motiongram_horizontal), cmap=colormap, aspect="auto",
+                  interpolation="nearest",
+                  extent=(0, minutes, v.motiongram_horizontal.shape[0], 0))
+    ax.set_title("horizontal motiongram (y down, time \u2192)")
+    ax.set_xlabel("minutes")
+    ax.set_yticks([])
+
+    ax = fig.add_subplot(grid[2, 1])
+    if v.motiongram_vertical.size:
+        ax.imshow(shade(v.motiongram_vertical), cmap=colormap, aspect="auto",
+                  interpolation="nearest",
+                  extent=(0, v.motiongram_vertical.shape[1], minutes, 0))
+    ax.set_title("vertical motiongram (x across, time \u2193)")
+    ax.set_ylabel("minutes")
+    ax.set_xticks([])
 
     fig.suptitle(os.path.basename(self.filename), fontsize=11)
     fig.savefig(target_name, bbox_inches="tight")

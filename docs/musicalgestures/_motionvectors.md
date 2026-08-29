@@ -64,10 +64,10 @@ representation a first pass wants:
 ![Motion-vector overview sheet of the bundled dancer example](../images/examples/dancer_motionvectoroverview.png)
 
 *The bundled `dancer.avi` on one sheet. The amount map draws the arc the arms swept
-around a body that never moved its feet, and the motiongrams carry the same dance as
-oscillations against time. Both motiongram panels run time left to right so the sheet
-reads on one clock; the vertical motiongram is therefore shown transposed relative to
-the classic tall rendering, where its time runs downward.*
+around a body that never moved its feet, and the motiongrams carry the same dance in
+the classic orientations: the horizontal motiongram runs time rightward and holds the
+arm oscillations, since this dance is vertical movement, and the vertical motiongram
+runs time downward with the room's width across.*
 
 About five minutes for a 100-minute 1920x1080 recording, against roughly twenty-four for
 the same views computed one at a time, because decoding is nearly the whole cost and each
