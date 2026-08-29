@@ -121,3 +121,26 @@ def test_a_file_with_no_motion_vectors_at_all_is_refused(tmp_path):
     result = motion_vector_floor(video)
     assert result["refused"] is True
     assert result["threshold"] is None
+
+
+def test_the_bounded_sample_keeps_its_cap_and_the_quantile(tmp_path):
+    """A sample bounded in memory still gives the distribution's quantile.
+
+    The floor of a 2-hour recording implies hundreds of millions of magnitudes;
+    keeping them all once cost 8 GB and a service. The bounded sample thins
+    adaptively and uniformly, so its cap holds whatever the stream's length, and a
+    high quantile survives the thinning.
+    """
+    import numpy as np
+
+    from musicalgestures._noisefloor import BoundedSample
+
+    rng = np.random.default_rng(7)
+    sample = BoundedSample(cap=50_000, seed=11)
+    for _ in range(200):                      # 2 million draws through a 50k window
+        sample.add(rng.exponential(1.0, 10_000))
+    kept = sample.values()
+    assert kept.size <= 100_000               # never beyond 2x cap before a thin
+    exact = float(np.percentile(rng.exponential(1.0, 2_000_000), 99))
+    approx = float(np.percentile(kept, 99))
+    assert abs(approx - exact) / exact < 0.05

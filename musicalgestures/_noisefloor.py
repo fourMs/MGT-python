@@ -32,7 +32,45 @@ from __future__ import annotations
 
 import numpy as np
 
-__all__ = ["noise_floor", "frame_difference_floor", "motion_vector_floor"]
+__all__ = ["noise_floor", "frame_difference_floor", "motion_vector_floor",
+           "BoundedSample"]
+
+
+class BoundedSample:
+    """A uniform sample of a stream, bounded in memory whatever the stream's length.
+
+    The floor of a long recording implies hundreds of millions of magnitudes, and
+    keeping them all once cost 8 GB and took a measurement service with it. This
+    keeps at most about twice `cap` values: every arriving batch is kept with the
+    current probability, and when the store exceeds twice the cap it is uniformly
+    halved and the probability halves with it. Every value ever offered thus has the
+    same chance of being in the final sample, so a quantile of the sample estimates
+    the stream's --- which is all `noise_floor` asks of it.
+    """
+
+    def __init__(self, cap: int = 2_000_000, seed: int = 0):
+        self.cap = int(cap)
+        self._rng = np.random.default_rng(seed)
+        self._p = 1.0
+        self._chunks = []
+        self._held = 0
+
+    def add(self, values):
+        values = np.asarray(values).ravel()
+        if self._p < 1.0:
+            values = values[self._rng.random(values.size) < self._p]
+        self._chunks.append(values)
+        self._held += values.size
+        if self._held > 2 * self.cap:
+            pool = np.concatenate(self._chunks)
+            keep = self._rng.random(pool.size) < 0.5
+            self._chunks = [pool[keep]]
+            self._held = int(self._chunks[0].size)
+            self._p /= 2.0
+
+    def values(self):
+        return (np.concatenate(self._chunks) if self._chunks
+                else np.zeros(0, dtype=float))
 
 
 def noise_floor(background, foreground=None, quantile: float = 0.99,
@@ -220,19 +258,24 @@ def motion_vector_floor(video, plate=None, quantile: float = 0.99,
         plate, _ = room_plate(video, width=width)
     plate = np.asarray(plate, dtype=np.float32)
 
-    background, foreground = [], []
+    #: Bounded, not exhaustive: a 2-hour recording offers hundreds of millions of
+    #: magnitudes and keeping them all is 8 GB; a uniform 2-million sample of each
+    #: side estimates a 0.99 quantile to well under a percent.
+    background, foreground = BoundedSample(seed=1), BoundedSample(seed=2)
+    seen = False
     pictures = _grey_stream(video, width)
     for (vx, vy, _, _, is_p), picture in zip(
             motion_vector_grid(str(video), deterministic=deterministic), pictures):
         if not is_p:
             continue
+        seen = True
         length = np.hypot(vx, vy)
         occupied = cv2.resize((np.abs(picture - plate) > tolerance).astype(np.uint8),
                               (length.shape[1], length.shape[0]),
                               interpolation=cv2.INTER_AREA) > 0
-        background.append(length[~occupied].ravel())
-        foreground.append(length[occupied].ravel())
-    if not background:
+        background.add(length[~occupied])
+        foreground.add(length[occupied])
+    if not seen:
         return noise_floor(np.zeros(0), **kwargs)
-    return noise_floor(np.concatenate(background), np.concatenate(foreground),
+    return noise_floor(background.values(), foreground.values(),
                        quantile=quantile, **kwargs)
