@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.23.0**.
+The current stable release is **MGT-python 1.24.0**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,28 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.24.0
+
+The grams put right, in number and in name.
+
+Motion-vector displacements are corrected for the reference cadence: FFmpeg's `source`
+carries only the sign of a vector's reference, so a P-frame following a run of B-frames
+had reported its whole multi-frame displacement as one frame's — 3× to 4× over on
+B-heavy encodes. Every motion-vector number on such encodes changes; arrays saved by
+earlier versions should be re-derived.
+
+The grams are drawn in the classic orientations and named by the position axis each
+keeps: the x-motiongram keeps horizontal position, shows sideways travel, and is the
+tall picture with time downward; the y-motiongram keeps vertical position and is the
+wide one. Every picture-named attribute keeps working with a warning until 2.0.
+
+`multishot(animate=True)` writes the chronophotograph as a looping GIF of its own
+build-up, and `zoomable_page` gains an audio band — waveform and spectrogram on the
+shared clock — plus named, switchable video strips.
+
+And `extract_tracks_parallel` no longer leaks one live ffmpeg per finished chunk; 51 of
+them once held 23 GB and took a 32 GB machine down mid-extraction.
 
 ### 1.23.0
 
