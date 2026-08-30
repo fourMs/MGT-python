@@ -74,3 +74,21 @@ own within-fragment embedding spread, never guessed. Ambiguity still breaks.
 Unchanged from v1: no cross-session identity, no named persons --- mover-to-Ole
 mapping stays a human act, now needed once per appearance-linked chain rather
 than once per fragment.
+
+## Measured on the corpus, same day
+
+The recommended route ran: one sequential pass, embeddings for 1,334 of 1,630
+fragments (the rest too small or low-confidence for a torso crop), colour
+histograms only. Against v1's number to beat --- one two-mover segment of 2.6
+minutes --- appearance gives **ten segments over two minutes, the longest 8.2,
+and 71 minutes of summed two-mover coverage** in the 159-minute session, with 67
+of 374 breaks bridged. The histogram sufficed; nothing heavier is currently
+justified.
+
+Per-dancer Effort now exists as ten valid within-segment pairs
+(`effort_per_dancer.json` beside the corpus scripts), with real contrasts inside
+them --- in one stretch one dancer moves almost four times more directly than the
+other. One boundary holds until the next step: mover labels restart at every
+break, so nothing aggregates a dancer ACROSS segments yet. Appearance can link
+mover-chains across breaks the same way it links fragments; that is the v2.1
+refinement, small and priced at zero new decodes.
