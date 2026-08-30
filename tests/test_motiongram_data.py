@@ -62,3 +62,16 @@ class TestAxisNames:
         frames = falling_bar_frames()
         assert np.array_equal(motiongram_data(frames, orientation="x"),
                               motiongram_data(frames, orientation="horizontal"))
+
+    def test_the_old_words_warn_and_the_letters_do_not(self):
+        """The word values are deprecated until 2.0; the letters are canonical."""
+        import warnings
+
+        frames = falling_bar_frames()
+        for old in ("vertical", "horizontal"):
+            with pytest.warns(DeprecationWarning, match="removed in 2.0"):
+                motiongram_data(frames, orientation=old)
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            motiongram_data(frames, orientation="y")
+            motiongram_data(frames, orientation="x")

@@ -7,29 +7,32 @@ def motiongram_data(frames, orientation="y", frame_diff=True, normalize=True):
     Compute a motiongram as a plain numpy array from a stack of grayscale
     frames, with a selectable orientation.
 
-    With `orientation="vertical"` each (motion) frame is collapsed to its
-    per-row mean (the mean across image columns), and the resulting column
-    vectors are stacked over time into an (height, n) array -- image row vs
-    time. This "vertical approach" variant renders vertical trajectories
-    (e.g. a mallet's approach-and-rebound path toward an instrument)
-    directly. With `orientation="horizontal"` each frame is collapsed to
-    its per-column mean, giving a (width, n) array -- image column vs time
-    -- which renders horizontal (side-to-side) motion.
+    The orientation names the position axis the gram keeps, as everywhere in
+    the toolbox. With `orientation="y"` each (motion) frame is collapsed to
+    its per-row mean (the mean across image columns), and the resulting
+    column vectors are stacked over time into an (height, n) array -- image
+    row vs time. This y-gram renders vertical trajectories (e.g. a mallet's
+    approach-and-rebound path toward an instrument) directly. With
+    `orientation="x"` each frame is collapsed to its per-column mean, giving
+    a (width, n) array -- image column vs time -- which renders sideways
+    travel. The old values "vertical" and "horizontal" (which named the
+    motion shown, y and x respectively) are deprecated and will be removed
+    in 2.0.
 
     This is the numpy-level counterpart of the image-producing motiongram
-    pipelines (`MgVideo.motiongrams`, whose `_mgh`/`_mgv` PNGs correspond to
-    the "vertical" and "horizontal" collapses here, up to transposition and
-    post-processing): use this function when you want the motiongram as
-    data for further analysis rather than as a rendered image.
+    pipelines (`MgVideo.motiongrams`): use this function when you want the
+    motiongram as data for further analysis rather than as a rendered image.
 
     Source: cymbal-comparison study (Jensenius) -- the y-motiongram of
     the mallet trajectory; building on the classic fourMs motiongram.
 
     Args:
         frames (np.ndarray): Grayscale frames of shape (T, H, W).
-        orientation (str, optional): "vertical" (per-row mean; image row vs
-            time; shows vertical motion) or "horizontal" (per-column mean;
-            image column vs time; shows horizontal motion). Defaults to "vertical".
+        orientation (str, optional): "y" (per-row mean; image row vs time;
+            shows vertical motion) or "x" (per-column mean; image column vs
+            time; shows sideways travel). "vertical" and "horizontal" are
+            deprecated aliases for "y" and "x", removed in 2.0. Defaults
+            to "y".
         frame_diff (bool, optional): If True, collapse the absolute inter-frame
             differences (a motiongram, T-1 time steps); if False, collapse the
             frames themselves (a videogram, T time steps). Defaults to True.
@@ -37,11 +40,17 @@ def motiongram_data(frames, orientation="y", frame_diff=True, normalize=True):
             maximum. Defaults to True.
 
     Returns:
-        np.ndarray: The motiongram, of shape (H, T-1) for "vertical" or
-            (W, T-1) for "horizontal" (T instead of T-1 when `frame_diff` is
-            False). Time runs along the second axis.
+        np.ndarray: The motiongram, of shape (H, T-1) for "y" or (W, T-1)
+            for "x" (T instead of T-1 when `frame_diff` is False). Time runs
+            along the second axis.
     """
-    orientation = {"vertical": "y", "horizontal": "x"}.get(orientation, orientation)
+    if orientation in ("vertical", "horizontal"):
+        import warnings
+        new = {"vertical": "y", "horizontal": "x"}[orientation]
+        warnings.warn(f"orientation={orientation!r} is deprecated and will be "
+                      f"removed in 2.0; use orientation={new!r}.",
+                      DeprecationWarning, stacklevel=2)
+        orientation = new
 
     frames = np.asarray(frames, dtype=np.float32)
     if frames.ndim != 3:
@@ -52,7 +61,7 @@ def motiongram_data(frames, orientation="y", frame_diff=True, normalize=True):
     elif orientation == "x":
         gram = data.mean(axis=1).T      # (W, T-1): image column vs time
     else:
-        raise ValueError("orientation must be 'vertical' or 'horizontal'")
+        raise ValueError("orientation must be 'x' or 'y'")
     if normalize:
         gram = gram / (gram.max() + 1e-12)
     return gram

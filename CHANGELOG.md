@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Deprecated
+- **`motiongram_data`'s `orientation="vertical"` / `"horizontal"`** — the words named
+  the motion shown where the rest of the toolbox names the position axis kept; use
+  `orientation="y"` / `"x"`. The old values warn and keep working until 2.0. This
+  completes the deprecation set: everything scheduled for removal at 2.0 now warns.
+
 ## [1.25.0] — 2026-08-30
 
 ### Added

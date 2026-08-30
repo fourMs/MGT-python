@@ -82,7 +82,7 @@ def anglegram_data(frames, n_bins: int | None = None, frame_diff: bool = True,
         lat = (0.5 - (np.arange(H) + 0.5) / H) * np.pi   # +pi/2 top .. -pi/2
         w = np.cos(lat).astype(np.float32)
         frames = frames * (w / w.mean())[None, :, None]
-    gram = motiongram_data(frames, orientation="horizontal",
+    gram = motiongram_data(frames, orientation="x",
                            frame_diff=frame_diff, normalize=False)  # (W, T')
     if n_bins is not None and n_bins != W:
         if W % n_bins == 0:
