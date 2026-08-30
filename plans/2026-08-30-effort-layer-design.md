@@ -101,3 +101,20 @@ chapter 4 and section 7.7 went straight in:
    4.4--4.5), Time being kinematical and Weight/Flow dynamical; and effort is the
    qualitative reading on top of Stern's activation contour --- which is what a
    QoM track measures. Both now in the module docstring, cited.
+
+## The Sound Actions validation, measured
+
+Run 2026-08-30 over the deposited 365 clips (labels from `overview.csv` with the
+deposit's own corrections applied; substrate the frame-difference QoM, since these
+are close-ups where pose has nothing to hold; script and per-clip results in the
+collection's `5-processed/effort_time_validation/`).
+
+The index orders the classes exactly as the operationalisation predicts ---
+impulsive median 3.52, sustained 3.01, iterative 2.69, the last lowest because
+continuous repetition raises the mean speed and burst *concentration* is a ratio
+--- but the impulsive-versus-sustained separation is modest: **ROC AUC 0.645**,
+balanced accuracy 0.628 at the best threshold, with 33 per cent of iterative
+clips on the impulsive side of it. The measured conclusion, now in the docs: the
+Time index is a descriptive contour whose direction is validated, not a
+classifier, and no classification claim is made --- which was the layer's stance
+before the number existed, and survives it.

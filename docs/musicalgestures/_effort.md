@@ -80,6 +80,13 @@ docstrings say so. The factors differ in evidential standing:
   25 fps or better.
 - Weight is the weakest claim, and comparable only within one recording and one
   mover: as a pixel-unit quantity it inherits every scale difference of its input.
+- Time's direction is validated, its classification power measured and modest.
+  On the 365-clip Sound Actions collection the index orders the label classes as
+  the operationalisation predicts (impulsive median 3.52, sustained 3.01,
+  iterative 2.69—lowest, since continuous repetition raises the mean and burst
+  concentration is a ratio), but impulsive against sustained separates at only
+  ROC AUC 0.645. Read the Time contour as description; it is not a classifier,
+  and MGT makes no classification claim from it.
 
 ## API reference
 
