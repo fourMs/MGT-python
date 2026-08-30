@@ -757,6 +757,165 @@ def extract_pose_landmarks_yolo(
     return result
 
 
+def extract_pose_landmarks_rtmpose(
+        filename: str,
+        fps: float | None = None,
+        width: int | None = None,
+        t0: float = 0.0,
+        duration: float | None = None,
+        mode: str = "balanced",
+        max_frames: int | None = None,
+        target_name: str | None = None,
+        device: str | None = None,
+        verbose: bool = True) -> dict:
+    """RTMPose over a whole video: the Apache-licensed twin, same contract.
+
+    The third member of the extractor family, riding `rtmlib` (RTMPose through
+    ONNX runtime --- no MMPose stack) and emitting the same 17-point COCO
+    topology as the YOLO twin, so all three extractors feed the same
+    detector-agreement tooling. Benchmarked on a dark dance stage, RTMPose's
+    separate person detector held 100 per cent detection where small single-stage
+    models flickered; it is also the family under an Apache licence.
+
+    rtmlib is an optional dependency (``pip install musicalgestures[rtmpose]``)
+    and is imported lazily. Model files download to rtmlib's own cache on first
+    use. When several people are in frame, the highest-scoring detection is
+    followed, exactly as the YOLO twin does; identity tracking stays the YOLO
+    path's feature for now.
+
+    Args:
+        filename (str): Path to the input video file.
+        fps (float, optional): Analysis frame rate, resampled by FFmpeg.
+        width (int, optional): Analysis width in pixels, aspect preserved.
+        t0 (float, optional): Start of the analysis window in seconds.
+        duration (float, optional): Length of the window in seconds.
+        mode (str, optional): rtmlib's size: "lightweight", "balanced" or
+            "performance". Defaults to "balanced".
+        max_frames (int, optional): Stop after this many analysed frames.
+        target_name (str, optional): Also write a tidy CSV, as the twins do.
+        device (str, optional): "cuda" or "cpu". Defaults to None: cuda when
+            onnxruntime reports a CUDA execution provider, else cpu --- and the
+            choice is recorded in the result's ``device``.
+        verbose (bool, optional): Print a one-line summary. Defaults to True.
+
+    Returns:
+        dict: As :func:`extract_pose_landmarks_yolo`, plus ``device``.
+    """
+    if t0 < 0:
+        raise ValueError(f"t0 must be >= 0, got {t0!r}")
+    if duration is not None and duration <= 0:
+        raise ValueError(f"duration must be > 0, got {duration!r}")
+
+    try:
+        import onnxruntime as ort
+        from rtmlib import Body
+    except ImportError as exc:
+        raise ImportError(
+            "rtmlib is required for extract_pose_landmarks_rtmpose() but is not "
+            "installed. Install the optional dependencies with: "
+            "pip install musicalgestures[rtmpose]") from exc
+
+    if device is None:
+        device = ("cuda" if "CUDAExecutionProvider" in ort.get_available_providers()
+                  else "cpu")
+    body = Body(mode=mode, backend="onnxruntime", device=device)
+
+    n_points = len(COCO_KEYPOINT_NAMES)
+    w0, h0 = get_widthheight(filename)
+    native_fps = get_fps(filename)
+    sample_fps = float(fps) if fps else float(native_fps)
+    if width:
+        w = int(width)
+        h = int(round(h0 * w / w0))
+    else:
+        w, h = int(w0), int(h0)
+
+    vf = []
+    if fps:
+        vf.append(f"fps={sample_fps}")
+    if width:
+        vf.append(f"scale={w}:{h}")
+    cmd = ["ffmpeg", "-v", "error"]
+    if t0:
+        cmd += ["-ss", str(t0)]
+    cmd += ["-i", filename]
+    if duration is not None:
+        cmd += ["-t", str(duration)]
+    if vf:
+        cmd += ["-vf", ",".join(vf)]
+    #: BGR straight from FFmpeg: rtmlib expects OpenCV-style images.
+    cmd += ["-pix_fmt", "bgr24", "-f", "rawvideo", "-"]
+
+    times, lm2d, detected = [], [], []
+    frame_bytes = w * h * 3
+    stopped_early = False
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    assert proc.stdout is not None and proc.stderr is not None
+    stderr_chunks: list[bytes] = []
+
+    def _drain_stderr():
+        for chunk in iter(lambda: proc.stderr.read(4096), b""):
+            stderr_chunks.append(chunk)
+
+    stderr_thread = threading.Thread(target=_drain_stderr, daemon=True)
+    stderr_thread.start()
+    try:
+        fi = 0
+        while True:
+            if max_frames is not None and fi >= max_frames:
+                stopped_early = True
+                proc.terminate()
+                break
+            buf = proc.stdout.read(frame_bytes)
+            if buf is None or len(buf) < frame_bytes:
+                break
+            frame = np.frombuffer(buf, np.uint8).reshape(h, w, 3)
+            t = t0 + fi / sample_fps
+            kps, scores = body(frame)
+            if len(kps):
+                person = int(np.argmax(np.asarray(scores).mean(axis=1)))
+                xy = np.asarray(kps[person], dtype=np.float64)
+                c = np.asarray(scores[person], dtype=np.float64)
+                xy[c <= 0.0] = np.nan
+                lm2d.append(np.column_stack([xy, c]))
+                detected.append(True)
+            else:
+                lm2d.append(np.full((n_points, 3), np.nan))
+                detected.append(False)
+            times.append(t)
+            fi += 1
+    finally:
+        proc.stdout.close()
+        proc.wait()
+        stderr_thread.join()
+        proc.stderr.close()
+        err = b"".join(stderr_chunks).decode(errors="replace").strip()
+        if err and not stopped_early:
+            print(f"FFmpeg warnings while decoding {filename}:\n{err}")
+
+    n_frames = len(times)
+    result = {
+        "time": np.asarray(times, dtype=np.float64),
+        "landmarks": (np.asarray(lm2d, dtype=np.float64)
+                      if n_frames else np.empty((0, n_points, 3))),
+        "world": None,
+        "detected": np.asarray(detected, dtype=bool),
+        "detection_rate": float(np.mean(detected)) if n_frames else 0.0,
+        "fps": sample_fps,
+        "width": w,
+        "height": h,
+        "names": list(COCO_KEYPOINT_NAMES),
+        "device": device,
+    }
+    if verbose:
+        print(f"{os.path.basename(filename)}: {n_frames} frames at "
+              f"{sample_fps:g} fps ({w}x{h}, {device}), pose detected in "
+              f"{100.0 * result['detection_rate']:.0f}% of frames.")
+    if target_name is not None:
+        _write_landmarks_csv(target_name, result)
+    return result
+
+
 #: The bones of the 17-point COCO topology, as index pairs into
 #: COCO_KEYPOINT_NAMES: head, shoulder girdle, arms, trunk, legs.
 COCO_SKELETON = ((0, 1), (0, 2), (1, 3), (2, 4), (5, 6), (5, 7), (7, 9),

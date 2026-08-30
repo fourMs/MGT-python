@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **`extract_pose_landmarks_rtmpose`** — the third member of the extractor family:
+  RTMPose through `rtmlib` and ONNX runtime (no MMPose stack), Apache-licensed end
+  to end, on the same trajectory-array contract and 17-point COCO topology as the
+  YOLO twin, so all three extractors feed the same detector-agreement tooling. New
+  optional extra: `pip install musicalgestures[rtmpose]`. Chooses CUDA when
+  onnxruntime offers it and records the choice in the result.
+
 ## [1.27.0] — 2026-08-30
 
 ### Added

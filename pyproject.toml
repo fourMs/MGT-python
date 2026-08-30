@@ -54,6 +54,10 @@ motionvectors = ["av>=10"]
 # The YOLO pose twin (extract_pose_landmarks_yolo) rides on Ultralytics, which
 # brings torch; optional for the same reason mediapipe is.
 yolo = ["ultralytics>=8"]
+# The RTMPose twin (extract_pose_landmarks_rtmpose) rides rtmlib over ONNX
+# runtime; Apache-licensed end to end. onnxruntime-gpu is the user's swap when
+# they want the CUDA execution provider.
+rtmpose = ["rtmlib>=0.3", "onnxruntime>=1.17"]
 c3d = ["c3d>=0.5"]
 ml = ["scikit-learn>=1.2", "torch>=2.0", "torchvision>=0.15"]
 cli = ["click>=8.0"]
