@@ -85,6 +85,33 @@ acted emotion --- is precisely what this corpus does not have and does not want.
 The layer's claims stay at the movement-description level the theses operate on,
 and anything affective remains the human analyst's inference.
 
+## Addendum: video specifically
+
+Asked directly whether others have done Laban-based VIDEO analysis (as opposed to
+mocap): yes, in two eras with a gap between them.
+
+**The silhouette era.** Camurri's EyesWeb Expressive Gesture Processing Library
+(2003-2004) is the canonical camera-based work: quantity of motion and contraction
+index from silhouettes, mapped onto Laban's Space and Time, driving real-time
+performance systems --- and a companion line classified hand gestures on tangible
+interfaces by Effort's Space and Time. This is the direct ancestor of the video
+approach MGT sits in, contemporary with Jensenius (2007), and pre-pose-estimation:
+its features are pixel-level, like MGT's own QoM.
+
+**The pose-estimation era.** Since about 2023 the deep-learning turn reached video
+LMA: pipelines that estimate LMA elements from RGB clips directly (TSN, SlowFast,
+video transformers) or from 2D/3D pose extracted from video (PoseC3D and kin), used
+for bodily-expressed emotion understanding and for emotion recognition in
+contemporary dance recordings (arXiv 2504.21154, 2025). These validate against
+emotion labels and report classification accuracy, inheriting the recognition
+stance of the mocap era rather than the descriptive stance of the theses.
+
+**The gap between the eras is where MGT's layer stands**: video input like both,
+descriptive continuous indices like neither --- the silhouette era mapped a few
+substrates to two factors for real-time control, the deep-learning era classifies
+affect end-to-end, and this layer computes all four factors as mover-relative
+contours with per-factor validation and no affective claim.
+
 ## Sources
 
 - [The EMOTE model for effort and shape (Chi, Costa, Zhao & Badler, 2000)](http://graphics.cs.cmu.edu/nsp/course/15-464/Fall05/papers/chi00emote.pdf)
@@ -97,3 +124,7 @@ and anything affective remains the human analyst's inference.
 - [Dance Style Recognition Using Laban Movement Analysis (arXiv 2504.21166, 2025)](https://arxiv.org/pdf/2504.21166)
 - [Modeling Laban Effort qualities (Fdili Alaoui, project page)](https://saralaoui.com/2015/03/effortmodeling/)
 - [PERFORM: perceptual approach for adding OCEAN personality (Durupinar et al.)](https://www.cs.ucdavis.edu/~neff/papers/PERFORM_TOG.pdf)
+- [The EyesWeb Expressive Gesture Processing Library (Camurri et al., 2004)](https://link.springer.com/content/pdf/10.1007/978-3-540-24598-8_42.pdf)
+- [Expressive hand gestures classified by Effort's Space and Time (Springer, 2009)](https://link.springer.com/chapter/10.1007/978-3-540-92865-2_16)
+- [Bodily expressed emotion understanding through integrating LMA (2023)](https://www.sciencedirect.com/science/article/pii/S266638992300185X)
+- [Emotion Recognition in Contemporary Dance Performances Using LMA (arXiv 2504.21154, 2025)](https://arxiv.org/html/2504.21154v1)
