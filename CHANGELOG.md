@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   YOLO twin, so all three extractors feed the same detector-agreement tooling. New
   optional extra: `pip install musicalgestures[rtmpose]`. Chooses CUDA when
   onnxruntime offers it and records the choice in the result.
+- **`associate_fragments`** — track fragments chained into persistent movers with
+  position and time only, under an exclusivity constraint and a measured
+  plausibility bound, refusing where honesty demands: a crossing at a fragment
+  boundary becomes a recorded break for a human to adjudicate, never a guess.
+  From `plans/2026-08-30-fragment-reassociation-design.md`, validated on synthetic
+  crossing walkers whose tests assert the refusal itself.
 
 ## [1.27.0] — 2026-08-30
 

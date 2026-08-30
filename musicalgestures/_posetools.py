@@ -757,6 +757,129 @@ def extract_pose_landmarks_yolo(
     return result
 
 
+def associate_fragments(tracks_data: dict, n_movers: int = 2,
+                        max_gap_s: float = 2.0,
+                        max_speed: float | None = None) -> dict:
+    """Chain track fragments into persistent movers, refusing where honesty demands.
+
+    Identity tracking over a long session yields fragments --- trustworthy within
+    themselves, unlinked between themselves. This chains them into `n_movers`
+    persistent movers using position and time only, under three rules from the
+    design (`plans/2026-08-30-fragment-reassociation-design.md`):
+
+    - **Exclusivity**: fragments overlapping in time are different movers.
+    - **Plausibility**: a fragment continues a mover only when the time gap is at
+      most `max_gap_s` and the bridging speed of the shoulder midpoint is below
+      `max_speed` --- whose default is measured from the material itself (three
+      times the 95th percentile of within-fragment speeds), never guessed.
+    - **Refusal**: when more than one mover could accept a fragment, or none can,
+      that moment becomes a recorded break, never a guess. Chains restart after a
+      break, and nothing claims continuity across one. Position alone cannot
+      disambiguate two movers who cross exactly at a fragment boundary; the break
+      list is where an analyst resolves those moments by watching the video.
+
+    Args:
+        tracks_data (dict): As returned by :func:`extract_pose_tracks_yolo`.
+        n_movers (int): Persistent movers to chain. Defaults to 2.
+        max_gap_s (float): Longest silence a chain may bridge. Defaults to 2.
+        max_speed (float, optional): Fastest plausible bridge, in the landmarks'
+            units per second. Defaults to None: measured from the fragments.
+
+    Returns:
+        dict: ``segments`` --- one per stretch between breaks, each with
+        ``start_s``, ``end_s`` and ``movers`` mapping a mover index to its
+        concatenated ``time``, ``frame`` and ``landmarks``; ``breaks`` with
+        ``time_s``, ``reason`` ("ambiguous", "no plausible mover") and the
+        candidate movers; and ``coverage_s`` per mover across all segments.
+    """
+    frags = []
+    for k, tr in tracks_data["tracks"].items():
+        lm = np.asarray(tr["landmarks"], dtype=float)
+        if lm.shape[0] == 0:
+            continue
+        mid = np.nanmean(lm[:, [5, 6], :2], axis=1)
+        frags.append({"id": k, "time": np.asarray(tr["time"], dtype=float),
+                      "frame": np.asarray(tr["frame"]), "landmarks": lm,
+                      "mid": mid})
+    frags.sort(key=lambda f: f["time"][0])
+
+    if max_speed is None:
+        v = []
+        for f in frags:
+            dt = np.diff(f["time"])
+            ok = dt > 0
+            if ok.any():
+                v.append(np.linalg.norm(np.diff(f["mid"], axis=0), axis=1)[ok]
+                         / dt[ok])
+        allv = np.concatenate(v) if v else np.zeros(1)
+        finite = allv[np.isfinite(allv)]
+        max_speed = 3.0 * float(np.percentile(finite, 95)) if finite.size else np.inf
+
+    segments: list = []
+    breaks: list = []
+    coverage: dict = {m: 0.0 for m in range(n_movers)}
+
+    def new_state():
+        return [{"frags": [], "end_t": None, "end_pos": None}
+                for _ in range(n_movers)]
+
+    def flush(state):
+        used = [m for m in state if m["frags"]]
+        if not used:
+            return
+        movers = {}
+        for i, m in enumerate(used):
+            movers[i] = {
+                "time": np.concatenate([f["time"] for f in m["frags"]]),
+                "frame": np.concatenate([f["frame"] for f in m["frags"]]),
+                "landmarks": np.concatenate([f["landmarks"] for f in m["frags"]]),
+            }
+            coverage[i] += float(sum(f["time"][-1] - f["time"][0]
+                                     for f in m["frags"]))
+        segments.append({"start_s": float(min(v["time"][0]
+                                              for v in movers.values())),
+                         "end_s": float(max(v["time"][-1]
+                                            for v in movers.values())),
+                         "movers": movers})
+
+    state = new_state()
+    for f in frags:
+        start, s_pos = f["time"][0], f["mid"][0]
+        candidates = []
+        empty = None
+        for mi, m in enumerate(state):
+            if m["end_t"] is None:
+                if empty is None:
+                    empty = mi
+                continue
+            if m["end_t"] > start:
+                continue                       # busy: overlaps this fragment
+            gap = start - m["end_t"]
+            if gap > max_gap_s:
+                continue
+            bridge = float(np.linalg.norm(s_pos - m["end_pos"])) / max(gap, 1e-6)
+            if np.isfinite(bridge) and bridge <= max_speed:
+                candidates.append(mi)
+        if len(candidates) == 1:
+            mi = candidates[0]
+        elif len(candidates) == 0 and empty is not None:
+            mi = empty
+        else:
+            reason = "ambiguous" if len(candidates) > 1 else "no plausible mover"
+            breaks.append({"time_s": float(start), "reason": reason,
+                           "candidates": candidates})
+            flush(state)
+            state = new_state()
+            mi = 0
+        state[mi]["frags"].append(f)
+        state[mi]["end_t"] = float(f["time"][-1])
+        state[mi]["end_pos"] = f["mid"][-1]
+    flush(state)
+
+    return {"segments": segments, "breaks": breaks,
+            "n_fragments": len(frags), "coverage_s": coverage}
+
+
 def extract_pose_landmarks_rtmpose(
         filename: str,
         fps: float | None = None,
