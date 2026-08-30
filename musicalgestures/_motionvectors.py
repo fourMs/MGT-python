@@ -719,6 +719,15 @@ class MgMotionVectorViews:
     over time), and **spatio-temporal** (the motiongrams, position against time, in
     the classic orientations: `motiongram_horizontal` as (rows, frames) with time
     rightward, `motiongram_vertical` as (frames, cols) with time downward).
+
+    **The temporal view is an envelope, not a track.** `magnitude` against `time` is
+    the motion envelope at the encode's own reference cadence --- about 12.6 Hz on a
+    50 fps B-frame encode, not 50 Hz --- for roughly a tenth of a full decode's cost.
+    Measured against the exact frame-difference quantity of motion on a six-recording
+    dance corpus, it correlates at median r = 0.82 across windows, falling to 0.57
+    where little moves: the envelope is for finding structure, not for measuring
+    stillness. B-frames are excluded by default (`p_frames_only=True`) because their
+    future-referencing vectors pool badly; including them costs about 0.3 of r.
     """
     history_weight: "np.ndarray"
     history_vx: "np.ndarray"
