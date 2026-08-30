@@ -100,3 +100,35 @@ class TestProfile:
         xy = np.zeros((40, 2))
         p = effort_profile(xy, FS, window_s=5.0)
         assert len(p["time"]) == 0
+
+
+class TestBasicEffortActions:
+    """Laban's eight basic effort actions, via Haga (2008, Table 20).
+
+    Weight x Time x Space poles name the octants; Flow stays a colouring
+    element outside the combination, as in Laban. Poles are read against the
+    mover's own medians, so the labels are relative descriptions of one
+    mover's range --- proposals, never facts.
+    """
+
+    def test_the_eight_octants_carry_labans_names(self):
+        from musicalgestures._effort import basic_effort_actions
+
+        profile = {
+            #: Two windows per octant, ordered so medians split them cleanly.
+            "weight": np.array([9, 9, 9, 9, 1, 1, 1, 1], float),
+            "time_index": np.array([9, 9, 1, 1, 9, 9, 1, 1], float),
+            "space": np.array([9, 1, 9, 1, 9, 1, 9, 1], float),
+        }
+        labels = basic_effort_actions(profile)
+        assert list(labels) == ["thrusting", "slashing", "pressing", "wringing",
+                                "dabbing", "flicking", "gliding", "floating"]
+
+    def test_a_window_missing_an_index_gets_no_label(self):
+        from musicalgestures._effort import basic_effort_actions
+
+        profile = {"weight": np.array([1.0, np.nan]),
+                   "time_index": np.array([1.0, 2.0]),
+                   "space": np.array([1.0, 2.0])}
+        labels = basic_effort_actions(profile)
+        assert labels[1] is None

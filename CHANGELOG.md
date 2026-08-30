@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **The Effort layer** (#373): MGT's own operationalisation of Laban's four Effort
+  factors --- `sparc` (Balasubramanian et al. 2015, validated against the canonical
+  minimum-jerk battery and cross-checked against pyeyesweb dev-only), `effort_time`,
+  `effort_weight`, `effort_space`, `effort_flow`, the windowed `effort_profile`,
+  and `basic_effort_actions`: Laban's eight named actions as median-anchored
+  Weight x Time x Space octants, after Laban (1971) via Haga (2008, Table 20),
+  offered as proposals. Grounded per Haga: effort is fluctuation, not level;
+  video reads dynamics through kinematics; QoM is the activation contour Effort
+  qualifies.
+
 ## [1.26.0] — 2026-08-30
 
 ### Deprecated

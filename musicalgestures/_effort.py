@@ -15,13 +15,26 @@ yields ensemble Effort, one wrist yields that wrist's.
 The factors differ in evidential standing, and their docstrings say so. Flow rests
 on SPARC, which carries the strongest evidence; Weight is the weakest claim ---
 "strong" without mass or force plates is a kinetic proxy --- and is labelled as one.
+That proxy status has a scholarly frame: dynamics are inferred from kinematics
+(the kinematic-specification-of-dynamics hypothesis, Runeson & Frykholm 1983), and
+Laban's factors mix the two --- Time is kinematical, Weight and Flow dynamical ---
+so a video-based Effort layer necessarily reads dynamics through what it can see
+(Haga 2008, ch. 4).
+
+Two further points from Haga (2008) shape how these indices are meant to be read.
+Effort elements denote fluctuation, not level --- "gentler and firmer", the way the
+qualities change over a phrase --- so the windowed `effort_profile` contours are the
+object of analysis, and a single number for a whole recording flattens what the
+concept is about. And effort is the qualitative reading on top of a neutral
+intensity contour (Stern's activation, which is what a quantity-of-motion track
+measures): QoM says how much, Effort says how.
 """
 from __future__ import annotations
 
 import numpy as np
 
 __all__ = ["sparc", "effort_time", "effort_weight", "effort_space", "effort_flow",
-           "effort_profile"]
+           "effort_profile", "basic_effort_actions"]
 
 
 def sparc(speed, fs: float, padlevel: int = 4, fc: float = 10.0,
@@ -202,3 +215,55 @@ def effort_profile(xy_or_speed, fs: float, window_s: float = 5.0) -> dict:
             "space": (space[:n] if space is not None
                       else np.full(n, np.nan)),
             "flow": np.asarray(flow)}
+
+
+#: Laban's eight basic effort actions as combinations of the Weight, Time and
+#: Space poles, after Laban (1971) as tabulated by Haga (2008, Table 20). Keys are
+#: (firm, sudden, direct).
+_BASIC_ACTIONS = {(True, True, True): "thrusting",
+                  (True, True, False): "slashing",
+                  (True, False, True): "pressing",
+                  (True, False, False): "wringing",
+                  (False, True, True): "dabbing",
+                  (False, True, False): "flicking",
+                  (False, False, True): "gliding",
+                  (False, False, False): "floating"}
+
+
+def basic_effort_actions(profile: dict) -> list:
+    """Laban's eight basic effort actions, per window, as proposals.
+
+    Laban condensed the Weight, Time and Space poles into eight named actions ---
+    thrusting, slashing, pressing, wringing, dabbing, flicking, gliding, floating
+    --- with Flow as a further colouring element outside the combination (Laban
+    1971, via Haga 2008, Table 20, whose derivative verbs --- shove, pat, crush,
+    beat, strew, pull, flip, smooth --- give the register these labels live in).
+
+    Each pole is read against the mover's own median over the profile, in the
+    house style of median-anchored thresholds: "firm" means firmer than this
+    mover's typical window, so the labels describe one mover's range and never
+    compare two movers. They are proposals for looking with, not classifications
+    --- Laban's categories are observational, and a window's label says which
+    octant of this mover's own space it falls in.
+
+    Args:
+        profile (dict): As from :func:`effort_profile` --- needs ``weight``,
+            ``time_index`` and ``space`` arrays of one length.
+
+    Returns:
+        list: One of the eight action names per window, or None where any of the
+        three indices is NaN.
+    """
+    w = np.asarray(profile["weight"], dtype=float)
+    t = np.asarray(profile["time_index"], dtype=float)
+    sp = np.asarray(profile["space"], dtype=float)
+    med = [np.nanmedian(a) if np.isfinite(a).any() else float("nan")
+           for a in (w, t, sp)]
+    out = []
+    for wi, ti, si in zip(w, t, sp):
+        if not (np.isfinite(wi) and np.isfinite(ti) and np.isfinite(si)):
+            out.append(None)
+            continue
+        out.append(_BASIC_ACTIONS[(bool(wi > med[0]), bool(ti > med[1]),
+                                   bool(si > med[2]))])
+    return out
