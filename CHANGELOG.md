@@ -13,6 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `orientation="y"` / `"x"`. The old values warn and keep working until 2.0. This
   completes the deprecation set: everything scheduled for removal at 2.0 now warns.
 
+### Changed
+- **The motion envelope is documented as what it is.** `MgMotionVectorViews.magnitude`
+  against `.time` is the temporal view at the encode's reference cadence (~12.6 Hz on
+  a 50 fps B-frame encode) for a tenth of a decode's cost; the docstring now carries
+  its measured limits — median r = 0.82 against exact QoM, 0.57 where little moves,
+  B-frames excluded by default and why.
+
 ## [1.25.0] — 2026-08-30
 
 ### Added
