@@ -588,3 +588,13 @@ pip install -e .
 ```
 
 Ready to contribute? Start by running the test suite and then adding tests for your new features!
+
+## One oracle note, learned the hard way
+
+The CI lint job installs only ruff and mypy — no numpy — so mypy there sees numpy
+as `Any` and flags a different (smaller, but different) error set than a local run
+in a full environment. A red streak of five commits once rode on two annotations a
+numpy-full local mypy never mentioned. The oracle that gates merges is CI's
+configuration, not your venv's: when touching annotations, either run mypy in a
+bare environment or treat the first CI verdict as the check, and never tag until
+it is green — the release ritual's CI gate exists for exactly this.
