@@ -76,3 +76,13 @@ the JOSS submission as the "the API is now stable" statement.
 Whether the vector noise floor should sample textured cells only (the Portal-curtain
 interaction, in the corpus TODO) has an MGT half if ARJ decides yes: an optional
 `mask=` on the floor functions. Additive, small, and waits for his answer.
+
+## Amendment, same day: flexibility over a single backend
+
+Asked to choose between yolo11m and RTMPose for re-extraction, ARJ chose neither:
+"I want flexibility in the toolbox." So the toolbox keeps both families --- the
+YOLO twin (shipped, with tracking) and an rtmlib/RTMPose backend as the next pose
+feature (1.28 candidate): Apache-licensed, 100 per cent detection at 107 fps in the
+nine-model bench, and the same COCO-17 contract so it slots into the existing
+detector-agreement tooling. Corpus re-extractions meanwhile use yolo11m with
+tracking as the working default, a per-analysis choice rather than a toolbox one.
