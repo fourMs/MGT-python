@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.24.0**.
+The current stable release is **MGT-python 1.25.0**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,18 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.25.0
+
+The room's texture, the floor made affordable, and pages of a time range.
+
+`texture_mask` says which cells of a picture carry enough texture to trust motion
+vectors on: an encoder's motion search is unconstrained where nothing textures the
+block, so masking the flattest cells of the room removes motion that was never a
+measurement. The zoomable page plays its recording (`player=`), builds for any video
+in one call (`MgVideo.zoompage()`), and pages any time range on its own clock
+(`start_s=`). And measuring a noise floor no longer holds every magnitude in memory:
+a bounded uniform sample keeps the quantile and drops the 8 GB.
 
 ### 1.24.0
 

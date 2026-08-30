@@ -7,7 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.25.0] — 2026-08-30
+
 ### Added
+- **`zoomable_page(start_s=...)`** — one section of a long recording, paged on its own
+  clock. The cached track is sliced, and hierarchy spans given on the session clock
+  are clipped to the range and shifted onto the page's, so a warm-up or a performance
+  can be studied without the hours around it.
+- **`BoundedSample`** in `_noisefloor` — a uniform sample of a stream, bounded in
+  memory whatever the stream's length: batches are kept with the current probability,
+  and when the store passes twice its cap it is uniformly halved and the probability
+  halves with it.
 - **`texture_mask`** — which cells of a picture carry enough texture to trust motion
   vectors on. An encoder's motion search is unconstrained where nothing textures the
   block, so its vectors there are rate decisions that propagate from real motion
