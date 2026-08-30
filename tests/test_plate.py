@@ -10,9 +10,11 @@ went, and subtracting a ghost leaves holes shaped like people. The median throws
 anything present in fewer than half the samples, which is exactly what a person crossing a
 room is.
 
-**Then refine once.** A median over a blind sample is contaminated wherever somebody stood
-still for most of the recording. Re-taking it over the frames that least resemble the first
-plate --- the emptiest ones --- removes that.
+**Then refine once, guardedly.** The second pass re-takes the median over the frames most
+like the first plate, which tightens it --- and inverts on material where the subject
+rarely leaves, since the look-alike frames are then the ones with the subject in place.
+`room_plate` checks what refinement did to the plate and backs off when it changed
+materially, because kept frames that agree with the plate have no business changing it.
 """
 import numpy as np
 import pytest
@@ -174,6 +176,65 @@ def test_a_prop_standing_through_a_quiet_stretch_stays_out_of_the_room(tmp_path)
     assert spread_plate[203:222, 263:282].mean() < 150, "the prop is still in the room"
     assert min(used) < 60, "the stratified choice never left the quiet stretch"
     assert max(used) - min(used) > 60, "the stratified choice did not span the recording"
+
+
+def test_refinement_that_concentrates_a_standstill_subject_backs_off(tmp_path):
+    """Standstill material inverts the refinement, and the plate must not get worse.
+
+    A subject who never leaves is visible only in the modal lighting state --- on the
+    Sverm 2012 recordings the light decides who is visible --- so the median over ALL
+    samples nearly washes them out, while the look-alike frames the refinement keeps
+    are exactly the ones with the subject in place. Re-taking the median over those
+    makes the subject solid: measured on a dress rehearsal at 0 per cent of the lit
+    floor occluded unrefined against 6.5 refined, with refine=True the default.
+
+    No frame selection can recover a room no frame shows, but the failure is
+    detectable at the output: under a median first pass the kept frames are the ones
+    that AGREE with the plate, so refinement changing the room materially means
+    concentration, not cleaning. When that happens `room_plate` must warn and hand
+    back the unrefined plate.
+
+    The fixture: the subject (a 60x60 block, 4.7 per cent of the frame) stands in
+    place through every modal-light frame; the frames without them are all in
+    off-modal light (whole-frame shifts of +-70), so the emptiest-looking frames are
+    the ones with the subject in them.
+    """
+    import subprocess
+    import warnings
+
+    W, H, frames = 320, 240, 90
+    rng = np.random.default_rng(5)
+    background = rng.integers(48, 160, size=(H, W)).astype(int)
+    raw = bytearray()
+    for i in range(frames):
+        if i % 10 < 4:                       # modal light, subject standing in place
+            frame = background.copy()
+            frame[90:150, 130:190] = 250
+        elif i % 10 < 7:                     # bright state, nobody there
+            frame = background + 70
+        else:                                # dark state, nobody there
+            frame = background - 70
+        raw += np.clip(frame, 0, 255).astype(np.uint8).tobytes()
+    path = str(tmp_path / "standstill.mp4")
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo",
+                    "-pix_fmt", "gray", "-s", f"{W}x{H}", "-r", "25", "-i", "pipe:0",
+                    "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "5", path],
+                   input=bytes(raw), check=True)
+
+    from musicalgestures._plate import room_plate
+
+    #: First, that the fixture reproduces the inversion when the guard is off: the
+    #: unguarded refinement hands back a plate with the subject solid in it.
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", RuntimeWarning)
+        unguarded, _ = room_plate(path, n_samples=60, width=W, max_refine_change=1.0)
+    assert unguarded[95:145, 135:185].mean() > 200, "the fixture does not reproduce the bug"
+
+    #: Then the claim: by default the change is detected, the caller is told, and the
+    #: plate that comes back is the unrefined median, without the solid subject.
+    with pytest.warns(RuntimeWarning, match="concentrat"):
+        plate, _ = room_plate(path, n_samples=60, width=W)
+    assert plate[95:145, 135:185].mean() < 200, "the refined-in subject was handed back"
 
 
 def test_a_plate_built_from_one_stretch_says_so(tmp_path):

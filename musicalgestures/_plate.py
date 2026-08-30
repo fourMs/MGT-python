@@ -10,10 +10,17 @@ they went, and subtracting a ghost leaves holes shaped like people. The median d
 whatever is present in fewer than half the samples, which is exactly what somebody crossing
 a room is, and keeps whatever is usually there, which is exactly what a chair is.
 
-**Then refine once.** A median over a blind sample is still contaminated wherever somebody
-stood in one place for much of the recording. Taking it again over the frames that least
-resemble the first plate --- the emptiest ones --- removes that, and one pass is enough:
-the second plate is what the third would be built from anyway.
+**Then refine once, and check the refinement did not make things worse.** The second pass
+re-takes the median over the emptiest tenth of the samples --- the frames most like the
+first plate --- which tightens the plate where passing traffic left residue. What it cannot
+do is remove somebody who stood in one place for most of the recording: no selection of
+frames recovers a room that no frame shows. Worse, on material where the subject rarely
+leaves --- standstill recordings --- the look-alike frames are exactly the ones with the
+subject in place, and re-taking the median over them makes the subject solid where the
+full sample had washed them out. That failure is detectable at the output: under a median
+first pass the kept frames are the ones that AGREE with the plate, so a refinement that
+changes the room materially is concentrating, not cleaning. `room_plate` measures that
+change and hands back the unrefined plate with a warning when it is material.
 
 Occupancy tolerates downsampling that segmentation does not. Nothing here needs full
 resolution, and a few hundred pixels wide is plenty.
@@ -93,7 +100,11 @@ def refine_indices(diffs, keep_fraction: float = 0.10,
     """Which sampled frames to rebuild the plate from: the emptiest, spread over time.
 
     The smallest differences are the emptiest frames, the ones with least in front of
-    the room, and taking the median over those is what removes anyone who lingered.
+    the room --- a reading that holds only while the first plate is mostly empty. Where
+    the subject stood in place through most of the recording, the frames most like the
+    plate are the ones with the subject in them, and this selection inverts; that is
+    caught downstream, where `room_plate` checks what the refinement did to the plate
+    rather than trusting the selection.
 
     **But the emptiest frames cluster.** They fall in whatever stretch nobody was
     working --- a break, a setup, a pack-down --- and anything standing in the room then
@@ -171,7 +182,8 @@ def _read_frames(video, indices, width):
 
 def room_plate(video, n_samples: int = 400, width: int = 320,
                keep_fraction: float = 0.10, refine: bool = True,
-               stratify: bool = True, min_spread: float = 0.5):
+               stratify: bool = True, min_spread: float = 0.5,
+               max_refine_change: float = 0.02):
     """The empty room, from a two-pass median over sampled frames.
 
     Args:
@@ -187,6 +199,12 @@ def room_plate(video, n_samples: int = 400, width: int = 320,
         min_spread (float): Warn when the frames used span less than this fraction of
             the recording, since such a plate describes one stretch rather than the
             room. Defaults to 0.5.
+        max_refine_change (float): Fall back to the unrefined plate, with a warning,
+            when refinement changed more than this fraction of it. The kept frames are
+            the ones that agree with the first plate, so a large change means they
+            agree on something the full sample rejected --- on standstill material,
+            the subject, made solid. Defaults to 0.02, above a body's residue and
+            below a body.
 
     Returns:
         tuple: (plate, indices_used). Check `plate_spread(indices_used, n_frames)` when
@@ -207,6 +225,17 @@ def room_plate(video, n_samples: int = 400, width: int = 320,
     diffs = np.array([occupancy_from_plate(f, plate) for f in stack])
     keep = refine_indices(diffs, keep_fraction, stratify=stratify)
     used = idx[keep]
+    refined = plate_from_stack(stack[keep])
+    changed = occupancy_from_plate(refined, plate)
+    if changed > max_refine_change:
+        import warnings
+        warnings.warn(
+            f"refinement changed {changed * 100:.1f} per cent of the plate, which under "
+            f"a median first pass means concentrating something the full sample had "
+            f"washed out rather than cleaning; returning the unrefined plate. On "
+            f"material where the subject rarely leaves the frame, pass refine=False",
+            RuntimeWarning, stacklevel=2)
+        return plate, idx
     spread = plate_spread(used, n_frames)
     if spread < min_spread:
         import warnings
@@ -215,7 +244,7 @@ def room_plate(video, n_samples: int = 400, width: int = 320,
             f"the recording, so it describes that stretch rather than the room; "
             f"anything standing there will be treated as furniture",
             RuntimeWarning, stacklevel=2)
-    return plate_from_stack(stack[keep]), used
+    return refined, used
 
 
 def occupancy_track(video, plate, every_n: int = 25, width: int = 320,
