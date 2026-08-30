@@ -142,7 +142,7 @@ def effort_space(xy, fs: float, window_s: float = 5.0) -> np.ndarray:
         path = float(np.nansum(steps))
         chord = float(np.linalg.norm(seg[-1] - seg[0]))
         out.append(chord / path if path > 0 else float("nan"))
-    return np.asarray(out)
+    return np.array(out, dtype=np.float64)
 
 
 def effort_flow(speed, fs: float) -> float:
