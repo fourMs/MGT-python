@@ -82,3 +82,91 @@ class TestChaining:
         del tracks["tracks"][2]              # remove A's middle fragment: 4 s hole
         r = associate_fragments(tracks, max_gap_s=2.0)
         assert len(r["breaks"]) >= 1
+
+
+class TestAppearance:
+    """The v2 rules: appearance bridges what position cannot, and refusal stays.
+
+    Embeddings are supplied directly here; their extraction from video has its
+    own test. Walker A wears embedding [1,0], walker B [0,1] --- fully separable
+    --- and the identical-appearance cases assert that nothing links on
+    appearance that appearance cannot actually tell apart.
+    """
+
+    @staticmethod
+    def _embeddings(tracks, a_ids, vec_a=(1.0, 0.0), vec_b=(0.0, 1.0)):
+        return {k: np.array(vec_a if k in a_ids else vec_b)
+                for k in tracks["tracks"]}
+
+    def test_appearance_links_the_crossing_cut(self):
+        """The v1 refusal case: both walkers cut at their crossing. With
+        separable appearances the continuation is decidable, and must link."""
+        tr = walker_tracks(cuts_a=(10.0,), cuts_b=(10.0,))
+        emb = self._embeddings(tr, a_ids={1, 2})
+        r = associate_fragments(tr, embeddings=emb)
+        assert len(r["breaks"]) == 0
+        assert len(r["segments"]) == 1
+
+    def test_identical_appearance_still_breaks_at_the_crossing(self):
+        tr = walker_tracks(cuts_a=(10.0,), cuts_b=(10.0,))
+        emb = self._embeddings(tr, a_ids=set(tr["tracks"]))   # everyone alike
+        r = associate_fragments(tr, embeddings=emb)
+        assert any(b["reason"] == "ambiguous" for b in r["breaks"])
+
+    def test_appearance_bridges_a_gap_position_refused(self):
+        tr = walker_tracks(cuts_a=(8.0, 12.0))
+        del tr["tracks"][2]                    # 4 s hole in walker A
+        emb = self._embeddings(tr, a_ids={1, 3})
+        r = associate_fragments(tr, embeddings=emb, max_gap_s=2.0)
+        assert len(r["breaks"]) == 0
+
+
+class TestFragmentEmbeddings:
+    def test_two_coloured_bodies_get_separable_embeddings(self, tmp_path):
+        """A red body and a blue body, two fragments each: same-colour fragments
+        must embed closer than cross-colour ones."""
+        import subprocess
+
+        import cv2
+
+        from musicalgestures._posetools import fragment_embeddings
+
+        path = str(tmp_path / "two.mp4")
+        w, h, n = 320, 240, 40
+        raw = tmp_path / "raw.rgb"
+        with open(raw, "wb") as fh:
+            for i in range(n):
+                img = np.full((h, w, 3), 40, np.uint8)
+                img[80:200, 40+i:100+i] = (200, 30, 30)      # red walker
+                img[80:200, 220-i:280-i] = (30, 30, 200)     # blue walker
+                fh.write(img.tobytes())
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "rawvideo",
+                        "-pix_fmt", "rgb24", "-s", f"{w}x{h}", "-r", "10",
+                        "-i", str(raw), "-pix_fmt", "yuv420p", path], check=True)
+
+        def frag(tid, frames, x_of):
+            lm = np.zeros((len(frames), 17, 3))
+            for j, fi in enumerate(frames):
+                cx = x_of(fi)
+                lm[j, :, 0] = cx
+                lm[j, [5, 6], 0] = (cx - 20, cx + 20)
+                lm[j, [11, 12], 0] = (cx - 15, cx + 15)
+                lm[j, [5, 6], 1] = 100
+                lm[j, [11, 12], 1] = 170
+                lm[j, :, 1] = np.clip(lm[j, :, 1], 90, 190)
+                lm[j, :, 2] = 0.9
+            return {"time": np.asarray(frames) / 10.0,
+                    "frame": np.asarray(frames), "landmarks": lm}
+
+        tracks = {"tracks": {
+            1: frag(1, range(0, 18), lambda i: 70 + i),
+            2: frag(2, range(22, 40), lambda i: 70 + i),
+            3: frag(3, range(0, 18), lambda i: 250 - i),
+            4: frag(4, range(22, 40), lambda i: 250 - i)},
+            "n_frames": n, "fps": 10.0, "width": w, "height": h, "names": []}
+
+        emb = fragment_embeddings(path, tracks)
+        assert set(emb) == {1, 2, 3, 4}
+        d_same = np.linalg.norm(emb[1] - emb[2]) + np.linalg.norm(emb[3] - emb[4])
+        d_cross = np.linalg.norm(emb[1] - emb[3]) + np.linalg.norm(emb[2] - emb[4])
+        assert d_same < 0.5 * d_cross

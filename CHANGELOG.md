@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Appearance for the associator** — `fragment_embeddings` collects one
+  appearance vector per track fragment in a single sequential pass (torso-crop
+  hue–saturation histograms, median over each fragment's rows), and
+  `associate_fragments(embeddings=...)` gains the v2 rules from
+  `plans/2026-08-30-reid-v2-design.md`: an ambiguous crossing is decided by
+  appearance only when one candidate is STRICTLY more separated than the
+  material's own within-appearance spread, and position-refused re-entries may be
+  appearance-bridged across a longer gap. Identical appearances decide nothing,
+  and refusal remains output — both behaviours asserted by tests.
+
 ## [1.28.0] — 2026-08-30
 
 ### Added

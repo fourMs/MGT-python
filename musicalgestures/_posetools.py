@@ -757,9 +757,106 @@ def extract_pose_landmarks_yolo(
     return result
 
 
+def fragment_embeddings(filename, tracks_data: dict,
+                        bins: int = 12, verbose: bool = True) -> dict:
+    """One appearance vector per track fragment, from a single sequential pass.
+
+    The v2 half of fragment re-association
+    (`plans/2026-08-30-reid-v2-design.md`): appearance is what survives an
+    occlusion, and this collects it the way this project's drives prefer --- one
+    sequential decode rather than thousands of seeks. For every stored detection
+    row, the torso region (the box the shoulder and hip keypoints span, padded)
+    is cut from the frame and summarised as a hue--saturation histogram; a
+    fragment's embedding is the median over its rows, so a few bad crops do not
+    speak for the fragment.
+
+    A colour histogram is deliberately the first tool: the problem is closed
+    over one session --- same people, same clothes, one camera --- and the
+    within-fragment consistency check in the test suite is the gate for whether
+    it suffices before anything heavier is considered.
+
+    Args:
+        filename: The video the fragments were tracked in.
+        tracks_data (dict): As returned by :func:`extract_pose_tracks_yolo`;
+            its `fps`, `width` and `n_frames` reproduce the extraction's exact
+            frame grid.
+        bins (int): Histogram bins per channel. Defaults to 12.
+        verbose (bool): Print a one-line summary. Defaults to True.
+
+    Returns:
+        dict: Fragment id to a normalised embedding vector.
+    """
+    import cv2
+
+    fps = float(tracks_data["fps"])
+    w = int(tracks_data["width"])
+    h = int(tracks_data["height"])
+
+    #: frame index -> list of (fragment id, row landmarks)
+    per_frame: dict = {}
+    for k, tr in tracks_data["tracks"].items():
+        lm = np.asarray(tr["landmarks"], dtype=float)
+        for fi, row in zip(np.asarray(tr["frame"], dtype=int), lm):
+            per_frame.setdefault(int(fi), []).append((k, row))
+    if not per_frame:
+        return {}
+    last = max(per_frame)
+
+    cmd = ["ffmpeg", "-v", "error", "-i", str(filename),
+           "-vf", f"fps={fps},scale={w}:{h}",
+           "-pix_fmt", "bgr24", "-f", "rawvideo", "-"]
+    votes: dict = {}
+    frame_bytes = w * h * 3
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                            stderr=subprocess.DEVNULL)
+    assert proc.stdout is not None
+    try:
+        fi = 0
+        while fi <= last:
+            buf = proc.stdout.read(frame_bytes)
+            if buf is None or len(buf) < frame_bytes:
+                break
+            if fi in per_frame:
+                frame = np.frombuffer(buf, np.uint8).reshape(h, w, 3)
+                for k, row in per_frame[fi]:
+                    pts = row[:, :2].copy()
+                    pts[row[:, 2] < 0.3] = np.nan
+                    core = pts[[5, 6, 11, 12]]
+                    if not np.isfinite(core).all():
+                        continue
+                    x0, y0 = np.nanmin(core, axis=0)
+                    x1, y1 = np.nanmax(core, axis=0)
+                    px = 0.25 * max(x1 - x0, y1 - y0) + 2
+                    a, b = int(max(0, x0 - px)), int(min(w, x1 + px))
+                    c, d_ = int(max(0, y0 - px)), int(min(h, y1 + px))
+                    if b - a < 4 or d_ - c < 4:
+                        continue
+                    crop = frame[c:d_, a:b]
+                    hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+                    hist = cv2.calcHist([hsv], [0, 1], None, [bins, bins],
+                                        [0, 180, 0, 256]).ravel()
+                    total = hist.sum()
+                    if total > 0:
+                        votes.setdefault(k, []).append(hist / total)
+            fi += 1
+    finally:
+        proc.stdout.close()
+        proc.terminate()
+        proc.wait()
+
+    out = {k: np.median(np.asarray(v), axis=0) for k, v in votes.items() if v}
+    if verbose:
+        print(f"{os.path.basename(str(filename))}: embeddings for {len(out)} "
+              f"of {len(tracks_data['tracks'])} fragments")
+    return out
+
+
 def associate_fragments(tracks_data: dict, n_movers: int = 2,
                         max_gap_s: float = 2.0,
-                        max_speed: float | None = None) -> dict:
+                        max_speed: float | None = None,
+                        embeddings: dict | None = None,
+                        appearance_max_gap_s: float = 120.0,
+                        min_separation: float | None = None) -> dict:
     """Chain track fragments into persistent movers, refusing where honesty demands.
 
     Identity tracking over a long session yields fragments --- trustworthy within
@@ -784,6 +881,19 @@ def associate_fragments(tracks_data: dict, n_movers: int = 2,
         max_gap_s (float): Longest silence a chain may bridge. Defaults to 2.
         max_speed (float, optional): Fastest plausible bridge, in the landmarks'
             units per second. Defaults to None: measured from the fragments.
+        embeddings (dict, optional): Appearance vector per fragment id, as from
+            :func:`fragment_embeddings`. When given, the v2 rules apply: an
+            ambiguous positional choice is decided by appearance when one
+            candidate matches clearly better than the rest, and a fragment no
+            mover can positionally accept may be appearance-bridged across up
+            to `appearance_max_gap_s`. A choice appearance cannot clearly make
+            stays a break --- refusal remains output.
+        appearance_max_gap_s (float): Longest silence an appearance link may
+            bridge. Defaults to 120.
+        min_separation (float, optional): How much closer the best appearance
+            match must be than the second best. Defaults to None: measured as
+            the 95th percentile of within-fragment embedding spread, so the
+            bar comes from the material's own appearance stability.
 
     Returns:
         dict: ``segments`` --- one per stretch between breaks, each with
@@ -814,6 +924,32 @@ def associate_fragments(tracks_data: dict, n_movers: int = 2,
         allv = np.concatenate(v) if v else np.zeros(1)
         finite = allv[np.isfinite(allv)]
         max_speed = 3.0 * float(np.percentile(finite, 95)) if finite.size else np.inf
+
+    if embeddings is not None and min_separation is None:
+        #: Within-fragment spread: how far one body's own appearance wanders.
+        #: With single-vector embeddings per fragment this needs pairs, so the
+        #: proxy is the spread among ALL fragments' vectors' nearest neighbours;
+        #: fragment_embeddings supplies a measured value where it can.
+        vecs = np.asarray([embeddings[f["id"]] for f in frags
+                           if f["id"] in embeddings], dtype=float)
+        if len(vecs) >= 3:
+            d = np.linalg.norm(vecs[:, None, :] - vecs[None, :, :], axis=2)
+            np.fill_diagonal(d, np.inf)
+            min_separation = float(np.percentile(d.min(axis=1), 95))
+        else:
+            min_separation = 0.0
+
+    def looks_like(f, mover):
+        """Distance from a fragment's appearance to a mover's chain mean."""
+        if embeddings is None or f["id"] not in embeddings:
+            return np.inf
+        chain = [embeddings[g["id"]] for g in mover["frags"]
+                 if g["id"] in embeddings]
+        if not chain:
+            return np.inf
+        return float(np.linalg.norm(np.asarray(embeddings[f["id"]], dtype=float)
+                                    - np.mean(np.asarray(chain, dtype=float),
+                                              axis=0)))
 
     segments: list = []
     breaks: list = []
@@ -860,17 +996,46 @@ def associate_fragments(tracks_data: dict, n_movers: int = 2,
             bridge = float(np.linalg.norm(s_pos - m["end_pos"])) / max(gap, 1e-6)
             if np.isfinite(bridge) and bridge <= max_speed:
                 candidates.append(mi)
+        def by_appearance(pool):
+            """The one member of `pool` appearance clearly prefers, or None."""
+            if embeddings is None or not pool:
+                return None
+            dists = sorted((looks_like(f, state[m]), m) for m in pool)
+            if not np.isfinite(dists[0][0]):
+                return None
+            #: STRICTLY more separated than the within-appearance spread: with
+            #: perfectly stable appearances the spread is 0 and any positive
+            #: margin decides, while identical-everyone gives margins of exactly
+            #: 0, which strictness correctly refuses.
+            if len(dists) == 1 or (dists[1][0] - dists[0][0]) > min_separation:
+                return dists[0][1]
+            return None
+
         if len(candidates) == 1:
             mi = candidates[0]
-        elif len(candidates) == 0 and empty is not None:
+        elif len(candidates) > 1:
+            mi = by_appearance(candidates)
+            if mi is None:
+                breaks.append({"time_s": float(start), "reason": "ambiguous",
+                               "candidates": candidates})
+                flush(state)
+                state = new_state()
+                mi = 0
+        elif empty is not None:
             mi = empty
         else:
-            reason = "ambiguous" if len(candidates) > 1 else "no plausible mover"
-            breaks.append({"time_s": float(start), "reason": reason,
-                           "candidates": candidates})
-            flush(state)
-            state = new_state()
-            mi = 0
+            #: Position refused everyone; appearance may bridge a longer gap.
+            reachable = [m for m, st in enumerate(state)
+                         if st["end_t"] is not None and st["end_t"] <= start
+                         and start - st["end_t"] <= appearance_max_gap_s]
+            mi = by_appearance(reachable)
+            if mi is None:
+                breaks.append({"time_s": float(start),
+                               "reason": "no plausible mover",
+                               "candidates": []})
+                flush(state)
+                state = new_state()
+                mi = 0
         state[mi]["frags"].append(f)
         state[mi]["end_t"] = float(f["time"][-1])
         state[mi]["end_pos"] = f["mid"][-1]
