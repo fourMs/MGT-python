@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.27.0**.
+The current stable release is **MGT-python 1.28.0**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,17 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.28.0
+
+The third family, and fragments that become movers.
+
+RTMPose joins as the third pose extractor on the same trajectory contract
+(`pip install musicalgestures[rtmpose]`) — rtmlib over ONNX runtime, Apache
+end to end, with the separate person detector that held 100% detection on a dark
+stage. And `associate_fragments` chains track fragments into persistent movers
+with position and time only, refusing where honesty demands: a crossing at a
+fragment boundary becomes a recorded break, never a guess.
 
 ### 1.27.0
 
