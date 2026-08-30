@@ -135,7 +135,7 @@ def effort_space(xy, fs: float, window_s: float = 5.0) -> np.ndarray:
     """
     xy = np.asarray(xy, dtype=float)
     win = int(round(window_s * fs))
-    out = []
+    out: list[float] = []
     for a in range(0, xy.shape[0] - win + 1, win):
         seg = xy[a:a + win]
         steps = np.linalg.norm(np.diff(seg, axis=0), axis=1)
