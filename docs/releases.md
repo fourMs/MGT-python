@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.26.0**.
+The current stable release is **MGT-python 1.27.0**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,19 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.27.0
+
+The qualities of movement, and identities that outlast confidence.
+
+The Effort layer is MGT's own operationalisation of Laban's four factors — Time,
+Weight, Space, Flow — as continuous windowed indices with every claim measured
+first, plus Laban's eight basic effort actions as median-anchored proposals
+(`musicalgestures._effort`; the docs' Effort page has the full account and the
+limits). And YOLO pose gains per-person tracking: every identity separately via
+`extract_pose_tracks_yolo`, or `track=True` to follow the most persistent body —
+the cure for the per-frame selection flipping between two dancers, or between a
+dancer and their projection on a screen.
 
 ### 1.26.0
 

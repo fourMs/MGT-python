@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.0] — 2026-08-30
+
 ### Added
 - **The Effort layer** (#373): MGT's own operationalisation of Laban's four Effort
   factors --- `sparc` (Balasubramanian et al. 2015, validated against the canonical
