@@ -120,3 +120,48 @@ class TestTracking:
         #: The dancer is alone in the example, so one identity carries the video.
         assert len(tr["time"]) >= 0.5 * tracks["n_frames"]
         assert tracks["fps"] == 6.0
+
+
+class TestSkeletonTimeline:
+    """A timeline of stick figures: posture at moments, on a real time axis."""
+
+    def test_figures_are_drawn_at_the_asked_moments(self):
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+
+        from musicalgestures._posetools import skeleton_timeline
+
+        f = 100
+        lm = np.full((f, 17, 3), np.nan)
+        #: A standing figure that raises one arm over the sequence.
+        base = np.array([[0, 0], [-1, -1], [1, -1], [-2, -1], [2, -1],
+                         [-4, 4], [4, 4], [-6, 8], [6, 8], [-7, 12], [7, 12],
+                         [-3, 14], [3, 14], [-3, 20], [3, 20], [-3, 26], [3, 26]],
+                        dtype=float) * 4 + np.array([160, 60])
+        for i in range(f):
+            p = base.copy()
+            p[9, 1] -= i * 0.5          # left wrist rises
+            lm[i, :, :2] = p
+            lm[i, :, 2] = 0.9
+        lm[40:44] = np.nan              # a dropout is skipped, not drawn
+        times = np.arange(f) / 10.0
+
+        fig, ax = plt.subplots()
+        n = skeleton_timeline(lm, times, ax=ax, n_figures=8)
+        assert n == 8
+        assert len(ax.lines) >= 8 * 10   # a skeleton is many bone segments
+        plt.close(fig)
+
+    def test_no_detections_draws_nothing(self):
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+
+        from musicalgestures._posetools import skeleton_timeline
+
+        lm = np.full((50, 17, 3), np.nan)
+        fig, ax = plt.subplots()
+        n = skeleton_timeline(lm, np.arange(50) / 10.0, ax=ax, n_figures=6)
+        assert n == 0
+        plt.close(fig)

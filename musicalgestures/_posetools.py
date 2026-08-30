@@ -757,6 +757,94 @@ def extract_pose_landmarks_yolo(
     return result
 
 
+#: The bones of the 17-point COCO topology, as index pairs into
+#: COCO_KEYPOINT_NAMES: head, shoulder girdle, arms, trunk, legs.
+COCO_SKELETON = ((0, 1), (0, 2), (1, 3), (2, 4), (5, 6), (5, 7), (7, 9),
+                 (6, 8), (8, 10), (5, 11), (6, 12), (11, 12), (11, 13),
+                 (13, 15), (12, 14), (14, 16))
+
+
+def skeleton_timeline(landmarks, times, ax=None, n_figures: int = 24,
+                      min_conf: float = 0.3, height: float = 1.0,
+                      color="#7a3b8f", lw: float = 1.2) -> int:
+    """A timeline of stick figures: posture at sampled moments, drawn on time.
+
+    The keyframe display's skeletal descendant: `n_figures` moments spread evenly
+    over the material, each drawn as a stick figure at its place on the time axis,
+    so a raised arm or a deep bend is visible AS posture where a motiongram shows
+    only that something moved. Each figure is normalised by its own torso length
+    and centred in its slot, so the timeline reads posture and not position ---
+    where the body was in the room is the spatial maps' job.
+
+    A moment with no usable detection --- fewer than half its keypoints above
+    `min_conf` at the nearest detected frame --- is skipped rather than guessed,
+    so gaps in the timeline are honest gaps in the tracking.
+
+    Args:
+        landmarks: (frames, 17, 3) trajectories in the COCO topology, confidence
+            in the third channel, as the YOLO extractors return.
+        times: (frames,) timestamps in seconds.
+        ax: A matplotlib axes to draw on. Created when None.
+        n_figures (int): Moments to draw. Defaults to 24.
+        min_conf (float): Keypoint confidence below which a point does not
+            exist. Defaults to 0.3.
+        height (float): Figure height in axis y-units. Defaults to 1.
+        color: Line colour.
+        lw (float): Line width.
+
+    Returns:
+        int: The number of figures actually drawn.
+    """
+    import matplotlib.pyplot as plt
+
+    landmarks = np.asarray(landmarks, dtype=float)
+    times = np.asarray(times, dtype=float)
+    if ax is None:
+        _, ax = plt.subplots(figsize=(14, 2.4))
+    if landmarks.shape[0] == 0:
+        return 0
+
+    ok = np.zeros(landmarks.shape[0], dtype=bool)
+    conf = landmarks[:, :, 2]
+    with np.errstate(invalid="ignore"):
+        ok = (np.nan_to_num(conf) >= min_conf).sum(axis=1) >= 9
+
+    targets = np.linspace(times[0], times[-1], n_figures)
+    slot = (times[-1] - times[0]) / max(n_figures, 1)
+    drawn = 0
+    used: set = set()
+    for tt in targets:
+        cand = np.nonzero(ok)[0]
+        if cand.size == 0:
+            break
+        fi = int(cand[np.argmin(np.abs(times[cand] - tt))])
+        #: The nearest usable frame must belong to this slot, or the gap is real.
+        if abs(times[fi] - tt) > slot or fi in used:
+            continue
+        used.add(fi)
+        pts = landmarks[fi, :, :2].copy()
+        pts[conf[fi] < min_conf] = np.nan
+        mid_sh = np.nanmean(pts[[5, 6]], axis=0)
+        mid_hip = np.nanmean(pts[[11, 12]], axis=0)
+        torso = float(np.linalg.norm(mid_sh - mid_hip))
+        if not np.isfinite(torso) or torso <= 0:
+            continue
+        #: Normalise by the torso so every figure has one scale; flip y so up is up.
+        scale = height / (3.2 * torso)
+        centre = np.nanmean(pts, axis=0)
+        x = (pts[:, 0] - centre[0]) * scale * 0.9
+        y = -(pts[:, 1] - centre[1]) * scale
+        for a, b in COCO_SKELETON:
+            if np.isfinite(x[a]) and np.isfinite(x[b]):
+                ax.plot([tt + x[a], tt + x[b]], [y[a] + height / 2,
+                                                 y[b] + height / 2],
+                        color=color, lw=lw, solid_capstyle="round")
+        drawn += 1
+    ax.set_ylim(-0.1 * height, 1.1 * height)
+    ax.set_yticks([])
+    return drawn
+
+
 def midpoint(a: np.ndarray, b: np.ndarray) -> np.ndarray:
     """
     Element-wise midpoint of two landmark trajectories.

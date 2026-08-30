@@ -259,7 +259,7 @@ def basic_effort_actions(profile: dict) -> list:
     sp = np.asarray(profile["space"], dtype=float)
     med = [np.nanmedian(a) if np.isfinite(a).any() else float("nan")
            for a in (w, t, sp)]
-    out = []
+    out: list[str | None] = []
     for wi, ti, si in zip(w, t, sp):
         if not (np.isfinite(wi) and np.isfinite(ti) and np.isfinite(si)):
             out.append(None)
