@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.29.0] — 2026-08-31
+
 ### Added
 - **Appearance for the associator** — `fragment_embeddings` collects one
   appearance vector per track fragment in a single sequential pass (torso-crop
@@ -17,6 +19,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   material's own within-appearance spread, and position-refused re-entries may be
   appearance-bridged across a longer gap. Identical appearances decide nothing,
   and refusal remains output — both behaviours asserted by tests.
+
+### Fixed
+- **`room_plate` no longer hands back a plate its own refinement made worse** — on
+  material where the subject rarely leaves the frame (standstill recordings), the
+  frames most like the first plate are the ones with the subject in place, and
+  re-taking the median over them made the subject solid where the full sample had
+  washed them out; measured on a 2012 standstill performance, refinement changed
+  3.7 per cent of the plate — a performer standing in an otherwise empty room, with
+  `refine=True` the default. Under a median first pass the kept frames are the ones
+  that AGREE with the plate, so a material change is concentration, not cleaning:
+  `room_plate` now measures the change and returns the unrefined plate with a
+  warning when it exceeds the new `max_refine_change` argument (default 0.02, above
+  a body's residue and below a body). Ordinary corpora are untouched, and the
+  module's docstrings, which promised the opposite frame selection to the one the
+  code makes, now tell one story.
 
 ## [1.28.0] — 2026-08-30
 

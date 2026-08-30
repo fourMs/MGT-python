@@ -20,7 +20,7 @@ occupancy.
 ## The frames the plate is built from must be spread over the recording
 
 The median is taken twice: once over a blind sample, then again over the emptiest of
-those frames, since a median over a blind sample keeps whoever stood still for most of it.
+those frames, which tightens the plate where passing traffic left residue.
 
 The catch is that the emptiest frames are not spread through a recording. They cluster in
 whatever stretch nobody was working—a break, a setup, a pack-down—and anything
@@ -42,5 +42,22 @@ much of the recording the chosen frames span—`room_plate` warns below half.
 plate, used = mg.room_plate("session.mp4")
 mg.plate_spread(used, n_frames)      # near 1 is spread, near 0 is one stretch
 ```
+
+## A refinement that changes the room is concentrating, and backs off
+
+What the second pass cannot do is remove somebody who stood in one place for most of the
+recording: no selection of frames recovers a room that no frame shows. Worse, on material
+where the subject rarely leaves—standstill recordings—the frames most like the first
+plate are exactly the ones with the subject in place, and re-taking the median over them
+makes the subject solid where the full sample had washed them out. On a 2012 standstill
+performance recording the refined plate acquired a performer standing solidly in an
+otherwise empty room.
+
+The failure is detectable at the output. Under a median first pass the kept frames are the
+ones that agree with the plate, so a refinement that changes the room materially is
+concentrating, not cleaning. `room_plate` measures that change and returns the unrefined
+plate with a warning when it exceeds `max_refine_change` (default 0.02 of the frame—above
+a body's residue and below a body). On material where the subject never leaves, pass
+`refine=False` and skip the second pass altogether.
 
 ::: musicalgestures._plate

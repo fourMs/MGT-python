@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.28.0**.
+The current stable release is **MGT-python 1.29.0**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,19 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.29.0
+
+The plate distrusts its own refinement, and the associator learns to look.
+
+`room_plate` now measures how much its refinement changed the plate and backs off
+with a warning when the change is material — on standstill material the frames
+most like the first plate are the ones with the subject in place, so refinement
+was concentrating the subject rather than cleaning the room; a new
+`max_refine_change` argument sets the tolerance. And `associate_fragments` gains
+appearance: `fragment_embeddings` collects one appearance vector per fragment, an
+ambiguous crossing is decided only when one candidate is strictly more separated
+than the material's own spread, and refusal remains output.
 
 ### 1.28.0
 
