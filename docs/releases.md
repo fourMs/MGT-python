@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.25.0**.
+The current stable release is **MGT-python 1.26.0**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,18 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.26.0
+
+The last deprecation batch, and a second pair of eyes.
+
+`extract_pose_landmarks_yolo` is the Ultralytics twin of the MediaPipe extractor, on
+the same trajectory-array contract, so two detectors can be compared on a shared
+clock (`pip install musicalgestures[yolo]`). `motiongram_data` speaks x and y like
+the rest of the toolbox, with the old words warning until 2.0 — which completes the
+deprecation set: everything scheduled for removal now warns. And the motion envelope
+(`MgMotionVectorViews.magnitude`) is documented as what it is: the encode's own
+~12.6 Hz cadence for a tenth of a decode's cost, with its measured limits stated.
 
 ### 1.25.0
 
