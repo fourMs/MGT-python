@@ -68,3 +68,21 @@ Returns per-mover trajectories in the single-person extractor's contract, plus
   of scope entirely.
 - Any claim about which mover is which *person*: the output says "mover 1" and
   "mover 2" per segment, and mapping movers to Ole and Lisa stays a human act.
+
+## Measured on the corpus, same day
+
+Run on the co-located day (1,630 fragments, 159 minutes): with three mover slots
+(the third absorbs researchers entering frame), 374 breaks --- 351 "no plausible
+mover", 23 ambiguous --- yielding 375 segments, the longest 6.6 minutes. Only one
+segment over two minutes has BOTH movers covering most of its span (2.6 minutes at
+minute 111): chains are real but thin, and the v2 lever the design named ---
+appearance ReID, with its re-decode --- is what more per-dancer coverage costs.
+
+And the downstream check was measured and found to be wrongly designed. The
+expectation that the ensemble sits between the two movers held for Space only
+(0.12 between 0.07 and 0.15) and failed for Time, Weight and Flow, where the
+ensemble sits ABOVE both movers --- correctly: burst concentration and spectral
+roughness of a MIXTURE of two movers exceed each component's, because interleaved
+burst patterns are burstier than either alone. These indices are not convex in
+their inputs, so "between" was never the right prediction. The check to keep is
+Space's; the failed three are a lesson about the indices, not about the chains.
