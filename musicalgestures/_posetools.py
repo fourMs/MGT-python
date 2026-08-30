@@ -811,6 +811,15 @@ def skeleton_timeline(landmarks, times, ax=None, n_figures: int = 24,
 
     targets = np.linspace(times[0], times[-1], n_figures)
     slot = (times[-1] - times[0]) / max(n_figures, 1)
+    #: The x-axis is time and the y-axis is body height, so a figure drawn with
+    #: one scale for both would compress to a stroke. Correct x by the axes'
+    #: data-per-inch ratio, so the drawn body keeps human proportions whatever
+    #: the timeline's length.
+    pos = ax.get_position()
+    fw, fh = ax.figure.get_size_inches()
+    x_per_in = (times[-1] - times[0]) / max(fw * pos.width, 1e-9)
+    y_per_in = (1.2 * height) / max(fh * pos.height, 1e-9)
+    xaspect = x_per_in / y_per_in if y_per_in > 0 else 1.0
     drawn = 0
     used: set = set()
     for tt in targets:
@@ -832,8 +841,18 @@ def skeleton_timeline(landmarks, times, ax=None, n_figures: int = 24,
         #: Normalise by the torso so every figure has one scale; flip y so up is up.
         scale = height / (3.2 * torso)
         centre = np.nanmean(pts, axis=0)
-        x = (pts[:, 0] - centre[0]) * scale * 0.9
+        x = (pts[:, 0] - centre[0]) * scale * 0.9 * xaspect
+        #: A figure never leaves its slot: wide poses compress sideways rather
+        #: than tangling with their neighbours.
+        half = np.nanmax(np.abs(x)) if np.isfinite(x).any() else 0.0
+        if half > 0.42 * slot:
+            x = x * (0.42 * slot / half)
         y = -(pts[:, 1] - centre[1]) * scale
+        #: And never taller than its lane: a mis-scaled figure (a tiny estimated
+        #: torso) compresses instead of striping the whole plot.
+        tall = np.nanmax(np.abs(y)) if np.isfinite(y).any() else 0.0
+        if tall > 0.55 * height:
+            y = y * (0.55 * height / tall)
         for a, b in COCO_SKELETON:
             if np.isfinite(x[a]) and np.isfinite(x[b]):
                 ax.plot([tt + x[a], tt + x[b]], [y[a] + height / 2,
