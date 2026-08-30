@@ -52,7 +52,7 @@ class BoundedSample:
         self.cap = int(cap)
         self._rng = np.random.default_rng(seed)
         self._p = 1.0
-        self._chunks = []
+        self._chunks: list[np.ndarray] = []
         self._held = 0
 
     def add(self, values):
