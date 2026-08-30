@@ -80,3 +80,24 @@ the array level is trusted; it is not part of this design.
 After 1.26. Implementation is test-first from this document's validation tiers; the
 Sound Actions confusion matrix is measured before the docs make any claim about
 Time. Nothing here blocks or is blocked by 2.0.
+
+## What Haga (2008) added, after the fact
+
+ARJ pointed at Egil Haga's thesis (*Correspondences between music and body
+movement*, UiO 2008) after the first implementation, and three things from its
+chapter 4 and section 7.7 went straight in:
+
+1. **The eight basic effort actions** (his Table 20, from Laban 1971): Weight x
+   Time x Space pole combinations named thrusting, slashing, pressing, wringing,
+   dabbing, flicking, gliding, floating --- with Flow deliberately a colouring
+   element outside the combination (his footnote 107). Implemented as
+   `basic_effort_actions`: octants against the mover's own medians, offered as
+   proposals in Laban's register.
+2. **Fluctuation, not level** (his p. 73): effort elements denote change ---
+   "gentler and firmer" --- so the windowed contours are the analytical object and
+   a whole-recording scalar flattens the concept. Now stated in the module.
+3. **The scholarly frame for the proxy honesty**: dynamics are inferred from
+   kinematics (Runeson & Frykholm's kinematic-specification-of-dynamics, via his
+   4.4--4.5), Time being kinematical and Weight/Flow dynamical; and effort is the
+   qualitative reading on top of Stern's activation contour --- which is what a
+   QoM track measures. Both now in the module docstring, cited.
