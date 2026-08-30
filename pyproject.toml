@@ -51,6 +51,9 @@ pose = ["mediapipe>=0.10"]
 # PyAV is the only route to them. MgVideo.motionvectors(), which draws them, needs only
 # ffmpeg and stays available without this.
 motionvectors = ["av>=10"]
+# The YOLO pose twin (extract_pose_landmarks_yolo) rides on Ultralytics, which
+# brings torch; optional for the same reason mediapipe is.
+yolo = ["ultralytics>=8"]
 c3d = ["c3d>=0.5"]
 ml = ["scikit-learn>=1.2", "torch>=2.0", "torchvision>=0.15"]
 cli = ["click>=8.0"]

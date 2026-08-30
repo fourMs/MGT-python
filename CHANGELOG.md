@@ -13,6 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `orientation="y"` / `"x"`. The old values warn and keep working until 2.0. This
   completes the deprecation set: everything scheduled for removal at 2.0 now warns.
 
+### Added
+- **`extract_pose_landmarks_yolo`** — the Ultralytics twin of
+  `extract_pose_landmarks` (#359), on the same trajectory-array contract: same
+  decode pipe, same result dictionary, so two detectors compare on a shared clock
+  with the anchor-and-match tooling. The topology is the 17-point COCO set
+  (`COCO_KEYPOINT_NAMES`), the third channel is keypoint confidence, and a
+  zero-confidence keypoint is NaN rather than a fabricated origin point.
+  Ultralytics is a new optional extra: `pip install musicalgestures[yolo]`.
+
 ### Changed
 - **The motion envelope is documented as what it is.** `MgMotionVectorViews.magnitude`
   against `.time` is the temporal view at the encode's reference cadence (~12.6 Hz on

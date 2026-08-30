@@ -46,6 +46,15 @@ from musicalgestures._utils import get_widthheight, get_fps
 # mediapipe lazily, so this import is safe without mediapipe installed.
 from musicalgestures._pose_estimator import MEDIAPIPE_LANDMARK_NAMES
 
+#: The 17-point COCO keypoint topology every YOLO pose model emits, in model
+#: order. Shared here so downstream detector-agreement workflows agree on the
+#: index -> name mapping, as MEDIAPIPE_LANDMARK_NAMES does for the 33-point set.
+COCO_KEYPOINT_NAMES = (
+    "nose", "left_eye", "right_eye", "left_ear", "right_ear",
+    "left_shoulder", "right_shoulder", "left_elbow", "right_elbow",
+    "left_wrist", "right_wrist", "left_hip", "right_hip",
+    "left_knee", "right_knee", "left_ankle", "right_ankle")
+
 
 def extract_pose_landmarks(
         filename: str,
@@ -370,6 +379,190 @@ def _write_landmarks_csv(path: str, result: dict) -> None:
             header += [f"{name}_wx", f"{name}_wy", f"{name}_wz"]
     data = np.hstack(cols) if len(result["time"]) else np.empty((0, len(header)))
     np.savetxt(path, data, delimiter=",", header=",".join(header), comments="")
+
+
+def extract_pose_landmarks_yolo(
+        filename: str,
+        fps: float | None = None,
+        width: int | None = None,
+        t0: float = 0.0,
+        duration: float | None = None,
+        model: str = "yolo11n-pose.pt",
+        conf: float = 0.25,
+        max_frames: int | None = None,
+        target_name: str | None = None,
+        verbose: bool = True) -> dict:
+    """
+    Run a YOLO pose model over a whole video: the Ultralytics twin of
+    :func:`extract_pose_landmarks`, on the same trajectory-array contract.
+
+    Same decode pipe, same result dictionary, so the two detectors can be
+    compared on a shared clock with the anchor-and-match tooling --- the point
+    of having a twin. The differences are the topology and the third channel:
+    YOLO emits the 17-point COCO set (``COCO_KEYPOINT_NAMES``), and the third
+    value per keypoint is the model's keypoint confidence rather than
+    MediaPipe's visibility. A keypoint the model marks with zero confidence has
+    no measured position (the raw output pins it to the image origin), so its
+    coordinates are returned as NaN rather than as a fabricated point. When
+    several people are in frame, the highest-confidence detection is followed;
+    multi-person trajectories are out of scope for the twin contract.
+
+    Ultralytics is an optional dependency (``pip install musicalgestures[yolo]``)
+    and is imported lazily. The model file is downloaded on first use into
+    ``musicalgestures/models/`` and reused after that.
+
+    Args:
+        filename (str): Path to the input video file.
+        fps (float, optional): Analysis frame rate, resampled by FFmpeg.
+            Defaults to None (native frame rate).
+        width (int, optional): Resize the analysis frames to this width,
+            keeping the aspect ratio. Defaults to None (native resolution).
+        t0 (float, optional): Start of the analysis window in seconds
+            (input-side seek; returned timestamps stay on the source clock).
+            Defaults to 0.0.
+        duration (float, optional): Length of the analysis window in seconds.
+            Defaults to None (until the end of the file).
+        model (str, optional): An Ultralytics pose model: a bare released name
+            (downloaded and cached in ``musicalgestures/models/``) or a path to
+            a ``.pt`` file. Defaults to "yolo11n-pose.pt", the smallest.
+        conf (float, optional): Detection confidence threshold. Defaults
+            to 0.25, the Ultralytics default.
+        max_frames (int, optional): Stop after this many analysed frames.
+            Defaults to None (whole video).
+        target_name (str, optional): If given, also write the trajectories as a
+            tidy CSV with columns ``time`` and ``<name>_x``, ``<name>_y``,
+            ``<name>_v`` per keypoint. Defaults to None.
+        verbose (bool, optional): Print a one-line detection-rate summary.
+            Defaults to True.
+
+    Returns:
+        dict: As :func:`extract_pose_landmarks`, with ``landmarks`` of shape
+        (F, 17, 3), ``names`` the COCO keypoint names, and ``world`` always
+        None (YOLO pose has no world-coordinate output).
+    """
+    if t0 < 0:
+        raise ValueError(f"t0 must be >= 0, got {t0!r}")
+    if duration is not None and duration <= 0:
+        raise ValueError(f"duration must be > 0, got {duration!r}")
+
+    try:
+        from ultralytics import YOLO
+    except ImportError as exc:
+        raise ImportError(
+            "Ultralytics is required for extract_pose_landmarks_yolo() but is not "
+            "installed. Install the optional dependencies with: "
+            "pip install musicalgestures[yolo]") from exc
+
+    from pathlib import Path
+
+    model_path = Path(model)
+    if not model_path.exists() and model_path.name == str(model):
+        # A bare released name: cache beside the MediaPipe models.
+        from ultralytics.utils.downloads import attempt_download_asset
+        models_dir = Path(__file__).parent / "models"
+        models_dir.mkdir(exist_ok=True)
+        model_path = Path(attempt_download_asset(str(models_dir / model)))
+    yolo = YOLO(str(model_path))
+
+    n_points = len(COCO_KEYPOINT_NAMES)
+    w0, h0 = get_widthheight(filename)
+    native_fps = get_fps(filename)
+    sample_fps = float(fps) if fps else float(native_fps)
+    if width:
+        w = int(width)
+        h = int(round(h0 * w / w0))
+    else:
+        w, h = int(w0), int(h0)
+
+    vf = []
+    if fps:
+        vf.append(f"fps={sample_fps}")
+    if width:
+        vf.append(f"scale={w}:{h}")
+    cmd = ["ffmpeg", "-v", "error"]
+    if t0:
+        cmd += ["-ss", str(t0)]
+    cmd += ["-i", filename]
+    if duration is not None:
+        cmd += ["-t", str(duration)]
+    if vf:
+        cmd += ["-vf", ",".join(vf)]
+    cmd += ["-pix_fmt", "rgb24", "-f", "rawvideo", "-"]
+
+    times, lm2d, detected = [], [], []
+    frame_bytes = w * h * 3
+    stopped_early = False
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    assert proc.stdout is not None and proc.stderr is not None
+    stderr_chunks: list[bytes] = []
+
+    def _drain_stderr():
+        for chunk in iter(lambda: proc.stderr.read(4096), b""):
+            stderr_chunks.append(chunk)
+
+    stderr_thread = threading.Thread(target=_drain_stderr, daemon=True)
+    stderr_thread.start()
+    try:
+        fi = 0
+        while True:
+            if max_frames is not None and fi >= max_frames:
+                stopped_early = True
+                proc.terminate()
+                break
+            buf = proc.stdout.read(frame_bytes)
+            if buf is None or len(buf) < frame_bytes:
+                break
+            frame = np.frombuffer(buf, np.uint8).reshape(h, w, 3)
+            t = t0 + fi / sample_fps
+            res = yolo.predict(frame, conf=conf, verbose=False)[0]
+            kp = res.keypoints
+            if kp is None or kp.xy is None or len(kp.xy) == 0 or kp.conf is None:
+                lm2d.append(np.full((n_points, 3), np.nan))
+                detected.append(False)
+            else:
+                person = int(res.boxes.conf.argmax()) if res.boxes is not None else 0
+                xy = kp.xy[person].cpu().numpy().astype(np.float64)
+                c = kp.conf[person].cpu().numpy().astype(np.float64)
+                #: Zero confidence means the model did not see the point; its
+                #: raw coordinates are the image origin, which is not a
+                #: measurement.
+                xy[c <= 0.0] = np.nan
+                lm2d.append(np.column_stack([xy, c]))
+                detected.append(True)
+            times.append(t)
+            fi += 1
+    finally:
+        proc.stdout.close()
+        proc.wait()
+        stderr_thread.join()
+        proc.stderr.close()
+        err = b"".join(stderr_chunks).decode(errors="replace").strip()
+        if err and not stopped_early:
+            print(f"FFmpeg warnings while decoding {filename}:\n{err}")
+
+    n_frames = len(times)
+    result = {
+        "time": np.asarray(times, dtype=np.float64),
+        "landmarks": (np.asarray(lm2d, dtype=np.float64)
+                      if n_frames else np.empty((0, n_points, 3))),
+        "world": None,
+        "detected": np.asarray(detected, dtype=bool),
+        "detection_rate": float(np.mean(detected)) if n_frames else 0.0,
+        "fps": sample_fps,
+        "width": w,
+        "height": h,
+        "names": list(COCO_KEYPOINT_NAMES),
+    }
+
+    if verbose:
+        print(f"{os.path.basename(filename)}: {n_frames} frames at "
+              f"{sample_fps:g} fps ({w}x{h}), pose detected in "
+              f"{100.0 * result['detection_rate']:.0f}% of frames.")
+
+    if target_name is not None:
+        _write_landmarks_csv(target_name, result)
+
+    return result
 
 
 def midpoint(a: np.ndarray, b: np.ndarray) -> np.ndarray:
