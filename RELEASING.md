@@ -83,3 +83,9 @@ with `--notes-file` must live somewhere real — the home directory works. And
 `gh release create --target` rejects a short SHA; give it the full 40 characters from
 `git rev-parse`. When the tag already exists at the right commit, `--target` is not
 needed at all.
+
+One more snag, learned 2026-08-30: never `git add -A` for the release commit. The
+models directory accumulates downloaded weights during test runs, and a 113 MB
+`.pt` in the release commit is a rejected push and an amend under time pressure —
+during which the deliberately tracked centerface model was briefly over-deleted.
+The directory is gitignored for downloads now; stage release files by name.
