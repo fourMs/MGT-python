@@ -381,6 +381,157 @@ def _write_landmarks_csv(path: str, result: dict) -> None:
     np.savetxt(path, data, delimiter=",", header=",".join(header), comments="")
 
 
+def extract_pose_tracks_yolo(
+        filename: str,
+        fps: float | None = None,
+        width: int | None = None,
+        t0: float = 0.0,
+        duration: float | None = None,
+        model: str = "yolo11s-pose.pt",
+        conf: float = 0.25,
+        max_frames: int | None = None,
+        tracker: str = "bytetrack.yaml",
+        verbose: bool = True) -> dict:
+    """Every person's trajectory separately, with identities held across frames.
+
+    The single-person extractors follow the highest-confidence detection per
+    frame, and with two bodies in frame that selection flips between them ---
+    measured on a dance corpus, where it teleported the trajectory between two
+    real dancers, and between a dancer and their life-size projected partner on a
+    screen. This runs the same YOLO pose models through Ultralytics' tracker, so
+    each body keeps an identity, and returns one trajectory per identity.
+
+    Args:
+        filename (str): Path to the input video file.
+        fps (float, optional): Analysis frame rate. Defaults to None (native).
+        width (int, optional): Analysis width in pixels. Defaults to None.
+        t0 (float, optional): Start of the analysis window in seconds.
+        duration (float, optional): Length of the window in seconds.
+        model (str, optional): An Ultralytics pose model. Defaults to
+            "yolo11s-pose.pt".
+        conf (float, optional): Detection confidence threshold. Defaults to 0.25.
+        max_frames (int, optional): Stop after this many analysed frames.
+        tracker (str, optional): Ultralytics tracker configuration. Defaults to
+            "bytetrack.yaml".
+        verbose (bool, optional): Print a one-line summary. Defaults to True.
+
+    Returns:
+        dict: ``tracks`` (identity -> dict with ``time``, ``frame`` and
+        ``landmarks`` of shape (n, 17, 3), confidence in the third channel and
+        zero-confidence keypoints as NaN), plus ``n_frames``, ``fps``,
+        ``width``, ``height`` and ``names``.
+    """
+    if t0 < 0:
+        raise ValueError(f"t0 must be >= 0, got {t0!r}")
+    if duration is not None and duration <= 0:
+        raise ValueError(f"duration must be > 0, got {duration!r}")
+
+    try:
+        from ultralytics import YOLO
+    except ImportError as exc:
+        raise ImportError(
+            "Ultralytics is required for extract_pose_tracks_yolo() but is not "
+            "installed. Install the optional dependencies with: "
+            "pip install musicalgestures[yolo]") from exc
+
+    from pathlib import Path
+
+    model_path = Path(model)
+    if not model_path.exists() and model_path.name == str(model):
+        from ultralytics.utils.downloads import attempt_download_asset
+        models_dir = Path(__file__).parent / "models"
+        models_dir.mkdir(exist_ok=True)
+        model_path = Path(attempt_download_asset(str(models_dir / model)))
+    yolo = YOLO(str(model_path))
+
+    w0, h0 = get_widthheight(filename)
+    native_fps = get_fps(filename)
+    sample_fps = float(fps) if fps else float(native_fps)
+    if width:
+        w = int(width)
+        h = int(round(h0 * w / w0))
+    else:
+        w, h = int(w0), int(h0)
+
+    vf = []
+    if fps:
+        vf.append(f"fps={sample_fps}")
+    if width:
+        vf.append(f"scale={w}:{h}")
+    cmd = ["ffmpeg", "-v", "error"]
+    if t0:
+        cmd += ["-ss", str(t0)]
+    cmd += ["-i", filename]
+    if duration is not None:
+        cmd += ["-t", str(duration)]
+    if vf:
+        cmd += ["-vf", ",".join(vf)]
+    cmd += ["-pix_fmt", "rgb24", "-f", "rawvideo", "-"]
+
+    tracks: dict = {}
+    frame_bytes = w * h * 3
+    stopped_early = False
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    assert proc.stdout is not None and proc.stderr is not None
+    stderr_chunks: list[bytes] = []
+
+    def _drain_stderr():
+        for chunk in iter(lambda: proc.stderr.read(4096), b""):
+            stderr_chunks.append(chunk)
+
+    stderr_thread = threading.Thread(target=_drain_stderr, daemon=True)
+    stderr_thread.start()
+    fi = 0
+    try:
+        while True:
+            if max_frames is not None and fi >= max_frames:
+                stopped_early = True
+                proc.terminate()
+                break
+            buf = proc.stdout.read(frame_bytes)
+            if buf is None or len(buf) < frame_bytes:
+                break
+            frame = np.frombuffer(buf, np.uint8).reshape(h, w, 3)
+            t = t0 + fi / sample_fps
+            res = yolo.track(frame, persist=True, conf=conf, tracker=tracker,
+                             verbose=False)[0]
+            kp = res.keypoints
+            ids = (res.boxes.id if res.boxes is not None else None)
+            if (kp is not None and kp.xy is not None and kp.conf is not None
+                    and ids is not None):
+                for person, tid in enumerate(ids.int().tolist()):
+                    xy = kp.xy[person].cpu().numpy().astype(np.float64)
+                    c = kp.conf[person].cpu().numpy().astype(np.float64)
+                    xy[c <= 0.0] = np.nan
+                    tr = tracks.setdefault(int(tid),
+                                           {"time": [], "frame": [],
+                                            "landmarks": []})
+                    tr["time"].append(t)
+                    tr["frame"].append(fi)
+                    tr["landmarks"].append(np.column_stack([xy, c]))
+            fi += 1
+    finally:
+        proc.stdout.close()
+        proc.wait()
+        stderr_thread.join()
+        proc.stderr.close()
+        err = b"".join(stderr_chunks).decode(errors="replace").strip()
+        if err and not stopped_early:
+            print(f"FFmpeg warnings while decoding {filename}:\n{err}")
+
+    for tr in tracks.values():
+        tr["time"] = np.asarray(tr["time"], dtype=np.float64)
+        tr["frame"] = np.asarray(tr["frame"], dtype=np.int64)
+        tr["landmarks"] = np.asarray(tr["landmarks"], dtype=np.float64)
+    if verbose:
+        spans = ", ".join(f"id {k}: {len(v['time'])}"
+                          for k, v in sorted(tracks.items()))
+        print(f"{os.path.basename(filename)}: {fi} frames, "
+              f"{len(tracks)} identities ({spans})")
+    return {"tracks": tracks, "n_frames": fi, "fps": sample_fps,
+            "width": w, "height": h, "names": list(COCO_KEYPOINT_NAMES)}
+
+
 def extract_pose_landmarks_yolo(
         filename: str,
         fps: float | None = None,
@@ -391,6 +542,8 @@ def extract_pose_landmarks_yolo(
         conf: float = 0.25,
         max_frames: int | None = None,
         target_name: str | None = None,
+        track: bool = False,
+        tracker: str = "bytetrack.yaml",
         verbose: bool = True) -> dict:
     """
     Run a YOLO pose model over a whole video: the Ultralytics twin of
@@ -432,6 +585,15 @@ def extract_pose_landmarks_yolo(
         target_name (str, optional): If given, also write the trajectories as a
             tidy CSV with columns ``time`` and ``<name>_x``, ``<name>_y``,
             ``<name>_v`` per keypoint. Defaults to None.
+        track (bool, optional): Follow one stable identity through Ultralytics'
+            tracker instead of the highest-confidence detection per frame. With
+            two bodies in frame the per-frame selection flips between them ---
+            two dancers, or a dancer and their projection on a screen --- and
+            tracking is the cure: the identity present in the most frames (ties
+            to higher confidence) is followed throughout. For every identity
+            separately, use :func:`extract_pose_tracks_yolo`. Defaults to False.
+        tracker (str, optional): Ultralytics tracker configuration, used when
+            ``track=True``. Defaults to "bytetrack.yaml".
         verbose (bool, optional): Print a one-line detection-rate summary.
             Defaults to True.
 
@@ -444,6 +606,36 @@ def extract_pose_landmarks_yolo(
         raise ValueError(f"t0 must be >= 0, got {t0!r}")
     if duration is not None and duration <= 0:
         raise ValueError(f"duration must be > 0, got {duration!r}")
+
+    if track:
+        data = extract_pose_tracks_yolo(
+            filename, fps=fps, width=width, t0=t0, duration=duration,
+            model=model, conf=conf, max_frames=max_frames, tracker=tracker,
+            verbose=False)
+        n_points = len(COCO_KEYPOINT_NAMES)
+        n = data["n_frames"]
+        lm = np.full((n, n_points, 3), np.nan)
+        det = np.zeros(n, dtype=bool)
+        if data["tracks"]:
+            def _rank(tr):
+                c = tr["landmarks"][:, :, 2]
+                return (len(tr["time"]),
+                        float(np.nanmean(c)) if c.size else 0.0)
+            primary = max(data["tracks"].values(), key=_rank)
+            lm[primary["frame"]] = primary["landmarks"]
+            det[primary["frame"]] = True
+        result = {"time": t0 + np.arange(n) / data["fps"], "landmarks": lm,
+                  "world": None, "detected": det,
+                  "detection_rate": float(det.mean()) if n else 0.0,
+                  "fps": data["fps"], "width": data["width"],
+                  "height": data["height"], "names": list(COCO_KEYPOINT_NAMES)}
+        if verbose:
+            print(f"{os.path.basename(filename)}: {n} frames at "
+                  f"{data['fps']:g} fps, primary identity present in "
+                  f"{100.0 * result['detection_rate']:.0f}% of frames.")
+        if target_name is not None:
+            _write_landmarks_csv(target_name, result)
+        return result
 
     try:
         from ultralytics import YOLO

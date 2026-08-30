@@ -87,3 +87,36 @@ class TestOnTheDancer:
         else:
             first = r["landmarks"][0]
             assert np.isfinite(first[:, :2]).any()
+
+
+@pytest.mark.skipif(not _yolo_available(), reason="ultralytics not installed")
+@pytest.mark.skipif(not os.path.exists(EXAMPLE_VIDEO), reason="example video missing")
+class TestTracking:
+    """Identity persistence: the cure for the top-confidence person flipping.
+
+    Measured on the corpus, per-frame top-confidence selection teleports the
+    trajectory whenever two bodies are in frame --- two real dancers, or a dancer
+    and their projected partner. Tracking follows one identity instead.
+    """
+
+    def test_tracked_extraction_keeps_the_twin_contract(self):
+        from musicalgestures._posetools import extract_pose_landmarks_yolo
+
+        r = extract_pose_landmarks_yolo(EXAMPLE_VIDEO, fps=6.0, width=320,
+                                        max_frames=12, track=True, verbose=False)
+        f = len(r["time"])
+        assert r["landmarks"].shape == (f, 17, 3)
+        assert r["detection_rate"] >= 0.5
+        assert r["names"] == list(COCO_KEYPOINT_NAMES)
+
+    def test_every_identity_is_returned_separately(self):
+        from musicalgestures._posetools import extract_pose_tracks_yolo
+
+        tracks = extract_pose_tracks_yolo(EXAMPLE_VIDEO, fps=6.0, width=320,
+                                          max_frames=12, verbose=False)
+        assert len(tracks["tracks"]) >= 1
+        tid, tr = max(tracks["tracks"].items(), key=lambda kv: len(kv[1]["time"]))
+        assert tr["landmarks"].shape == (len(tr["time"]), 17, 3)
+        #: The dancer is alone in the example, so one identity carries the video.
+        assert len(tr["time"]) >= 0.5 * tracks["n_frames"]
+        assert tracks["fps"] == 6.0

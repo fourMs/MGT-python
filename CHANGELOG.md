@@ -17,6 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   offered as proposals. Grounded per Haga: effort is fluctuation, not level;
   video reads dynamics through kinematics; QoM is the activation contour Effort
   qualifies.
+- **Per-person tracking for YOLO pose** — `extract_pose_tracks_yolo` returns every
+  identity's trajectory separately through Ultralytics' tracker, and
+  `extract_pose_landmarks_yolo(track=True)` follows the most persistent identity
+  instead of the per-frame highest-confidence detection. Measured on a dance
+  corpus, the per-frame selection teleports the trajectory whenever two bodies
+  share the frame — two dancers, or a dancer and their life-size projection on a
+  videoconference screen — and tracking is the cure.
 
 ## [1.26.0] — 2026-08-30
 
