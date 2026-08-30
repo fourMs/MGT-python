@@ -26,6 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   corpus, the per-frame selection teleports the trajectory whenever two bodies
   share the frame — two dancers, or a dancer and their life-size projection on a
   videoconference screen — and tracking is the cure.
+- **`skeleton_timeline`** — a timeline of stick figures: posture at sampled
+  moments drawn on a real time axis, each figure normalised by its own torso so
+  the strip reads posture rather than position. Moments without a usable
+  detection are skipped, so gaps are honest gaps in the tracking.
 
 ## [1.26.0] — 2026-08-30
 
