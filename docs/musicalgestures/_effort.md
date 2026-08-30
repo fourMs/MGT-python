@@ -53,6 +53,8 @@ and Space poles, with Flow as a further colouring element outside the combinatio
 a label says which octant of *this mover's* range a window falls in. The labels
 are proposals for looking with, never classifications.
 
+![The Effort profile of the bundled dancer, with basic-action proposals](../images/examples/dancer_effort_profile.png)
+
 ```python
 import numpy as np
 from musicalgestures._effort import effort_profile, basic_effort_actions
@@ -61,6 +63,11 @@ xy = np.load("trajectory.npy")        # (frames, 2) positions, e.g. a wrist
 profile = effort_profile(xy, fs=25.0, window_s=10.0)
 actions = basic_effort_actions(profile)
 ```
+
+`skeleton_timeline` draws the complementary picture—posture at sampled moments,
+which the Effort indices deliberately discard:
+
+![skeleton_timeline of the bundled dancer](../images/examples/dancer_skeleton_timeline.png)
 
 ## What the indices can and cannot claim
 
