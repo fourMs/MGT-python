@@ -65,6 +65,7 @@ Each page is rendered from the source docstrings by
 - [PoseEstimator](musicalgestures/_pose_estimator.md)
 - [Posetools](musicalgestures/_posetools.md)
 - [Posture](musicalgestures/_posture.md)
+- [Postures](musicalgestures/_postures.md)
 - [Pulse](musicalgestures/_pulse.md)
 - [Qom](musicalgestures/_qom.md)
 - [Remap360](musicalgestures/_remap360.md)

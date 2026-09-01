@@ -66,30 +66,58 @@ REGION_BONES: dict[str, list[tuple[int, int]]] = {
 }
 
 
-def normalise_poses(landmarks, min_visibility: float = 0.0):
+#: Hip and shoulder index pairs per landmark topology, keyed by landmark count, covering
+#: every skeleton the toolbox's extractors emit: MediaPipe's 33-point set, the 17-point
+#: COCO set every YOLO pose model emits, and OpenPose's BODY_25, COCO-18 and MPI-15
+#: (indices read off ``OPENPOSE_NAMES``). The anchors are what centring and scaling
+#: stand on, so recognising the topology here is what lets every consumer of
+#: `normalise_poses` swap detectors without touching the higher-level analysis.
+ANCHORS_BY_TOPOLOGY: dict[int, tuple[tuple[int, int], tuple[int, int]]] = {
+    33: (PELVIS, SHOULDERS),     # MediaPipe
+    25: ((9, 12), (2, 5)),       # OpenPose BODY_25
+    18: ((8, 11), (2, 5)),       # OpenPose COCO
+    17: ((11, 12), (5, 6)),      # COCO / YOLO
+    15: ((8, 11), (2, 5)),       # OpenPose MPI
+}
+
+
+def normalise_poses(landmarks, min_visibility: float = 0.0, anchors=None):
     """Centre each posture on the pelvis and scale it by torso length.
 
     Without this a dancer stepping towards the camera reads as a change of shape, because
     every coordinate grows at once.
 
     Args:
-        landmarks: `(frames, 33, 3)` as `extract_pose_landmarks` returns --- x, y and
-            visibility.
+        landmarks: `(frames, landmarks, 3)` --- x, y and visibility --- from any of the
+            toolbox's extractors: the topology is recognised by landmark count
+            (``ANCHORS_BY_TOPOLOGY``), so MediaPipe, YOLO and the OpenPose models all
+            work unchanged.
         min_visibility (float): Landmarks below this are not trusted. A frame whose anchor
             landmarks fail it becomes a gap.
+        anchors (tuple, optional): ``(hip_indices, shoulder_indices)`` for a topology the
+            registry does not know. Defaults to None, meaning recognise by count.
 
     Returns:
-        np.ndarray: `(frames, 33, 2)`, with **NaN for frames the detector missed**. Gaps
-        are not interpolated: filling them would invent posture.
+        np.ndarray: `(frames, landmarks, 2)`, with **NaN for frames the detector
+        missed**. Gaps are not interpolated: filling them would invent posture.
     """
     lm = np.asarray(landmarks, dtype=float)
     xy, visible = lm[..., :2].copy(), lm[..., 2]
 
-    anchors = list(PELVIS) + list(SHOULDERS)
+    if anchors is None:
+        try:
+            anchors = ANCHORS_BY_TOPOLOGY[xy.shape[1]]
+        except KeyError:
+            raise ValueError(
+                f"unrecognised landmark topology with {xy.shape[1]} landmarks; known "
+                f"counts are {sorted(ANCHORS_BY_TOPOLOGY)}. Pass anchors=(hips, "
+                f"shoulders) to use another skeleton.") from None
+    pelvis_idx, shoulder_idx = anchors
+    anchors = list(pelvis_idx) + list(shoulder_idx)
     usable = (visible[:, anchors] >= min_visibility).all(axis=1)
 
-    pelvis = xy[:, list(PELVIS)].mean(axis=1)
-    shoulder = xy[:, list(SHOULDERS)].mean(axis=1)
+    pelvis = xy[:, list(pelvis_idx)].mean(axis=1)
+    shoulder = xy[:, list(shoulder_idx)].mean(axis=1)
     scale = np.linalg.norm(shoulder - pelvis, axis=1)
     usable &= scale > 0
 

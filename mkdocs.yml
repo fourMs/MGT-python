@@ -57,6 +57,7 @@ nav:
       - Multi-shot: musicalgestures/_multishot.md
       - Segmentation and annotation:
           - Actions: musicalgestures/_actions.md
+          - Postures: musicalgestures/_postures.md
           - Hierarchy: musicalgestures/_hierarchy.md
           - Tracks: musicalgestures/_tracks.md
           - Timeline: musicalgestures/_timeline.md

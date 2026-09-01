@@ -184,6 +184,7 @@ class MgVideo(MgAudio):
     motion_video: "musicalgestures.MgVideo"
     motiondescriptors_figure: MgFigure
     actions: list
+    postures: list
     motion_plot_image: MgImage
     motiongram_y_image: MgImage
     motiongram_x_image: MgImage
@@ -283,6 +284,7 @@ class MgVideo(MgAudio):
     from musicalgestures._impacts import mg_impacts as impacts  # type: ignore[misc]
     from musicalgestures._grid import mg_grid as grid  # type: ignore[misc]
     from musicalgestures._actions import mg_actions as actions_from_motion  # type: ignore[misc]
+    from musicalgestures._postures import mg_postures as postures_from_pose  # type: ignore[misc]
     from musicalgestures._videoadjust import mg_resample as resample  # type: ignore[misc]
     from musicalgestures._motionvideo import save_analysis  # type: ignore[misc]
 
