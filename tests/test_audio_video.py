@@ -1,4 +1,4 @@
-"""Regression tests for the newer analysis functions: the audio–movement comparison suite,
+"""Regression tests for the newer analysis functions: the audio–motion comparison suite,
 video resampling, and the pose analysis renderers (tested with synthetic pose data so they
 don't require running pose inference / downloading model weights)."""
 import os
@@ -15,7 +15,7 @@ from musicalgestures._utils import resolve_filename
 # ---------------------------------------------------------------------------
 @pytest.fixture(scope="module")
 def clip(tmp_path_factory):
-    """A short clip (with audio) shared across the audio–movement tests."""
+    """A short clip (with audio) shared across the audio–motion tests."""
     target = str(tmp_path_factory.mktemp("av")).replace("\\", "/") + "/clip.avi"
     path = musicalgestures._utils.extract_subclip(musicalgestures.examples.dance, 2, 7, target_name=target)
     return MgVideo(path)
@@ -37,7 +37,7 @@ def _fake_pose_data(n_frames=60, n_markers=6, fps=30.0, seed=0):
 
 
 # ---------------------------------------------------------------------------
-# Audio–movement comparison suite
+# Audio–motion comparison suite
 # ---------------------------------------------------------------------------
 class Test_AudioMovement:
     def test_tempo_similarity(self, clip, tmp_path):

@@ -20,7 +20,7 @@ def _movement_qom(self):
     """Return (qom, fps): the per-frame quantity of motion (mean absolute frame difference).
 
     The result is cached on the MgVideo (keyed by filename) so that calling several
-    movement/audio-movement analyses in a row does not re-decode the video each time.
+    movement/audio–motion analyses in a row does not re-decode the video each time.
     """
     cache = getattr(self, '_qom_cache', None)
     if cache is not None and cache[0] == self.filename:
@@ -225,7 +225,7 @@ def mg_tempo_similarity(self, dpi: int = 300, autoshow: bool = True, title: str 
     from musicalgestures._utils import has_audio
 
     if not has_audio(self.filename):
-        print('The video has no audio track — cannot compare audio and movement tempo.')
+        print('The video has no audio track — cannot compare audio and motion tempo.')
         return None
 
     target_name = resolve_filename(self.of, '_tempo_similarity.png', target_name, overwrite)
@@ -249,7 +249,7 @@ def mg_tempo_similarity(self, dpi: int = 300, autoshow: bool = True, title: str 
     fs = 50.0  # Hz
     dur = min(a_t[-1] if len(a_t) else 0, m_t[-1] if len(m_t) else 0)
     if dur <= 0:
-        print('Audio and movement do not overlap in time.')
+        print('Audio and motion do not overlap in time.')
         return None
     t = np.arange(0, dur, 1.0 / fs)
     a = np.interp(t, a_t, oenv)
@@ -272,7 +272,7 @@ def mg_tempo_similarity(self, dpi: int = 300, autoshow: bool = True, title: str 
     fig.patch.set_facecolor('white')
     if title == 'filename':
         title = os.path.basename(self.filename)
-    fig.suptitle(title or 'Audio–movement tempo similarity', fontsize=14)
+    fig.suptitle(title or 'Audio–motion tempo similarity', fontsize=14)
 
     axes[0].plot(t, a, color='#1f77b4', lw=0.9, label=f'Audio onset (tempo {audio_tempo:.1f} BPM)')
     axes[0].plot(t, m, color='#d62728', lw=0.9, alpha=0.8, label=f'Movement QoM (tempo {motion_tempo:.1f} BPM)')

@@ -26,7 +26,7 @@ print(df.head())
 
 *The motion video the example produces.*
 
-### Example 2: Audio-Visual Analysis
+### Example 2: Audio–Video Analysis
 
 ```python
 import musicalgestures as mg
@@ -270,7 +270,7 @@ print(seg.data['stats'])          # mean angle, R, circular std, ROM, angular sp
 
 ![Pose segment circular statistics](images/examples/pose_segments.png)
 
-### Example 8d: Audio–movement analysis
+### Example 8d: Audio–motion analysis
 
 ```python
 import musicalgestures as mg
@@ -282,14 +282,14 @@ ts = mv.tempo_similarity()
 ts.show()
 print(ts.data['audio_tempo_bpm'], ts.data['motion_tempo_bpm'])
 
-# The rest of the audio–movement suite
+# The rest of the audio–motion suite
 mv.phase_synchrony().show()       # phase-locking value (rhythm)
 mv.structure_comparison().show()  # audio SSM vs. movement SSM
 mv.body_audio_coupling().show()   # which body parts track the music
 mv.dynamics_coupling().show()     # loudness vs. quantity of motion
 ```
 
-![Audio–movement tempo similarity](images/examples/tempo_similarity.png)
+![Audio–motion tempo similarity](images/examples/tempo_similarity.png)
 
 ### Example 12b: Sound–movement toolkit (pulse segmentation)
 
@@ -669,7 +669,7 @@ A visual tour of the outputs produced by the methods above. Each image was rende
 
 *`mv.audio.descriptors()`—combined audio feature summary.*
 
-### Audio–movement
+### Audio–motion
 
 **Tempo similarity**
 

@@ -101,7 +101,7 @@ mv.motionplots(audio_descriptors=True)                 # overlay on motion plots
 
 RMS energy, spectral flatness, centroid, bandwidth, and rolloff over time in one figure. `save_data=True` writes the per-frame time series with columns Time, RMS, Centroid, Bandwidth, Rolloff, RolloffMin, Flatness.
 
-## Audio–movement comparison
+## Audio–motion comparison
 
 `tempo_similarity()`, `phase_synchrony()`, `structure_comparison()`, `body_audio_coupling()`, and `dynamics_coupling()` compare the sound with the motion of the same performer. They live on `MgVideo`, since they need both tracks; see [Audio-Video Processing & Analysis](audio-video.md).
 

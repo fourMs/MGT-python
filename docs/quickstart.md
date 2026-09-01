@@ -178,7 +178,7 @@ mv.pose_segments().show()         # reuses cached pose keypoints if available
 
 ![Pose segment circular statistics](images/examples/pose_segments.png)
 
-### 6. Audio–movement tempo similarity
+### 6. Audio–motion tempo similarity
 
 `tempo_similarity()` compares the audio tempo with the movement tempo and cross-correlates the two rhythms:
 
@@ -189,7 +189,7 @@ ts.show()
 print(ts.data['audio_tempo_bpm'], ts.data['motion_tempo_bpm'])
 ```
 
-![Audio–movement tempo similarity](images/examples/tempo_similarity.png)
+![Audio–motion tempo similarity](images/examples/tempo_similarity.png)
 
 See the dedicated [Audio-Video Processing & Analysis](user-guide/audio-video.md) page for the full suite (phase synchrony, structure comparison, body–audio and dynamics coupling).
 

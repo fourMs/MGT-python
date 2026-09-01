@@ -47,9 +47,9 @@ warp.show()
 
 ---
 
-## Audio–movement analysis
+## Audio–motion analysis
 
-These reports estimate an audio envelope and a movement envelope from the same clip and compare
+These reports estimate an audio envelope and a motion envelope from the same clip and compare
 them, quantifying how similar the sound and the movement are.
 
 ### Tempo similarity
@@ -67,14 +67,14 @@ print(ts.data['audio_tempo_bpm'], ts.data['motion_tempo_bpm'])
 print(ts.data['tempo_ratio'], ts.data['nearest_harmonic'])
 ```
 
-![Audio–movement tempo similarity of dance.avi](../images/examples/tempo_similarity.png)
+![Audio–motion tempo similarity of dance.avi](../images/examples/tempo_similarity.png)
 *Top: audio onset strength vs. quantity of motion. Bottom: their cross-correlation, with the peak lag and tempo ratio annotated.*
 
 ### Phase synchrony
 
 `phase_synchrony()` band-passes both the audio onset envelope and the movement QoM to the tempo
 band `[fmin, fmax]` Hz and compares their instantaneous phases (Hilbert transform). It reports the
-**phase-locking value** (PLV, 0–1: how consistent the audio↔movement phase difference is) and draws
+**phase-locking value** (PLV, 0–1: how consistent the audio↔motion phase difference is) and draws
 a polar histogram of the phase difference.
 
 ```python
@@ -83,7 +83,7 @@ ps.show()
 print(ps.data)                                 # PLV, mean phase difference, …
 ```
 
-![Audio–movement phase synchrony of dance.avi](../images/examples/phase_synchrony.png)
+![Audio–motion phase synchrony of dance.avi](../images/examples/phase_synchrony.png)
 *Left: the band-passed audio and movement signals. Right: a polar histogram of the phase difference with the PLV.*
 
 ### Structure comparison

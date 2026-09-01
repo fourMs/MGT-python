@@ -79,8 +79,8 @@ not auto-render; `.show()` displays them.
 - **Pose estimation**: MediaPipe (default), YOLO, RTMPose and OpenPose backends on one trajectory contract, with trajectory summaries, motion trails, and per-segment statistics
 - **Segmentation**: actions cut from motion envelopes, postures cut from landmark trajectories, pulse and cycle segmentation, long-video segmentation, and person tracking
 - **Audio analysis**: waveforms, spectrograms, MFCC, chromagrams, tempo and beat tracking, and sonomotiongrams (motion turned into sound)
-- **Audio-movement analysis**: tempo similarity, phase synchrony, structural similarity, and per-body-part audio coupling for a single performer
-- **Sound-movement research toolkit**: lower-level, array-based functions for pulse and cycle segmentation, cross-modal alignment, quantity of motion, postural sway, physiology, and motion-capture I/O—see the [Sound-Movement Analysis Toolkit](user-guide/sound-movement-toolkit.md)
+- **Audio–motion analysis**: tempo similarity, phase synchrony, structural similarity, and per-body-part audio coupling for a single performer
+- **Sound–movement research toolkit**: lower-level, array-based functions for pulse and cycle segmentation, cross-modal alignment, quantity of motion, postural sway, physiology, and motion-capture I/O—see the [Sound–Movement Analysis Toolkit](user-guide/sound-movement-toolkit.md)
 - **360 video**: projection handling, per-direction views, the anglegram, and audio-energy-map overlays—see [Video Analysis](user-guide/video-analysis.md)
 - **Integration**: works with the NumPy, SciPy, librosa, and Matplotlib ecosystems, on Linux, macOS, and Windows
 

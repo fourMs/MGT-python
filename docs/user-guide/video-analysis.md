@@ -270,7 +270,7 @@ mv.pose_distance().show()               # cumulative distance travelled per mark
 !!! tip "GPU acceleration"
     `pose(model='mediapipe', device='gpu')` works with the standard pip OpenCV. The OpenCV-based methods (`flow.dense(use_gpu=True)`, `blur_faces(use_gpu=True)`, OpenPose `device='gpu'`) need OpenCV built with CUDA; check with `mg.cuda_build_available()`.
 
-## Audio–movement analysis
+## Audio–motion analysis
 
 Reports comparing a performer's sound with their movement have their own page: [Audio-Video Processing & Analysis](audio-video.md).
 

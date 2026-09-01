@@ -42,7 +42,7 @@ nav:
       - Pose Tracking: user-guide/pose-tracking.md
       - Audio Analysis: user-guide/audio-analysis.md
       - Audio-Video Analysis: user-guide/audio-video.md
-      - Sound-Movement Analysis Toolkit: user-guide/sound-movement-toolkit.md
+      - Sound–Movement Analysis Toolkit: user-guide/sound-movement-toolkit.md
   - Reference:
       - Overview: musicalgestures/index.md
       - Core Classes: user-guide/core-classes.md

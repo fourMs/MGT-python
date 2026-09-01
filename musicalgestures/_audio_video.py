@@ -1,5 +1,5 @@
 """
-Audio–movement comparison reports for a single performer: tools to reveal how a dancer's
+Audio–motion comparison reports for a single performer: tools to reveal how a dancer's
 movement relates to the sound — phase synchrony, structural similarity, per-body-part coupling,
 and energy/dynamics coupling.
 
@@ -20,7 +20,7 @@ from musicalgestures._utils import MgFigure, generate_outfilename, resolve_filen
 def _audio_env(self, kind: str = 'onset'):
     """Return (env, times, sr): the audio onset-strength ('onset') or loudness ('rms') envelope.
 
-    Cached on the MgVideo (keyed by filename + kind) so repeated audio–movement analyses reuse it.
+    Cached on the MgVideo (keyed by filename + kind) so repeated audio–motion analyses reuse it.
     """
     import librosa
     cache = getattr(self, '_audio_env_cache', {})
@@ -72,7 +72,7 @@ def mg_phase_synchrony(self, fmin: float = 0.5, fmax: float = 4.0, fs: float = 5
     Both the audio onset-strength envelope and the movement quantity-of-motion envelope are
     band-pass filtered to the tempo band [``fmin``, ``fmax``] Hz, and their instantaneous phases
     (via the Hilbert transform) are compared. The **phase-locking value** (PLV, 0–1) summarises the
-    consistency of the audio↔movement phase difference; a polar histogram shows its distribution.
+    consistency of the audio↔motion phase difference; a polar histogram shows its distribution.
 
     Returns an MgFigure (metrics in ``.data``), or None if the video has no audio.
     """
@@ -90,7 +90,7 @@ def mg_phase_synchrony(self, fmin: float = 0.5, fmax: float = 4.0, fs: float = 5
     t_m = np.arange(len(qom)) / max(fps, 1e-9)
     t, a, m = _common_grid(t_a, oenv, t_m, qom, fs)
     if t is None or len(t) < 8:
-        print('Audio and movement do not overlap enough in time.')
+        print('Audio and motion do not overlap enough in time.')
         return None
 
     ny = fs / 2.0
@@ -108,7 +108,7 @@ def mg_phase_synchrony(self, fmin: float = 0.5, fmax: float = 4.0, fs: float = 5
     fig.patch.set_facecolor('white')
     if title == 'filename':
         title = os.path.basename(self.filename)
-    fig.suptitle(title or 'Audio–movement phase synchrony', fontsize=14)
+    fig.suptitle(title or 'Audio–motion phase synchrony', fontsize=14)
 
     ax1 = fig.add_subplot(1, 2, 1)
     ax1.plot(t, af, color='#1f77b4', lw=0.8, label='Audio (band-passed)')
@@ -359,7 +359,7 @@ def mg_dynamics_coupling(self, fs: float = 50.0, max_lag: float = 2.0, dpi: int 
     t_m = np.arange(len(qom)) / max(fps, 1e-9)
     t, a, m = _common_grid(t_a, rms, t_m, qom, fs)
     if t is None or len(t) < 8:
-        print('Audio and movement do not overlap enough in time.')
+        print('Audio and motion do not overlap enough in time.')
         return None
     az, mz = _z(a), _z(m)
 
