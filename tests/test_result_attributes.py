@@ -9,7 +9,7 @@ import pytest
 import musicalgestures as mg
 
 CONFORMING = [
-    "blend_image", "blur_faces_video", "body_audio_coupling_figure",
+    "blend_image", "blur_faces_video", "motion_audio_coupling_figure",
     "dynamics_coupling_figure", "eulerian_video", "heatmap_image",
     "history_video", "mhi_image", "motion_video", "motiondescriptors_figure",
     "motionvectors_video", "phase_synchrony_figure", "pose_centered_figure",

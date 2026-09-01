@@ -82,8 +82,8 @@ Every analysis method returns its result and also stores it on the video it was 
 | `motiondescriptors()` | `motiondescriptors_figure` |
 | `beat_statistics()` | `movement_beat_statistics_figure` |
 | `tempo_similarity()` | `tempo_similarity_figure` |
-| `phase_synchrony()`, `structure_comparison()`, `body_audio_coupling()`, `dynamics_coupling()` | `phase_synchrony_figure`, `structure_comparison_figure`, `body_audio_coupling_figure`, `dynamics_coupling_figure` |
-| `warp_audiovisual_beats()` | `warp_video` |
+| `phase_synchrony()`, `structure_comparison()`, `motion_audio_coupling()`, `dynamics_coupling()` | `phase_synchrony_figure`, `structure_comparison_figure`, `motion_audio_coupling_figure`, `dynamics_coupling_figure` |
+| `warp_audiomotion_beats()` | `warp_video` |
 
 The gram attributes are named for the position axis each keeps: `motiongram_x_image` keeps horizontal position and is the tall picture with time downward, `motiongram_y_image` keeps vertical position and is the wide picture with time rightward. The picture-named attributes (`motiongram_vertical_image`, `motiongram_horizontal_image`, and the videogram pair) still resolve with a deprecation warning until 2.0.
 
@@ -93,6 +93,9 @@ Older names still work and are removed in 2.0. If a script uses one, the value i
 
 | old | new |
 |---|---|
+| `body_audio_coupling_figure` | `motion_audio_coupling_figure` |
+| `body_audio_coupling()` | `motion_audio_coupling()` |
+| `warp_audiovisual_beats()` | `warp_audiomotion_beats()` |
 | `motion_plot` | `motion_plot_image` |
 | `motiongram_x` | `motiongram_x_image` |
 | `motiongram_y` | `motiongram_y_image` |

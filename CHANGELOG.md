@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Cross-modal names match their level of description** — following the four
+  levels of *Sensing Sound and Music* (physical, digital, perception,
+  interpretation), pairings no longer cross rows: `body_audio_coupling()` is
+  now `motion_audio_coupling()` (attribute
+  `motion_audio_coupling_figure`), and `warp_audiovisual_beats()` is now
+  `warp_audiomotion_beats()`. The old names keep working through one release
+  and warn; the comparison-suite prose, figure titles and printed messages say
+  audio–motion throughout, and "sound file" is "audio file" wherever the thing
+  named is a file.
+
 ## [1.30.0] — 2026-09-01
 
 ### Added

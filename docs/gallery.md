@@ -44,8 +44,8 @@ the index to use.
 |---|---|---|
 | [![Spectrogram](images/examples/spectrogram.png)](user-guide/audio-analysis.md) | [![Tempogram](images/examples/tempogram.png)](user-guide/audio-analysis.md) | [![Chromagram](images/examples/chromagram.png)](user-guide/audio-analysis.md) |
 | spectrogram | tempogram | chromagram |
-| [![Phase synchrony](images/examples/phase_synchrony.png)](user-guide/audio-video.md) | [![Tempo similarity](images/examples/tempo_similarity.png)](user-guide/audio-video.md) | [![Body-audio coupling](images/examples/body_audio_coupling.png)](user-guide/audio-video.md) |
-| phase synchrony | tempo similarity | body–audio coupling |
+| [![Phase synchrony](images/examples/phase_synchrony.png)](user-guide/audio-video.md) | [![Tempo similarity](images/examples/tempo_similarity.png)](user-guide/audio-video.md) | [![Motion–audio coupling](images/examples/body_audio_coupling.png)](user-guide/audio-video.md) |
+| phase synchrony | tempo similarity | motion–audio coupling |
 | [![Pulse segmentation](images/examples/pulse_segmentation.gif)](user-guide/sound-movement-toolkit.md) | [![Cross-modal alignment](images/examples/alignment_xcorr.gif)](user-guide/sound-movement-toolkit.md) | [![Structure comparison](images/examples/structure_comparison.png)](user-guide/audio-video.md) |
 | pulse segmentation | cross-modal alignment | structure comparison |
 

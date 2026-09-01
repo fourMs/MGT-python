@@ -258,10 +258,10 @@ def mg_show(self, filename: str | None = None, key: str | None = None, mode: str
             if "warp_video" in keys:
                 filename = self.warp_video.filename
                 show(file=filename, width=window_width,
-                     height=window_height, mode=mode, title=f'Warp Audiovisual Video | {filename}', parent=self, **ipython_kwargs)
+                     height=window_height, mode=mode, title=f'Warp Audio–Motion Beats | {filename}', parent=self, **ipython_kwargs)
             else:
                 raise FileNotFoundError(
-                    "There is no known warp audiovisual beats video for this file.")
+                    "There is no known warp audio–motion beats video for this file.")
 
         elif key.lower() == 'blur':
             if "blur_faces_video" in keys:

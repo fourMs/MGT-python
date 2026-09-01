@@ -41,7 +41,7 @@ Supported key values:
 | `'sparse'` | Sparse optical flow video |
 | `'dense'` | Dense optical flow video |
 | `'pose'` | Pose estimation video |
-| `'warp'` | Warped audiovisual beats video |
+| `'warp'` | Warped audio–motion beats video |
 | `'subtract'` | Background-subtracted video |
 | `'blur'` | Face-anonymised video |
 

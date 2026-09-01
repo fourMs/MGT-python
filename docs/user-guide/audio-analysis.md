@@ -103,7 +103,7 @@ RMS energy, spectral flatness, centroid, bandwidth, and rolloff over time in one
 
 ## Audio–motion comparison
 
-`tempo_similarity()`, `phase_synchrony()`, `structure_comparison()`, `body_audio_coupling()`, and `dynamics_coupling()` compare the sound with the motion of the same performer. They live on `MgVideo`, since they need both tracks; see [Audio-Video Processing & Analysis](audio-video.md).
+`tempo_similarity()`, `phase_synchrony()`, `structure_comparison()`, `motion_audio_coupling()`, and `dynamics_coupling()` compare the sound with the motion of the same performer. They live on `MgVideo`, since they need both tracks; see [Audio-Video Processing & Analysis](audio-video.md).
 
 ## Signal-analysis utilities
 

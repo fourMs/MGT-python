@@ -171,7 +171,7 @@ class MgVideo(MgAudio):
     average_pose: MgImage
     blend_image: MgImage
     blur_faces_video: "musicalgestures.MgVideo"
-    body_audio_coupling_figure: MgFigure
+    motion_audio_coupling_figure: MgFigure
     dynamics_coupling_figure: MgFigure
     eulerian_video: "musicalgestures.MgVideo"
     flow_dense_video: "musicalgestures.MgVideo"
@@ -254,6 +254,8 @@ class MgVideo(MgAudio):
         "motiongram_horizontal_image", "motiongram_y_image")
     movement_beat_statistics = deprecated_alias(
         "movement_beat_statistics", "movement_beat_statistics_figure")
+    body_audio_coupling_figure = deprecated_alias(
+        "body_audio_coupling_figure", "motion_audio_coupling_figure")
     pose_average = deprecated_alias("pose_average", "pose_average_image")
     pose_trajectories = deprecated_alias("pose_trajectories", "pose_trajectories_image")
     ssm_combined = deprecated_alias("ssm_combined", "ssm_combined_image")
@@ -263,6 +265,20 @@ class MgVideo(MgAudio):
         "videogram_vertical_image", "videogram_x_image")
     videogram_horizontal_image = deprecated_alias(
         "videogram_horizontal_image", "videogram_y_image")
+
+    # Retired method names, kept working for one release, mirroring the attribute
+    # aliases above: the pairing words now match their level of description.
+    def warp_audiovisual_beats(self, *args, **kwargs):
+        """Retired name: use :meth:`warp_audiomotion_beats`."""
+        warnings.warn("warp_audiovisual_beats() is deprecated and will be removed in 2.0; "
+                      "use warp_audiomotion_beats().", DeprecationWarning, stacklevel=2)
+        return self.warp_audiomotion_beats(*args, **kwargs)
+
+    def body_audio_coupling(self, *args, **kwargs):
+        """Retired name: use :meth:`motion_audio_coupling`."""
+        warnings.warn("body_audio_coupling() is deprecated and will be removed in 2.0; "
+                      "use motion_audio_coupling().", DeprecationWarning, stacklevel=2)
+        return self.motion_audio_coupling(*args, **kwargs)
 
     # Methods are bound by importing the implementing function at class scope. mypy calls this
     # "Unsupported class scoped import" and it is the toolbox's central idiom, so the ignores
@@ -278,7 +294,7 @@ class MgVideo(MgAudio):
     from musicalgestures._videograms import videograms_ffmpeg as videograms  # type: ignore[misc]
     from musicalgestures._directograms import mg_directograms as directograms  # type: ignore[misc]
     from musicalgestures._warp import (  # type: ignore[misc]
-        mg_warp_audiovisual_beats as warp_audiovisual_beats,
+        mg_warp_audiomotion_beats as warp_audiomotion_beats,
     )
     from musicalgestures._blurfaces import mg_blurfaces as blur_faces  # type: ignore[misc]
     from musicalgestures._impacts import mg_impacts as impacts  # type: ignore[misc]
@@ -334,7 +350,7 @@ class MgVideo(MgAudio):
     from musicalgestures._audio_video import (  # type: ignore[misc]
         mg_phase_synchrony as phase_synchrony,
         mg_structure_comparison as structure_comparison,
-        mg_body_audio_coupling as body_audio_coupling,
+        mg_motion_audio_coupling as motion_audio_coupling,
         mg_dynamics_coupling as dynamics_coupling,
     )
     from musicalgestures._pose import pose  # type: ignore[misc]

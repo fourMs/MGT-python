@@ -278,7 +278,7 @@ Reports comparing a performer's sound with their movement have their own page: [
 mv.tempo_similarity().show()      # audio tempo vs motion tempo
 mv.phase_synchrony().show()       # phase-locking value (PLV)
 mv.structure_comparison().show()  # audio SSM vs movement SSM + difference
-mv.body_audio_coupling().show()   # which body parts track the music
+mv.motion_audio_coupling().show()   # which body parts track the music
 mv.dynamics_coupling().show()     # audio loudness vs quantity of motion
 ```
 
@@ -306,12 +306,12 @@ mv.blur_faces(mask='image', mask_image='/path/to/mask.jpg')
 heatmap = mv.blur_faces(draw_heatmap=True, neighbours=128, resolution=500, save_data=False)
 ```
 
-## Warp audiovisual beats
+## Warp audio–motion beats
 
-`warp_audiovisual_beats()` aligns visual beats (from directograms) with audio beats to create a re-timed video (returns `MgVideo`). Its building blocks are available directly: `directograms()` factors motion magnitude into angular bins over time, like a spectrogram with angles replacing frequencies, and `impacts()` derives visual onset envelopes from directogram deceleration. Both return `MgFigure`.
+`warp_audiomotion_beats()` aligns the motion beats (Davis's visual beats, from directograms) with audio beats to create a re-timed video (returns `MgVideo`). Its building blocks are available directly: `directograms()` factors motion magnitude into angular bins over time, like a spectrogram with angles replacing frequencies, and `impacts()` derives visual onset envelopes from directogram deceleration. Both return `MgFigure`.
 
 ```python
-warp = mv.warp_audiovisual_beats('/path/to/audio.wav')
+warp = mv.warp_audiomotion_beats('/path/to/audio.wav')
 directograms = mv.directograms()    # data in .data['directogram']
 impacts = mv.impacts(detection=True, local_mean=0.1, local_maxima=0.15)
 ```

@@ -37,11 +37,11 @@ son.spectrogram().show()
 
 ### Beat-aligned video (warp)
 
-`warp_audiovisual_beats()` temporally aligns the *visual* beats (extracted from directograms) with
+`warp_audiomotion_beats()` temporally aligns the motion beats (Davis's visual beats, extracted from directograms) with
 the *audio* beats to produce a re-timed video in which movement and music fall together.
 
 ```python
-warp = mv.warp_audiovisual_beats('/path/to/audio.wav')  # returns MgVideo
+warp = mv.warp_audiomotion_beats('/path/to/audio.wav')  # returns MgVideo
 warp.show()
 ```
 
@@ -104,17 +104,17 @@ sc.show()
 
 ### Body–audio coupling
 
-`body_audio_coupling()` correlates each pose marker's speed with the audio onset envelope,
+`motion_audio_coupling()` correlates each pose marker's speed with the audio onset envelope,
 revealing which body parts are most rhythmically tied to the music. The figure shows a body map (the
 average pose with markers coloured by correlation) plus a ranked bar chart, and a CSV of per-marker
 correlations. It reuses cached pose keypoints or runs `pose()` first (pose kwargs forwarded).
 
 ```python
-bc = mv.body_audio_coupling(cmap='coolwarm')   # returns MgFigure (+ CSV)
+bc = mv.motion_audio_coupling(cmap='coolwarm')   # returns MgFigure (+ CSV)
 bc.show()
 ```
 
-![Per-body-part audio coupling of dance.avi](../images/examples/body_audio_coupling.png)
+![Per-body-part motion–audio coupling of dance.avi](../images/examples/body_audio_coupling.png)
 *Each marker coloured by how strongly its speed correlates with the audio onset envelope, plus a ranked bar chart.*
 
 ### Dynamics coupling

@@ -235,7 +235,7 @@ def mg_structure_comparison(self, n: int = 200, dpi: int = 300, cmap: str = 'mag
 # ---------------------------------------------------------------------------
 # 3) Per-body-part audio coupling
 # ---------------------------------------------------------------------------
-def mg_body_audio_coupling(self, dpi: int = 300, cmap: str = 'coolwarm', dot_size: int = 260, autoshow: bool = True,
+def mg_motion_audio_coupling(self, dpi: int = 300, cmap: str = 'coolwarm', dot_size: int = 260, autoshow: bool = True,
                            title: str | None = None, target_name: str | None = None, overwrite: bool = True, **pose_kwargs) -> "MgFigure | None":
     """
     Map which body parts are most rhythmically coupled to the music.
@@ -263,7 +263,7 @@ def mg_body_audio_coupling(self, dpi: int = 300, cmap: str = 'coolwarm', dot_siz
     names, connections = c['names'], c.get('connections') or []
     width, height, fps = c['width'], c['height'], c['fps']
 
-    target_name = resolve_filename(c['of'], '_body_audio_coupling.png', target_name, overwrite)
+    target_name = resolve_filename(c['of'], '_motion_audio_coupling.png', target_name, overwrite)
 
     coords, _ = _positions_from_data(c['data'], len(names))  # (T, n, 2) normalised
     px = coords * np.array([width, height])
@@ -326,8 +326,8 @@ def mg_body_audio_coupling(self, dpi: int = 300, cmap: str = 'coolwarm', dot_siz
 
     d = {'correlations': stats, 'mean_abs_correlation': round(float(np.nanmean(np.abs(corrs))), 3),
          'fps': fps, 'sr': sr}
-    mgf = MgFigure(figure=fig, figure_type='video.body_audio_coupling', data=d, layers=None, image=target_name)
-    self.body_audio_coupling_figure = mgf
+    mgf = MgFigure(figure=fig, figure_type='video.motion_audio_coupling', data=d, layers=None, image=target_name)
+    self.motion_audio_coupling_figure = mgf
     return mgf
 
 

@@ -32,16 +32,16 @@ def beats_diff(beats, media):
     beats_diff = np.append(diff, media.shape[0] - beats[-1])
     return beats_diff
 
-def mg_warp_audiovisual_beats(self: "musicalgestures.MgVideo", audio_file: str, speed: tuple = (0.5, 2), data=None, filtertype: str = 'Adaptative', threshold: float = 0.05, kernel_size: int = 5, target_name: str | None = None, overwrite: bool = True) -> "musicalgestures.MgVideo":
+def mg_warp_audiomotion_beats(self: "musicalgestures.MgVideo", audio_file: str, speed: tuple = (0.5, 2), data=None, filtertype: str = 'Adaptative', threshold: float = 0.05, kernel_size: int = 5, target_name: str | None = None, overwrite: bool = True) -> "musicalgestures.MgVideo":
     """
-    Warp audio beats with visual beats (patterns of motion that can be shifted in time to control visual rhythm).
+    Warp the motion beats of the video to align with the audio beats. Davis calls these visual beats, patterns of motion that can be shifted in time to control visual rhythm; in this toolbox's terms they are motion beats, since they are computed from the directogram rather than perceived.
     Visual beats are warped after computing a directogram which factors the magnitude of motion in the video into different angles.
 
     Source: Abe Davis -- [Visual Rhythm and Beat](http://www.abedavis.com/files/papers/VisualRhythm_Davis18.pdf) (section 5)
 
     Args:
         audio_file (str): Path to the audio file.
-        speed (tuple, optional): Speed's change between the audiovisual beats which can be adjusted to slow down or speed up the visual rhythms. Defaults to (0.5,2).
+        speed (tuple, optional): Speed's change between the audio and motion beats which can be adjusted to slow down or speed up the visual rhythms. Defaults to (0.5,2).
         data (array_like, optional): Computed directogram data can be added separately to avoid the directogram processing time (which can be quite long). Defaults to None.
         filtertype (str, optional): 'Regular' turns all values below `threshold` to 0. 'Binary' turns all values below `threshold` to 0, above `threshold` to 1. 'Blob' removes individual pixels with erosion method. 'Adaptative' perform adaptative threshold as the weighted sum of 11 neighborhood pixels where weights are a Gaussian window. Defaults to 'Adaptative'.
         threshold (float, optional): Eliminates pixel values less than given threshold. Ranges from 0 to 1. Defaults to 0.05.
@@ -67,7 +67,7 @@ def mg_warp_audiovisual_beats(self: "musicalgestures.MgVideo", audio_file: str, 
 
     # COMPUTE AUDIO AND VISUAL BEATS --------------------------------------------------------------------------------------------
 
-    pb = MgProgressbar(total=130, prefix='Warping audiovisual beats:')
+    pb = MgProgressbar(total=130, prefix='Warping audio–motion beats:')
     pb.progress(0)
     # audio_source is a no-op for a real audio file and extracts the track if a video
     # is passed instead, which librosa 1.0 can no longer open by itself.
@@ -146,7 +146,7 @@ def mg_warp_audiovisual_beats(self: "musicalgestures.MgVideo", audio_file: str, 
     pb.progress(60)
     visual_beats_sync = np.cumsum(visual_differences_sync[:-1])
        
-    # RENDER AUDIOVISUAL BEATS --------------------------------------------------------------------------------------------------
+    # RENDER AUDIO-MOTION BEATS --------------------------------------------------------------------------------------------------
     pb.progress(65)
     of, fex = os.path.splitext(self.filename)
 
