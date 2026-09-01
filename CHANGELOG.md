@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.30.0] — 2026-09-01
+
+### Added
+- **The static row: postures, and poses as labels** — new `_postures` module,
+  the static counterpart of `_actions` under the toolbox's two-row scheme
+  (motion/action/gesture over position/posture/pose, following *Sound Actions*
+  pp. 68–69; the five-field terminology review behind the wording is in
+  `plans/2026-09-01-position-posture-pose-terminology.md`). `segment_postures`
+  cuts landmark trajectories into held configurations on a Movement–Hold
+  criterion (stationarity judged at the 95th-percentile landmark, in
+  body-normalised torso lengths per second, so thresholds transfer between
+  bodies and spaces); `key_postures` groups the configurations a body returns
+  to, without a fixed catalogue of standing and sitting; `average_posture`
+  gives a recording's habitual carriage as the median configuration;
+  `match_postures` proposes a pose by example, as a label attached to matching
+  postures — segmentation kept apart from recognition, exactly as in
+  `_actions`. Bound on `MgVideo` as `postures_from_pose()`.
+- **Detector-agnostic normalisation** — `normalise_poses` recognises the
+  landmark topology by count (MediaPipe-33, YOLO/COCO-17, OpenPose BODY_25,
+  COCO-18 and MPI-15, via `ANCHORS_BY_TOPOLOGY`) and takes an `anchors=`
+  override for unknown skeletons, so the higher-level layers work unchanged
+  when the tracking model is swapped. Validated on this project's YOLO-tracked
+  dance corpus through code written against MediaPipe.
+
+### Changed
+- **Jitter-robust stationarity** — configuration change is measured as the
+  displacement of the window-median configuration across a 0.4 s stride,
+  after corpus footage showed a seated dancer's high-confidence knee
+  fluttering within 1.2 px (flat across lags — pure detector jitter) yet
+  reading as 0.15 torso lengths per second on a 43 px foreshortened torso.
+  Jitter does not accumulate across the stride; a real transition does.
+
 ## [1.29.0] — 2026-08-31
 
 ### Added

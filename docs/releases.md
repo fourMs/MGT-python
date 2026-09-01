@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.29.0**.
+The current stable release is **MGT-python 1.30.0**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,24 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.30.0
+
+The static row: postures found, poses proposed.
+
+The toolbox's motion/action/gesture ladder gains its static counterpart —
+position, posture, pose, following *Sound Actions* and a five-field terminology
+review. The new `_postures` module cuts landmark trajectories into held
+configurations (`segment_postures`, on a Movement–Hold stationarity criterion in
+body-normalised units), groups the configurations a body returns to
+(`key_postures`), gives a recording's habitual carriage (`average_posture`), and
+proposes poses by example as labels on postures (`match_postures`) — segmentation
+kept apart from recognition, exactly as in `_actions`. Underneath,
+`normalise_poses` now recognises the landmark topology by count, so MediaPipe,
+YOLO and the OpenPose skeletons all feed the same higher-level analysis, and
+stationarity is measured jitter-robustly after a seated dancer's 1 px knee
+flutter taught the criterion the difference between a detector trembling and a
+body moving.
 
 ### 1.29.0
 
