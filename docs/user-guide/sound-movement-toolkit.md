@@ -1,165 +1,91 @@
 # Sound–Movement Analysis Toolkit
 
 Alongside the `MgVideo`/`MgAudio` methods, MGT-python ships a lower-level toolkit of
-plain-numpy sound–movement analysis functions, ported from the author's own research
-pipelines: the ro ritual-drumming study, the stillstanding/standstill-championship
-posturography study, the Westney with/without-audience piano comparisons, and the
-**cymbal**-comparison striking study. Unlike the `MgVideo`/`MgAudio` methods, these functions
-operate directly on numpy arrays (onset times, position/landmark trajectories, waveforms)—no
- video decoding or rendering—so they drop straight into notebooks, batch scripts, or your
-own analysis pipeline. Every function is importable directly from `musicalgestures` (except
-where noted) and documents its own provenance and default-parameter caveats in its docstring;
-see the [API Reference](../musicalgestures/index.md) for full signatures.
-
----
+plain-numpy sound–movement analysis functions, ported from the author's research pipelines.
+They operate directly on arrays—onset times, trajectories, waveforms—with no video decoding
+or rendering, and every function is importable from `musicalgestures` except where noted.
+This page is a task reference; the course treatment, with worked narratives and study
+context, is in
+[chapter 11](https://github.com/fourMs/MGT-python/wiki/11-%E2%80%90-Pulse,-Cycles-and-Alignment)
+and
+[chapter 13](https://github.com/fourMs/MGT-python/wiki/13-%E2%80%90-Motion,-Audio-and-Posturography-Toolkit)
+of the wiki course.
 
 ## Peak-picking core
 
-`pick_peaks(x, fs=1.0, smooth=3, rel_threshold=0.5, min_interval=0.3, rel_prominence=0.2, ...)`
-(`_peaks`) is the single adaptive peak-picker—moving-average smoothing, a relative or
-absolute amplitude threshold, a minimum inter-peak interval, and an optional prominence gate—shared
-by the event detectors in `_pulse` and `_audiofeatures`. Its docstring records the provisional per-signal-type defaults used across
-the source studies (e.g. hand-acceleration impacts vs. audio energy onsets vs. wrist-speed
-peaks); tune the parameters to the signal at hand rather than relying on the defaults.
+```python
+from musicalgestures import pick_peaks
 
----
+idx = pick_peaks(qom_curve, fs=30.0, rel_threshold=0.4, min_interval=0.2)
+```
 
-## Pulse and cycle segmentation (`_pulse`)
+`pick_peaks()` is the single adaptive peak-picker shared by the event detectors in `_pulse`
+and `_audiofeatures`; it returns integer sample indices. Suitable values differ by signal
+type, so tune the parameters rather than relying on the defaults, which the docstring
+records as provisional.
 
-Tools for accelerating rhythmic sequences (developed for the *ro* ritual's accelerating
-double-drum-stroke cycles): group onsets into per-cycle stroke groups, tabulate per-cycle
-metrics, and fit an exponential accelerando.
+## Pulse and cycle segmentation
 
 ```python
 import numpy as np
-from musicalgestures import segment_cycles, cycle_table, fit_accelerando, motion_onsets
+from musicalgestures import segment_cycles, cycle_table, fit_accelerando
 
 onsets = np.array([0.10, 0.34, 1.02, 1.24, 1.85, 2.02, 2.55, 2.68])   # seconds
-cycles = segment_cycles(onsets)                    # list[Cycle]: DP segmentation over stroke gaps
-table = cycle_table(cycles, clip_id='ro_2023')      # per-cycle DataFrame (t, ioi, n_strokes, ...)
+cycles = segment_cycles(onsets)                 # list[Cycle]
+table = cycle_table(cycles, clip_id='take01')   # per-cycle DataFrame (t, ioi, n_strokes, ...)
 ioi0, t_double, r2 = fit_accelerando(table['t'], table['ioi'])
-print(f"tempo doubles every {t_double:.1f}s (R²={r2:.2f})")
-
-# Steepest sustained rises of a motion signal (e.g. per-frame QoM), for
-# correlating movement onsets with the stroke cycles above:
-motion_times = motion_onsets(qom_signal, fs=25.0)
 ```
 
-![Pulse segmentation: detected onsets are grouped into numbered stroke cycles, and fit_accelerando fits an exponential accelerando to the per-cycle IOIs](../images/examples/pulse_segmentation.gif)
+`segment_cycles()` groups onsets into stroke cycles by dynamic programming, `cycle_table()`
+tabulates per-cycle metrics, and `fit_accelerando()` fits an exponential accelerando.
+`motion_onsets()` returns the steepest sustained rises of a motion signal, for correlating
+movement with the cycles.
 
-`group_strokes()` (used internally by `segment_cycles`) segments onsets by dynamic programming
-over candidate group boundaries, encoding structural priors for accelerating cyclic patterns
-(group-size cost, within-group gap plausibility, ordering, and a non-increasing-gap
-accelerando prior). `Cycle` is a small dataclass (`index`, `strokes`, `event`,
-plus `t_start`/`n_strokes`/`stroke_gap` properties).
-
----
-
-## Cross-modal alignment (`_alignment`)
-
-Lead/lag and coupling between two (or more) time-aligned signals, the audio-vs-movement
-counterpart of the `_pulse` module.
-
-- `xcorr_lag(x, y, fs, max_lag=1.5)` / `envelope_lag(...)`—cross-correlation lead/lag between
-  two envelopes.
-- `per_cycle_motion_delta(...)`—per-cycle timing offset between a stroke cycle and a motion
-  onset.
-- `anchor_and_match(...)` / `offset_stats(...)`—one-to-one event matching against an anchor
-  stream, with offset summary statistics.
-- `sliding_correlation(...)`—windowed correlation over time (does coupling drift?).
-- `envelope_agreement(...)`—N-source envelope agreement score.
+## Cross-modal alignment
 
 ```python
-from musicalgestures import xcorr_lag
+from musicalgestures import xcorr_lag, anchor_and_match, offset_stats
 
-lag, corr = xcorr_lag(audio_envelope, motion_envelope, fs=25.0, max_lag=1.5)
-print(f"movement lags audio by {lag:.3f}s (r={corr:.2f})")
+lag, r = xcorr_lag(audio_envelope, motion_envelope, fs=25.0, max_lag=1.5)
+offsets = anchor_and_match(impact_times, audio_onset_times, window=0.15)
+stats = offset_stats(offsets)
 ```
 
-![xcorr_lag: the motion envelope slides against the audio envelope while the correlation-vs-lag curve fills in; the peak marks the lag that aligns the two](../images/examples/alignment_xcorr.gif)
+`xcorr_lag()` returns `(lag, r)`, where a positive lag means the second signal happens after
+the first. `sliding_correlation()` gives a windowed coupling profile, and
+`envelope_agreement()` scores agreement among N parallel envelopes.
 
----
-
-## Quantity-of-motion cores (`_qom`)
-
-These functions are implemented in the [micromotion](https://github.com/fourMs/micromotion) package and re-exported by MGT-python; micromotion's documentation is the signature reference. Band-limited QoM (with an automatic decimate+SOS regime for very low frequency bands),
-accelerometer-to-speed integration, per-landmark-group pose QoM, body-scale normalisation for
-framing-invariant comparisons, spatial grid QoM, and small envelope/binning helpers.
+## Quantity-of-motion cores
 
 ```python
 from musicalgestures import band_limited_qom, accel_to_speed
 
-speed, fs_out = band_limited_qom(marker_xyz, fs=100.0)   # px or mm per second, 0.2-5 Hz
+speed, fs_out = band_limited_qom(marker_xyz, fs=100.0)   # 0.2–5 Hz band
+qom_speed = accel_to_speed(accel_xyz, fs=100.0)          # speed series (m/s)
 ```
 
-![grid_qom on dancer.avi: per-cell quantity of motion on a 6×4 grid, overlaid on the video as a heatmap that follows the dancer's movement](../images/examples/grid_qom.gif)
+Implemented in [micromotion](https://github.com/fourMs/micromotion) and re-exported here;
+micromotion's documentation is the signature reference. Never average the raw acceleration
+magnitude: a stationary accelerometer reads 1 g, so the mean of the raw norm measures
+calibration rather than motion, which `accel_to_speed()` or `band_limited_qom()` avoids.
+For the pose-specific `pose_qom()`/`body_scale()`/`normalized_qom()` see
+[Pose Tracking](pose-tracking.md#derived-signals).
 
-`group_qom()` generalises `band_limited_qom()` to any group of marker/landmark trajectories
-(mocap markers included), and `accel_to_speed()` integrates a 3-axis accelerometer to a speed
-signal (the "corpus method" from the stillstanding study). For the pose-specific
-`pose_qom()`/`body_scale()`/`normalized_qom()` (framing-invariant QoM from MediaPipe landmarks),
-see the dedicated [Pose Tracking](pose-tracking.md#derived-signals) page.
-
-!!! warning "Never average the raw acceleration magnitude"
-
-    The high-pass inside `accel_to_speed()` is not a refinement. Skip it and the
-    quantity you get back is not motion at all.
-
-    A stationary accelerometer reads 1 g, because it measures gravity. The
-    time-average of the raw vector norm is therefore 1 g plus a small
-    movement term, and between people it varies mostly by how each device is
-    calibrated. It does not measure tilt either: the norm of a vector does not
-    change when the vector is rotated, so a sensor tilted by any angle still
-    reads exactly 1 g while it is still.
-
-    This is not hypothetical. A standstill competition with 56 entrants was
-    ranked on `mean(‖a‖)` from head-worn accelerometers. Eleven of the 56
-    scored *below* 1 g, the lowest by 9.3 per cent, which a correctly
-    calibrated sensor held still cannot do; the whole field spanned 0.907 to
-    1.139 g. Against band-limited quantity of motion from the same recordings
-    the score correlated at rho = 0.16, p = 0.25—that is, not at all—while
-    real movement across the field spanned a factor of 7.8, from 6.07 to
-    47.46 mm/s. Grouping by which of the eight sensor units a competitor wore,
-    the score separated the groups at H = 48.1, p = 3.4e-08, and the
-    band-limited movement did not, H = 6.8, p = 0.45. The event ranked its
-    instruments. Rescoring on movement moves 40 of 56 people more than ten
-    places, the largest by 53, and leaves no one on the podium.
-
-    Any of `accel_to_speed()`, `band_limited_qom()`, removing the mean, or
-    working in the velocity domain avoids this, and none of them is more work
-    than taking the average. If the units of a file are unknown, start with
-    `micromotion.identify_acceleration_unit()`, which reads them off the same
-    gravity constant.
-
----
-
-## Audio feature extraction (`_audiofeatures`)
-
-Scipy-only audio features and onset detectors that complement the librosa-based, figure-producing
-`MgAudio` methods with lightweight numeric outputs: `rms_envelope`, `spectral_flux`,
-`spectral_flux_onsets`, `energy_onsets`, `t60_backward_decay` (reverberation time), and
-`attack_spectral_centroid`. All onset detectors use `pick_peaks` under the hood.
+## Audio feature extraction
 
 ```python
-from musicalgestures import rms_envelope, energy_onsets
+from musicalgestures import rms_envelope, energy_onsets, t60_backward_decay
 
 env, rate = rms_envelope(y, sr, window=0.02)
-onsets = energy_onsets(y, sr)     # onset times (s) from the RMS envelope
+onsets = energy_onsets(y, sr)          # onset times (s) from the RMS envelope
+t60, span = t60_backward_decay(y, sr)  # reverberation time
 ```
 
----
+Scipy-only features complementing the librosa-based `MgAudio` methods; also
+`spectral_flux()`, `spectral_flux_onsets()`, and `attack_spectral_centroid()`.
+`energy_onsets()` is reliable for discrete strokes but over-fragments sustained rolls.
 
-## Postural sway metrics (`_posture`)
-
-Posturography from the stillstanding study, implemented in micromotion and re-exported here,
-operating on plain centre-of-pressure (CoP) or marker-position arrays, with no study-specific
-loaders or axis conventions:
-
-- **Sway amount / geometry**—`cop_sway_metrics`, `confidence_ellipse_area`, `convex_hull_area`.
-- **Control dynamics / complexity**—`stabilogram_diffusion` (Collins–De Luca SDA), `dfa`
-  (detrended fluctuation analysis), `sample_entropy`, `spectral_edges`, `sway_texture`,
-  `principal_axis_projection`.
-- **Direction / extent**—`sway_orientation`, `axial_rayleigh`, `spatial_extent`.
+## Postural sway metrics
 
 ```python
 from musicalgestures import cop_sway_metrics
@@ -168,74 +94,59 @@ metrics = cop_sway_metrics(cop_xy, fs=100.0)   # cop_xy: (T, 2) array [ML, AP], 
 print(metrics['path_len'], metrics['area95'], metrics['ap_ml_sd_ratio'])
 ```
 
-![cop_sway_metrics on a synthetic centre-of-pressure path: the sway trajectory draws itself, then the 95% confidence ellipse, principal sway axis and summary metrics appear](../images/examples/posturography.gif)
+Returns CoP path length and rate, the 95% confidence-ellipse area, ML/AP ranges, SDs and
+their ratios, and mean sway frequency per axis. The complexity and direction measures
+(`stabilogram_diffusion()`, `dfa()`, `sample_entropy()`, `sway_orientation()`, ...) are
+implemented in micromotion and re-exported here.
 
-`cop_sway_metrics()` returns CoP path length/rate, the 95% confidence-ellipse area,
-medio-lateral (ML) and antero-posterior (AP) ranges/standard deviations and their ratios, and
-the mean sway frequency per axis. The SDA/DFA/sample-entropy implementations are validated in
-micromotion's test suite against known-answer synthetic signals.
+## Physiology features
 
----
+```python
+from musicalgestures import respiration_rate, spectral_band_fractions
 
-## Physiology features (`_physio`)
+resp = respiration_rate(breathing_waveform, fs=25.0)   # {'rate_bpm', 'times_s', 'median_bpm'}
+fractions = spectral_band_fractions(
+    chest_qom, fs=25.0, bands={'cardiac': (0.9, 1.3), 'resp': (0.12, 0.5)})
+```
 
-`respiration_rate(waveform, fs, band=(0.1, 0.6), window_s=30, step_s=30)`—windowed breathing
-rate (breaths/min) via band-pass filtering and a per-window Welch spectral peak, and
-`spectral_band_fractions(...)`—the fraction of a signal's Welch power in each of a set of
-caller-supplied named frequency bands (a generic spectral-composition diagnostic, e.g. for
-cardiorespiratory QoM), both from the stillstanding study's Deichman/Equivital physiology
-analyses and implemented in micromotion.
+`respiration_rate()` gives a windowed breathing rate in breaths/min, and
+`spectral_band_fractions()` gives the fraction of Welch power in each caller-supplied named
+band.
 
----
+## Motion-capture I/O
 
-## Motion-capture I/O and cross-modality comparison (`_mocap`)
+```python
+from musicalgestures import read_qtm_tsv, compare_modality_envelopes
 
-`read_qtm_tsv(path)` is a single robust reader for Qualisys Track Manager (QTM) TSV exports
-(marker-name recovery, numeric-block autodetection, gap-fill-to-NaN conversion, UTF-8/latin-1
-fallback), implemented in micromotion and re-exported here.
-`compare_modality_envelopes(...)` resamples two motion envelopes (e.g. video-pose vs. mocap) onto
-a common per-second grid and correlates them.
+names, data, fs = read_qtm_tsv('/path/to/session.tsv')   # data: (T, M, 3)
+agreement = compare_modality_envelopes(mocap_env, video_env, fs_a=fs, fs_b=30.0)
+```
 
-!!! note "`dominant_frequency` is not re-exported from `_mocap`"
-    `_mocap` also defines its own `dominant_frequency` (a Welch-peak variant from the Westney
-    study). It is intentionally not re-exported at the `musicalgestures` top level, since it
-    would shadow the pre-existing `musicalgestures.dominant_frequency` (from `_analysis`). Reach
-    it explicitly as `musicalgestures._mocap.dominant_frequency`.
+`read_qtm_tsv()` reads Qualisys Track Manager TSV exports, with gap-fills converted to NaN.
+Note that `_mocap` defines its own `dominant_frequency()`, which is not re-exported at the
+top level; reach it as `musicalgestures._mocap.dominant_frequency`.
 
----
+## Pose-landmark trajectories
 
-## Pose-landmark trajectory extraction (`_posetools`)
-
-The *array-level* pose workflow: video file → tidy per-landmark trajectory arrays (and
-optionally CSV) → derived motion signals (limb speed, impact events), complementing—not
-replacing—the rendering-oriented `MgVideo.pose()` pipeline. This is covered in full on its own
-page: [Pose Tracking](pose-tracking.md), which covers installing the `[pose]` extra,
-`extract_pose_landmarks()` (NaN/dropout semantics, detection-rate reporting), the derived-signal
-helpers `midpoint()`, `limb_speed_from_landmarks()`, `impact_events()`, `pose_qom()`/
-`body_scale()`, and validating a video-derived pose signal against motion capture with
-`read_qtm_tsv()`/`compare_modality_envelopes()`.
-
----
+The array-level pose workflow (`extract_pose_landmarks()`, `limb_speed_from_landmarks()`,
+`impact_events()`, mocap validation) is covered in full on
+[Pose Tracking](pose-tracking.md).
 
 ## Numpy-level motiongram data
 
-`motiongram_data(frames, orientation='vertical', frame_diff=True, normalize=True)` (in
-`_motionanalysis`) computes a motiongram as a plain numpy array from a stack of grayscale
-frames, with a selectable `orientation`: `'vertical'` collapses each frame to its per-row mean
-(image row vs. time, e.g. a mallet's approach-and-rebound path), `'horizontal'` to its
-per-column mean (image column vs. time, side-to-side motion). It is the numpy-level counterpart
-of `MgVideo.motiongrams()`'s rendered `_mgv`/`_mgh` images. Use it when you want the motiongram
-as data for further analysis, e.g. feeding it to `grid_qom()` or a peak-picker.
+```python
+from musicalgestures import motiongram_data
 
-![motiongram_data of dancer.avi building up over time, first with orientation='horizontal' (image column vs time), then the 'vertical' variant (image row vs time)](../images/examples/motiongram_orientation.gif)
+mgv = motiongram_data(frames, orientation='vertical')     # image row vs. time
+mgh = motiongram_data(frames, orientation='horizontal')   # image column vs. time
+```
 
----
+`motiongram_data()` (in `_motionanalysis`) computes a motiongram as a plain numpy array from
+a stack of grayscale frames, the data counterpart of `MgVideo.motiongrams()`'s rendered
+images.
 
-## Next steps
+## Further
 
-- [Audio-Video Analysis](audio-video.md)—the `MgVideo`-method-level audio–movement comparisons
-  (`tempo_similarity`, `phase_synchrony`, `body_audio_coupling`, ...)
-- [Pose Tracking](pose-tracking.md)—the full pose story: `MgVideo.pose()` rendering,
-  `extract_pose_landmarks()`, derived signals, and motion-capture validation
-- [API Reference](../musicalgestures/index.md)—full signatures for every function above
-- [Examples](../examples.md)—a runnable pulse-segmentation example
+- [Chapter 11: Pulse, Cycles and Alignment](https://github.com/fourMs/MGT-python/wiki/11-%E2%80%90-Pulse,-Cycles-and-Alignment)—the course treatment of peak-picking, cycle segmentation and cross-modal alignment
+- [Chapter 13: Motion, Audio and Posturography Toolkit](https://github.com/fourMs/MGT-python/wiki/13-%E2%80%90-Motion,-Audio-and-Posturography-Toolkit)—the course treatment of QoM, audio features, sway and physiology
+- API reference: [`_peaks`](../musicalgestures/_peaks.md), [`_pulse`](../musicalgestures/_pulse.md), [`_alignment`](../musicalgestures/_alignment.md), [`_qom`](../musicalgestures/_qom.md), [`_posture`](../musicalgestures/_posture.md), [`_physio`](../musicalgestures/_physio.md), [`_audiofeatures`](../musicalgestures/_audiofeatures.md), [`_mocap`](../musicalgestures/_mocap.md), [`_motionanalysis`](../musicalgestures/_motionanalysis.md)

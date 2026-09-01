@@ -1,274 +1,109 @@
 # Audio Analysis
 
-Audio analysis methods are available on both `MgVideo` (via `mv.audio`) and `MgAudio` (for audio-only files). All methods return an `MgFigure` and save a PNG alongside the source file.
+Task reference for the audio methods on `MgVideo.audio` and `MgAudio`. Each method returns an `MgFigure` and saves a PNG alongside the source file, and all accept a `title` argument. For the full tutorial, read in order, see [chapter 9 of the wiki](https://github.com/fourMs/MGT-python/wiki/9-%E2%80%90-Audio%E2%80%90based-Processes).
 
 ```python
 import musicalgestures as mg
 
-# From a video file
-mv = mg.MgVideo('/path/to/video.avi')
-audio = mv.audio
-
-# Or load an audio file directly
-audio = mg.MgAudio('/path/to/audio.mp3')
+audio = mg.MgVideo('/path/to/video.avi').audio   # from a video
+audio = mg.MgAudio('/path/to/audio.mp3')         # or an audio file directly
 ```
-
----
 
 ## Waveform
 
-A waveform plots audio amplitude over time. It gives a quick overview of loudness and silence.
-
 ```python
-waveform = audio.waveform()
-waveform.show()
+audio.waveform().show()
+audio.waveform(raw=True)                    # raw sample values
+audio.waveform(colored=True, cmap='jet')    # spectral-centroid colouring
 ```
 
-![Waveform of dance audio](../images/examples/waveform.png)
-*Waveform: audio amplitude over time, giving a quick overview of loudness and silence.*
-
-Pass `raw=True` to skip librosa post-processing and plot the raw sample values:
-
-```python
-waveform = audio.waveform(raw=True)
-```
-
-### Coloured waveform
-
-Set `colored=True` to render a frequency-coloured waveform (amplitude envelope with colour representing spectral centroid, in the style of freesound.org):
-
-```python
-colored = audio.waveform(colored=True)
-colored = audio.waveform(colored=True, cmap='jet')
-```
-
-Any Matplotlib colormap name is accepted for `cmap`.
-
----
+Amplitude over time. `colored=True` draws the envelope coloured by spectral centroid; any Matplotlib colormap name works for `cmap`.
 
 ## Spectrogram
 
-A mel spectrogram plots frequency content over time and is more informative than a waveform for most audio.
-
 ```python
-spectrogram = audio.spectrogram()
-spectrogram.show()
-spectrogram = audio.spectrogram(raw=True)
+audio.spectrogram().show()
+audio.spectrogram(raw=True)
 ```
 
-![Mel spectrogram of dance audio](../images/examples/spectrogram.png)
-*Mel spectrogram: frequency content over time, more informative than a waveform for most audio.*
-
----
-
-## Tempogram
-
-A tempogram estimates tempo by analysing onset strength over time using FFT, giving a view of rhythmic periodicity.
-
-```python
-tempogram = audio.tempogram()
-tempogram.show()
-```
-
-![Tempogram of dance audio](../images/examples/tempogram.png)
-*Tempogram: rhythmic periodicity from onset strength over time, with an onset-strength panel above and the estimated tempo in the title.*
-
-By default the figure includes an onset-strength panel above the tempogram. Pass `onset_strength=False` for just the tempogram in a single panel (the same size as the spectrogram/chromagram):
-
-```python
-audio.tempogram(onset_strength=False).show()
-```
-
-The tempogram is drawn with a colourbar (matching the chromagram), and the estimated tempo is shown rounded to one decimal in the plot title, e.g. `Tempogram (estimated tempo = 112.3 BPM)`.
-
----
-
-## Harmonic Percussive Source Separation (HPSS)
-
-HPSS uses median filtering to separate the harmonic and percussive components of the audio. An optional residual component captures sounds between the two.
-
-```python
-hpss_fig = audio.hpss()
-hpss_fig = audio.hpss(residual=True)
-hpss_fig.show()
-```
-
----
-
-## Chromagram
-
-A chromagram maps audio energy onto the 12 pitch classes (C, C#, D, …, B) over time. It is useful for analysing harmony, chord progressions, and key.
-
-```python
-chroma = audio.chromagram()
-chroma.show()
-```
-
-![Chromagram of dance audio](../images/examples/chromagram.png)
-*Chromagram: audio energy mapped onto the 12 pitch classes over time, useful for harmony, chord progressions, and key.*
-
-Three algorithms are available via `chroma_type`:
-
-| `chroma_type` | Algorithm | Best for |
-|---|---|---|
-| `'cqt'` (default) | Constant-Q Transform | Music with low-frequency content |
-| `'stft'` | Short-Time Fourier Transform | Fast computation |
-| `'cens'` | Chroma Energy Normalised Statistics | Robustness to timbre and dynamics |
-
-```python
-chroma_cqt  = audio.chromagram(chroma_type='cqt')
-chroma_stft = audio.chromagram(chroma_type='stft')
-chroma_cens = audio.chromagram(chroma_type='cens')
-```
-
-You can also control normalisation and colormap:
-
-```python
-chroma = audio.chromagram(norm=2, cmap='viridis')   # L2 norm, viridis colormap
-chroma = audio.chromagram(norm=None)                 # no normalisation
-```
-
-The `chroma` array (shape `12 × frames`) is available in the returned `MgFigure`:
-
-```python
-mgf = audio.chromagram()
-chroma_data = mgf.data['chroma']   # numpy array, shape (12, n_frames)
-```
-
----
+Mel spectrogram of frequency content over time.
 
 ## MFCC
 
-Mel-frequency cepstral coefficients compactly describe the spectral envelope (timbre) over time and are widely used as audio features.
-
 ```python
-mfcc = audio.mfcc()
-mfcc = audio.mfcc(n_mfcc=20)
-mfcc.show()
-
+audio.mfcc(n_mfcc=20).show()
 coeffs = audio.mfcc(autoshow=False).data['mfcc']   # numpy array (n_mfcc, frames)
 ```
 
-![MFCC of dance audio](../images/examples/mfcc.png)
-*MFCC: mel-frequency cepstral coefficients describing the spectral envelope (timbre) over time.*
+Mel-frequency cepstral coefficients (timbre). The coefficient matrix is in the figure's `.data`.
 
----
+## Chromagram
+
+```python
+audio.chromagram().show()
+audio.chromagram(chroma_type='stft', norm=2, cmap='viridis')
+chroma_data = audio.chromagram().data['chroma']    # shape (12, n_frames)
+```
+
+Energy on the 12 pitch classes over time. `chroma_type` selects the algorithm: `'cqt'` (default, good for low frequencies), `'stft'` (fast), `'cens'` (robust to timbre and dynamics). `norm=None` disables normalisation.
+
+## HPSS
+
+```python
+audio.hpss(residual=True).show()
+```
+
+Harmonic Percussive Source Separation via median filtering; `residual=True` adds a third component between the two.
+
+## Tempogram
+
+```python
+audio.tempogram().show()
+audio.tempogram(onset_strength=False)   # single panel, no onset-strength strip
+```
+
+Rhythmic periodicity from onset strength, with the estimated tempo in the plot title (e.g. `estimated tempo = 112.3 BPM`).
 
 ## Tempo and beat tracking
 
-`tempo()` estimates the tempo and beat positions and renders the waveform with beat markers. Numeric results are in the returned figure's `.data`:
-
 ```python
 t = audio.tempo()
-t.show()
-
-print(t.data['tempo'])            # BPM
-print(t.data['beat_times'])       # beat positions (s)
-print(t.data['beat_regularity'])  # 1.0 = perfectly even beats
+print(t.data['tempo'], t.data['beat_times'], t.data['beat_regularity'])
 ```
 
-![Tempo and beat tracking of dance audio](../images/examples/tempo.png)
-*Tempo: the waveform with detected beat markers; numeric tempo, beat times, and regularity are in the figure's `.data`.*
+Waveform with beat markers; numbers live in `.data`. Keys: `tempo`, `beat_times`, `ibi`, `beat_regularity`, `beat_phases`, `deviations_s`, `R_beat`, `mu_beat`, `T_fit`, `t0_fit`, `p_rayleigh`.
 
-Available `.data` keys: `tempo`, `beat_times`, `ibi` (inter-beat intervals), `beat_regularity`, `beat_phases`, `deviations_s`, `R_beat`, `mu_beat`, `T_fit`, `t0_fit`, `p_rayleigh`.
-
----
-
-## Beat statistics (timing consistency)
-
-`beat_statistics()` fits an ideal isochronous grid to the detected beats and visualises how each beat deviates from it, in a polar phase histogram plus a millisecond-deviation time series. This shows whether a performer rushes, drags, or keeps steady time. Requires at least four detected beats.
+## Beat statistics
 
 ```python
-stats = audio.beat_statistics()
-stats.show()
+audio.beat_statistics().show()          # always the audio track
+mv.beat_statistics(source='audio')      # on MgVideo the default is source='motion'
 ```
 
-The polar plot shows the mean resultant vector length `R` (concentration of timing) and a Rayleigh-test p-value (`p` small = significantly consistent timing).
-
-### From movement instead of audio
-
-On an `MgVideo`, `beat_statistics()` defaults to `source='motion'`: it runs the timing analysis on the movement rhythm by detecting onsets in the quantity of motion. This is the key difference from `video.audio.beat_statistics()`, which always analyses the audio track. Pass `source='audio'` to analyse the audio track from the video instead:
-
-```python
-mv = mg.MgVideo('dance.mp4')
-mv.beat_statistics()                   # default — rhythmic onsets of the movement
-mv.beat_statistics(source='motion')   # explicit; same as the default
-mv.beat_statistics(source='audio')    # the audio track instead
-mv.audio.beat_statistics()            # the audio track (always audio)
-```
-
-`source='motion'` returns an `MgFigure` whose `.data` holds the movement tempo, beat times, regularity, and phase deviations, the same fields as the audio version.
-
----
+Circular statistics of beat-timing consistency (polar phase histogram, `R`, Rayleigh p-value); needs at least four detected beats. On `MgVideo` the default `source='motion'` analyses the movement rhythm, not the audio.
 
 ## Self-Similarity Matrix (SSM)
 
-Audio SSMs compare feature frames against each other to reveal repeating structure (verse/chorus, loops, etc.). Supported features are `'spectrogram'`, `'chromagram'`, and `'tempogram'`.
-
 ```python
-spectrossm = audio.ssm(features='spectrogram')
-chromassm  = audio.ssm(features='chromagram', cmap='magma', norm=2)
-spectrossm.show()
+audio.ssm(features='spectrogram').show()
+audio.ssm(features='chromagram', cmap='magma', norm=2)
 ```
 
-SSMs can also be computed on visual features from `MgVideo`. See [Video Analysis](video-analysis.md#self-similarity-matrix-ssm).
-
----
+Repeating structure from `'spectrogram'`, `'chromagram'`, or `'tempogram'` features. For SSMs on visual features see [Video Analysis](video-analysis.md#self-similarity-matrix-ssm).
 
 ## Audio descriptors
 
-`descriptors()` plots five spectral features over time in a single figure:
-
-- RMS energy (perceived loudness)
-- Spectral flatness (noisiness vs. tonality)
-- Spectral centroid (brightness)
-- Spectral bandwidth (frequency spread)
-- Spectral rolloff (at 1% and 99% of total energy)
-
 ```python
-descriptors = audio.descriptors()
-descriptors.show()
+audio.descriptors().show()
+audio.descriptors(save_data=True, data_format='csv')   # <name>_descriptors.csv
+mv.motionplots(audio_descriptors=True)                 # overlay on motion plots
 ```
 
-![Audio descriptors of dance audio](../images/examples/descriptors.png)
-*Audio descriptors: RMS energy, spectral flatness, centroid, bandwidth, and rolloff plotted over time in a single figure.*
+RMS energy, spectral flatness, centroid, bandwidth, and rolloff over time in one figure. `save_data=True` writes the per-frame time series with columns Time, RMS, Centroid, Bandwidth, Rolloff, RolloffMin, Flatness.
 
-Set `save_data=True` to also write the per-frame descriptor time series to disk (csv/tsv/txt), mirroring `motiondata`:
+## Audio–movement comparison
 
-```python
-audio.descriptors(save_data=True, data_format='csv')   # or 'tsv' / 'txt' / ['csv','txt']
-# writes <name>_descriptors.csv with columns:
-# Time, RMS, Centroid, Bandwidth, Rolloff, RolloffMin, Flatness
-```
-
-Descriptors can be overlaid on motion plots by passing `audio_descriptors=True` to `motionplots()`:
-
-```python
-mv.motionplots(audio_descriptors=True)
-```
-
----
-
-## Audio–movement comparison reports
-
-When the audio and the movement come from the same performer (e.g. a dancer who is also the sound source), several `MgVideo` methods compare the sound with the motion directly. They live on `MgVideo` (not `MgAudio`) because they need both tracks, but they are audio-related:
-
-- `tempo_similarity()`—audio tempo vs. movement tempo (BPM, ratio, cross-correlation)
-- `phase_synchrony()`—phase-locking value between the audio and movement rhythm
-- `structure_comparison()`—audio SSM (MFCC) vs. movement SSM (frame appearance)
-- `body_audio_coupling()`—each pose marker's speed correlated with the audio onset envelope
-- `dynamics_coupling()`—audio loudness (RMS) vs. quantity of motion
-
-```python
-mv = mg.MgVideo('dance.avi')
-mv.tempo_similarity().show()
-mv.phase_synchrony().show()
-mv.dynamics_coupling().show()
-```
-
-See the dedicated [Audio-Video Processing & Analysis](audio-video.md) page for full descriptions, the sonification/beat-warping tools, and example figures.
-
----
+`tempo_similarity()`, `phase_synchrony()`, `structure_comparison()`, `body_audio_coupling()`, and `dynamics_coupling()` compare the sound with the motion of the same performer. They live on `MgVideo`, since they need both tracks; see [Audio-Video Processing & Analysis](audio-video.md).
 
 ## Signal-analysis utilities
 
@@ -293,42 +128,14 @@ returns 1.00 Hz, both of them plausible tempi. See
 
 `dominant_frequency` also reports the largest FFT bin in `[fmin, fmax]` whether or not there is
 a peak there. On a spectrum that falls steeply with frequency the largest bin is near `fmin`
-whatever the movement was doing, so the answer tracks the band you chose rather than the body —
+whatever the movement was doing, so the answer tracks the band you chose rather than the body,
 and it does not have to land on `fmin` to be doing that. `micromotion.spectral_peak` returns NaN
 in that case and `micromotion.band_edge_sweep` tests an answer already in hand by moving the band
 edge and seeing whether the answer follows.
 
-For example, to quantify audio–motion synchrony, correlate the audio onset strength against the video's quantity of motion:
+## Further
 
-```python
-import pandas as pd, os
-mv = mg.MgVideo('dance.avi')
-motion_video = mv.motion()
-
-csv = os.path.splitext(motion_video.filename)[0] + '.csv'
-qom = pd.read_csv(csv)
-onset = mv.audio.tempo(autoshow=False).data   # or compute an onset envelope
-
-r = mg.synchrony(qom['Qom'].values, mv.audio.numpy())
-print(f"audio-motion correlation: {r:.3f}")
-```
-
----
-
-## Custom titles
-
-All methods accept a `title` argument:
-
-```python
-spectrogram = audio.spectrogram(title='My Video - Spectrogram')
-tempogram   = audio.tempogram(title='My Video - Tempogram')
-descriptors = audio.descriptors(title='My Video - Spectral Descriptors')
-```
-
----
-
-## Next steps
-
+- [Chapter 9 of the wiki](https://github.com/fourMs/MGT-python/wiki/9-%E2%80%90-Audio%E2%80%90based-Processes)—the full audio tutorial
 - [Working with Results](results.md)—combine audio and video figures into stacked plots
-- [Video Analysis](video-analysis.md)—motion, optical flow, and SSMs on visual data
-- [API Reference](../musicalgestures/_audio.md)—complete audio method signatures
+- [API: MgAudio](../musicalgestures/_audio.md)—complete audio method signatures
+- [API: audio features](../musicalgestures/_audiofeatures.md)—descriptor and feature internals
