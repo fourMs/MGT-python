@@ -9,9 +9,10 @@ qualitative and quantitative approaches.
 *Status, updated later the same day after ARJ approved:* the site restructure is
 implemented (five-section nav, Home with audience paths, new `docs/concepts.md` and
 `docs/gallery.md`, API menu regrouped), and the wiki is renumbered by pedagogy with
-all internal links swept. What remains is the slow editorial part: moving tutorial
-prose from the User Guide pages into the corresponding wiki chapters and shrinking
-those pages to task summaries, best done chapter by chapter.
+all internal links swept. The editorial part followed the same day: tutorial prose
+from 7 User Guide pages moved into 10 wiki chapters (723 lines gained there, 1,531
+removed from the site), the site pages became task references, and every inbound
+anchor was kept alive and verified. The reorganisation is complete.
 
 ## What makes it hard to navigate today, measured
 
