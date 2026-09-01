@@ -74,7 +74,7 @@ not auto-render; `.show()` displays them.
 
 ## What the toolbox does
 
-- **Video analysis**: motion detection, optical flow, motion vectors, movement tempo, Eulerian video magnification, and motion descriptors (energy, smoothness, entropy, spectral)
+- **Video analysis**: motion detection, optical flow, motion vectors, motion tempo, Eulerian video magnification, and motion descriptors (energy, smoothness, entropy, spectral)
 - **Visualisations**: motiongrams, videograms, motion history, heatmaps, and space-time displays (stroboscope, silhouette waterfall, 3D space-time volume)
 - **Pose estimation**: MediaPipe (default), YOLO, RTMPose and OpenPose backends on one trajectory contract, with trajectory summaries, motion trails, and per-segment statistics
 - **Segmentation**: actions cut from motion envelopes, postures cut from landmark trajectories, pulse and cycle segmentation, long-video segmentation, and person tracking

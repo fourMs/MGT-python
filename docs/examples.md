@@ -277,7 +277,7 @@ import musicalgestures as mg
 
 mv = mg.MgVideo(mg.examples.dance)   # needs an audio track
 
-# Compare audio tempo vs. movement tempo
+# Compare audio tempo vs. motion tempo
 ts = mv.tempo_similarity()
 ts.show()
 print(ts.data['audio_tempo_bpm'], ts.data['motion_tempo_bpm'])
@@ -499,7 +499,7 @@ A visual tour of the outputs produced by the methods above. Each image was rende
 
 ![Motion tempo](images/examples/motiontempo.png)
 
-*Periodicity of the movement signal over time.*
+*Periodicity of the motion signal over time.*
 
 ### Space-time
 
@@ -675,7 +675,7 @@ A visual tour of the outputs produced by the methods above. Each image was rende
 
 ![Tempo similarity](images/examples/tempo_similarity.png)
 
-*`mv.tempo_similarity()`—audio tempo vs. movement tempo.*
+*`mv.tempo_similarity()`—audio tempo vs. motion tempo.*
 
 **Phase synchrony**
 

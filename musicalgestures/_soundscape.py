@@ -77,15 +77,15 @@ def audio_source_for(source, audio=None):
     """What kind of input this is, and what to hand ambiscape.
 
     Args:
-        source: a directory (an ambiscape session), a sound file, or a video.
-        audio: a sound file to use instead of extracting one. The caller often already
+        source: a directory (an ambiscape session), an audio file, or a video.
+        audio: an audio file to use instead of extracting one. The caller often already
             has it, and extracting it again is waste.
 
     Returns:
         tuple: ``(kind, path)`` where kind is ``"session"``, ``"file"`` or ``"extract"``.
         For ``"extract"`` the path is where the audio should be written; it does not
         exist yet, and it is deliberately not the source's own name with the suffix
-        swapped, so a source that is already a sound file cannot be overwritten by its
+        swapped, so a source that is already an audio file cannot be overwritten by its
         own extraction.
 
     Raises:
@@ -111,7 +111,7 @@ def audio_source_for(source, audio=None):
         return "extract", src.with_name(f"{src.stem}_{suffix[1:]}_soundscape.wav")
     raise ValueError(
         f"{src.name}: cannot take soundscape features from a {suffix or 'suffixless'} "
-        f"file. Give a video, a sound file, or an ambiscape session folder.")
+        f"file. Give a video, an audio file, or an ambiscape session folder.")
 
 
 def soundscape_features(source, features_dir=None, audio=None,
@@ -119,11 +119,11 @@ def soundscape_features(source, features_dir=None, audio=None,
     """Soundscape features as an MgFeatures (1 Hz, wall-clocked).
 
     Args:
-        source: an ambiscape session folder, a sound file, or **a video**, whose audio is
+        source: an ambiscape session folder, an audio file, or **a video**, whose audio is
             extracted once and reused.
         features_dir: cache directory for ambiscape's .npz features
             (default: ``<source>/analysis/features`` for a folder, or beside the audio).
-        audio: a sound file to use instead of extracting one from `source`.
+        audio: an audio file to use instead of extracting one from `source`.
         sr (int): Sample rate for the extraction. Defaults to 48000, which is what
             ambiscape's band measures expect; downsampling first would move the noise
             floor it reports.
@@ -171,7 +171,7 @@ def merge_into_summary(features: MgFeatures, summary_json,
     The mirror of ambiscape's ``vision --merge`` (which uses ``vis_``):
     each feature contributes ``<prefix><name>_median`` and
     ``<prefix><name>_iqr`` so one summary file describes the whole
-    audio-visual session. Existing keys are preserved.
+    audio–video session. Existing keys are preserved.
     """
     import json
 

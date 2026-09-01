@@ -84,7 +84,7 @@ print(ps.data)                                 # PLV, mean phase difference, …
 ```
 
 ![Audio–motion phase synchrony of dance.avi](../images/examples/phase_synchrony.png)
-*Left: the band-passed audio and movement signals. Right: a polar histogram of the phase difference with the PLV.*
+*Left: the band-passed audio and motion signals. Right: a polar histogram of the phase difference with the PLV.*
 
 ### Structure comparison
 

@@ -24,8 +24,8 @@ the index to use.
 |---|---|---|
 | [![Motion descriptors](images/examples/motiondescriptors.png)](user-guide/video-analysis.md) | [![Optical flow](images/examples/flow_dense.gif)](user-guide/video-analysis.md) | [![Motion vectors](images/examples/motionvectors.gif)](user-guide/video-analysis.md) |
 | motion descriptors | optical flow | motion vectors |
-| [![Movement tempo](images/examples/motiontempo.png)](user-guide/video-analysis.md) | [![Directograms](images/examples/directograms.png)](user-guide/video-analysis.md) | [![Self-similarity matrix](images/examples/ssm.png)](user-guide/video-analysis.md) |
-| movement tempo | directograms | self-similarity matrix |
+| [![Motion tempo](images/examples/motiontempo.png)](user-guide/video-analysis.md) | [![Directograms](images/examples/directograms.png)](user-guide/video-analysis.md) | [![Self-similarity matrix](images/examples/ssm.png)](user-guide/video-analysis.md) |
+| motion tempo | directograms | self-similarity matrix |
 
 ## Bodies: positions and postures
 

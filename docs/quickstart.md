@@ -180,7 +180,7 @@ mv.pose_segments().show()         # reuses cached pose keypoints if available
 
 ### 6. Audio–motion tempo similarity
 
-`tempo_similarity()` compares the audio tempo with the movement tempo and cross-correlates the two rhythms:
+`tempo_similarity()` compares the audio tempo with the motion tempo and cross-correlates the two rhythms:
 
 ```python
 mv = mg.MgVideo(examples.dance)

@@ -30,7 +30,7 @@ Several methods have overlapping or similar-sounding names. This table disambigu
 | `motiontempo()` | the dominant **movement** tempo (from the quantity-of-motion signal). |
 | `motiondescriptors()` | scalar summaries of *how* something moves: motion energy, smoothness (SPARC), entropy, and spectral descriptors. |
 | audio `tempo()` / `tempogram()` | the **audio** tempo / rhythmic periodicity. |
-| `tempo_similarity()` | to **compare** movement tempo against audio tempo. |
+| `tempo_similarity()` | to **compare** motion tempo against audio tempo. |
 
 ## AVI conversion (`convert`)
 
@@ -121,9 +121,9 @@ mv.motionhistory().show()            # Motion History Image (MgImage); no silhou
 
 `motionhistory()` encodes recency (order-dependent), while `heatmap()`/`motion().average()` encode density (order-independent). Its `decay` sets trail length as a fraction of the clip; `normalize` defaults to `False` because normalising over-brightens residual trails on clips that end in stillness. Chapter 4 of the wiki works through the density-against-recency distinction.
 
-## Movement tempo
+## Motion tempo
 
-`motiontempo()` estimates the dominant movement tempo from the quantity-of-motion signal via an FFT, in Hz and BPM (returns `MgFigure`). Restrict the search band with `fmin`/`fmax` (Hz).
+`motiontempo()` estimates the dominant motion tempo from the quantity-of-motion signal via an FFT, in Hz and BPM (returns `MgFigure`). Restrict the search band with `fmin`/`fmax` (Hz).
 
 ```python
 mt = mv.motiontempo()
@@ -275,7 +275,7 @@ mv.pose_distance().show()               # cumulative distance travelled per mark
 Reports comparing a performer's sound with their movement have their own page: [Audio-Video Processing & Analysis](audio-video.md).
 
 ```python
-mv.tempo_similarity().show()      # audio tempo vs movement tempo
+mv.tempo_similarity().show()      # audio tempo vs motion tempo
 mv.phase_synchrony().show()       # phase-locking value (PLV)
 mv.structure_comparison().show()  # audio SSM vs movement SSM + difference
 mv.body_audio_coupling().show()   # which body parts track the music

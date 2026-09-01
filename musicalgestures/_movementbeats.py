@@ -20,7 +20,7 @@ def _movement_qom(self):
     """Return (qom, fps): the per-frame quantity of motion (mean absolute frame difference).
 
     The result is cached on the MgVideo (keyed by filename) so that calling several
-    movement/audio–motion analyses in a row does not re-decode the video each time.
+    motion and audio–motion analyses in a row does not re-decode the video each time.
     """
     cache = getattr(self, '_qom_cache', None)
     if cache is not None and cache[0] == self.filename:
@@ -237,7 +237,7 @@ def mg_tempo_similarity(self, dpi: int = 300, autoshow: bool = True, title: str 
     audio_tempo = float(np.atleast_1d(librosa.feature.tempo(onset_envelope=oenv, sr=sr, hop_length=hop))[0])
     a_t = librosa.times_like(oenv, sr=sr, hop_length=hop)
 
-    # --- Movement envelope + tempo ---
+    # --- Motion envelope + tempo ---
     qom, fps = _movement_qom(self)
     if len(qom) < 4:
         print('Not enough frames to estimate movement tempo.')
