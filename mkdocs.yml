@@ -27,41 +27,47 @@ theme:
 
 nav:
   - Home: index.md
-  - Getting Started:
+  - Start:
       - Installation: installation.md
       - Quick Start: quickstart.md
+      - Gallery: gallery.md
       - Examples: examples.md
-  - User Guide:
-      - Core Classes: user-guide/core-classes.md
+  - Concepts: concepts.md
+  - Ways of looking:
       - Loading & Showing: user-guide/loading.md
       - Preprocessing: user-guide/preprocessing.md
       - Video Analysis: user-guide/video-analysis.md
+      - Working with Results: user-guide/results.md
+  - Measuring & segmenting:
+      - Pose Tracking: user-guide/pose-tracking.md
       - Audio Analysis: user-guide/audio-analysis.md
       - Audio-Video Analysis: user-guide/audio-video.md
-      - Pose Tracking: user-guide/pose-tracking.md
       - Sound-Movement Analysis Toolkit: user-guide/sound-movement-toolkit.md
-      - Working with Results: user-guide/results.md
-  - API Reference:
+  - Reference:
       - Overview: musicalgestures/index.md
-      - Video: musicalgestures/_video.md
-      - Audio: musicalgestures/_audio.md
-      - Flow: musicalgestures/_flow.md
-      - Motion vectors: musicalgestures/_motionvectors.md
-      - Noise floor: musicalgestures/_noisefloor.md
-      - Posegram: musicalgestures/_posegram.md
-      - Effort: musicalgestures/_effort.md
-      - 360 Video: musicalgestures/_360video.md
-      - Anglegram (360): musicalgestures/_anglegram.md
-      - Utils: musicalgestures/_utils.md
-      - Contact sheet: musicalgestures/_contactsheet.md
-      - Multi-shot: musicalgestures/_multishot.md
-      - Segmentation and annotation:
+      - Core Classes: user-guide/core-classes.md
+      - Core:
+          - Video: musicalgestures/_video.md
+          - Audio: musicalgestures/_audio.md
+          - Utils: musicalgestures/_utils.md
+      - Looking:
+          - Posegram: musicalgestures/_posegram.md
+          - Contact sheet: musicalgestures/_contactsheet.md
+          - Multi-shot: musicalgestures/_multishot.md
+      - Measuring:
+          - Flow: musicalgestures/_flow.md
+          - Motion vectors: musicalgestures/_motionvectors.md
+          - Noise floor: musicalgestures/_noisefloor.md
+          - Effort: musicalgestures/_effort.md
+      - Segmenting:
           - Actions: musicalgestures/_actions.md
           - Postures: musicalgestures/_postures.md
           - Hierarchy: musicalgestures/_hierarchy.md
           - Tracks: musicalgestures/_tracks.md
-          - Timeline: musicalgestures/_timeline.md
+          - Room and occupancy: musicalgestures/_plate.md
+      - Annotating & interpreting:
           - Annotate: musicalgestures/_annotate.md
+          - Timeline: musicalgestures/_timeline.md
           - Select: musicalgestures/_select.md
           - Voice: musicalgestures/_voice.md
           - Laughter: musicalgestures/_laughter.md
@@ -71,13 +77,14 @@ nav:
           - ELAN import: musicalgestures/_elan.md
           - Annotation views: musicalgestures/_views.md
           - Zoomable page: musicalgestures/_zoomview.md
-          - Room and occupancy: musicalgestures/_plate.md
+      - Special formats:
+          - 360 Video: musicalgestures/_360video.md
+          - Anglegram (360): musicalgestures/_anglegram.md
       - Complete Reference: MODULES.md
   - Development:
       - Contributing: contributing.md
       - Testing: testing.md
       - Releasing: releases.md
-
 plugins:
   - search
   - git-revision-date-localized:

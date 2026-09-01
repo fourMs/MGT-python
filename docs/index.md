@@ -5,32 +5,52 @@
 [![CI](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml/badge.svg)](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml)
 [![Documentation](https://github.com/fourMs/MGT-python/actions/workflows/docs.yml/badge.svg)](https://fourms.github.io/MGT-python/)
 
-The Musical Gestures Toolbox for Python (`musicalgestures`) is a collection of tools for visualising and analysing motion in video recordings, together with the sound that accompanies them. It was developed for research on music-related body motion, but it works on any video or audio file.
+The Musical Gestures Toolbox for Python (`musicalgestures`) is a collection of tools for
+visualising and analysing motion in video recordings, together with the sound that
+accompanies them. It was developed for research on music-related body motion, but it
+works on any video or audio file, and it supports qualitative and quantitative
+approaches on equal terms: images made for human looking, and measurements made for
+further computation.
 
 ![MGT python demo](https://raw.githubusercontent.com/fourMs/MGT-python/master/musicalgestures/documentation/figures/promo/ipython_example.gif)
 
-## What the toolbox does
+## Two doors in
 
-- **Video analysis**: motion detection, optical flow, motion vectors, movement tempo, Eulerian video magnification, and motion descriptors (energy, smoothness, entropy, spectral)
-- **Visualisations**: motiongrams, videograms, motion history, heatmaps, and space-time displays (stroboscope, silhouette waterfall, 3D space-time volume)
-- **Pose estimation**: MediaPipe (default) and OpenPose backends, with trajectory summaries, motion trails, and per-segment statistics
-- **Audio analysis**: waveforms, spectrograms, MFCC, chromagrams, tempo and beat tracking, and sonomotiongrams (motion turned into sound)
-- **Audio-movement analysis**: tempo similarity, phase synchrony, structural similarity, and per-body-part audio coupling for a single performer
-- **Sound-movement research toolkit**: lower-level, array-based functions for pulse and cycle segmentation, cross-modal alignment, quantity of motion, postural sway, physiology, and motion-capture I/O—see the [Sound-Movement Analysis Toolkit](user-guide/sound-movement-toolkit.md)
-- **360 video**: projection handling, per-direction views, the anglegram, and audio-energy-map overlays—see [Video Analysis](user-guide/video-analysis.md)
-- **Integration**: works with the NumPy, SciPy, librosa, and Matplotlib ecosystems, on Linux, macOS, and Windows
+- **[Gallery](gallery.md)** — every kind of picture the toolbox makes, each linking to
+  the page that makes it. Start here if you know what you want an analysis to look
+  like but not what it is called.
+- **[Concepts](concepts.md)** — the ideas the toolbox is organised around: motion,
+  action, and gesture; position, posture, and pose; quantity of motion and its limits;
+  visualisation as a way of looking; the effort layer. Start here if you want the
+  function names to make sense before you call them.
+
+## Where to start, by field
+
+- **Music researchers and students**: the [Gallery](gallery.md) shows the analyses at
+  a glance; [Concepts](concepts.md) connects them to the musical-gestures literature;
+  the [Quick Start](quickstart.md) gets a first motiongram out of your own video in
+  minutes.
+- **Psychologists**: [Concepts](concepts.md) maps posture and pose onto your
+  literature's terms; [pose tracking](user-guide/pose-tracking.md) turns video into
+  codeable trajectories; the annotation and co-occurrence tools (see the
+  [API reference](musicalgestures/index.md)) carry the step from video to coded units.
+- **Human movement scientists**: [pose tracking](user-guide/pose-tracking.md) gives
+  landmark trajectories from plain video; the
+  [sound–movement toolkit](user-guide/sound-movement-toolkit.md) holds the
+  array-level functions, postural sway included; [Concepts](concepts.md) states
+  exactly what is meant by position and posture here.
+- **Computer scientists**: the [API reference](musicalgestures/index.md) and
+  [core classes](user-guide/core-classes.md) describe the machinery;
+  [contributing](contributing.md) and [testing](testing.md) describe the workshop.
 
 ## Quick start
-
-### Installation
 
 ```bash
 pip install musicalgestures
 ```
 
-The package installs its Python dependencies automatically. Install `ffmpeg` separately to enable video processing; see the [installation guide](installation.md).
-
-### Basic usage
+The package installs its Python dependencies automatically. Install `ffmpeg`
+separately to enable video processing; see the [installation guide](installation.md).
 
 ```python
 import musicalgestures as mg
@@ -47,18 +67,34 @@ v.motion().show()
 v.audio.spectrogram().show()
 ```
 
-Analysis methods return result objects (`MgVideo`, `MgImage`, or `MgFigure`) and do not auto-render; `.show()` displays them.
-
-### Try it online
+Analysis methods return result objects (`MgVideo`, `MgImage`, or `MgFigure`) and do
+not auto-render; `.show()` displays them.
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fourMs/MGT-python/blob/master/musicalgestures/MusicalGesturesToolbox.ipynb)
 
-## Getting started
+## What the toolbox does
+
+- **Video analysis**: motion detection, optical flow, motion vectors, movement tempo, Eulerian video magnification, and motion descriptors (energy, smoothness, entropy, spectral)
+- **Visualisations**: motiongrams, videograms, motion history, heatmaps, and space-time displays (stroboscope, silhouette waterfall, 3D space-time volume)
+- **Pose estimation**: MediaPipe (default), YOLO, RTMPose and OpenPose backends on one trajectory contract, with trajectory summaries, motion trails, and per-segment statistics
+- **Segmentation**: actions cut from motion envelopes, postures cut from landmark trajectories, pulse and cycle segmentation, long-video segmentation, and person tracking
+- **Audio analysis**: waveforms, spectrograms, MFCC, chromagrams, tempo and beat tracking, and sonomotiongrams (motion turned into sound)
+- **Audio-movement analysis**: tempo similarity, phase synchrony, structural similarity, and per-body-part audio coupling for a single performer
+- **Sound-movement research toolkit**: lower-level, array-based functions for pulse and cycle segmentation, cross-modal alignment, quantity of motion, postural sway, physiology, and motion-capture I/O—see the [Sound-Movement Analysis Toolkit](user-guide/sound-movement-toolkit.md)
+- **360 video**: projection handling, per-direction views, the anglegram, and audio-energy-map overlays—see [Video Analysis](user-guide/video-analysis.md)
+- **Integration**: works with the NumPy, SciPy, librosa, and Matplotlib ecosystems, on Linux, macOS, and Windows
+
+## Learning path
+
+The [wiki](https://github.com/fourMs/MGT-python/wiki) is the course: numbered chapters
+that read in order, basics first, with exercises on the bundled example videos. This
+site is the reference: it answers "how do I do X" and "what exactly does this
+return". The two link to each other throughout.
 
 - **[Installation Guide](installation.md)**—detailed setup instructions
 - **[Quick Start Tutorial](quickstart.md)**—up and running in minutes
 - **[Examples](examples.md)**—sample code and use cases
-- **[User Guide](user-guide/core-classes.md)**—comprehensive documentation
+- **[User Guide](user-guide/core-classes.md)**—task-oriented documentation
 
 ## Runtime behaviour
 
@@ -86,13 +122,18 @@ This toolbox builds on the [Musical Gestures Toolbox for Matlab](https://github.
 
 - **Issues**: [GitHub Issues](https://github.com/fourMs/MGT-python/issues)
 - **Source code**: [GitHub repository](https://github.com/fourMs/MGT-python)
-- **Wiki**: [worked examples and discussion](https://github.com/fourMs/MGT-python/wiki)
+- **Wiki**: [the course, chapter by chapter](https://github.com/fourMs/MGT-python/wiki)
 
-## Citation
+## Citing
 
-If you use MGT-python in your research, please cite this article:
+If you use MGT-python in your research, please cite the article and the software:
 
 - Laczkó, B., & Jensenius, A. R. (2021). [Reflections on the Development of the Musical Gestures Toolbox for Python](http://urn.nb.no/URN:NBN:no-91935). *Proceedings of the Nordic Sound and Music Computing Conference*, Copenhagen.
+- Jensenius, A. R., Laczkó, B., Poutaraud, J., Widmer, M., & Furmyr, F. (2026). *Musical Gestures Toolbox for Python* [Computer software]. Zenodo. <https://doi.org/10.5281/zenodo.21965729>
+
+The Zenodo DOI above is the concept DOI and always resolves to the newest version;
+where the exact behaviour matters, cite the version-specific DOI of the release you
+ran as well (listed on the Zenodo record).
 
 ```bibtex
 @inproceedings{laczkoReflectionsDevelopmentMusical2021,
@@ -108,13 +149,3 @@ If you use MGT-python in your research, please cite this article:
 ## License
 
 MGT-python is released under the [GNU General Public License v3 (GPLv3)](https://github.com/fourMs/MGT-python/blob/master/LICENSE).
-
-
-## Citing
-
-Jensenius, A. R., Laczkó, B., Poutaraud, J., Widmer, M., & Furmyr, F. (2026). *Musical Gestures Toolbox for Python* (Version 1.11.1) [Computer software]. Zenodo.
-<https://doi.org/10.5281/zenodo.21965729>
-
-That is the CONCEPT DOI and it always resolves to the newest version. Where the exact behaviour
-matters, name the version you ran as well: version 1.11.1 is
-<https://doi.org/10.5281/zenodo.21949008>.
