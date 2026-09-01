@@ -55,7 +55,7 @@ class MgList():
         """
         # The MgList items are already the concrete images, so a key selects an item
         # rather than being passed down (an MgImage can't resolve these itself).
-        # Item order is (x, y); horizontal movement = the y file, vertical = the x file.
+        # Item order is (x, y); horizontal motion = the y file, vertical = the x file.
         key_to_index = {'horizontal': 1, 'vertical': 0,
                         'mgh': 1, 'vgh': 1, 'mgv': 0, 'vgv': 0,
                         'mgx': 0, 'vgx': 0, 'mgy': 1, 'vgy': 1}

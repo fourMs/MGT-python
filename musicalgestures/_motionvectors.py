@@ -92,9 +92,9 @@ def mg_motionvectordata(self: "musicalgestures.MgVideo") -> "MgMotionVectorData"
 
     **What it is not.** The vectors are the encoder's decisions, not a measurement of the
     scene: an encoder is entitled to any vector that predicts the block cheaply, and on
-    flat or still regions it will pick one that has nothing to do with movement. The
+    flat or still regions it will pick one that has nothing to do with motion. The
     result tracks quantity of motion well where there is motion to track and poorly where
-    there is not --- on that same corpus, median r = 0.86 in windows with movement and
+    there is not --- on that same corpus, median r = 0.86 in windows with motion and
     0.57 in windows without. Re-encoded proxies carry their proxy encoder's vectors, not
     the camera's.
 
@@ -259,7 +259,7 @@ def motion_vector_grid(filename, deterministic=False, threshold=0.0):
         threshold (float, optional): Drop vectors shorter than this many pixels. The
             counterpart of `mg_motion`'s `threshold`, in the units a displacement actually
             has. H.264 codes to quarter-pel and the encoder spends short vectors on rate
-            rather than on movement: measured on a dance corpus, 46 per cent of vectors
+            rather than on motion: measured on a dance corpus, 46 per cent of vectors
             are exactly zero and the median non-zero one is 0.79 px, while real limb
             motion runs to tens of pixels. Defaults to 0.0, which keeps everything, so no
             existing caller's numbers change silently.
@@ -371,7 +371,7 @@ def motion_vector_grid(filename, deterministic=False, threshold=0.0):
 def accumulate_motion_vectors(filename, p_frames_only=True, deterministic=False, threshold=0.0):
     """The whole space motion happened in, summed over the recording.
 
-    Returns `(weight, vx, vy, coherence)`: how much movement each cell saw, the
+    Returns `(weight, vx, vy, coherence)`: how much motion each cell saw, the
     direction it saw on average, and how consistently that direction held.
 
     P-frames only by default. A B-frame's vectors are referenced over varying temporal
@@ -408,7 +408,7 @@ def accumulate_motion_vectors(filename, p_frames_only=True, deterministic=False,
     #: is indistinguishable from one that saw nothing but encoder noise, since both have
     #: a near-zero mean vector and an arbitrary direction.
     #:
-    #: LIMIT. P-frames arrive at roughly a quarter of the frame rate, so a movement that
+    #: LIMIT. P-frames arrive at roughly a quarter of the frame rate, so a motion that
     #: reverses faster than a few samples per cycle is under-sampled and reads as
     #: coherent when it is not: measured on a block oscillating at 3 samples per cycle
     #: this returns 0.97, and at 12 samples per cycle it returns 0.06. On 50 fps footage
@@ -658,7 +658,7 @@ def mg_motionvectorwaterfall(self: "musicalgestures.MgVideo", n_samples: int = 4
 
     The same cascade `silhouette_waterfall()` draws, but from displacement rather than
     from a silhouette, so it needs no background subtraction and no pose model --- and it
-    shows where movement was, not where a body was. A dancer standing still has a
+    shows where motion was, not where a body was. A dancer standing still has a
     silhouette and no vectors.
 
     Args:

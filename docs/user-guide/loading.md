@@ -29,8 +29,8 @@ Supported key values:
 | `'motion'` | Motion video |
 | `'history'` | History video |
 | `'motionhistory'` | Motion history video (chained) |
-| `'horizontal'` | Horizontal-movement motiongram/videogram |
-| `'vertical'` | Vertical-movement motiongram/videogram |
+| `'horizontal'` | Horizontal-motion motiongram/videogram |
+| `'vertical'` | Vertical-motion motiongram/videogram |
 | `'mgh'` / `'vgh'` | Horizontal motiongram / videogram (alias of `'horizontal'`) |
 | `'mgv'` / `'vgv'` | Vertical motiongram / videogram (alias of `'vertical'`) |
 | `'mgx'` / `'mgy'` | Literal x / y motiongram file (legacy) |
@@ -45,7 +45,7 @@ Supported key values:
 | `'subtract'` | Background-subtracted video |
 | `'blur'` | Face-anonymised video |
 
-The orientation keys select by direction of movement; the legacy `'mgx'`/`'mgy'`/`'vgx'`/`'vgy'` keys resolve to the literal x/y files.
+The orientation keys select by direction of motion; the legacy `'mgx'`/`'mgy'`/`'vgx'`/`'vgy'` keys resolve to the literal x/y files.
 
 ## Getting video metadata
 

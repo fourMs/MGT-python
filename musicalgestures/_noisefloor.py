@@ -224,7 +224,7 @@ def motion_vector_floor(video, plate=None, quantile: float = 0.99,
 
     The same principle in the units a displacement has. Vectors landing in cells with
     nobody in front of them are the encoder spending bits on rate rather than on
-    movement.
+    motion.
 
     Note that H.264 codes to quarter-pel, so a gate at or below 0.25 px cannot remove
     anything: 0.25 is the smallest non-zero displacement the format can express.

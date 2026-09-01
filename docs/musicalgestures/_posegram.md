@@ -28,7 +28,7 @@ two can be read against each other—and where they disagree, either the pixels 
 something the pose model missed or the model invented something the pixels do not support.
 
 `weight='speed'` is the motiongram's own quantity and the comparable one. `weight='presence'`
-brightens by where the body *is* regardless of movement, which is a different question: a
+brightens by where the body *is* regardless of motion, which is a different question: a
 dancer standing still has presence and no speed.
 
 ## Things that will bite
@@ -43,7 +43,7 @@ robust but still a guess.
 **Undetected frames are all-NaN**, and differencing across one would invent a large
 displacement going in and another coming out—two spikes bracketing a gap where nothing
 happened. Those differences are dropped rather than filled, so an undetected stretch reads
-as no movement.
+as no motion.
 
 **Pose is one person.** MediaPipe Pose returns a single figure, so on footage with two
 people it follows whichever it locked onto and does not say which.

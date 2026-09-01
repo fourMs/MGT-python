@@ -53,7 +53,7 @@ Both are therefore kept, and the choice belongs to the analysis:
 | you are comparing | use |
 |---|---|
 | magnitudes across recordings | a fixed `threshold`, the same in every one |
-| pictures, maps, or where movement happened | a measured floor, per recording |
+| pictures, maps, or where motion happened | a measured floor, per recording |
 
 Note that H.264 codes to quarter-pel, so a motion-vector gate at or below 0.25 px cannot
 remove anything: 0.25 is the smallest non-zero displacement the format can express.

@@ -7,16 +7,16 @@ from musicalgestures._utils import MgFigure, MgProgressbar, generate_outfilename
 
 def mg_motiontempo(self, fmin=0.2, fmax=8.0, dpi=300, autoshow=True, title=None, target_name=None, overwrite=True) -> "MgFigure":
     """
-    Estimates the dominant movement tempo of a video from its quantity of motion.
+    Estimates the dominant motion tempo of a video from its quantity of motion.
 
     A quantity-of-motion (QoM) signal is computed as the mean absolute difference
     between consecutive frames. Its dominant periodicity within ``[fmin, fmax]`` is
     found with an FFT and reported both in Hz and in beats per minute (BPM), giving a
-    simple estimate of the overall movement tempo (e.g. step rate of a dancer).
+    simple estimate of the overall motion tempo (e.g. step rate of a dancer).
 
     Args:
-        fmin (float, optional): Lowest movement frequency to consider (Hz). Defaults to 0.2.
-        fmax (float, optional): Highest movement frequency to consider (Hz). Defaults to 8.0.
+        fmin (float, optional): Lowest motion frequency to consider (Hz). Defaults to 0.2.
+        fmax (float, optional): Highest motion frequency to consider (Hz). Defaults to 8.0.
         dpi (int, optional): Image quality of the rendered figure in DPI. Defaults to 300.
         autoshow (bool, optional): Whether to show the resulting figure automatically. Defaults to True.
         title (str, optional): Optionally add a title to the figure. Use 'filename' for the file name. Defaults to None.
@@ -39,7 +39,7 @@ def mg_motiontempo(self, fmin=0.2, fmax=8.0, dpi=300, autoshow=True, title=None,
 
     qom = []
     prev_gray = None
-    pb = MgProgressbar(total=total_frames, prefix='Computing movement tempo:')
+    pb = MgProgressbar(total=total_frames, prefix='Computing motion tempo:')
     n = 0
     try:
         while True:
@@ -58,7 +58,7 @@ def mg_motiontempo(self, fmin=0.2, fmax=8.0, dpi=300, autoshow=True, title=None,
 
     qom = np.asarray(qom, dtype=float)
     if len(qom) < 4:
-        raise RuntimeError(f"Not enough frames in {self.filename} to estimate movement tempo.")
+        raise RuntimeError(f"Not enough frames in {self.filename} to estimate motion tempo.")
 
     # Normalise QoM to [0, 1] by pixel value range (mean abs frame difference / 255)
     qom = qom / 255.0
@@ -66,7 +66,7 @@ def mg_motiontempo(self, fmin=0.2, fmax=8.0, dpi=300, autoshow=True, title=None,
 
     times = np.arange(len(qom)) / fps
 
-    # Dominant movement frequency and its spectrum within [fmin, fmax]
+    # Dominant motion frequency and its spectrum within [fmin, fmax]
     dom_freq = dominant_frequency(qom, fps, fmin=fmin, fmax=fmax)
     tempo_bpm = dom_freq * 60.0
 
@@ -94,10 +94,10 @@ def mg_motiontempo(self, fmin=0.2, fmax=8.0, dpi=300, autoshow=True, title=None,
 
     mask = (freqs >= fmin) & (freqs <= fmax)
     ax[1].plot(freqs[mask], spectrum[mask], color='#ff7f0e', lw=0.9)
-    # Average beat frequency line + number
+    # Dominant frequency line + number
     if dom_freq > 0:
         ax[1].axvline(dom_freq, color='r', ls='--', lw=1.2,
-                      label=f'avg beat frequency = {dom_freq:.2f} Hz ({tempo_bpm:.1f} BPM)')
+                      label=f'dominant frequency = {dom_freq:.2f} Hz ({tempo_bpm:.1f} BPM)')
         ax[1].legend(loc='upper right')
     ax[1].set(title='Motion spectrum', xlabel='Frequency (Hz)', ylabel='Magnitude')
     ax[1].set_xlim(fmin, fmax)

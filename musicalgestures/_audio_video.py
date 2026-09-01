@@ -18,7 +18,7 @@ from musicalgestures._utils import MgFigure, generate_outfilename, resolve_filen
 
 
 def _audio_env(self, kind: str = 'onset'):
-    """Return (env, times, sr): the audio onset-strength ('onset') or loudness ('rms') envelope.
+    """Return (env, times, sr): the audio onset-strength ('onset') or RMS ('rms') envelope.
 
     Cached on the MgVideo (keyed by filename + kind) so repeated audio–motion analyses reuse it.
     """
@@ -67,9 +67,9 @@ def _safe_corr(a: np.ndarray, b: np.ndarray):
 def mg_phase_synchrony(self, fmin: float = 0.5, fmax: float = 4.0, fs: float = 50.0, n_bins: int = 36, dpi: int = 300,
                        autoshow: bool = True, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> "MgFigure | None":
     """
-    Quantify how phase-locked the movement is to the audio rhythm.
+    Quantify how phase-locked the motion is to the audio.
 
-    Both the audio onset-strength envelope and the movement quantity-of-motion envelope are
+    Both the audio onset-strength envelope and the quantity-of-motion envelope are
     band-pass filtered to the tempo band [``fmin``, ``fmax``] Hz, and their instantaneous phases
     (via the Hilbert transform) are compared. The **phase-locking value** (PLV, 0–1) summarises the
     consistency of the audio↔motion phase difference; a polar histogram shows its distribution.
@@ -112,7 +112,7 @@ def mg_phase_synchrony(self, fmin: float = 0.5, fmax: float = 4.0, fs: float = 5
 
     ax1 = fig.add_subplot(1, 2, 1)
     ax1.plot(t, af, color='#1f77b4', lw=0.8, label='Audio (band-passed)')
-    ax1.plot(t, mf, color='#d62728', lw=0.8, alpha=0.8, label='Movement (band-passed)')
+    ax1.plot(t, mf, color='#d62728', lw=0.8, alpha=0.8, label='Motion (band-passed)')
     ax1.set_xlabel('Time (s)')
     ax1.set_ylabel('Amplitude')
     ax1.legend(loc='upper right', fontsize=8)
@@ -127,7 +127,7 @@ def mg_phase_synchrony(self, fmin: float = 0.5, fmax: float = 4.0, fs: float = 5
     ax2.plot([np.radians(mean_dphi), np.radians(mean_dphi)], [0, plv * cmax],
              color='crimson', lw=2, zorder=5)
     ax2.set_yticklabels([])
-    ax2.set_title(f'Phase difference (movement − audio)\nPLV = {plv:.2f}, mean Δφ = {mean_dphi:.0f}°',
+    ax2.set_title(f'Phase difference (motion − audio)\nPLV = {plv:.2f}, mean Δφ = {mean_dphi:.0f}°',
                   fontsize=10)
 
     plt.tight_layout(rect=[0, 0, 1, 0.95])
@@ -158,12 +158,12 @@ def _ssm_from_features(feat: np.ndarray):
 def mg_structure_comparison(self, n: int = 200, dpi: int = 300, cmap: str = 'magma', autoshow: bool = True,
                             title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> "MgFigure | None":
     """
-    Compare the temporal **structure** of the audio with that of the movement.
+    Compare the temporal **structure** of the audio with that of the video.
 
     Builds a self-similarity matrix (SSM) of the audio (from MFCC frames) and of the video
     (from low-resolution frame appearance), resampled to the same ``n`` time points, and shows
     them side by side with their absolute **difference map** — bright regions in the difference
-    are where the musical structure and the movement structure diverge.
+    are where the audio structure and the video structure diverge.
 
     Returns an MgFigure (mean structural agreement in ``.data``), or None if the video has no audio.
     """
@@ -212,9 +212,9 @@ def mg_structure_comparison(self, n: int = 200, dpi: int = 300, cmap: str = 'mag
     fig.patch.set_facecolor('white')
     if title == 'filename':
         title = os.path.basename(self.filename)
-    fig.suptitle(title or 'Audio vs movement structural similarity', fontsize=14)
+    fig.suptitle(title or 'Audio vs video structural similarity', fontsize=14)
     for ax, mat, ttl, cm in zip(axes, [ssm_audio, ssm_motion, diff],
-                                ['Audio SSM (MFCC)', 'Movement SSM (appearance)',
+                                ['Audio SSM (MFCC)', 'Video SSM (appearance)',
                                  f'|difference|  (agreement {agreement:.2f})'],
                                 [cmap, cmap, 'inferno']):
         im = ax.imshow(mat, origin='lower', cmap=cm, aspect='equal')
@@ -238,7 +238,7 @@ def mg_structure_comparison(self, n: int = 200, dpi: int = 300, cmap: str = 'mag
 def mg_motion_audio_coupling(self, dpi: int = 300, cmap: str = 'coolwarm', dot_size: int = 260, autoshow: bool = True,
                            title: str | None = None, target_name: str | None = None, overwrite: bool = True, **pose_kwargs) -> "MgFigure | None":
     """
-    Map which body parts are most rhythmically coupled to the music.
+    Map which body parts' speeds correlate most strongly with the music's onsets.
 
     For every pose marker the per-frame speed is correlated with the audio onset-strength
     envelope (sampled at the video frame rate). The result is shown as a body map — the average
@@ -337,12 +337,12 @@ def mg_motion_audio_coupling(self, dpi: int = 300, cmap: str = 'coolwarm', dot_s
 def mg_dynamics_coupling(self, fs: float = 50.0, max_lag: float = 2.0, dpi: int = 300, autoshow: bool = True,
                          title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> "MgFigure | None":
     """
-    Compare audio **loudness** with movement **quantity** — does the dancer move more when the
-    music is louder?
+    Compare the audio **RMS level** with the **quantity of motion** — does the dancer move more
+    when the music is louder?
 
-    Aligns the audio RMS-loudness envelope with the quantity-of-motion envelope and reports their
+    Aligns the audio RMS envelope with the quantity-of-motion envelope and reports their
     correlation (at zero lag and at the best lag within ``max_lag`` seconds). The figure overlays
-    the two normalised envelopes and shows a scatter of loudness vs. motion.
+    the two normalised envelopes and shows a scatter of RMS level vs. motion.
 
     Returns an MgFigure (metrics in ``.data``), or None if the video has no audio.
     """
@@ -382,9 +382,9 @@ def mg_dynamics_coupling(self, fs: float = 50.0, max_lag: float = 2.0, dpi: int 
     fig.patch.set_facecolor('white')
     if title == 'filename':
         title = os.path.basename(self.filename)
-    fig.suptitle(title or 'Audio loudness vs. movement quantity', fontsize=14)
+    fig.suptitle(title or 'Audio RMS level vs. quantity of motion', fontsize=14)
 
-    ax1.plot(t, az, color='#1f77b4', lw=0.9, label='Audio loudness (RMS)')
+    ax1.plot(t, az, color='#1f77b4', lw=0.9, label='Audio RMS level')
     ax1.plot(t, mz, color='#d62728', lw=0.9, alpha=0.8, label='Quantity of motion')
     ax1.set_xlabel('Time (s)'); ax1.set_ylabel('Normalised')
     ax1.legend(loc='upper right', fontsize=8)
@@ -392,8 +392,8 @@ def mg_dynamics_coupling(self, fs: float = 50.0, max_lag: float = 2.0, dpi: int 
                   fontsize=10)
 
     ax2.scatter(az, mz, s=4, alpha=0.3, color='#444444')
-    ax2.set_xlabel('Audio loudness (z)'); ax2.set_ylabel('Quantity of motion (z)')
-    ax2.set_title('Loudness vs. motion', fontsize=10)
+    ax2.set_xlabel('Audio RMS (z)'); ax2.set_ylabel('Quantity of motion (z)')
+    ax2.set_title('RMS level vs. motion', fontsize=10)
 
     plt.tight_layout(rect=[0, 0, 1, 0.95])
     plt.savefig(target_name, format='png', transparent=False)

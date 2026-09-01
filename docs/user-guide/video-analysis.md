@@ -27,7 +27,7 @@ Several methods have overlapping or similar-sounding names. This table disambigu
 | `ssm()` on `MgAudio` | self-similarity from **audio** features (`features='spectrogram'`/`'chromagram'`/`'tempogram'`). |
 | `pose_waterfall()` | pose **markers** flowing through `(x, time, y)` space (needs pose data). |
 | `silhouette_waterfall()` | the **silhouette** profile cascading over a time axis (no pose needed). |
-| `motiontempo()` | the dominant **movement** tempo (from the quantity-of-motion signal). |
+| `motiontempo()` | the dominant **motion** tempo (from the quantity-of-motion signal). |
 | `motiondescriptors()` | scalar summaries of *how* something moves: motion energy, smoothness (SPARC), entropy, and spectral descriptors. |
 | audio `tempo()` / `tempogram()` | the **audio** tempo / rhythmic periodicity. |
 | `tempo_similarity()` | to **compare** motion tempo against audio tempo. |
@@ -133,15 +133,15 @@ mt.show()
 
 ## Motion descriptors
 
-`motiondescriptors()` returns an `MgFigure` of scalar movement descriptors computed from the QoM signal, also written to `_motiondescriptors.csv`:
+`motiondescriptors()` returns an `MgFigure` of scalar motion descriptors computed from the QoM signal, also written to `_motiondescriptors.csv`:
 
 | descriptor | meaning |
 |---|---|
-| `motion_energy` | mean squared QoM—the overall amount of movement. |
+| `motion_energy` | mean squared QoM—the overall amount of motion. |
 | `motion_smoothness` | SPARC (spectral arc length); non-positive, less negative = smoother. |
 | `motion_entropy` | normalised (0–1) Shannon entropy of the QoM distribution. |
-| `dominant_freq` | the main movement-rhythm rate (Hz). |
-| `spectral_centroid` | the centre of mass (Hz) of the movement spectrum. |
+| `dominant_freq` | the dominant periodicity of the motion (Hz). |
+| `spectral_centroid` | the centre of mass (Hz) of the motion spectrum. |
 
 ```python
 md = mv.motiondescriptors()
@@ -149,7 +149,7 @@ print(md.data['motion_smoothness'], md.data['motion_entropy'])
 md.show()
 ```
 
-The spectral descriptors use a Hann window (`window='none'` for rectangular) and search a movement band (`fmin`/`fmax`, default 0.2–10 Hz) so slow drift near 0 Hz does not masquerade as the movement rhythm.
+The spectral descriptors use a Hann window (`window='none'` for rectangular) and search a motion band (`fmin`/`fmax`, default 0.2–10 Hz) so slow drift near 0 Hz does not masquerade as the dominant motion periodicity.
 
 ## Motion vectors
 
@@ -226,7 +226,7 @@ grid.show()
 
 ## History video
 
-`history()` overlays the last `history_length` frames onto each frame (returns `MgVideo`). Applied to a motion video it emphasises movement traces.
+`history()` overlays the last `history_length` frames onto each frame (returns `MgVideo`). Applied to a motion video it emphasises motion traces.
 
 ```python
 history = mv.history(history_length=20)
@@ -236,7 +236,7 @@ mv.show(key='motionhistory')
 
 ## Blend
 
-`blend()` composites all frames into a single image (returns `MgImage`); `average()` is the `component_mode='average'` alias. A blend of a motion video shows where movement was concentrated.
+`blend()` composites all frames into a single image (returns `MgImage`); `average()` is the `component_mode='average'` alias. A blend of a motion video shows where motion was concentrated.
 
 ```python
 average = mv.average()
@@ -277,14 +277,14 @@ Reports comparing a performer's sound with their movement have their own page: [
 ```python
 mv.tempo_similarity().show()      # audio tempo vs motion tempo
 mv.phase_synchrony().show()       # phase-locking value (PLV)
-mv.structure_comparison().show()  # audio SSM vs movement SSM + difference
+mv.structure_comparison().show()  # audio SSM vs video SSM + difference
 mv.motion_audio_coupling().show()   # which body parts track the music
-mv.dynamics_coupling().show()     # audio loudness vs quantity of motion
+mv.dynamics_coupling().show()     # audio RMS level vs quantity of motion
 ```
 
 ## Optical flow
 
-Sparse flow tracks salient feature points; dense flow estimates movement at every pixel, hue coding direction. Both return `MgVideo`. `velocity=True` on dense flow returns an `MgFigure` with per-frame speed instead (`distance`/`angle_of_view` calibrate to metres).
+Sparse flow tracks salient feature points; dense flow estimates motion at every pixel, hue coding direction. Both return `MgVideo`. `velocity=True` on dense flow returns an `MgFigure` with per-frame speed instead (`distance`/`angle_of_view` calibrate to metres).
 
 ```python
 mv.flow.sparse().show()

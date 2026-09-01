@@ -223,7 +223,7 @@ def pose(
             assumes that the input filename with the suffix "_pose" should be used).
         save_average_pose (bool, optional): Whether to also render an image of the average pose over
             the whole video, with each marker coloured/labelled by its average quantity of motion
-            (px/frame) and labelled with its dominant movement frequency (Hz). A CSV of the per-marker
+            (px/frame) and labelled with its dominant motion frequency (Hz). A CSV of the per-marker
             statistics is saved alongside it. Defaults to True.
         save_trajectories (bool, optional): Whether to also render an image of every marker's spatial
             trajectory across the whole video. Defaults to True.
@@ -1032,7 +1032,7 @@ def mg_pose_center(self: "musicalgestures.MgVideo", save_data: bool = True, dpi:
     A single offset per coordinate (the mean of the per-marker temporal means, missing detections
     ignored) is subtracted from every marker so the overall spatiotemporal centroid sits at the
     origin (0, 0). This removes the performer's absolute position in the frame, leaving relative
-    posture/movement — useful before comparing or further analysing trajectories. Plots the centred
+    posture/motion — useful before comparing or further analysing trajectories. Plots the centred
     marker trajectories and (by default) saves a CSV of the centred coordinates. Uses cached pose
     keypoints when available, otherwise runs ``pose()`` first (``**pose_kwargs`` are forwarded).
 

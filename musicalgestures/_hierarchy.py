@@ -1,7 +1,7 @@
 """Levels of segmentation over one recording, related by containment.
 
 Three levels, coarse to fine: `part` is talking versus improvising, `phrase` is a run
-of related activity, `action` is an individual movement. Each is a list of `Action`,
+of related activity, `action` is an individual segment of motion. Each is a list of `Action`,
 which already carries `features` for what was measured and `labels` for what is
 claimed, and the distinction between those two is the one thing here worth protecting.
 

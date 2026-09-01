@@ -28,7 +28,7 @@ v = mg.MgVideo(mg.examples.dance)   # or your own file: mg.MgVideo('dance.mp4')
 v.motiongrams().show()
 ```
 
-This draws motiongrams: images that trace where movement happens in the frame over time, like a spectrogram for the body. Analysis methods return result objects, and `.show()` displays them.
+This draws motiongrams: images that trace where motion happens in the frame over time, like a spectrogram for the body. Analysis methods return result objects, and `.show()` displays them.
 
 You can also try the toolbox in the browser, with no installation:
 
@@ -48,7 +48,7 @@ Four packages from the fourMs Lab at the University of Oslo, each released separ
 |---|---|---|
 | a video file, with or without its sound | musicalgestures (this one) | motiongrams, videograms, motion analysis from ordinary video |
 | a motion time series from a body — optical markers, an accelerometer, a respiration belt, a force plate | [micromotion](https://github.com/fourMs/micromotion) | quantity of motion, posture, balance, and the band conventions the others follow |
-| a recording of a place — mono, stereo, binaural or ambisonic | [ambiscape](https://github.com/fourMs/ambiscape) | the sonic ambience of that place: level, spectrum, space, rhythm, sources |
+| a recording of a place — mono, stereo, binaural or ambisonic | [ambiscape](https://github.com/fourMs/ambiscape) | the sonic ambience of that place: level, spectrum, space, time, sources |
 | a folder of music, or a concert recording | [musiscape](https://github.com/fourMs/musiscape) | many tracks and albums compared at a glance |
 
 Where a measure appears in more than one package it has a single owner and a single implementation, so the answer does not depend on which package you called. This package owns everything that starts from pixels; micromotion owns filtering, lag estimation and circular statistics, and this package requires it, re-exporting its `group_qom`, `bandpass` and `xcorr_lag` rather than keeping its own. A test here checks the numbers against micromotion's and fails if they diverge.

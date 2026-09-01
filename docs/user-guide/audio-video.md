@@ -55,8 +55,8 @@ them, quantifying how similar the sound and the movement are.
 ### Tempo similarity
 
 `tempo_similarity()` compares the audio tempo (from the onset-strength envelope) with the
-**movement** tempo (from the quantity-of-motion envelope). The two-panel figure overlays the
-normalised envelopes and shows their cross-correlation; the report lists audio BPM, movement BPM,
+**motion** tempo (from the quantity-of-motion envelope). The two-panel figure overlays the
+normalised envelopes and shows their cross-correlation; the report lists audio BPM, motion BPM,
 their ratio and nearest harmonic relationship, the peak cross-correlation and its lag, and the
 zero-lag correlation.
 
@@ -72,7 +72,7 @@ print(ts.data['tempo_ratio'], ts.data['nearest_harmonic'])
 
 ### Phase synchrony
 
-`phase_synchrony()` band-passes both the audio onset envelope and the movement QoM to the tempo
+`phase_synchrony()` band-passes both the audio onset envelope and the quantity of motion to the tempo
 band `[fmin, fmax]` Hz and compares their instantaneous phases (Hilbert transform). It reports the
 **phase-locking value** (PLV, 0–1: how consistent the audio↔motion phase difference is) and draws
 a polar histogram of the phase difference.
@@ -89,9 +89,9 @@ print(ps.data)                                 # PLV, mean phase difference, …
 ### Structure comparison
 
 `structure_comparison()` builds a self-similarity matrix (SSM) of the audio (from MFCC frames) and
-of the movement (from low-resolution frame appearance), resampled to the same number of time points,
+of the video (from low-resolution frame appearance), resampled to the same number of time points,
 and shows them side by side with their absolute difference map. Bright regions in the difference
-are where the musical structure and the movement structure diverge; it reports an overall
+are where the audio structure and the video structure diverge; it reports an overall
 structural-agreement score.
 
 ```python
@@ -99,8 +99,8 @@ sc = mv.structure_comparison(n=200, cmap='magma')   # returns MgFigure
 sc.show()
 ```
 
-![Audio vs. movement structure comparison of dance.avi](../images/examples/structure_comparison.png)
-*Audio SSM (MFCC) vs. movement SSM (frame appearance) and their absolute difference.*
+![Audio vs. video structure comparison of dance.avi](../images/examples/structure_comparison.png)
+*Audio SSM (MFCC) vs. video SSM (frame appearance) and their absolute difference.*
 
 ### Body–audio coupling
 
@@ -119,18 +119,18 @@ bc.show()
 
 ### Dynamics coupling
 
-`dynamics_coupling()` compares audio loudness (RMS) with movement quantity (QoM). Does the
+`dynamics_coupling()` compares the audio RMS level with the quantity of motion (QoM). Does the
 performer move more when the music is louder? It aligns the two envelopes and reports their
 correlation at zero lag and at the best lag within `max_lag` seconds; the figure overlays the
-normalised envelopes and shows a loudness-vs-motion scatter.
+normalised envelopes and shows an RMS-vs-motion scatter.
 
 ```python
 dc = mv.dynamics_coupling(max_lag=2.0)         # returns MgFigure
 dc.show()
 ```
 
-![Audio loudness vs. movement quantity coupling of dance.avi](../images/examples/dynamics_coupling.png)
-*Audio RMS loudness overlaid on quantity of motion, with the loudness-vs-motion scatter and correlation.*
+![Audio RMS level vs. quantity of motion of dance.avi](../images/examples/dynamics_coupling.png)
+*Audio RMS level overlaid on quantity of motion, with the RMS-vs-motion scatter and correlation.*
 
 ---
 
@@ -138,8 +138,8 @@ dc.show()
 
 These analyse rhythm within one domain but are natural companions to the comparisons above:
 
-- `beat_statistics(source='motion')`—circular timing statistics of the movement beats (use
+- `beat_statistics(source='motion')`—circular timing statistics of the motion onsets (use
   `source='audio'` for the audio track). See [Audio Analysis](audio-analysis.md).
-- `motiontempo()`—dominant movement tempo (Hz/BPM) from the quantity-of-motion spectrum. See
+- `motiontempo()`—dominant motion tempo (Hz/BPM) from the quantity-of-motion spectrum. See
   [Video Analysis](video-analysis.md).
 - `tempogram()` / `tempo()`—audio tempo and beat tracking. See [Audio Analysis](audio-analysis.md).

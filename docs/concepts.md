@@ -58,7 +58,7 @@ part (Lamb 1965), a dynamic sense unrelated to the static one used here.
 
 ## Quantity of motion, and what it can claim
 
-Quantity of motion (QoM) is the toolbox's basic measured signal: how much movement
+Quantity of motion (QoM) is the toolbox's basic measured signal: how much motion
 there is at each moment, computed from pixel differences or from landmark
 trajectories. It is deliberately simple, and its limit should be stated with it: QoM
 measures activation, not quality. A dancer using the whole body reads high in QoM

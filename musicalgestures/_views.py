@@ -408,7 +408,7 @@ def structure_map(analysis_dir, duration_s: float, out, hierarchy=None, levels=(
        separated them by **-0.007, the wrong way**.
 
        The reason is visible once stated: a videogram column encodes *where in the frame*
-       the movement was, and over hours that mostly tracks where the dancers are standing.
+       the motion was, and over hours that mostly tracks where the dancers are standing.
        It is a position signal, and smoothing and time-delay embedding do not turn a
        position signal into a structure signal.
 
@@ -431,7 +431,7 @@ def structure_map(analysis_dir, duration_s: float, out, hierarchy=None, levels=(
             instant. **Defaults depend on the feature, because what rescues one handicaps
             the other.** Videogram columns need it badly --- without it the matrix is one
             broad diagonal with no blocks --- so the default there is 12. MFCCs already
-            describe a window's timbre, and stacking dilutes them: on the corpus this was
+            describe a window's spectral envelope, and stacking dilutes them: on the corpus this was
             written for, embedding and smoothing cut the measured separation from +0.259
             to +0.142. So the audio default is 1, meaning none.
         smooth (int): Columns to average before embedding. 9 for videogram; 3 for audio,
@@ -479,7 +479,7 @@ def structure_map(analysis_dir, duration_s: float, out, hierarchy=None, levels=(
         e = np.linspace(0, F.shape[1], max_columns + 1).astype(int)
         X = np.array([F[:, e[i]:max(e[i] + 1, e[i + 1])].mean(axis=1)
                       for i in range(max_columns)])
-        #: Centre each dimension: MFCC 0 is loudness and would otherwise dominate every
+        #: Centre each dimension: MFCC 0 is overall energy and would otherwise dominate every
         #: similarity, making the figure a picture of how loud the room was.
         X = X - X.mean(axis=0)
     else:

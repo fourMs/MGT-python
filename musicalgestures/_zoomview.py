@@ -15,7 +15,7 @@ that trade explicit and the page states the resolution it actually achieved, so 
 mistakes a smooth curve for a still moment.
 
 **Min and max per bucket, never a mean.** The same rule as every other figure here: a brief
-movement is what an overview exists to find, and a mean is what removes it.
+motion is what an overview exists to find, and a mean is what removes it.
 """
 from __future__ import annotations
 

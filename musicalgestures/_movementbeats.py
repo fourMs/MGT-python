@@ -1,9 +1,9 @@
 """
-Movement-based beat statistics: detect rhythmic onsets in a video's quantity of motion
+Motion-based beat statistics: detect onsets in a video's quantity of motion
 and compute the same circular timing statistics as the audio ``beat_statistics()``.
 
-This lets ``MgVideo.beat_statistics(source='motion')`` reveal how consistent the *movement*
-rhythm is, analogous to the audio version.
+This lets ``MgVideo.beat_statistics(source='motion')`` reveal how consistent the timing
+of the motion onsets is, analogous to the audio version.
 """
 
 from __future__ import annotations
@@ -30,7 +30,7 @@ def _movement_qom(self):
     fps = cap.get(cv2.CAP_PROP_FPS) or self.fps
     qom = []
     prev = None
-    pb = MgProgressbar(total=max(total, 1), prefix='Detecting movement beats:')
+    pb = MgProgressbar(total=max(total, 1), prefix='Computing quantity of motion:')
     n = 0
     try:
         while True:
@@ -55,16 +55,16 @@ def mg_beat_statistics(self, source: str = 'motion', n_bins: int = 32, cmap: str
                        autoshow: bool = True, title: str | None = None, target_name: str | None = None, overwrite: bool = True,
                        fmin: float = 0.2, fmax: float = 8.0) -> "MgFigure | None":
     """
-    Circular statistics of beat-timing consistency, from the **audio** or from the **movement**.
+    Circular statistics of beat-timing consistency, from the **audio** or from the **motion**.
 
     Fits an ideal isochronous beat grid to the detected beats and visualises how each beat
     deviates from it (a polar phase histogram with the mean resultant vector, plus a
-    millisecond-deviation time series), revealing whether the rhythm rushes, drags, or stays
+    millisecond-deviation time series), revealing whether the timing rushes, drags, or stays
     steady. Requires at least four detected beats.
 
     Args:
-        source (str, optional): `'motion'` (default) detects rhythmic onsets in the video's
-            quantity of motion and analyses the **movement** rhythm; `'audio'` analyses the
+        source (str, optional): `'motion'` (default) detects onsets in the video's
+            quantity of motion and analyses their timing; `'audio'` analyses the
             audio track instead (same as `MgAudio.beat_statistics` / `video.audio.beat_statistics`).
         n_bins (int, optional): Bins in the polar phase histogram. Defaults to 32.
         cmap (str, optional): Colormap for the polar histogram. Defaults to 'YlOrRd'.
@@ -73,8 +73,8 @@ def mg_beat_statistics(self, source: str = 'motion', n_bins: int = 32, cmap: str
         title (str, optional): Optional figure title; use 'filename' for the file name. Defaults to None.
         target_name (str, optional): Output image name. Defaults to None.
         overwrite (bool, optional): Overwrite or auto-increment the filename. Defaults to True.
-        fmin (float, optional): Lowest movement-onset rate to consider (Hz), 'motion' only. Defaults to 0.2.
-        fmax (float, optional): Highest movement-onset rate to consider (Hz), 'motion' only. Defaults to 8.0.
+        fmin (float, optional): Lowest motion-onset rate to consider (Hz), 'motion' only. Defaults to 0.2.
+        fmax (float, optional): Highest motion-onset rate to consider (Hz), 'motion' only. Defaults to 8.0.
 
     Returns:
         MgFigure: figure with the beat statistics in ``.data``, or None if too few beats.
@@ -94,20 +94,20 @@ def mg_beat_statistics(self, source: str = 'motion', n_bins: int = 32, cmap: str
 
     qom, fps = _movement_qom(self)
     if len(qom) < 8:
-        print('Not enough frames to detect movement beats.')
+        print('Not enough frames to detect motion onsets.')
         return None
 
-    # Detect movement onsets ("beats") as peaks in the quantity-of-motion envelope.
+    # Detect motion onsets ("beats") as peaks in the quantity-of-motion envelope.
     beat_times = librosa.onset.onset_detect(
         onset_envelope=qom, sr=fps, hop_length=1, units='time', backtrack=False)
-    # Keep onsets within the plausible movement-rate band via inter-onset interval
+    # Keep onsets within the plausible motion-rate band via inter-onset interval
     if len(beat_times) >= 2:
         ibi_all = np.diff(beat_times)
         keep = (ibi_all >= 1.0 / fmax) & (ibi_all <= 1.0 / fmin)
         beat_times = np.concatenate([beat_times[:1], beat_times[1:][keep]])
 
     if len(beat_times) < 4:
-        print('Not enough movement beats detected for circular statistics (need at least 4).')
+        print('Not enough motion onsets detected for circular statistics (need at least 4).')
         return None
 
     # Circular grid statistics (same model as the audio version)
@@ -148,7 +148,7 @@ def mg_beat_statistics(self, source: str = 'motion', n_bins: int = 32, cmap: str
     fig.patch.set_facecolor('white')
     fig.patch.set_alpha(1)
 
-    # Polar histogram of movement-beat phases
+    # Polar histogram of motion-beat phases
     ax_p = fig.add_subplot(121, projection='polar')
     bin_edges = np.linspace(0, 2 * np.pi, n_bins + 1)
     counts, _ = np.histogram(beat_phases, bins=bin_edges)
@@ -162,7 +162,7 @@ def mg_beat_statistics(self, source: str = 'motion', n_bins: int = 32, cmap: str
                       arrowprops=dict(arrowstyle='-|>', color='#333333', lw=2.0, mutation_scale=16))
     ax_p.set_xticks([0, np.pi / 2, np.pi, 3 * np.pi / 2])
     ax_p.set_xticklabels(['on beat', '1/4 late', '1/2', '1/4 early'], fontsize=8)
-    ax_p.set_title(f'Movement-beat phase deviation\nR = {R:.3f}   μ = {mu:.1f}°   p = {p_rayleigh:.4f}', fontsize=10)
+    ax_p.set_title(f'Motion-beat phase deviation\nR = {R:.3f}   μ = {mu:.1f}°   p = {p_rayleigh:.4f}', fontsize=10)
 
     # Time series of deviations
     ax_t = fig.add_subplot(122)
@@ -170,7 +170,7 @@ def mg_beat_statistics(self, source: str = 'motion', n_bins: int = 32, cmap: str
     ax_t.axhline(0, color='#888888', lw=1.0, ls='--', alpha=0.7)
     ax_t.axhline(float(deviations_ms.mean()), color='#1f77b4', lw=1.2, ls=':',
                  label=f'mean {float(deviations_ms.mean()):.1f} ms')
-    ax_t.set(xlabel='Time (s)', ylabel='Deviation from ideal grid (ms)', title='Movement-beat timing deviation')
+    ax_t.set(xlabel='Time (s)', ylabel='Deviation from ideal grid (ms)', title='Motion-beat timing deviation')
     ax_t.legend()
     cb = fig.colorbar(sc, ax=ax_t)
     cb.set_label('Time (s)')
@@ -179,7 +179,7 @@ def mg_beat_statistics(self, source: str = 'motion', n_bins: int = 32, cmap: str
         title = ''
     if title == 'filename':
         title = os.path.basename(self.filename)
-    fig.suptitle(f'{title}   Movement tempo: {tempo:.1f} BPM   σ = {float(deviations_ms.std()):.1f} ms'.strip(),
+    fig.suptitle(f'{title}   Motion tempo: {tempo:.1f} BPM   σ = {float(deviations_ms.std()):.1f} ms'.strip(),
                  fontsize=13, fontweight='bold')
 
     plt.tight_layout(rect=[0, 0, 1, 0.93])
@@ -201,15 +201,14 @@ def _nearest_harmonic_ratio(ratio: float):
 
 def mg_tempo_similarity(self, dpi: int = 300, autoshow: bool = True, title: str | None = None, target_name: str | None = None, overwrite: bool = True) -> "MgFigure | None":
     """
-    Compare the **audio** tempo/rhythm with the **movement** tempo/rhythm and report how similar
-    they are.
+    Compare the **audio** tempo with the **motion** tempo and report how similar they are.
 
-    Estimates the tempo of the audio track (from its onset-strength envelope) and of the movement
+    Estimates the tempo of the audio track (from its onset-strength envelope) and of the motion
     (from the quantity-of-motion envelope), then aligns the two normalised envelopes and
-    cross-correlates them to measure rhythmic agreement. The figure shows the two envelopes
+    cross-correlates them to measure their agreement. The figure shows the two envelopes
     overlaid and their cross-correlation; the report (also saved as a CSV) lists the audio tempo,
-    movement tempo, their ratio and nearest harmonic relationship, the peak cross-correlation, and
-    the lag (s) at which the movement best aligns with the audio.
+    motion tempo, their ratio and nearest harmonic relationship, the peak cross-correlation, and
+    the lag (s) at which the motion best aligns with the audio.
 
     Args:
         dpi (int, optional): Output DPI. Defaults to 300.
@@ -240,7 +239,7 @@ def mg_tempo_similarity(self, dpi: int = 300, autoshow: bool = True, title: str 
     # --- Motion envelope + tempo ---
     qom, fps = _movement_qom(self)
     if len(qom) < 4:
-        print('Not enough frames to estimate movement tempo.')
+        print('Not enough frames to estimate motion tempo.')
         return None
     motion_tempo = float(np.atleast_1d(librosa.feature.tempo(onset_envelope=qom, sr=fps, hop_length=1))[0])
     m_t = np.arange(len(qom)) / max(fps, 1e-9)
@@ -275,7 +274,7 @@ def mg_tempo_similarity(self, dpi: int = 300, autoshow: bool = True, title: str 
     fig.suptitle(title or 'Audio–motion tempo similarity', fontsize=14)
 
     axes[0].plot(t, a, color='#1f77b4', lw=0.9, label=f'Audio onset (tempo {audio_tempo:.1f} BPM)')
-    axes[0].plot(t, m, color='#d62728', lw=0.9, alpha=0.8, label=f'Movement QoM (tempo {motion_tempo:.1f} BPM)')
+    axes[0].plot(t, m, color='#d62728', lw=0.9, alpha=0.8, label=f'Quantity of motion (tempo {motion_tempo:.1f} BPM)')
     axes[0].set_xlabel('Time (s)')
     axes[0].set_ylabel('Normalised envelope')
     axes[0].legend(loc='upper right', fontsize=8)
@@ -285,7 +284,7 @@ def mg_tempo_similarity(self, dpi: int = 300, autoshow: bool = True, title: str 
     axes[1].axvline(peak_lag, color='crimson', ls='--', lw=1,
                     label=f'peak r={peak_corr:.2f} @ {peak_lag:+.2f}s')
     axes[1].axvline(0, color='#888888', ls=':', lw=0.8)
-    axes[1].set_xlabel('Lag (s)  — movement relative to audio')
+    axes[1].set_xlabel('Lag (s)  — motion relative to audio')
     axes[1].set_ylabel('Cross-correlation')
     axes[1].legend(loc='upper right', fontsize=8)
     axes[1].set_title(

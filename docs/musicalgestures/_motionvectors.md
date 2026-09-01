@@ -40,7 +40,7 @@ at the scale of a gesture.
 **It measures the encoder, not the scene.** An encoder may choose any vector that predicts
 a block cheaply, so on flat or still regions the vectors mean little. Across 18 windows of
 six recordings the correlation with quantity of motion had a median of 0.82—but 0.86 in
-windows with movement in them, against 0.57 in windows without. A re-encoded proxy carries
+windows with motion in them, against 0.57 in windows without. A re-encoded proxy carries
 its proxy encoder's decisions, not the camera's.
 
 **`source` gives the direction of the reference, never the distance.** It is plus or minus
@@ -164,7 +164,7 @@ with the *source* recording's own motion is much the better for it.
 | 38 | 0.81 |
 
 At high quality the encoder subdivides finely and spends vectors on detail that is not
-movement; at low quality it keeps large blocks that track the body. So a proxy is not a
+motion; at low quality it keeps large blocks that track the body. So a proxy is not a
 handicap here, which is worth knowing given how often analysis runs on one.
 
 Across the whole sweep the vectors ran 5 to 25 times faster than differencing the same

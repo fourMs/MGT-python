@@ -12,7 +12,7 @@ v = mg.MgVideo(mg.examples.dance)     # a dance video ships with the package
 v.motiongrams().show()
 ```
 
-That draws motiongrams: images tracing where movement happens in the frame over time,
+That draws motiongrams: images tracing where motion happens in the frame over time,
 like a spectrogram for the body. The video is bundled, so this runs before you have any
 footage of your own—`mg.examples.dance` and `mg.examples.pianist` are both there.
 
@@ -28,7 +28,7 @@ is detail to come back for once these make sense.
 v = mg.MgVideo(mg.examples.dance)
 
 v.motion()                # motion video, plus QoM, CoM and AoM per frame as a CSV
-v.motiongrams()           # where movement happened, over time
+v.motiongrams()           # where motion happened, over time
 v.audio.spectrogram()     # the accompanying sound
 ```
 
@@ -180,7 +180,7 @@ mv.pose_segments().show()         # reuses cached pose keypoints if available
 
 ### 6. Audio–motion tempo similarity
 
-`tempo_similarity()` compares the audio tempo with the motion tempo and cross-correlates the two rhythms:
+`tempo_similarity()` compares the audio tempo with the motion tempo and cross-correlates the two envelopes:
 
 ```python
 mv = mg.MgVideo(examples.dance)

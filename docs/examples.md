@@ -283,10 +283,10 @@ ts.show()
 print(ts.data['audio_tempo_bpm'], ts.data['motion_tempo_bpm'])
 
 # The rest of the audio–motion suite
-mv.phase_synchrony().show()       # phase-locking value (rhythm)
-mv.structure_comparison().show()  # audio SSM vs. movement SSM
+mv.phase_synchrony().show()       # phase-locking value (PLV)
+mv.structure_comparison().show()  # audio SSM vs. video SSM
 mv.motion_audio_coupling().show()   # which body parts track the music
-mv.dynamics_coupling().show()     # loudness vs. quantity of motion
+mv.dynamics_coupling().show()     # RMS level vs. quantity of motion
 ```
 
 ![Audio–motion tempo similarity](images/examples/tempo_similarity.png)
@@ -579,7 +579,7 @@ A visual tour of the outputs produced by the methods above. Each image was rende
 
 ![Impacts](images/examples/impacts.png)
 
-*Detected movement impacts / accents.*
+*Detected motion impacts / accents.*
 
 ### Pose
 
@@ -681,13 +681,13 @@ A visual tour of the outputs produced by the methods above. Each image was rende
 
 ![Phase synchrony](images/examples/phase_synchrony.png)
 
-*`mv.phase_synchrony()`—phase-locking between audio and movement rhythm.*
+*`mv.phase_synchrony()`—phase-locking between the audio and motion envelopes.*
 
 **Structure comparison**
 
 ![Structure comparison](images/examples/structure_comparison.png)
 
-*`mv.structure_comparison()`—audio SSM vs. movement SSM.*
+*`mv.structure_comparison()`—audio SSM vs. video SSM.*
 
 **Body–audio coupling**
 
@@ -699,7 +699,7 @@ A visual tour of the outputs produced by the methods above. Each image was rende
 
 ![Dynamics coupling](images/examples/dynamics_coupling.png)
 
-*`mv.dynamics_coupling()`—loudness vs. quantity of motion.*
+*`mv.dynamics_coupling()`—RMS level vs. quantity of motion.*
 
 ## Next Steps
 

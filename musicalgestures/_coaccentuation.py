@@ -13,7 +13,7 @@ line up.
 coincidence rise with density: sprinkle enough onsets over a recording and every motion
 peak has one within 150 ms whether or not anything is coordinated. An index of 0.8 means
 nothing until you know what 0.8 would have been by accident. The null here is a circular
-shift of the onsets, which preserves how many there are and their rhythm, and destroys only
+shift of the onsets, which preserves how many there are and their internal timing, and destroys only
 their relationship to the motion. Both the observed index and what the null gives are
 returned, and a claim rests on the difference rather than on the index alone.
 

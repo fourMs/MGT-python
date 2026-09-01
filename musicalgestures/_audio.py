@@ -639,7 +639,7 @@ class MgAudio:
 
     def descriptors(self, n_mels: int = 128, fmin: float = 0.0, fmax: float | None = None, power: int = 2, dpi: int = 300, autoshow: bool = True, original_time: bool = False, title: str | None = None, target_name: str | None = None, save_data: bool = False, data_format: str | list = 'csv', target_name_data: str | None = None, overwrite: bool = True) -> MgFigure | None:
         """
-        Renders a figure of plots showing spectral/loudness descriptors, including RMS energy, spectral flatness, centroid, bandwidth, rolloff of the video/audio file.
+        Renders a figure of plots showing spectral and energy descriptors, including RMS energy, spectral flatness, centroid, bandwidth, rolloff of the video/audio file.
 
         Args:
             n_mels (int, optional): The number of mel filters to use for filtering the frequency domain. Affects the vertical resolution (sharpness) of the spectrogram. NB: Too high values with relatively small window sizes can result in artifacts (typically black lines) in the resulting image. Defaults to 128.
@@ -897,7 +897,7 @@ class MgAudio:
         """
         Renders a figure showing the Mel-frequency cepstral coefficients (MFCCs) of the video/audio file.
 
-        MFCCs compactly describe the spectral envelope (timbre) of a sound over time and are
+        MFCCs compactly describe the spectral envelope (the measured counterpart of timbre) of a sound over time and are
         widely used as features for audio classification and similarity.
 
         Args:

@@ -25,7 +25,7 @@ import musicalgestures
 from musicalgestures._utils import resolve_filename
 
 #: MediaPipe Pose landmark indices, head to foot, with left and right adjacent so a
-#: symmetric movement reads as one band rather than two. Hands are kept together and
+#: symmetric motion reads as one band rather than two. Hands are kept together and
 #: placed after the wrists they belong to.
 ANATOMICAL_ORDER = [
     0,                                   # nose
@@ -76,7 +76,7 @@ def pose_activity(landmarks, anatomical: bool = False, min_visibility: float = 0
         min_visibility (float, optional): Drop landmarks the model is not this confident
             about. This is pose's equivalent of `mg_motion`'s `threshold`: MediaPipe
             estimates limbs it cannot see and gives them a low visibility, and those
-            estimates jitter, which reads as movement. On this corpus 16 per cent of
+            estimates jitter, which reads as motion. On this corpus 16 per cent of
             landmarks sit below 0.5. Defaults to 0.0, which keeps everything, so no
             existing caller's numbers change silently.
 
@@ -87,7 +87,7 @@ def pose_activity(landmarks, anatomical: bool = False, min_visibility: float = 0
         Frames where no pose was detected arrive as NaN, and differencing across one would
         invent a large displacement on the way in and another on the way out. Those
         differences are dropped rather than filled, so an undetected stretch reads as no
-        movement rather than as two spikes around a gap.
+        motion rather than as two spikes around a gap.
     """
     import numpy as np
 
@@ -95,7 +95,7 @@ def pose_activity(landmarks, anatomical: bool = False, min_visibility: float = 0
     if min_visibility > 0 and a.shape[2] > 2:
         #: A step counts only if BOTH of its endpoints were confidently seen --- one
         #: confident frame beside an estimated one is exactly the jump that is not
-        #: movement.
+        #: motion.
         seen = a[:, :, 2] >= min_visibility
         a = a.copy()
         a[~seen, 0] = np.nan
@@ -284,7 +284,7 @@ def mg_posegram_spatial(self: "musicalgestures.MgVideo", landmarks=None, times=N
         axis (str, optional): `'vertical'` bins by y, to match a vertical motiongram;
             `'horizontal'` bins by x. Defaults to `'vertical'`.
         weight (str, optional): `'speed'` for motion at each height, the motiongram's own
-            quantity; `'presence'` for where the body is regardless of movement. Defaults
+            quantity; `'presence'` for where the body is regardless of motion. Defaults
             to `'speed'`.
         bins (int, optional): Rows. Defaults to 200.
         colormap, gamma, max_width, dpi, target_name, overwrite: as `posegram()`.

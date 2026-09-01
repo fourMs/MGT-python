@@ -273,10 +273,11 @@ def sliding_correlation(x, y, fs, window=10.0, step=2.0, min_std=1e-6):
     correlation within sliding windows of `window` seconds, hopped by
     `step` seconds. Windows where either signal is (near-)constant yield
     NaN. Useful for testing whether two streams that are uncorrelated
-    globally couple locally (e.g. motion effort vs loudness).
+    globally correlate locally (e.g. a motion envelope vs an audio level
+    envelope).
 
     Source: Westney-comparisons study (Jensenius) -- local motion-loudness
-    coupling in 10 s windows.
+    correlation in 10 s windows.
 
     Args:
         x (np.ndarray): First 1-D signal.
@@ -383,7 +384,7 @@ def envelope_agreement(signals, fs, smooth=1.0):
 # ---------------------------------------------------------------------------
 
 def envelope_from_audio(samples, sr: float, hop_s: float = 0.05):
-    """A loudness envelope: peak absolute amplitude per hop.
+    """An amplitude envelope: peak absolute amplitude per hop.
 
     Peak rather than mean, because a brief transient is exactly what makes two recordings
     of one event recognisable to each other, and a mean removes it.

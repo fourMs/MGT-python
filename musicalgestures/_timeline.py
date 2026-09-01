@@ -29,7 +29,7 @@ def decimate_minmax(x, n_columns: int):
     """Reduce a signal to `n_columns`, keeping the extreme of each column.
 
     **Never a mean.** An overview exists to show where the brief events are, and a
-    mean is precisely what removes them: a single frame of large movement in a
+    mean is precisely what removes them: a single frame of large motion in a
     four-second column is the thing a viewer zoomed out to find.
 
     The final partial column is kept rather than truncated away, so the end of a
@@ -249,7 +249,7 @@ def render_timeline(analysis_dir, start_s: float = 0.0, end_s=None,
          "seconds_per_column": factor / fps, "panels": list(drawn),
          "levels": list(levels), "boundaries": boundaries, "shaded": shaded,
          "qom_style": qom_style, "qom_points": qom_points,
-         "note": ("min/max per column, never a mean: a brief movement is what an "
+         "note": ("min/max per column, never a mean: a brief motion is what an "
                   "overview exists to find and a mean is what removes it")},
         indent=1) + "\n")
     return out

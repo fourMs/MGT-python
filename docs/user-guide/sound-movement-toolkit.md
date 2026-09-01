@@ -39,7 +39,7 @@ ioi0, t_double, r2 = fit_accelerando(table['t'], table['ioi'])
 `segment_cycles()` groups onsets into stroke cycles by dynamic programming, `cycle_table()`
 tabulates per-cycle metrics, and `fit_accelerando()` fits an exponential accelerando.
 `motion_onsets()` returns the steepest sustained rises of a motion signal, for correlating
-movement with the cycles.
+motion with the cycles.
 
 ## Cross-modal alignment
 
@@ -52,7 +52,7 @@ stats = offset_stats(offsets)
 ```
 
 `xcorr_lag()` returns `(lag, r)`, where a positive lag means the second signal happens after
-the first. `sliding_correlation()` gives a windowed coupling profile, and
+the first. `sliding_correlation()` gives a windowed correlation profile, and
 `envelope_agreement()` scores agreement among N parallel envelopes.
 
 ## Quantity-of-motion cores

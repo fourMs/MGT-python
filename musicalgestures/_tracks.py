@@ -27,7 +27,7 @@ column per frame is finer than any page can show --- 50 columns per second on an
 width is one column per 20 pixels even when zoomed to a single action --- but the
 whole session at that rate is 475,680 columns and cannot be drawn at all. So each
 level halves the one below it by taking the extremes rather than the mean, because a
-brief movement must survive being zoomed out of; averaging is what makes a spike
+brief motion must survive being zoomed out of; averaging is what makes a spike
 disappear at low magnification. Levels are built once, after the pass, from the base
 that is already on disk, and cost a geometric series: less than the base again.
 
@@ -297,7 +297,7 @@ def build_pyramid(analysis_dir, which="videogram_v") -> list[Path]:
 
     Level 0 is the base, one column per frame. Level k is 2^k frames per column, and
     each column holds the greatest value of the columns beneath it. **Extremes, not
-    means**: a movement lasting a few frames is exactly what a viewer zooms out to
+    means**: a motion lasting a few frames is exactly what a viewer zooms out to
     find, and averaging is what makes it vanish at low magnification.
 
     Returns the paths written, coarsest last.

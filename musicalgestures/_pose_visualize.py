@@ -659,7 +659,7 @@ def pose_distance(data, names, width, height):
     coords, t = _positions_from_data(data, n_points)
     px = coords * np.array([width, height])                 # (T, n, 2) pixels
     disp = np.sqrt((np.diff(px, axis=0) ** 2).sum(axis=2))  # (T-1, n)
-    disp = np.nan_to_num(disp)                              # missing frames → no movement
+    disp = np.nan_to_num(disp)                              # missing frames → no motion
     cumulative = np.cumsum(disp, axis=0)                    # (T-1, n)
     total = cumulative[-1] if cumulative.shape[0] else np.zeros(n_points)
     average = float(np.mean(total)) if total.size else 0.0

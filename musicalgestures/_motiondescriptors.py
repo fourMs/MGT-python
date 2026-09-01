@@ -88,19 +88,19 @@ def mg_motiondescriptors(self, window: str = 'hann', entropy_bins: int = 50,
                          save_data: bool = True, save_plot: bool = True,
                          data_format: str = 'csv', target_name: str | None = None,
                          overwrite: bool = True) -> "MgFigure | None":
-    """Scalar movement descriptors derived from the quantity-of-motion (QoM) signal.
+    """Scalar motion descriptors derived from the quantity-of-motion (QoM) signal.
 
     Computes a compact set of higher-level descriptors that summarise *how* something moves,
     complementing the per-frame motion data from :func:`motion`:
 
-    - **motion_energy** — mean squared QoM; the overall amount of movement.
+    - **motion_energy** — mean squared QoM; the overall amount of motion.
     - **motion_smoothness** — SPARC (spectral arc length) of the QoM profile; a dimensionless,
       validated smoothness metric (less negative = smoother, more negative = jerkier).
     - **motion_entropy** — normalised (0–1) Shannon entropy of the QoM magnitude distribution;
       the complexity/variedness of the motion.
     - **spectral descriptors** of the QoM signal (Hann-windowed by default): the **dominant
-      frequency** (Hz, the main movement-rhythm rate) and the **spectral centroid** (Hz, the
-      "centre of mass" of the movement spectrum).
+      frequency** (Hz, the dominant periodicity of the motion) and the **spectral centroid** (Hz, the
+      "centre of mass" of the motion spectrum).
 
     Args:
         window (str, optional): FFT window for the spectral descriptors — 'hann' (default,
@@ -130,8 +130,8 @@ def mg_motiondescriptors(self, window: str = 'hann', entropy_bins: int = 50,
     motion_entropy = _motion_entropy(qom, bins=entropy_bins)
     freqs, power = _qom_spectrum(qom, fps, window=window)
 
-    # Restrict the spectral descriptors to a movement band so slow amplitude drift near DC
-    # doesn't masquerade as the dominant movement rhythm.
+    # Restrict the spectral descriptors to a motion band so slow amplitude drift near DC
+    # doesn't masquerade as the dominant motion periodicity.
     band = (freqs >= fmin) & (freqs <= fmax)
     if band.any() and power[band].any():
         f_band, p_band = freqs[band], power[band]
@@ -173,7 +173,7 @@ def mg_motiondescriptors(self, window: str = 'hann', entropy_bins: int = 50,
     ax_q.set(xlabel='Time (s)', ylabel='Quantity of motion', title='Quantity of motion over time')
     ax_q.margins(x=0)
 
-    # Power spectrum up to a sensible movement band (10 Hz), dominant frequency marked.
+    # Power spectrum up to a sensible motion band (10 Hz), dominant frequency marked.
     band = freqs <= 10.0 if freqs.size else slice(None)
     ax_s.plot(freqs[band], power[band], color='#d62728', lw=1.0)
     ax_s.fill_between(freqs[band], power[band], color='#d62728', alpha=0.15)

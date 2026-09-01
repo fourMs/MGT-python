@@ -35,7 +35,7 @@ audio.mfcc(n_mfcc=20).show()
 coeffs = audio.mfcc(autoshow=False).data['mfcc']   # numpy array (n_mfcc, frames)
 ```
 
-Mel-frequency cepstral coefficients (timbre). The coefficient matrix is in the figure's `.data`.
+Mel-frequency cepstral coefficients: the spectral envelope, the measured counterpart of timbre. The coefficient matrix is in the figure's `.data`.
 
 ## Chromagram
 
@@ -80,7 +80,7 @@ audio.beat_statistics().show()          # always the audio track
 mv.beat_statistics(source='audio')      # on MgVideo the default is source='motion'
 ```
 
-Circular statistics of beat-timing consistency (polar phase histogram, `R`, Rayleigh p-value); needs at least four detected beats. On `MgVideo` the default `source='motion'` analyses the movement rhythm, not the audio.
+Circular statistics of beat-timing consistency (polar phase histogram, `R`, Rayleigh p-value); needs at least four detected beats. On `MgVideo` the default `source='motion'` analyses onsets in the quantity of motion, not the audio.
 
 ## Self-Similarity Matrix (SSM)
 
@@ -107,7 +107,7 @@ RMS energy, spectral flatness, centroid, bandwidth, and rolloff over time in one
 
 ## Signal-analysis utilities
 
-The `musicalgestures` package exposes general-purpose helpers for analysing rhythm and periodicity in any 1-D signal (audio onset envelopes, quantity-of-motion curves, body-part speeds):
+The `musicalgestures` package exposes general-purpose helpers for analysing periodicity and onset timing in any 1-D signal (audio onset envelopes, quantity-of-motion curves, body-part speeds):
 
 ```python
 import musicalgestures as mg
@@ -122,13 +122,13 @@ mg.synchrony(sig_a, sig_b, times_a, times_b)       # Pearson r after align + nor
 
 `dominant_frequency` and `bandpass` take the sampling rate as an argument and cannot check it
 against anything, since they never see the file. Pass `mv.fps` rather than a literal: on a
-29.97 fps clip with a true 2.00 Hz movement rhythm, passing 20 returns 1.33 Hz and passing 15
+29.97 fps clip with a true 2.00 Hz motion periodicity, passing 20 returns 1.33 Hz and passing 15
 returns 1.00 Hz, both of them plausible tempi. See
 [the frame rate](loading.md#the-frame-rate-and-what-it-costs-to-be-wrong-about-it).
 
 `dominant_frequency` also reports the largest FFT bin in `[fmin, fmax]` whether or not there is
 a peak there. On a spectrum that falls steeply with frequency the largest bin is near `fmin`
-whatever the movement was doing, so the answer tracks the band you chose rather than the body,
+whatever the motion was doing, so the answer tracks the band you chose rather than the body,
 and it does not have to land on `fmin` to be doing that. `micromotion.spectral_peak` returns NaN
 in that case and `micromotion.band_edge_sweep` tests an answer already in hand by moving the band
 edge and seeing whether the answer follows.

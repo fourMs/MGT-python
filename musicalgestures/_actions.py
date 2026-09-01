@@ -17,7 +17,7 @@ than pretending that recognition and meaning are one step.
 
 That layering is the design. :class:`Action` is a span with provenance and a place to hang
 labels. :func:`segment_actions` produces spans from a motion envelope. :func:`action_type`
-describes a span in terms of how the movement is distributed within it. Recognisers, of
+describes a span in terms of how the motion is distributed within it. Recognisers, of
 which there can be several and which may disagree, add named labels to spans they did not
 have to produce.
 
@@ -29,7 +29,7 @@ from *what it was* means the second can be revised without redoing the first.
 .. note::
 
    Everything here works from a **motion envelope** --- a one-dimensional series saying how
-   much movement there was at each moment --- and not from pixels directly. That is
+   much motion there was at each moment --- and not from pixels directly. That is
    deliberate: issue #373 asks that recognition follow human activity rather than camera
    motion or scene change, and an envelope computed from pose landmarks carries only the
    body. Pass a pixel-derived envelope and the module will work, and a pan of the camera
@@ -94,7 +94,7 @@ def segment_actions(envelope, fs: float, threshold: float = 0.15,
                     min_duration: float = 0.1, min_gap: float = 0.1,
                     source: str = "envelope", range_mode: str = "minmax",
                     range_percentiles: tuple = (1.0, 99.0)) -> list[Action]:
-    """Cut a motion envelope into actions, where movement rises above rest.
+    """Cut a motion envelope into actions, where motion rises above rest.
 
     An action begins where the envelope crosses `threshold` and ends where it falls back.
     Short gaps are closed before short spans are dropped, in that order, because a single
@@ -102,14 +102,14 @@ def segment_actions(envelope, fs: float, threshold: float = 0.15,
     fragments rather than kept as one.
 
     The threshold is a fraction of the envelope's range, not an absolute value, so the same
-    setting transfers between recordings of different scale. Movement never rising above it
+    setting transfers between recordings of different scale. Motion never rising above it
     yields no actions, which is the correct answer for a still recording rather than an
     error.
 
     Args:
         envelope: Motion per frame, one dimension. Non-finite values are interpolated.
         fs (float): Sampling rate of the envelope, in frames per second.
-        threshold (float): Level counting as movement, as a fraction of the envelope's
+        threshold (float): Level counting as motion, as a fraction of the envelope's
             range. Defaults to 0.15.
         min_duration (float): Spans shorter than this, in seconds, are discarded as noise.
             Defaults to 0.1.
@@ -120,7 +120,7 @@ def segment_actions(envelope, fs: float, threshold: float = 0.15,
             default, so nothing already measured changes. ``"robust"`` uses
             `range_percentiles` instead, which is what a recording of session length
             needs: a handful of outlier spikes otherwise raise the maximum so far that
-            the threshold falls below everything and the real movement is never found.
+            the threshold falls below everything and the real motion is never found.
             Measured on this project's dance corpus, three three-frame spikes in a
             6,000-frame envelope hid all ten of its obvious bursts.
         range_percentiles (tuple): The percentiles bounding the range when
@@ -173,7 +173,7 @@ def segment_actions(envelope, fs: float, threshold: float = 0.15,
 
 def action_type(envelope, fs: float, iterative_min_peaks: int = 3,
                 impulsive_centroid: float = 0.42) -> dict:
-    """Describe how movement is distributed inside one action.
+    """Describe how motion is distributed inside one action.
 
     Three shapes, following the typology of *Sound Actions*:
 
@@ -183,17 +183,17 @@ def action_type(envelope, fs: float, iterative_min_peaks: int = 3,
 
     Decided on two measures rather than a classifier, so the call can be read and argued
     with. `peaks` counts internal maxima above half the span's peak: several of them mean
-    the movement repeated. `centroid` is where the span's energy sits, 0 at its start and 1
-    at its end: an impulse is front-loaded, a held movement is centred.
+    the motion repeated. `centroid` is where the span's energy sits, 0 at its start and 1
+    at its end: an impulse is front-loaded, a held action is centred.
 
-    Iterative is tested first, because a repeated movement is also a centred one, and the
+    Iterative is tested first, because a repeated action is also a centred one, and the
     repetition is the more specific description.
 
     The discriminator is the centroid rather than time spent above half height, and that is
     a correction rather than a preference. Segmentation cuts an action at a threshold, so a
     decaying impulse arrives here already truncated to its loud third, which raises the
     fraction of it spent above half height until it is indistinguishable from a held
-    movement. Measured on the canonical shapes after segmentation: time-above-half reads
+    action. Measured on the canonical shapes after segmentation: time-above-half reads
     0.385 for a decay against 0.510 for a tremolo and 1.000 for a plateau, while the
     centroid reads 0.332, 0.481 and 0.500. Only the second separates the impulse.
 
@@ -216,7 +216,7 @@ def action_type(envelope, fs: float, iterative_min_peaks: int = 3,
         return out
 
     # Half of the peak, not half of the span's own range. A motion envelope has a
-    # meaningful zero --- no movement --- so "held" means "stayed near its peak", and
+    # meaningful zero --- no motion --- so "held" means "stayed near its peak", and
     # measuring from the span minimum makes a perfectly steady action read as impulsive,
     # because its minimum and its peak are the same number.
     hi = float(np.max(e))
@@ -278,10 +278,10 @@ def mg_actions(self: "musicalgestures.MgVideo", envelope=None, fs: float | None 
     Args:
         envelope: A motion envelope to segment. Defaults to None, meaning build one from
             pose. Pass your own to segment something else, and note that a pixel-derived
-            envelope will read camera movement as action.
+            envelope will read camera motion as action.
         fs (float, optional): Sampling rate of `envelope`. Defaults to the video's frame
             rate, which is right for any envelope with one value per frame.
-        threshold (float): Level counting as movement, as a fraction of the envelope's
+        threshold (float): Level counting as motion, as a fraction of the envelope's
             range. Defaults to 0.15.
         min_duration (float): Shortest span kept, in seconds. Defaults to 0.1.
         min_gap (float): Longest gap closed, in seconds. Defaults to 0.1.
