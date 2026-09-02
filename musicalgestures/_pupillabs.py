@@ -236,7 +236,8 @@ def _angular_velocity(az_deg: np.ndarray, el_deg: np.ndarray, t: np.ndarray) -> 
     cosang = (np.sin(el[:-1]) * np.sin(el[1:])
               + np.cos(el[:-1]) * np.cos(el[1:]) * np.cos(az[1:] - az[:-1]))
     ang = np.arccos(np.clip(cosang, -1.0, 1.0))
-    return np.asarray(np.r_[np.nan, np.rad2deg(ang) / dt], dtype=float)
+    vel: np.ndarray = np.asarray(np.r_[np.nan, np.rad2deg(ang) / dt], dtype=float)
+    return vel
 
 
 def _flag(n: int, fps: float, spans: pd.DataFrame | None, id_col: str | None,
@@ -494,7 +495,8 @@ def gazegram(frames: pd.DataFrame, axis: str = "y", size: int | None = None,
     np.add.at(img, (rows, tb[ok]), 1)
     if normalise:
         img = img / (img.max(axis=0, keepdims=True) + 1e-9)
-    return np.asarray(img)
+    out: np.ndarray = np.asarray(img)
+    return out
 
 
 # ---------------------------------------------------------------------------------------
