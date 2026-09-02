@@ -14,7 +14,7 @@ track into spans, closing short gaps before dropping short bursts, and a second 
 that logic would be a second place for the ordering to be got wrong.
 
 Measured against Finn Upham's 79 hand-coded laughter annotations on this corpus: ROC AUC
-0.823 against a loudness baseline's 0.741, and 91 per cent precision in the top 5 per cent
+0.823 against a level baseline's 0.741, and 91 per cent precision in the top 5 per cent
 of windows. That is why this ships as proposals rather than as an empty tier.
 """
 import numpy as np

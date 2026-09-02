@@ -22,11 +22,11 @@ decision rather than a measurement, and it is made explicitly here rather than b
 the emptiest remaining spot and the spots run out. Past a dozen or so they overlap whatever
 the selection does. Eight suits a studio; a long section with a lot of travel takes more.
 
-**It assumes a subject that MOVES THROUGH SPACE, and it should.** Separation is spatial, so
-a subject who stays put gives it nothing to separate: run on a seated pianist it returns
+**It assumes a performer who MOVES THROUGH SPACE, and it should.** Separation is spatial, so
+a performer who stays put gives it nothing to separate: run on a seated pianist it returns
 heads and hands stacked in one place, because a static torso is in the plate and only the
 moving parts survive the mask. That is not a fault to tune away --- the picture is
-reflecting what the recording contains. For travelling subjects it is a chronophotograph;
+reflecting what the recording contains. For travelling performers it is a chronophotograph;
 for a seated one it becomes an overlay of moving limbs, which is a different object and
 worth knowing you are looking at.
 
@@ -61,7 +61,7 @@ TOLERANCE = 26.0        #: difference from the plate counting as somebody, 8-bit
 SHADOW_RATIO = 0.55     #: darker than this share of the plate's brightness is a shadow
 #: What a PERSON looks like in a frame, which is what this is optimised for. These are
 #: defaults and not laws: they assume a whole body at studio distance, and a closer
-#: camera, a wider room or a seated subject wants them moved. They are parameters of
+#: camera, a wider room or a seated performer wants them moved. They are parameters of
 #: `multishot` for that reason rather than constants, because a bound that silently
 #: matches nothing returns an empty result rather than an error, which reads as "nothing
 #: happened here".
@@ -225,8 +225,8 @@ def multishot(video, n_bodies: int = 8, n_candidates: int = 120, start=None, end
         min_area, max_area (float): How much of the frame a body may cover, as a
             fraction. The defaults --- 0.4 to 6 per cent --- describe a whole person at
             studio distance, which is what this is tuned for. **Move them when the
-            framing differs**: a closer camera or a larger subject needs `max_area`
-            raised, a wide room or a distant subject needs `min_area` lowered. Too
+            framing differs**: a closer camera or a larger performer needs `max_area`
+            raised, a wide room or a distant performer needs `min_area` lowered. Too
             narrow a range yields no candidates and returns None, which looks like an
             empty room rather than a setting that matched nothing.
         max_border (float): Retained for callers that set it; the rejection now asks

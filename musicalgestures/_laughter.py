@@ -13,7 +13,7 @@ speech because a clip-level tag answers "is there speech in this minute", which 
 question, and because dancers breathing came back as `Snort`, `Gasp`, `Animal` and `Horse`.
 Both objections were about minute-long clips. Run at a two-second window on the six
 laughter classes and measured against Finn Upham's 79 hand-coded annotations of this
-project's corpus, it reaches **ROC AUC 0.823 against a loudness baseline's 0.741, and 91
+project's corpus, it reaches **ROC AUC 0.823 against a level baseline's 0.741, and 91
 per cent precision in the top 5 per cent of windows**. That is why laughter ships as
 proposals a person confirms, and why speech does not ship from a tagger at all.
 

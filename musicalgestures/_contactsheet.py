@@ -5,7 +5,7 @@ each, so a year of daily sessions is a handful of pictures rather than a folder 
 
 WHY IT IS WORTH HAVING. On a 366-day export of daily standstill recordings, every framing fault
 found was found by a person looking at a sheet like this and not by a measurement: a crop pointed
-at a colleague rather than the participant, a frame that cut the subject's feet off, a geometry
+at a colleague rather than the participant, a frame that cut the participant's feet off, a geometry
 that ran out of room at the bottom. A day framed differently from its neighbours announces itself
 without any threshold having to be chosen, which is exactly what an automatic check cannot do,
 because a check has to be told in advance what wrong looks like.

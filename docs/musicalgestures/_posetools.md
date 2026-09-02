@@ -20,7 +20,7 @@ leaderboards: localisation has converged across every serious model, so the axis
 that separates them is detection rate. MediaPipe holds ~99% at ~45 fps on CPU for
 a single person and remains the answer without a GPU; `yolo11m` is the GPU knee
 (99.7% at ~114 fps); RTMPose matches it at 100% with a separate person detector
-that never loses the subject, and is the Apache-licensed family.
+that never loses the person, and is the Apache-licensed family.
 
 ## More than one body
 

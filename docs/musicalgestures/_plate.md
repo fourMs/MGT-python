@@ -47,9 +47,9 @@ mg.plate_spread(used, n_frames)      # near 1 is spread, near 0 is one stretch
 
 What the second pass cannot do is remove somebody who stood in one place for most of the
 recording: no selection of frames recovers a room that no frame shows. Worse, on material
-where the subject rarely leaves—standstill recordings—the frames most like the first
-plate are exactly the ones with the subject in place, and re-taking the median over them
-makes the subject solid where the full sample had washed them out. On a 2012 standstill
+where the performer rarely leaves—standstill recordings—the frames most like the first
+plate are exactly the ones with the performer in place, and re-taking the median over them
+makes the performer solid where the full sample had washed them out. On a 2012 standstill
 performance recording the refined plate acquired a performer standing solidly in an
 otherwise empty room.
 
@@ -57,7 +57,7 @@ The failure is detectable at the output. Under a median first pass the kept fram
 ones that agree with the plate, so a refinement that changes the room materially is
 concentrating, not cleaning. `room_plate` measures that change and returns the unrefined
 plate with a warning when it exceeds `max_refine_change` (default 0.02 of the frame—above
-a body's residue and below a body). On material where the subject never leaves, pass
+a body's residue and below a body). On material where the performer never leaves, pass
 `refine=False` and skip the second pass altogether.
 
 ::: musicalgestures._plate

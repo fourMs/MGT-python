@@ -14,9 +14,9 @@ a room is, and keeps whatever is usually there, which is exactly what a chair is
 re-takes the median over the emptiest tenth of the samples --- the frames most like the
 first plate --- which tightens the plate where passing traffic left residue. What it cannot
 do is remove somebody who stood in one place for most of the recording: no selection of
-frames recovers a room that no frame shows. Worse, on material where the subject rarely
+frames recovers a room that no frame shows. Worse, on material where the performer rarely
 leaves --- standstill recordings --- the look-alike frames are exactly the ones with the
-subject in place, and re-taking the median over them makes the subject solid where the
+performer in place, and re-taking the median over them makes the performer solid where the
 full sample had washed them out. That failure is detectable at the output: under a median
 first pass the kept frames are the ones that AGREE with the plate, so a refinement that
 changes the room materially is concentrating, not cleaning. `room_plate` measures that
@@ -101,8 +101,8 @@ def refine_indices(diffs, keep_fraction: float = 0.10,
 
     The smallest differences are the emptiest frames, the ones with least in front of
     the room --- a reading that holds only while the first plate is mostly empty. Where
-    the subject stood in place through most of the recording, the frames most like the
-    plate are the ones with the subject in them, and this selection inverts; that is
+    the performer stood in place through most of the recording, the frames most like the
+    plate are the ones with the performer in them, and this selection inverts; that is
     caught downstream, where `room_plate` checks what the refinement did to the plate
     rather than trusting the selection.
 
@@ -203,7 +203,7 @@ def room_plate(video, n_samples: int = 400, width: int = 320,
             when refinement changed more than this fraction of it. The kept frames are
             the ones that agree with the first plate, so a large change means they
             agree on something the full sample rejected --- on standstill material,
-            the subject, made solid. Defaults to 0.02, above a body's residue and
+            the performer, made solid. Defaults to 0.02, above a body's residue and
             below a body.
 
     Returns:
@@ -233,7 +233,7 @@ def room_plate(video, n_samples: int = 400, width: int = 320,
             f"refinement changed {changed * 100:.1f} per cent of the plate, which under "
             f"a median first pass means concentrating something the full sample had "
             f"washed out rather than cleaning; returning the unrefined plate. On "
-            f"material where the subject rarely leaves the frame, pass refine=False",
+            f"material where the performer rarely leaves the frame, pass refine=False",
             RuntimeWarning, stacklevel=2)
         return plate, idx
     spread = plate_spread(used, n_frames)

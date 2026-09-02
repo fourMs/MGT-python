@@ -24,7 +24,7 @@ even if the dancer was at different distances, with the body's path underneath.
 **`room`**—skeletons at their true positions in the frame, with the route drawn over them
 and a dot where each drawn posture stands. Moments are chosen for spatial separation, using
 the same reasoning as `multishot`: evenly spaced ones land on top of each other. This view
-earns its keep only when the subject travels—on a recording made on one spot the
+earns its keep only when the dancer travels—on a recording made on one spot the
 skeletons pile up where the dancer stands, and `strip` is the view to reach for.
 
 **`bands`**—one row per region of the body, carrying its joint angles over time. Dark is
@@ -97,7 +97,7 @@ per cent of frames, including on a dark costume against a black curtain. What it
 individual *landmarks*—the wrists most often—and a row that needs one is a gap wherever
 it is missing.
 
-**It assumes a subject who moves.** On a seated musician the postures are nearly identical
+**It assumes a performer who moves.** On a seated musician the postures are nearly identical
 and the strip says little that a single frame would not.
 
 ::: musicalgestures._posetimeline

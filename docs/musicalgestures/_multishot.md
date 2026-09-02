@@ -11,7 +11,7 @@ the moments were. It answers nothing a motiongram answers and shows something no
 
 *The bundled `dancer.avi`, six bodies. This dancer stays on one spot, so the selection
 spreads over the gesture instead of the floor and the picture becomes a Marey-style
-chronophotograph of the arms. A subject who travels reads as separate figures across
+chronophotograph of the arms. A dancer who travels reads as separate figures across
 the room.*
 
 The build-up is available as a looping GIF with `animate=True`: the bare room first,
@@ -84,9 +84,9 @@ the selection does. Eight suits a studio; a long section with a lot of travel ta
 A whole session is usually mostly setup, and the picture then fills with people standing
 about rather than with the work. `start` and `end` take seconds.
 
-## It assumes a subject that moves through space
+## It assumes a performer who moves through space
 
-Separation is spatial, so a subject who stays put gives it nothing to separate. On a seated
+Separation is spatial, so a performer who stays put gives it nothing to separate. On a seated
 pianist it returns heads and hands stacked in one place: the static torso is part of the
 room by then, and only the moving parts survive the mask. The picture is reflecting what the
 recording contains, which is the intended behaviour—but it is an overlay of moving limbs

@@ -171,6 +171,20 @@ The items that survived every sweep as judgment calls, for ARJ:
    otherwise. The deep pass over the soundscape reports is authorised.
 6. Published-record vocabulary is fixed at the source too (loudness feature
    streams, `visual_motion`, the `subject` column); re-upload follows later.
+   Applied in two waves: level and video_motion end-to-end on 2026-09-02 (392
+   files), then, on the follow-up ruling "use participant instead of subject
+   wherever you can", the participant rename end-to-end (202 files, including
+   the `subjects`/`n_subjects_*` columns, the harmonised outputs regenerated
+   byte-identically, and the shared-data freeze re-minted by its own sweep
+   mechanism), plus the mirrors: person-sense subject in prose across every
+   corpus, and the loudness/visual-motion echoes in the dance corpus, the
+   student package, the level-baseline family, and the P11 manuscript.
+   Still carrying old vocabulary by deliberate rule: the `subject_NN` id and
+   file-name family (identifiers; a possible separate pass), the regulatory
+   term "human-subjects claim", the Sverm caption label "(Sverm #2001,
+   Subject 1)", bibliographic `Subject:` keyword lines, and cited designs'
+   within-subject vocabulary. 539 files await the pre-DOI checksum refresh;
+   the re-upload checklist is in the standstill WORKLOG.
 
 5. The books' knowing extensions, ruled 2026-09-02: apply the recommendations.
    Applied the same day: chapter 8 of Sound Spaces now commits to the perceived-
