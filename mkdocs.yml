@@ -75,6 +75,7 @@ nav:
           - Co-accentuation: musicalgestures/_coaccentuation.md
           - Co-occurrence: musicalgestures/_cooccurrence.md
           - ELAN import: musicalgestures/_elan.md
+          - Pupil Labs import: musicalgestures/_pupillabs.md
           - Annotation views: musicalgestures/_views.md
           - Zoomable page: musicalgestures/_zoomview.md
       - Special formats:

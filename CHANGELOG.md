@@ -5,7 +5,27 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.31.0] — 2026-09-03
+
+### Added
+- **Pupil Labs Neon exports on the video's clock** — new `_pupillabs` module.
+  `read_pupil_export` reads a Pupil Cloud timeseries export (gaze at 200 Hz,
+  3D eye states, IMU, fixations, saccades, blinks, events, scene camera
+  intrinsics) and keeps every table in seconds after the recording start;
+  `pupil_to_frames` places a video on that clock by naming the event it starts
+  at (or an offset) and bins everything to the video's frames --- gaze
+  position and angular velocity, worn, fixation/saccade/blink flags with the
+  export's ids, pupil size masked around blinks and interpolated, head
+  gyroscope magnitude, dynamic acceleration and orientation --- so eye and head
+  data sit in the same frame-indexed table as quantity of motion.
+  `eye_events` lists the events inside the video as `EyeEvent` spans,
+  `eyetracking_rates` gives per-bin rates (onset-counted) and means, and
+  `gazegram` draws where the wearer looked per time bin as the gaze
+  counterpart of a motiongram. Gaze inside blinks is set to missing rather
+  than trusted, and the Cloud face detector's boxes are read but not
+  interpreted (on the live-painting corpus this was written for they fired on
+  the painting more than on people). Bound on `MgVideo` as `eyetracking()`,
+  `gazegrams()` and `eyetracking_timeline()`.
 
 ### Changed
 - **Cross-modal names match their level of description** — following the four

@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.30.0**.
+The current stable release is **MGT-python 1.31.0**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,24 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.31.0
+
+Eye tracking joins the toolbox, on the video's clock.
+
+Pupil Labs Neon exports from Pupil Cloud — gaze at 200 Hz, 3D eye states, IMU,
+fixations, saccades, blinks and event markers — are read by the new `_pupillabs`
+module and placed on a video's frame clock by naming the event the video starts
+at. `pupil_to_frames` bins every stream to the frames (gaze position and angular
+velocity, event flags with the export's ids, pupil size masked around blinks,
+head rotation and orientation), `eyetracking_rates` counts events by onset per
+bin, and `gazegram` draws where the wearer looked as the gaze counterpart of a
+motiongram. Bound on `MgVideo` as `eyetracking()`, `gazegrams()` and
+`eyetracking_timeline()`. Written for a live-painting concert in which the
+painter wore the glasses for an hour while following two musicians. Also in this
+release: the cross-modal pairings are renamed to match their level of
+description (`motion_audio_coupling()`, `warp_audiomotion_beats()`), with the old
+names kept for one release.
 
 ### 1.30.0
 

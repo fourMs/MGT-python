@@ -195,6 +195,10 @@ class MgVideo(MgAudio):
     motionvectoroverview_figure: MgFigure
     motionscape_figure: MgFigure
     posegram_figure: MgFigure
+    eyetracking: "pd.DataFrame"
+    eyetracking_figure: MgFigure
+    gazegram_x_image: MgImage
+    gazegram_y_image: MgImage
     posegram_spatial_figure: MgFigure
     posegrams_images: "musicalgestures.MgList"
     movement_beat_statistics_figure: MgFigure
@@ -358,6 +362,11 @@ class MgVideo(MgAudio):
     from musicalgestures._pose import mg_pose_segments as pose_segments  # type: ignore[misc]
     from musicalgestures._pose import mg_pose_center as pose_center  # type: ignore[misc]
     from musicalgestures._pose import mg_pose_distance as pose_distance  # type: ignore[misc]
+    from musicalgestures._pupillabs import (  # type: ignore[misc]
+        mg_eyetracking as eyetracking,
+        mg_gazegrams as gazegrams,
+        mg_eyetracking_timeline as eyetracking_timeline,
+    )
     from musicalgestures._posegram import (  # type: ignore[misc]
         mg_posegram as posegram,
         mg_posegram_spatial as posegram_spatial,

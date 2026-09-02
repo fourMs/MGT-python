@@ -59,6 +59,7 @@ module.
 - [Posetools](_posetools.md)
 - [Posture](_posture.md)
 - [Pulse](_pulse.md)
+- [Pupil Labs import](_pupillabs.md)
 - [Qom](_qom.md)
 - [Remap360](_remap360.md)
 - [Show](_show.md)
