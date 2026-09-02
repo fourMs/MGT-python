@@ -172,4 +172,10 @@ The items that survived every sweep as judgment calls, for ARJ:
 6. Published-record vocabulary is fixed at the source too (loudness feature
    streams, `visual_motion`, the `subject` column); re-upload follows later.
 
-Item 5, the books' knowing extensions, awaits a ruling after fuller explanation.
+5. The books' knowing extensions, ruled 2026-09-02: apply the recommendations.
+   Applied the same day: chapter 8 of Sound Spaces now commits to the perceived-
+   intervals definition of rhythm; chapter 10 licenses the room extension on it
+   (measured periodicity as rhythm offered to perception); chapter 3 disarms its
+   "Capturing a soundscape" heading; the Still Standing prelude declares that
+   "standstill level" names the measured speed floor, not the act; the marked
+   pulse-as-heart-rate stays as marked.
