@@ -104,15 +104,16 @@ stated definition wherever they carry weight:
   versus aesthetic judgement; the two senses should never sit unmarked in one
   paragraph.
 - **Segmentation vs chunking**: algorithmic cutting of data versus perceptual
-  grouping by a listener/observer. This pair carries a live tension: the glossary
-  says actions "cannot be read directly from motion data", while MGT's
-  `segment_actions()` returns `Action` spans from an envelope. Flag, do not fix:
-  the resolution (rename the spans, or state that the segmenter *proposes*
-  actions) is ARJ's call.
+  grouping by a listener/observer. The apparent tension with MGT's
+  `segment_actions()` was resolved by ARJ on 2026-09-02: action segments are not
+  absolute and need interpretation, but an algorithm may still try to estimate
+  where actions start and end. The class name stays; segmenter output is an
+  estimate, never a fact.
 - **Sound object vs sound event vs sound action**: Schaeffer's perceptual unit;
   the neutral physical/digital occurrence; ARJ's action–sound unit.
-- **Co-located vs telematic vs hybrid**: the HybridDanceImprov axis; hybrid means
-  the mix, not a synonym for telematic.
+- **Co-located vs distributed vs hybrid**: the HybridDanceImprov axis, with
+  distributed as ARJ's ruled term (2026-09-02) for the mediated condition;
+  hybrid means the mix, not a synonym for distributed.
 - **Instrument vs measurement device**, **modality vs data type**,
   **recording vs person-recording vs participant**: already settled corpus rules,
   restated here so sweeps enforce them.
@@ -159,3 +160,16 @@ The items that survived every sweep as judgment calls, for ARJ:
    as heart rate where marked. Each wants either a licensing sentence or a ruling.
 6. Feature names welded to published records ("loudness" streams, `visual_motion`,
    the `subject` CSV column) restyle only at a record's next version.
+
+## Rulings, 2026-09-02
+
+1. `Action` spans stay: segments are estimates that need interpretation, and an
+   algorithm may still try to estimate where actions start and end.
+2. The coupling-named functions stay as they are.
+3. The mediated condition is called distributed, corpus-wide.
+4. Instrument means a musical instrument; measurement device/system or similar
+   otherwise. The deep pass over the soundscape reports is authorised.
+6. Published-record vocabulary is fixed at the source too (loudness feature
+   streams, `visual_motion`, the `subject` column); re-upload follows later.
+
+Item 5, the books' knowing extensions, awaits a ruling after fuller explanation.
