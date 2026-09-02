@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import warnings
 import numpy as np
-from typing import Union, List
+from typing import Any, Union, List
 from musicalgestures._input_test import mg_input_test
 from musicalgestures._videoreader import mg_videoreader
 from musicalgestures._flow import Flow
@@ -195,7 +195,7 @@ class MgVideo(MgAudio):
     motionvectoroverview_figure: MgFigure
     motionscape_figure: MgFigure
     posegram_figure: MgFigure
-    eyetracking: "pd.DataFrame"
+    eyetracking: Any  # pandas.DataFrame from eyetracking()
     eyetracking_figure: MgFigure
     gazegram_x_image: MgImage
     gazegram_y_image: MgImage

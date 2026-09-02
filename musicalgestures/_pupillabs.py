@@ -195,24 +195,23 @@ def read_pupil_export(folder) -> PupilRecording:
     info = json.load(open(info_p))
     start_ns = int(info["start_time"])
     duration_s = float(info.get("duration", 0)) / 1e9
-    events_all = _read(folder, "events.csv")
     events: dict = {}
-    if events_all is not None:
-        events_all = _seconds(events_all, start_ns)
+    events_all = _read(folder, "events.csv")
+    if events_all is None:
+        events_all = pd.DataFrame(columns=["name", "t"])
+    else:
+        events_all["t"] = (events_all["timestamp [ns]"].astype(np.int64) - np.int64(start_ns)) / 1e9
         for _, r in events_all.iterrows():
             events.setdefault(str(r["name"]), float(r["t"]))
-    else:
-        events_all = pd.DataFrame(columns=["name", "t"])
-    scene_size = DEFAULT_SCENE_SIZE
+    scene_size: tuple[int, int] = DEFAULT_SCENE_SIZE
     cam_p = folder / "scene_camera.json"
     if cam_p.exists():
         cam = json.load(open(cam_p))
         K = np.asarray(cam.get("camera_matrix", []), dtype=float)
-        if K.shape == (3, 3):
+        if K.shape == (3, 3) and abs(2 * K[0, 2] - DEFAULT_SCENE_SIZE[0]) < 100:
             # principal point sits near the image centre; the resolution itself is not
             # in the file, so keep the default unless the export says otherwise
-            scene_size = tuple(int(round(2 * v)) for v in (K[0, 2], K[1, 2])) \
-                if abs(2 * K[0, 2] - DEFAULT_SCENE_SIZE[0]) < 100 else DEFAULT_SCENE_SIZE
+            scene_size = (int(round(2 * K[0, 2])), int(round(2 * K[1, 2])))
     rec = PupilRecording(folder=folder, start_ns=start_ns, duration_s=duration_s, events=events,
                          events_all=events_all, scene_size=scene_size,
                          wearer=str(info.get("wearer_name", "")))
@@ -237,14 +236,14 @@ def _angular_velocity(az_deg: np.ndarray, el_deg: np.ndarray, t: np.ndarray) -> 
     cosang = (np.sin(el[:-1]) * np.sin(el[1:])
               + np.cos(el[:-1]) * np.cos(el[1:]) * np.cos(az[1:] - az[:-1]))
     ang = np.arccos(np.clip(cosang, -1.0, 1.0))
-    return np.r_[np.nan, np.rad2deg(ang) / dt]
+    return np.asarray(np.r_[np.nan, np.rad2deg(ang) / dt], dtype=float)
 
 
 def _flag(n: int, fps: float, spans: pd.DataFrame | None, id_col: str | None,
           duration_s: float) -> tuple[np.ndarray, np.ndarray]:
     """Frame flags (0/1) and ids (-1 where none) for spans with t0/t1 in video seconds."""
-    flag = np.zeros(n, dtype=np.int8)
-    ids = np.full(n, -1, dtype=np.int64)
+    flag: np.ndarray = np.zeros(n, dtype=np.int8)
+    ids: np.ndarray = np.full(n, -1, dtype=np.int64)
     if spans is None or len(spans) == 0:
         return flag, ids
     t0s = spans["t0"].values.astype(float)
@@ -339,10 +338,11 @@ def pupil_to_frames(rec: PupilRecording, fps: float, start=0.0,
                                      pupil_right=("pupil diameter right [mm]", "median"))
             out = out.join(agg, on="frame")
             out["pupil_mean"] = out[["pupil_left", "pupil_right"]].mean(axis=1)
-    for name, id_col in (("fixations", "fixation id"), ("saccades", "saccade id"), ("blinks", "blink id")):
+    for name, id_name in (("fixations", "fixation id"), ("saccades", "saccade id"), ("blinks", "blink id")):
         spans = _shift_spans(getattr(rec, name), offset)
         key = name[:-1]
-        if spans is not None and id_col not in spans:
+        id_col: str | None = id_name
+        if spans is not None and id_name not in spans:
             id_col = None
         flag, ids = _flag(n, fps, spans, id_col, duration_s)
         if spans is not None:
@@ -494,7 +494,7 @@ def gazegram(frames: pd.DataFrame, axis: str = "y", size: int | None = None,
     np.add.at(img, (rows, tb[ok]), 1)
     if normalise:
         img = img / (img.max(axis=0, keepdims=True) + 1e-9)
-    return img
+    return np.asarray(img)
 
 
 # ---------------------------------------------------------------------------------------
@@ -607,6 +607,7 @@ def mg_eyetracking_timeline(self, bin_s: float = 1.0, dpi: int = 120, title: str
     path = resolve_filename(self.of, "_eyetracking.png", target_name, overwrite)
     fig.savefig(path)
     plt.close(fig)
-    self.eyetracking_figure = MgFigure(figure=fig, figure_type="video.eyetracking",
-                                       data={"rates": rates}, layers=None, image=path)
-    return self.eyetracking_figure
+    result = MgFigure(figure=fig, figure_type="video.eyetracking",
+                      data={"rates": rates}, layers=None, image=path)
+    self.eyetracking_figure = result
+    return result
