@@ -26,6 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   palette per minute. Bound on `MgVideo` as `painting()`.
 - **Head turns from the IMU** — `_pupillabs.head_turns`: yaw relative to a running median,
   and the spans where the head is turned away from what the wearer has been facing.
+- **TRC and C3D readers** — `read_trc` and `read_c3d` beside `read_qtm_tsv`, so Qualisys,
+  OptiTrack, Vicon, Theia3D, Pose2Sim and OpenCap exports all land on the same trajectory
+  contract: `(marker_names, data, fs)` with `data` of shape `(frames, markers, 3)`, gaps as
+  NaN (never zeros) and positions converted onto millimetres from the file's declared unit.
+  `read_c3d` rides the optional `ezc3d` package, added to the `[c3d]` extra beside the
+  pure-Python `c3d` writer dependency; analog channels and events are declaredly not read.
 
 ## [1.32.0] — 2026-09-03
 

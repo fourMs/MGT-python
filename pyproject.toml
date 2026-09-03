@@ -58,7 +58,9 @@ yolo = ["ultralytics>=8"]
 # runtime; Apache-licensed end to end. onnxruntime-gpu is the user's swap when
 # they want the CUDA execution provider.
 rtmpose = ["rtmlib>=0.3", "onnxruntime>=1.17"]
-c3d = ["c3d>=0.5"]
+# The pure-Python `c3d` package writes pose exports (pose(data_format='c3d'));
+# `ezc3d` reads C3D files (read_c3d). One extra covers both directions of the format.
+c3d = ["c3d>=0.5", "ezc3d>=1.5"]
 ml = ["scikit-learn>=1.2", "torch>=2.0", "torchvision>=0.15"]
 cli = ["click>=8.0"]
 # `av` is here, not only in `motionvectors`, because the TEST SUITE exercises the

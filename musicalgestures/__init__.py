@@ -204,6 +204,8 @@ from musicalgestures._physio import (
 # re-exported here; reach it as `musicalgestures._mocap.dominant_frequency`.
 from musicalgestures._mocap import (
     read_qtm_tsv,
+    read_trc,
+    read_c3d,
     compare_modality_envelopes,
 )
 # Landmark-trajectory pose tools. extract_pose_landmarks needs the optional
