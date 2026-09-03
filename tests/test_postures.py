@@ -218,6 +218,35 @@ class TestAveragePosture:
         assert configuration_distance(avg, held.configuration) < 0.02
 
 
+class TestPoseCacheLandmarks:
+    """pose() caches flat rows; the converter restores the trajectory contract."""
+
+    def test_flat_rows_become_landmark_arrays(self):
+        from musicalgestures._pose import pose_cache_landmarks
+        rows = [[0.0, 0.1, 0.2, 0.0, 0.0, 0.5, 0.6],
+                [40.0, 0.11, 0.21, 0.3, 0.4, 0.51, 0.61]]
+        lm = pose_cache_landmarks({"data": rows})
+        assert lm.shape == (2, 3, 3)
+        assert lm[0, 0, 2] == 1.0          # seen
+        assert lm[0, 1, 2] == 0.0          # zeroed pair marks a refusal
+        assert lm[1, 1, 2] == 1.0
+        assert lm[0, 2, 0] == pytest.approx(0.5)
+
+    def test_segmenter_accepts_converted_cache(self):
+        from musicalgestures._pose import pose_cache_landmarks
+        base = _skeleton("down") / 300.0   # normalised-ish coordinates
+        rows = []
+        for t in range(75):                 # 3 s at 25 fps, held still
+            row = [t * 40.0]
+            for x, y in base:
+                row += [float(x), float(y)]
+            rows.append(row)
+        lm = pose_cache_landmarks({"data": rows})
+        assert lm.shape == (75, 33, 3)
+        postures = segment_postures(lm, 25.0)
+        assert len(postures) == 1
+
+
 class TestPosture:
     def test_overlap_and_duration(self):
         a = Posture(start=1.0, end=2.0)

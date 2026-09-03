@@ -908,6 +908,29 @@ def _rerender_pose_from_cache(self: "musicalgestures.MgVideo", style='both', ove
     return self
 
 
+def pose_cache_landmarks(cache) -> "np.ndarray":
+    """The keypoint cache's rows as a landmark array of shape ``(frames, 33, 3)``.
+
+    ``pose()`` caches one flat row per frame --- ``[time_ms, x0, y0, x1, y1, ...]``
+    with coordinates normalised to the frame and below-threshold landmarks zeroed.
+    Downstream analysis (postures, quantity of motion) wants the trajectory-array
+    contract instead, so this restores it: x, y per landmark, with visibility 1.0
+    where the detector spoke and 0.0 where the zeroed pair marks a refusal ---
+    so a missing landmark is marked missing rather than placed at the corner.
+
+    Args:
+        cache: ``self._pose_keypoints`` (the dict) or its ``data`` rows directly.
+
+    Returns:
+        np.ndarray: ``(frames, landmarks, 3)`` --- x, y (normalised) and visibility.
+    """
+    rows = np.asarray(cache["data"] if isinstance(cache, dict) else cache,
+                      dtype=float)
+    xy = rows[:, 1:].reshape(len(rows), -1, 2)
+    vis = ((xy[:, :, 0] != 0) | (xy[:, :, 1] != 0)).astype(float)
+    return np.concatenate([xy, vis[:, :, None]], axis=2)
+
+
 def _ensure_pose_keypoints(self: "musicalgestures.MgVideo", **pose_kwargs):
     """Make sure ``self._pose_keypoints`` exists; if not, run pose() (without writing the video
     or the summary images) to populate it. Extra kwargs are forwarded to pose()."""

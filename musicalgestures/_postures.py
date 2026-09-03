@@ -428,10 +428,10 @@ def mg_postures(self: "musicalgestures.MgVideo", landmarks=None, fs: float | Non
     """
     rate = float(fs) if fs is not None else float(self.fps)
     if landmarks is None:
-        from musicalgestures._pose import _ensure_pose_keypoints
+        from musicalgestures._pose import _ensure_pose_keypoints, pose_cache_landmarks
 
         cache = _ensure_pose_keypoints(self, **pose_kwargs)
-        landmarks = cache["data"] if isinstance(cache, dict) else cache
+        landmarks = pose_cache_landmarks(cache)
         if isinstance(cache, dict) and cache.get("fps") and fs is None:
             rate = float(cache["fps"])
 

@@ -294,6 +294,8 @@ def mg_actions(self: "musicalgestures.MgVideo", envelope=None, fs: float | None 
     if envelope is None:
         from musicalgestures._qom import pose_qom
 
+        from musicalgestures._pose import pose_cache_landmarks
+
         cache = getattr(self, "_pose_keypoints", None)
         if not cache:
             self.pose()
@@ -302,7 +304,17 @@ def mg_actions(self: "musicalgestures.MgVideo", envelope=None, fs: float | None 
             raise RuntimeError(
                 "no pose landmarks are available, so there is no body to follow. Run "
                 "pose() first, or pass an envelope of your own.")
-        envelope, rate = pose_qom(cache["data"] if isinstance(cache, dict) else cache, rate)
+        #: The cache stores flat normalised rows; pose_qom wants pixel
+        #: trajectories, and a below-threshold landmark zeroed to the corner
+        #: would read as a leap across the frame, so refusals become NaN.
+        lm = pose_cache_landmarks(cache)
+        xy = lm[:, :, :2] * np.array([[[float(self.width), float(self.height)]]])
+        xy[lm[:, :, 2] == 0] = np.nan
+        #: pose_qom returns (scalar QoM, per-frame speed envelope, fs): the
+        #: quantity of motion is one number for the whole recording, and the
+        #: series a segmenter can cut is the speed envelope.
+        _qom, envelope, rate = pose_qom(xy, rate)
+        envelope = np.asarray(envelope, dtype=float)
 
     actions = segment_actions(envelope, rate, threshold=threshold,
                               min_duration=min_duration, min_gap=min_gap,
