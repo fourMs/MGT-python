@@ -419,8 +419,15 @@ def pose(
                 return musicalgestures.MgVideo(self.filename, color=self.color, returned_by_process=True)
 
         if not os.path.exists(weightsFile):
-            print('Model weights are still missing after download attempt. Exiting pose() call.')
-            return musicalgestures.MgVideo(self.filename, color=self.color, returned_by_process=True)
+            #: A print-and-return here left the caller's next line failing with
+            #: a bare AttributeError on a result attribute that was never set
+            #: (reported from a Colab run on 2026-09-03). One clear error that
+            #: names the fix beats two confusing ones.
+            raise RuntimeError(
+                f"the {model} model weights could not be downloaded, so pose() cannot "
+                "run. The MediaPipe backend needs no weight download and is the "
+                "default when installed: pip install \"musicalgestures[pose]\" "
+                "(on Colab, run that in a cell and restart the runtime if needed).")
 
     # Read the network into Memory
     net = cv2.dnn.readNetFromCaffe(protoFile, weightsFile)

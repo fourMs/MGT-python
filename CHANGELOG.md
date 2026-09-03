@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- **A failed pose-weights download now raises one clear error** — when the
+  OpenPose fallback cannot fetch its weights (the hosted body_25 caffemodel
+  currently returns 404), `pose()` used to print and return, so the caller's
+  next line failed with a bare `AttributeError` on a result attribute that
+  was never set. It now raises a `RuntimeError` naming the fix:
+  `pip install "musicalgestures[pose]"` for the MediaPipe default, which
+  needs no weight download. The tutorial notebook's Colab install cell
+  installs the `[pose]` extra for the same reason.
 - **The pose cache reaches the higher layers in the right shape** —
   `pose()` caches one flat row per frame (`[time_ms, x0, y0, ...]`, zeroed
   below threshold), but `postures_from_pose()` and `actions_from_motion()`'s
