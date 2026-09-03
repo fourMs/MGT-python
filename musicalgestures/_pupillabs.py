@@ -60,6 +60,7 @@ __all__ = [
     "eye_events",
     "eyetracking_rates",
     "gazegram",
+    "head_turns",
 ]
 
 #: Columns read from gaze.csv. Cloud exports name them with units in brackets.
@@ -613,3 +614,46 @@ def mg_eyetracking_timeline(self, bin_s: float = 1.0, dpi: int = 120, title: str
                       data={"rates": rates}, layers=None, image=path)
     self.eyetracking_figure = result
     return result
+
+
+def head_turns(frames: pd.DataFrame, fps: float, baseline_s: float = 60.0, threshold_deg: float = 25.0,
+               min_duration_s: float = 0.5) -> pd.DataFrame:
+    """Head yaw relative to its running median, and the spans where the head is turned away.
+
+    The IMU's yaw drifts and the wearer's "straight ahead" is wherever the work is, so an
+    absolute heading means little. Relative to a slow running median it means "turned away
+    from what she has been facing", which for a painter at an easel is the palette, the room
+    or the musicians. The spans are not attributed --- the scene video says what was looked at.
+
+    Args:
+        frames (pandas.DataFrame): From :func:`pupil_to_frames`, with `head_yaw`.
+        fps (float): Frame rate of the table.
+        baseline_s (float): Window of the running median. Defaults to 60 s.
+        threshold_deg (float): Deviation counting as turned away. Defaults to 25°.
+        min_duration_s (float): Shortest span kept. Defaults to 0.5 s.
+
+    Returns:
+        pandas.DataFrame: One row per span with `start`, `end`, `duration`, `peak_deg` and
+        `direction` (``"left"`` or ``"right"``). The per-frame deviation is added to `frames`
+        as `head_yaw_rel` and the flag as `head_turned`.
+    """
+    if "head_yaw" not in frames:
+        raise KeyError("frame table has no head_yaw; was imu.csv in the export?")
+    yaw = frames["head_yaw"].interpolate(limit_direction="both")
+    unwrapped = pd.Series(np.degrees(np.unwrap(np.radians(yaw.values))))
+    base = unwrapped.rolling(int(baseline_s * fps), center=True, min_periods=int(fps)).median()
+    rel = (unwrapped - base).values
+    frames["head_yaw_rel"] = rel
+    turned = np.abs(rel) > threshold_deg
+    frames["head_turned"] = turned.astype(int)
+    d = np.diff(np.r_[0, turned.astype(int), 0])
+    starts, ends = np.where(d == 1)[0], np.where(d == -1)[0]
+    rows = []
+    for a, b in zip(starts, ends):
+        if (b - a) / fps < min_duration_s:
+            continue
+        seg = rel[a:b]
+        peak = seg[np.argmax(np.abs(seg))]
+        rows.append({"start": a / fps, "end": b / fps, "duration": (b - a) / fps, "peak_deg": float(peak),
+                     "direction": "left" if peak > 0 else "right"})
+    return pd.DataFrame(rows, columns=["start", "end", "duration", "peak_deg", "direction"])

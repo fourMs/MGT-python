@@ -76,6 +76,8 @@ nav:
           - Co-occurrence: musicalgestures/_cooccurrence.md
           - ELAN import: musicalgestures/_elan.md
           - Pupil Labs import: musicalgestures/_pupillabs.md
+          - Event alignment: musicalgestures/_events.md
+          - Canvas and painting content: musicalgestures/_canvas.md
           - Annotation views: musicalgestures/_views.md
           - Zoomable page: musicalgestures/_zoomview.md
       - Special formats:

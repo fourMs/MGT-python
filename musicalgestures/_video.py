@@ -196,6 +196,9 @@ class MgVideo(MgAudio):
     motionscape_figure: MgFigure
     posegram_figure: MgFigure
     eyetracking: Any  # pandas.DataFrame from eyetracking()
+    painting: Any  # pandas.DataFrame from painting()
+    painting_figure: MgFigure
+    colourgram_image: MgImage
     eyetracking_figure: MgFigure
     gazegram_x_image: MgImage
     gazegram_y_image: MgImage
@@ -362,6 +365,7 @@ class MgVideo(MgAudio):
     from musicalgestures._pose import mg_pose_segments as pose_segments  # type: ignore[misc]
     from musicalgestures._pose import mg_pose_center as pose_center  # type: ignore[misc]
     from musicalgestures._pose import mg_pose_distance as pose_distance  # type: ignore[misc]
+    from musicalgestures._canvas import mg_painting as painting  # type: ignore[misc]
     from musicalgestures._pupillabs import (  # type: ignore[misc]
         mg_eyetracking as eyetracking,
         mg_gazegrams as gazegrams,

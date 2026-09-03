@@ -148,9 +148,16 @@ from musicalgestures._pupillabs import (
     eye_events,
     eyetracking_rates,
     gazegram,
+    head_turns,
     PupilRecording,
     EyeEvent,
 )
+# Events of one stream against another (strokes against notes), and cross-recurrence of two
+# series; the painting as a time series from a canvas video.
+from musicalgestures._events import event_alignment, event_xcorr, EventAlignment
+from musicalgestures._correlate import cross_recurrence
+from musicalgestures._canvas import painting_content, composition
+
 from musicalgestures._alignment import (
     xcorr_lag,
     envelope_lag,

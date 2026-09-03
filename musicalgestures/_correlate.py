@@ -184,3 +184,80 @@ def lagged_correlation(x, y, fs: float, max_lag_s: float) -> LaggedCorrelation:
     return LaggedCorrelation(lags_s=ks / fs, r=rs, best_lag_s=float(ks[best] / fs),
                              best_r=best_r, p_uncorrected=p_unc, p_corrected=p_cor,
                              n_lags=len(ks), n_overlap=n_ov, n_effective=n_eff)
+
+
+def cross_recurrence(x, y, fs: float, dim: int = 3, delay_s: float = 1.0, radius_quantile: float = 0.2,
+                     max_lag_s: float = 20.0, min_line: int = 2, n_surrogates: int = 200, seed: int = 0) -> dict:
+    """Cross-recurrence quantification of two series, against circular-shift surrogates.
+
+    Two trajectories are recurrent where their delay-embedded states come within a radius of
+    each other. The share of such points (recurrence rate) is fixed here by choosing the radius
+    as a quantile of all distances, so what varies is their *structure*: determinism (the share
+    lying on diagonal lines of at least `min_line` points, where the two evolve alike for a
+    while), the mean line length, and the diagonal profile --- recurrence as a function of lag,
+    whose peak says at what delay the two run alike. Each is compared with the same statistic
+    for `y` circularly shifted, because with the radius fixed a high determinism is easy to
+    get from two smooth series that have nothing to do with each other.
+
+    Args:
+        x, y: The two series, equal length and rate; NaN is filled with the mean.
+        fs (float): Sampling rate.
+        dim (int): Embedding dimension. Defaults to 3.
+        delay_s (float): Embedding delay in seconds. Defaults to 1.0.
+        radius_quantile (float): Distance quantile defining recurrence. Defaults to 0.2.
+        max_lag_s (float): Range of the diagonal profile. Defaults to ±20 s.
+        min_line (int): Shortest diagonal counted as a line. Defaults to 2.
+        n_surrogates (int): Circular shifts. Defaults to 200.
+        seed (int): For the shifts.
+
+    Returns:
+        dict: ``recurrence_rate``, ``determinism``, ``mean_line``, ``lags_s``, ``profile``,
+        ``profile_peak_lag_s``, ``profile_surrogate_95`` (per-lag 95th percentile), ``det_surrogate_mean``,
+        ``p_determinism`` (share of surrogates with determinism at least as high), and the
+        recurrence matrix as ``matrix`` (uint8).
+    """
+    x = np.asarray(x, dtype=float); y = np.asarray(y, dtype=float)
+    x = np.where(np.isnan(x), np.nanmean(x), x); y = np.where(np.isnan(y), np.nanmean(y), y)
+    tau = max(int(round(delay_s * fs)), 1)
+
+    def embed(v):
+        v = (v - v.mean()) / (v.std() + 1e-12)
+        n = len(v) - (dim - 1) * tau
+        return np.column_stack([v[k * tau:k * tau + n] for k in range(dim)])
+
+    def matrix(a, b):
+        A, B = embed(a), embed(b)
+        d = np.sqrt(((A[:, None, :] - B[None, :, :]) ** 2).sum(-1))
+        return (d <= np.quantile(d, radius_quantile)).astype(np.uint8)
+
+    def measures(R):
+        n = R.shape[0]; lengths = []
+        for k in range(-n + 1, n):
+            dg = np.diagonal(R, k).astype(int)
+            runs = np.diff(np.r_[0, dg, 0])
+            lengths += list(np.where(runs == -1)[0] - np.where(runs == 1)[0])
+        L = np.array(lengths) if lengths else np.array([0])
+        det = float(L[L >= min_line].sum() / max(L.sum(), 1))
+        mean_line = float(L[L >= min_line].mean()) if (L >= min_line).any() else 0.0
+        return float(R.mean()), det, mean_line
+
+    def profile(R):
+        maxlag = int(max_lag_s * fs)
+        return np.array([np.diagonal(R, k).mean() for k in range(-maxlag, maxlag + 1)])
+
+    R = matrix(x, y)
+    rr, det, ml = measures(R); prof = profile(R)
+    lags = np.arange(-int(max_lag_s * fs), int(max_lag_s * fs) + 1) / fs
+    rng = np.random.default_rng(seed)
+    det_list: list[float] = []
+    prof_list: list[np.ndarray] = []
+    margin = max(int(fs * 5), 1)
+    for _ in range(n_surrogates):
+        Rs = matrix(x, np.roll(y, int(rng.integers(margin, len(y) - margin))))
+        det_list.append(measures(Rs)[1]); prof_list.append(profile(Rs))
+    sd = np.array(det_list)
+    sp = np.array(prof_list) if prof_list else np.zeros((1, len(prof)))
+    return {"recurrence_rate": rr, "determinism": det, "mean_line": ml, "lags_s": lags, "profile": prof,
+            "profile_peak_lag_s": float(lags[int(np.argmax(prof))]), "profile_surrogate_95": np.percentile(sp, 95, axis=0),
+            "det_surrogate_mean": float(sd.mean()) if len(sd) else float("nan"),
+            "p_determinism": float((np.sum(sd >= det) + 1) / (len(sd) + 1)), "matrix": R}

@@ -58,6 +58,8 @@ module.
 - [Pose Visualize](_pose_visualize.md)
 - [Posetools](_posetools.md)
 - [Posture](_posture.md)
+- [Canvas and painting content](_canvas.md)
+- [Event alignment](_events.md)
 - [Pulse](_pulse.md)
 - [Pupil Labs import](_pupillabs.md)
 - [Qom](_qom.md)
