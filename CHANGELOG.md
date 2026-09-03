@@ -5,6 +5,23 @@ All notable changes to MGT-python will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **ReID v2.1: chains across breaks** — `associate_fragments(embeddings=...)`
+  now links each segment's movers into persistent chains by the same
+  strictly-more-separated appearance rule that links fragments: every segment
+  mover gains a `chain` id, and a new `chains` key maps each chain to its
+  summed coverage and its `[segment, mover]` members. A mover's candidates are
+  the `n_movers` most recently ended chains — the exact counterpart of the
+  fragment-level state; comparing against all history was measured to link
+  almost nothing, since unlinked chains of the same person converge and the
+  margin rule correctly refuses. Where the margin does not clear, a new chain
+  starts; no cross-break identity is ever guessed. Measured on the co-located
+  dance day: the longest per-dancer aggregate grows from one 6.6-minute
+  segment to a 12.7-minute chain over five segments, with 119 chains spanning
+  breaks. Zero new decodes, as priced in the v2 design.
+
 ## [1.31.0] — 2026-09-03
 
 ### Added

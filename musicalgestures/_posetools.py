@@ -901,6 +901,13 @@ def associate_fragments(tracks_data: dict, n_movers: int = 2,
         concatenated ``time``, ``frame`` and ``landmarks``; ``breaks`` with
         ``time_s``, ``reason`` ("ambiguous", "no plausible mover") and the
         candidate movers; and ``coverage_s`` per mover across all segments.
+        With `embeddings`, additionally ``chains``: mover labels restart at
+        every break, so appearance links each segment's movers into persistent
+        chains by the same strictly-more-separated rule --- each segment mover
+        gains a ``chain`` id, and ``chains`` maps each id to its summed
+        ``coverage_s`` and its ``members`` as ``[segment, mover]`` pairs. A
+        mover whose margin does not clear the bar starts a new chain; no
+        cross-break identity is ever guessed.
     """
     frags = []
     for k, tr in tracks_data["tracks"].items():
@@ -964,19 +971,24 @@ def associate_fragments(tracks_data: dict, n_movers: int = 2,
         if not used:
             return
         movers = {}
+        link = []
         for i, m in enumerate(used):
             movers[i] = {
                 "time": np.concatenate([f["time"] for f in m["frags"]]),
                 "frame": np.concatenate([f["frame"] for f in m["frags"]]),
                 "landmarks": np.concatenate([f["landmarks"] for f in m["frags"]]),
             }
-            coverage[i] += float(sum(f["time"][-1] - f["time"][0]
-                                     for f in m["frags"]))
+            span = float(sum(f["time"][-1] - f["time"][0] for f in m["frags"]))
+            coverage[i] += span
+            link.append({"ids": [f["id"] for f in m["frags"]],
+                         "start": float(movers[i]["time"][0]),
+                         "end": float(movers[i]["time"][-1]),
+                         "span": span})
         segments.append({"start_s": float(min(v["time"][0]
                                               for v in movers.values())),
                          "end_s": float(max(v["time"][-1]
                                             for v in movers.values())),
-                         "movers": movers})
+                         "movers": movers, "_link": link})
 
     state = new_state()
     for f in frags:
@@ -1041,8 +1053,105 @@ def associate_fragments(tracks_data: dict, n_movers: int = 2,
         state[mi]["end_pos"] = f["mid"][-1]
     flush(state)
 
-    return {"segments": segments, "breaks": breaks,
-            "n_fragments": len(frags), "coverage_s": coverage}
+    #: v2.1 (`plans/2026-08-30-reid-v2-design.md`, closing paragraph): mover
+    #: labels restart at every break, so nothing above aggregates one person
+    #: ACROSS segments. Appearance links segment-movers into persistent chains
+    #: by the same strictly-more-separated rule that links fragments; where the
+    #: margin does not clear the bar, a NEW chain starts --- refusal remains
+    #: output, and no cross-break identity is ever guessed.
+    chains: dict = {}
+    if embeddings is not None:
+        chain_state: list = []   # per chain: {"embs": [...], "end_t": float}
+
+        def mover_emb(info):
+            es = [np.asarray(embeddings[i], dtype=float)
+                  for i in info["ids"] if i in embeddings]
+            return np.mean(es, axis=0) if es else None
+
+        for si, seg in enumerate(segments):
+            infos = seg.pop("_link")
+            embs = [mover_emb(info) for info in infos]
+            #: A mover's candidates are the `n_movers` most recently ended
+            #: chains --- the exact counterpart of the fragment-level state,
+            #: which holds only the current mover slots. Comparing against
+            #: every chain in history was measured to link almost nothing on
+            #: the dance corpus: unlinked chains of the same person accumulate,
+            #: best and second-best converge, and the margin rule correctly
+            #: refuses --- so the pool must stay as small as the question.
+            #: Long-range aggregation emerges through transitivity instead.
+            #: One body cannot be in two places at once, so only chains ending
+            #: before THAT mover began qualify; `taken` keeps two movers of
+            #: one segment off the same chain.
+            def recent_for(start):
+                ended = [(c["end_t"], ci) for ci, c in enumerate(chain_state)
+                         if c["end_t"] <= start]
+                ended.sort(reverse=True)
+                return {ci for _, ci in ended[:n_movers]}
+            candidates = {mi: recent_for(infos[mi]["start"])
+                          for mi in range(len(infos))}
+            dist = {}
+            for mi, e in enumerate(embs):
+                if e is None:
+                    continue
+                for ci in candidates[mi]:
+                    if not chain_state[ci]["embs"]:
+                        continue
+                    ce = np.mean(np.asarray(chain_state[ci]["embs"],
+                                            dtype=float), axis=0)
+                    dist[(mi, ci)] = float(np.linalg.norm(e - ce))
+            assigned: dict = {}
+            taken: set = set()
+            while True:
+                #: Each unassigned mover proposes its nearest untaken chain,
+                #: under the same margin rule `by_appearance` applies to
+                #: fragments; the closest clear proposal wins, and the rest
+                #: re-evaluate with that chain gone --- so a conflict resolves
+                #: to the closer mover and the other may still clear against
+                #: its next-best, or correctly fail to.
+                proposals = []
+                for mi, e in enumerate(embs):
+                    if e is None or mi in assigned:
+                        continue
+                    ds = sorted((dist[(mi, ci)], ci) for ci in candidates[mi]
+                                if ci not in taken and (mi, ci) in dist)
+                    if not ds:
+                        continue
+                    if len(ds) == 1 or (ds[1][0] - ds[0][0]) > min_separation:
+                        proposals.append((ds[0][0], mi, ds[0][1]))
+                if not proposals:
+                    break
+                _, mi, ci = min(proposals)
+                assigned[mi] = ci
+                taken.add(ci)
+            for mi, info in enumerate(infos):
+                if mi in assigned:
+                    ci = assigned[mi]
+                    chain_state[ci]["embs"].extend(
+                        np.asarray(embeddings[i], dtype=float)
+                        for i in info["ids"] if i in embeddings)
+                    chain_state[ci]["end_t"] = info["end"]
+                else:
+                    ci = len(chain_state)
+                    #: A chain with no appearance at all can never be a
+                    #: candidate (skipped below), so it needs no placeholder.
+                    chain_state.append({
+                        "embs": [np.asarray(embeddings[i], dtype=float)
+                                 for i in info["ids"] if i in embeddings],
+                        "end_t": info["end"]})
+                seg["movers"][mi]["chain"] = ci
+                entry = chains.setdefault(ci, {"coverage_s": 0.0,
+                                               "members": []})
+                entry["coverage_s"] += info["span"]
+                entry["members"].append([si, mi])
+    else:
+        for seg in segments:
+            seg.pop("_link", None)
+
+    out = {"segments": segments, "breaks": breaks,
+           "n_fragments": len(frags), "coverage_s": coverage}
+    if embeddings is not None:
+        out["chains"] = chains
+    return out
 
 
 def extract_pose_landmarks_rtmpose(

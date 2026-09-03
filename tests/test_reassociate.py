@@ -121,6 +121,56 @@ class TestAppearance:
         assert len(r["breaks"]) == 0
 
 
+class TestChains:
+    """v2.1: appearance links mover-chains ACROSS breaks, or refuses to."""
+
+    @staticmethod
+    def _held_apart(appearance_gap=1.0):
+        """Both walkers vanish for 5 s: a break no rule at fragment level can
+        bridge (position: gap > max_gap_s; appearance: gap > appearance_max_gap_s),
+        so the associator must produce two segments."""
+        tr = walker_tracks(cuts_a=(8.0, 13.0), cuts_b=(8.0, 13.0))
+        del tr["tracks"][2]
+        del tr["tracks"][5]
+        return tr
+
+    def test_distinct_appearance_links_chains_across_the_break(self):
+        tr = self._held_apart()
+        emb = TestAppearance._embeddings(tr, a_ids={1, 3})
+        r = associate_fragments(tr, embeddings=emb, max_gap_s=2.0,
+                                appearance_max_gap_s=1.0)
+        assert len(r["segments"]) == 2
+        assert len(r["chains"]) == 2
+        for chain in r["chains"].values():
+            segs = {m[0] for m in chain["members"]}
+            assert segs == {0, 1}
+            assert chain["coverage_s"] == pytest.approx(15.0, abs=0.5)
+
+    def test_identical_appearance_starts_new_chains_at_the_break(self):
+        tr = self._held_apart()
+        emb = TestAppearance._embeddings(tr, a_ids=set(tr["tracks"]))
+        r = associate_fragments(tr, embeddings=emb, max_gap_s=2.0,
+                                appearance_max_gap_s=1.0)
+        assert len(r["segments"]) == 2
+        assert len(r["chains"]) == 4          # nothing linked, nothing guessed
+
+    def test_chain_ids_are_exclusive_within_a_segment(self):
+        tr = self._held_apart()
+        emb = TestAppearance._embeddings(tr, a_ids={1, 3})
+        r = associate_fragments(tr, embeddings=emb, max_gap_s=2.0,
+                                appearance_max_gap_s=1.0)
+        for seg in r["segments"]:
+            ids = [m["chain"] for m in seg["movers"].values()]
+            assert len(ids) == len(set(ids))
+
+    def test_no_embeddings_means_no_chains_key(self):
+        tr = walker_tracks(cuts_a=(10.0,))
+        r = associate_fragments(tr)
+        assert "chains" not in r
+        assert all("chain" not in m for seg in r["segments"]
+                   for m in seg["movers"].values())
+
+
 class TestFragmentEmbeddings:
     def test_two_coloured_bodies_get_separable_embeddings(self, tmp_path):
         """A red body and a blue body, two fragments each: same-colour fragments
