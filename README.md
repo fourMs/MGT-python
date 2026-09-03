@@ -6,6 +6,7 @@
 [![CI](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml/badge.svg)](https://github.com/fourMs/MGT-python/actions/workflows/ci.yml)
 [![Documentation](https://github.com/fourMs/MGT-python/actions/workflows/docs.yml/badge.svg)](https://fourms.github.io/MGT-python/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21965729.svg)](https://doi.org/10.5281/zenodo.21965729)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fourMs/MGT-python/blob/master/musicalgestures/MusicalGesturesToolbox.ipynb)
 
 The **Musical Gestures Toolbox for Python** (`musicalgestures`) is a collection of tools for visualising and analysing motion in video recordings, along with the accompanying sound. It was developed for research on music-related body motion, but it works on any video or audio file.
 
