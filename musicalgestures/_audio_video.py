@@ -23,6 +23,7 @@ def _audio_env(self, kind: str = 'onset'):
     Cached on the MgVideo (keyed by filename + kind) so repeated audio–motion analyses reuse it.
     """
     import librosa
+    import librosa.onset as librosa_onset
     cache = getattr(self, '_audio_env_cache', {})
     key = (self.filename, kind)
     if key in cache:
@@ -32,7 +33,7 @@ def _audio_env(self, kind: str = 'onset'):
     if kind == 'rms':
         env = librosa.feature.rms(y=y, hop_length=hop)[0]
     else:
-        env = librosa.onset.onset_strength(y=y, sr=sr, hop_length=hop)
+        env = librosa_onset.onset_strength(y=y, sr=sr, hop_length=hop)
     t = librosa.times_like(env, sr=sr, hop_length=hop)
     result = (np.asarray(env, dtype=float), np.asarray(t, dtype=float), sr)
     cache[key] = result
@@ -151,7 +152,8 @@ def _ssm_from_features(feat: np.ndarray):
     norm[norm == 0] = 1.0
     unit = feat / norm
     ssm = unit @ unit.T
-    lo, hi = np.nanmin(ssm), np.nanmax(ssm)
+    lo: float = float(np.nanmin(ssm))
+    hi: float = float(np.nanmax(ssm))
     return (ssm - lo) / (hi - lo) if hi > lo else ssm
 
 
