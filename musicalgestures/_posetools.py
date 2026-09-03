@@ -1082,18 +1082,19 @@ def associate_fragments(tracks_data: dict, n_movers: int = 2,
             #: One body cannot be in two places at once, so only chains ending
             #: before THAT mover began qualify; `taken` keeps two movers of
             #: one segment off the same chain.
-            def recent_for(start):
+            def recent_for(start: float) -> set:
                 ended = [(c["end_t"], ci) for ci, c in enumerate(chain_state)
                          if c["end_t"] <= start]
                 ended.sort(reverse=True)
                 return {ci for _, ci in ended[:n_movers]}
-            candidates = {mi: recent_for(infos[mi]["start"])
+            chain_pool = {mi: recent_for(infos[mi]["start"])
                           for mi in range(len(infos))}
+            sep = float(min_separation) if min_separation is not None else 0.0
             dist = {}
             for mi, e in enumerate(embs):
                 if e is None:
                     continue
-                for ci in candidates[mi]:
+                for ci in chain_pool[mi]:
                     if not chain_state[ci]["embs"]:
                         continue
                     ce = np.mean(np.asarray(chain_state[ci]["embs"],
@@ -1112,11 +1113,11 @@ def associate_fragments(tracks_data: dict, n_movers: int = 2,
                 for mi, e in enumerate(embs):
                     if e is None or mi in assigned:
                         continue
-                    ds = sorted((dist[(mi, ci)], ci) for ci in candidates[mi]
+                    ds = sorted((dist[(mi, ci)], ci) for ci in chain_pool[mi]
                                 if ci not in taken and (mi, ci) in dist)
                     if not ds:
                         continue
-                    if len(ds) == 1 or (ds[1][0] - ds[0][0]) > min_separation:
+                    if len(ds) == 1 or (ds[1][0] - ds[0][0]) > sep:
                         proposals.append((ds[0][0], mi, ds[0][1]))
                 if not proposals:
                     break
