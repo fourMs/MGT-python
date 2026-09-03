@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Events against events** — new `_events` module. `event_alignment` measures how far each
+  event of one stream (strokes, footfalls, looks) falls from the nearest event of another
+  (note onsets, beats, cues) against uniformly placed surrogate references, and says whether
+  the two *attract*, *avoid* or sit at chance, with the signed lag of the nearest reference
+  telling which came first; `event_xcorr` correlates the binned event trains. On the
+  painter–pianist session this separated three takes no envelope correlation had.
+- **Cross-recurrence** — `_correlate.cross_recurrence`: recurrence rate at a fixed radius
+  quantile, determinism, mean line length and the diagonal recurrence profile of two series,
+  each against circular-shift surrogates, so a high determinism from two smooth series is not
+  mistaken for coordination.
+- **The painting as a time series** — new `_canvas` module. `painting_content` reduces a
+  canvas video to one hand-free median frame per second and measures painted share, monotone
+  coverage, chromatic share, the hue histogram (drawn as a *colourgram* by `colourgram_image`),
+  warm/cool balance, edge density, composition (`composition`: paint centre and spread,
+  left–right symmetry, edge-orientation histogram and anisotropy) and a dominant-colour
+  palette per minute. Bound on `MgVideo` as `painting()`.
+- **Head turns from the IMU** — `_pupillabs.head_turns`: yaw relative to a running median,
+  and the spans where the head is turned away from what the wearer has been facing.
+
+## [1.32.0] — 2026-09-03
+
+### Added
+- **ReID v2.1: chains across breaks** — `associate_fragments(embeddings=...)`
+  now links each segment's movers into persistent chains by the same
+  strictly-more-separated appearance rule that links fragments: every segment
+  mover gains a `chain` id, and a new `chains` key maps each chain to its
+  summed coverage and its `[segment, mover]` members. A mover's candidates are
+  the `n_movers` most recently ended chains — the exact counterpart of the
+  fragment-level state; comparing against all history was measured to link
+  almost nothing, since unlinked chains of the same person converge and the
+  margin rule correctly refuses. Where the margin does not clear, a new chain
+  starts; no cross-break identity is ever guessed. Measured on the co-located
+  dance day: the longest per-dancer aggregate grows from one 6.6-minute
+  segment to a 12.7-minute chain over five segments, with 119 chains spanning
+  breaks. Zero new decodes, as priced in the v2 design.
+- **The tutorial notebook is a course** — the 259-cell encyclopedia is now a
+  28-cell gentle introduction in eight parts, from loading a video through the
+  signature visualisations, the quantity of motion, the body, segments and
+  sound to the audio–motion tempo comparison, executed once with images only
+  (6.8 MB where 16 stood) and following the project's prose rules. The Colab
+  install cell brings the `[pose]` extra, and a Colab button joins the
+  README's badge row.
+
 ### Fixed
 - **A failed pose-weights download now raises one clear error** — when the
   OpenPose fallback cannot fetch its weights (the hosted body_25 caffemodel
@@ -28,40 +72,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and masks refusals as NaN rather than leaps to the frame corner. Measured
   on the bundled dancer: two genuine postures (an opening stillness and a
   held moment at 44 s) and 18 actions where both previously reported nothing.
-
-### Added
-- **ReID v2.1: chains across breaks** — `associate_fragments(embeddings=...)`
-  now links each segment's movers into persistent chains by the same
-  strictly-more-separated appearance rule that links fragments: every segment
-  mover gains a `chain` id, and a new `chains` key maps each chain to its
-  summed coverage and its `[segment, mover]` members. A mover's candidates are
-  the `n_movers` most recently ended chains — the exact counterpart of the
-  fragment-level state; comparing against all history was measured to link
-  almost nothing, since unlinked chains of the same person converge and the
-  margin rule correctly refuses. Where the margin does not clear, a new chain
-  starts; no cross-break identity is ever guessed. Measured on the co-located
-  dance day: the longest per-dancer aggregate grows from one 6.6-minute
-  segment to a 12.7-minute chain over five segments, with 119 chains spanning
-  breaks. Zero new decodes, as priced in the v2 design.
-
-- **Events against events** — new `_events` module. `event_alignment` measures how far each
-  event of one stream (strokes, footfalls, looks) falls from the nearest event of another
-  (note onsets, beats, cues) against uniformly placed surrogate references, and says whether
-  the two *attract*, *avoid* or sit at chance, with the signed lag of the nearest reference
-  telling which came first; `event_xcorr` correlates the binned event trains. On the
-  painter–pianist session this separated three takes no envelope correlation had.
-- **Cross-recurrence** — `_correlate.cross_recurrence`: recurrence rate at a fixed radius
-  quantile, determinism, mean line length and the diagonal recurrence profile of two series,
-  each against circular-shift surrogates, so a high determinism from two smooth series is not
-  mistaken for coordination.
-- **The painting as a time series** — new `_canvas` module. `painting_content` reduces a
-  canvas video to one hand-free median frame per second and measures painted share, monotone
-  coverage, chromatic share, the hue histogram (drawn as a *colourgram* by `colourgram_image`),
-  warm/cool balance, edge density, composition (`composition`: paint centre and spread,
-  left–right symmetry, edge-orientation histogram and anisotropy) and a dominant-colour
-  palette per minute. Bound on `MgVideo` as `painting()`.
-- **Head turns from the IMU** — `_pupillabs.head_turns`: yaw relative to a running median,
-  and the spans where the head is turned away from what the wearer has been facing.
 
 ## [1.31.0] — 2026-09-03
 

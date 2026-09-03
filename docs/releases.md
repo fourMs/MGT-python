@@ -1,6 +1,6 @@
 # Release Notes
 
-The current stable release is **MGT-python 1.31.0**.
+The current stable release is **MGT-python 1.32.0**.
 
 Install or upgrade from PyPI:
 
@@ -15,6 +15,21 @@ maintained in the [CHANGELOG](https://github.com/fourMs/MGT-python/blob/master/C
 which is the single source of truth for release notes.
 
 ## Recent highlights
+
+### 1.32.0
+
+The notebook becomes a course, and the pose cache reaches the layers above.
+
+The tutorial notebook is redesigned as a gentle eight-part introduction, from a
+video in your hands to sound against motion, executed once with images only.
+Building it exposed a fault now fixed: the pose cache's flat rows reached the
+posture and action layers in the wrong shape, so postures always counted zero
+and the actions pose path failed; `pose_cache_landmarks()` restores the
+trajectory contract, and a failed weights download raises one clear error
+naming the `[pose]` extra. ReID v2.1 also lands: appearance links each
+segment's movers into persistent chains across breaks, so a dancer finally
+aggregates whole-session, with refusal still the rule where the margin does
+not clear.
 
 ### 1.31.0
 
