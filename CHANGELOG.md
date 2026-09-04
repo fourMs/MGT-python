@@ -32,6 +32,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   NaN (never zeros) and positions converted onto millimetres from the file's declared unit.
   `read_c3d` rides the optional `ezc3d` package, added to the `[c3d]` extra beside the
   pure-Python `c3d` writer dependency; analog channels and events are declaredly not read.
+- **FreeMoCap reader** — `read_freemocap` reads a FreeMoCap recording folder onto the same
+  trajectory contract: the body trajectories from `output_data/mediapipe_body_3d_xyz.npy`
+  (millimetres and NaN gaps already, passed through unchanged) with MediaPipe's 33 landmark
+  names, and the frame rate derived from the recording's own timestamp records the way
+  FreeMoCap itself derives it — `None` with a warning when no record exists, never a guessed
+  default. Hands, face, centre of mass and reprojection errors are declaredly not read.
 
 ## [1.32.0] — 2026-09-03
 
