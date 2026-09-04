@@ -82,6 +82,7 @@ nav:
           - Annotation views: musicalgestures/_views.md
           - Zoomable page: musicalgestures/_zoomview.md
       - Special formats:
+          - Mocap import: musicalgestures/_mocap.md
           - 360 Video: musicalgestures/_360video.md
           - Anglegram (360): musicalgestures/_anglegram.md
       - Complete Reference: MODULES.md
