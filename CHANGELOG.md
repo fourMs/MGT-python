@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **`_tracks.read_columns` failed on any recording long enough to need a pyramid level.**
+  `extract_tracks` and `extract_tracks_parallel` write the base videograms only, and
+  `read_columns` memory-mapped `videogram_v.L<k>.u1` without checking it existed, so the first
+  read of a real concert raised `FileNotFoundError` unless the caller knew to run
+  `build_pyramid` first. It now builds the levels on first use.
+
 ### Added
 - **People on stage** — new `_performers` module. `detect_people` runs a YOLO person detector
   (`ultralytics` extra) at a low frame rate through an ffmpeg pipe; `on_stage` keeps the boxes
@@ -21,6 +28,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `camera_state_at` samples the state at arbitrary times, so motion measures can exclude camera
   motion. `performer_count(..., camera=...)` counts per framing (the 75th percentile of each, the
   widest framing being the estimate), which is what makes the count right with an operated camera.
+- `tracks.json` (and the dict both extractors return) carries `analysis_dir`, so a caller can
+  go from `extract_tracks_parallel(...)` to `read_columns`/`check_tracks` without
+  reconstructing the `analysis/<stem>` path convention.
+- `extract_wav` is exported from the package root.
 - **Events against events** — new `_events` module. `event_alignment` measures how far each
   event of one stream (strokes, footfalls, looks) falls from the nearest event of another
   (note onsets, beats, cues) against uniformly placed surrogate references, and says whether
