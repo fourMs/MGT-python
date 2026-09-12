@@ -25,19 +25,22 @@ import numpy as np
 __all__ = ["camera_motion", "camera_state_at", "still_runs", "make_proxy"]
 
 
-def make_proxy(filename: "str | Path", proxy_path: "str | Path", fps: float = 2.0, height: int = 180) -> Path:
-    """A low-rate, low-resolution copy of the video (ffmpeg), cached at `proxy_path`."""
+def make_proxy(filename: "str | Path", proxy_path: "str | Path", fps: float = 2.0, height: int = 180,
+               ffmpeg_input_args: list[str] | None = None) -> Path:
+    """A low-rate, low-resolution copy of the video (ffmpeg), cached at `proxy_path`.
+    `ffmpeg_input_args` go before ``-i`` (``["-hwaccel", "cuda"]`` decodes on the GPU)."""
     out: Path = Path(proxy_path)
     if not out.exists():
         out.parent.mkdir(parents=True, exist_ok=True)
-        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(filename), "-vf", f"fps={fps},scale=-2:{height}",
+        subprocess.run(["ffmpeg", "-v", "error", "-y", *(ffmpeg_input_args or []), "-i", str(filename), "-vf", f"fps={fps},scale=-2:{height}",
                         "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", str(out)],
                        check=True, capture_output=True)
     return out
 
 
 def camera_motion(filename: "str | Path", proxy_path: "str | Path | None" = None, fps: float = 2.0, height: int = 180, move_px: float = 1.0,
-                  zoom: float = 0.005, min_inliers: int = 15, cache=None, verbose: bool = True) -> dict:
+                  zoom: float = 0.005, min_inliers: int = 15, cache=None, verbose: bool = True,
+                  ffmpeg_input_args: list[str] | None = None) -> dict:
     """Per-sample camera state for a video.
 
     Returns a dict with ``hop_s``, ``t`` (sample times), ``state`` (``still`` / ``moving`` / ``cut``),
@@ -50,7 +53,7 @@ def camera_motion(filename: "str | Path", proxy_path: "str | Path | None" = None
     if cache and Path(cache).exists():
         cached: dict = json.loads(Path(cache).read_text())
         return cached
-    proxy = make_proxy(filename, proxy_path or Path(str(filename)).with_suffix(".camera_proxy.mp4"), fps, height)
+    proxy = make_proxy(filename, proxy_path or Path(str(filename)).with_suffix(".camera_proxy.mp4"), fps, height, ffmpeg_input_args)
     cap = cv2.VideoCapture(str(proxy))
     real_fps = cap.get(cv2.CAP_PROP_FPS) or fps
     orb = cv2.ORB_create(nfeatures=400)  # type: ignore[attr-defined]

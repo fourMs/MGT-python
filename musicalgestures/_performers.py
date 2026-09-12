@@ -25,19 +25,21 @@ __all__ = ["detect_people", "on_stage", "people_track", "performer_count"]
 
 
 def detect_people(filename, fps: float = 1.0, width: int = 640, model: str = "yolo11n.pt",
-                  conf: float = 0.25, device=None, batch: int = 32, verbose: bool = True) -> dict:
+                  conf: float = 0.25, device=None, batch: int = 32, verbose: bool = True,
+                  ffmpeg_input_args: list[str] | None = None) -> dict:
     """Person boxes at `fps` samples per second, from a YOLO detector (``ultralytics`` extra).
 
     Frames are decoded by ffmpeg at `width` pixels (16:9 assumed for the pipe; boxes are
     normalised, so the aspect does not matter downstream). Returns a dict with ``fps``,
     ``model`` and ``frames``: one ``{"t": seconds, "boxes": [[x1, y1, x2, y2, conf], ...]}``
-    per sample, coordinates normalised to 0..1.
+    per sample, coordinates normalised to 0..1. `ffmpeg_input_args` go before ``-i`` (for example
+    ``["-hwaccel", "cuda"]`` to decode a long 1080p50 file on the GPU).
     """
     from ultralytics import YOLO
     W, H0 = get_widthheight(str(filename))
     height = max(2, int(round(width * H0 / W / 2)) * 2)
     yolo = YOLO(model)
-    cmd = ["ffmpeg", "-v", "error", "-i", str(filename), "-vf", f"fps={fps},scale={width}:{height}",
+    cmd = ["ffmpeg", "-v", "error", *(ffmpeg_input_args or []), "-i", str(filename), "-vf", f"fps={fps},scale={width}:{height}",
            "-pix_fmt", "bgr24", "-f", "rawvideo", "-"]
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, bufsize=10 ** 8)
     assert proc.stdout is not None
