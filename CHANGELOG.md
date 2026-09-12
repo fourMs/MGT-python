@@ -7,7 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **`_tracks.read_columns` failed on any recording long enough to need a pyramid level.**
+  `extract_tracks` and `extract_tracks_parallel` write the base videograms only, and
+  `read_columns` memory-mapped `videogram_v.L<k>.u1` without checking it existed, so the first
+  read of a real concert raised `FileNotFoundError` unless the caller knew to run
+  `build_pyramid` first. It now builds the levels on first use.
+
 ### Added
+- `tracks.json` (and the dict both extractors return) carries `analysis_dir`, so a caller can
+  go from `extract_tracks_parallel(...)` to `read_columns`/`check_tracks` without
+  reconstructing the `analysis/<stem>` path convention.
+- `extract_wav` is exported from the package root.
 - **Events against events** — new `_events` module. `event_alignment` measures how far each
   event of one stream (strokes, footfalls, looks) falls from the nearest event of another
   (note onsets, beats, cues) against uniformly placed surrogate references, and says whether

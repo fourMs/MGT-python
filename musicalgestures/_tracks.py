@@ -282,6 +282,7 @@ def extract_tracks(video, out_dir=None, filtertype="Regular", threshold=0.05,
                               "different places keeps a faint ghost of each of them "
                               "everywhere they stood; a median removes them, because at "
                               "any pixel they are a minority of the samples.")
+    meta["analysis_dir"] = str(d)
     (d / "tracks.json").write_text(json.dumps(meta, indent=1) + "\n")
     return meta
 
@@ -330,7 +331,8 @@ def read_columns(analysis_dir, start_s=0.0, end_s=None, max_columns=2000,
     the display can use and read a slice of it, rather than reading everything and
     throwing most of it away.
 
-    Returns (columns, seconds_per_column).
+    Levels are built on first use (`build_pyramid`), so a fresh extraction can be read
+    straight away. Returns (columns, seconds_per_column).
     """
     d = Path(analysis_dir)
     meta = json.loads((d / "tracks.json").read_text())
@@ -350,6 +352,14 @@ def read_columns(analysis_dir, start_s=0.0, end_s=None, max_columns=2000,
         arr = np.memmap(d / meta[which], dtype=np.uint8, mode="r", shape=(n, span))
     else:
         name = f"{which}.L{level}.u1"
+        if not (d / name).exists():
+            #: The extractors write the base only; the levels are cheap and derived, so the
+            #: first reader that needs them builds them rather than failing on a missing file.
+            build_pyramid(d, which=which)
+        if not (d / name).exists():
+            raise FileNotFoundError(
+                f"{name} not in {d}: the pyramid stops above {MIN_LEVEL_COLUMNS} columns, "
+                f"so ask for max_columns >= {MIN_LEVEL_COLUMNS} or read level 0")
         rows = n // stride
         arr = np.memmap(d / name, dtype=np.uint8, mode="r", shape=(rows, span))
 
@@ -434,6 +444,7 @@ def extract_tracks_parallel(video, out_dir=None, workers=None, chunk_s=120.0,
                               "performer everywhere they stood.")
         for f in plate_files:
             f.unlink()
+    meta["analysis_dir"] = str(d)
     (d / "tracks.json").write_text(json.dumps(meta, indent=1) + "\n")
     return meta
 

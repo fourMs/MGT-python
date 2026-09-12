@@ -24,6 +24,7 @@ from musicalgestures._utils import (
     cuda_build_available,
     cuda_unavailable_reason,
     show_progress,
+    extract_wav,
 )
 from musicalgestures._mglist import MgList
 
