@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **People on stage** — new `_performers` module. `detect_people` runs a YOLO person detector
+  (`ultralytics` extra) at a low frame rate through an ffmpeg pipe; `on_stage` keeps the boxes
+  whose heads are in the upper part of the frame and drops the audience cut off by the bottom
+  edge; `performer_count` reports how many perform in a span as a high percentile of the
+  per-frame counts (the wide shots), with median and maximum beside it. Exact for a soloist,
+  a duo and a five-piece band from an operated concert camera; a choir is under-counted.
 - **Events against events** — new `_events` module. `event_alignment` measures how far each
   event of one stream (strokes, footfalls, looks) falls from the nearest event of another
   (note onsets, beats, cues) against uniformly placed surrogate references, and says whether

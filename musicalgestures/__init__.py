@@ -87,6 +87,7 @@ from musicalgestures._analysis import (
 
 # --- Sound--motion signal methods (ro / stillstanding / cymbal / Westney studies) ---
 from musicalgestures._peaks import pick_peaks
+from musicalgestures._performers import detect_people, on_stage, people_track, performer_count
 from musicalgestures._laughter import laughter_score, laughter_segments
 from musicalgestures._coaccentuation import (
     co_accentuation,
