@@ -18,6 +18,7 @@ from __future__ import annotations
 import json
 import subprocess
 from pathlib import Path
+from typing import cast
 
 import numpy as np
 
@@ -111,7 +112,7 @@ def camera_state_at(cam: dict, times) -> np.ndarray:
         labels: list[str] = list(cam["state"])
         idx = np.clip(np.searchsorted(tt, times, side="right") - 1, 0, len(tt) - 1)
         states = [labels[int(i)] for i in idx]
-    return np.array(states, dtype=object)
+    return cast("np.ndarray", np.array(states, dtype=object))
 
 
 def still_runs(cam: dict, start_s: float = 0.0, end_s: float | None = None, min_s: float = 10.0) -> list[tuple[float, float]]:
