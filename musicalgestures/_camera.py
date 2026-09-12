@@ -27,7 +27,9 @@ __all__ = ["camera_motion", "camera_state_at", "still_runs", "make_proxy"]
 def make_proxy(filename, proxy_path, fps: float = 2.0, height: int = 180) -> Path:
     """A low-rate, low-resolution copy of the video (ffmpeg), cached at `proxy_path`."""
     proxy_path = Path(proxy_path)
-    if not proxy_path.exists():
+    if proxy_path.exists():
+        return proxy_path
+    if True:
         proxy_path.parent.mkdir(parents=True, exist_ok=True)
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(filename), "-vf", f"fps={fps},scale=-2:{height}",
                         "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", str(proxy_path)],
@@ -47,11 +49,12 @@ def camera_motion(filename, proxy_path=None, fps: float = 2.0, height: int = 180
     """
     import cv2
     if cache and Path(cache).exists():
-        return json.loads(Path(cache).read_text())
+        cached: dict = json.loads(Path(cache).read_text())
+        return cached
     proxy = make_proxy(filename, proxy_path or Path(str(filename)).with_suffix(".camera_proxy.mp4"), fps, height)
     cap = cv2.VideoCapture(str(proxy))
     real_fps = cap.get(cv2.CAP_PROP_FPS) or fps
-    orb = cv2.ORB_create(nfeatures=400)
+    orb = cv2.ORB_create(nfeatures=400)  # type: ignore[attr-defined]
     bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
     prev: tuple | None = None
     t: list[float] = []; state: list[str] = []; tx: list[float] = []; ty: list[float] = []
@@ -108,7 +111,8 @@ def camera_state_at(cam: dict, times) -> np.ndarray:
         return np.array(["still"] * len(times), dtype=object)
     tt = np.asarray(cam["t"]); st = np.asarray(cam["state"], dtype=object)
     idx = np.clip(np.searchsorted(tt, times, side="right") - 1, 0, len(tt) - 1)
-    return st[idx]
+    out: np.ndarray = st[idx]
+    return out
 
 
 def still_runs(cam: dict, start_s: float = 0.0, end_s: float | None = None, min_s: float = 10.0) -> list[tuple[float, float]]:
