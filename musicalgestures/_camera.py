@@ -24,7 +24,7 @@ import numpy as np
 __all__ = ["camera_motion", "camera_state_at", "still_runs", "make_proxy"]
 
 
-def make_proxy(filename, proxy_path, fps: float = 2.0, height: int = 180) -> Path:
+def make_proxy(filename: "str | Path", proxy_path: "str | Path", fps: float = 2.0, height: int = 180) -> Path:
     """A low-rate, low-resolution copy of the video (ffmpeg), cached at `proxy_path`."""
     out: Path = Path(proxy_path)
     if not out.exists():
@@ -35,7 +35,7 @@ def make_proxy(filename, proxy_path, fps: float = 2.0, height: int = 180) -> Pat
     return out
 
 
-def camera_motion(filename, proxy_path=None, fps: float = 2.0, height: int = 180, move_px: float = 1.0,
+def camera_motion(filename: "str | Path", proxy_path: "str | Path | None" = None, fps: float = 2.0, height: int = 180, move_px: float = 1.0,
                   zoom: float = 0.005, min_inliers: int = 15, cache=None, verbose: bool = True) -> dict:
     """Per-sample camera state for a video.
 
@@ -105,11 +105,13 @@ def camera_motion(filename, proxy_path=None, fps: float = 2.0, height: int = 180
 def camera_state_at(cam: dict, times) -> np.ndarray:
     """The camera state at each time (``still`` when the analysis has nothing there)."""
     times = np.atleast_1d(np.asarray(times, float))
-    if not cam or not cam.get("t"):
-        return np.asarray(["still"] * len(times), dtype=object)
-    tt = np.asarray(cam["t"]); st = np.asarray(cam["state"], dtype=object)
-    idx = np.clip(np.searchsorted(tt, times, side="right") - 1, 0, len(tt) - 1)
-    return np.asarray(st[idx], dtype=object)
+    states: list[str] = ["still"] * len(times)
+    if cam and cam.get("t"):
+        tt = np.asarray(cam["t"], float)
+        labels: list[str] = list(cam["state"])
+        idx = np.clip(np.searchsorted(tt, times, side="right") - 1, 0, len(tt) - 1)
+        states = [labels[int(i)] for i in idx]
+    return np.array(states, dtype=object)
 
 
 def still_runs(cam: dict, start_s: float = 0.0, end_s: float | None = None, min_s: float = 10.0) -> list[tuple[float, float]]:
