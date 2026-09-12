@@ -53,4 +53,4 @@ def test_performer_count_per_framing_ignores_the_moving_camera():
         n = 1 if t < 15 else (4 if t < 20 else 3)     # close shot, then the camera swings past a crowd, then wide
         frames.append({"t": float(t), "boxes": [[0.1 * k, 0.2, 0.1 * k + 0.08, 0.7, 0.9] for k in range(n)]})
     c = performer_count({"fps": 1.0, "frames": frames}, 0, 40, camera=cam)
-    assert c["method"] == "framings" and c["estimate"] == 3 and c["low"] == 1
+    assert c["method"] == "framings-widest" and c["estimate"] == 3 and c["low"] == 1
