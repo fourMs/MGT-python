@@ -14,6 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   edge; `performer_count` reports how many perform in a span as a high percentile of the
   per-frame counts (the wide shots), with median and maximum beside it. Exact for a soloist,
   a duo and a five-piece band from an operated concert camera; a choir is under-counted.
+- **Camera cuts and PTZ** — new `_camera` module. `camera_motion` labels each sample of a video
+  `still`, `moving` or `cut` from ORB matches and a partial-affine RANSAC fit between consecutive
+  frames of a small 2 fps proxy (`make_proxy`), and returns cuts, shots and the share of time in
+  each state; `still_runs` gives the *framings* (still runs between moves and cuts);
+  `camera_state_at` samples the state at arbitrary times, so motion measures can exclude camera
+  motion. `performer_count(..., camera=...)` counts per framing (the 75th percentile of each, the
+  widest framing being the estimate), which is what makes the count right with an operated camera.
 - **Events against events** — new `_events` module. `event_alignment` measures how far each
   event of one stream (strokes, footfalls, looks) falls from the nearest event of another
   (note onsets, beats, cues) against uniformly placed surrogate references, and says whether

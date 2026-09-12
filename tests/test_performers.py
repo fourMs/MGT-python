@@ -39,7 +39,7 @@ def test_performer_count_reads_the_wide_shots():
     # camera mostly on the singer, wide shot of the band now and then
     det = _frames([1, 1, 5, 1, 2, 1, 5, 1, 1, 5])
     c = performer_count(det, 0, 10)
-    assert c == {"estimate": 5, "median": 1, "max": 5, "frames": 10}
+    assert (c["estimate"], c["median"], c["max"], c["frames"], c["method"]) == (5, 1, 5, 10, "percentile")
 
 
 def test_performer_count_respects_the_span():
