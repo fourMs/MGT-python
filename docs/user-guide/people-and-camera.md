@@ -45,5 +45,18 @@ Two uses follow:
   where the plain percentile counted the audience in the band's wide shot; a choir stays
   under-counted because singers occlude each other.
 
+## Lecture halls and long files
+
+A lecture or defence recording differs in two ways. There is no raised stage, so pass
+`head_below=1.0, cut_head_below=1.0` to switch the audience filter off; and the widest framings
+show the hall and the projected slides, whose figures are not the speakers, so count the *typical*
+framing: `performer_count(det, a, b, camera=cam, stat="typical")` takes the median over framings
+instead of the maximum. On a defence this gave 1, 1, 2, 2 for the lecture, the introduction and
+the two opponent discussions.
+
+A 36 GB 1080p50 file decodes on the GPU by passing ffmpeg input options through:
+`detect_people(video, ffmpeg_input_args=["-hwaccel", "cuda"])` and
+`camera_motion(video, ffmpeg_input_args=["-hwaccel", "cuda"])`.
+
 Both analyses cache well: keep the proxy and the detections next to the recording and the
 counts for any span are instant.
