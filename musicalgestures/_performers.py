@@ -108,7 +108,7 @@ def people_track(detections: dict, **filter_kw) -> tuple[np.ndarray, np.ndarray]
 
 def performer_count(detections: dict, start_s: float = 0.0, end_s: float | None = None,
                     percentile: float = 90.0, camera: dict | None = None, min_framing_s: float = 10.0,
-                    **filter_kw) -> dict:
+                    stat: str = "widest", **filter_kw) -> dict:
     """How many performers a span shows.
 
     Without `camera`: ``estimate`` is the `percentile` of the per-frame counts (the wide shots),
@@ -133,7 +133,8 @@ def performer_count(detections: dict, start_s: float = 0.0, end_s: float | None 
             if m.sum() >= 5:
                 vals.append(int(np.percentile(c[m], 75)))
         if vals:
-            return {"estimate": max(vals), "low": min(vals), "median": int(np.median(c)), "max": int(c.max()),
-                    "frames": int(c.size), "framings": len(vals), "method": "framings"}
+            est = max(vals) if stat == "widest" else int(np.median(vals))
+            return {"estimate": est, "low": min(vals), "high": max(vals), "median": int(np.median(c)), "max": int(c.max()),
+                    "frames": int(c.size), "framings": len(vals), "method": f"framings-{stat}"}
     return {"estimate": int(round(float(np.percentile(c, percentile)))), "low": int(np.median(c)),
             "median": int(np.median(c)), "max": int(c.max()), "frames": int(c.size), "method": "percentile"}

@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   edge; `performer_count` reports how many perform in a span as a high percentile of the
   per-frame counts (the wide shots), with median and maximum beside it. Exact for a soloist,
   a duo and a five-piece band from an operated concert camera; a choir is under-counted.
+- `performer_count(..., stat="typical")` takes the median over framings instead of the widest, for
+  lecture halls where the widest framings are the hall and the slides; `detect_people` and
+  `make_proxy` / `camera_motion` take `ffmpeg_input_args` (e.g. `["-hwaccel", "cuda"]`).
 - **Camera cuts and PTZ** — new `_camera` module. `camera_motion` labels each sample of a video
   `still`, `moving` or `cut` from ORB matches and a partial-affine RANSAC fit between consecutive
   frames of a small 2 fps proxy (`make_proxy`), and returns cuts, shots and the share of time in
