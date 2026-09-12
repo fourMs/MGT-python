@@ -26,15 +26,13 @@ __all__ = ["camera_motion", "camera_state_at", "still_runs", "make_proxy"]
 
 def make_proxy(filename, proxy_path, fps: float = 2.0, height: int = 180) -> Path:
     """A low-rate, low-resolution copy of the video (ffmpeg), cached at `proxy_path`."""
-    proxy_path = Path(proxy_path)
-    if proxy_path.exists():
-        return proxy_path
-    if True:
-        proxy_path.parent.mkdir(parents=True, exist_ok=True)
+    out: Path = Path(proxy_path)
+    if not out.exists():
+        out.parent.mkdir(parents=True, exist_ok=True)
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(filename), "-vf", f"fps={fps},scale=-2:{height}",
-                        "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", str(proxy_path)],
+                        "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", str(out)],
                        check=True, capture_output=True)
-    return proxy_path
+    return out
 
 
 def camera_motion(filename, proxy_path=None, fps: float = 2.0, height: int = 180, move_px: float = 1.0,
@@ -108,11 +106,10 @@ def camera_state_at(cam: dict, times) -> np.ndarray:
     """The camera state at each time (``still`` when the analysis has nothing there)."""
     times = np.atleast_1d(np.asarray(times, float))
     if not cam or not cam.get("t"):
-        return np.array(["still"] * len(times), dtype=object)
+        return np.asarray(["still"] * len(times), dtype=object)
     tt = np.asarray(cam["t"]); st = np.asarray(cam["state"], dtype=object)
     idx = np.clip(np.searchsorted(tt, times, side="right") - 1, 0, len(tt) - 1)
-    out: np.ndarray = st[idx]
-    return out
+    return np.asarray(st[idx], dtype=object)
 
 
 def still_runs(cam: dict, start_s: float = 0.0, end_s: float | None = None, min_s: float = 10.0) -> list[tuple[float, float]]:

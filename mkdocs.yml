@@ -44,6 +44,7 @@ nav:
       - Audio-Video Analysis: user-guide/audio-video.md
       - Sound–Movement Analysis Toolkit: user-guide/sound-movement-toolkit.md
       - Eye Tracking, Events & the Canvas: user-guide/eye-tracking-events-canvas.md
+      - People on Stage & Camera Motion: user-guide/people-and-camera.md
   - Reference:
       - Overview: musicalgestures/index.md
       - Core Classes: user-guide/core-classes.md
@@ -66,6 +67,8 @@ nav:
           - Hierarchy: musicalgestures/_hierarchy.md
           - Tracks: musicalgestures/_tracks.md
           - Room and occupancy: musicalgestures/_plate.md
+          - People on stage: musicalgestures/_performers.md
+          - Camera cuts and PTZ: musicalgestures/_camera.md
       - Annotating & interpreting:
           - Annotate: musicalgestures/_annotate.md
           - Timeline: musicalgestures/_timeline.md
