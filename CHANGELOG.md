@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+The unreleased features below were developed for and are exercised end to end by
+[avsegmenter](https://github.com/fourMs/avsegmenter), which segments concert and lecture recordings.
+
 ### Fixed
 - **The `videogram_*` tracks of `extract_tracks` were motiongrams** (#383): they averaged the motion
   frame, not the picture. They are now written as `motiongram_v.u1` / `motiongram_h.u1` under

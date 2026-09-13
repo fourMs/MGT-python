@@ -64,3 +64,12 @@ reads any span at any width.
 
 Both analyses cache well: keep the proxy and the detections next to the recording and the
 counts for any span are instant.
+
+## Where this is used
+
+[avsegmenter](https://github.com/fourMs/avsegmenter) runs these functions, with ambiscape's sound-event
+tagging and musiscape's segmentation chain, over whole concert and lecture recordings: parts, pieces,
+speaker turns, people on stage per camera framing, a web player with an advanced research view, and
+standard archival metadata (EBUCore, IIIF, PREMIS, JAMS, METS, BagIt). It is the worked example of
+`detect_people`, `performer_count(camera=)`, `camera_motion`, `extract_tracks` with true videograms and
+the codec motion vectors used together.
