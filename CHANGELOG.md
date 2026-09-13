@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`extract_videograms`, on by default, `videograms=False` to skip), trimmed so that column *j*
   lines up with motion frame *j*. `read_columns`, `build_pyramid` and `render_timeline` take both
   names; an analysis folder written before the rename serves its motion means under
-  `motiongram_*` and refuses `videogram_*` with a message rather than returning motion data.
+  `motiongram_*` and, under `videogram_*`, with a warning that says what they are.
 - `_mocap.read_c3d` imported `MgError` from `_utils`, where it does not live; mypy on master failed on it.
 - **`_tracks.read_columns` failed on any recording long enough to need a pyramid level.**
   `extract_tracks` and `extract_tracks_parallel` write the base videograms only, and

@@ -58,5 +58,5 @@ def test_legacy_folder_serves_motion_means_under_the_old_name(tmp_path):
                                                "qom": "qom.f4", "videogram_v": "videogram_v.u1", "videogram_h": "videogram_h.u1"}))
     cols, _ = read_columns(d, max_columns=40, which="motiongram_v")     # the honest name works on old data
     assert cols.max() == 7
-    with pytest.raises(FileNotFoundError):
-        read_columns(d, max_columns=40, which="videogram_v")            # and the old name is refused with a reason
+    with pytest.warns(UserWarning, match="motion-frame means"):
+        read_columns(d, max_columns=40, which="videogram_v")            # the old name still works, and says what it is

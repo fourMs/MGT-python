@@ -344,11 +344,13 @@ def _truncate(path: Path, nbytes: int) -> None:
 def _track_file(meta: dict, which: str) -> str:
     """The base file for a track name. Analysis folders written before the motiongram rename hold the
     motion-frame means under the videogram_* keys; those are served for motiongram_* requests, and a
-    videogram_* request on such a folder says so instead of quietly returning motion data."""
+    videogram_* request on such a folder is served with a warning that says what it is."""
     if which in meta:
-        if which.startswith("videogram") and "motiongram_v" not in meta:
-            raise FileNotFoundError(f"{which} in this analysis folder is a motiongram written before the rename; "
-                                    "re-run extract_tracks (or extract_videograms) for a true videogram")
+        if which.startswith("videogram") and "motiongram_v" not in meta and "videogram_frames" not in meta:
+            import warnings
+            warnings.warn(f"{which} in this analysis folder was written before the motiongram rename and holds "
+                          "motion-frame means; re-run extract_tracks (or extract_videograms) for a true videogram",
+                          stacklevel=3)
         return str(meta[which])
     legacy = which.replace("motiongram", "videogram")
     if which.startswith("motiongram") and legacy in meta and "motiongram_v" not in meta:
