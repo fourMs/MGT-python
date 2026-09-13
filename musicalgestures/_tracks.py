@@ -12,7 +12,7 @@ use and the wrong one for a two-hour session, where the cost decomposes like thi
 
 The motiongrams are 71 per cent of it and the area of motion another 12. This module
 does the one pass those numbers argue for: **convert each motion frame to greyscale
-once, and take everything from that** --- the quantity of motion, and both videogram
+once, and take everything from that** --- the quantity of motion, both motiongram
 columns. `centroid()` converts to greyscale internally and then throws the conversion
 away; doing it once and reusing it is most of the saving, and working on one channel
 rather than three is the rest.
@@ -144,8 +144,8 @@ def _chunk_worker(args) -> int:
         cmd += ["-t", f"{dur:.6f}"]
 
     qom = _np.memmap(d / "qom.f4", dtype=_np.float32, mode="r+", shape=(n_total,))
-    vg = _np.memmap(d / "videogram_v.u1", dtype=_np.uint8, mode="r+", shape=(n_total, H))
-    hg = _np.memmap(d / "videogram_h.u1", dtype=_np.uint8, mode="r+", shape=(n_total, W))
+    vg = _np.memmap(d / "motiongram_v.u1", dtype=_np.uint8, mode="r+", shape=(n_total, H))
+    hg = _np.memmap(d / "motiongram_h.u1", dtype=_np.uint8, mode="r+", shape=(n_total, W))
 
     #: total_time drives the progress bar's arithmetic, so it must be a number
     #: even when no bar is wanted --- None makes it subtract from nothing.
@@ -180,7 +180,7 @@ def _chunk_worker(args) -> int:
     return written
 
 
-def extract_tracks(video, out_dir=None, filtertype="Regular", threshold=0.05,
+def extract_tracks(video, out_dir=None, filtertype="Regular", threshold=0.05, videograms=True,
                    blur="None", use_median=False, kernel_size=5,
                    plate_every=None, progress=True) -> dict:
     """Quantity of motion and both videogram bases, in one pass over the video.
@@ -208,8 +208,8 @@ def extract_tracks(video, out_dir=None, filtertype="Regular", threshold=0.05,
 
     d = _analysis_dir(video, out_dir)
     qom_path = d / "qom.f4"
-    vgram_path = d / "videogram_v.u1"      # one column per frame, height H
-    hgram_path = d / "videogram_h.u1"      # one row per frame, width W
+    vgram_path = d / "motiongram_v.u1"     # one column per motion frame, height H
+    hgram_path = d / "motiongram_h.u1"     # one row per motion frame, width W
 
     qom = np.memmap(qom_path, dtype=np.float32, mode="w+", shape=(n_max,))
     vg = np.memmap(vgram_path, dtype=np.uint8, mode="w+", shape=(n_max, H))
@@ -267,10 +267,10 @@ def extract_tracks(video, out_dir=None, filtertype="Regular", threshold=0.05,
         "duration_s": n / fps,
         "filtertype": filtertype, "threshold": threshold, "blur": blur,
         "use_median": use_median, "kernel_size": kernel_size,
-        "qom": qom_path.name, "videogram_v": vgram_path.name,
-        "videogram_h": hgram_path.name,
+        "qom": qom_path.name, "motiongram_v": vgram_path.name,
+        "motiongram_h": hgram_path.name,
         "note": ("qom is the sum of the greyscale motion frame, the same quantity "
-                 "mg_motion writes as QomRaw. The videogram bases hold one column "
+                 "mg_motion writes as QomRaw. The motiongram bases hold one column "
                  "per frame; read them through pyramid levels rather than whole."),
     }
     if plates:
@@ -283,14 +283,79 @@ def extract_tracks(video, out_dir=None, filtertype="Regular", threshold=0.05,
                               "everywhere they stood; a median removes them, because at "
                               "any pixel they are a minority of the samples.")
     meta["analysis_dir"] = str(d)
+    if videograms:
+        meta.update(extract_videograms(video, d, frames=meta["frames"], width=W, height=H))
     (d / "tracks.json").write_text(json.dumps(meta, indent=1) + "\n")
     return meta
+
+
+def extract_videograms(video, analysis_dir, frames=None, width=None, height=None,
+                       ffmpeg_input_args=None) -> dict:
+    """True videograms of the whole video, one column (row) per frame, as memmap bases.
+
+    A videogram averages the *picture* across one axis; the motiongram averages the *motion
+    frame*. `extract_tracks` computes the latter in its pass over the filtered stream, so the
+    videogram needs one more decode, which this does with a single ffmpeg filter graph that
+    writes both axes straight to disk (``videogram_v.u1``: frames × height, ``videogram_h.u1``:
+    frames × width, uint8 grey). When `frames` is given the bases are trimmed at the front to
+    that many rows, so column *j* lines up with motion frame *j* (the motion frame is the
+    difference to the previous picture, hence one fewer). Returns the meta keys to merge.
+    """
+    d = Path(analysis_dir)
+    if width is None or height is None:
+        from musicalgestures._utils import get_widthheight
+        width, height = get_widthheight(str(video))
+    vpath, hpath = d / "videogram_v.u1", d / "videogram_h.u1"
+    graph = (f"[0:v]format=gray,split=2[a][b];[a]scale=1:{height}:flags=area[va];"
+             f"[b]scale={width}:1:flags=area[vb]")
+    cmd = ["ffmpeg", "-v", "error", "-y", *(ffmpeg_input_args or []), "-i", str(video), "-filter_complex", graph,
+           "-map", "[va]", "-f", "rawvideo", "-pix_fmt", "gray", str(vpath),
+           "-map", "[vb]", "-f", "rawvideo", "-pix_fmt", "gray", str(hpath)]
+    import subprocess
+    subprocess.run(cmd, check=True, capture_output=True)
+    n_v = vpath.stat().st_size // height
+    n_h = hpath.stat().st_size // width
+    n = min(n_v, n_h)
+    if frames is not None and n > frames:
+        # keep the last `frames` columns: motion frame j is picture j+1 minus picture j
+        for path, span, count in ((vpath, height, n_v), (hpath, width, n_h)):
+            arr = np.memmap(path, dtype=np.uint8, mode="r", shape=(count, span))
+            tail = np.array(arr[count - frames:])
+            del arr
+            tail.tofile(path)
+        n = frames
+    elif frames is not None and n < frames:
+        for path, span, count in ((vpath, height, n_v), (hpath, width, n_h)):
+            arr = np.memmap(path, dtype=np.uint8, mode="r", shape=(count, span))
+            padded = np.concatenate([np.array(arr), np.zeros((frames - count, span), np.uint8)])
+            del arr
+            padded.tofile(path)
+        n = frames
+    return {"videogram_v": vpath.name, "videogram_h": hpath.name, "videogram_frames": int(n),
+            "videogram_note": "row and column means of the grey picture itself (motiongram_* are those of the motion frame)"}
 
 
 def _truncate(path: Path, nbytes: int) -> None:
     """Cut a memmap file back to the rows that were actually written."""
     with open(path, "r+b") as fh:
         fh.truncate(nbytes)
+
+
+def _track_file(meta: dict, which: str) -> str:
+    """The base file for a track name. Analysis folders written before the motiongram rename hold the
+    motion-frame means under the videogram_* keys; those are served for motiongram_* requests, and a
+    videogram_* request on such a folder is served with a warning that says what it is."""
+    if which in meta:
+        if which.startswith("videogram") and "motiongram_v" not in meta and "videogram_frames" not in meta:
+            import warnings
+            warnings.warn(f"{which} in this analysis folder was written before the motiongram rename and holds "
+                          "motion-frame means; re-run extract_tracks (or extract_videograms) for a true videogram",
+                          stacklevel=3)
+        return str(meta[which])
+    legacy = which.replace("motiongram", "videogram")
+    if which.startswith("motiongram") and legacy in meta and "motiongram_v" not in meta:
+        return str(meta[legacy])
+    raise KeyError(f"{which} not in tracks.json (have {sorted(k for k in meta if k.endswith(('_v', '_h')))})")
 
 
 def build_pyramid(analysis_dir, which="videogram_v") -> list[Path]:
@@ -306,8 +371,8 @@ def build_pyramid(analysis_dir, which="videogram_v") -> list[Path]:
     d = Path(analysis_dir)
     meta = json.loads((d / "tracks.json").read_text())
     n, H, W = meta["frames"], meta["height"], meta["width"]
-    span = H if which == "videogram_v" else W
-    base = np.memmap(d / meta[which], dtype=np.uint8, mode="r", shape=(n, span))
+    span = H if which.endswith("_v") else W
+    base = np.memmap(d / _track_file(meta, which), dtype=np.uint8, mode="r", shape=(n, span))
 
     out, level, cur = [], 0, np.asarray(base)
     while cur.shape[0] > MIN_LEVEL_COLUMNS:
@@ -337,7 +402,7 @@ def read_columns(analysis_dir, start_s=0.0, end_s=None, max_columns=2000,
     d = Path(analysis_dir)
     meta = json.loads((d / "tracks.json").read_text())
     n, fps = meta["frames"], meta["fps"]
-    span = meta["height"] if which == "videogram_v" else meta["width"]
+    span = meta["height"] if which.endswith("_v") else meta["width"]
     end_s = meta["duration_s"] if end_s is None else end_s
     want = max(1, int((end_s - start_s) * fps))
 
@@ -349,7 +414,7 @@ def read_columns(analysis_dir, start_s=0.0, end_s=None, max_columns=2000,
         stride *= 2
         level += 1
     if level == 0:
-        arr = np.memmap(d / meta[which], dtype=np.uint8, mode="r", shape=(n, span))
+        arr = np.memmap(d / _track_file(meta, which), dtype=np.uint8, mode="r", shape=(n, span))
     else:
         name = f"{which}.L{level}.u1"
         if not (d / name).exists():
@@ -371,7 +436,7 @@ def read_columns(analysis_dir, start_s=0.0, end_s=None, max_columns=2000,
 def extract_tracks_parallel(video, out_dir=None, workers=None, chunk_s=120.0,
                             filtertype="Regular", threshold=0.05, blur="None",
                             use_median=False, kernel_size=5, plate_every=None,
-                            resume=True) -> dict:
+                            resume=True, videograms=True) -> dict:
     """The same pass, split over processes by time. Resumable.
 
     The work is embarrassingly parallel because each frame's motion depends only on
@@ -390,8 +455,8 @@ def extract_tracks_parallel(video, out_dir=None, workers=None, chunk_s=120.0,
     d = _analysis_dir(video, out_dir)
 
     for name, dt, shape in (("qom.f4", np.float32, (n_total,)),
-                            ("videogram_v.u1", np.uint8, (n_total, H)),
-                            ("videogram_h.u1", np.uint8, (n_total, W))):
+                            ("motiongram_v.u1", np.uint8, (n_total, H)),
+                            ("motiongram_h.u1", np.uint8, (n_total, W))):
         if not (d / name).exists() or not resume:
             m = np.memmap(d / name, dtype=dt, mode="w+", shape=shape)
             m.flush(); del m
@@ -419,17 +484,18 @@ def extract_tracks_parallel(video, out_dir=None, workers=None, chunk_s=120.0,
     n = written or n_total
 
     _truncate(d / "qom.f4", n * 4)
-    _truncate(d / "videogram_v.u1", n * H)
-    _truncate(d / "videogram_h.u1", n * W)
+    _truncate(d / "motiongram_v.u1", n * H)
+    _truncate(d / "motiongram_h.u1", n * W)
 
     meta = {"video": str(video), "frames": n, "fps": fps, "width": W, "height": H,
             "duration_s": n / fps, "filtertype": filtertype, "threshold": threshold,
             "blur": blur, "use_median": use_median, "kernel_size": kernel_size,
             "workers": workers, "chunk_s": chunk_s,
-            "qom": "qom.f4", "videogram_v": "videogram_v.u1",
-            "videogram_h": "videogram_h.u1",
+            "qom": "qom.f4", "motiongram_v": "motiongram_v.u1",
+            "motiongram_h": "motiongram_h.u1",
             "note": ("qom is the sum of the greyscale motion frame, the quantity "
-                     "mg_motion writes as QomRaw. Chunks overlap by one frame and "
+                     "mg_motion writes as QomRaw; the motiongram bases are the row and "
+                     "column means of that motion frame. Chunks overlap by one frame and "
                      "discard it, because the first frame after a seek has no "
                      "predecessor to differ from.")}
 

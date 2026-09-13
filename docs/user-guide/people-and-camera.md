@@ -58,5 +58,9 @@ A 36 GB 1080p50 file decodes on the GPU by passing ffmpeg input options through:
 `detect_people(video, ffmpeg_input_args=["-hwaccel", "cuda"])` and
 `camera_motion(video, ffmpeg_input_args=["-hwaccel", "cuda"])`.
 
+For the picture itself over a whole recording, `extract_tracks` now also writes true videograms
+(`videogram_v.u1`, one column per frame) next to the motiongrams; `read_columns(dir, which="videogram_v")`
+reads any span at any width.
+
 Both analyses cache well: keep the proxy and the detections next to the recording and the
 counts for any span are instant.

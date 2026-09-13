@@ -237,7 +237,7 @@ def read_c3d(path: str) -> tuple[list[str], np.ndarray, float]:
     try:
         import ezc3d
     except ImportError as exc:
-        from musicalgestures._utils import MgError
+        from musicalgestures._exceptions import MgError
         raise MgError(
             "Reading C3D files requires the 'ezc3d' package. Install it with: "
             "pip install musicalgestures[c3d] (or: pip install ezc3d)"

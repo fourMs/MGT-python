@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- **The `videogram_*` tracks of `extract_tracks` were motiongrams** (#383): they averaged the motion
+  frame, not the picture. They are now written as `motiongram_v.u1` / `motiongram_h.u1` under
+  `motiongram_*` keys, and true videograms come from one extra ffmpeg filter graph
+  (`extract_videograms`, on by default, `videograms=False` to skip), trimmed so that column *j*
+  lines up with motion frame *j*. `read_columns`, `build_pyramid` and `render_timeline` take both
+  names; an analysis folder written before the rename serves its motion means under
+  `motiongram_*` and, under `videogram_*`, with a warning that says what they are.
+- `_mocap.read_c3d` imported `MgError` from `_utils`, where it does not live; mypy on master failed on it.
 - **`_tracks.read_columns` failed on any recording long enough to need a pyramid level.**
   `extract_tracks` and `extract_tracks_parallel` write the base videograms only, and
   `read_columns` memory-mapped `videogram_v.L<k>.u1` without checking it existed, so the first
