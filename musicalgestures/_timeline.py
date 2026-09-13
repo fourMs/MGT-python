@@ -144,7 +144,7 @@ def render_timeline(analysis_dir, start_s: float = 0.0, end_s=None,
     i1 = max(min(int(end_s * fps), n_frames), i0 + 1)
 
     for ax, panel in zip(axes, drawn):
-        if panel in ("videogram_v", "videogram_h"):
+        if panel in ("videogram_v", "videogram_h", "motiongram_v", "motiongram_h"):
             from musicalgestures._tracks import read_columns
             cols, spc = read_columns(d, start_s, end_s, max_columns=n_columns,
                                      which=panel)
@@ -152,7 +152,7 @@ def render_timeline(analysis_dir, start_s: float = 0.0, end_s=None,
                 ax.imshow(cols.T, aspect="auto", origin="lower", cmap="magma",
                           extent=(start_s, end_s, 0, cols.shape[1]))
                 factor = max(factor, int(round(spc * fps)))
-            ax.set_ylabel(panel.replace("videogram_", "videogram "))
+            ax.set_ylabel(panel.replace("_", " "))
             ax.set_yticks([])
 
         elif panel == "qom":

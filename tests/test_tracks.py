@@ -169,8 +169,8 @@ def test_chunk_worker_reaps_its_decoder(tmp_path):
     v = _synth(tmp_path / "leak.mp4", seconds=8)
     fps, W, H, n_total = 25.0, 320, 240, 208
     for name, dt, shape in (("qom.f4", np.float32, (n_total,)),
-                            ("videogram_v.u1", np.uint8, (n_total, H)),
-                            ("videogram_h.u1", np.uint8, (n_total, W))):
+                            ("motiongram_v.u1", np.uint8, (n_total, H)),
+                            ("motiongram_h.u1", np.uint8, (n_total, W))):
         m = np.memmap(tmp_path / name, dtype=dt, mode="w+", shape=shape)
         m.flush()
         del m
