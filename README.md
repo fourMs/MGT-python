@@ -41,6 +41,21 @@ You can also try the toolbox in the browser, with no installation:
 - [Wiki](https://github.com/fourMs/MGT-python/wiki) — examples and discussion of the methods
 - [Contributing](docs/contributing.md) — how to report issues and submit changes
 
+## What you can reuse
+
+Parts of the toolbox that work on their own, without the rest of the pipeline:
+
+- the FFmpeg convenience bindings in `musicalgestures._utils`, for probing, converting, trimming and concatenating any media file
+- `MgVideo` and the result objects, which load a file once and hand every analysis the same frames, with `.show()` on the result
+- the motiongram and videogram renderers, which draw from any frame source
+- the pose backends (MediaPipe, RTMPose, YOLO) behind one interface, so a study can switch estimator without changing its analysis
+- audio and video alignment (`xcorr_lag`, sync marks) and the timecode helpers, which put two recordings on one clock
+- importers for ELAN annotations and Pupil Labs eye-tracking exports, which turn events into series on the video's clock
+
+## What it does not do
+
+musicalgestures is file-based and non-real-time. It does not track expressive qualities as a stream ([PyEyesWeb](https://github.com/InfoMusCP/PyEyesWeb) does), does not compute joint angles, body-segment models or 3D animation ([Kinetics Toolkit](https://kineticstoolkit.uqam.ca/) does, with C3D and events), and does not lay data out as BIDS. Motion series from markers or sensors go to micromotion, sound of places to ambiscape, and collections of music to musiscape, as the table below says.
+
 ## The four toolboxes
 
 As the toolbox has grown, we split it into four related packages, each released separately on PyPI. They are complementary but focus on different things:

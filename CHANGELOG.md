@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Documentation: README gains "What you can reuse" and "What it does not do", naming Kinetics Toolkit, PyEyesWeb and librosa as the tools for what this package leaves out (2026-09-18).
+
 The unreleased features below were developed for and are exercised end to end by
 [avsegmenter](https://github.com/fourMs/avsegmenter), which segments concert and lecture recordings.
 
